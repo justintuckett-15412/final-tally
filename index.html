@@ -3,8 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#EDF0F3" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0F151C" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#EDF0F3">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -1629,7 +1628,8 @@ function syncSec(){const F=window.FTSYNC;if(!F)return '';const st=F.status();
     <div class="rlab">Share games, players and house rules between every phone, tablet and laptop in the family.</div>
     <button class="btn primary" data-a="synccreate" ${SYNCBUSY?'disabled':''}>Create a family code</button>
     <div class="rlab"><b>Already have a code?</b> Type it here to join.</div>
-    <input id="sync-code" class="search" value="${esc(famCode(SYNCPRE))}" placeholder="ABCD-EFGH-JKLM" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="14" enterkeyhint="go">
+    <input id="sync-code" class="search" value="${esc(famCode(SYNCPRE))}" placeholder="ABCD-EFGH-JKLM" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" maxlength="14" enterkeyhint="go">
+    <div class="rlab">No need to type the dashes. Capital or small letters both work.</div>
     <button class="btn" data-a="syncjoin" ${SYNCBUSY?'disabled':''}>Join this family</button></div>
     <p class="hint">${msg}${SYNCBUSY?'Working on it\u2026':'Joining brings this device\u2019s games into the family. If a game is in progress on both, the one played most recently is kept.'}</p></div>`}
 async function syncDo(fn){if(SYNCBUSY)return;SYNCBUSY=true;SYNCMSG='';render();try{SYNCMSG=await fn()||''}catch(e){SYNCMSG=(e&&e.message)||'That didn\u2019t work. Check your internet connection and try again.'}SYNCBUSY=false;render()}
@@ -1638,7 +1638,7 @@ window.ftRemote=function(keys){if(!keys.includes(GKEY(S.game||'ttr'))||S.demo||S
   const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)){FTPEND=true;return}
   FTPEND=false;const n=load();if(n){const scr=S.screen;S=n;if(S.screen!==scr&&scr==='settings')S.screen=scr}render()};
 window.ftOpenSync=function(code){SYNCPRE=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12);if(S.screen!=='settings'){SETBACK=S.screen;S.screen='settings'}render();setTimeout(()=>{const e=document.getElementById('syncsec');if(e)e.scrollIntoView({block:'start'})},50)};
-window.ftPing=()=>{if(S.screen==='settings'||S.screen==='home')render()};
+window.ftPing=()=>{const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return;if(S.screen==='settings'||S.screen==='home')render()};
 
 /* ---------- sample games ---------- */
 const DEMOS=[
@@ -6174,6 +6174,7 @@ document.addEventListener('keydown',e=>{
   const i=e.target.dataset.name;if(i!==undefined&&e.key==='Enter'){e.preventDefault();
   const ins=[...document.querySelectorAll('[data-name]')];const nx=ins[ins.indexOf(e.target)+1];nx?nx.focus():e.target.blur()}});
 document.addEventListener('input',e=>{
+  if(e.target.id==='sync-code'){const el=e.target,raw=el.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12),f=famCode(raw);SYNCPRE=raw;if(el.value!==f){el.value=f;try{el.setSelectionRange(f.length,f.length)}catch(x){}}return}
   if(e.target.id==='hq'){const q=e.target.value.trim().toLowerCase();let n=0;document.querySelectorAll('.hcat').forEach(b=>b.hidden=!!q);document.querySelectorAll('.hcat-body').forEach(d=>{d.hidden=q?false:d.dataset.cat!==HOMECAT});document.querySelectorAll('.hg').forEach(g=>{const m=!q||q.split(/\s+/).every(w=>g.dataset.gn.includes(w));g.hidden=!m;if(m)n++});const hl=document.querySelector('.hlive');if(hl)hl.hidden=!!q;const no=document.querySelector('.hnone');if(no)no.hidden=!(q&&!n);return}
   if(e.target.dataset.tname&&TD){TD.name=e.target.value;return}
   if(e.target.dataset.pxname){PX().name=e.target.value;pxKeep();save();return}
@@ -6627,6 +6628,7 @@ render();
 </script>
 
 <script type="module" src="fb-firebase.js"></script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));window.FT_BUILD='ef41909d88';</script>
+<script>(function(){var m=document.querySelector('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;if(c&&m.content!==c)m.content=c}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));window.FT_BUILD='fc2ca9a165';</script>
 </body>
 </html>

@@ -28,8 +28,7 @@ json.dump(manifest,open(f'{OUT}/manifest.webmanifest','w'),indent=1)
 # page: move the artifact's head-ish lines into a real <head>
 head_extra='''<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#EDF0F3" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0F151C" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#EDF0F3">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -40,7 +39,7 @@ html=html.replace('<link rel="icon" type="image/jpeg" href="art/app-icon.jpg">',
 body_start=html.index('<style>')
 head=html[:body_start]; rest=html[body_start:]
 ver=hashlib.sha1((html+''.join(sorted(files))+open('/home/claude/site-tools/sync.js').read()+open('/home/claude/site-tools/fb-firebase.js').read()+open('/home/claude/site-tools/sw.js').read()).encode()).hexdigest()[:10]
-sw_reg=f'''<script type="module" src="fb-firebase.js"></script>\n<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{{}}));window.FT_BUILD='{ver}';</script>'''
+sw_reg=f'''<script type="module" src="fb-firebase.js"></script>\n<script>(function(){{var m=document.querySelector('meta[name=theme-color]');function t(){{try{{var c=getComputedStyle(document.body).backgroundColor;if(c&&m.content!==c)m.content=c}}catch(e){{}}}}t();setTimeout(t,300);try{{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){{setTimeout(t,50)}})}}catch(e){{}}new MutationObserver(t).observe(document.documentElement,{{attributes:true,attributeFilter:['data-theme','class']}})}})();</script>\n<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{{}}));window.FT_BUILD='{ver}';</script>'''
 page=f'<!doctype html>\n<html lang="en">\n<head>\n{head_extra}\n{head}</head>\n<body>\n{rest}\n{sw_reg}\n</body>\n</html>\n'
 open(f'{OUT}/index.html','w').write(page)
 sw=open('/home/claude/site-tools/sw.js').read().replace('__VER__',ver).replace('__FILES__',json.dumps(['./','index.html','manifest.webmanifest','sync.js','fb-firebase.js']+sorted(files)))
