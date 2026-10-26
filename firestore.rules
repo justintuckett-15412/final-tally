@@ -10,6 +10,13 @@ service cloud.firestore {
         allow read, write: if request.auth != null;
       }
     }
+    // Linked games: anyone with the 6-number code can join that one game.
+    match /games/{code} {
+      allow get, create, update: if request.auth != null && code.size() == 6;
+      match /p/{player} {
+        allow read, write: if request.auth != null;
+      }
+    }
     // Everything else is closed.
     match /{other=**} {
       allow read, write: if false;

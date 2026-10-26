@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
 <script>(function(){try{var P=Storage.prototype,rs=P.setItem,rr=P.removeItem;
-var ok=function(k){return k==='finaltally.v1'||(k.indexOf('finaltally.v1.')===0&&!/\.(tmp|real|homecat|lastbk)$/.test(k))};
+var ok=function(k){return k==='finaltally.v1'||(k.indexOf('finaltally.v1.')===0&&!/\.(tmp|real|homecat|lastbk|linked|lkon)$/.test(k))};
 var mark=function(st,k){try{if(st!==window.localStorage||!ok(k)||!st.getItem('ft.family'))return;var d=JSON.parse(st.getItem('ft.dirty')||'{}');d[k]=Date.now();rs.call(st,'ft.dirty',JSON.stringify(d));if(window.ftDirty)window.ftDirty()}catch(e){}};
 P.setItem=function(k,v){var same=false;try{same=this.getItem(k)===String(v)}catch(e){}rs.call(this,k,v);if(!same)mark(this,String(k))};
 P.removeItem=function(k){var had=this.getItem(k)!==null;rr.call(this,k);if(had)mark(this,String(k))};
@@ -490,6 +490,12 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .swatch.sm{width:22px;height:22px;border-radius:6px}
 .rv-sub{display:block;font-size:13px;font-weight:700;color:var(--muted);min-height:1em;transform-origin:left center}
 
+.lkbar{display:flex;align-items:center;gap:8px;margin-top:12px;padding:6px 6px 6px 4px;border-radius:12px;background:var(--surface);border:1.5px solid var(--accent)}
+.lkbar.open{border-radius:12px 12px 0 0}
+.lkb-main{flex:1;display:flex;align-items:center;gap:8px;min-width:0;background:none;border:0;color:var(--ink);font:inherit;text-align:left;padding:6px 8px;cursor:pointer}
+.lkb-code{white-space:nowrap}.lkb-st{flex:1;min-width:0;font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lkb-main .chev{color:var(--muted)}
+.lkpanel{padding:8px 12px 12px;border:1.5px solid var(--accent);border-top:0;border-radius:0 0 12px 12px;background:var(--surface);display:grid;gap:6px}
+.lkpanel .prow{flex-wrap:wrap;padding:6px 0 0}.lkbtn{margin-left:auto;white-space:nowrap}
 .demo-bar{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--accent);color:var(--accent-ink);font-size:14px}
 .demo-bar span{font-size:13px;opacity:.85}
 .demo-bar .btn{min-height:40px;background:var(--surface);color:var(--ink);flex:none}
@@ -1049,12 +1055,13 @@ const GKEY=g=>g==='carc'?KEY+'.carc':g==='hf'?KEY+'.hf':g==='canasta'?KEY+'.cana
 let CURG='ttr';try{CURG=localStorage.getItem('finaltally.cur')||'ttr'}catch(e){}
 function load(){try{const s=JSON.parse(localStorage.getItem(GKEY(CURG)));return s&&s.players?s:null}catch(e){return null}}
 function gamePeek(g){if((S.game||'ttr')===g&&!S.demo&&!S.editing)return S;try{return JSON.parse(localStorage.getItem(GKEY(g)))}catch(e){return null}}
-function switchGame(g){if((S.game||'ttr')===g&&!S.demo&&!S.editing)return;if(S.demo||S.editing){exitDemo()}if((S.game||'ttr')===g)return;save();
+function switchGame(g){if(S.lk&&S.lk.role==='guest'&&!S.demo&&(S.game||'ttr')!==g){toast('Leave the linked game first (home screen, Linked game).');throw new Error('linked')}if((S.game||'ttr')===g&&!S.demo&&!S.editing)return;if(S.demo||S.editing){exitDemo()}if((S.game||'ttr')===g)return;save();
   CURG=g;try{localStorage.setItem('finaltally.cur',g)}catch(e){}let n=null;try{n=JSON.parse(localStorage.getItem(GKEY(g)))}catch(e){}
   S=n&&n.players?n:(g==='carc'?cFresh():g==='hf'?hfFresh():g==='canasta'?hfFresh('canasta'):g==='nerts'?nxFresh():g==='pad'?pxFresh():g==='darts'?dtFresh():g==='pool'?plFresh():g==='hearts'?htFresh():g==='spades'?sdFresh():g==='rage'?rgFresh():g==='crowns'?fcFresh():g==='skipbo'?sbFresh():g==='gnome'?gnFresh():g==='skyjo'?skFresh():g==='golf'?gfFresh():g==='tripoley'?tpFresh():g==='quacks'?qkFresh():fresh());UNDO=[];KP='';WARN=null;REV=null;CALC=null}
-function save(){try{if(S.demo||S.editing){localStorage.setItem(KEY+'.tmp',JSON.stringify(S));return}if(S.started&&!S.finished&&!S.demo){const j=JSON.stringify({p:S.players,x:S.picks,l:S.log});if(j!==S._sig){S._sig=j;S.touched=Date.now()}}localStorage.setItem(GKEY(S.game||'ttr'),JSON.stringify(S))}catch(e){}}
+function save(){try{if(S.lk&&S.lk.role==='guest'&&!S.demo){localStorage.setItem(KEY+'.linked',JSON.stringify(S));lkPush();return}if(S.demo||S.editing){localStorage.setItem(KEY+'.tmp',JSON.stringify(S));return}if(S.started&&!S.finished&&!S.demo){const j=JSON.stringify({p:S.players,x:S.picks,l:S.log});if(j!==S._sig){S._sig=j;S.touched=Date.now()}}localStorage.setItem(GKEY(S.game||'ttr'),JSON.stringify(S));if(S.lk)lkPush()}catch(e){}}
 function defaultRules(k){const m=MAPS[k],r={};(m.presets?m.presets[0].on:[]).concat(m.defaults).forEach(id=>r[id]=true);return r}
 let S=load()||(CURG==='carc'?cFresh():CURG==='hf'?hfFresh():CURG==='canasta'?hfFresh('canasta'):CURG==='nerts'?nxFresh():CURG==='pad'?pxFresh():CURG==='darts'?dtFresh():CURG==='pool'?plFresh():CURG==='hearts'?htFresh():CURG==='spades'?sdFresh():CURG==='rage'?rgFresh():CURG==='crowns'?fcFresh():CURG==='skipbo'?sbFresh():CURG==='gnome'?gnFresh():CURG==='skyjo'?skFresh():CURG==='golf'?gfFresh():CURG==='tripoley'?tpFresh():CURG==='quacks'?qkFresh():fresh());
+try{if(localStorage.getItem(KEY+'.lkon')){const g=JSON.parse(localStorage.getItem(KEY+'.linked'));if(g&&g.players&&g.lk)S=g}}catch(e){}
 let WELCOME=!!(S.started&&!S.finished&&!S.demo&&!S.editing&&S.screen!=='home');
 if(S.game!=='carc'&&!HFE()&&S.game!=='nerts'&&S.game!=='pad'&&S.game!=='darts'&&S.game!=='pool'&&S.game!=='hearts'&&S.game!=='spades'&&S.game!=='rage'&&S.game!=='crowns'&&S.game!=='skipbo'&&S.game!=='gnome'&&S.game!=='skyjo'&&S.game!=='golf'&&S.game!=='tripoley'&&S.game!=='quacks'&&!MAPS[S.map])S.map='usa';
 const M=()=>S.game==='carc'?CM():HFE()?HM():S.game==='nerts'?NM():S.game==='pad'?PM():S.game==='darts'?DM():S.game==='pool'?PLM():S.game==='hearts'?HTM():S.game==='spades'?SDM():S.game==='rage'?RGM():S.game==='crowns'?FCM():S.game==='skipbo'?SBM():S.game==='gnome'?GNM():S.game==='skyjo'?SKM():S.game==='golf'?GFM():S.game==='tripoley'?TPM():S.game==='quacks'?QKM():MAPS[S.map];
@@ -1173,6 +1180,7 @@ function home(){
     const live=[['ttr','Ticket to Ride'],['carc','Carcassonne'],['quacks','Quacks'],['hf','Hand and Foot'],['canasta','Canasta'],['nerts','Nerts'],['hearts','Hearts'],['spades','Spades'],['rage','Rage'],['crowns','Five Crowns'],['skipbo','Skip-Bo'],['gnome','Gnoming A Round'],['skyjo','Skyjo'],['golf','Golf'],['tripoley','Tripoley'],['darts','Darts'],['pool','Pool'],['pad','Score pad']].filter(([k])=>{const st=gamePeek(k);return st&&st.started&&!st.finished});
     return `<div class="hsearch"><input type="search" id="hq" placeholder="Search games" aria-label="Search games" autocomplete="off"></div>
     ${live.length?`<div class="hlive"><h3 class="home-cat">Pick up where you left off</h3><div class="lr">${live.map(([k,n])=>`<button data-a="gresume" data-k="${k}">▶ ${esc(n)}</button>`).join('')}</div></div>`:''}
+    ${lkHomeCard()}
     <div class="hcats">${CATS.map(([k,n,ic,cards])=>{const open=HOMECAT===k;return `<button class="hcat" data-a="hcat" data-k="${k}" aria-expanded="${open}"><img src="art/${ic}" alt="" width="44" height="44" onerror="this.remove()"><span><b>${n}</b><small>${cards.length} game${cards.length===1?'':'s'}</small></span><i>${open?'▾':'›'}</i></button><div class="hcat-body" data-cat="${k}" ${open?'':'hidden'}>${cards.join('')}</div>`}).join('')}</div>
     <p class="hint hnone" hidden>No games match. Try the Score pad for anything else.</p>`})()}
   ${eventCard()}
@@ -1471,7 +1479,7 @@ function awardsHtml(){const a=awards();if(!a.length)return '';
   return `<div class="sec"><div class="sec-h"><h3>Awards</h3></div><div class="awards">${a.map(x=>`<div class="award">${BADGE[x.title]?`<img class="badge" src="badges/${BADGE[x.title]}.png" alt="" width="160" height="160">`:''}<b>${x.title}</b><span>${x.ps.map(p=>`<i style="${pc(p.color)}"></i>${esc(nm(p))}`).join(' ')}</span><small>${esc(x.why)}</small></div>`).join('')}</div></div>`}
 
 function saveGame(){
-  if(S.demo)return;
+  if(S.demo||(S.lk&&S.lk.role==='guest'))return;
   if(!S.gameId){S.gameId=uid()+uid();S.gameDate=new Date().toISOString()}
   let rosterChanged=false;
   const HFG=HFE()||(S.game==='pool'&&PLM().teams);
@@ -1585,7 +1593,7 @@ function playRoll(dur){const c=ac();if(!c)return;if(playSample('roll'))return;co
   timpani(c,at,49,.7)}
 function finalSound(){
   if(!SET.sound)return;const win=ranking().list.filter(x=>x.rank===1).map(x=>x.p);
-  const me=S.demo==='link'?viewedPlayer():S.demo?null:SET.me&&act().find(p=>nm(p).toLowerCase()===SET.me.toLowerCase());
+  const me=S.demo==='link'?viewedPlayer():S.demo?null:S.lk&&S.lk.me?act().find(p=>p.id===S.lk.me):SET.me&&act().find(p=>nm(p).toLowerCase()===SET.me.toLowerCase());
   if(me&&!win.includes(me))playLose();else playWin()}
 
 /* ---------- settings screen ---------- */
@@ -1615,6 +1623,97 @@ function settingsScreen(){
     <p class="hint">At the reveal, this phone cheers if its owner wins and plays the sad trombone if they don't. Set to nobody, it always cheers for the winner. Once phones are linked, each phone does this for its own player.</p></div>
   <p class="hint">These settings apply to this device only.</p>`;
 }
+
+/* ---------- linked games: several phones in one game (installed app: window.FTLINK comes from sync.js) ---------- */
+/* Each phone keeps its own screen; everything else in the game is shared. Each player is stored separately, so two
+   phones scoring different players at the same moment don't overwrite each other. */
+const LKLOCAL=['screen','active','hr','demo','link','lk','_sig','editing','endShown','psel','dmul','skgrid','gfgrid','gngrid','fctap','tkmode','lastTick','playMs'];
+let LKLAST={main:null,order:null,ps:{}},LKSEATS={},LKRV=null,LKMUTE=false,LKT=null,LKOPEN=false,LKMSG='',LKBUSY=false,LKCODE='',LKPEND=false,LKSTOP=false;
+const stable=o=>o===null||typeof o!=='object'?JSON.stringify(o):Array.isArray(o)?'['+o.map(x=>x===undefined?'null':stable(x)).join(',')+']':'{'+Object.keys(o).filter(k=>o[k]!==undefined).sort().map(k=>JSON.stringify(k)+':'+stable(o[k])).join(',')+'}';
+function lkSplit(){const main={};for(const k in S){if(k!=='players'&&!LKLOCAL.includes(k))main[k]=S[k]}
+  return {main:stable(main),order:S.players.map(p=>p.id),ps:Object.fromEntries(S.players.map(p=>[p.id,stable(p)]))}}
+const lkGuest=()=>!!(S.lk&&S.lk.role==='guest');
+const lkHost=()=>!!(S.lk&&S.lk.role==='host');
+function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK)return;if(lkHost()&&LKRV&&S.started&&!S.finished){LKRV=null;window.FTLINK.reveal(false,Object.keys(LKSEATS).filter(id=>LKSEATS[id]&&LKSEATS[id].dev))}clearTimeout(LKT);LKT=setTimeout(()=>{if(!S.lk)return;const x=lkSplit(),u={};
+  if(x.main!==LKLAST.main){u.main=x.main;LKLAST.main=x.main}
+  if(stable(x.order)!==stable(LKLAST.order)){u.order=x.order;LKLAST.order=x.order}
+  const ps={};for(const id in x.ps)if(x.ps[id]!==LKLAST.ps[id]){ps[id]=x.ps[id];LKLAST.ps[id]=x.ps[id]}
+  if(Object.keys(ps).length)u.ps=ps;if(Object.keys(u).length)window.FTLINK.push(u)},250)}
+const lkSeated=()=>Object.entries(LKSEATS).filter(([id,s])=>s&&s.dev&&act().some(p=>p.id===id));
+const lkReadyN=()=>lkSeated().filter(([,s])=>s.ready).length;
+const lkMine=()=>S.lk&&S.lk.me?LKSEATS[S.lk.me]:null;
+function lkScreen(){return S.finished?'results':S.rules&&S.rules.live?'live':S.game==='carc'?'live':'score'}
+function lkGo(){if(lkGuest()&&!S.started){S.screen='lkwait';return}if(S.lk&&S.lk.me===undefined){S.screen='lkwho';return}if(['lkwait','lkwho','home'].includes(S.screen)||lkGuest()&&['map','rules','players'].includes(S.screen))S.screen=lkScreen()}
+/* sync.js hands every change from the other phones to this */
+window.lkRecv=function(u){if(!S.lk)return;
+  if(u.gone){const was=lkGuest();lkClear(was?'The host ended the linked game.':'');return}
+  if(u.seats)LKSEATS=u.seats||{};
+  let changed=false;
+  if(typeof u.main==='string'&&u.main!==LKLAST.main){const m=JSON.parse(u.main);for(const k of Object.keys(S))if(k!=='players'&&!LKLOCAL.includes(k)&&!(k in m))delete S[k];Object.assign(S,m);LKLAST.main=u.main;changed=true}
+  if(Array.isArray(u.order)&&stable(u.order)!==stable(LKLAST.order)){LKLAST.order=u.order;changed=true}
+  if(u.ps)for(const id in u.ps)if(u.ps[id]&&LKLAST.ps[id]!==u.ps[id]){LKLAST.ps[id]=u.ps[id];changed=true}
+  if(changed&&LKLAST.order){const old=S.players;S.players=LKLAST.order.map(id=>LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):old.find(p=>p.id===id)).filter(Boolean)}
+  if(changed){if(!S.finished&&S.screen==='reveal'){S.screen=lkScreen();REV=null}LKMUTE=true;save();LKMUTE=false}
+  if(u.rv!==undefined&&u.rv!==LKRV){LKRV=u.rv;if(u.rv&&S.lk.rv!==u.rv){S.lk.rv=u.rv;LKMUTE=true;startReveal();save();LKMUTE=false;render();return}}
+  if(lkHost()&&!LKRV&&!S.finished&&S.started){const seat=lkSeated();if(seat.length&&seat.every(([,s])=>s.ready)){window.FTLINK.reveal();toast('Everyone is done. Revealing on every phone!')}}
+  if(S.screen==='lkwait'&&S.started||lkGuest()&&!S.started&&S.screen!=='lkwho')lkGo();
+  const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&ae.id!=='lk-code'){LKPEND=true;return}
+  LKPEND=false;render()};
+function lkClear(msg){const was=lkGuest();clearTimeout(LKT);try{window.FTLINK&&window.FTLINK.leave()}catch(e){}LKLAST={main:null,order:null,ps:{}};LKSEATS={};LKRV=null;LKOPEN=false;LKSTOP=false;
+  if(was){try{localStorage.removeItem(KEY+'.linked');localStorage.removeItem(KEY+'.lkon')}catch(e){}const n=load();S=n||S;if(!n){delete S.lk}S.screen='home'}
+  else{delete S.lk;save()}
+  if(msg)toast(msg);window.scrollTo(0,0);render()}
+async function lkHostStart(g){if(!window.FTLINK)return;LKBUSY=true;LKMSG='';render();
+  try{if(g&&(S.game||'ttr')!==g)switchGame(g);const x=lkSplit();const code=await window.FTLINK.host(x);
+    S.lk={code,role:'host',me:undefined};LKLAST={main:x.main,order:x.order,ps:{...x.ps}};LKSEATS={};LKRV=null;LKOPEN=true;save();
+    S.screen=S.started?lkScreen():S.screen==='home'?'map':S.screen;if(S.started)S.screen='lkwho';window.scrollTo(0,0)}
+  catch(e){LKMSG=(e&&e.message)||'Couldn’t start a linked game. Check your internet connection.'}LKBUSY=false;render()}
+async function lkJoin(code){if(!window.FTLINK)return;const c=String(code||'').replace(/\D/g,'');if(c.length!==6){LKMSG='A game code has 6 numbers.';render();return}
+  LKBUSY=true;LKMSG='';render();
+  try{const g=await window.FTLINK.join(c);save();
+    const ps={};(g.players||[]).forEach(d=>ps[d.id]=d.j);
+    const main=JSON.parse(g.main);const n={...main,players:(g.order||[]).map(id=>ps[id]?JSON.parse(ps[id]):null).filter(Boolean)};
+    n.lk={code:c,role:'guest',me:undefined};n.screen='lkwho';n.active=0;
+    S=n;LKLAST={main:g.main,order:g.order,ps};LKSEATS=g.seats||{};LKRV=g.rv||null;S.lk.rv=LKRV;
+    try{localStorage.setItem(KEY+'.lkon','1')}catch(e){}LKMUTE=true;save();LKMUTE=false;LKCODE='';lkGo();window.scrollTo(0,0)}
+  catch(e){LKMSG=(e&&e.message)||'Couldn’t join. Check the code and your internet connection.'}LKBUSY=false;render()}
+function lkPick(id){if(!S.lk)return;if(id&&LKSEATS[id]&&LKSEATS[id].dev&&LKSEATS[id].dev!==window.FTLINK.dev()){toast('That player is already on another phone.');return}
+  const prev=S.lk.me;if(prev&&prev!==id)window.FTLINK.seat(prev,null);S.lk.me=id||null;
+  if(id){const s={dev:window.FTLINK.dev(),ready:false};LKSEATS[id]=s;window.FTLINK.seat(id,s)}
+  LKMUTE=true;save();LKMUTE=false;S.screen=lkGuest()&&!S.started?'lkwait':lkScreen();window.scrollTo(0,0)}
+function lkReady(on){const id=S.lk&&S.lk.me;if(!id)return;const s={...(LKSEATS[id]||{dev:window.FTLINK.dev()}),ready:!!on};LKSEATS[id]=s;window.FTLINK.seat(id,s);
+  if(lkHost())window.lkRecv({});}
+function lkWhoScreen(){const P=act(),dev=window.FTLINK?window.FTLINK.dev():'';
+  return `<div class="bar"><h1>Which player are you?</h1></div>
+  <p class="hint" style="margin-top:12px">${lkGuest()?'You joined game':'You’re hosting game'} <b class="num">${fmtCode(S.lk.code)}</b>${S.started?' · '+esc(M().name):''}. Pick yourself so this phone plays your win or lose sound and you can tell everyone when you’re done scoring.</p>
+  <div class="sec"><div class="panel">${P.map(p=>{const s=LKSEATS[p.id],taken=s&&s.dev&&s.dev!==dev;
+    return `<div class="seat" style="${pc(p.color)}"><i class="dot"></i><div class="seat-m"><b>${esc(nm(p))}</b><small>${taken?'On another phone':S.lk.me===p.id?'This phone':'Free'}</small></div><button class="btn sm${S.lk.me===p.id?' primary':''}" data-a="lkpick" data-k="${p.id}" ${taken?'disabled':''}>${S.lk.me===p.id?'That’s me':'I’m '+esc(nm(p))}</button></div>`}).join('')}</div></div>
+  <button class="btn wide" data-a="lkpick" data-k="">${lkHost()?'I’m not playing, just scoring':'Just watching'}</button>`}
+function lkWaitScreen(){return `<div class="bar"><h1>Linked game</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>Waiting for the host</h2><p>The host is still choosing the game and rules. Scoring opens here as soon as they start.</p></div>`}
+function lkBar(){if(!S.lk||S.demo||['lkwho','home'].includes(S.screen))return '';const seat=lkSeated(),n=lkReadyN(),mine=lkMine(),me=S.lk.me&&act().find(p=>p.id===S.lk.me);
+  const head=`<div class="lkbar${LKOPEN?' open':''}"><button class="lkb-main" data-a="lkopen" aria-expanded="${LKOPEN}"><span class="lkb-code">📱 <b class="num">${fmtCode(S.lk.code)}</b></span><span class="lkb-st">${S.finished?'Revealed':seat.length?`${n}/${seat.length} done`:'No phones joined yet'}${me?' · '+esc(nm(me)):lkHost()?' · Host':''}</span><span class="chev">${LKOPEN?'▴':'▾'}</span></button>
+    ${me&&S.started&&!S.finished?`<button class="btn sm${mine&&mine.ready?'':' primary'}" data-a="lkready" data-k="${mine&&mine.ready?'0':'1'}">${mine&&mine.ready?'Not done':'I’m done'}</button>`:''}</div>`;
+  if(!LKOPEN)return head;
+  const P=act();
+  return head+`<div class="lkpanel">
+    <p class="rlab">${lkHost()?`Others join from the home screen with code <b class="num">${fmtCode(S.lk.code)}</b>.`:`Hosted game <b class="num">${fmtCode(S.lk.code)}</b>.`} When everyone with a phone taps <b>I’m done</b>, the reveal starts on every phone.</p>
+    ${P.map(p=>{const s=LKSEATS[p.id];return `<div class="seat" style="${pc(p.color)}"><i class="dot"></i><div class="seat-m"><b>${esc(nm(p))}${S.lk.me===p.id?' (this phone)':''}</b><small>${s&&s.dev?'On a phone':'No phone · scored by anyone'}</small></div>${s&&s.dev?(s.ready?'<span class="st ok">Done ✓</span>':'<span class="st">Scoring…</span>'):''}</div>`}).join('')}
+    <div class="prow">${lkHost()&&S.started&&!S.finished?(LKSTOP==='rev'?`<button class="btn warn" style="flex:1" data-a="lkrevnow">Tap again to reveal now</button>`:`<button class="btn" style="flex:1" data-a="lkrevnow">Reveal now</button>`):''}
+      <button class="btn" style="flex:1" data-a="lkwho">Change player</button>
+      <button class="btn" style="flex:1" data-a="lkstop">${LKSTOP==='stop'?'Tap again':lkHost()?'End linking':'Leave game'}</button></div>
+    ${LKSTOP==='stop'?`<p class="hint">${lkHost()?'Other phones leave the game. You keep it on this phone.':'You leave this game. Your own games come back.'}</p>`:''}</div>`}
+function lkHomeCard(){if(!window.FTLINK)return '';
+  if(lkGuest())return `<div class="sec lkhome"><div class="sec-h"><h3>Linked game</h3></div><div class="panel" style="padding:12px;display:grid;gap:10px"><div class="rlab">You’re in game <b class="num">${fmtCode(S.lk.code)}</b>${S.started?' · '+esc(M().name):''}.</div><div class="prow"><button class="btn primary" style="flex:1" data-a="lkback">Back to the game</button><button class="btn" style="flex:1" data-a="lkleave">Leave it</button></div></div></div>`;
+  const live=['ttr','carc','quacks','hf','canasta','nerts','hearts','spades','rage','crowns','skipbo','gnome','skyjo','golf','tripoley','pad','darts','pool'].filter(g=>{const x=gamePeek(g);return x&&x.started&&!x.finished});
+  const name=g=>({ttr:'Ticket to Ride',carc:'Carcassonne',quacks:'Quacks',hf:'Hand and Foot',canasta:'Canasta',nerts:'Nerts',hearts:'Hearts',spades:'Spades',rage:'Rage',crowns:'Five Crowns',skipbo:'Skip-Bo',gnome:'Gnoming A Round',skyjo:'Skyjo',golf:'Golf',tripoley:'Tripoley',pad:'Score pad',darts:'Darts',pool:'Pool'})[g]||g;
+  const hosting=S.lk&&lkHost()?`<div class="rlab">Hosting game <b class="num">${fmtCode(S.lk.code)}</b> · ${esc(M().name)}.</div><button class="btn" data-a="lkback">Back to the game</button>`:'';
+  return `<div class="sec lkhome"><div class="sec-h"><h3>Play on several phones</h3></div><div class="panel" style="padding:12px;display:grid;gap:10px">${hosting}
+    <div class="rlab"><b>Join a game.</b> Type the 6-number code from the host’s phone.</div>
+    <div class="prow" style="padding:0"><input id="lk-code" class="search num" inputmode="numeric" pattern="[0-9]*" maxlength="7" placeholder="123 456" value="${esc(fmtCode(LKCODE))}" autocomplete="off" enterkeyhint="go" style="flex:1"><button class="btn primary" data-a="lkjoin" ${LKBUSY?'disabled':''}>Join</button></div>
+    ${!S.lk&&live.length?`<div class="rlab"><b>Host a game.</b> Share a game in progress so everyone scores on their own phone.</div><div class="lr">${live.map(g=>`<button data-a="lkhost" data-k="${g}" ${LKBUSY?'disabled':''}>📱 ${esc(name(g))}</button>`).join('')}</div>`:!S.lk?'<div class="rlab">To host, start a game, then come back here (or open the game’s 📱 menu) to share it.</div>':''}
+    ${LKMSG?`<p class="hint" style="margin:0"><b>${esc(LKMSG)}</b></p>`:''}</div></div>`}
+window.lkBoot=function(){if(S.lk&&window.FTLINK){LKLAST=(()=>{const x=lkSplit();return {main:x.main,order:x.order,ps:{...x.ps}}})();window.FTLINK.resume(S.lk.code,S.lk.role)}render()};
+
 /* ---------- family sync (installed app only: window.FTSYNC comes from sync.js) ---------- */
 let SYNCMSG='',SYNCBUSY=false,SYNCPRE='',SYNCLEAVE=false,FTPEND=false;
 const famCode=c=>String(c||'').replace(/(.{4})(?=.)/g,'$1-');
@@ -5603,7 +5702,8 @@ function revSteps(){if(S.game==='carc')return cRevSteps();if(HFE())return hfRevS
   bonusesOn().forEach(b=>st.push(b.unit?{name:b.name,f:p=>hasBonus(b,p)?b.pts:0,order:b.metric,sub:p=>`${b.metric(p)} ${b.unit}`}:{name:b.name,f:p=>hasBonus(b,p)?b.pts:0}));
   return st.filter((s,i)=>s.name==='Train routes'||s.sub||act().some(p=>s.f(p)!==0));
 }
-function startReveal(){WARN=null;SHAREMSG='';REVPAUSE=false;clearTimeout(AUTOT);if(SET.sound)ac();S.finished=true;REV={steps:revSteps(),i:0,phase:'pending'};S.screen='reveal';window.scrollTo(0,0);if(S.game==='darts'||S.game==='pool')goFinal()}
+function startReveal(){if(S.lk&&!LKMUTE&&window.FTLINK&&!S.demo){if(lkHost()){window.FTLINK.reveal();return}if(S.lk.me){lkReady(true);toast('Marked you done. The reveal starts when everyone is done or the host starts it.')}else toast('The host starts the reveal for everyone.');render();return}
+  WARN=null;SHAREMSG='';REVPAUSE=false;clearTimeout(AUTOT);if(SET.sound)ac();S.finished=true;REV={steps:revSteps(),i:0,phase:'pending'};S.screen='reveal';window.scrollTo(0,0);if(S.game==='darts'||S.game==='pool')goFinal()}
 const upto=(n,p)=>REV.steps.slice(0,n).reduce((t,s)=>t+s.f(p),0);
 const sgn=v=>v>0?'+'+v:v<0?'−'+Math.abs(v):'0';
 function revealScreen(){
@@ -6046,15 +6146,15 @@ const HOMEBTN='<button class="homebtn" data-a="go" data-s="home" aria-label="Hom
 function render(){
   const CG=S.game==='carc';
   const HG2=HFE(),NG2=S.game==='nerts',PG2=S.game==='pad',DG2=S.game==='darts',LG2=S.game==='pool',TG2=S.game==='hearts',SG2=S.game==='spades',RG2=S.game==='rage',FC2=S.game==='crowns',SB2=S.game==='skipbo',GN2=S.game==='gnome',SK2=S.game==='skyjo',GF2=S.game==='golf',TP2=S.game==='tripoley',QK2=S.game==='quacks';
-  const v={home,map:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:mapScreen,rules:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:rulesScreen,players:QK2?nxPlayers:TP2?nxPlayers:GF2?nxPlayers:SK2?nxPlayers:GN2?nxPlayers:SB2?sdPlayers:FC2?nxPlayers:RG2?nxPlayers:SG2?sdPlayers:TG2?nxPlayers:LG2?plPlayers:DG2?dtPlayers:PG2?pxPlayers:NG2?nxPlayers:HG2?hfPlayers:playersScreen,score:QK2?qkScore:TP2?tpScore:GF2?gfScore:SK2?skScore:GN2?gnScore:SB2?sbScore:FC2?fcScore:RG2?rgScore:SG2?sdScore:TG2?htScore:LG2?plPlay:DG2?dtPlay:PG2?pxScore:NG2?nxScore:HG2?hfScore:CG?cFinal:scoring,results,reveal:revealScreen,stats:statsScreen,profile:profileScreen,event:eventScreen,recap:recapScreen,settings:settingsScreen,live:CG?cLive:liveScreen,lobby:lobbyScreen,samples:samplesScreen,tsetup:tSetup}[S.screen]||home;
+  const v={home,lkwho:lkWhoScreen,lkwait:lkWaitScreen,map:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:mapScreen,rules:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:rulesScreen,players:QK2?nxPlayers:TP2?nxPlayers:GF2?nxPlayers:SK2?nxPlayers:GN2?nxPlayers:SB2?sdPlayers:FC2?nxPlayers:RG2?nxPlayers:SG2?sdPlayers:TG2?nxPlayers:LG2?plPlayers:DG2?dtPlayers:PG2?pxPlayers:NG2?nxPlayers:HG2?hfPlayers:playersScreen,score:QK2?qkScore:TP2?tpScore:GF2?gfScore:SK2?skScore:GN2?gnScore:SB2?sbScore:FC2?fcScore:RG2?rgScore:SG2?sdScore:TG2?htScore:LG2?plPlay:DG2?dtPlay:PG2?pxScore:NG2?nxScore:HG2?hfScore:CG?cFinal:scoring,results,reveal:revealScreen,stats:statsScreen,profile:profileScreen,event:eventScreen,recap:recapScreen,settings:settingsScreen,live:CG?cLive:liveScreen,lobby:lobbyScreen,samples:samplesScreen,tsetup:tSetup}[S.screen]||home;
   if(S.active>=act().length)S.active=0;
   if(S.started&&!S.finished&&!S.demo&&['live','score'].includes(S.screen)){const now=Date.now();if(S.lastTick)S.playMs=(S.playMs||0)+Math.min(Math.max(0,now-S.lastTick),10*60e3);S.lastTick=now}
   document.documentElement.classList.toggle('big',!!SET.big);document.documentElement.classList.toggle('cb',!!SET.cb);wake(needWake());
   const wasFinal=REV&&REV.phase==='final'&&S.screen==='reveal'&&document.querySelector('[data-final]');
   const winY=SLOCK?null:window.scrollY,winScr=S.screen;
   const KEEPSC=['.csheet .cbody','.rsheet .rs-body','.cpick'],keepSc=KEEPSC.map(q=>{const el=document.querySelector(q);return el?el.scrollTop:null});
-  document.getElementById('app').innerHTML=rcFix(demoBar()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','crowns','skipbo','gnome','skyjo','golf','tripoley','quacks'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||LPTIP.startsWith('ph:')||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
-  if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar)bar.insertAdjacentHTML('afterbegin',HOMEBTN)}
+  document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','crowns','skipbo','gnome','skyjo','golf','tripoley','quacks'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||LPTIP.startsWith('ph:')||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
+  if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar){bar.insertAdjacentHTML('afterbegin',HOMEBTN);if(window.FTLINK&&!S.lk&&!S.demo&&!S.editing&&S.started&&!S.finished&&['score','live'].includes(S.screen))bar.insertAdjacentHTML('beforeend','<button class="btn sm lkbtn" data-a="lkhost" data-k="'+(S.game||'ttr')+'" aria-label="Link phones">📱 Link</button>')}}
   rcHydrate(document.getElementById('app'));
   if(S.game==='canasta'&&S.screen!=='home'&&S.screen!=='stats')caWords(document.getElementById('app'));
   {const hr=document.querySelector('.hfrounds [aria-pressed=true]');if(hr){const c=hr.parentElement;c.scrollLeft=hr.offsetLeft-c.offsetLeft-c.clientWidth/2+hr.offsetWidth/2}}
@@ -6147,6 +6247,7 @@ function tourPos(){const box=document.getElementById('tour');if(!box||!TOUR)retu
 function tourEnd(seen){if(TOUR&&TOUR.id==='home')setTimeout(()=>window.scrollTo(0,0),0);if(TOUR&&seen){SET.tours={...(SET.tours||{}),[TOUR.id]:true};if(TOUR.id==='ttrscore')SET.tipsDone=true;saveSet()}TOUR=null;const o=document.getElementById('tour');if(o)o.remove()}
 window.addEventListener('scroll',()=>{if(TOUR)tourPos()},{passive:true});window.addEventListener('resize',()=>{if(TOUR)tourPos()});
 document.addEventListener('keydown',e=>{if(TOUR&&e.key==='Escape'){tourEnd(true)}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='lk-code'){e.preventDefault();const b=document.querySelector('[data-a=lkjoin]');if(b)b.click()}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='sync-code'){e.preventDefault();const b=document.querySelector('[data-a=syncjoin]');if(b)b.click()}});
 
 /* ---------- events ---------- */
@@ -6174,6 +6275,7 @@ document.addEventListener('keydown',e=>{
   const i=e.target.dataset.name;if(i!==undefined&&e.key==='Enter'){e.preventDefault();
   const ins=[...document.querySelectorAll('[data-name]')];const nx=ins[ins.indexOf(e.target)+1];nx?nx.focus():e.target.blur()}});
 document.addEventListener('input',e=>{
+  if(e.target.id==='lk-code'){const el=e.target,d=el.value.replace(/\D/g,'').slice(0,6),f=d.length>3?d.slice(0,3)+' '+d.slice(3):d;LKCODE=d;if(el.value!==f){el.value=f;try{el.setSelectionRange(f.length,f.length)}catch(x){}}return}
   if(e.target.id==='sync-code'){const el=e.target,raw=el.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12),f=famCode(raw);SYNCPRE=raw;if(el.value!==f){el.value=f;try{el.setSelectionRange(f.length,f.length)}catch(x){}}return}
   if(e.target.id==='hq'){const q=e.target.value.trim().toLowerCase();let n=0;document.querySelectorAll('.hcat').forEach(b=>b.hidden=!!q);document.querySelectorAll('.hcat-body').forEach(d=>{d.hidden=q?false:d.dataset.cat!==HOMECAT});document.querySelectorAll('.hg').forEach(g=>{const m=!q||q.split(/\s+/).every(w=>g.dataset.gn.includes(w));g.hidden=!m;if(m)n++});const hl=document.querySelector('.hlive');if(hl)hl.hidden=!!q;const no=document.querySelector('.hnone');if(no)no.hidden=!(q&&!n);return}
   if(e.target.dataset.tname&&TD){TD.name=e.target.value;return}
@@ -6202,6 +6304,7 @@ document.addEventListener('input',e=>{
     const s=e.target.closest('.sec').querySelector('.sub');if(s)s.textContent=exPts(p,id)}
 });
 document.addEventListener('change',e=>{if(e.target.dataset&&e.target.dataset.qkwit){QKX().wit[e.target.dataset.qkwit]=e.target.value;qkKeep();save();render();return}if(e.target.dataset&&e.target.dataset.qkfc){snap();S.qkfc=S.qkfc||[];S.qkfc[qkCur()]=e.target.value||null;save();render();return}if(e.target.dataset&&e.target.dataset.qkbook){QKX().bk[e.target.dataset.qkbook]=e.target.value;qkKeep();save();render();return}if(TD&&e.target.dataset.tgall){TD.all=e.target.value;TD.gm={};render();return}if(TD&&e.target.dataset.tg){TD.gm[e.target.dataset.tg]=e.target.value;return}if(e.target.id==='photo-in'&&e.target.files[0]){addPhoto(e.target.files[0]);return}if(e.target.id==='restore-in'&&e.target.files[0]){restore(e.target.files[0]);return}if(e.target.dataset.x)render()});
+document.addEventListener('focusout',()=>{if(LKPEND)setTimeout(()=>{const ae=document.activeElement;if(LKPEND&&!(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))){LKPEND=false;render()}},400)});
 document.addEventListener('focusout',()=>{if(FTPEND)setTimeout(()=>{const ae=document.activeElement;if(FTPEND&&!(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)))window.ftRemote([GKEY(S.game||'ttr')])},400)});
 document.addEventListener('focusout',e=>{const d=e.target.dataset;if(!d||!(d.hfc||d.nxc||d.pxc||d.fcc||d.sbc||d.gnc||d.skc||d.gfc||d.tpc))return;setTimeout(()=>{const a=document.activeElement;if(a&&a.dataset&&(a.dataset.hfc||a.dataset.nxc||a.dataset.pxc||a.dataset.fcc||a.dataset.sbc||a.dataset.gnc||a.dataset.skc||a.dataset.gfc||a.dataset.tpc))return;if(['score'].includes(S.screen))render()},250)});
 document.addEventListener('focusin',e=>{if(e.target.dataset&&(e.target.dataset.hfc||e.target.dataset.nxc||e.target.dataset.pxc||e.target.dataset.fcc||e.target.dataset.sbc||e.target.dataset.gnc||e.target.dataset.skc||e.target.dataset.gfc||e.target.dataset.tpc)){snap();try{e.target.select()}catch(x){}}});
@@ -6548,6 +6651,16 @@ document.addEventListener('click',e=>{
     case 'tourback':if(TOUR)TOUR.i=Math.max(0,TOUR.i-1);break;
     case 'tourskip':tourEnd(true);break;
     case 'touroff':SET.toursOff=true;saveSet();tourEnd(false);break;
+    case 'lkopen':LKOPEN=!LKOPEN;LKSTOP=false;break;
+    case 'lkready':lkReady(k==='1');break;
+    case 'lkrevnow':if(LKSTOP!=='rev'){LKSTOP='rev';break}LKSTOP=false;window.FTLINK.reveal();break;
+    case 'lkwho':S.screen='lkwho';window.scrollTo(0,0);break;
+    case 'lkstop':if(LKSTOP!=='stop'){LKSTOP='stop';break}if(lkHost())window.FTLINK.end();else if(S.lk.me)window.FTLINK.seat(S.lk.me,null);lkClear(lkHost()?'Linking ended. Your game stays on this phone.':'You left the linked game.');return;
+    case 'lkleave':if(S.lk&&S.lk.me)window.FTLINK.seat(S.lk.me,null);lkClear('You left the linked game.');return;
+    case 'lkback':lkGo();if(S.screen==='home')S.screen=lkScreen();window.scrollTo(0,0);break;
+    case 'lkjoin':{const v=(document.getElementById('lk-code')||{}).value||'';LKCODE=v.replace(/\D/g,'');lkJoin(v);return}
+    case 'lkhost':try{lkHostStart(k)}catch(e){}return;
+    case 'lkpick':lkPick(k||null);break;
     case 'synccreate':syncDo(async()=>{await window.FTSYNC.create();return 'Your family code is ready. Share it with your other devices.'});return;
     case 'syncjoin':{const v=(document.getElementById('sync-code')||{}).value||'';SYNCPRE=v;syncDo(async()=>{await window.FTSYNC.join(v);SYNCPRE='';return 'Joined! Everything is syncing now.'});return}
     case 'syncleave':if(!SYNCLEAVE){SYNCLEAVE=true;render();return}SYNCLEAVE=false;window.FTSYNC.leave();SYNCMSG='This device has stopped syncing. Everything stays on it.';render();return;
@@ -6629,6 +6742,6 @@ render();
 
 <script type="module" src="fb-firebase.js"></script>
 <script>(function(){var m=document.querySelector('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;if(c&&m.content!==c)m.content=c}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));window.FT_BUILD='fc2ca9a165';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));window.FT_BUILD='834488002f';</script>
 </body>
 </html>

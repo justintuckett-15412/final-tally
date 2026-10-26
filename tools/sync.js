@@ -6,7 +6,7 @@
 export function startSync(fb){
   const LS=localStorage,RAW=window.__ftRaw||{set:(k,v)=>LS.setItem(k,v),remove:k=>LS.removeItem(k)};
   const FK='ft.family',MK='ft.syncmeta',DK='ft.dirty',JK='ft.joining';
-  const ok=k=>k==='finaltally.v1'||(k.startsWith('finaltally.v1.')&&!/\.(tmp|real|homecat|lastbk)$/.test(k));
+  const ok=k=>k==='finaltally.v1'||(k.startsWith('finaltally.v1.')&&!/\.(tmp|real|homecat|lastbk|linked|lkon)$/.test(k));
   const rj=(k,d)=>{try{return JSON.parse(LS.getItem(k))??d}catch(e){return d}};
   let fid=LS.getItem(FK)||'',meta=rj(MK,{}),hiT=Math.max(0,...Object.values(meta).map(Number).filter(Boolean));
   let seenKV=false,state='off',err='',lastSync=0,unsubs=[],inflight=0,timer=null,histReady=false;
@@ -75,6 +75,38 @@ export function startSync(fb){
       if(!f)throw new Error('No family uses that code. Check it and try again.');
       fid=code;RAW.set(FK,fid);RAW.set(JK,'1');meta={};saveMeta();RAW.remove(DK);await connect()},
     leave(){disconnect();fid='';RAW.remove(FK);RAW.remove(DK);RAW.remove(JK);meta={};saveMeta();state='off';err='';try{window.FTHIST&&window.FTHIST.detach()}catch(e){}ping()}};
+  /* ---- linked games: one shared game, several phones, joined with a 6-number code ---- */
+  let lk=null;const gref=c=>['games',c];
+  function lkStop(){if(lk){lk.un.forEach(u=>{try{u()}catch(e){}});lk=null}}
+  function lkWatch(code){lkStop();const un=[],send=u=>{try{window.lkRecv&&window.lkRecv(u)}catch(e){console.error(e)}};
+    un.push(fb.watchDoc(gref(code),d=>{if(!d||d.ended){send({gone:true});return}send({main:d.main,order:d.order,seats:d.seats||{},rv:d.rv||null})},()=>{}));
+    un.push(fb.watch([...gref(code),'p'],ch=>{const ps={};ch.forEach(c=>{if(!c.local&&c.data&&c.data.j)ps[c.id]=c.data.j});if(Object.keys(ps).length)send({ps})},()=>{}));
+    lk={code,un}}
+  const fail=e=>{console.warn('link',e)};
+  window.FTLINK={dev,
+    async host(x){if(!navigator.onLine)throw new Error('Connect to the internet to link phones.');
+      await withTimeout(fb.ready(),20000,'Couldn’t connect. Check your internet connection.');
+      for(let i=0;i<8;i++){const a=new Uint32Array(1);crypto.getRandomValues(a);const c=String(100000+a[0]%900000);
+        const ex=await withTimeout(fb.get(gref(c)),15000,'Couldn’t reach the database. Try again in a moment.');
+        if(ex&&!ex.ended&&Date.now()-(ex.created||0)<3*864e5)continue;
+        await fb.set(gref(c),{v:1,host:dev(),created:Date.now(),main:x.main,order:x.order,seats:{},rv:null,ended:false,t:Date.now()});
+        await Promise.all(Object.entries(x.ps).map(([id,j])=>fb.set([...gref(c),'p',id],{j,t:Date.now()})));
+        lkWatch(c);return c}
+      throw new Error('Couldn’t find a free game code. Try again.')},
+    async join(c){if(!navigator.onLine)throw new Error('Connect to the internet to join a game.');
+      await withTimeout(fb.ready(),20000,'Couldn’t connect. Check your internet connection.');
+      const d=await withTimeout(fb.get(gref(c)),15000,'Couldn’t reach the database. Try again in a moment.');
+      if(!d||d.ended)throw new Error('No game is using that code right now. Check the number on the host’s phone.');
+      const players=(await fb.list([...gref(c),'p'])).map(x=>({id:x.id,j:x.data.j}));lkWatch(c);return {...d,players}},
+    resume(c){fb.ready().then(()=>lkWatch(c),fail)},
+    push(u){if(!lk)return;const c=lk.code,m={};if(u.main!==undefined)m.main=u.main;if(u.order)m.order=u.order;
+      if(Object.keys(m).length){m.t=Date.now();fb.update(gref(c),m).catch(fail)}
+      for(const id in (u.ps||{}))fb.set([...gref(c),'p',id],{j:u.ps[id],t:Date.now()}).catch(fail)},
+    seat(id,s){if(lk)fb.update(gref(lk.code),{['seats.'+id]:s}).catch(fail)},
+    reveal(on=true,seats){if(!lk)return;const m={rv:on?Date.now():null};if(!on&&seats)seats.forEach(id=>m['seats.'+id+'.ready']=false);fb.update(gref(lk.code),m).catch(fail)},
+    end(){if(lk)fb.update(gref(lk.code),{ended:true}).catch(fail);lkStop()},
+    leave(){lkStop()}};
+  try{window.lkBoot&&window.lkBoot()}catch(e){}
   addEventListener('online',()=>{ping();window.ftDirty()});addEventListener('offline',ping);
   setInterval(ping,30000);
   if(fid)connect();
