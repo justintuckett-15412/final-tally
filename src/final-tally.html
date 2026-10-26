@@ -1647,7 +1647,7 @@ const LKIDLE=12*3600e3;
 const lkTouch=()=>{if(S.lk)S.lk.at=Date.now()};
 /* a linked game with no changes for 12 hours unlinks itself; the host keeps the game, guests get their own games back */
 function lkIdleCheck(){if(!S.lk||S.demo||!S.lk.at||Date.now()-S.lk.at<LKIDLE)return false;const code=S.lk.code,host=lkHost();
-  if(host&&window.FTLINK)window.FTLINK.endCode(code);
+  if(window.FTLINK){if(host)window.FTLINK.endCode(code);else window.FTLINK.tidy(code)}
   lkClear(host?`Linked game ${fmtCode(code)} sat idle for 12 hours, so it was unlinked. The game is still here on your phone.`:`Linked game ${fmtCode(code)} sat idle for 12 hours, so this phone left it.`);return true}
 setInterval(()=>{try{lkIdleCheck()}catch(e){}},10*60e3);
 const lkHost=()=>!!(S.lk&&S.lk.role==='host');

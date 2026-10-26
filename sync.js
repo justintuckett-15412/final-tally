@@ -91,12 +91,17 @@ export function startSync(fb){
   const SEP='\u0001';
   const flatM=(m,pre,out)=>{out=out||{};for(const k in (m||{})){const v=m[k],p=pre?pre+SEP+k:k;if(typeof v==='string')out[p]=v;else if(v&&typeof v==='object')flatM(v,p,out)}return out};
   const nestM=flat=>{const o={};for(const p in flat){const ks=p.split(SEP);let t=o;for(let i=0;i<ks.length-1;i++){if(!t[ks[i]]||typeof t[ks[i]]!=='object')t[ks[i]]={};t=t[ks[i]]}t[ks[ks.length-1]]=flat[p]}return o};
+  /* clean up a finished or abandoned linked game: its players, score entries and seats, then the game itself */
+  const IDLE=12*3600e3;
+  async function purge(c){try{for(const sub of ['p','i','seats']){const L=await fb.list([...gref(c),sub]);await Promise.all(L.map(x=>fb.del([...gref(c),sub,x.id]).catch(()=>{})))}
+      await fb.del(gref(c))}catch(e){fail(e)}}
   window.FTLINK={dev:()=>uid,
     async host(x){if(!navigator.onLine)throw new Error('Connect to the internet to link phones.');
       await authed();
       for(let i=0;i<8;i++){const a=new Uint32Array(1);crypto.getRandomValues(a);const c=String(100000+a[0]%900000);
         const ex=await withTimeout(fb.get(gref(c)),15000,'Couldn’t reach the database. Try again in a moment.');
-        if(ex&&!ex.ended&&Date.now()-(ex.t||ex.created||0)<12*3600e3)continue;
+        if(ex&&!ex.ended&&Date.now()-(ex.t||ex.created||0)<IDLE)continue;
+        if(ex)await purge(c);
         await fb.set(gref(c),{v:2,hostUid:uid,created:Date.now(),m:nestM(x.m),order:x.order,rv:null,rd:0,ended:false,t:Date.now(),expireAt:exp()});
         await Promise.all([...Object.entries(x.ps).map(([id,j])=>fb.set([...gref(c),'p',id],{j,t:Date.now(),expireAt:exp()})),...Object.entries(x.items||{}).map(([k,j])=>fb.set([...gref(c),'i',k],{j,t:Date.now(),expireAt:exp()}))]);
         lkWatch(c);return c}
@@ -118,8 +123,10 @@ export function startSync(fb){
     seat(id,s){if(!lk)return Promise.reject(new Error('Not linked'));const p=[...gref(lk.code),'seats',id];
       return s?fb.set(p,{uid,ready:!!s.ready,rd:s.rd||0,t:Date.now(),expireAt:exp()}):fb.del(p)},
     reveal(on=true){if(!lk)return;fb.update(gref(lk.code),on?{rv:Date.now()}:{rv:null,rd:lastRd+1}).catch(fail)},
-    end(){if(lk)fb.update(gref(lk.code),{ended:true}).catch(fail);lkStop()},
-    endCode(c){authed().then(()=>fb.update(gref(c),{ended:true})).catch(fail)},
+    end(){if(!lk)return;const c=lk.code;lkStop();fb.update(gref(c),{ended:true}).then(()=>purge(c),fail)},
+    endCode(c){authed().then(()=>fb.update(gref(c),{ended:true})).then(()=>purge(c)).catch(fail)},
+    /* a guest leaving a game that has sat idle tidies it up too */
+    tidy(c){authed().then(()=>fb.get(gref(c))).then(d=>{if(d&&(d.ended||Date.now()-(d.t||d.created||0)>IDLE))return purge(c)}).catch(()=>{})},
     leave(){lkStop()}};
   try{window.lkBoot&&window.lkBoot()}catch(e){}
   addEventListener('online',()=>{ping();window.ftDirty()});addEventListener('offline',ping);
