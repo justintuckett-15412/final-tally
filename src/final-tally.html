@@ -1579,7 +1579,16 @@ function playRoll(dur){const c=ac();if(!c)return;if(playSample('roll'))return;co
   for(let ch=0;ch<2;ch++){const cd=cb.getChannelData(ch);for(let i=0;i<cl;i++)cd[i]=(Math.random()*2-1)*Math.pow(1-i/cl,2.6)}
   const s=c.createBufferSource(),hp=c.createBiquadFilter(),g=c.createGain();s.buffer=cb;hp.type='highpass';hp.frequency.value=2600;g.gain.value=.32;s.connect(hp).connect(g);s.start(at);send(g,0,.8);
   timpani(c,at,49,.7)}
+/* ---------- tap feedback and vibration ---------- */
+const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+let HAPT=null;
+function hapt(force){if(!force&&SET.haptic===false)return;try{if(!IOS&&navigator.vibrate){navigator.vibrate(8);return}
+  /* iOS 18+ gives a light tap when a switch control is toggled; a hidden one is toggled for each button press */
+  if(IOS){if(!HAPT){const l=document.createElement('label');l.setAttribute('aria-hidden','true');l.style.cssText='position:fixed;left:-99px;top:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none';l.dataset.hapt='1';l.innerHTML='<input type="checkbox" switch tabindex="-1">';document.body.appendChild(l);HAPT=l}HAPT.click()}}catch(e){}}
+function vibe(pat){if(SET.vibe===false||IOS)return;try{navigator.vibrate&&navigator.vibrate(pat)}catch(e){}}
+document.addEventListener('click',e=>{if(e.target.closest('[data-hapt]'))return;const b=e.target.closest('button,[data-a],.btn,input[type=checkbox],select');if(b&&!b.disabled)hapt()},true);
 function finalSound(){
+  try{const w=ranking().list.filter(x=>x.rank===1).map(x=>x.p),me=S.lk&&S.lk.me?act().find(p=>p.id===S.lk.me):SET.me&&act().find(p=>nm(p).toLowerCase()===SET.me.toLowerCase());vibe(me&&!w.includes(me)?[350]:[70,60,70,60,140])}catch(e){}
   if(!SET.sound)return;const win=ranking().list.filter(x=>x.rank===1).map(x=>x.p);
   const me=S.demo==='link'?viewedPlayer():S.demo?null:S.lk&&S.lk.me?act().find(p=>p.id===S.lk.me):SET.me&&act().find(p=>nm(p).toLowerCase()===SET.me.toLowerCase());
   if(me&&!win.includes(me))playLose();else playWin()}
@@ -1600,7 +1609,9 @@ function settingsScreen(){
     <p class="hint">${(SET.hlook||'cards')==='cards'?'Each team or player\u2019s stack of cards grows as their score climbs, and the top card flips over with every round. Used for Hand and Foot and Nerts.':'Simple colored bars that grow with each score.'}</p></div>
   <div class="sec"><div class="sec-h"><h3>Ticket to Ride reveal look</h3></div>${seg('look',[['art','Illustrated trains'],['trains','Simple trains'],['bars','Classic bars']])}
     <p class="hint">${SET.cb&&SET.look==='art'?'Color-blind mode is on, so this phone shows Simple trains in color-blind-safe colors. ':''}${SET.look==='bars'?'Simple colored bars that grow with each score.':SET.look==='art'?'Each player gets a cartoon train in their color, with an engine, a mix of cars and a caboose. It adds cars as their score climbs.':'Each player\'s train grows a car at a time along the track as their score climbs.'}</p></div>
-  <div class="sec"><div class="sec-h"><h3>Sounds</h3></div><div class="panel"><div class="prow"><div class="rtext"><b>Winner and loser sounds</b><div class="rlab">A fanfare with applause for the winner, a sad trombone for everyone else.</div></div>${sw('setsound','',SET.sound,'Sounds')}</div>
+  <div class="sec"><div class="sec-h"><h3>Sounds &amp; vibration</h3></div><div class="panel"><div class="prow"><div class="rtext"><b>Sounds</b><div class="rlab">A fanfare with applause for the winner, a sad trombone for everyone else, and the pew when someone shoots the moon.</div></div>${sw('setsound','',SET.sound,'Sounds')}</div>
+    <div class="prow"><div class="rtext"><b>Tap feedback</b><div class="rlab">A tiny tap you can feel when you press a button.${IOS?' On iPhone and iPad this needs iOS 18 or newer.':''}</div></div>${sw('sethaptic','',SET.haptic!==false,'Tap feedback')}</div>
+    <div class="prow"><div class="rtext"><b>Vibrate at the reveal</b><div class="rlab">${IOS?'iPhone and iPad don\u2019t let web apps vibrate, so this does nothing here. It works on Android.':'A happy double buzz when you win, one long buzz when you don\u2019t, and a nudge when a linked game\u2019s reveal starts.'}</div></div>${sw('setvibe','',SET.vibe!==false,'Vibrate at the reveal')}</div>
     ${SET.sound?`<div class="prow"><button class="btn" style="flex:1" data-a="test" data-k="win">Play the win sound</button><button class="btn" style="flex:1" data-a="test" data-k="lose">Play the lose sound</button></div>
     <div class="prow" style="display:block"><div class="rtext"><b>Who uses this device?</b><div class="rlab">At the reveal it cheers if this person wins and plays the sad trombone if they don\u2019t. Set to nobody, it always cheers for the winner. In a linked game it uses the player you picked there instead.</div></div>
     <div class="lr" style="margin-top:8px"><button data-a="setme" data-k="" aria-pressed="${!SET.me}">Nobody in particular</button>${names.map(n=>`<button data-a="setme" data-k="${esc(n)}" aria-pressed="${SET.me.toLowerCase()===n.toLowerCase()}">${esc(n)}</button>`).join('')}</div>
@@ -1716,7 +1727,7 @@ window.lkRecv=function(u){if(!S.lk)return;
   const keepP={};if(u.ps)for(const id in u.ps)if(u.ps[id]&&LKLAST.ps[id]!==u.ps[id]){if(cur.ps[id]&&cur.ps[id]!==LKLAST.ps[id])keepP[id]=cur.ps[id];LKLAST.ps[id]=u.ps[id];changed=true}
   if(changed&&LKLAST.order){const old=S.players;S.players=LKLAST.order.map(id=>keepP[id]?JSON.parse(keepP[id]):LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):old.find(p=>p.id===id)).filter(Boolean)}
   if(changed){lkTouch();UNDO.length=0;if(!S.finished&&S.screen==='reveal'){S.screen=lkScreen();REV=null}LKMUTE=true;save();LKMUTE=false}
-  if(u.rv!==undefined&&u.rv!==LKRV){LKRV=u.rv;if(u.rv&&S.lk.rv!==u.rv){S.lk.rv=u.rv;LKMUTE=true;startReveal();save();LKMUTE=false;render();return}}
+  if(u.rv!==undefined&&u.rv!==LKRV){LKRV=u.rv;if(u.rv&&S.lk.rv!==u.rv){S.lk.rv=u.rv;vibe([30,40,30]);LKMUTE=true;startReveal();save();LKMUTE=false;render();return}}
   if(lkHost()&&!LKRV&&!S.finished&&S.started){const seat=lkSeated();if(seat.length&&seat.every(([,s])=>lkOk(s))){window.FTLINK.reveal();toast('Everyone is done. Revealing on every phone!')}}
   if(S.screen==='lkwait'&&S.started||lkGuest()&&!S.started&&S.screen!=='lkwho')lkGo();
   const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&ae.id!=='lk-code'){LKPEND=true;return}
@@ -6449,6 +6460,8 @@ document.addEventListener('click',e=>{
     case 'setback':S.screen=SETBACK||'home';window.scrollTo(0,0);break;
     case 'set':SET[k]=b.dataset.v;saveSet();break;
     case 'setsound':SET.sound=!SET.sound;saveSet();break;
+    case 'sethaptic':SET.haptic=SET.haptic===false;saveSet();if(SET.haptic)hapt(true);break;
+    case 'setvibe':SET.vibe=SET.vibe===false;saveSet();if(SET.vibe)vibe([40,60,40]);break;
     case 'setawake':SET.awake=SET.awake===false;saveSet();break;
     case 'setbig':SET.big=!SET.big;saveSet();break;
     case 'setcb':SET.cb=!SET.cb;saveSet();break;
