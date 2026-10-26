@@ -502,6 +502,11 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .rv-sub{display:block;font-size:13px;font-weight:700;color:var(--muted);min-height:1em;transform-origin:left center}
 
 .lkbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lkrow{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:10px 12px}
+.dash{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;padding:8px 0 2px;margin-top:6px}
+.dtile{min-width:0;padding:7px 9px;border-radius:12px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--pc,var(--accent));display:grid;gap:1px}
+.dtile small{font-size:12px;color:var(--muted);white-space:nowrap}.dtile b{font-size:20px;line-height:1.1}.dtile small{overflow:hidden;text-overflow:ellipsis}.dtile em{font-style:normal;font-size:11px;color:var(--muted);white-space:nowrap}
+.dashrow{padding:8px 0;border-bottom:1px solid var(--line)}.dashrow:last-of-type{border-bottom:0}.dname{display:flex;align-items:center;gap:8px}.dname .dot{width:12px;height:12px;border-radius:50%;background:var(--pc)}
+.dashrow .dash{margin-top:2px}.dashbtn{margin-left:auto}.dashbtn+.lkbtn{margin-left:6px}
 .lkbar{display:flex;align-items:center;gap:8px;margin-top:12px;padding:6px 6px 6px 4px;border-radius:12px;background:var(--surface);border:1.5px solid var(--accent)}
 .lkbar.open{border-radius:12px 12px 0 0}
 .lkb-main{flex:1;display:flex;align-items:center;gap:8px;min-width:0;background:none;border:0;color:var(--ink);font:inherit;text-align:left;padding:6px 8px;cursor:pointer}
@@ -1640,6 +1645,30 @@ function settingsScreen(){
   <p class="hint">These settings apply to this device only.${window.FT_BUILD?` App version ${esc(window.FT_BUILD)}.`:''}</p>`;
 }
 
+/* ---------- player dashboards: the numbers each player cares about, at a glance ----------
+   Each game can add its own tiles in DASHX. Tiles marked private (like secret tickets) only show on that player's own phone. */
+let DASHSHEET=false;
+const dashScore=p=>{const g=S.game||'ttr';return g==='ttr'?routePts(p)+(hsPts(p)||0):g==='carc'?cLiveTot(p):total(p)};
+const DASHX={
+  ttr:p=>{const t=[{k:'Trains left',v:M().pieces-used(p)},{k:'Routes',v:Object.values(p.routes||{}).reduce((a,b)=>a+(+b||0),0)}];
+    const tk=(p.tickets||[]).filter(x=>x.name);if(tk.length)t.push({k:'Tickets done',v:`${doneN(p)}/${tk.length}`,priv:true});return t},
+  quacks:p=>{const r=qkCur(),rats=(qkRats(r)||[]).find(x=>x.p===p),t=[{k:'Rubies',v:qkRubies(p,9),i:'💎'},{k:'Droplet',v:'+'+qkDrop(p,9),i:'💧'}];
+    if(r>0)t.push({k:'Rat tails',v:rats?rats.n:0,i:'🐀',s:`round ${r+1}`});t.push({k:'Explosions',v:qkBooms(p),i:'💥'});return t},
+  carc:p=>{const fin=(S.clog||[]).filter(e=>e.pid===p.id&&!e.fin).length;return [{k:'Scores so far',v:fin}]}};
+function dashTiles(p,own){const t=[],P=act(),lo=LOW(),sc=P.map(q=>{try{return dashScore(q)}catch(e){return 0}}),me=(()=>{try{return dashScore(p)}catch(e){return 0}})();
+  const better=sc.filter(v=>lo?v<me:v>me).length,lead=lo?Math.min(...sc):Math.max(...sc);
+  t.push({k:(S.game||'ttr')==='ttr'?'Route points':S.game==='carc'?'Points so far':'Score',v:me});
+  if(P.length>1){const ord=n=>n+(n%10===1&&n%100!==11?'st':n%10===2&&n%100!==12?'nd':n%10===3&&n%100!==13?'rd':'th');t.push({k:'Place',v:ord(better+1),s:`of ${P.length}`});t.push(me===lead?(sc.filter(v=>v===lead).length>1?{k:'Lead',v:'Tied',s:'for 1st'}:{k:'Lead',v:Math.abs(me-[...sc].sort((a,b)=>lo?a-b:b-a)[1]),s:'ahead of 2nd'}):{k:'Behind',v:Math.abs(lead-me),s:'the leader'})}
+  try{const x=DASHX[S.game||'ttr'];if(x)x(p).forEach(d=>{if(!d.priv||own)t.push(d)})}catch(e){}
+  return t}
+const dashTile=d=>`<div class="dtile"><small>${d.i?d.i+' ':''}${esc(d.k)}</small><b class="num">${esc(String(d.v))}</b>${d.s?`<em>${esc(d.s)}</em>`:''}</div>`;
+function dashStrip(p){return `<div class="dash" style="${pc(p.color)}">${dashTiles(p,true).map(dashTile).join('')}</div>`}
+function dashSheet(){if(!DASHSHEET)return '';const P=act(),mine=S.lk&&S.lk.me;
+  return `<div class="sheet-bg" data-a="dashclose"><div class="sheet rsheet" role="dialog" aria-modal="true" aria-labelledby="dash-h" data-stop="1"><div class="rs-top"><h2 id="dash-h">Everyone at a glance</h2><button class="btn sm" data-a="dashclose">Close</button></div>
+    <div class="rs-body">${P.map(p=>`<div class="dashrow" style="${pc(p.color)}"><div class="dname"><i class="dot"></i><b>${esc(nm(p))}</b>${mine===p.id?' <small>(this phone)</small>':''}</div><div class="dash">${dashTiles(p,mine===p.id).map(dashTile).join('')}</div></div>`).join('')}
+    <p class="hint">Secret things, like Ticket to Ride tickets, only show on each player’s own phone.</p></div></div></div>`}
+const dashOn=()=>S.started&&!S.finished&&!S.demo&&['score','live'].includes(S.screen);
+
 /* ---------- linked games: several phones in one game (installed app: window.FTLINK comes from sync.js) ---------- */
 /* Each phone keeps its own screen; everything else in the game is shared. Each player is stored separately, so two
    phones scoring different players at the same moment don't overwrite each other. */
@@ -1764,7 +1793,8 @@ function lkWaitScreen(){return `<div class="bar"><h1>Linked game</h1></div><div 
 function lkBar(){if(!S.lk||S.demo||['lkwho','home'].includes(S.screen))return '';const seat=lkSeated(),n=lkReadyN(),mine=lkMine(),me=S.lk.me&&act().find(p=>p.id===S.lk.me);
   const head=`<div class="lkbar${LKOPEN?' open':''}"><button class="lkb-main" data-a="lkopen" aria-expanded="${LKOPEN}"><span class="lkb-code">📱 <b class="num">${fmtCode(S.lk.code)}</b></span><span class="lkb-st">${S.lklock?'🔒 ':''}${S.finished?'Revealed':seat.length?`${n}/${seat.length} done`:'No phones joined yet'}${me?' · '+esc(nm(me)):lkHost()?' · Host':''}</span><span class="chev">${LKOPEN?'▴':'▾'}</span></button>
     ${me&&S.started&&!S.finished?`<button class="btn sm${lkOk(mine)?'':' primary'}" data-a="lkready" data-k="${lkOk(mine)?'0':'1'}">${lkOk(mine)?'Not done':'I’m done'}</button>`:''}</div>`;
-  if(!LKOPEN)return head;
+  const dmine=me&&dashOn()?dashStrip(me):'';
+  if(!LKOPEN)return head+dmine;
   const P=act();
   return head+`<div class="lkpanel">
     ${lkHost()?`<div class="rlab"><b>Who can enter scores?</b></div><div class="seg"><button data-a="lklock" data-k="0" aria-pressed="${!S.lklock}">Anyone, for anyone</button><button data-a="lklock" data-k="1" aria-pressed="${!!S.lklock}">Each phone, its own player</button></div>
@@ -1775,7 +1805,7 @@ function lkBar(){if(!S.lk||S.demo||['lkwho','home'].includes(S.screen))return ''
       <button class="btn" style="flex:1" data-a="lkwho">Change player</button>
       <button class="btn" style="flex:1" data-a="lkstop">${LKSTOP==='stop'?'Tap again':lkHost()?'End linking':'Leave game'}</button></div>
     ${lkHost()?'<p class="hint" style="margin:0">Each player can only be on one phone. If someone\u2019s phone dies, tap <b>Free</b> so they can join again on another device.</p>':''}
-    ${LKSTOP==='stop'?`<p class="hint">${lkHost()?'Other phones leave the game. You keep it on this phone.':'You leave this game. Your own games come back.'}</p>`:''}</div>`}
+    ${LKSTOP==='stop'?`<p class="hint">${lkHost()?'Other phones leave the game. You keep it on this phone.':'You leave this game. Your own games come back.'}</p>`:''}</div>`+dmine}
 function lkHomeCard(){if(!window.FTLINK)return '';
   if(lkGuest())return `<div class="sec lkhome"><div class="sec-h"><h3>Linked game</h3></div><div class="panel" style="padding:12px;display:grid;gap:10px"><div class="rlab">You’re in game <b class="num">${fmtCode(S.lk.code)}</b>${S.started?' · '+esc(M().name):''}.</div><div class="prow"><button class="btn primary" style="flex:1" data-a="lkback">Back to the game</button><button class="btn" style="flex:1" data-a="lkleave">Leave it</button></div></div></div>`;
   const live=['ttr','carc','quacks','hf','canasta','nerts','hearts','spades','rage','crowns','skipbo','gnome','skyjo','golf','tripoley','pad','darts','pool'].filter(g=>{const x=gamePeek(g);return x&&x.started&&!x.finished});
@@ -6237,8 +6267,8 @@ function render(){
   const wasFinal=REV&&REV.phase==='final'&&S.screen==='reveal'&&document.querySelector('[data-final]');
   const winY=SLOCK?null:window.scrollY,winScr=S.screen;
   const KEEPSC=['.csheet .cbody','.rsheet .rs-body','.cpick'],keepSc=KEEPSC.map(q=>{const el=document.querySelector(q);return el?el.scrollTop:null});
-  document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','crowns','skipbo','gnome','skyjo','golf','tripoley','quacks'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||LPTIP.startsWith('ph:')||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
-  if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar){bar.insertAdjacentHTML('afterbegin',HOMEBTN);if(window.FTLINK&&!S.lk&&!S.demo&&!S.editing&&S.started&&!S.finished&&['score','live'].includes(S.screen))bar.insertAdjacentHTML('beforeend','<button class="btn sm lkbtn" data-a="lkhost" data-k="'+(S.game||'ttr')+'" aria-label="Link phones">📱 Link</button>')}}
+  document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+dashSheet()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','crowns','skipbo','gnome','skyjo','golf','tripoley','quacks'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||LPTIP.startsWith('ph:')||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
+  if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar){bar.insertAdjacentHTML('afterbegin',HOMEBTN);if(dashOn()&&!S.editing)bar.insertAdjacentHTML('beforeend','<button class="btn sm dashbtn" data-a="dashopen" aria-label="Everyone at a glance">📊</button>');if(window.FTLINK&&!S.lk&&!S.demo&&!S.editing&&S.started&&!S.finished&&['score','live'].includes(S.screen))bar.insertAdjacentHTML('beforeend','<button class="btn sm lkbtn" data-a="lkhost" data-k="'+(S.game||'ttr')+'" aria-label="Link phones">📱 Link</button>')}}
   rcHydrate(document.getElementById('app'));
   if(S.game==='canasta'&&S.screen!=='home'&&S.screen!=='stats')caWords(document.getElementById('app'));
   {const hr=document.querySelector('.hfrounds [aria-pressed=true]');if(hr){const c=hr.parentElement;c.scrollLeft=hr.offsetLeft-c.offsetLeft-c.clientWidth/2+hr.offsetWidth/2}}
@@ -6438,6 +6468,8 @@ document.addEventListener('click',e=>{
     case 'mguide':RULESHEET=false;MEEPLESHEET=true;break;
     case 'mgclose':if(e.target.closest('[data-stop]')&&!e.target.closest('button'))return;MEEPLESHEET=false;break;
     case 'mgall':MGALL=b.dataset.v==='1';break;
+    case 'dashopen':DASHSHEET=true;break;
+    case 'dashclose':if(e.target.closest('[data-stop]')&&!e.target.closest('button'))return;DASHSHEET=false;break;
     case 'rulesclose':if(e.target.closest('[data-stop]')&&!e.target.closest('button'))return;RULESHEET=false;break;
     case 'peek':S.hideTotals=!S.hideTotals;break;
     case 'finish':{if(S.game==='crowns'&&!S.fctb&&!S.fcshare&&fcLast()>=10&&fcLowTie().length>1&&FCX().tie!=='share'){if(FCX().tie==='round'){S.fctb={ps:fcLowTie().map(p=>p.id)};S.hr=11;window.scrollTo(0,0);toast('Tie! The tied players play a 6-card round.')}else FCTIE=true;break}const w=checks();if(w.length){WARN=w;break}startReveal();break}
@@ -6829,6 +6861,6 @@ render();
 
 <script type="module" src="fb-firebase.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(hadSW&&Date.now()-t0<15000&&!document.querySelector('input:focus'))location.reload()})}window.FT_BUILD='e2f4df';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(hadSW&&Date.now()-t0<15000&&!document.querySelector('input:focus'))location.reload()})}window.FT_BUILD='3f7b08';</script>
 </body>
 </html>
