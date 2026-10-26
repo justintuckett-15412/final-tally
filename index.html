@@ -1628,26 +1628,28 @@ function settingsScreen(){
 /* Each phone keeps its own screen; everything else in the game is shared. Each player is stored separately, so two
    phones scoring different players at the same moment don't overwrite each other. */
 const LKLOCAL=['screen','active','hr','demo','link','lk','_sig','editing','endShown','psel','dmul','skgrid','gfgrid','gngrid','fctap','tkmode','lastTick','playMs'];
-let LKLAST={main:null,order:null,ps:{}},LKSEATS={},LKRV=null,LKMUTE=false,LKT=null,LKOPEN=false,LKMSG='',LKBUSY=false,LKCODE='',LKPEND=false,LKSTOP=false;
+let LKLAST={main:null,order:null,ps:{}},LKSEATS={},LKRD=0,LKFREE=null,LKRV=null,LKMUTE=false,LKT=null,LKOPEN=false,LKMSG='',LKBUSY=false,LKCODE='',LKPEND=false,LKSTOP=false;
 const stable=o=>o===null||typeof o!=='object'?JSON.stringify(o):Array.isArray(o)?'['+o.map(x=>x===undefined?'null':stable(x)).join(',')+']':'{'+Object.keys(o).filter(k=>o[k]!==undefined).sort().map(k=>JSON.stringify(k)+':'+stable(o[k])).join(',')+'}';
 function lkSplit(){const main={};for(const k in S){if(k!=='players'&&!LKLOCAL.includes(k))main[k]=S[k]}
   return {main:stable(main),order:S.players.map(p=>p.id),ps:Object.fromEntries(S.players.map(p=>[p.id,stable(p)]))}}
 const lkGuest=()=>!!(S.lk&&S.lk.role==='guest');
 const lkHost=()=>!!(S.lk&&S.lk.role==='host');
-function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK)return;if(lkHost()&&LKRV&&S.started&&!S.finished){LKRV=null;window.FTLINK.reveal(false,Object.keys(LKSEATS).filter(id=>LKSEATS[id]&&LKSEATS[id].dev))}clearTimeout(LKT);LKT=setTimeout(()=>{if(!S.lk)return;const x=lkSplit(),u={};
+function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK)return;if(lkHost()&&LKRV&&S.started&&!S.finished){LKRV=null;window.FTLINK.reveal(false)}clearTimeout(LKT);LKT=setTimeout(()=>{if(!S.lk)return;const x=lkSplit(),u={};
   if(x.main!==LKLAST.main){u.main=x.main;LKLAST.main=x.main}
   if(stable(x.order)!==stable(LKLAST.order)){u.order=x.order;LKLAST.order=x.order}
   const ps={};for(const id in x.ps)if(x.ps[id]!==LKLAST.ps[id]){ps[id]=x.ps[id];LKLAST.ps[id]=x.ps[id]}
   if(Object.keys(ps).length)u.ps=ps;if(Object.keys(u).length)window.FTLINK.push(u)},250)}
 const lkSeated=()=>Object.entries(LKSEATS).filter(([id,s])=>s&&s.dev&&act().some(p=>p.id===id));
-const lkReadyN=()=>lkSeated().filter(([,s])=>s.ready).length;
+const lkOk=s=>!!(s&&s.ready&&(s.rd||0)===LKRD);
+const lkReadyN=()=>lkSeated().filter(([,s])=>lkOk(s)).length;
 const lkMine=()=>S.lk&&S.lk.me?LKSEATS[S.lk.me]:null;
 function lkScreen(){return S.finished?'results':S.rules&&S.rules.live?'live':S.game==='carc'?'live':'score'}
 function lkGo(){if(lkGuest()&&!S.started){S.screen='lkwait';return}if(S.lk&&S.lk.me===undefined){S.screen='lkwho';return}if(['lkwait','lkwho','home'].includes(S.screen)||lkGuest()&&['map','rules','players'].includes(S.screen))S.screen=lkScreen()}
 /* sync.js hands every change from the other phones to this */
 window.lkRecv=function(u){if(!S.lk)return;
   if(u.gone){const was=lkGuest();lkClear(was?'The host ended the linked game.':'');return}
-  if(u.seats)LKSEATS=u.seats||{};
+  if(typeof u.rd==='number')LKRD=u.rd;
+  if(u.seats){LKSEATS=u.seats||{};const me=S.lk.me;if(me&&!LKSEATS[me]&&S.lk.claimed){S.lk.claimed=false;S.lk.me=undefined;LKMUTE=true;save();LKMUTE=false;toast(lkHost()?'Your player spot was freed.':'The host freed your player spot. Pick again.');S.screen='lkwho'}}
   let changed=false;
   if(typeof u.main==='string'&&u.main!==LKLAST.main){const m=JSON.parse(u.main);for(const k of Object.keys(S))if(k!=='players'&&!LKLOCAL.includes(k)&&!(k in m))delete S[k];Object.assign(S,m);LKLAST.main=u.main;changed=true}
   if(Array.isArray(u.order)&&stable(u.order)!==stable(LKLAST.order)){LKLAST.order=u.order;changed=true}
@@ -1655,11 +1657,11 @@ window.lkRecv=function(u){if(!S.lk)return;
   if(changed&&LKLAST.order){const old=S.players;S.players=LKLAST.order.map(id=>LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):old.find(p=>p.id===id)).filter(Boolean)}
   if(changed){if(!S.finished&&S.screen==='reveal'){S.screen=lkScreen();REV=null}LKMUTE=true;save();LKMUTE=false}
   if(u.rv!==undefined&&u.rv!==LKRV){LKRV=u.rv;if(u.rv&&S.lk.rv!==u.rv){S.lk.rv=u.rv;LKMUTE=true;startReveal();save();LKMUTE=false;render();return}}
-  if(lkHost()&&!LKRV&&!S.finished&&S.started){const seat=lkSeated();if(seat.length&&seat.every(([,s])=>s.ready)){window.FTLINK.reveal();toast('Everyone is done. Revealing on every phone!')}}
+  if(lkHost()&&!LKRV&&!S.finished&&S.started){const seat=lkSeated();if(seat.length&&seat.every(([,s])=>lkOk(s))){window.FTLINK.reveal();toast('Everyone is done. Revealing on every phone!')}}
   if(S.screen==='lkwait'&&S.started||lkGuest()&&!S.started&&S.screen!=='lkwho')lkGo();
   const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&ae.id!=='lk-code'){LKPEND=true;return}
   LKPEND=false;render()};
-function lkClear(msg){const was=lkGuest();clearTimeout(LKT);try{window.FTLINK&&window.FTLINK.leave()}catch(e){}LKLAST={main:null,order:null,ps:{}};LKSEATS={};LKRV=null;LKOPEN=false;LKSTOP=false;
+function lkClear(msg){const was=lkGuest();clearTimeout(LKT);try{window.FTLINK&&window.FTLINK.leave()}catch(e){}LKLAST={main:null,order:null,ps:{}};LKSEATS={};LKRD=0;LKFREE=null;LKRV=null;LKOPEN=false;LKSTOP=false;
   if(was){try{localStorage.removeItem(KEY+'.linked');localStorage.removeItem(KEY+'.lkon')}catch(e){}const n=load();S=n||S;if(!n){delete S.lk}S.screen='home'}
   else{delete S.lk;save()}
   if(msg)toast(msg);window.scrollTo(0,0);render()}
@@ -1674,33 +1676,40 @@ async function lkJoin(code){if(!window.FTLINK)return;const c=String(code||'').re
     const ps={};(g.players||[]).forEach(d=>ps[d.id]=d.j);
     const main=JSON.parse(g.main);const n={...main,players:(g.order||[]).map(id=>ps[id]?JSON.parse(ps[id]):null).filter(Boolean)};
     n.lk={code:c,role:'guest',me:undefined};n.screen='lkwho';n.active=0;
-    S=n;LKLAST={main:g.main,order:g.order,ps};LKSEATS=g.seats||{};LKRV=g.rv||null;S.lk.rv=LKRV;
+    S=n;LKLAST={main:g.main,order:g.order,ps};LKSEATS=g.seats||{};LKRD=g.rd||0;LKRV=g.rv||null;S.lk.rv=LKRV;
     try{localStorage.setItem(KEY+'.lkon','1')}catch(e){}LKMUTE=true;save();LKMUTE=false;LKCODE='';lkGo();window.scrollTo(0,0)}
   catch(e){LKMSG=(e&&e.message)||'Couldn’t join. Check the code and your internet connection.'}LKBUSY=false;render()}
-function lkPick(id){if(!S.lk)return;if(id&&LKSEATS[id]&&LKSEATS[id].dev&&LKSEATS[id].dev!==window.FTLINK.dev()){toast('That player is already on another phone.');return}
-  const prev=S.lk.me;if(prev&&prev!==id)window.FTLINK.seat(prev,null);S.lk.me=id||null;
-  if(id){const s={dev:window.FTLINK.dev(),ready:false};LKSEATS[id]=s;window.FTLINK.seat(id,s)}
-  LKMUTE=true;save();LKMUTE=false;S.screen=lkGuest()&&!S.started?'lkwait':lkScreen();window.scrollTo(0,0)}
-function lkReady(on){const id=S.lk&&S.lk.me;if(!id)return;const s={...(LKSEATS[id]||{dev:window.FTLINK.dev()}),ready:!!on};LKSEATS[id]=s;window.FTLINK.seat(id,s);
+/* a player can only be on one phone: the database refuses a second phone claiming the same player */
+async function lkPick(id){if(!S.lk||LKBUSY)return;const mine=window.FTLINK.dev();
+  if(id&&LKSEATS[id]&&LKSEATS[id].dev&&LKSEATS[id].dev!==mine){toast('That player is already on another phone.');return}
+  const prev=S.lk.me;
+  if(id&&id!==prev){LKBUSY=true;render();const s={dev:mine,ready:false,rd:LKRD};
+    try{await window.FTLINK.seat(id,s);LKSEATS[id]=s}catch(e){LKBUSY=false;toast('Someone just took that player on another phone.');render();return}LKBUSY=false}
+  if(prev&&prev!==id){window.FTLINK.seat(prev,null).catch(()=>{});delete LKSEATS[prev]}
+  S.lk.me=id||null;S.lk.claimed=!!id;
+  LKMUTE=true;save();LKMUTE=false;S.screen=lkGuest()&&!S.started?'lkwait':lkScreen();window.scrollTo(0,0);render()}
+function lkFree(id){if(!lkHost())return;if(LKFREE!==id){LKFREE=id;render();return}LKFREE=null;window.FTLINK.seat(id,null).catch(()=>toast('Couldn\u2019t free that spot.'));delete LKSEATS[id];render()}
+function lkReady(on){const id=S.lk&&S.lk.me;if(!id)return;const s={...(LKSEATS[id]||{dev:window.FTLINK.dev()}),ready:!!on,rd:LKRD};LKSEATS[id]=s;window.FTLINK.seat(id,s).catch(()=>toast('Couldn\u2019t update. Check your connection.'));
   if(lkHost())window.lkRecv({});}
 function lkWhoScreen(){const P=act(),dev=window.FTLINK?window.FTLINK.dev():'';
   return `<div class="bar"><h1>Which player are you?</h1></div>
   <p class="hint" style="margin-top:12px">${lkGuest()?'You joined game':'You’re hosting game'} <b class="num">${fmtCode(S.lk.code)}</b>${S.started?' · '+esc(M().name):''}. Pick yourself so this phone plays your win or lose sound and you can tell everyone when you’re done scoring.</p>
   <div class="sec"><div class="panel">${P.map(p=>{const s=LKSEATS[p.id],taken=s&&s.dev&&s.dev!==dev;
-    return `<div class="seat" style="${pc(p.color)}"><i class="dot"></i><div class="seat-m"><b>${esc(nm(p))}</b><small>${taken?'On another phone':S.lk.me===p.id?'This phone':'Free'}</small></div><button class="btn sm${S.lk.me===p.id?' primary':''}" data-a="lkpick" data-k="${p.id}" ${taken?'disabled':''}>${S.lk.me===p.id?'That’s me':'I’m '+esc(nm(p))}</button></div>`}).join('')}</div></div>
+    return `<div class="seat" style="${pc(p.color)}"><i class="dot"></i><div class="seat-m"><b>${esc(nm(p))}</b><small>${taken?'Taken: on another phone 🔒':S.lk.me===p.id?'This phone':'Free'}</small></div><button class="btn sm${S.lk.me===p.id?' primary':''}" data-a="lkpick" data-k="${p.id}" ${taken?'disabled':''}>${S.lk.me===p.id?'That’s me':'I’m '+esc(nm(p))}</button></div>`}).join('')}</div></div>
   <button class="btn wide" data-a="lkpick" data-k="">${lkHost()?'I’m not playing, just scoring':'Just watching'}</button>`}
 function lkWaitScreen(){return `<div class="bar"><h1>Linked game</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>Waiting for the host</h2><p>The host is still choosing the game and rules. Scoring opens here as soon as they start.</p></div>`}
 function lkBar(){if(!S.lk||S.demo||['lkwho','home'].includes(S.screen))return '';const seat=lkSeated(),n=lkReadyN(),mine=lkMine(),me=S.lk.me&&act().find(p=>p.id===S.lk.me);
   const head=`<div class="lkbar${LKOPEN?' open':''}"><button class="lkb-main" data-a="lkopen" aria-expanded="${LKOPEN}"><span class="lkb-code">📱 <b class="num">${fmtCode(S.lk.code)}</b></span><span class="lkb-st">${S.finished?'Revealed':seat.length?`${n}/${seat.length} done`:'No phones joined yet'}${me?' · '+esc(nm(me)):lkHost()?' · Host':''}</span><span class="chev">${LKOPEN?'▴':'▾'}</span></button>
-    ${me&&S.started&&!S.finished?`<button class="btn sm${mine&&mine.ready?'':' primary'}" data-a="lkready" data-k="${mine&&mine.ready?'0':'1'}">${mine&&mine.ready?'Not done':'I’m done'}</button>`:''}</div>`;
+    ${me&&S.started&&!S.finished?`<button class="btn sm${lkOk(mine)?'':' primary'}" data-a="lkready" data-k="${lkOk(mine)?'0':'1'}">${lkOk(mine)?'Not done':'I’m done'}</button>`:''}</div>`;
   if(!LKOPEN)return head;
   const P=act();
   return head+`<div class="lkpanel">
     <p class="rlab">${lkHost()?`Others join from the home screen with code <b class="num">${fmtCode(S.lk.code)}</b>.`:`Hosted game <b class="num">${fmtCode(S.lk.code)}</b>.`} When everyone with a phone taps <b>I’m done</b>, the reveal starts on every phone.</p>
-    ${P.map(p=>{const s=LKSEATS[p.id];return `<div class="seat" style="${pc(p.color)}"><i class="dot"></i><div class="seat-m"><b>${esc(nm(p))}${S.lk.me===p.id?' (this phone)':''}</b><small>${s&&s.dev?'On a phone':'No phone · scored by anyone'}</small></div>${s&&s.dev?(s.ready?'<span class="st ok">Done ✓</span>':'<span class="st">Scoring…</span>'):''}</div>`}).join('')}
+    ${P.map(p=>{const s=LKSEATS[p.id];return `<div class="seat" style="${pc(p.color)}"><i class="dot"></i><div class="seat-m"><b>${esc(nm(p))}${S.lk.me===p.id?' (this phone)':''}</b><small>${s&&s.dev?'On a phone · locked to it':'No phone · scored by anyone'}</small></div>${s&&s.dev?(lkOk(s)?'<span class="st ok">Done ✓</span>':'<span class="st">Scoring…</span>'):''}${lkHost()&&s&&s.dev&&S.lk.me!==p.id?`<button class="btn sm" data-a="lkfree" data-k="${p.id}">${LKFREE===p.id?'Tap to free':'Free'}</button>`:''}</div>`}).join('')}
     <div class="prow">${lkHost()&&S.started&&!S.finished?(LKSTOP==='rev'?`<button class="btn warn" style="flex:1" data-a="lkrevnow">Tap again to reveal now</button>`:`<button class="btn" style="flex:1" data-a="lkrevnow">Reveal now</button>`):''}
       <button class="btn" style="flex:1" data-a="lkwho">Change player</button>
       <button class="btn" style="flex:1" data-a="lkstop">${LKSTOP==='stop'?'Tap again':lkHost()?'End linking':'Leave game'}</button></div>
+    ${lkHost()?'<p class="hint" style="margin:0">Each player can only be on one phone. If someone\u2019s phone dies, tap <b>Free</b> so they can join again on another device.</p>':''}
     ${LKSTOP==='stop'?`<p class="hint">${lkHost()?'Other phones leave the game. You keep it on this phone.':'You leave this game. Your own games come back.'}</p>`:''}</div>`}
 function lkHomeCard(){if(!window.FTLINK)return '';
   if(lkGuest())return `<div class="sec lkhome"><div class="sec-h"><h3>Linked game</h3></div><div class="panel" style="padding:12px;display:grid;gap:10px"><div class="rlab">You’re in game <b class="num">${fmtCode(S.lk.code)}</b>${S.started?' · '+esc(M().name):''}.</div><div class="prow"><button class="btn primary" style="flex:1" data-a="lkback">Back to the game</button><button class="btn" style="flex:1" data-a="lkleave">Leave it</button></div></div></div>`;
@@ -6660,7 +6669,8 @@ document.addEventListener('click',e=>{
     case 'lkback':lkGo();if(S.screen==='home')S.screen=lkScreen();window.scrollTo(0,0);break;
     case 'lkjoin':{const v=(document.getElementById('lk-code')||{}).value||'';LKCODE=v.replace(/\D/g,'');lkJoin(v);return}
     case 'lkhost':try{lkHostStart(k)}catch(e){}return;
-    case 'lkpick':lkPick(k||null);break;
+    case 'lkpick':lkPick(k||null);return;
+    case 'lkfree':lkFree(k);return;
     case 'synccreate':syncDo(async()=>{await window.FTSYNC.create();return 'Your family code is ready. Share it with your other devices.'});return;
     case 'syncjoin':{const v=(document.getElementById('sync-code')||{}).value||'';SYNCPRE=v;syncDo(async()=>{await window.FTSYNC.join(v);SYNCPRE='';return 'Joined! Everything is syncing now.'});return}
     case 'syncleave':if(!SYNCLEAVE){SYNCLEAVE=true;render();return}SYNCLEAVE=false;window.FTSYNC.leave();SYNCMSG='This device has stopped syncing. Everything stays on it.';render();return;
@@ -6742,6 +6752,6 @@ render();
 
 <script type="module" src="fb-firebase.js"></script>
 <script>(function(){var m=document.querySelector('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;if(c&&m.content!==c)m.content=c}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));window.FT_BUILD='834488002f';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));window.FT_BUILD='fcd91ecd90';</script>
 </body>
 </html>
