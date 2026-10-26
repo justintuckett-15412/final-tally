@@ -20,7 +20,9 @@ html{background:var(--bg)}
   :root[data-theme="dark"] body::before{background:var(--bg)}
 }
 </style>
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="manifest.webmanifest" id="mf">
+<script>/* the installed app takes its edge colors from whichever look is showing when it's installed */
+(function(){try{var t=(JSON.parse(localStorage.getItem('finaltally.settings')||'{}').theme)||'auto',d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.getElementById('mf').href='manifest-dark.webmanifest'}catch(e){}})();</script>
 <script>(function(){try{var P=Storage.prototype,rs=P.setItem,rr=P.removeItem;
 var ok=function(k){return k==='finaltally.v1'||(k.indexOf('finaltally.v1.')===0&&!/\.(tmp|real|homecat|lastbk|linked|lkon)$/.test(k))};
 var mark=function(st,k){try{if(st!==window.localStorage||!ok(k)||!st.getItem('ft.family'))return;var d=JSON.parse(st.getItem('ft.dirty')||'{}');d[k]=Date.now();rs.call(st,'ft.dirty',JSON.stringify(d));if(window.ftDirty)window.ftDirty()}catch(e){}};
@@ -6881,7 +6883,7 @@ render();
 </script>
 
 <script type="module" src="fb-firebase.js"></script>
-<script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(hadSW&&Date.now()-t0<15000&&!document.querySelector('input:focus'))location.reload()})}window.FT_BUILD='77e137';</script>
+<script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(hadSW&&Date.now()-t0<15000&&!document.querySelector('input:focus'))location.reload()})}window.FT_BUILD='79ac40';</script>
 </body>
 </html>

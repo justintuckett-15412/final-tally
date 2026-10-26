@@ -22,9 +22,10 @@ for s in (152,167,180,192,512):
     full.resize((s,s),Image.LANCZOS).save(f'{OUT}/icons/icon-{s}.png')
 pad=Image.new('RGB',(512,512),bg); pad.paste(full.resize((410,410),Image.LANCZOS),(51,51)); pad.save(f'{OUT}/icons/maskable-512.png')
 files+= [f'icons/icon-{s}.png' for s in (152,167,180,192,512)]+['icons/maskable-512.png']
-manifest={"name":"Final Tally","short_name":"Final Tally","description":"Family game night scorekeeper.","start_url":"./","scope":"./","display":"standalone","orientation":"portrait","background_color":"#EDF0F3","theme_color":"#EDF0F3",
+manifest={"id":"./","name":"Final Tally","short_name":"Final Tally","description":"Family game night scorekeeper.","start_url":"./","scope":"./","display":"standalone","orientation":"portrait","background_color":"#EDF0F3","theme_color":"#EDF0F3",
  "icons":[{"src":"icons/icon-192.png","sizes":"192x192","type":"image/png"},{"src":"icons/icon-512.png","sizes":"512x512","type":"image/png"},{"src":"icons/maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}]}
 json.dump(manifest,open(f'{OUT}/manifest.webmanifest','w'),indent=1)
+json.dump({**manifest,'background_color':'#0F151C','theme_color':'#0F151C'},open(f'{OUT}/manifest-dark.webmanifest','w'),indent=1)
 # page: move the artifact's head-ish lines into a real <head>
 head_extra='''<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -45,17 +46,19 @@ html{background:var(--bg)}
   :root[data-theme="dark"] body::before{background:var(--bg)}
 }
 </style>
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="manifest.webmanifest" id="mf">
+<script>/* the installed app takes its edge colors from whichever look is showing when it's installed */
+(function(){try{var t=(JSON.parse(localStorage.getItem('finaltally.settings')||'{}').theme)||'auto',d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.getElementById('mf').href='manifest-dark.webmanifest'}catch(e){}})();</script>
 <script>'''+open('/home/claude/site-tools/headpatch.js').read().strip()+'''</script>'''
 html=html.replace('<link rel="apple-touch-icon" href="art/app-icon.jpg">','<link rel="apple-touch-icon" href="icons/icon-180.png">\n<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">\n<link rel="apple-touch-icon" sizes="167x167" href="icons/icon-167.png">\n<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">')
 html=html.replace('<link rel="icon" type="image/jpeg" href="art/app-icon.jpg">','<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">')
 body_start=html.index('<style>')
 head=html[:body_start]; rest=html[body_start:]
 ver=hashlib.sha1((html+''.join(sorted(files))+open('/home/claude/site-tools/sync.js').read()+open('/home/claude/site-tools/fb-firebase.js').read()+open('/home/claude/site-tools/sw.js').read()+open('/home/claude/site-tools/build.py').read()+open('/home/claude/site-tools/headpatch.js').read()).encode()).hexdigest()[:10]
-sw_reg=f'''<script type="module" src="fb-firebase.js"></script>\n<script>(function(){{var ms=document.querySelectorAll('meta[name=theme-color]');function t(){{try{{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){{return x+ +y}},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs}}catch(e){{}}}}t();setTimeout(t,300);try{{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){{setTimeout(t,50)}})}}catch(e){{}}new MutationObserver(t).observe(document.documentElement,{{attributes:true,attributeFilter:['data-theme','class']}})}})();</script>\n<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{{}}));if('serviceWorker' in navigator){{var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){{if(hadSW&&Date.now()-t0<15000&&!document.querySelector('input:focus'))location.reload()}})}}window.FT_BUILD='{ver[:6]}';</script>'''
+sw_reg=f'''<script type="module" src="fb-firebase.js"></script>\n<script>(function(){{var ms=document.querySelectorAll('meta[name=theme-color]');function t(){{try{{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){{return x+ +y}},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}}catch(e){{}}}}t();setTimeout(t,300);try{{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){{setTimeout(t,50)}})}}catch(e){{}}new MutationObserver(t).observe(document.documentElement,{{attributes:true,attributeFilter:['data-theme','class']}})}})();</script>\n<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{{}}));if('serviceWorker' in navigator){{var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){{if(hadSW&&Date.now()-t0<15000&&!document.querySelector('input:focus'))location.reload()}})}}window.FT_BUILD='{ver[:6]}';</script>'''
 page=f'<!doctype html>\n<html lang="en">\n<head>\n{head_extra}\n{head}</head>\n<body>\n{rest}\n{sw_reg}\n</body>\n</html>\n'
 open(f'{OUT}/index.html','w').write(page)
-sw=open('/home/claude/site-tools/sw.js').read().replace('__VER__',ver).replace('__FILES__',json.dumps(['./','index.html','manifest.webmanifest','sync.js','fb-firebase.js']+sorted(files)))
+sw=open('/home/claude/site-tools/sw.js').read().replace('__VER__',ver).replace('__FILES__',json.dumps(['./','index.html','manifest.webmanifest','manifest-dark.webmanifest','sync.js','fb-firebase.js']+sorted(files)))
 open(f'{OUT}/sw.js','w').write(sw)
 open(f'{OUT}/.nojekyll','w').write('')
 for f in ('sync.js','fb-firebase.js','firestore.rules'):shutil.copy('/home/claude/site-tools/'+f,f'{OUT}/'+f)
