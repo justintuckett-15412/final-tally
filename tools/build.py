@@ -31,7 +31,17 @@ head_extra='''<meta charset="utf-8">
 <meta name="theme-color" content="#EDF0F3">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+/* Installed app: draw the app all the way to the top and bottom edges instead of leaving system-colored bars */
+@media (display-mode: standalone){
+  body{padding-top:env(safe-area-inset-top,0px)}
+  /* the status bar text is white, so in the light look give it a dark strip to sit on */
+  body::before{background:#17212B}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) body::before{background:var(--bg)}}
+  :root[data-theme="dark"] body::before{background:var(--bg)}
+}
+</style>
 <link rel="manifest" href="manifest.webmanifest">
 <script>'''+open('/home/claude/site-tools/headpatch.js').read().strip()+'''</script>'''
 html=html.replace('<link rel="apple-touch-icon" href="art/app-icon.jpg">','<link rel="apple-touch-icon" href="icons/icon-180.png">\n<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">\n<link rel="apple-touch-icon" sizes="167x167" href="icons/icon-167.png">\n<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">')
