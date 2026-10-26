@@ -1612,12 +1612,19 @@ const stable=o=>o===null||typeof o!=='object'?JSON.stringify(o):Array.isArray(o)
 function lkSplit(){const main={};for(const k in S){if(k!=='players'&&!LKLOCAL.includes(k))main[k]=S[k]}
   return {main:stable(main),order:S.players.map(p=>p.id),ps:Object.fromEntries(S.players.map(p=>[p.id,stable(p)]))}}
 const lkGuest=()=>!!(S.lk&&S.lk.role==='guest');
+const LKIDLE=12*3600e3;
+const lkTouch=()=>{if(S.lk)S.lk.at=Date.now()};
+/* a linked game with no changes for 12 hours unlinks itself; the host keeps the game, guests get their own games back */
+function lkIdleCheck(){if(!S.lk||S.demo||!S.lk.at||Date.now()-S.lk.at<LKIDLE)return false;const code=S.lk.code,host=lkHost();
+  if(host&&window.FTLINK)window.FTLINK.endCode(code);
+  lkClear(host?`Linked game ${fmtCode(code)} sat idle for 12 hours, so it was unlinked. The game is still here on your phone.`:`Linked game ${fmtCode(code)} sat idle for 12 hours, so this phone left it.`);return true}
+setInterval(()=>{try{lkIdleCheck()}catch(e){}},10*60e3);
 const lkHost=()=>!!(S.lk&&S.lk.role==='host');
 function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK)return;if(lkHost()&&LKRV&&S.started&&!S.finished){LKRV=null;window.FTLINK.reveal(false)}clearTimeout(LKT);LKT=setTimeout(()=>{if(!S.lk)return;const x=lkSplit(),u={};
   if(x.main!==LKLAST.main){u.main=x.main;LKLAST.main=x.main}
   if(stable(x.order)!==stable(LKLAST.order)){u.order=x.order;LKLAST.order=x.order}
   const ps={};for(const id in x.ps)if(x.ps[id]!==LKLAST.ps[id]){ps[id]=x.ps[id];LKLAST.ps[id]=x.ps[id]}
-  if(Object.keys(ps).length)u.ps=ps;if(Object.keys(u).length)window.FTLINK.push(u)},250)}
+  if(Object.keys(ps).length)u.ps=ps;if(Object.keys(u).length){lkTouch();window.FTLINK.push(u)}},250)}
 const lkSeated=()=>Object.entries(LKSEATS).filter(([id,s])=>s&&s.dev&&act().some(p=>p.id===id));
 const lkOk=s=>!!(s&&s.ready&&(s.rd||0)===LKRD);
 const lkReadyN=()=>lkSeated().filter(([,s])=>lkOk(s)).length;
@@ -1634,7 +1641,7 @@ window.lkRecv=function(u){if(!S.lk)return;
   if(Array.isArray(u.order)&&stable(u.order)!==stable(LKLAST.order)){LKLAST.order=u.order;changed=true}
   if(u.ps)for(const id in u.ps)if(u.ps[id]&&LKLAST.ps[id]!==u.ps[id]){LKLAST.ps[id]=u.ps[id];changed=true}
   if(changed&&LKLAST.order){const old=S.players;S.players=LKLAST.order.map(id=>LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):old.find(p=>p.id===id)).filter(Boolean)}
-  if(changed){if(!S.finished&&S.screen==='reveal'){S.screen=lkScreen();REV=null}LKMUTE=true;save();LKMUTE=false}
+  if(changed){lkTouch();if(!S.finished&&S.screen==='reveal'){S.screen=lkScreen();REV=null}LKMUTE=true;save();LKMUTE=false}
   if(u.rv!==undefined&&u.rv!==LKRV){LKRV=u.rv;if(u.rv&&S.lk.rv!==u.rv){S.lk.rv=u.rv;LKMUTE=true;startReveal();save();LKMUTE=false;render();return}}
   if(lkHost()&&!LKRV&&!S.finished&&S.started){const seat=lkSeated();if(seat.length&&seat.every(([,s])=>lkOk(s))){window.FTLINK.reveal();toast('Everyone is done. Revealing on every phone!')}}
   if(S.screen==='lkwait'&&S.started||lkGuest()&&!S.started&&S.screen!=='lkwho')lkGo();
@@ -1646,7 +1653,7 @@ function lkClear(msg){const was=lkGuest();clearTimeout(LKT);try{window.FTLINK&&w
   if(msg)toast(msg);window.scrollTo(0,0);render()}
 async function lkHostStart(g){if(!window.FTLINK)return;LKBUSY=true;LKMSG='';render();
   try{if(g&&(S.game||'ttr')!==g)switchGame(g);const x=lkSplit();const code=await window.FTLINK.host(x);
-    S.lk={code,role:'host',me:undefined};LKLAST={main:x.main,order:x.order,ps:{...x.ps}};LKSEATS={};LKRV=null;LKOPEN=true;save();
+    S.lk={code,role:'host',me:undefined,at:Date.now()};LKLAST={main:x.main,order:x.order,ps:{...x.ps}};LKSEATS={};LKRV=null;LKOPEN=true;save();
     S.screen=S.started?lkScreen():S.screen==='home'?'map':S.screen;if(S.started)S.screen='lkwho';window.scrollTo(0,0)}
   catch(e){LKMSG=(e&&e.message)||'Couldn’t start a linked game. Check your internet connection.'}LKBUSY=false;render()}
 async function lkJoin(code){if(!window.FTLINK)return;const c=String(code||'').replace(/\D/g,'');if(c.length!==6){LKMSG='A game code has 6 numbers.';render();return}
@@ -1654,7 +1661,7 @@ async function lkJoin(code){if(!window.FTLINK)return;const c=String(code||'').re
   try{const g=await window.FTLINK.join(c);save();
     const ps={};(g.players||[]).forEach(d=>ps[d.id]=d.j);
     const main=JSON.parse(g.main);const n={...main,players:(g.order||[]).map(id=>ps[id]?JSON.parse(ps[id]):null).filter(Boolean)};
-    n.lk={code:c,role:'guest',me:undefined};n.screen='lkwho';n.active=0;
+    n.lk={code:c,role:'guest',me:undefined,at:Date.now()};n.screen='lkwho';n.active=0;
     S=n;LKLAST={main:g.main,order:g.order,ps};LKSEATS=g.seats||{};LKRD=g.rd||0;LKRV=g.rv||null;S.lk.rv=LKRV;
     try{localStorage.setItem(KEY+'.lkon','1')}catch(e){}LKMUTE=true;save();LKMUTE=false;LKCODE='';lkGo();window.scrollTo(0,0)}
   catch(e){LKMSG=(e&&e.message)||'Couldn’t join. Check the code and your internet connection.'}LKBUSY=false;render()}
@@ -1700,7 +1707,7 @@ function lkHomeCard(){if(!window.FTLINK)return '';
     <div class="prow" style="padding:0"><input id="lk-code" class="search num" inputmode="numeric" pattern="[0-9]*" maxlength="7" placeholder="123 456" value="${esc(fmtCode(LKCODE))}" autocomplete="off" enterkeyhint="go" style="flex:1"><button class="btn primary" data-a="lkjoin" ${LKBUSY?'disabled':''}>Join</button></div>
     ${!S.lk&&live.length?`<div class="rlab"><b>Host a game.</b> Share a game in progress so everyone scores on their own phone.</div><div class="lr">${live.map(g=>`<button data-a="lkhost" data-k="${g}" ${LKBUSY?'disabled':''}>📱 ${esc(name(g))}</button>`).join('')}</div>`:!S.lk?'<div class="rlab">To host, start a game, then come back here (or open the game’s 📱 menu) to share it.</div>':''}
     ${LKMSG?`<p class="hint" style="margin:0"><b>${esc(LKMSG)}</b></p>`:''}</div></div>`}
-window.lkBoot=function(){if(S.lk&&window.FTLINK){LKLAST=(()=>{const x=lkSplit();return {main:x.main,order:x.order,ps:{...x.ps}}})();window.FTLINK.resume(S.lk.code,S.lk.role)}render()};
+window.lkBoot=function(){if(S.lk&&window.FTLINK&&!lkIdleCheck()){LKLAST=(()=>{const x=lkSplit();return {main:x.main,order:x.order,ps:{...x.ps}}})();window.FTLINK.resume(S.lk.code,S.lk.role)}render()};
 
 /* ---------- family sync (installed app only: window.FTSYNC comes from sync.js) ---------- */
 let SYNCMSG='',SYNCBUSY=false,SYNCPRE='',SYNCLEAVE=false,FTPEND=false;

@@ -9,6 +9,7 @@ const auth=getAuth(app);let readyP=null;
 const ready=()=>readyP||(readyP=new Promise((res,rej)=>{const un=onAuthStateChanged(auth,u=>{un();if(u)res(u.uid);else signInAnonymously(auth).then(c=>res(c.user.uid),e=>{readyP=null;rej(e)})},e=>{readyP=null;rej(e)})}));
 const ref=p=>doc(db,...p);
 const fb={ready,
+  when:ms=>new Date(ms),
   get:async p=>{const s=await getDoc(ref(p));return s.exists()?s.data():null},
   set:(p,d)=>setDoc(ref(p),d),
   update:(p,d)=>updateDoc(ref(p),d),

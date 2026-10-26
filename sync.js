@@ -76,7 +76,7 @@ export function startSync(fb){
       fid=code;RAW.set(FK,fid);RAW.set(JK,'1');meta={};saveMeta();RAW.remove(DK);await connect()},
     leave(){disconnect();fid='';RAW.remove(FK);RAW.remove(DK);RAW.remove(JK);meta={};saveMeta();state='off';err='';try{window.FTHIST&&window.FTHIST.detach()}catch(e){}ping()}};
   /* ---- linked games: one shared game, several phones, joined with a 6-number code ---- */
-  let lk=null,uid='',lastRd=0;const gref=c=>['games',c];
+  let lk=null,uid='',lastRd=0;const gref=c=>['games',c],exp=()=>fb.when(Date.now()+3*864e5);
   const authed=async()=>{uid=await withTimeout(fb.ready(),20000,'Couldn\u2019t connect. Check your internet connection.');return uid};
   const seatMap=all=>{const m={};all.forEach(d=>{if(d.data&&d.data.uid)m[d.id]={dev:d.data.uid,ready:!!d.data.ready,rd:d.data.rd||0}});return m};
   function lkStop(){if(lk){lk.un.forEach(u=>{try{u()}catch(e){}});lk=null}}
@@ -91,9 +91,9 @@ export function startSync(fb){
       await authed();
       for(let i=0;i<8;i++){const a=new Uint32Array(1);crypto.getRandomValues(a);const c=String(100000+a[0]%900000);
         const ex=await withTimeout(fb.get(gref(c)),15000,'Couldn’t reach the database. Try again in a moment.');
-        if(ex&&!ex.ended&&Date.now()-(ex.created||0)<3*864e5)continue;
-        await fb.set(gref(c),{v:2,hostUid:uid,created:Date.now(),main:x.main,order:x.order,rv:null,rd:0,ended:false,t:Date.now()});
-        await Promise.all(Object.entries(x.ps).map(([id,j])=>fb.set([...gref(c),'p',id],{j,t:Date.now()})));
+        if(ex&&!ex.ended&&Date.now()-(ex.t||ex.created||0)<12*3600e3)continue;
+        await fb.set(gref(c),{v:2,hostUid:uid,created:Date.now(),main:x.main,order:x.order,rv:null,rd:0,ended:false,t:Date.now(),expireAt:exp()});
+        await Promise.all(Object.entries(x.ps).map(([id,j])=>fb.set([...gref(c),'p',id],{j,t:Date.now(),expireAt:exp()})));
         lkWatch(c);return c}
       throw new Error('Couldn’t find a free game code. Try again.')},
     async join(c){if(!navigator.onLine)throw new Error('Connect to the internet to join a game.');
@@ -104,13 +104,14 @@ export function startSync(fb){
       lastRd=d.rd||0;lkWatch(c);return {...d,players,seats}},
     resume(c){authed().then(()=>lkWatch(c),fail)},
     push(u){if(!lk)return;const c=lk.code,m={};if(u.main!==undefined)m.main=u.main;if(u.order)m.order=u.order;
-      if(Object.keys(m).length){m.t=Date.now();fb.update(gref(c),m).catch(fail)}
-      for(const id in (u.ps||{}))fb.set([...gref(c),'p',id],{j:u.ps[id],t:Date.now()}).catch(fail)},
+      m.t=Date.now();m.expireAt=exp();fb.update(gref(c),m).catch(fail);
+      for(const id in (u.ps||{}))fb.set([...gref(c),'p',id],{j:u.ps[id],t:Date.now(),expireAt:exp()}).catch(fail)},
     /* claiming a player creates their seat; the database rules refuse it if another device already holds that player */
     seat(id,s){if(!lk)return Promise.reject(new Error('Not linked'));const p=[...gref(lk.code),'seats',id];
-      return s?fb.set(p,{uid,ready:!!s.ready,rd:s.rd||0,t:Date.now()}):fb.del(p)},
+      return s?fb.set(p,{uid,ready:!!s.ready,rd:s.rd||0,t:Date.now(),expireAt:exp()}):fb.del(p)},
     reveal(on=true){if(!lk)return;fb.update(gref(lk.code),on?{rv:Date.now()}:{rv:null,rd:lastRd+1}).catch(fail)},
     end(){if(lk)fb.update(gref(lk.code),{ended:true}).catch(fail);lkStop()},
+    endCode(c){authed().then(()=>fb.update(gref(c),{ended:true})).catch(fail)},
     leave(){lkStop()}};
   try{window.lkBoot&&window.lkBoot()}catch(e){}
   addEventListener('online',()=>{ping();window.ftDirty()});addEventListener('offline',ping);
