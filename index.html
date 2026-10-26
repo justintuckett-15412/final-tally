@@ -939,6 +939,7 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .mkextras{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:4px 0 8px}.mkchip{font:inherit;font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}.mkchip.pos b{color:var(--good)}.mkchip.neg b{color:var(--bad)}
 .mksum-h{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:8px}
 .mkitem.flash{animation:mkflash 1.2s}@keyframes mkflash{0%,60%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:none}}
+.mkdeal .lr button{font-size:13px}.mklast{display:grid;gap:6px;padding:10px 12px;margin:6px 0 10px;border-radius:12px;border:2px solid var(--good);background:color-mix(in srgb,var(--good) 10%,var(--surface));font-size:14px}.mklast .btn{justify-self:start}
 </style>
 
 <div id="app"></div>
@@ -1200,7 +1201,7 @@ const padSC=()=>Math.max(1,Math.round(Math.max(1,...act().map(p=>Math.abs(total(
 const LOW=()=>S.game==='uno'&&UNX().mode==='low'||S.game==='golf'||S.game==='skyjo'||S.game==='gnome'&&!gnRW()||S.game==='hearts'||S.game==='crowns'||S.game==='pad'&&!!(S.px||{}).low,RS=p=>S.game==='darts'?dRankKey(p):LOW()?-total(p):total(p),RU=(n,p)=>LOW()?-upto(n,p):upto(n,p);
 const total=p=>S.game==='carc'?cTot(p):HFE()?hfTot(p):S.game==='nerts'?nxTot(p):S.game==='pad'?pxTot(p):S.game==='darts'?dTot(p):S.game==='pool'?plTot(p):S.game==='hearts'?htTot(p):S.game==='spades'?sdTot(p):S.game==='rage'?rgTot(p):S.game==='ohell'?ohTot(p):S.game==='uno'?unTot(p):S.game==='munchkin'?mkTot(p):S.game==='crowns'?fcTot(p):S.game==='skipbo'?sbTot(p):S.game==='gnome'?gnTot(p):S.game==='skyjo'?skTot(p):S.game==='golf'?gfTot(p):S.game==='tripoley'?tpTot(p):S.game==='quacks'?qkTot(p):hsPts(p)+routePts(p)+tkNet(p)+extrasPts(p)+bonusPts(p);
 
-function resetScores(){['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
+function resetScores(){['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
 let UNDO=[],KP='',RULESHEET=false;
 if(S.hideTotals===undefined)S.hideTotals=true;
 function setMap(k){
@@ -1552,7 +1553,7 @@ function saveGame(){
       tix:p.tickets.filter(t=>t.name).map(t=>[t.name,t.done?1:0]),...((S.tturn||{})[p.id]?{tn:S.tturn[p.id].n,tms:Math.round(S.tturn[p.id].ms)}:{})})),
     ...(S.playMs>60e3?{dur:Math.round(S.playMs/60000)}:{}),
     awards:awards().map(a=>({title:a.title,names:a.ps.map(nm)})),
-    state:JSON.parse(JSON.stringify({game:S.game||'ttr',map:S.map,preset:S.preset||null,rules:S.rules,picks:S.picks,players:act(),cx:S.cx||null,clog:S.clog||null,cend:S.cend||null,...(HFG?{hx:S.hx}:{}),...(S.game==='nerts'?{nx:S.nx}:{}),...(S.game==='pad'?{px:S.px}:{}),...(S.game==='pool'?{plx:S.plx,pk:S.pk}:{}),...(S.game==='hearts'?{htx:S.htx}:{}),...(S.game==='spades'?{sdx:S.sdx}:{}),...(S.game==='rage'?{rgx:S.rgx}:{}),...(S.game==='ohell'?{ohx:S.ohx,ohtr:S.ohtr}:{}),...(S.game==='uno'?{unx:S.unx,unside:S.unside}:{}),...(S.game==='munchkin'?{mkx:S.mkx,mklog:S.mklog}:{}),...(S.game==='crowns'?{fcx:S.fcx,fctb:S.fctb||null}:{}),...(S.game==='skipbo'?{sbx:S.sbx}:{}),...(S.game==='gnome'?{gnx:S.gnx}:{}),...(S.game==='skyjo'?{skx:S.skx}:{}),...(S.game==='golf'?{gfx:S.gfx}:{}),...(S.game==='tripoley'?{tpx:S.tpx,tph:S.tph}:{}),...(S.game==='quacks'?{qkx:S.qkx,qkfc:S.qkfc||[]}:{}),...(S.game==='darts'?{dx:S.dx,dturns:S.dturns,dkill:S.dkill,dfirst:S.dfirst,dt:dtSaveExtra()}:{})}))};
+    state:JSON.parse(JSON.stringify({game:S.game||'ttr',map:S.map,preset:S.preset||null,rules:S.rules,picks:S.picks,players:act(),cx:S.cx||null,clog:S.clog||null,cend:S.cend||null,...(HFG?{hx:S.hx}:{}),...(S.game==='nerts'?{nx:S.nx}:{}),...(S.game==='pad'?{px:S.px}:{}),...(S.game==='pool'?{plx:S.plx,pk:S.pk}:{}),...(S.game==='hearts'?{htx:S.htx}:{}),...(S.game==='spades'?{sdx:S.sdx}:{}),...(S.game==='rage'?{rgx:S.rgx}:{}),...(S.game==='ohell'?{ohx:S.ohx,ohtr:S.ohtr}:{}),...(S.game==='uno'?{unx:S.unx,unside:S.unside}:{}),...(S.game==='munchkin'?{mkx:S.mkx,mklog:S.mklog,mkdeals:S.mkdeals||[]}:{}),...(S.game==='crowns'?{fcx:S.fcx,fctb:S.fctb||null}:{}),...(S.game==='skipbo'?{sbx:S.sbx}:{}),...(S.game==='gnome'?{gnx:S.gnx}:{}),...(S.game==='skyjo'?{skx:S.skx}:{}),...(S.game==='golf'?{gfx:S.gfx}:{}),...(S.game==='tripoley'?{tpx:S.tpx,tph:S.tph}:{}),...(S.game==='quacks'?{qkx:S.qkx,qkfc:S.qkfc||[]}:{}),...(S.game==='darts'?{dx:S.dx,dturns:S.dturns,dkill:S.dkill,dfirst:S.dfirst,dt:dtSaveExtra()}:{})}))};
   const i=H.games.findIndex(g=>g.id===rec.id);
   if(i>=0){['photo','photoData'].forEach(k=>{if(H.games[i][k])rec[k]=H.games[i][k]})}
   const same=i>=0&&JSON.stringify(H.games[i])===JSON.stringify(rec);
@@ -5776,6 +5777,7 @@ function mkScore(){const X=MKX(),P=act(),tp=mkTurnP(),step=S.mkstep||0,F=S.mkfig
   ${w?`<div class="hfmin"><span class="hfbeat"><b>${esc(nm(w))} reached level ${X.target}!</b> Tap Finish to reveal.</span></div>`:''}
   <div class="mksteps" role="list">${MKSTEPS.map(([t],i)=>`<button data-a="mkstep" data-v="${i}" aria-pressed="${i===step}"><b>${i+1}</b> ${esc(t)}</button>`).join('')}</div>
   <p class="hint" style="margin:6px 0 10px">${esc(MKSTEPS[step][1])}</p>
+  ${S.mklast?(()=>{const L=S.mklast,wp=P.find(p=>p.id===L.who),hp=P.find(p=>p.id===L.help);if(!wp)return '';return `<div class="mklast"><div><b>🏆 ${esc(nm(wp))} won the fight</b> and gains ${L.lv} level${L.lv===1?'':'s'}.<br>Draw <b>${L.tr}</b> treasure${L.tr===1?'':'s'}${hp?`: <b>${esc(nm(wp))}</b> keeps ${L.f}, <b>${esc(nm(hp))}</b> gets ${L.h}. ${esc(nm(L.first==='helper'?hp:wp))} picks first.${L.note?` Also promised: “${esc(L.note)}”.`:''}`:'.'}</div><button class="btn sm" data-a="mklastok">Got it</button></div>`})():''}
   <div class="mkfightbar">${F?'':`<button class="btn primary" data-a="mkfight">⚔ Fight a monster</button>`}<button class="btn" data-a="mkroll">🏃 Run Away</button></div>
   <div class="mkdice"><button class="btn" data-a="mkdice">🎲 Roll ${MKDICE} di${MKDICE===1?'e':'ce'}</button>${stepper('mkdn',MKDICE,{min:1,max:6,label:'dice'})}${MKROLL?`<span class="mkrolled">${MKROLL.map(v=>`<span class="die num">${v}</span>`).join('')}${MKROLL.length>1?`<b class="num">= ${MKROLL.reduce((a,b)=>a+b,0)}</b>`:''}</span>`:''}</div>
   ${MKDIE?`<div class="mkdie ${MKDIE.ok?'ok':'bad'}"><span class="die num">${MKDIE.v}</span><span>${MKDIE.who?esc(nm(MKDIE.who))+': ':''}rolled ${MKDIE.v}${MKDIE.b?` +${MKDIE.b}`:''}. <b>${MKDIE.ok?'Got away!':'Caught: Bad Stuff!'}</b> <small>(${X.runNeed} or higher escapes)</small></span></div>`:''}`;
@@ -5785,6 +5787,13 @@ function mkScore(){const X=MKX(),P=act(),tp=mkTurnP(),step=S.mkstep||0,F=S.mkfig
     <div class="panel hfpanel"><div class="rlab"><b>Fighting</b></div><div class="lr">${opts(F.who,'mkwho')}</div>
       <div class="rlab" style="margin-top:6px"><b>Helping</b></div><div class="lr">${opts(F.help,'mkhelp','Nobody')}</div>
       <div class="srow"><span class="rlab"><b>One-shots &amp; bonuses</b> · players’ side</span>${stepper('mkpb',+F.pb||0,{min:-30,max:60,label:'player bonus'})}</div></div>
+    ${F.help?(()=>{const D=F.deal||{n:1,first:'fighter',note:''},trs=(F.mons||[]).reduce((a,m)=>a+(m.tr===undefined?1:+m.tr),0),hp=P.find(p=>p.id===F.help),wp=P.find(p=>p.id===F.who),hn=Math.min(D.n,trs);
+      return `<div class="panel hfpanel mkdeal" style="margin-top:8px"><div class="rlab"><b>🤝 The deal</b> · what ${esc(nm(hp))} gets for helping</div>
+      <div class="lr" style="margin:6px 0"><button data-a="mkdealn" data-k="0" aria-pressed="${D.n===0}">Nothing</button><button data-a="mkdealn" data-k="1" aria-pressed="${D.n===1}">1 treasure</button><button data-a="mkdealn" data-k="half" aria-pressed="${D.n===Math.floor(trs/2)&&D.n>1}">Half</button><button data-a="mkdealn" data-k="all" aria-pressed="${D.n>=trs&&trs>1}">All of it</button></div>
+      <div class="srow"><span class="rlab"><b>${esc(nm(hp))} gets</b> · of ${trs} treasure${trs===1?'':'s'}</span>${stepper('mkdeal',hn,{min:0,max:Math.max(trs,0),label:'treasures for the helper'})}</div>
+      <div class="rlab"><b>Who picks first?</b></div><div class="seg"><button data-a="mkdealf" data-k="fighter" aria-pressed="${D.first!=='helper'}">${esc(nm(wp))}</button><button data-a="mkdealf" data-k="helper" aria-pressed="${D.first==='helper'}">${esc(nm(hp))}</button></div>
+      <input id="mk-deal" class="search" maxlength="60" placeholder="Anything else promised? (like “and the Pony”)" value="${esc(D.note||'')}" autocomplete="off" style="margin-top:8px">
+      <p class="rlab" style="margin:6px 0 0">${esc(nm(wp))} keeps ${trs-hn}, ${esc(nm(hp))} gets ${hn}.</p></div>`})():''}
     <div class="panel hfpanel" style="margin-top:8px">${(F.mons||[]).map((m,i)=>`<div class="mkmon"><div class="srow"><span class="rlab"><b>Monster ${F.mons.length>1?i+1:''}</b>${F.mons.length>1?` <button class="link-btn" data-a="mkmondel" data-i="${i}">remove</button>`:''}</span></div>
         <div class="srow"><span class="rlab">Level</span>${stepper('mkml',+m.lv||1,{min:1,max:30,k:i,label:'monster level'})}</div>
         <div class="srow"><span class="rlab">Bonus vs. this fighter</span>${stepper('mkmb',+m.b||0,{min:-20,max:30,k:i,label:'monster bonus'})}</div>
@@ -5843,6 +5852,7 @@ function mkHistory(pid){const P=act(),fi=P.findIndex(q=>q.id===pid),p=P[fi];if(!
     <div class="rs-top"><div><h2 id="lp-h">${esc(nm(p))}</h2><small class="lp-sub">${badges.length?badges.map(esc).join(' · '):'Human, no class'}${m.sm?' · Super Munchkin':''}${m.hb?' · Half-Breed':''}${m.sex?` · ${m.sex==='m'?'♂':'♀'}`:''}</small></div><button class="btn sm" data-a="lpclose">Close</button></div>
     <div class="rs-body">${mkDoll(p,fi)}
       <div class="mkhero"><div><small>Strength</small><b class="num">${mkStr(p)}</b></div><div><small>Level</small><b class="num">${m.lv}</b><small>of ${MKX().target}</small></div><div><small>Gear</small><b class="num">${g>0?'+':''}${g}</b></div></div>
+      <p class="rlab" style="text-align:center;margin:0 0 6px">💰 ${m.trs||0} treasure${(m.trs||0)===1?'':'s'} won${(S.mkdeals||[]).some(x=>x.help===p.id)?` · ${(S.mkdeals||[]).filter(x=>x.help===p.id).reduce((a,x)=>a+x.h,0)} from helping`:''}</p>
       <div class="mkslots">${mkSlots(p).map(([l,u,mx])=>`<span class="${u>mx?'over':u===mx?'full':''}">${l} <b class="num">${u}/${mx===Infinity?'∞':mx}</b></span>`).join('')}</div>
       ${mkItems(p).length?`<ul class="phlist hfhist">${mkItems(p).map(x=>`<li><span><b>${esc(x.n||'Item')}</b><br><small>${(MKTYPES.find(t=>t[0]===x.t)||['','Other'])[1]}${x.big?' · Big':''}${x.on?'':' · carried'}${x.cheat?' · Cheat!':''}</small></span><span class="hfh-v"><b class="num">${(+x.b||0)>0?'+':''}${+x.b||0}</b></span></li>`).join('')}</ul>`:''}
       <div class="mksum-h">Level history</div>
@@ -5852,6 +5862,8 @@ function mkAwards(){const P=act(),out=[],L=S.mklog||[],add=(title,f,min,why)=>{c
   add('Monster slayer',p=>L.filter(e=>e.pid===p.id&&/^Killed/.test(e.why)).length,2,v=>`won ${v} fights`);
   add('Best friend',p=>L.filter(e=>e.pid===p.id&&/^Helped/.test(e.why)).length,1,v=>`helped win ${v} fight${v===1?'':'s'}`);
   add('Glutton for punishment',p=>-L.filter(e=>e.pid===p.id&&e.d<0).reduce((a,e)=>a+e.d,0),3,v=>`lost ${v} levels`);
+  add('Mercenary',p=>(S.mkdeals||[]).filter(x=>x.help===p.id).reduce((a,x)=>a+x.h,0),2,v=>`earned ${v} treasures by helping`);
+  add('Generous',p=>(S.mkdeals||[]).filter(x=>x.who===p.id).reduce((a,x)=>a+x.h,0),2,v=>`gave away ${v} treasures to helpers`);
   add('Gear hoarder',p=>mkGearT(p),8,v=>`finished with +${v} in gear`);return out}
 function mkRevSteps(){return [{name:'Final level',f:p=>mkLv(p)}]}
 function mkResults(){const rk=ranking();
@@ -6903,6 +6915,7 @@ document.addEventListener('keydown',e=>{
   const i=e.target.dataset.name;if(i!==undefined&&e.key==='Enter'){e.preventDefault();
   const ins=[...document.querySelectorAll('[data-name]')];const nx=ins[ins.indexOf(e.target)+1];nx?nx.focus():e.target.blur()}});
 document.addEventListener('input',e=>{
+  if(e.target.id==='mk-deal'){if(S.mkfight){const F=S.mkfight;(F.deal||(F.deal={n:1,first:'fighter',note:''})).note=e.target.value;save()}return}
   if(e.target.id==='mk-iname'){if(MKITEM)MKITEM.n=e.target.value;return}
   if(e.target.id==='lk-code'){const el=e.target,d=el.value.replace(/\D/g,'').slice(0,6),f=d.length>3?d.slice(0,3)+' '+d.slice(3):d;LKCODE=d;if(el.value!==f){el.value=f;try{el.setSelectionRange(f.length,f.length)}catch(x){}}return}
   if(e.target.id==='sync-code'){const el=e.target,raw=el.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12),f=famCode(raw);SYNCPRE=raw;if(el.value!==f){el.value=f;try{el.setSelectionRange(f.length,f.length)}catch(x){}}return}
@@ -7128,14 +7141,19 @@ document.addEventListener('click',e=>{
     case 'mkfight':{const tp=mkTurnP();snap();S.mkfight={who:tp.id,help:null,mons:[{lv:1,b:0,lvls:1,tr:1}],pb:0,mb:0};MKDIE=null;S.mkstep=0;break}
     case 'mkfightend':snap();S.mkfight=null;break;
     case 'mkwho':{const F=S.mkfight;if(!F)break;F.who=k;if(F.help===k)F.help=null;break}
-    case 'mkhelp':{const F=S.mkfight;if(!F)break;F.help=k||null;break}
+    case 'mkhelp':{const F=S.mkfight;if(!F)break;F.help=k||null;if(F.help&&!F.deal)F.deal={n:1,first:'fighter',note:''};break}
     case 'mkpb':case 'mkmb2':{const F=S.mkfight;if(!F)break;const f=a==='mkpb'?'pb':'mb';F[f]=(+F[f]||0)+d;break}
     case 'mkml':case 'mkmb':case 'mkmv':case 'mkmt':{const F=S.mkfight;if(!F)break;const m=F.mons[+k];if(!m)break;const f={mkml:'lv',mkmb:'b',mkmv:'lvls',mkmt:'tr'}[a],lim={lv:[1,30],b:[-20,30],lvls:[0,5],tr:[0,10]}[f];m[f]=Math.max(lim[0],Math.min(lim[1],(m[f]===undefined?(f==='lv'||f==='lvls'||f==='tr'?1:0):+m[f])+d));break}
     case 'mkmonadd':{const F=S.mkfight;if(!F)break;F.mons.push({lv:1,b:0,lvls:1,tr:1});break}
     case 'mkmondel':{const F=S.mkfight;if(!F)break;F.mons.splice(+b.dataset.i,1);break}
     case 'mkwon':{const c=mkFightCalc();if(!c||!c.win)break;snap();const F=S.mkfight,lv=F.mons.reduce((a,m)=>a+(m.lvls===undefined?1:+m.lvls),0),tr=F.mons.reduce((a,m)=>a+(m.tr===undefined?1:+m.tr),0);
       mkLevel(c.who,lv,`Killed a monster${F.mons.length>1?'s':''}`);if(c.help&&mkHas(c.help,'Elf'))mkLevel(c.help,F.mons.length,'Helped kill a monster (Elf)');
-      S.mkfight=null;MKWIN10=null;toast(mkWinner()?`${nm(mkWinner())} wins the game!`:`${nm(c.who)} gains ${lv} level${lv===1?'':'s'}. Draw ${tr} treasure${tr===1?'':'s'}${c.help?' (split with the helper as agreed)':''}.`);break}
+      const D=F.deal||{n:1,first:'fighter',note:''},h=c.help?Math.min(D.n,tr):0;mkP(c.who).trs=(mkP(c.who).trs||0)+tr-h;if(c.help){mkP(c.help).trs=(mkP(c.help).trs||0)+h;(S.mkdeals||(S.mkdeals=[])).push({who:c.who.id,help:c.help.id,tr,h,note:D.note||''})}
+      S.mklast={who:c.who.id,help:c.help?c.help.id:null,lv,tr,f:tr-h,h,first:D.first,note:c.help?D.note||'':''};
+      S.mkfight=null;MKWIN10=null;if(mkWinner())toast(`${nm(mkWinner())} wins the game!`);break}
+    case 'mklastok':S.mklast=null;break;
+    case 'mkdealn':case 'mkdeal':case 'mkdealf':{const F=S.mkfight;if(!F)break;const D=F.deal||(F.deal={n:1,first:'fighter',note:''}),trs=(F.mons||[]).reduce((a,m)=>a+(m.tr===undefined?1:+m.tr),0);
+      if(a==='mkdealf')D.first=k;else if(a==='mkdeal')D.n=Math.max(0,Math.min(trs,Math.min(D.n,trs)+d));else D.n=k==='half'?Math.floor(trs/2):k==='all'?trs:+k;break}
     case 'mkrun':case 'mkroll':{const F=S.mkfight,X=MKX(),who=F?act().find(p=>p.id===F.who):mkTurnP(),bon=who&&mkHas(who,'Elf')?1:0,v=1+Math.floor(Math.random()*6);MKDIE={v,b:bon,ok:v+bon>=X.runNeed,who};if(a==='mkrun'&&MKDIE.ok){S.mkfight=null}playDie();break}
     case 'undemo':unDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'unver':{const X=UNX();X.ver=k;unKeep();break}
@@ -7444,6 +7462,6 @@ render();
 
 <script type="module" src="fb-firebase.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(hadSW&&Date.now()-t0<15000&&!document.querySelector('input:focus'))location.reload()})}window.FT_BUILD='3c0b34';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(hadSW&&Date.now()-t0<15000&&!document.querySelector('input:focus'))location.reload()})}window.FT_BUILD='8f3478';</script>
 </body>
 </html>
