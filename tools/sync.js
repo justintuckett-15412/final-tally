@@ -81,30 +81,38 @@ export function startSync(fb){
   const seatMap=all=>{const m={};all.forEach(d=>{if(d.data&&d.data.uid)m[d.id]={dev:d.data.uid,ready:!!d.data.ready,rd:d.data.rd||0}});return m};
   function lkStop(){if(lk){lk.un.forEach(u=>{try{u()}catch(e){}});lk=null}}
   function lkWatch(code){lkStop();const un=[],send=u=>{try{window.lkRecv&&window.lkRecv(u)}catch(e){console.error(e)}};
-    un.push(fb.watchDoc(gref(code),d=>{if(!d||d.ended){send({gone:true});return}lastRd=d.rd||0;send({main:d.main,order:d.order,rv:d.rv||null,rd:lastRd})},()=>{}));
+    un.push(fb.watchDoc(gref(code),d=>{if(!d||d.ended){send({gone:true});return}lastRd=d.rd||0;send({mflat:flatM(d.m),order:d.order,rv:d.rv||null,rd:lastRd})},()=>{}));
+    un.push(fb.watch([...gref(code),'i'],ch=>{const items={};ch.forEach(c=>{if(c.local)return;items[c.id]=c.removed||!c.data?null:c.data.j});if(Object.keys(items).length)send({items})},()=>{}));
     un.push(fb.watch([...gref(code),'seats'],(ch,first,all)=>send({seats:seatMap(all)}),()=>{}));
     un.push(fb.watch([...gref(code),'p'],ch=>{const ps={};ch.forEach(c=>{if(!c.local&&c.data&&c.data.j)ps[c.id]=c.data.j});if(Object.keys(ps).length)send({ps})},()=>{}));
     lk={code,un}}
   const fail=e=>{console.warn('link',e)};
+  /* the shared game is stored as nested fields whose ends hold JSON text; these convert between that and a flat list of paths */
+  const SEP='\u0001';
+  const flatM=(m,pre,out)=>{out=out||{};for(const k in (m||{})){const v=m[k],p=pre?pre+SEP+k:k;if(typeof v==='string')out[p]=v;else if(v&&typeof v==='object')flatM(v,p,out)}return out};
+  const nestM=flat=>{const o={};for(const p in flat){const ks=p.split(SEP);let t=o;for(let i=0;i<ks.length-1;i++){if(!t[ks[i]]||typeof t[ks[i]]!=='object')t[ks[i]]={};t=t[ks[i]]}t[ks[ks.length-1]]=flat[p]}return o};
   window.FTLINK={dev:()=>uid,
     async host(x){if(!navigator.onLine)throw new Error('Connect to the internet to link phones.');
       await authed();
       for(let i=0;i<8;i++){const a=new Uint32Array(1);crypto.getRandomValues(a);const c=String(100000+a[0]%900000);
         const ex=await withTimeout(fb.get(gref(c)),15000,'Couldn’t reach the database. Try again in a moment.');
         if(ex&&!ex.ended&&Date.now()-(ex.t||ex.created||0)<12*3600e3)continue;
-        await fb.set(gref(c),{v:2,hostUid:uid,created:Date.now(),main:x.main,order:x.order,rv:null,rd:0,ended:false,t:Date.now(),expireAt:exp()});
-        await Promise.all(Object.entries(x.ps).map(([id,j])=>fb.set([...gref(c),'p',id],{j,t:Date.now(),expireAt:exp()})));
+        await fb.set(gref(c),{v:2,hostUid:uid,created:Date.now(),m:nestM(x.m),order:x.order,rv:null,rd:0,ended:false,t:Date.now(),expireAt:exp()});
+        await Promise.all([...Object.entries(x.ps).map(([id,j])=>fb.set([...gref(c),'p',id],{j,t:Date.now(),expireAt:exp()})),...Object.entries(x.items||{}).map(([k,j])=>fb.set([...gref(c),'i',k],{j,t:Date.now(),expireAt:exp()}))]);
         lkWatch(c);return c}
       throw new Error('Couldn’t find a free game code. Try again.')},
     async join(c){if(!navigator.onLine)throw new Error('Connect to the internet to join a game.');
       await authed();
       const d=await withTimeout(fb.get(gref(c)),15000,'Couldn’t reach the database. Try again in a moment.');
       if(!d||d.ended)throw new Error('No game is using that code right now. Check the number on the host’s phone.');
-      const players=(await fb.list([...gref(c),'p'])).map(x=>({id:x.id,j:x.data.j})),seats=seatMap(await fb.list([...gref(c),'seats']));
-      lastRd=d.rd||0;lkWatch(c);return {...d,players,seats}},
+      if(!d.m)throw new Error('That game was started on an older version of the app. Ask the host to close and reopen the app, then link again.');
+      const players=(await fb.list([...gref(c),'p'])).map(x=>({id:x.id,j:x.data.j})),seats=seatMap(await fb.list([...gref(c),'seats'])),items={};
+      (await fb.list([...gref(c),'i'])).forEach(x=>{if(x.data&&x.data.j)items[x.id]=x.data.j});
+      lastRd=d.rd||0;lkWatch(c);return {...d,mflat:flatM(d.m),players,seats,items}},
     resume(c){authed().then(()=>lkWatch(c),fail)},
-    push(u){if(!lk)return;const c=lk.code,m={};if(u.main!==undefined)m.main=u.main;if(u.order)m.order=u.order;
-      m.t=Date.now();m.expireAt=exp();fb.update(gref(c),m).catch(fail);
+    push(u){if(!lk)return;const c=lk.code,ops=(u.mops||[]).map(([segs,v])=>[['m',...segs],v]);if(u.order)ops.push([['order'],u.order]);
+      ops.push([['t'],Date.now()],[['expireAt'],exp()]);fb.updatePaths(gref(c),ops).catch(fail);
+      for(const k in (u.items||{}))(u.items[k]==null?fb.del([...gref(c),'i',k]):fb.set([...gref(c),'i',k],{j:u.items[k],t:Date.now(),expireAt:exp()})).catch(fail);
       for(const id in (u.ps||{}))fb.set([...gref(c),'p',id],{j:u.ps[id],t:Date.now(),expireAt:exp()}).catch(fail)},
     /* claiming a player creates their seat; the database rules refuse it if another device already holds that player */
     seat(id,s){if(!lk)return Promise.reject(new Error('Not linked'));const p=[...gref(lk.code),'seats',id];

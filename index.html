@@ -1644,15 +1644,30 @@ function settingsScreen(){
 /* Each phone keeps its own screen; everything else in the game is shared. Each player is stored separately, so two
    phones scoring different players at the same moment don't overwrite each other. */
 const LKLOCAL=['screen','active','hr','demo','link','lk','_sig','editing','endShown','psel','dmul','skgrid','gfgrid','gngrid','fctap','tkmode','lastTick','playMs'];
-let LKUI='',LKLAST={main:null,order:null,ps:{}},LKSEATS={},LKRD=0,LKFREE=null,LKRV=null,LKMUTE=false,LKT=null,LKOPEN=false,LKMSG='',LKBUSY=false,LKCODE='',LKPEND=false,LKSTOP=false;
+let LKUI='',LKLAST={m:null,order:null,ps:{},items:{}},LKSEATS={},LKRD=0,LKFREE=null,LKRV=null,LKMUTE=false,LKT=null,LKOPEN=false,LKMSG='',LKBUSY=false,LKCODE='',LKPEND=false,LKSTOP=false;
 const stable=o=>o===null||typeof o!=='object'?JSON.stringify(o):Array.isArray(o)?'['+o.map(x=>x===undefined?'null':stable(x)).join(',')+']':'{'+Object.keys(o).filter(k=>o[k]!==undefined).sort().map(k=>JSON.stringify(k)+':'+stable(o[k])).join(',')+'}';
-function lkSplit(){const main={};for(const k in S){if(k!=='players'&&!LKLOCAL.includes(k))main[k]=S[k]}
-  return {main:stable(main),order:S.players.map(p=>p.id),ps:Object.fromEntries(S.players.map(p=>[p.id,stable(p)]))}}
+/* Shared game data is stored in small pieces so changes from different phones merge instead of overwriting:
+   - each player separately
+   - the rest of the game as separate fields (nested a few levels deep)
+   - lists of scored entries (like Carcassonne's score log) one entry at a time */
+const LKITEMS=['clog'],LKSEP='\u0001';
+function lkFlat(o,pre,d,out){for(const k of Object.keys(o)){const v=o[k];if(v===undefined)continue;const p=pre?pre+LKSEP+k:k;
+  if(v&&typeof v==='object'&&!Array.isArray(v)&&d<3&&Object.keys(v).length)lkFlat(v,p,d+1,out);else out[p]=stable(v)}return out}
+function lkUnflat(flat){const o={};Object.keys(flat).sort().forEach(p=>{const ks=p.split(LKSEP);let t=o;for(let i=0;i<ks.length-1;i++){if(!t[ks[i]]||typeof t[ks[i]]!=='object'||Array.isArray(t[ks[i]]))t[ks[i]]={};t=t[ks[i]]}t[ks[ks.length-1]]=JSON.parse(flat[p])});return o}
+/* give each list entry a sort key once (newest first), so phones can rebuild the same order */
+function lkKeys(a){for(let i=a.length-1;i>=0;i--){const e=a[i];if(!e||typeof e!=='object'||e._k!=null)continue;const older=i+1<a.length&&a[i+1]&&a[i+1]._k!=null?a[i+1]._k:0;
+  let newer=null;for(let j=i-1;j>=0;j--)if(a[j]&&a[j]._k!=null){newer=a[j]._k;break}e._k=newer!=null&&newer>older?(older+newer)/2:older+1+Math.random()/1000}}
+const lkSort=a=>a.sort((x,y)=>(y._k||0)-(x._k||0)||String(x.id).localeCompare(String(y.id)));
+function lkSplit(){const main={},items={},arrs=[];for(const k in S){if(k==='players'||LKLOCAL.includes(k)||k==='_lkarr')continue;
+    if(LKITEMS.includes(k)&&Array.isArray(S[k])){arrs.push(k);lkKeys(S[k]);S[k].forEach(e=>{if(e&&e.id)items[k+'~'+e.id]=stable(e)});continue}main[k]=S[k]}
+  if(arrs.length)main._lkarr=arrs;
+  return {m:lkFlat(main,'',0,{}),order:S.players.map(p=>p.id),ps:Object.fromEntries(S.players.map(p=>[p.id,stable(p)])),items}}
+function lkItemsTo(st,items){const want=st._lkarr||[];delete st._lkarr;LKITEMS.forEach(f=>{const arr=[];for(const key in items)if(key.startsWith(f+'~')&&items[key])arr.push(JSON.parse(items[key]));if(arr.length||Array.isArray(st[f])||want.includes(f))st[f]=lkSort(arr)})}
 const lkGuest=()=>!!(S.lk&&S.lk.role==='guest');
 /* locked scoring: a guest phone may only change its own player's score (or a shared score that includes its player) */
-function lkBase(){const m=JSON.parse(LKLAST.main||'{}');return {...m,players:(LKLAST.order||[]).map(id=>LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):null).filter(Boolean)}}
+function lkBase(){const st={...lkUnflat(LKLAST.m||{}),players:(LKLAST.order||[]).map(id=>LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):null).filter(Boolean)};LKITEMS.forEach(f=>{if(Array.isArray(S[f]))st[f]=[]});lkItemsTo(st,LKLAST.items||{});return st}
 function lkTotals(st){const cur=S,o={};try{S=st;act().forEach(p=>{try{o[p.id]=total(p)}catch(e){o[p.id]=null}})}catch(e){}finally{S=cur}return o}
-function lkLockBlock(){if(!S.lk||S.demo||LKMUTE||lkHost()||!S.lklock||!LKLAST.main)return false;
+function lkLockBlock(){if(!S.lk||S.demo||LKMUTE||lkHost()||!S.lklock||!LKLAST.m)return false;
   const base=lkBase(),bt=lkTotals(base),ct=lkTotals(S),me=S.lk.me,changed=[];
   S.players.forEach(p=>{if(stable(p)!==LKLAST.ps[p.id]||bt[p.id]!==ct[p.id])changed.push(p.id)});
   if(!changed.length||(me&&changed.includes(me)))return false;
@@ -1669,7 +1684,12 @@ function lkIdleCheck(){if(!S.lk||S.demo||!S.lk.at||Date.now()-S.lk.at<LKIDLE)ret
 setInterval(()=>{try{lkIdleCheck()}catch(e){}},10*60e3);
 const lkHost=()=>!!(S.lk&&S.lk.role==='host');
 function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK)return;if(lkHost()&&LKRV&&S.started&&!S.finished){LKRV=null;window.FTLINK.reveal(false)}clearTimeout(LKT);LKT=setTimeout(()=>{if(!S.lk)return;const x=lkSplit(),u={};
-  if(x.main!==LKLAST.main){u.main=x.main;LKLAST.main=x.main}
+  const old=LKLAST.m||{},sets=[],dels=[],keys=Object.keys(x.m);
+  for(const p in x.m)if(x.m[p]!==old[p])sets.push(p);
+  for(const p in old)if(!(p in x.m)&&!keys.some(q=>q.startsWith(p+LKSEP))&&!sets.some(q=>p.startsWith(q+LKSEP)))dels.push(p);
+  if(sets.length||dels.length){u.mops=[...sets.map(p=>[p.split(LKSEP),x.m[p]]),...dels.map(p=>[p.split(LKSEP),null])];LKLAST.m=x.m}
+  const it={},oi=LKLAST.items||{};for(const k in x.items)if(x.items[k]!==oi[k])it[k]=x.items[k];for(const k in oi)if(!(k in x.items))it[k]=null;
+  if(Object.keys(it).length){u.items=it;LKLAST.items=x.items}
   if(stable(x.order)!==stable(LKLAST.order)){u.order=x.order;LKLAST.order=x.order}
   const ps={};for(const id in x.ps)if(x.ps[id]!==LKLAST.ps[id]){ps[id]=x.ps[id];LKLAST.ps[id]=x.ps[id]}
   if(Object.keys(ps).length)u.ps=ps;if(Object.keys(u).length){lkTouch();window.FTLINK.push(u)}},250)}
@@ -1685,32 +1705,41 @@ window.lkRecv=function(u){if(!S.lk)return;
   if(typeof u.rd==='number')LKRD=u.rd;
   if(u.seats){LKSEATS=u.seats||{};const me=S.lk.me;if(me&&!LKSEATS[me]&&S.lk.claimed){S.lk.claimed=false;S.lk.me=undefined;LKMUTE=true;save();LKMUTE=false;toast(lkHost()?'Your player spot was freed.':'The host freed your player spot. Pick again.');S.screen='lkwho'}}
   let changed=false;
-  if(typeof u.main==='string'&&u.main!==LKLAST.main){const m=JSON.parse(u.main);for(const k of Object.keys(S))if(k!=='players'&&!LKLOCAL.includes(k)&&!(k in m))delete S[k];Object.assign(S,m);LKLAST.main=u.main;changed=true}
+  /* merge: anything this phone changed but hasn't sent yet wins; everything else follows the other phones */
+  const cur=(u.mflat||u.items||u.ps)?lkSplit():null;
+  if(u.mflat&&stable(u.mflat)!==stable(LKLAST.m||{})){const base=LKLAST.m||{},mine=cur.m,out={};
+    new Set([...Object.keys(base),...Object.keys(mine),...Object.keys(u.mflat)]).forEach(p=>{const v=mine[p]!==base[p]?mine[p]:u.mflat[p];if(v!==undefined)out[p]=v});
+    const ks=Object.keys(out);ks.forEach(p=>{if(ks.some(q=>p.startsWith(q+LKSEP)))delete out[p]});
+    const m=lkUnflat(out);delete m._lkarr;for(const k of Object.keys(S))if(k!=='players'&&!LKLOCAL.includes(k)&&!LKITEMS.includes(k)&&!(k in m))delete S[k];Object.assign(S,m);LKLAST.m=u.mflat;changed=true}
+  if(u.items){const base=LKLAST.items||{},mine=cur.items,res={...mine};let ch=false;
+    for(const k in u.items){const r=u.items[k];if(r===base[k]||(r==null&&base[k]==null))continue;ch=true;if(mine[k]!==base[k])continue;if(r==null)delete res[k];else res[k]=r}
+    for(const k in u.items){if(u.items[k]==null)delete base[k];else base[k]=u.items[k]}LKLAST.items=base;
+    if(ch){lkItemsTo(S,res);changed=true}}
   if(Array.isArray(u.order)&&stable(u.order)!==stable(LKLAST.order)){LKLAST.order=u.order;changed=true}
-  if(u.ps)for(const id in u.ps)if(u.ps[id]&&LKLAST.ps[id]!==u.ps[id]){LKLAST.ps[id]=u.ps[id];changed=true}
-  if(changed&&LKLAST.order){const old=S.players;S.players=LKLAST.order.map(id=>LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):old.find(p=>p.id===id)).filter(Boolean)}
-  if(changed){lkTouch();if(!S.finished&&S.screen==='reveal'){S.screen=lkScreen();REV=null}LKMUTE=true;save();LKMUTE=false}
+  const keepP={};if(u.ps)for(const id in u.ps)if(u.ps[id]&&LKLAST.ps[id]!==u.ps[id]){if(cur.ps[id]&&cur.ps[id]!==LKLAST.ps[id])keepP[id]=cur.ps[id];LKLAST.ps[id]=u.ps[id];changed=true}
+  if(changed&&LKLAST.order){const old=S.players;S.players=LKLAST.order.map(id=>keepP[id]?JSON.parse(keepP[id]):LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):old.find(p=>p.id===id)).filter(Boolean)}
+  if(changed){lkTouch();UNDO.length=0;if(!S.finished&&S.screen==='reveal'){S.screen=lkScreen();REV=null}LKMUTE=true;save();LKMUTE=false}
   if(u.rv!==undefined&&u.rv!==LKRV){LKRV=u.rv;if(u.rv&&S.lk.rv!==u.rv){S.lk.rv=u.rv;LKMUTE=true;startReveal();save();LKMUTE=false;render();return}}
   if(lkHost()&&!LKRV&&!S.finished&&S.started){const seat=lkSeated();if(seat.length&&seat.every(([,s])=>lkOk(s))){window.FTLINK.reveal();toast('Everyone is done. Revealing on every phone!')}}
   if(S.screen==='lkwait'&&S.started||lkGuest()&&!S.started&&S.screen!=='lkwho')lkGo();
   const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&ae.id!=='lk-code'){LKPEND=true;return}
   LKPEND=false;render()};
-function lkClear(msg){const was=lkGuest();clearTimeout(LKT);try{window.FTLINK&&window.FTLINK.leave()}catch(e){}LKLAST={main:null,order:null,ps:{}};LKSEATS={};LKRD=0;LKFREE=null;LKRV=null;LKOPEN=false;LKSTOP=false;
+function lkClear(msg){const was=lkGuest();clearTimeout(LKT);try{window.FTLINK&&window.FTLINK.leave()}catch(e){}LKLAST={m:null,order:null,ps:{},items:{}};LKSEATS={};LKRD=0;LKFREE=null;LKRV=null;LKOPEN=false;LKSTOP=false;
   if(was){try{localStorage.removeItem(KEY+'.linked');localStorage.removeItem(KEY+'.lkon')}catch(e){}const n=load();S=n||S;if(!n){delete S.lk}S.screen='home'}
   else{delete S.lk;save()}
   if(msg)toast(msg);window.scrollTo(0,0);render()}
 async function lkHostStart(g){if(!window.FTLINK)return;LKBUSY=true;LKMSG='';render();
   try{if(g&&(S.game||'ttr')!==g)switchGame(g);const x=lkSplit();const code=await window.FTLINK.host(x);
-    S.lk={code,role:'host',me:undefined,at:Date.now()};LKLAST={main:x.main,order:x.order,ps:{...x.ps}};LKSEATS={};LKRV=null;LKOPEN=true;save();
+    S.lk={code,role:'host',me:undefined,at:Date.now()};LKLAST={m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}};LKSEATS={};LKRV=null;LKOPEN=true;save();
     S.screen=S.started?lkScreen():S.screen==='home'?'map':S.screen;if(S.started)S.screen='lkwho';window.scrollTo(0,0)}
   catch(e){LKMSG=(e&&e.message)||'Couldn’t start a linked game. Check your internet connection.'}LKBUSY=false;render()}
 async function lkJoin(code){if(!window.FTLINK)return;const c=String(code||'').replace(/\D/g,'');if(c.length!==6){LKMSG='A game code has 6 numbers.';render();return}
   LKBUSY=true;LKMSG='';render();
   try{const g=await window.FTLINK.join(c);save();
     const ps={};(g.players||[]).forEach(d=>ps[d.id]=d.j);
-    const main=JSON.parse(g.main);const n={...main,players:(g.order||[]).map(id=>ps[id]?JSON.parse(ps[id]):null).filter(Boolean)};
+    const n={...lkUnflat(g.mflat||{}),players:(g.order||[]).map(id=>ps[id]?JSON.parse(ps[id]):null).filter(Boolean)};lkItemsTo(n,g.items||{});
     n.lk={code:c,role:'guest',me:undefined,at:Date.now()};n.screen='lkwho';n.active=0;
-    S=n;LKUI='';LKLAST={main:g.main,order:g.order,ps};LKSEATS=g.seats||{};LKRD=g.rd||0;LKRV=g.rv||null;S.lk.rv=LKRV;
+    S=n;LKUI='';LKLAST={m:g.mflat||{},order:g.order,ps,items:{...(g.items||{})}};LKSEATS=g.seats||{};LKRD=g.rd||0;LKRV=g.rv||null;S.lk.rv=LKRV;
     try{localStorage.setItem(KEY+'.lkon','1')}catch(e){}LKMUTE=true;save();LKMUTE=false;LKCODE='';lkGo();window.scrollTo(0,0)}
   catch(e){LKMSG=(e&&e.message)||'Couldn’t join. Check the code and your internet connection.'}LKBUSY=false;render()}
 /* a player can only be on one phone: the database refuses a second phone claiming the same player */
@@ -1762,7 +1791,7 @@ function lkHomeCard(){if(!window.FTLINK)return '';
     ${live.length?`<div class="lr">${live.map(g=>`<button data-a="lkhost" data-k="${g}" ${LKBUSY?'disabled':''}>📱 ${esc(name(g))}</button>`).join('')}</div>`:''}
     <button class="link-btn" data-a="lkui" data-k="">Cancel</button>${msg}</div></div>`;
   return `<div class="sec lkhome"><div class="lkbtns"><button class="btn" data-a="lkui" data-k="join">📱 Join a game</button><button class="btn" data-a="lkui" data-k="host">📱 Host a game</button></div></div>`}
-window.lkBoot=function(){if(S.lk&&window.FTLINK&&!lkIdleCheck()){LKLAST=(()=>{const x=lkSplit();return {main:x.main,order:x.order,ps:{...x.ps}}})();window.FTLINK.resume(S.lk.code,S.lk.role)}render()};
+window.lkBoot=function(){if(S.lk&&window.FTLINK&&!lkIdleCheck()){LKLAST=(()=>{const x=lkSplit();return {m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}}})();window.FTLINK.resume(S.lk.code,S.lk.role)}render()};
 
 /* ---------- family sync (installed app only: window.FTSYNC comes from sync.js) ---------- */
 let SYNCMSG='',SYNCBUSY=false,SYNCPRE='',SYNCLEAVE=false,FTPEND=false;
@@ -2536,7 +2565,8 @@ function cCommit(){const C=CALC;let {out,txt}=cCalcPts(C);const ids=Object.keys(
   if(C.kind==='bonus'&&C.bk==='gifts:0')C.who.forEach(pid=>cadd('gifts',pid,-Math.min(1,collGet('gifts',pid))));
   const gTot=coll.filter(c=>c[0]==='gold').reduce((a,c)=>a+c[2],0);if(gTot)txt+=` · ${gTot} gold bar${gTot===1?'':'s'}`;
   if(coll.length)extra.coll=coll;
-  const neu=ids.map((pid,i)=>({id:uid(),g,pid,cat:C.kind,pts:out[pid],txt,fin:C.fin,...(i===0?{...extra,calc:calcSnap}:{tiles:extra.tiles,done:extra.done})})).reverse();
+  const by=C.fin&&S.lk&&window.FTLINK?window.FTLINK.dev():undefined;
+  const neu=ids.map((pid,i)=>({id:uid(),g,pid,cat:C.kind,pts:out[pid],txt,fin:C.fin,...(by?{by}:{}),...(i===0?{...extra,calc:calcSnap}:{tiles:extra.tiles,done:extra.done})})).reverse();
   if(at>=0)S.clog.splice(Math.min(at,S.clog.length),0,...neu);else S.clog.unshift(...neu);if(at>=0)setTimeout(()=>toast('Score updated'),50);
   if(pl&&cPart('ckr','count')&&!C.fin&&!out[pl]&&ids.length)setTimeout(()=>toast(`${nm(act().find(p=>p.id===pl))} may put a meeple in the city of Carcassonne`),300);
   CALC=null;return true}
@@ -2784,13 +2814,17 @@ function cLive(){const P=act();
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="score">Game over: final scoring ›</button></div></div>`}
 function cFinal(){const P=act(),E=S.cend||(S.cend={});
   const btn=(k,t,s)=>`<button class="cfeat" data-a="copenf" data-k="${k}" data-lp="feat:${k}"><b>${t}</b>${s?`<small>${s}</small>`:''}</button>`;
-  const fl=(S.clog||[]).filter(e=>e.fin);
+  /* linked game: final scores entered on other phones stay hidden until the reveal */
+  const myDev=S.lk&&window.FTLINK?window.FTLINK.dev():'',seen=e=>!S.lk||S.finished||!e.by||e.by===myDev;
+  const fl=(S.clog||[]).filter(e=>e.fin&&seen(e)),hid=(S.clog||[]).filter(e=>e.fin&&!seen(e));
+  const hidNote=hid.length?(()=>{const by={};hid.forEach(e=>{const sid=Object.keys(LKSEATS).find(id=>LKSEATS[id]&&LKSEATS[id].dev===e.by),q=sid&&act().find(x=>x.id===sid),n=q?nm(q)+'\u2019s phone':'Another phone';by[n]=(by[n]||0)+1});
+    return `<p class="hint lkhid">🔒 Hidden until the reveal: ${Object.entries(by).map(([n,c])=>`${esc(n)} entered ${c} final score${c===1?'':'s'}`).join(' · ')}.</p>`})():'';
   const grid=(title,key,unit,mult,max)=>`<div class="sec"><div class="sec-h"><h3>${title}</h3></div><div class="panel">${P.map(p=>`<div class="srow" style="${pc(p.color)}"><span class="rlab"><b>${esc(nm(p))}</b>${mult?` · ${unit}`:''}</span>${cst('e.'+key+'.'+p.id,+((E[key]||{})[p.id]||0),0,max||40,unit)}</div>`).join('')}</div></div>`;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="live">‹ Live</button><h1>Final scoring</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="How the pieces work">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo last change">↶<span class="undo-w"> Undo</span></button></div>
-  <p class="hint">Score everything still on the board. Add each unfinished road, city and monastery, then each field. Totals stay hidden for the reveal.</p>
+  <p class="hint">Score everything still on the board. Add each unfinished road, city and monastery, then each field. ${S.lk?'Scores entered on other phones stay hidden until the reveal.':'Totals stay hidden for the reveal.'}</p>
   <div class="sec"><div class="sec-h"><h3>Still on the board</h3></div><div class="cfeats">${btn('road','Road','1 per tile')}${btn('city','City','1 per tile + arms')}${btn('mon','Monastery','1 + tiles around')}${btn('field','Field','farmers')}
     ${cPart('bt','circus')?btn('circus','Big top','last scoring'):''}${cPart('bt','ring')?btn('ring','Ringmaster','2 per tile'):''}${bonusBtns(true).join('')}${btn('custom','Other','add or take away')}</div>
-    ${fl.length?`<ul class="lvlog clog">${fl.map(e=>{const q=S.players.find(x=>x.id===e.pid);return q?`<li><i style="${pc(q.color)}"></i><button class="cedit" data-a="cedit" data-k="${e.id}" aria-label="Edit this score">${esc(nm(q))} · ${esc(e.txt)}</button><b class="num">${S.hideTotals?'••':(e.pts>0?'+':'')+e.pts}</b><button class="link-btn" data-a="cdel" data-k="${e.id}" aria-label="Remove">×</button></li>`:''}).join('')}</ul>`:'<p class="empty">Nothing added yet.</p>'}</div>`;
+    ${hidNote}${fl.length?`<ul class="lvlog clog">${fl.map(e=>{const q=S.players.find(x=>x.id===e.pid);return q?`<li><i style="${pc(q.color)}"></i><button class="cedit" data-a="cedit" data-k="${e.id}" aria-label="Edit this score">${esc(nm(q))} · ${esc(e.txt)}</button><b class="num">${S.hideTotals?'••':(e.pts>0?'+':'')+e.pts}</b><button class="link-btn" data-a="cdel" data-k="${e.id}" aria-label="Remove">×</button></li>`:''}).join('')}</ul>`:'<p class="empty">Nothing added yet.</p>'}</div>`;
   if(cPart('tb','goods'))out+=`<div class="sec"><div class="sec-h"><h3>Trade goods</h3><span class="rlab">most of each kind: 10</span></div>${(S.clog||[]).some(e=>e.goods)?'<p class="hint" style="margin:0 0 6px">Goods collected during the game are already counted. Fix anything here by counting the tokens.</p>':''}<div class="panel">${P.map(p=>`<div class="cgoods" style="${pc(p.color)}"><b class="cg-n">${esc(nm(p))}</b>${['wine','grain','cloth'].map(t=>`<label class="rlab">${t[0].toUpperCase()+t.slice(1)}${cst('e.goods.'+p.id+'.'+t,+(((E.goods||{})[p.id]||{})[t]||0),0,30,t)}</label>`).join('')}</div>`).join('')}</div></div>`;
   if(cOn('gold'))out+=grid('Gold bars','gold','bars',false,40)+'<p class="hint" style="margin-top:-6px">1–3 bars: 1 point each · 4–6 bars: 2 each · 7–9 bars: 3 each · 10 or more: 4 each.</p>';
   if(cPart('ckr','kr')){const sel=(k,label)=>`<div class="cw"><div class="rlab"><b>${label}</b></div><div class="lr">${P.map(p=>`<button style="${pc(p.color)}" data-a="ckr" data-k="${k}" data-id="${p.id}" aria-pressed="${(E[k]||{}).pid===p.id}"><i></i>${esc(nm(p))}</button>`).join('')}</div></div>`;
@@ -6795,6 +6829,6 @@ render();
 
 <script type="module" src="fb-firebase.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(hadSW&&Date.now()-t0<15000&&!document.querySelector('input:focus'))location.reload()})}window.FT_BUILD='537ad9';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(hadSW&&Date.now()-t0<15000&&!document.querySelector('input:focus'))location.reload()})}window.FT_BUILD='39264c';</script>
 </body>
 </html>
