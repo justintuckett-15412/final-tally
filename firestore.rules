@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // A family's games can only be reached by a device that knows its 12-character family code.
+    // Nobody can list the families, so codes can't be discovered.
+    match /families/{code} {
+      allow get: if request.auth != null;
+      allow create: if request.auth != null && code.size() == 12;
+      match /{rest=**} {
+        allow read, write: if request.auth != null;
+      }
+    }
+    // Everything else is closed.
+    match /{other=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -9,6 +9,12 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
+<script>(function(){try{var P=Storage.prototype,rs=P.setItem,rr=P.removeItem;
+var ok=function(k){return k==='finaltally.v1'||(k.indexOf('finaltally.v1.')===0&&!/\.(tmp|real|homecat|lastbk)$/.test(k))};
+var mark=function(st,k){try{if(st!==window.localStorage||!ok(k)||!st.getItem('ft.family'))return;var d=JSON.parse(st.getItem('ft.dirty')||'{}');d[k]=Date.now();rs.call(st,'ft.dirty',JSON.stringify(d));if(window.ftDirty)window.ftDirty()}catch(e){}};
+P.setItem=function(k,v){var same=false;try{same=this.getItem(k)===String(v)}catch(e){}rs.call(this,k,v);if(!same)mark(this,String(k))};
+P.removeItem=function(k){var had=this.getItem(k)!==null;rr.call(this,k);if(had)mark(this,String(k))};
+window.__ftRaw={set:function(k,v){rs.call(localStorage,k,v)},remove:function(k){rr.call(localStorage,k)}};}catch(e){}})();</script>
 <title>Final Tally</title>
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
@@ -1172,7 +1178,7 @@ function home(){
     <p class="hint hnone" hidden>No games match. Try the Score pad for anything else.</p>`})()}
   ${eventCard()}
   <button class="btn wide stats-btn" data-a="go" data-s="stats">${esc(GN())} stats &amp; history${H.games.length?` <span class="pill">${H.games.length} game${H.games.length===1?'':'s'}</span>`:''}</button>
-  <button class="btn wide stats-btn" data-a="opensettings">Settings <span class="pill">${SET.reveal==='auto'?'Auto reveal':'Tap-through reveal'}${SET.sound?' · sounds on':''}</span></button>
+  <button class="btn wide stats-btn" data-a="opensettings">Settings <span class="pill">${SET.reveal==='auto'?'Auto reveal':'Tap-through reveal'}${SET.sound?' · sounds on':''}${window.FTSYNC&&window.FTSYNC.status().fid?' · synced':''}</span></button>
   <div class="sec hbk"><div class="prow"><button class="btn" style="flex:1" data-a="backup">💾 Back up everything</button><label class="btn" style="flex:1">Restore a backup<input type="file" accept=".json,application/json" id="restore-in" hidden></label></div>
     <p class="hint">${BKMSG?esc(BKMSG)+' ':''}${(()=>{const l=bkLast();if(!l)return 'No backup yet. Save one to your phone or computer now and then.';const d=Math.floor((Date.now()-new Date(l))/864e5);return `Last backup: ${d<1?'today':d===1?'yesterday':d+' days ago'}.`})()}</p></div>
   <button class="btn wide stats-btn samples-btn" data-a="go" data-s="samples">Sample games <span class="pill">${DEMOS.length+CDEMOS.length+HDEMOS.length+CADEMOS.length+NDEMOS.length+PDEMOS.length+DDEMOS.length+PLDEMOS.length+HTDEMOS.length+SDDEMOS.length+RGDEMOS.length+FCDEMOS.length+SBDEMOS.length+GNDEMOS.length+SKDEMOS.length+GFDEMOS.length+TPDEMOS.length+QKDEMOS.length+1}</span></button>
@@ -1385,31 +1391,43 @@ function cheat(m){
 /* ---------- history & family (kept in the viewer's Claude account when available) ---------- */
 const HKEY='finaltally.history';
 const H={mode:'local',games:[],roster:[],events:[],group:'',uid:null,db:null,err:''};
-try{const v=JSON.parse(localStorage.getItem(HKEY));if(v&&Array.isArray(v.games)){H.games=v.games;H.roster=v.roster||[];H.events=v.events||[];H.group=v.group||''}}catch(e){}
-function hSaveLocal(){try{localStorage.setItem(HKEY,JSON.stringify({games:H.games,roster:H.roster,events:H.events||[],group:H.group||''}))}catch(e){}}
+try{const v=JSON.parse(localStorage.getItem(HKEY));if(v&&Array.isArray(v.games)){H.games=v.games;H.roster=v.roster||[];H.events=v.events||[];H.group=v.group||'';H.sids=v.sids||[]}}catch(e){}
+function hSaveLocal(){try{localStorage.setItem(HKEY,JSON.stringify({games:H.games,roster:H.roster,events:H.events||[],group:H.group||'',sids:H.sids||[]}))}catch(e){}}
 const hcol=()=>H.db.collection('data/users/'+H.uid);
 let hQueue=Promise.resolve();
 function hWrite(docId,data){
   if(H.mode!=='db'){hSaveLocal();return}
+  if(H.via==='family')hSaveLocal();
   hQueue=hQueue.then(()=>data===null?hcol().doc(docId).delete():hcol().doc(docId).set(data)).catch(e=>{
-    H.err=e&&e.code==='quota_exceeded'?'Your history storage is full. Delete some old games to save new ones.':'This change couldn\'t reach your Claude account, so it\'s kept on this phone for now.';
+    H.err=e&&e.code==='quota_exceeded'?'Your history storage is full. Delete some old games to save new ones.':H.via==='family'?'This change couldn\'t sync to your family\'s devices yet, so it\'s kept on this one for now.':'This change couldn\'t reach your Claude account, so it\'s kept on this phone for now.';
     hSaveLocal();render()});
 }
-(async()=>{try{
-  if(!window.claude||!window.claude.use)return;
-  const [db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);
-  if(!db||!user)return;const id=await user.id();if(!id)return;
-  H.db=db;H.uid=id;
+function hParse(docs){const games=[],ros=[],evs=[];let grp='';
+  docs.forEach(d=>{const v=d.data();if(!v)return;if(d.id==='roster')ros.push(...(v.list||[]));else if(d.id==='events')evs.push(...(v.list||[]));else if(d.id==='group'){if(v.name)grp=v.name}else if(d.id.startsWith('g_'))games.push(v)});
+  return {games,ros,evs,grp}}
+/* attach the history to a shared store: your Claude account, or (installed app) your family's sync */
+async function hAttach(db,id,via){
+  H.db=db;H.uid=id;H.via=via||'claude';
   const snap=await hcol().get();
-  const games=[],ros=[],evs=[];let grp='';
-  snap.docs.forEach(d=>{const v=d.data();if(!v)return;if(d.id==='roster')ros.push(...(v.list||[]));else if(d.id==='events')evs.push(...(v.list||[]));else if(d.id==='group'){if(v.name)grp=v.name}else if(d.id.startsWith('g_'))games.push(v)});
+  const {games,ros,evs,grp}=hParse(snap.docs),gone=new Set(H.via==='family'?H.sids||[]:[]);
+  if(H.via==='family')H.games=H.games.filter(g=>games.some(x=>x.id===g.id)||!gone.has(g.id));
   const local=H.games.filter(g=>!games.some(x=>x.id===g.id));
   const merged=[...ros];H.roster.forEach(r=>{if(!merged.some(x=>x.name.toLowerCase()===r.name.toLowerCase()))merged.push(r)});
   const rosterGrew=merged.length!==ros.length;
   const localEv=(H.events||[]).filter(e=>!evs.some(x=>x.id===e.id));H.mode='db';H.games=[...games,...local].sort((a,b)=>b.date.localeCompare(a.date));H.roster=merged;H.events=[...evs,...localEv];if(grp)H.group=grp;else if(H.group)hWrite('group',{name:H.group});if(localEv.length)hWrite('events',{list:H.events});
   local.forEach(g=>hWrite('g_'+g.id,g));if(rosterGrew)hWrite('roster',{list:H.roster});
-  hQueue.then(()=>{if(!H.err)try{localStorage.removeItem(HKEY)}catch(e){}});
-  render();
+  if(H.via==='family'){H.sids=H.games.map(g=>g.id);hSaveLocal()}
+  else hQueue.then(()=>{if(!H.err)try{localStorage.removeItem(HKEY)}catch(e){}});
+  render()}
+/* another device changed the shared history: take it as it now stands */
+function hReplace(docs){const {games,ros,evs,grp}=hParse(docs);H.games=games.sort((a,b)=>b.date.localeCompare(a.date));H.roster=ros;H.events=evs;if(grp)H.group=grp;H.sids=games.map(g=>g.id);hSaveLocal();render()}
+function hDetach(){H.mode='local';H.db=null;H.via='';H.err='';hSaveLocal();render()}
+window.FTHIST={attach:hAttach,replace:hReplace,detach:hDetach};
+(async()=>{try{
+  if(!window.claude||!window.claude.use)return;
+  const [db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);
+  if(!db||!user)return;const id=await user.id();if(!id)return;
+  await hAttach(db,id,'claude');
 }catch(e){}})();
 
 function ranking(){
@@ -1576,6 +1594,7 @@ function settingsScreen(){
   const names=[...new Set([...H.roster.map(r=>r.name),...act().map(nm).filter(n=>!/^(Player|Team) \d$/.test(n))])];
   const seg=(k,opts)=>`<div class="seg">${opts.map(([v,t])=>`<button data-a="set" data-k="${k}" data-v="${v}" aria-pressed="${String(SET[k])===String(v)}">${t}</button>`).join('')}</div>`;
   return `<div class="bar"><button class="back" data-a="setback">‹ Back</button><h1>Settings</h1></div>
+  ${syncSec()}
   <div class="sec"><div class="sec-h"><h3>The reveal</h3></div>${seg('reveal',[['tap','Tap through'],['auto','Play automatically']])}
     <p class="hint">${SET.reveal==='auto'?'The reveal plays start to finish on its own, one round at a time. You can pause it anytime.':'You tap to move to each round, so the table can react before the next one.'}</p></div>
   <div class="sec"><div class="sec-h"><h3>Carcassonne reveal look</h3></div>${seg('clook',[['tiles','Land tiles'],['wall','City wall'],['bars','Classic bars']])}
@@ -1597,6 +1616,29 @@ function settingsScreen(){
     <p class="hint">At the reveal, this phone cheers if its owner wins and plays the sad trombone if they don't. Set to nobody, it always cheers for the winner. Once phones are linked, each phone does this for its own player.</p></div>
   <p class="hint">These settings apply to this device only.</p>`;
 }
+/* ---------- family sync (installed app only: window.FTSYNC comes from sync.js) ---------- */
+let SYNCMSG='',SYNCBUSY=false,SYNCPRE='',SYNCLEAVE=false,FTPEND=false;
+const famCode=c=>String(c||'').replace(/(.{4})(?=.)/g,'$1-');
+function syncSec(){const F=window.FTSYNC;if(!F)return '';const st=F.status();
+  const msg=SYNCMSG?`<b>${esc(SYNCMSG)}</b> `:'';
+  if(st.fid)return `<div class="sec" id="syncsec"><div class="sec-h"><h3>Sync across devices</h3></div><div class="panel">
+    <div class="prow"><div class="rtext"><b>Family code <span class="num synccode">${famCode(st.fid)}</span></b><div class="rlab">${esc(st.text)}</div></div></div>
+    <div class="prow"><button class="btn" style="flex:1" data-a="syncshare">Share the code</button><button class="btn" style="flex:1" data-a="syncleave">${SYNCLEAVE?'Tap again to stop':'Stop syncing here'}</button></div></div>
+    <p class="hint">${msg}Every device with this code shares finished games, games in progress, players and house rules. Keep the code in the family: anyone who has it can see and change your games.${SYNCLEAVE?' Stopping keeps everything on this device, but changes here won\u2019t reach the others.':''}</p></div>`;
+  return `<div class="sec" id="syncsec"><div class="sec-h"><h3>Sync across devices</h3></div><div class="panel" style="padding:12px;display:grid;gap:10px">
+    <div class="rlab">Share games, players and house rules between every phone, tablet and laptop in the family.</div>
+    <button class="btn primary" data-a="synccreate" ${SYNCBUSY?'disabled':''}>Create a family code</button>
+    <div class="rlab"><b>Already have a code?</b> Type it here to join.</div>
+    <input id="sync-code" class="search" value="${esc(famCode(SYNCPRE))}" placeholder="ABCD-EFGH-JKLM" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="14" enterkeyhint="go">
+    <button class="btn" data-a="syncjoin" ${SYNCBUSY?'disabled':''}>Join this family</button></div>
+    <p class="hint">${msg}${SYNCBUSY?'Working on it\u2026':'Joining brings this device\u2019s games into the family. If a game is in progress on both, the one played most recently is kept.'}</p></div>`}
+async function syncDo(fn){if(SYNCBUSY)return;SYNCBUSY=true;SYNCMSG='';render();try{SYNCMSG=await fn()||''}catch(e){SYNCMSG=(e&&e.message)||'That didn\u2019t work. Check your internet connection and try again.'}SYNCBUSY=false;render()}
+/* sync.js calls this after it writes other devices' changes into storage */
+window.ftRemote=function(keys){if(!keys.includes(GKEY(S.game||'ttr'))||S.demo||S.editing){render();return}
+  const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)){FTPEND=true;return}
+  FTPEND=false;const n=load();if(n){const scr=S.screen;S=n;if(S.screen!==scr&&scr==='settings')S.screen=scr}render()};
+window.ftOpenSync=function(code){SYNCPRE=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12);if(S.screen!=='settings'){SETBACK=S.screen;S.screen='settings'}render();setTimeout(()=>{const e=document.getElementById('syncsec');if(e)e.scrollIntoView({block:'start'})},50)};
+window.ftPing=()=>{if(S.screen==='settings'||S.screen==='home')render()};
 
 /* ---------- sample games ---------- */
 const DEMOS=[
@@ -5914,7 +5956,7 @@ function confetti(color){
 let H2H=[],DELG=null,DELR=null;
 const pkey=pl=>pl.rid||('n:'+pl.name.toLowerCase());
 function statsScreen(){
-  const G=HG(),where=H.mode==='db'?'Saved to your Claude account, so it follows you to any device.':'Saved on this device only. Open the app signed in to Claude to keep it everywhere.';
+  const G=HG(),where=H.mode==='db'&&H.via==='family'?'Synced with every device that has your family code.':H.mode==='db'?'Saved to your Claude account, so it follows you to any device.':'Saved on this device only. Open the app signed in to Claude to keep it everywhere.';
   let out=GEDIT?`<div class="bar"><h1>Name your group</h1></div><div class="sec"><div class="panel" style="padding:12px;display:grid;gap:10px"><input id="grp-name" class="search" maxlength="30" value="${esc(H.group||'')}" placeholder="Family" autocomplete="off">
       <div class="lr">${['Family','Game night crew','Friends','The cousins','Office game club'].map(n=>`<button data-a="grpname" data-v="${n}">${n}</button>`).join('')}</div>
       <div class="ev-btns"><button class="btn" data-a="grpedit">Cancel</button><button class="btn primary" data-a="grpsave">Save</button></div></div>
@@ -6105,6 +6147,7 @@ function tourPos(){const box=document.getElementById('tour');if(!box||!TOUR)retu
 function tourEnd(seen){if(TOUR&&TOUR.id==='home')setTimeout(()=>window.scrollTo(0,0),0);if(TOUR&&seen){SET.tours={...(SET.tours||{}),[TOUR.id]:true};if(TOUR.id==='ttrscore')SET.tipsDone=true;saveSet()}TOUR=null;const o=document.getElementById('tour');if(o)o.remove()}
 window.addEventListener('scroll',()=>{if(TOUR)tourPos()},{passive:true});window.addEventListener('resize',()=>{if(TOUR)tourPos()});
 document.addEventListener('keydown',e=>{if(TOUR&&e.key==='Escape'){tourEnd(true)}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='sync-code'){e.preventDefault();const b=document.querySelector('[data-a=syncjoin]');if(b)b.click()}});
 
 /* ---------- events ---------- */
 function kpShow(){const d=document.getElementById('kp-disp');if(d)d.innerHTML=KP||'<span>Ticket value</span>'}
@@ -6158,6 +6201,7 @@ document.addEventListener('input',e=>{
     const s=e.target.closest('.sec').querySelector('.sub');if(s)s.textContent=exPts(p,id)}
 });
 document.addEventListener('change',e=>{if(e.target.dataset&&e.target.dataset.qkwit){QKX().wit[e.target.dataset.qkwit]=e.target.value;qkKeep();save();render();return}if(e.target.dataset&&e.target.dataset.qkfc){snap();S.qkfc=S.qkfc||[];S.qkfc[qkCur()]=e.target.value||null;save();render();return}if(e.target.dataset&&e.target.dataset.qkbook){QKX().bk[e.target.dataset.qkbook]=e.target.value;qkKeep();save();render();return}if(TD&&e.target.dataset.tgall){TD.all=e.target.value;TD.gm={};render();return}if(TD&&e.target.dataset.tg){TD.gm[e.target.dataset.tg]=e.target.value;return}if(e.target.id==='photo-in'&&e.target.files[0]){addPhoto(e.target.files[0]);return}if(e.target.id==='restore-in'&&e.target.files[0]){restore(e.target.files[0]);return}if(e.target.dataset.x)render()});
+document.addEventListener('focusout',()=>{if(FTPEND)setTimeout(()=>{const ae=document.activeElement;if(FTPEND&&!(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)))window.ftRemote([GKEY(S.game||'ttr')])},400)});
 document.addEventListener('focusout',e=>{const d=e.target.dataset;if(!d||!(d.hfc||d.nxc||d.pxc||d.fcc||d.sbc||d.gnc||d.skc||d.gfc||d.tpc))return;setTimeout(()=>{const a=document.activeElement;if(a&&a.dataset&&(a.dataset.hfc||a.dataset.nxc||a.dataset.pxc||a.dataset.fcc||a.dataset.sbc||a.dataset.gnc||a.dataset.skc||a.dataset.gfc||a.dataset.tpc))return;if(['score'].includes(S.screen))render()},250)});
 document.addEventListener('focusin',e=>{if(e.target.dataset&&(e.target.dataset.hfc||e.target.dataset.nxc||e.target.dataset.pxc||e.target.dataset.fcc||e.target.dataset.sbc||e.target.dataset.gnc||e.target.dataset.skc||e.target.dataset.gfc||e.target.dataset.tpc)){snap();try{e.target.select()}catch(x){}}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='t-add'){e.preventDefault();tAddName();render();setTimeout(()=>{const i=document.getElementById('t-add');if(i)i.focus()},30);return}if(e.key!=='Enter'||!e.target.dataset||!(e.target.dataset.hfc||e.target.dataset.nxc||e.target.dataset.pxc||e.target.dataset.fcc||e.target.dataset.sbc||e.target.dataset.gnc||e.target.dataset.skc||e.target.dataset.gfc||e.target.dataset.tpc))return;e.preventDefault();const SEL=e.target.dataset.tpc?'[data-tpc]':e.target.dataset.gfc?'[data-gfc]':e.target.dataset.skc?'[data-skc]':e.target.dataset.gnc?'[data-gnc]':e.target.dataset.sbc?'[data-sbc]':e.target.dataset.fcc?'[data-fcc]':e.target.dataset.pxc?'[data-pxc]':e.target.dataset.nxc?'[data-nxc]:not([disabled])':'[data-hfc]',all=[...document.querySelectorAll(SEL)],i=all.indexOf(e.target);
@@ -6503,6 +6547,11 @@ document.addEventListener('click',e=>{
     case 'tourback':if(TOUR)TOUR.i=Math.max(0,TOUR.i-1);break;
     case 'tourskip':tourEnd(true);break;
     case 'touroff':SET.toursOff=true;saveSet();tourEnd(false);break;
+    case 'synccreate':syncDo(async()=>{await window.FTSYNC.create();return 'Your family code is ready. Share it with your other devices.'});return;
+    case 'syncjoin':{const v=(document.getElementById('sync-code')||{}).value||'';SYNCPRE=v;syncDo(async()=>{await window.FTSYNC.join(v);SYNCPRE='';return 'Joined! Everything is syncing now.'});return}
+    case 'syncleave':if(!SYNCLEAVE){SYNCLEAVE=true;render();return}SYNCLEAVE=false;window.FTSYNC.leave();SYNCMSG='This device has stopped syncing. Everything stays on it.';render();return;
+    case 'syncshare':{const c=famCode(window.FTSYNC.status().fid),url=location.origin+location.pathname+'#join='+c,text=`Join our Final Tally family with code ${c}`;
+      if(navigator.share)navigator.share({title:'Final Tally family code',text,url}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(`${text}: ${url}`).then(()=>{SYNCMSG='Link copied. Paste it into a message to your other devices.';render()},()=>{});return}
     case 'tourreset':SET.tours={};SET.toursOff=false;SET.tipsDone=false;saveSet();toast('The walkthrough will show again on each screen.');break;
     case 'tipsdone':SET.tipsDone=true;saveSet();break;
     case 'share':shareResult();return;
@@ -6577,6 +6626,7 @@ document.addEventListener('click',e=>{
 render();
 </script>
 
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));window.FT_BUILD='01756b7223';</script>
+<script type="module" src="fb-firebase.js"></script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));window.FT_BUILD='ef41909d88';</script>
 </body>
 </html>
