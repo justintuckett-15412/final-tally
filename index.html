@@ -1521,6 +1521,9 @@ function saveGame(){
 
 /* ---------- device settings (this phone only) ---------- */
 const SKEY='finaltally.settings';
+/* Light / dark look: "auto" follows the device (or the page around the app); light and dark are fixed */
+let THEMESET=false;
+function applyTheme(){const r=document.documentElement,t=SET&&SET.theme;if(t==='light'||t==='dark'){if(r.dataset.theme!==t)r.dataset.theme=t;THEMESET=true}else if(THEMESET){r.removeAttribute('data-theme');THEMESET=false}}
 let SET={reveal:'auto',revv:2,cb:false,sound:true,me:'',look:'art',lookv:2,awake:true,big:false,tipsDone:false,timer:0},SETBACK='home';
 try{Object.assign(SET,JSON.parse(localStorage.getItem(SKEY))||{})}catch(e){}
 if(SET.lookv!==2){SET.look='art';SET.lookv=2}
@@ -1613,6 +1616,8 @@ function settingsScreen(){
   const seg=(k,opts)=>`<div class="seg">${opts.map(([v,t])=>`<button data-a="set" data-k="${k}" data-v="${v}" aria-pressed="${String(SET[k])===String(v)}">${t}</button>`).join('')}</div>`;
   return `<div class="bar"><button class="back" data-a="setback">‹ Back</button><h1>Settings</h1></div>
   ${syncSec()}
+  <div class="sec"><div class="sec-h"><h3>Light or dark</h3></div>${seg('theme',[['auto','Match device'],['light','Light'],['dark','Dark']]).replace('class="seg"','class="seg three"').replace('aria-pressed="false">Match device','aria-pressed="'+(!SET.theme||SET.theme==='auto')+'">Match device')}
+    <p class="hint">${SET.theme==='light'?'Always light, even when the device is in dark mode.':SET.theme==='dark'?'Always dark, easier on the eyes at night.':'Follows your device: light during the day, dark when the device switches to dark mode.'}</p></div>
   <div class="sec"><div class="sec-h"><h3>The reveal</h3></div>${seg('reveal',[['tap','Tap through'],['auto','Play automatically']])}
     <p class="hint">${SET.reveal==='auto'?'The reveal plays start to finish on its own, one round at a time. You can pause it anytime.':'You tap to move to each round, so the table can react before the next one.'}</p></div>
   <div class="sec"><div class="sec-h"><h3>Carcassonne reveal look</h3></div>${seg('clook',[['tiles','Land tiles'],['wall','City wall'],['bars','Classic bars']])}
@@ -6181,7 +6186,7 @@ function render(){
   const v={home,lkwho:lkWhoScreen,lkwait:lkWaitScreen,map:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:mapScreen,rules:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:rulesScreen,players:QK2?nxPlayers:TP2?nxPlayers:GF2?nxPlayers:SK2?nxPlayers:GN2?nxPlayers:SB2?sdPlayers:FC2?nxPlayers:RG2?nxPlayers:SG2?sdPlayers:TG2?nxPlayers:LG2?plPlayers:DG2?dtPlayers:PG2?pxPlayers:NG2?nxPlayers:HG2?hfPlayers:playersScreen,score:QK2?qkScore:TP2?tpScore:GF2?gfScore:SK2?skScore:GN2?gnScore:SB2?sbScore:FC2?fcScore:RG2?rgScore:SG2?sdScore:TG2?htScore:LG2?plPlay:DG2?dtPlay:PG2?pxScore:NG2?nxScore:HG2?hfScore:CG?cFinal:scoring,results,reveal:revealScreen,stats:statsScreen,profile:profileScreen,event:eventScreen,recap:recapScreen,settings:settingsScreen,live:CG?cLive:liveScreen,lobby:lobbyScreen,samples:samplesScreen,tsetup:tSetup}[S.screen]||home;
   if(S.active>=act().length)S.active=0;
   if(S.started&&!S.finished&&!S.demo&&['live','score'].includes(S.screen)){const now=Date.now();if(S.lastTick)S.playMs=(S.playMs||0)+Math.min(Math.max(0,now-S.lastTick),10*60e3);S.lastTick=now}
-  document.documentElement.classList.toggle('big',!!SET.big);document.documentElement.classList.toggle('cb',!!SET.cb);wake(needWake());
+  applyTheme();document.documentElement.classList.toggle('big',!!SET.big);document.documentElement.classList.toggle('cb',!!SET.cb);wake(needWake());
   const wasFinal=REV&&REV.phase==='final'&&S.screen==='reveal'&&document.querySelector('[data-final]');
   const winY=SLOCK?null:window.scrollY,winScr=S.screen;
   const KEEPSC=['.csheet .cbody','.rsheet .rs-body','.cpick'],keepSc=KEEPSC.map(q=>{const el=document.querySelector(q);return el?el.scrollTop:null});
@@ -6776,6 +6781,6 @@ render();
 
 <script type="module" src="fb-firebase.js"></script>
 <script>(function(){var m=document.querySelector('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;if(c&&m.content!==c)m.content=c}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));window.FT_BUILD='41f305b444';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));window.FT_BUILD='ef7ccc9582';</script>
 </body>
 </html>
