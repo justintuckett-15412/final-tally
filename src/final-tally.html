@@ -1038,7 +1038,7 @@ function gamePeek(g){if((S.game||'ttr')===g&&!S.demo&&!S.editing)return S;try{re
 function switchGame(g){if(S.lk&&S.lk.role==='guest'&&!S.demo&&(S.game||'ttr')!==g){toast('Leave the linked game first (home screen, Linked game).');throw new Error('linked')}if((S.game||'ttr')===g&&!S.demo&&!S.editing)return;if(S.demo||S.editing){exitDemo()}if((S.game||'ttr')===g)return;save();
   CURG=g;try{localStorage.setItem('finaltally.cur',g)}catch(e){}let n=null;try{n=JSON.parse(localStorage.getItem(GKEY(g)))}catch(e){}
   S=n&&n.players?n:(g==='carc'?cFresh():g==='hf'?hfFresh():g==='canasta'?hfFresh('canasta'):g==='nerts'?nxFresh():g==='pad'?pxFresh():g==='darts'?dtFresh():g==='pool'?plFresh():g==='hearts'?htFresh():g==='spades'?sdFresh():g==='rage'?rgFresh():g==='crowns'?fcFresh():g==='skipbo'?sbFresh():g==='gnome'?gnFresh():g==='skyjo'?skFresh():g==='golf'?gfFresh():g==='tripoley'?tpFresh():g==='quacks'?qkFresh():fresh());UNDO=[];KP='';WARN=null;REV=null;CALC=null}
-function save(){try{if(S.lk&&S.lk.role==='guest'&&!S.demo){localStorage.setItem(KEY+'.linked',JSON.stringify(S));lkPush();return}if(S.demo||S.editing){localStorage.setItem(KEY+'.tmp',JSON.stringify(S));return}if(S.started&&!S.finished&&!S.demo){const j=JSON.stringify({p:S.players,x:S.picks,l:S.log});if(j!==S._sig){S._sig=j;S.touched=Date.now()}}localStorage.setItem(GKEY(S.game||'ttr'),JSON.stringify(S));if(S.lk)lkPush()}catch(e){}}
+function save(){try{if(S.lk&&S.lk.role==='guest'&&!S.demo){if(lkLockBlock())return;localStorage.setItem(KEY+'.linked',JSON.stringify(S));lkPush();return}if(S.demo||S.editing){localStorage.setItem(KEY+'.tmp',JSON.stringify(S));return}if(S.started&&!S.finished&&!S.demo){const j=JSON.stringify({p:S.players,x:S.picks,l:S.log});if(j!==S._sig){S._sig=j;S.touched=Date.now()}}localStorage.setItem(GKEY(S.game||'ttr'),JSON.stringify(S));if(S.lk)lkPush()}catch(e){}}
 function defaultRules(k){const m=MAPS[k],r={};(m.presets?m.presets[0].on:[]).concat(m.defaults).forEach(id=>r[id]=true);return r}
 let S=load()||(CURG==='carc'?cFresh():CURG==='hf'?hfFresh():CURG==='canasta'?hfFresh('canasta'):CURG==='nerts'?nxFresh():CURG==='pad'?pxFresh():CURG==='darts'?dtFresh():CURG==='pool'?plFresh():CURG==='hearts'?htFresh():CURG==='spades'?sdFresh():CURG==='rage'?rgFresh():CURG==='crowns'?fcFresh():CURG==='skipbo'?sbFresh():CURG==='gnome'?gnFresh():CURG==='skyjo'?skFresh():CURG==='golf'?gfFresh():CURG==='tripoley'?tpFresh():CURG==='quacks'?qkFresh():fresh());
 try{if(localStorage.getItem(KEY+'.lkon')){const g=JSON.parse(localStorage.getItem(KEY+'.linked'));if(g&&g.players&&g.lk)S=g}}catch(e){}
@@ -1617,6 +1617,17 @@ const stable=o=>o===null||typeof o!=='object'?JSON.stringify(o):Array.isArray(o)
 function lkSplit(){const main={};for(const k in S){if(k!=='players'&&!LKLOCAL.includes(k))main[k]=S[k]}
   return {main:stable(main),order:S.players.map(p=>p.id),ps:Object.fromEntries(S.players.map(p=>[p.id,stable(p)]))}}
 const lkGuest=()=>!!(S.lk&&S.lk.role==='guest');
+/* locked scoring: a guest phone may only change its own player's score (or a shared score that includes its player) */
+function lkBase(){const m=JSON.parse(LKLAST.main||'{}');return {...m,players:(LKLAST.order||[]).map(id=>LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):null).filter(Boolean)}}
+function lkTotals(st){const cur=S,o={};try{S=st;act().forEach(p=>{try{o[p.id]=total(p)}catch(e){o[p.id]=null}})}catch(e){}finally{S=cur}return o}
+function lkLockBlock(){if(!S.lk||S.demo||LKMUTE||lkHost()||!S.lklock||!LKLAST.main)return false;
+  const base=lkBase(),bt=lkTotals(base),ct=lkTotals(S),me=S.lk.me,changed=[];
+  S.players.forEach(p=>{if(stable(p)!==LKLAST.ps[p.id]||bt[p.id]!==ct[p.id])changed.push(p.id)});
+  if(!changed.length||(me&&changed.includes(me)))return false;
+  const loc={};LKLOCAL.forEach(k=>{if(k in S)loc[k]=S[k]});S={...base,...loc};
+  const who=changed.map(id=>{const p=S.players.find(x=>x.id===id);return p?nm(p):''}).filter(Boolean).join(' and ');
+  const ph=changed.some(id=>LKSEATS[id]&&LKSEATS[id].dev);toast(me?(ph?`Locked: only ${who}\u2019s phone or the host can change ${who}\u2019s score.`:`Locked: only the host can score ${who}.`):'Locked: pick your player first, then you can score yourself.');
+  try{localStorage.setItem(KEY+'.linked',JSON.stringify(S))}catch(e){}return true}
 const LKIDLE=12*3600e3;
 const lkTouch=()=>{if(S.lk)S.lk.at=Date.now()};
 /* a linked game with no changes for 12 hours unlinks itself; the host keeps the game, guests get their own games back */
@@ -1677,7 +1688,7 @@ async function lkPick(id){if(!S.lk||LKBUSY)return;const mine=window.FTLINK.dev()
   if(id&&id!==prev){LKBUSY=true;render();const s={dev:mine,ready:false,rd:LKRD};
     try{await window.FTLINK.seat(id,s);LKSEATS[id]=s}catch(e){LKBUSY=false;toast('Someone just took that player on another phone.');render();return}LKBUSY=false}
   if(prev&&prev!==id){window.FTLINK.seat(prev,null).catch(()=>{});delete LKSEATS[prev]}
-  S.lk.me=id||null;S.lk.claimed=!!id;
+  S.lk.me=id||null;S.lk.claimed=!!id;if(id){const ix=act().findIndex(p=>p.id===id);if(ix>=0)S.active=ix}
   LKMUTE=true;save();LKMUTE=false;S.screen=lkGuest()&&!S.started?'lkwait':lkScreen();window.scrollTo(0,0);render()}
 function lkFree(id){if(!lkHost())return;if(LKFREE!==id){LKFREE=id;render();return}LKFREE=null;window.FTLINK.seat(id,null).catch(()=>toast('Couldn\u2019t free that spot.'));delete LKSEATS[id];render()}
 function lkReady(on){const id=S.lk&&S.lk.me;if(!id)return;const s={...(LKSEATS[id]||{dev:window.FTLINK.dev()}),ready:!!on,rd:LKRD};LKSEATS[id]=s;window.FTLINK.seat(id,s).catch(()=>toast('Couldn\u2019t update. Check your connection.'));
@@ -1690,11 +1701,13 @@ function lkWhoScreen(){const P=act(),dev=window.FTLINK?window.FTLINK.dev():'';
   <button class="btn wide" data-a="lkpick" data-k="">${lkHost()?'I’m not playing, just scoring':'Just watching'}</button>`}
 function lkWaitScreen(){return `<div class="bar"><h1>Linked game</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>Waiting for the host</h2><p>The host is still choosing the game and rules. Scoring opens here as soon as they start.</p></div>`}
 function lkBar(){if(!S.lk||S.demo||['lkwho','home'].includes(S.screen))return '';const seat=lkSeated(),n=lkReadyN(),mine=lkMine(),me=S.lk.me&&act().find(p=>p.id===S.lk.me);
-  const head=`<div class="lkbar${LKOPEN?' open':''}"><button class="lkb-main" data-a="lkopen" aria-expanded="${LKOPEN}"><span class="lkb-code">📱 <b class="num">${fmtCode(S.lk.code)}</b></span><span class="lkb-st">${S.finished?'Revealed':seat.length?`${n}/${seat.length} done`:'No phones joined yet'}${me?' · '+esc(nm(me)):lkHost()?' · Host':''}</span><span class="chev">${LKOPEN?'▴':'▾'}</span></button>
+  const head=`<div class="lkbar${LKOPEN?' open':''}"><button class="lkb-main" data-a="lkopen" aria-expanded="${LKOPEN}"><span class="lkb-code">📱 <b class="num">${fmtCode(S.lk.code)}</b></span><span class="lkb-st">${S.lklock?'🔒 ':''}${S.finished?'Revealed':seat.length?`${n}/${seat.length} done`:'No phones joined yet'}${me?' · '+esc(nm(me)):lkHost()?' · Host':''}</span><span class="chev">${LKOPEN?'▴':'▾'}</span></button>
     ${me&&S.started&&!S.finished?`<button class="btn sm${lkOk(mine)?'':' primary'}" data-a="lkready" data-k="${lkOk(mine)?'0':'1'}">${lkOk(mine)?'Not done':'I’m done'}</button>`:''}</div>`;
   if(!LKOPEN)return head;
   const P=act();
   return head+`<div class="lkpanel">
+    ${lkHost()?`<div class="rlab"><b>Who can enter scores?</b></div><div class="seg"><button data-a="lklock" data-k="0" aria-pressed="${!S.lklock}">Anyone, for anyone</button><button data-a="lklock" data-k="1" aria-pressed="${!!S.lklock}">Each phone, its own player</button></div>
+      <p class="rlab" style="margin:0">${S.lklock?'Each phone can only change its own player. Shared scores that include their player still count. You (the host) can change anyone, including players without a phone.':'Any phone can score any player.'}</p>`:`<p class="rlab" style="margin:0"><b>${S.lklock?'Locked scoring:':'Open scoring:'}</b> ${S.lklock?'this phone can only change its own player\u2019s score. The host can change anyone.':'any phone can score any player.'}</p>`}
     <p class="rlab">${lkHost()?`Others join from the home screen with code <b class="num">${fmtCode(S.lk.code)}</b>.`:`Hosted game <b class="num">${fmtCode(S.lk.code)}</b>.`} When everyone with a phone taps <b>I’m done</b>, the reveal starts on every phone.</p>
     ${P.map(p=>{const s=LKSEATS[p.id];return `<div class="seat" style="${pc(p.color)}"><i class="dot"></i><div class="seat-m"><b>${esc(nm(p))}${S.lk.me===p.id?' (this phone)':''}</b><small>${s&&s.dev?'On a phone · locked to it':'No phone · scored by anyone'}</small></div>${s&&s.dev?(lkOk(s)?'<span class="st ok">Done ✓</span>':'<span class="st">Scoring…</span>'):''}${lkHost()&&s&&s.dev&&S.lk.me!==p.id?`<button class="btn sm" data-a="lkfree" data-k="${p.id}">${LKFREE===p.id?'Tap to free':'Free'}</button>`:''}</div>`}).join('')}
     <div class="prow">${lkHost()&&S.started&&!S.finished?(LKSTOP==='rev'?`<button class="btn warn" style="flex:1" data-a="lkrevnow">Tap again to reveal now</button>`:`<button class="btn" style="flex:1" data-a="lkrevnow">Reveal now</button>`):''}
@@ -6657,6 +6670,7 @@ document.addEventListener('click',e=>{
     case 'tourskip':tourEnd(true);break;
     case 'touroff':SET.toursOff=true;saveSet();tourEnd(false);break;
     case 'lkui':LKUI=k||'';LKMSG='';if(LKUI==='join'){render();setTimeout(()=>{const i=document.getElementById('lk-code');if(i)i.focus()},30);return}break;
+    case 'lklock':if(lkHost()){S.lklock=k==='1';save();toast(S.lklock?'Locked: each phone scores only its own player.':'Open: any phone can score anyone.')}break;
     case 'lkopen':LKOPEN=!LKOPEN;LKSTOP=false;break;
     case 'lkready':lkReady(k==='1');break;
     case 'lkrevnow':if(LKSTOP!=='rev'){LKSTOP='rev';break}LKSTOP=false;window.FTLINK.reveal();break;
