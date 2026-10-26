@@ -6335,7 +6335,7 @@ function tourApply(){let old=document.getElementById('tour');if(TOUR&&TOUR.id!==
   const html=`<div class="tour-block"></div><div class="tour-hole"></div><div class="tour-bub" role="dialog" aria-modal="true" aria-labelledby="tour-t"><div class="tour-top"><small>${esc(TOURS[TOUR.id].n)} · ${TOUR.i+1} of ${steps.length}</small><button class="link-btn" data-a="tourskip">Skip</button></div>
     <h3 id="tour-t">${esc(st.t)}</h3><p>${esc(st.x)}</p><div class="tour-btns">${TOUR.i?'<button class="btn sm" data-a="tourback">Back</button>':''}<button class="btn sm primary" data-a="tournext">${last?'Got it':'Next'}</button></div>
     ${TOUR.id==='home'&&!TOUR.i?'<button class="link-btn tour-off" data-a="touroff">Don’t show walkthroughs</button>':''}</div>`;
-  let box=old;if(!box){box=document.createElement('div');box.id='tour';document.body.appendChild(box)}box.innerHTML=html;tourPos();
+  let box=old;if(!box){box=document.createElement('div');box.id='tour';document.body.appendChild(box)}box.innerHTML=html;tourPos();setTimeout(()=>{if(TOUR)tourPos()},300);
   const nb=box.querySelector('[data-a=tournext]');if(nb)nb.focus({preventScroll:true})}
 function tourPos(){const box=document.getElementById('tour');if(!box||!TOUR)return;const steps=tourSteps(TOUR.id),st=steps[TOUR.i];if(!st)return;const el=tourEl(st);if(!el)return;
   const z=parseFloat(document.documentElement.style.zoom)||1,r0=el.getBoundingClientRect(),r={top:r0.top/z,bottom:r0.bottom/z,left:r0.left/z,width:r0.width/z},pad=6,h=box.querySelector('.tour-hole'),bub=box.querySelector('.tour-bub'),vh=window.innerHeight/z;
@@ -6345,6 +6345,9 @@ function tourPos(){const box=document.getElementById('tour');if(!box||!TOUR)retu
   if(below>=bh+16){bub.style.top=(bot+10)+'px';bub.style.bottom=''}else if(above>=bh+16){bub.style.top=(top-bh-10)+'px';bub.style.bottom=''}else{bub.style.top='';bub.style.bottom='16px'}}
 function tourEnd(seen){if(TOUR&&TOUR.id==='home')setTimeout(()=>window.scrollTo(0,0),0);if(TOUR&&seen){SET.tours={...(SET.tours||{}),[TOUR.id]:true};if(TOUR.id==='ttrscore')SET.tipsDone=true;saveSet()}TOUR=null;const o=document.getElementById('tour');if(o)o.remove()}
 window.addEventListener('scroll',()=>{if(TOUR)tourPos()},{passive:true});window.addEventListener('resize',()=>{if(TOUR)tourPos()});
+/* browsers with toolbars (like Chrome on iPad) settle their size a moment after opening: measure again */
+if(window.visualViewport){visualViewport.addEventListener('resize',()=>{if(TOUR)tourPos()});visualViewport.addEventListener('scroll',()=>{if(TOUR)tourPos()})}
+addEventListener('load',()=>{[250,800,1600].forEach(ms=>setTimeout(()=>{applyScale();if(TOUR)tourPos()},ms))});
 document.addEventListener('keydown',e=>{if(TOUR&&e.key==='Escape'){tourEnd(true)}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='lk-code'){e.preventDefault();const b=document.querySelector('[data-a=lkjoin]');if(b)b.click()}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='sync-code'){e.preventDefault();const b=document.querySelector('[data-a=syncjoin]');if(b)b.click()}});
