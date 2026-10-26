@@ -28,6 +28,7 @@ json.dump(manifest,open(f'{OUT}/manifest.webmanifest','w'),indent=1)
 # page: move the artifact's head-ish lines into a real <head>
 head_extra='''<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#EDF0F3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0F151C" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -35,6 +36,7 @@ head_extra='''<meta charset="utf-8">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 /* Installed app: draw the app all the way to the top and bottom edges instead of leaving system-colored bars */
+html{background:var(--bg)}
 @media (display-mode: standalone){
   body{padding-top:env(safe-area-inset-top,0px)}
   /* the status bar text is white, so in the light look give it a dark strip to sit on */
@@ -50,7 +52,7 @@ html=html.replace('<link rel="icon" type="image/jpeg" href="art/app-icon.jpg">',
 body_start=html.index('<style>')
 head=html[:body_start]; rest=html[body_start:]
 ver=hashlib.sha1((html+''.join(sorted(files))+open('/home/claude/site-tools/sync.js').read()+open('/home/claude/site-tools/fb-firebase.js').read()+open('/home/claude/site-tools/sw.js').read()+open('/home/claude/site-tools/build.py').read()+open('/home/claude/site-tools/headpatch.js').read()).encode()).hexdigest()[:10]
-sw_reg=f'''<script type="module" src="fb-firebase.js"></script>\n<script>(function(){{var ms=document.querySelectorAll('meta[name=theme-color]');function t(){{try{{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c}}catch(e){{}}}}t();setTimeout(t,300);try{{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){{setTimeout(t,50)}})}}catch(e){{}}new MutationObserver(t).observe(document.documentElement,{{attributes:true,attributeFilter:['data-theme','class']}})}})();</script>\n<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{{}}));if('serviceWorker' in navigator){{var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){{if(hadSW&&Date.now()-t0<15000&&!document.querySelector('input:focus'))location.reload()}})}}window.FT_BUILD='{ver[:6]}';</script>'''
+sw_reg=f'''<script type="module" src="fb-firebase.js"></script>\n<script>(function(){{var ms=document.querySelectorAll('meta[name=theme-color]');function t(){{try{{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){{return x+ +y}},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs}}catch(e){{}}}}t();setTimeout(t,300);try{{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){{setTimeout(t,50)}})}}catch(e){{}}new MutationObserver(t).observe(document.documentElement,{{attributes:true,attributeFilter:['data-theme','class']}})}})();</script>\n<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{{}}));if('serviceWorker' in navigator){{var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){{if(hadSW&&Date.now()-t0<15000&&!document.querySelector('input:focus'))location.reload()}})}}window.FT_BUILD='{ver[:6]}';</script>'''
 page=f'<!doctype html>\n<html lang="en">\n<head>\n{head_extra}\n{head}</head>\n<body>\n{rest}\n{sw_reg}\n</body>\n</html>\n'
 open(f'{OUT}/index.html','w').write(page)
 sw=open('/home/claude/site-tools/sw.js').read().replace('__VER__',ver).replace('__FILES__',json.dumps(['./','index.html','manifest.webmanifest','sync.js','fb-firebase.js']+sorted(files)))
