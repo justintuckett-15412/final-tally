@@ -900,7 +900,7 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .mkslot.head{left:33%;top:5%;width:34%}.mkslot.armor{left:32%;top:46%;width:36%}
 .mkslot.handL{left:0;top:30%;width:28%}.mkslot.handR{right:0;top:30%;width:28%}.mkslot.hands2{left:0;right:0;top:29%;width:auto;margin:0 6%;background:color-mix(in srgb,var(--surface) 92%,transparent)}
 .mkslot.feet{left:31%;top:67%;width:38%}.mkslot.steed{left:0;bottom:0;width:28%}.mkslot.hire{right:0;bottom:0;width:28%}
-.mkxpad{padding:12px 14px}.mkchip.curse{border-color:var(--bad);color:var(--bad)}.mkchip.curse i{font-style:normal;opacity:.6}.mkacts{display:flex;flex-wrap:wrap;gap:6px}.mkdead{color:var(--bad)}.mkbs{margin:6px 0 10px;padding:8px 10px;border:1px solid var(--bad);border-radius:12px}.mkepic{background:linear-gradient(90deg,#b8860b,#e0b84a)!important;color:#fff!important}.mkcharity{display:block;margin-top:4px;color:var(--ink)}.mkenh button{font-size:12px}.mksell .step{margin-left:4px}
+.mkxpad{padding:12px 14px}.mkpows{padding:10px 12px}.mkshot{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:4px 0}.mkshot span{flex:1 1 100%;font-size:14px}.mkshot i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--pc);margin-right:6px}.mkshot button{font:inherit;font-size:13px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}.die.caught{background:var(--bad)!important}.mkifr{color:var(--bad)}.mkhire{margin-top:8px}.mkchip.curse{border-color:var(--bad);color:var(--bad)}.mkchip.curse i{font-style:normal;opacity:.6}.mkacts{display:flex;flex-wrap:wrap;gap:6px}.mkdead{color:var(--bad)}.mkbs{margin:6px 0 10px;padding:8px 10px;border:1px solid var(--bad);border-radius:12px}.mkepic{background:linear-gradient(90deg,#b8860b,#e0b84a)!important;color:#fff!important}.mkcharity{display:block;margin-top:4px;color:var(--ink)}.mkenh button{font-size:12px}.mksell .step{margin-left:4px}
 .mkextras{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:4px 0 8px}.mkchip{font:inherit;font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}.mkchip.pos b{color:var(--good)}.mkchip.neg b{color:var(--bad)}
 .mksum-h{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:8px}
 .mkitem.flash{animation:mkflash 1.2s}@keyframes mkflash{0%,60%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:none}}
@@ -1166,7 +1166,7 @@ const padSC=()=>Math.max(1,Math.round(Math.max(1,...act().map(p=>Math.abs(total(
 const LOW=()=>S.game==='uno'&&UNX().mode==='low'||S.game==='golf'||S.game==='skyjo'||S.game==='gnome'&&!gnRW()||S.game==='hearts'||S.game==='crowns'||S.game==='pad'&&!!(S.px||{}).low,RS=p=>S.game==='darts'?dRankKey(p):LOW()?-total(p):total(p),RU=(n,p)=>LOW()?-upto(n,p):upto(n,p);
 const total=p=>S.game==='carc'?cTot(p):HFE()?hfTot(p):S.game==='nerts'?nxTot(p):S.game==='pad'?pxTot(p):S.game==='darts'?dTot(p):S.game==='pool'?plTot(p):S.game==='hearts'?htTot(p):S.game==='spades'?sdTot(p):S.game==='rage'?rgTot(p):S.game==='ohell'?ohTot(p):S.game==='uno'?unTot(p):S.game==='munchkin'?mkTot(p):S.game==='crowns'?fcTot(p):S.game==='skipbo'?sbTot(p):S.game==='gnome'?gnTot(p):S.game==='skyjo'?skTot(p):S.game==='golf'?gfTot(p):S.game==='tripoley'?tpTot(p):S.game==='quacks'?qkTot(p):hsPts(p)+routePts(p)+tkNet(p)+extrasPts(p)+bonusPts(p);
 
-function resetScores(){['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;S.mkloot=null}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
+function resetScores(){['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;S.mkloot=null;S.mkifr=[]}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
 let UNDO=[],KP='',RULESHEET=false;
 if(S.hideTotals===undefined)S.hideTotals=true;
 function setMap(k){
@@ -5682,7 +5682,7 @@ const MKDEF={target:10,start:1,kill:true,deluxe:false,runNeed:5,epic:false,xr:[]
 const mkDefs=()=>JSON.parse(JSON.stringify(MKDEF));
 const MKXR=['Orc','Gnome'],MKXC=['Bard','Ranger','Barbarian'];
 const MKENH=[['baby','Baby',-5],['enraged','Enraged',5],['intel','Intelligent',5],['hum','Humongous',10],['anc','Ancient',10]];
-const MKCURSES=[['Chicken on Your Head',0,-1,'−1 on die rolls'],['Change Sex',-5,0,'−5 in your next fight'],['Custom curse',-1,0,'']];
+const MKCURSES=[['Chicken on Your Head',0,-1,'−1 on die rolls'],['Change Sex',-5,0,'−5 in your next fight',true],['Custom curse',-1,0,'']];
 const MKRACES=['Elf','Dwarf','Halfling'],MKCLASSES=['Warrior','Wizard','Cleric','Thief'];
 const MKX=()=>{if(!S.mkx)S.mkx=mkDefs();const X=S.mkx;for(const k in MKDEF)if(X[k]===undefined)X[k]=Array.isArray(MKDEF[k])?[]:MKDEF[k];return X};
 function mkSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.mkx'))}catch(e){}return Object.assign(mkDefs(),x||{})}
@@ -5691,10 +5691,10 @@ function mkFresh(){return {game:'munchkin',screen:'map',map:'munchkin',rules:{},
 function MKM(){const X=MKX();return {name:X.deluxe?'Munchkin Deluxe':'Munchkin',meta:`${X.epic?'Epic · ':''}first to level ${X.target}${X.kill?' · must kill a monster to win':''}`,min:2,max:8,teams:false,colors:CARC_COLORS,lengths:[],pieces:0,piece:'',own:[],defaults:[],tb:[]}}
 const mkP=p=>{const m=p.mk||(p.mk={});if(!m.lv)m.lv=MKX().start||1;if(m.gear===undefined)m.gear=0;if(!m.races)m.races=[];if(!m.classes)m.classes=[];if(m.sex===undefined)m.sex='';return m};
 const mkLv=p=>mkP(p).lv;
-const MKTYPES=[['head','Headgear'],['armor','Armor'],['foot','Footgear'],['hand1','1 hand'],['hand2','2 hands'],['steed','Steed'],['hire','Hireling'],['other','Other']];
+const MKTYPES=[['head','Headgear'],['armor','Armor'],['foot','Footgear'],['hand1','1 hand'],['hand2','2 hands'],['steed','Steed'],['hire','Hireling'],['other','Other'],['shot','One-shot']];
 const mkItems=p=>{const m=mkP(p);return m.items||(m.items=[])};
 const mkBody=p=>{const m=mkP(p);return m.body||(m.body={heads:1,hands:2,feet:1})};
-const mkItemB=p=>mkItems(p).filter(x=>x.on).reduce((a,x)=>a+(+x.b||0),0);
+const mkItemB=p=>mkItems(p).filter(x=>x.on&&x.t!=='shot').reduce((a,x)=>a+(+x.b||0),0);
 const mkGearT=p=>mkItemB(p)+mkP(p).gear;
 const mkCurses=p=>{const m=mkP(p);return m.curses||(m.curses=[])};
 const mkCurseT=p=>mkCurses(p).reduce((a,c)=>a+(+c.v||0),0);
@@ -5715,8 +5715,15 @@ function mkLevel(p,d,why){const X=MKX(),m=mkP(p),was=m.lv;m.lv=Math.max(1,Math.m
 const mkWinner=()=>act().find(p=>mkLv(p)>=MKX().target);
 /* the fight: players' side vs monsters' side */
 function mkFightCalc(){const F=S.mkfight;if(!F)return null;const P=act(),who=P.find(p=>p.id===F.who),help=P.find(p=>p.id===F.help);if(!who)return null;
-  const ps=mkStr(who)+(help?mkStr(help):0)+(+F.pb||0),ms=(F.mons||[]).reduce((a,m)=>a+(+m.lv||0)+(+m.b||0)+(m.enh||[]).reduce((s2,e)=>s2+((MKENH.find(x=>x[0]===e)||[0,0,0])[2]),0),0)+(+F.mb||0),warrior=mkHas(who,'Warrior');
-  const win=ps>ms||(ps===ms&&warrior);return {who,help,ps,ms,win,warrior,diff:ps-ms}}
+  const pw=F.pw||{},und=(F.mons||[]).some(m=>m.und),stab=(F.stab||[]).length,pows=(+pw.b||0)+(und?3*(+pw.t||0):0)-2*stab;
+  const ps=mkStr(who)+(help?mkStr(help):0)+(+F.pb||0)+pows,ms=(F.mons||[]).reduce((a,m)=>a+mkMonStr(m,who,help),0)+(+F.mb||0),warrior=mkHas(who,'Warrior');
+  const win=ps>ms||(ps===ms&&warrior);return {who,help,ps,ms,win,warrior,diff:ps-ms,und,pows}}
+const mkVsHit=(p,k)=>!!p&&(k==='Women'?mkP(p).sex==='f':k==='Men'?mkP(p).sex==='m':mkHas(p,k));
+const mkVsB=(m,who,help)=>m.vk&&+m.vv&&(mkVsHit(who,m.vk)||mkVsHit(help,m.vk))?+m.vv:0;
+const mkMonStr=(m,who,help)=>(+m.lv||0)+(+m.b||0)+(m.enh||[]).reduce((s2,e)=>s2+((MKENH.find(x=>x[0]===e)||[0,0,0])[2]),0)+mkVsB(m,who,help);
+/* a fight is over (won, ran or sacrificed): keep the interference log, and wear off next-fight-only curses */
+function mkFightOver(F){if(!F)return;if(F.ifr&&F.ifr.length)(S.mkifr||(S.mkifr=[])).push(...F.ifr.map(x=>({...x,vs:F.who})));[F.who,F.help].forEach(id=>{const p=act().find(q=>q.id===id);if(!p)return;const C=mkCurses(p);for(let j=C.length-1;j>=0;j--)if(C[j].once)C.splice(j,1)})}
+const mkLkMe=()=>S.lk&&S.lk.me||null;
 function mkSetup(){const X=MKX();
   const st=(k,v,min,max,step,label)=>`<div class="step"><button data-a="mkst" data-k="${k}" data-d="${-step}" ${v<=min?'disabled':''} aria-label="Less ${label}">−</button><span class="n num">${v}</span><button data-a="mkst" data-k="${k}" data-d="${step}" ${v>=max?'disabled':''} aria-label="More ${label}">+</button></div>`;
   const row=(label,sub,ctl)=>`<div class="srow"><span class="rlab"><b>${label}</b>${sub?` · ${sub}`:''}</span>${ctl}</div>`;
@@ -5731,7 +5738,7 @@ function mkSetup(){const X=MKX();
     <div class="rlab" style="margin-top:8px"><b>Classes</b> · Warrior, Wizard, Cleric and Thief are always in</div><div class="lr">${[...new Set([...MKXC,...X.xc])].map(r=>`<button data-a="mkxt" data-k="xc" data-v="${esc(r)}" aria-pressed="${X.xc.includes(r)}">${esc(r)}</button>`).join('')}</div>
     <input id="mk-xadd" class="search" maxlength="24" placeholder="Another one from your expansions" autocomplete="off" style="margin-top:10px"><div class="lr" style="margin-top:6px"><button data-a="mkxadd" data-k="xr">+ Add as a race</button><button data-a="mkxadd" data-k="xc">+ Add as a class</button></div></div>`,'Turn on the ones from your expansions so you can pick them for a player. Tap one you added to turn it off.')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
-let MKEDIT=null,MKDIE=null,MKWIN10=null,MKITEM=null,MKBODY=null,MKDICE=1,MKROLL=null,MKSELL=null,MKDEAD=null,MKCURSE=null,MKBSI=false;
+let MKEDIT=null,MKDIE=null,MKWIN10=null,MKITEM=null,MKBODY=null,MKDICE=1,MKROLL=null,MKSELL=null,MKDEAD=null,MKCURSE=null,MKBSI=false,MKVS=null;
 function playDie(){try{vibe([20,30,20])}catch(e){}}
 /* the paper-doll view: a meeple outline with each equipped item sitting where it's worn */
 function mkDoll(p,fi){const L=mkItems(p),B=mkBody(p),on=L.map((x,j)=>({...x,j})).filter(x=>x.on);
@@ -5749,7 +5756,7 @@ function mkDoll(p,fi){const L=mkItems(p),B=mkBody(p),on=L.map((x,j)=>({...x,j}))
   return `<div class="mkdoll" style="${pc(p.color)}"><svg class="mkfig" viewBox="0 0 40 40" aria-hidden="true"><g fill="currentColor">${MGSHAPE.m}</g></svg>
     ${box('head',B.heads>1?`Head (${B.heads})`:'Head','head',of('head'),B.heads)}${box('armor','Armor','armor',of('armor'),1)}${hands}${box('feet','Feet','foot',of('foot'),B.feet)}
     ${box('steed','Steed','steed',of('steed'),1)}${box('hire','Hireling','hire',of('hire'),1)}</div>
-    ${others.length||curse.length||cur.length?`<div class="mkextras">${cur.map((c,j)=>`<button class="mkchip curse" data-a="mkcdel" data-i="${fi}" data-k="${j}" aria-label="Remove curse ${esc(c.n)}">☠ ${esc(c.n)}${+c.v?` <b>${c.v>0?'+':''}${c.v}</b>`:''}${+c.run?` <b>run ${c.run>0?'+':''}${c.run}</b>`:''} <i>✕</i></button>`).join('')}${others.map(x=>`<button class="mkchip${bad(+x.b||0)}" data-a="mkifocus" data-k="${x.j}">${esc(x.n)} <b>${(+x.b||0)>0?'+':''}${+x.b||0}</b></button>`).join('')}${curse.map(x=>`<span class="mkchip${bad(x.b)}">${x.n} <b>${x.b>0?'+':''}${x.b}</b></span>`).join('')}</div>`:''}`}
+    ${others.length||curse.length||cur.length?`<div class="mkextras">${cur.map((c,j)=>`<button class="mkchip curse" data-a="mkcdel" data-i="${fi}" data-k="${j}" aria-label="Remove curse ${esc(c.n)}">☠ ${esc(c.n)}${c.once?' <small>(next fight)</small>':''}${+c.v?` <b>${c.v>0?'+':''}${c.v}</b>`:''}${+c.run?` <b>run ${c.run>0?'+':''}${c.run}</b>`:''} <i>✕</i></button>`).join('')}${others.map(x=>`<button class="mkchip${bad(+x.b||0)}" data-a="mkifocus" data-k="${x.j}">${esc(x.n)} <b>${(+x.b||0)>0?'+':''}${+x.b||0}</b></button>`).join('')}${curse.map(x=>`<span class="mkchip${bad(x.b)}">${x.n} <b>${x.b>0?'+':''}${x.b}</b></span>`).join('')}</div>`:''}`}
 function mkScore(){const X=MKX(),P=act(),tp=mkTurnP(),step=S.mkstep||0,F=S.mkfight,c=mkFightCalc(),w=mkWinner();
   const lvMax=Math.max(...P.map(mkLv)),lead=P.filter(p=>mkLv(p)===lvMax).length===1?P.find(p=>mkLv(p)===lvMax):null;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1>${esc(nm(tp))}’s turn</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo">↶<span class="undo-w"> Undo</span></button></div>
@@ -5760,9 +5767,9 @@ function mkScore(){const X=MKX(),P=act(),tp=mkTurnP(),step=S.mkstep||0,F=S.mkfig
   ${S.mkloot?(()=>{const L=S.mkloot,dp=P.find(p=>p.id===L.pid);if(!dp)return '';const order=P.filter(p=>p!==dp).sort((a,b)=>mkLv(b)-mkLv(a));return `<div class="mklast mkloot"><div><b>☠ ${esc(nm(dp))} died.</b> They keep their level, race, class and curses.<br>${L.items.length?`Loot the body: lay out their hand cards too. Highest level picks first: ${order.map(p=>esc(nm(p))).join(', ')}. One card each; the rest are discarded.<div class="mkextras" style="justify-content:flex-start">${L.items.map(x=>`<span class="mkchip">${esc(x)}</span>`).join('')}</div>`:'Nothing to loot but the cards in their hand.'} Next turn, they draw 4 Door and 4 Treasure cards.</div><button class="btn sm" data-a="mklootok">Got it</button></div>`})():''}
   <div class="mkfightbar">${F?'':`<button class="btn primary" data-a="mkfight">⚔ Fight a monster</button>`}<button class="btn" data-a="mkroll">🏃 Run Away</button></div>
   <div class="mkdice"><button class="btn" data-a="mkdice">🎲 Roll ${MKDICE} di${MKDICE===1?'e':'ce'}</button>${stepper('mkdn',MKDICE,{min:1,max:6,label:'dice'})}${MKROLL?`<span class="mkrolled">${MKROLL.map(v=>`<span class="die num">${v}</span>`).join('')}${MKROLL.length>1?`<b class="num">= ${MKROLL.reduce((a,b)=>a+b,0)}</b>`:''}</span>`:''}</div>
-  ${MKDIE?`<div class="mkdie ${MKDIE.ok?'ok':'bad'}"><span class="die num">${MKDIE.v}</span><span>${MKDIE.who?esc(nm(MKDIE.who))+': ':''}rolled ${MKDIE.v}${MKDIE.b?` ${MKDIE.b>0?'+':'−'}${Math.abs(MKDIE.b)}`:''}. <b>${MKDIE.ok?'Got away!':'Caught: Bad Stuff!'}</b> <small>(${X.runNeed} or higher escapes)</small></span></div>${!MKDIE.ok&&MKDIE.who&&P.includes(MKDIE.who)?(()=>{const q=MKDIE.who,qi=P.indexOf(q),L=mkItems(q);return `<div class="mkbs"><div class="rlab"><b>Bad Stuff shortcuts</b> · for ${esc(nm(q))}</div><div class="lr"><button data-a="mkbs" data-k="lv1">−1 level</button><button data-a="mkbs" data-k="lv2">−2 levels</button>${['head','foot','armor'].map(t=>L.some(x=>x.t===t)?`<button data-a="mkbs" data-k="${t}">Lose ${({head:'headgear',foot:'footgear',armor:'armor'})[t]}</button>`:'').join('')}${L.length?`<button data-a="mkbsi" aria-pressed="${MKBSI}">Lose an item ▾</button>`:''}<button class="mkdead" data-a="mkdie" data-i="${qi}">☠ Died</button></div>${MKBSI&&L.length?`<div class="lr" style="margin-top:6px">${L.map((x,j)=>`<button data-a="mkbsx" data-k="${j}">✕ ${esc(x.n||'Item')}</button>`).join('')}</div>`:''}</div>`})():''}`:''}`;
+  ${MKDIE?`<div class="mkdie ${MKDIE.ok?'ok':'bad'}">${(MKDIE.rolls||[]).map(r=>`<span class="die num${r.ok?'':' caught'}">${r.v}</span>`).join('')}<span>${MKDIE.who?esc(nm(MKDIE.who))+': ':''}${MKDIE.auto?esc(MKDIE.auto):(MKDIE.rolls.length>1?MKDIE.rolls.map((r,i)=>`monster ${i+1} ${r.ok?'escaped':'<b>caught</b>'}`).join(' · '):`rolled ${MKDIE.rolls[0].v}`)+(MKDIE.b?` (${MKDIE.b>0?'+':'−'}${Math.abs(MKDIE.b)} to ${MKDIE.rolls.length>1?'each roll':'the roll'})`:'')+'.'} <b>${MKDIE.ok?'Got away!':MKDIE.rolls.filter(r=>!r.ok).length>1?`Caught by ${MKDIE.rolls.filter(r=>!r.ok).length}: Bad Stuff from each!`:'Caught: Bad Stuff!'}</b>${MKDIE.auto?'':` <small>(${X.runNeed} or higher escapes${MKDIE.fight?'; a helper rolls too':''})</small>`}</span></div>${!MKDIE.ok&&MKDIE.who&&P.includes(MKDIE.who)?(()=>{const q=MKDIE.who,qi=P.indexOf(q),L=mkItems(q);return `<div class="mkbs"><div class="rlab"><b>Bad Stuff shortcuts</b> · for ${esc(nm(q))}</div><div class="lr"><button data-a="mkbs" data-k="lv1">−1 level</button><button data-a="mkbs" data-k="lv2">−2 levels</button>${['head','foot','armor'].map(t=>L.some(x=>x.t===t)?`<button data-a="mkbs" data-k="${t}">Lose ${({head:'headgear',foot:'footgear',armor:'armor'})[t]}</button>`:'').join('')}${L.length?`<button data-a="mkbsi" aria-pressed="${MKBSI}">Lose an item ▾</button>`:''}<button class="mkdead" data-a="mkdie" data-i="${qi}">☠ Died</button></div>${MKBSI&&L.length?`<div class="lr" style="margin-top:6px">${L.map((x,j)=>`<button data-a="mkbsx" data-k="${j}">✕ ${esc(x.n||'Item')}</button>`).join('')}</div>`:''}</div>`})():''}`:''}`;
   if(F&&c){const opts=(sel,act2,none)=>`${none?`<button data-a="${act2}" data-k="" aria-pressed="${!sel}">${none}</button>`:''}${P.map(p=>`<button style="${pc(p.color)}" data-a="${act2}" data-k="${p.id}" aria-pressed="${sel===p.id}" ${act2==='mkhelp'&&p.id===F.who?'disabled':''}><i></i>${esc(nm(p))}</button>`).join('')}`;
-    const tips=[];if(c.warrior)tips.push('Warrior: wins ties.');if(mkHas(c.who,'Cleric'))tips.push('Cleric: Turning, +3 vs. undead for each card discarded (up to 3).');if(mkHas(c.who,'Wizard'))tips.push('Wizard: Flight spell, +1 to run away per card discarded (up to 3); Charm one monster instead of fighting.');if(mkHas(c.who,'Thief'))tips.push('Thief: Backstab another player, −2 to them.');if(c.help&&mkHas(c.help,'Elf'))tips.push(`${nm(c.help)} is an Elf: +1 level for helping win.`);
+    const tips=[];if(c.warrior)tips.push('Warrior: wins ties.');if(mkHas(c.who,'Wizard'))tips.push('Wizard: Charm one monster instead of fighting it (discard your hand, take its treasure, no level).');if(c.help&&mkHas(c.help,'Elf'))tips.push(`${nm(c.help)} is an Elf: +1 level for helping win.`);
     out+=`<div class="sec mkfight"><div class="sec-h"><h3>⚔ The fight</h3><button class="link-btn" data-a="mkfightend">Cancel</button></div>
     <div class="panel hfpanel"><div class="rlab"><b>Fighting</b></div><div class="lr">${opts(F.who,'mkwho')}</div>
       <div class="rlab" style="margin-top:6px"><b>Helping</b></div><div class="lr">${opts(F.help,'mkhelp','Nobody')}</div>
@@ -5777,15 +5784,28 @@ function mkScore(){const X=MKX(),P=act(),tp=mkTurnP(),step=S.mkstep||0,F=S.mkfig
     <div class="panel hfpanel" style="margin-top:8px">${(F.mons||[]).map((m,i)=>`<div class="mkmon"><div class="srow"><span class="rlab"><b>Monster ${F.mons.length>1?i+1:''}</b>${F.mons.length>1?` <button class="link-btn" data-a="mkmondel" data-i="${i}">remove</button>`:''}</span></div>
         <div class="srow"><span class="rlab">Level</span>${stepper('mkml',+m.lv||1,{min:1,max:30,k:i,label:'monster level'})}</div>
         <div class="srow"><span class="rlab">Bonus vs. this fighter</span>${stepper('mkmb',+m.b||0,{min:-20,max:30,k:i,label:'monster bonus'})}</div>
+        <div class="lr mkenh" style="margin-top:4px"><button data-a="mkund" data-i="${i}" aria-pressed="${!!m.und}">💀 Undead</button><button data-a="mkvsopen" data-i="${i}" aria-pressed="${!!m.vk}">${m.vk?`+${+m.vv||0} vs. ${esc(m.vk)}${mkVsB(m,c.who,c.help)?' ✓':''}`:'Extra vs. … ▾'}</button></div>
+        ${MKVS===i?`<div class="lr mkenh" style="margin-top:6px">${[...mkRaces(),...mkClasses(),'Women','Men'].map(x=>`<button data-a="mkvsk" data-i="${i}" data-k="${esc(x)}" aria-pressed="${m.vk===x}">${esc(x)}</button>`).join('')}</div>${m.vk?`<div class="srow"><span class="rlab">Bonus vs. ${esc(m.vk)}</span>${stepper('mkvsv',+m.vv||0,{min:-10,max:20,k:i,label:'bonus'})}</div>`:''}`:''}
         <div class="rlab" style="margin-top:4px">Enhancers</div><div class="lr mkenh">${MKENH.map(([k2,l,v])=>`<button data-a="mkenh" data-i="${i}" data-k="${k2}" aria-pressed="${(m.enh||[]).includes(k2)}">${l} <b>${v>0?'+':''}${v}</b></button>`).join('')}</div>
         <div class="srow"><span class="rlab">Levels if you win</span>${stepper('mkmv',m.lvls===undefined?1:+m.lvls,{min:0,max:5,k:i,label:'levels'})}</div>
         <div class="srow"><span class="rlab">Treasures</span>${stepper('mkmt',m.tr===undefined?1:+m.tr,{min:0,max:10,k:i,label:'treasures'})}</div></div>`).join('')}
       <button class="btn sm" data-a="mkmonadd">+ Another monster</button>
       <div class="srow"><span class="rlab"><b>One-shots &amp; bonuses</b> · monsters’ side</span>${stepper('mkmb2',+F.mb||0,{min:-30,max:60,label:'monster side bonus'})}</div></div>
+    ${(()=>{const pw=F.pw||{},inF=[c.who,c.help].filter(Boolean),has=k2=>inF.some(p=>mkHas(p,k2)),rows=[];
+      if(has('Warrior'))rows.push(`<div class="srow"><span class="rlab"><b>Berserking</b> · Warrior, +1 per card discarded</span>${stepper('mkpw',+pw.b||0,{min:0,max:3,k:'b',label:'cards discarded'})}</div>`);
+      if(has('Cleric'))rows.push(`<div class="srow"><span class="rlab"><b>Turning</b> · Cleric, +3 per card vs. undead${c.und?'':' <em>(no undead monster)</em>'}</span>${stepper('mkpw',+pw.t||0,{min:0,max:3,k:'t',label:'cards discarded'})}</div>`);
+      if(mkHas(c.who,'Wizard'))rows.push(`<div class="srow"><span class="rlab"><b>Flight</b> · Wizard, +1 to Run Away per card</span>${stepper('mkpw',+pw.f||0,{min:0,max:3,k:'f',label:'cards discarded'})}</div>`);
+      const th=P.filter(p=>mkHas(p,'Thief')&&!inF.includes(p));if(th.length)rows.push(`<div class="rlab"><b>Backstab</b> · a Thief discards a card, −2 to the players</div><div class="lr mkenh">${th.map(p=>`<button style="${pc(p.color)}" data-a="mkstab" data-k="${p.id}" aria-pressed="${(F.stab||[]).includes(p.id)}">🗡 ${esc(nm(p))}</button>`).join('')}</div>`);
+      const shots=[];P.forEach((p,pi)=>mkItems(p).forEach((x,j)=>{if(x.t==='shot')shots.push({p,pi,x,j})}));
+      if(shots.length)rows.push(`<div class="rlab" style="margin-top:6px"><b>🧪 One-shots in hand</b></div>${shots.map(({p,pi,x,j})=>`<div class="mkshot" style="${pc(p.color)}"><span><i></i>${esc(nm(p))}: <b>${esc(x.n||'One-shot')}</b> ${(+x.b||0)>=0?'+':''}${+x.b||0}</span><button data-a="mkshot" data-i="${pi}" data-k="${j}" data-v="p">For players</button><button data-a="mkshot" data-i="${pi}" data-k="${j}" data-v="m">For monster</button></div>`).join('')}`);
+      if(F.used&&F.used.length)rows.push(`<p class="rlab" style="margin:4px 0 0">Used: ${F.used.map(u=>`${esc(nm(P.find(p=>p.id===u.by)||{name:'?'}))}’s ${esc(u.n)} (${u.b>=0?'+':''}${u.b} ${u.side==='m'?'monster':'players'})`).join(', ')}</p>`);
+      if(F.ifr&&F.ifr.length)rows.push(`<p class="rlab mkifr" style="margin:4px 0 0">Played against ${esc(nm(c.who))}: ${F.ifr.map(x=>`${esc(nm(P.find(p=>p.id===x.by)||{name:'?'}))}, ${esc(x.what)}`).join(' · ')}</p>`);
+      return rows.length?`<div class="panel hfpanel mkpows" style="margin-top:8px">${rows.join('')}</div>`:''})()}
     <div class="mkscore ${c.win?'win':'lose'}"><div><small>${esc(nm(c.who))}${c.help?' + '+esc(nm(c.help)):''}</small><b class="num">${c.ps}</b></div><div class="vs">vs</div><div><small>Monster${(F.mons||[]).length>1?'s':''}</small><b class="num">${c.ms}</b></div></div>
     <p class="mkverdict"><b>${c.win?(c.diff===0?'Tied, but Warriors win ties!':`Winning by ${c.diff}`):(c.diff===0?'Tied: the monster wins ties.':`Losing by ${-c.diff}`)}</b>${c.win?'':' Play cards, ask for help, or run away.'}</p>
     ${tips.length?`<p class="hint" style="margin-top:0">${tips.map(esc).join(' ')}</p>`:''}
-    <div class="prow"><button class="btn primary" style="flex:1" data-a="mkwon" ${c.win?'':'disabled'}>Won the fight</button><button class="btn" style="flex:1" data-a="mkrun">🎲 Run away</button></div></div>`}
+    <div class="prow"><button class="btn primary" style="flex:1" data-a="mkwon" ${c.win?'':'disabled'}>Won the fight</button><button class="btn" style="flex:1" data-a="mkrun">🎲 Run away${F.mons.length>1?` (${F.mons.length} rolls)`:''}</button></div>
+    ${mkItems(c.who).some(x=>x.t==='hire')?`<button class="btn wide mkhire" data-a="mkhire">Sacrifice ${esc((mkItems(c.who).find(x=>x.t==='hire')||{}).n||'Hireling')} to escape</button><p class="hint" style="margin-top:4px">Only if your Hireling’s card allows it.</p>`:''}</div>`}
   const me=S.lk&&S.lk.me?P.find(p=>p.id===S.lk.me):null,fi=Math.min(S.active||0,P.length-1),fp=P[fi]||P[0],mine=me&&fp===me;
   const fm=mkP(fp),badges=[...fm.races,...fm.classes],slots=mkSlots(fp);
   out+=`<div class="nxcard mkbig${fp===tp?' turn':''}" id="nxc-${fp.id}" style="${pc(fp.color)}">
@@ -5831,6 +5851,7 @@ function mkScore(){const X=MKX(),P=act(),tp=mkTurnP(),step=S.mkstep||0,F=S.mkfig
     <input id="mk-cname" class="search" maxlength="40" placeholder="Curse name" value="${esc(c.n||'')}" autocomplete="off" style="margin-top:10px">
     <div class="srow"><span class="rlab"><b>Strength</b> · in combat</span>${stepper('mkcv',+c.v||0,{min:-20,max:10,label:'strength'})}</div>
     <div class="srow"><span class="rlab"><b>Run Away</b> · added to the roll</span>${stepper('mkcr',+c.run||0,{min:-6,max:6,label:'run away'})}</div>
+    <div class="lr"><button data-a="mkconce" aria-pressed="${!!c.once}">Only for the next fight</button></div>
     <div class="sheet-btns"><button class="btn primary" data-a="mkcadd">Add the curse</button></div></div></div></div>`}}
   if(MKBODY!==null){const p=P[MKBODY];if(p){const B=mkBody(p);out+=`<div class="sheet-bg" data-a="mkbodyclose"><div class="sheet rsheet" role="dialog" aria-modal="true" aria-labelledby="mkb-h" data-stop="1"><div class="rs-top"><h2 id="mkb-h">${esc(nm(p))}\u2019s body</h2><button class="btn sm" data-a="mkbodyclose">Done</button></div>
     <div class="rs-body"><p class="hint" style="margin-top:0">For curses and cards that change what you can wear or hold.</p>
@@ -5862,7 +5883,8 @@ function mkAwards(){const P=act(),out=[],L=S.mklog||[],add=(title,f,min,why)=>{c
   add('Generous',p=>(S.mkdeals||[]).filter(x=>x.who===p.id).reduce((a,x)=>a+x.h,0),2,v=>`gave away ${v} treasures to helpers`);
   add('Gear hoarder',p=>mkGearT(p),8,v=>`finished with +${v} in gear`);
   add('Frequent flier',p=>(S.mkdeaths||[]).filter(x=>x.pid===p.id).length,2,v=>`died ${v} times`);
-  add('Cursed',p=>mkCurses(p).length,2,v=>`carried ${v} curses`);return out}
+  add('Cursed',p=>mkCurses(p).length,2,v=>`carried ${v} curses`);
+  add('Backstabber',p=>(S.mkifr||[]).filter(x=>x.by===p.id).length,2,v=>`played ${v} cards against other players’ fights`);return out}
 function mkRevSteps(){return [{name:'Final level',f:p=>mkLv(p)}]}
 function mkResults(){const rk=ranking();
   return `<div class="bar"><button class="back" data-a="go" data-s="score">‹ The table</button><h1>Results</h1></div>
@@ -5875,7 +5897,9 @@ function mkGuide(){const X=MKX();
     ['Setup',[['Cards','Split the Door and Treasure decks. Deal 4 of each to every player.'],['Start',`Everyone starts at level ${X.start} as a Human with no class.`+(X.deluxe?' Put your standee on level 1 of the board.':'')],['Goal',`First to level ${X.target} wins${X.kill?'; the winning level has to come from killing a monster':''}.`]]],
     ['Your turn',MKSTEPS.map(([t,d])=>[t,d])],
     ['Combat',[['Strength','Your level plus your gear bonuses.'],['Winning','Beat the monster’s level (plus its bonuses). Ties go to the monster unless you’re a Warrior.'],['Help','Ask one player to help; their strength adds to yours. Bribe them with treasure.'],['Interfering','Anyone can play one-shots or monster enhancers to help or hurt.'],['Win','Gain the levels and treasures on the monster card.']]],
-    ['Running away',[['Roll',`Roll a die for each monster: ${X.runNeed} or higher escapes. Elves get +1.`],['Caught','Suffer the monster’s Bad Stuff. The app has shortcuts for the usual ones.']]],
+    ['Running away',[['Roll',`Roll a die for each monster: ${X.runNeed} or higher escapes. Elves get +1.`],['Caught','Suffer the Bad Stuff of each monster that catches you. The app has shortcuts for the usual ones.'],['Helpers','Your helper rolls for each monster too.'],['Hirelings','Some Hireling cards let you sacrifice them to escape automatically.']]],
+    ['Class powers',[['Berserking','Warrior: discard up to 3 cards, +1 each.'],['Turning','Cleric: discard up to 3 cards, +3 each against undead.'],['Flight','Wizard: discard up to 3 cards, +1 each to Run Away.'],['Backstab','Thief: discard a card, −2 to a player in a fight.']]],
+    ['One-shots',[['Using them','Potions and other one-time items can be played in any fight, for either side. Add them as One-shot items, then tap For players or For monster in the fight.']]],
     ['Monster enhancers',[['Baby','−5 to the monster.'],['Enraged / Intelligent','+5 each.'],['Humongous / Ancient','+10 each.'],['Rewards','Each enhancer also changes the treasures; check the card.']]],
     ['Selling',[['Gold','Sell items for a level per 1,000 gold. Leftover gold is lost.'],['Limits','Not during combat, and never for the winning level.'],['Halfling','Sell one item a turn for double.']]],
     ['Death',[['What you keep','Your level, race, class and curses.'],['Looting','Everyone else, highest level first, takes one card from your items and hand. The rest are discarded.'],['Coming back','Next turn, draw 4 Door and 4 Treasure cards.']]],
@@ -7120,7 +7144,16 @@ document.addEventListener('click',e=>{
     case 'mktg':{const X=MKX();X[k]=!X[k];if(k==='epic'){X.target=X.epic?20:10;if(X.start>=X.target)X.start=1}mkKeep();break}
     case 'mkxt':{const X=MKX(),L=X[k],v=b.dataset.v;if(L.includes(v))L.splice(L.indexOf(v),1);else L.push(v);mkKeep();break}
     case 'mkxadd':{const X=MKX(),el=document.getElementById('mk-xadd'),v=((el||{}).value||'').trim().slice(0,24);if(!v)break;const all=[...MKRACES,...MKCLASSES,...X.xr,...X.xc].map(x=>x.toLowerCase());if(!all.includes(v.toLowerCase()))X[k].push(v);mkKeep();break}
-    case 'mkenh':{const F=S.mkfight;if(!F)break;const m=F.mons[+b.dataset.i];if(!m)break;const E=m.enh||(m.enh=[]);if(E.includes(k))E.splice(E.indexOf(k),1);else E.push(k);break}
+    case 'mkenh':{const F=S.mkfight;if(!F)break;const m=F.mons[+b.dataset.i];if(!m)break;const E=m.enh||(m.enh=[]),me=mkLkMe(),en=MKENH.find(x=>x[0]===k),what=en?`${en[1]} ${en[2]>0?'+':''}${en[2]}`:k;if(E.includes(k)){E.splice(E.indexOf(k),1);if(F.ifr){const j=F.ifr.findIndex(x=>x.what===what);if(j>=0)F.ifr.splice(j,1)}}else{E.push(k);if(me&&me!==F.who&&me!==F.help&&en&&en[2]>0)(F.ifr||(F.ifr=[])).push({by:me,what})}break}
+    case 'mkund':{const F=S.mkfight;if(!F)break;const m=F.mons[+b.dataset.i];if(m)m.und=!m.und;break}
+    case 'mkvsopen':MKVS=MKVS===+b.dataset.i?null:+b.dataset.i;break;
+    case 'mkvsk':{const F=S.mkfight;if(!F)break;const m=F.mons[+b.dataset.i];if(!m)break;if(m.vk===k){delete m.vk;delete m.vv}else{m.vk=k;if(!m.vv)m.vv=2}break}
+    case 'mkvsv':{const F=S.mkfight;if(!F)break;const m=F.mons[+k];if(m)m.vv=Math.max(-10,Math.min(20,(+m.vv||0)+d));break}
+    case 'mkpw':{const F=S.mkfight;if(!F)break;const pw=F.pw||(F.pw={});pw[k]=Math.max(0,Math.min(3,(+pw[k]||0)+d));break}
+    case 'mkstab':{const F=S.mkfight;if(!F)break;const L=F.stab||(F.stab=[]);if(L.includes(k)){L.splice(L.indexOf(k),1);if(F.ifr){const j=F.ifr.findIndex(x=>x.by===k&&x.what==='Backstab −2');if(j>=0)F.ifr.splice(j,1)}}else{L.push(k);(F.ifr||(F.ifr=[])).push({by:k,what:'Backstab −2'})}break}
+    case 'mkshot':{const F=S.mkfight;if(!F)break;const q=act()[+b.dataset.i];if(!q)break;const L=mkItems(q),x=L[+k];if(!x)break;snap();const side=b.dataset.v,bv=+x.b||0;if(side==='m')F.mb=(+F.mb||0)+bv;else F.pb=(+F.pb||0)+bv;L.splice(+k,1);(F.used||(F.used=[])).push({by:q.id,n:x.n||'One-shot',b:bv,side});if(side==='m'&&q.id!==F.who&&q.id!==F.help&&bv>0)(F.ifr||(F.ifr=[])).push({by:q.id,what:`${x.n||'One-shot'} +${bv}`});break}
+    case 'mkhire':{const F=S.mkfight;if(!F)break;const q=act().find(p=>p.id===F.who);if(!q)break;const L=mkItems(q),j=L.findIndex(x=>x.t==='hire');if(j<0)break;snap();const hn=L[j].n||'Hireling';L.splice(j,1);mkFightOver(F);S.mkfight=null;MKVS=null;MKBSI=false;MKDIE={rolls:[],ok:true,who:q,auto:`${hn} was sacrificed. Escaped automatically.`};break}
+    case 'mkconce':if(MKCURSE)MKCURSE.once=!MKCURSE.once;break;
     case 'mksell':{if(S.mkfight){toast('No selling during a fight.');break}MKSELL={i:+b.dataset.i,sel:[],dbl:-1,extra:0};break}
     case 'mksellclose':if(e.target.closest('[data-stop]')&&!e.target.closest('button'))return;MKSELL=null;break;
     case 'mksx':{if(!MKSELL)break;const j=+k,S2=MKSELL.sel;if(S2.includes(j)){S2.splice(S2.indexOf(j),1);if(MKSELL.dbl===j)MKSELL.dbl=-1}else S2.push(j);break}
@@ -7135,10 +7168,10 @@ document.addEventListener('click',e=>{
     case 'mkbsx':{const q=MKDIE&&MKDIE.who;if(!q)break;const L=mkItems(q);if(!L[+k])break;snap();L.splice(+k,1);if(!L.length)MKBSI=false;break}
     case 'mkcopen':MKCURSE={i:+b.dataset.i,n:'',v:-1,run:0};break;
     case 'mkcclose':if(e.target.closest('[data-stop]')&&!e.target.closest('button'))return;MKCURSE=null;break;
-    case 'mkcpre':{if(!MKCURSE)break;const c=MKCURSES[+k];if(!c)break;MKCURSE.n=c[0]==='Custom curse'?'':c[0];MKCURSE.v=c[1];MKCURSE.run=c[2];break}
+    case 'mkcpre':{if(!MKCURSE)break;const c=MKCURSES[+k];if(!c)break;MKCURSE.n=c[0]==='Custom curse'?'':c[0];MKCURSE.v=c[1];MKCURSE.run=c[2];MKCURSE.once=!!c[4];break}
     case 'mkcv':if(MKCURSE)MKCURSE.v=Math.max(-20,Math.min(10,(+MKCURSE.v||0)+d));break;
     case 'mkcr':if(MKCURSE)MKCURSE.run=Math.max(-6,Math.min(6,(+MKCURSE.run||0)+d));break;
-    case 'mkcadd':{if(!MKCURSE)break;const q=act()[MKCURSE.i];if(!q)break;const n=((document.getElementById('mk-cname')||{}).value||MKCURSE.n||'').trim()||'Curse';snap();mkCurses(q).push({n,v:+MKCURSE.v||0,run:+MKCURSE.run||0});MKCURSE=null;break}
+    case 'mkcadd':{if(!MKCURSE)break;const q=act()[MKCURSE.i];if(!q)break;const n=((document.getElementById('mk-cname')||{}).value||MKCURSE.n||'').trim()||'Curse';snap();mkCurses(q).push({n,v:+MKCURSE.v||0,run:+MKCURSE.run||0,once:!!MKCURSE.once});MKCURSE=null;break}
     case 'mkcdel':{const q=act()[+b.dataset.i];if(!q)break;const C=mkCurses(q);if(!C[+k])break;snap();C.splice(+k,1);break}
     case 'mkstep':S.mkstep=+b.dataset.v;break;
     case 'mknext':{S.mkturn=((S.mkturn||0)+1)%act().length;S.mkstep=0;S.mkfight=null;MKDIE=null;MKWIN10=null;MKDEAD=null;MKBSI=false;window.scrollTo(0,0);break}
@@ -7166,7 +7199,7 @@ document.addEventListener('click',e=>{
     case 'mkflag':{const q=act()[MKEDIT];if(!q)break;const m=mkP(q);snap();m[k]=!m[k];if(!m.hb)m.races=m.races.slice(-1);if(!m.sm)m.classes=m.classes.slice(-1);break}
     case 'mksex':{const q=act()[MKEDIT];if(!q)break;snap();mkP(q).sex=k;break}
     case 'mkfight':{const tp=mkTurnP();snap();S.mkfight={who:tp.id,help:null,mons:[{lv:1,b:0,lvls:1,tr:1}],pb:0,mb:0};MKDIE=null;S.mkstep=0;break}
-    case 'mkfightend':snap();S.mkfight=null;break;
+    case 'mkfightend':snap();S.mkfight=null;MKVS=null;break;
     case 'mkwho':{const F=S.mkfight;if(!F)break;F.who=k;if(F.help===k)F.help=null;break}
     case 'mkhelp':{const F=S.mkfight;if(!F)break;F.help=k||null;if(F.help&&!F.deal)F.deal={n:1,first:'fighter',note:''};break}
     case 'mkpb':case 'mkmb2':{const F=S.mkfight;if(!F)break;const f=a==='mkpb'?'pb':'mb';F[f]=(+F[f]||0)+d;break}
@@ -7177,11 +7210,12 @@ document.addEventListener('click',e=>{
       mkLevel(c.who,lv,`Killed a monster${F.mons.length>1?'s':''}`);if(c.help&&mkHas(c.help,'Elf'))mkLevel(c.help,F.mons.length,'Helped kill a monster (Elf)');
       const D=F.deal||{n:1,first:'fighter',note:''},h=c.help?Math.min(D.n,tr):0;mkP(c.who).trs=(mkP(c.who).trs||0)+tr-h;if(c.help){mkP(c.help).trs=(mkP(c.help).trs||0)+h;(S.mkdeals||(S.mkdeals=[])).push({who:c.who.id,help:c.help.id,tr,h,note:D.note||''})}
       S.mklast={who:c.who.id,help:c.help?c.help.id:null,lv,tr,f:tr-h,h,first:D.first,note:c.help?D.note||'':''};
-      S.mkfight=null;MKWIN10=null;if(mkWinner())toast(`${nm(mkWinner())} wins the game!`);break}
+      mkFightOver(F);S.mkfight=null;MKVS=null;MKWIN10=null;if(mkWinner())toast(`${nm(mkWinner())} wins the game!`);break}
     case 'mklastok':S.mklast=null;break;
     case 'mkdealn':case 'mkdeal':case 'mkdealf':{const F=S.mkfight;if(!F)break;const D=F.deal||(F.deal={n:1,first:'fighter',note:''}),trs=(F.mons||[]).reduce((a,m)=>a+(m.tr===undefined?1:+m.tr),0);
       if(a==='mkdealf')D.first=k;else if(a==='mkdeal')D.n=Math.max(0,Math.min(trs,Math.min(D.n,trs)+d));else D.n=k==='half'?Math.floor(trs/2):k==='all'?trs:+k;break}
-    case 'mkrun':case 'mkroll':{const F=S.mkfight,X=MKX(),who=F?act().find(p=>p.id===F.who):mkTurnP(),bon=who?mkRunB(who):0,v=1+Math.floor(Math.random()*6);MKBSI=false;MKDIE={v,b:bon,ok:v+bon>=X.runNeed,who};if(a==='mkrun'&&MKDIE.ok){S.mkfight=null}playDie();break}
+    case 'mkrun':case 'mkroll':{const F=S.mkfight,X=MKX(),who=F?act().find(p=>p.id===F.who):mkTurnP();if(!who)break;const bon=mkRunB(who)+(F&&mkHas(who,'Wizard')?(+(F.pw||{}).f||0):0),n=F?Math.max(1,(F.mons||[]).length):1,rolls=Array.from({length:n},()=>{const v=1+Math.floor(Math.random()*6);return {v,ok:v+bon>=X.runNeed}});
+      MKBSI=false;MKVS=null;MKDIE={rolls,v:rolls[0].v,b:bon,ok:rolls.every(r=>r.ok),who,fight:!!F};if(F){snap();mkFightOver(F);S.mkfight=null}playDie();break}
     case 'undemo':unDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'unver':{const X=UNX();X.ver=k;unKeep();break}
     case 'unset':{const X=UNX();X[k]=b.dataset.v;unKeep();break}
