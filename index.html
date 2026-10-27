@@ -707,7 +707,7 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 /* Carcassonne reveal bars */
 .rv-bar.ctl,.rv-bar.cwl{background:none;overflow:visible;position:relative;border-radius:0}
 .rv-bar.ctl{height:44px}
-.rv-bar.trl i{height:28px}.rv-bar.ctl.trl .cmk{right:-25px;bottom:4px;width:24px;height:24px}.rv-bar.trl{margin-right:26px}.rv-bar.cwl{height:52px}
+.rv-bar.trl i{height:28px}.rv-bar.trl .mkstrip{-webkit-mask-image:none;mask-image:none}.rv-bar.trl:has(.mkstrip){height:66px}.rv-bar.trl [data-bar]:has(.mkstrip){height:36px}.rv-bar.ctl.trl .cmk{right:-25px;bottom:4px;width:24px;height:24px}.rv-bar.trl{margin-right:26px}.rv-bar.cwl{height:52px}
 .rv-bar.ctl i,.rv-bar.cwl i{position:absolute;left:0;bottom:0;background:none;border-radius:0;overflow:visible;transition:width .7s cubic-bezier(.2,.8,.2,1)}
 .rv-bar.ctl i{height:24px}.rv-bar.cwl i{height:36px}
 .cstrip{position:absolute;inset:0;overflow:hidden;display:block;text-decoration:none}.cstrip svg{position:absolute;left:0;bottom:0;display:block}
@@ -1698,7 +1698,7 @@ function settingsScreen(){
   <div class="sec"><div class="sec-h"><h3>Carcassonne reveal look</h3></div>${seg('clook',[['tiles','Land tiles'],['wall','City wall'],['bars','Classic bars']])}
     <p class="hint">${(SET.clook||'tiles')==='tiles'?'Each player\'s row of land tiles grows as their score climbs, with their meeple standing on the newest tile.':(SET.clook==='wall')?'Each player builds a city wall with towers, and their banner flies on the front tower.':'Simple colored bars that grow with each score.'}</p></div>
   <div class="sec"><div class="sec-h"><h3>Board games reveal look</h3></div><div class="seg">${[['trail','Game pieces'],['bars','Classic bars']].map(([v,t])=>`<button data-a="set" data-k="blook" data-v="${v}" aria-pressed="${(SET.blook||'trail')===v}">${t}</button>`).join('')}</div>
-    <p class="hint">${(SET.blook||'trail')==='trail'?'Each player\u2019s meeple leads a growing trail of that game\u2019s pieces: birds and eggs for Wingspan, coins and gems for Wyrmspan, ingredient chips for Quacks.':'Simple colored bars that grow with each score.'}</p></div>
+    <p class="hint">${(SET.blook||'trail')==='trail'?'Each player\u2019s meeple leads a growing trail of that game\u2019s pieces: birds and eggs for Wingspan, coins and gems for Wyrmspan, ingredient chips for Quacks, and a dungeon staircase of levels for Munchkin.':'Simple colored bars that grow with each score.'}</p></div>
   <div class="sec"><div class="sec-h"><h3>Card games reveal look</h3></div><div class="seg">${[['cards','Card stacks'],['bars','Classic bars']].map(([v,t])=>`<button data-a="set" data-k="hlook" data-v="${v}" aria-pressed="${(SET.hlook||'cards')===v}">${t}</button>`).join('')}</div>
     <p class="hint">${(SET.hlook||'cards')==='cards'?'Each team or player\u2019s stack of cards grows as their score climbs, and the top card flips over with every round. Used for the card games.':'Simple colored bars that grow with each score.'}</p></div>
   <div class="sec"><div class="sec-h"><h3>Ticket to Ride reveal look</h3></div>${seg('look',[['art','Illustrated trains'],['trains','Simple trains'],['bars','Classic bars']])}
@@ -6801,7 +6801,7 @@ function checks(){if(S.game==='carc')return cChecks();if(HFE())return hfChecks()
 }
 
 /* ---------- reveal ---------- */
-const LOOK=()=>['wingspan','wyrmspan','quacks'].includes(S.game)?((SET.blook||'trail')==='trail'?'trail':'bars'):S.game==='pad'||S.game==='darts'||S.game==='pool'?'bars':HFE()||S.game==='nerts'||S.game==='hearts'||S.game==='spades'||S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='skipbo'||S.game==='gnome'||S.game==='skyjo'||S.game==='wingspan'||S.game==='wyrmspan'||S.game==='phase10'||S.game==='rook'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?((SET.hlook||'cards')==='cards'?'cards':'bars'):S.game==='carc'?(SET.clook||'tiles'):SET.cb&&SET.look==='art'?'trains':SET.look;
+const LOOK=()=>['wingspan','wyrmspan','quacks','munchkin'].includes(S.game)?((SET.blook||'trail')==='trail'?'trail':'bars'):S.game==='pad'||S.game==='darts'||S.game==='pool'?'bars':HFE()||S.game==='nerts'||S.game==='hearts'||S.game==='spades'||S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='skipbo'||S.game==='gnome'||S.game==='skyjo'||S.game==='wingspan'||S.game==='wyrmspan'||S.game==='phase10'||S.game==='rook'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?((SET.hlook||'cards')==='cards'?'cards':'bars'):S.game==='carc'?(SET.clook||'tiles'):SET.cb&&SET.look==='art'?'trains':SET.look;
 const PXLOOK=()=>['art','tiles','wall','cards','trail'].includes(LOOK());
 const BARCLS=()=>({bars:'',art:'art',tiles:'ctl',wall:'cwl',cards:'hfc',trail:'ctl trl'})[LOOK()]??'train';
 const ROUNDOK=(()=>{try{return CSS.supports('width','calc(10px + round(down, max(0px, 0.5 * 100% - 10px), 43px))')}catch(e){return false}})();
@@ -6809,7 +6809,7 @@ const barW=f=>LOOK()==='trail'?(f<=0?'0px':`max(24px, ${f.toFixed(4)} * (100% - 
 /* illustrated trains: work out a whole-car pixel width in JS so every browser (incl. Safari) animates it smoothly */
 const artPx=(f,W)=>f<=0?0:Math.max(30,Math.round(f*W));
 const TILEP=26,HCP=11;
-function lookPx(f,W){const L=LOOK();if(f<=0)return 0;if(L==='trail'){const n=Math.max(1,Math.round(f*(W-14)/TRP));return n*TRP-1}if(L==='cards'){const n=Math.max(1,Math.round(f*(W-34)/HCP));return n*HCP+20}if(L==='art')return artPx(f,W);if(L==='tiles'){const n=Math.max(1,Math.round(f*(W-14)/TILEP));return n*TILEP-2}return Math.max(26,Math.round(f*(W-10)))}
+function lookPx(f,W){const L=LOOK();if(f<=0)return 0;if(L==='trail'&&S.game==='munchkin'){const n=Math.max(1,Math.round(f*Math.max(1,...act().map(total))));return n*mkStepW()-1}if(L==='trail'){const n=Math.max(1,Math.round(f*(W-14)/TRP));return n*TRP-1}if(L==='cards'){const n=Math.max(1,Math.round(f*(W-34)/HCP));return n*HCP+20}if(L==='art')return artPx(f,W);if(L==='tiles'){const n=Math.max(1,Math.round(f*(W-14)/TILEP));return n*TILEP-2}return Math.max(26,Math.round(f*(W-10)))}
 function setBar(el,f){if(!el)return;const of=+el.dataset.f||0;el.dataset.f=f;if(f>of&&LOOK()==='cards'){const t=el.querySelector('.hctop');if(t){t.classList.remove('fl');void t.offsetWidth;t.classList.add('fl')}}el.classList.toggle('z',f<=0);if(PXLOOK()&&el.parentElement)el.style.width=lookPx(f,el.parentElement.clientWidth)+'px';else el.style.width=barW(f)}
 function snapBars(){document.querySelectorAll('.rv-bar.art [data-bar],.rv-bar.ctl [data-bar],.rv-bar.cwl [data-bar],.rv-bar.hfc [data-bar]').forEach(el=>{const t=el.style.transition;el.style.transition='none';setBar(el,+el.dataset.f||0);void el.offsetWidth;el.style.transition=t})}
 addEventListener('resize',()=>snapBars());
@@ -6837,6 +6837,7 @@ function cTileStrip(p){let h=hashOf(p),o='';const n=34,s=24;for(let t=0;t<n;t++)
 
 /* Board-game reveal look: a trail of that game's own pieces, with the player's meeple out in front */
 const TRP=24;
+const mkGoal=()=>Math.max(2,MKX().target||10),mkStepW=()=>mkGoal()>12?13:24;
 const trArt={
   wingspan:(x,i,h)=>{const c=['#2b7bc8','#e3b71f','#2e8b4a','#5aa9e6'][h%4];return i%2?`<ellipse cx="${x+12}" cy="15" rx="6" ry="7.5" fill="#bfe0f5" stroke="#26313b" stroke-width="1.4"/><circle cx="${x+10}" cy="13" r="1.1" fill="#2b62b8"/><circle cx="${x+14}" cy="17" r="1" fill="#2b62b8"/><circle cx="${x+11}" cy="19" r=".8" fill="#2b62b8"/>`
     :`<path d="M${x+5} 21q7 -14 15 -3z" fill="${c}" stroke="#26313b" stroke-width="1.4" stroke-linejoin="round"/><circle cx="${x+15}" cy="10" r="4.2" fill="${c}" stroke="#26313b" stroke-width="1.4"/><path d="M${x+19} 9.5l3.5 1.2-3.3 1.6z" fill="#f0b43a" stroke="#26313b" stroke-width=".9" stroke-linejoin="round"/><circle cx="${x+16}" cy="9.2" r=".9" fill="#26313b"/>`},
@@ -6844,7 +6845,13 @@ const trArt={
     :`<circle cx="${x+12}" cy="15" r="7.5" fill="#f2c230" stroke="#26313b" stroke-width="1.4"/><circle cx="${x+12}" cy="15" r="4.6" fill="none" stroke="#c9961a" stroke-width="1.2"/><path d="M${x+10} 15.5l1.3-2 .7 1 .7-1 1.3 2z" fill="#c9961a"/>`,
   quacks:(x,i,h)=>{const C=[['#f07c22','#fff'],['#2e8b4a','#fff'],['#2b62b8','#fff'],['#e3b71f','#26313b'],['#7b4ba9','#fff'],['#f2efe8','#26313b'],['#2b2d31','#fff']][h%7],n=1+(h>>>3)%4;
     return `<circle cx="${x+12}" cy="15" r="8.5" fill="${C[0]}" stroke="#26313b" stroke-width="1.4"/><circle cx="${x+12}" cy="15" r="6" fill="none" stroke="${C[1]}" stroke-opacity=".5" stroke-width="1"/><text x="${x+12}" y="18.6" text-anchor="middle" font-size="10" font-weight="700" font-family="system-ui,sans-serif" fill="${C[1]}">${n}</text>`}};
-function trailStrip(p){const g=trArt[S.game]?S.game:'quacks',n=40;let h=hashOf(p),o=g==='wingspan'?`<path d="M0 22.5h${n*TRP}" stroke="#8a5531" stroke-width="3" stroke-linecap="round"/>`:'';
+const mkStepH=(t,N)=>Math.round(13+t*(23/(N-1)));
+function mkSteps(p){const N=mkGoal(),w=mkStepW();let o='';for(let t=0;t<N;t++){const x=t*w,h=mkStepH(t,N),top=t===N-1,y=36-h;
+    o+=`<rect x="${x+.7}" y="${y}" width="${w-1.4}" height="${h}" rx="1.5" fill="${top?'#f2c230':'#9a9183'}" stroke="#26313b" stroke-width="1.3"/><path d="M${x+2} ${y+2.5}h${w-4}" stroke="${top?'#fff3b0':'#c3bbae'}" stroke-width="1.2"/>`;
+    if(w>=20||t%2===1||top)o+=`<text x="${x+w/2}" y="${y+11}" text-anchor="middle" font-size="${w>=20?9:7}" font-weight="700" font-family="system-ui,sans-serif" fill="#26313b">${t+1}</text>`}
+  const lv=Math.max(1,Math.min(N,mkLv(p)));
+  return `<u class="cstrip mkstrip"><svg width="${N*w}" height="36" viewBox="0 0 ${N*w} 36" aria-hidden="true">${o}</svg></u><svg class="cmk" style="bottom:${mkStepH(lv-1,N)-1}px;right:${w>=20?2:-6}px" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg>`}
+function trailStrip(p){if(S.game==='munchkin')return mkSteps(p);const g=trArt[S.game]?S.game:'quacks',n=40;let h=hashOf(p),o=g==='wingspan'?`<path d="M0 22.5h${n*TRP}" stroke="#8a5531" stroke-width="3" stroke-linecap="round"/>`:'';
   for(let t=0;t<n;t++){h=(Math.imul(h,1103515245)+12345)>>>0;o+=trArt[g](t*TRP,t,(h>>>8)&1023)}
   return `<u class="cstrip"><svg width="${n*TRP}" height="28" viewBox="0 0 ${n*TRP} 28" aria-hidden="true">${o}</svg></u><svg class="cmk" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg>`}
 /* Carcassonne look 2: a stone city wall with towers, the player's banner on the front tower */
@@ -8145,6 +8152,6 @@ render();
 
 <script type="module" src="fb-firebase.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(hadSW&&Date.now()-t0<15000&&!document.querySelector('input:focus'))location.reload()})}window.FT_BUILD='6d87d9';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(hadSW&&Date.now()-t0<15000&&!document.querySelector('input:focus'))location.reload()})}window.FT_BUILD='502d27';</script>
 </body>
 </html>
