@@ -7772,8 +7772,26 @@ function render(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();
+  tourApply();navSync();
 }
+
+/* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
+let NAVIGN=false;
+function navWant(){return S.screen!=='home'||!!document.querySelector('#app .sheet-bg,.tour-bub')}
+function navSync(){if(NAVIGN)return;try{const has=!!(history.state&&history.state.ft);const want=navWant();
+  if(want&&!has)history.pushState({ft:1},'');else if(!want&&has){NAVIGN=true;history.back()}}catch(e){}}
+function navTap(el){if(!el)return false;el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));return true}
+function navBack(){
+  if(document.querySelector('.tour-bub'))return navTap(document.querySelector('[data-a="tourskip"],[data-a="tournext"]'));
+  const bgs=document.querySelectorAll('#app .sheet-bg');if(bgs.length){const bg=bgs[bgs.length-1];if(bg.dataset.a)return navTap(bg);
+    const bs=[...bg.querySelectorAll('button[data-a]')].filter(b=>!b.disabled);
+    const c=bs.find(b=>/(close|cancel|back|x)$/i.test(b.dataset.a)||/^(cancel|close|not now|go back|no\b)/i.test(b.textContent.trim()))||(bs.length===1?bs[0]:null);
+    return navTap(c)}
+  if(S.screen==='home')return false;
+  const bk=[...document.querySelectorAll('#app button[data-a]')].find(b=>!b.disabled&&['go','setback','tcancel','lkback','plback'].includes(b.dataset.a)&&b.dataset.s!=='home'&&(/^‹/.test(b.textContent.trim())||/^back/i.test(b.getAttribute('aria-label')||'')));
+  if(bk)return navTap(bk);
+  return navTap(document.querySelector('#app .homebtn'))}
+window.addEventListener('popstate',()=>{if(NAVIGN){NAVIGN=false;navSync();return}navBack();setTimeout(navSync,0)});
 
 /* ---------- first-time walkthrough ---------- */
 const TOURS={
