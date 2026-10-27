@@ -506,10 +506,16 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .yzhd span{font-size:12px;font-weight:700;color:var(--muted);text-align:center}.yzsub{font-size:13px;color:var(--muted);background:var(--soft);margin:0 -10px;padding:3px 10px}
 .yzc{display:flex;align-items:center;justify-content:center;min-height:36px;border-radius:9px;font-weight:700}.yzf{color:var(--ink)}.yzsub .yzc{min-height:24px;font-weight:600;font-size:13px}
 .yzmode{grid-template-columns:1fr 1fr;padding:3px;gap:3px;width:190px}.yzmode button{min-height:32px;font-size:13px}
-.yzslot.big{width:50px;height:50px}.yzdice button.held{transform:translateY(-6px);position:relative}.yzdice button.held svg rect{fill:#ffe9a8}.yzdice button i{position:absolute;left:0;right:0;bottom:-15px;font:700 9px/1 var(--body);font-style:normal;letter-spacing:.08em;color:var(--accent);line-height:1}
+.yzslot.big{width:50px;height:50px}.yzdice button.held{transform:translateY(-6px);position:relative}.yzdice button.held{outline:3px solid var(--accent);outline-offset:2px;border-radius:12px}.yzdice button.tip{outline:3px dashed var(--accent);outline-offset:2px;border-radius:12px}.yzc.tip{box-shadow:0 0 0 3px var(--accent)}.yzdice button i{position:absolute;left:0;right:0;bottom:-15px;font:700 9px/1 var(--body);font-style:normal;letter-spacing:.08em;color:var(--accent);line-height:1}
 .yzdice button:disabled{opacity:1}.yzdice{min-height:58px;align-items:flex-end}
 @media (prefers-reduced-motion:no-preference){.yzdice.shake button:not(.held){animation:yzroll .45s cubic-bezier(.3,1.4,.5,1)}}
 @keyframes yzroll{0%{transform:translateY(-22px) rotate(-200deg) scale(.7)}100%{transform:none}}
+.yzhint{margin-top:8px;padding:8px 10px;border-radius:10px;background:color-mix(in srgb,var(--accent) 16%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));font-size:14px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+.yzmeter{margin-top:12px;display:grid;gap:8px}.yzm{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px}.yzmh{display:flex;justify-content:space-between;font-size:14px}
+.yzmb{position:relative;height:10px;border-radius:5px;background:var(--soft);margin:6px 0 4px;overflow:visible}.yzmb i{display:block;height:100%;border-radius:5px;background:var(--pc,var(--accent));transition:width .4s}
+.yzmb em{position:absolute;top:-3px;width:2px;height:16px;background:var(--ink);opacity:.35;transform:translateX(-1px)}.yzm.ok .yzmb i{background:var(--accent)}.yzm small{font-size:12px;color:var(--muted)}
+.yzpassbg{align-items:center;background:rgba(10,15,20,.82)}.yzpass{text-align:center;display:grid;gap:6px;justify-items:center;border-top:6px solid var(--pc)}.yzpass h2{font-size:40px;margin:0}
+.yzpm{width:64px;height:64px;color:var(--pc);fill:currentColor;stroke:rgba(0,0,0,.35);stroke-width:1.4}
 .yzcheer{position:fixed;inset:0;z-index:40;display:grid;place-items:center;pointer-events:none}.yzcheer img{width:min(80vw,380px);height:auto;filter:drop-shadow(0 10px 30px rgba(0,0,0,.35))}
 @media (prefers-reduced-motion:no-preference){.yzcheer img{animation:yzpop .5s cubic-bezier(.2,1.5,.4,1) both}.yzcheer.out{transition:opacity .5s;opacity:0}}
 @keyframes yzpop{from{transform:scale(.3) rotate(-12deg);opacity:0}to{transform:none;opacity:1}}
@@ -5391,7 +5397,7 @@ function rkDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    p.yz = {c:[{box:score}...per column], yb:[bonus count per column]}
    S.yzd = dice being entered, S.yzt = whose turn
    ===================================================================== */
-const YZDEF={mode:'regular',joker:'forced',bonusV:100,tBonus:'mult',roller:false};
+const YZDEF={mode:'regular',joker:'forced',bonusV:100,tBonus:'mult',roller:false,pass:true,hints:true};
 const YZX=()=>{if(!S.yzx)S.yzx={...YZDEF};const X=S.yzx;for(const k in YZDEF)if(X[k]===undefined)X[k]=YZDEF[k];return X};
 function yzSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.yzx'))}catch(e){}return Object.assign({...YZDEF},x||{})}
 function yzKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.yzx',JSON.stringify(YZX()))}catch(e){}}
@@ -5432,9 +5438,11 @@ const yzDone=()=>act().length>0&&act().every(p=>yzFilled(p)>=yzNeed());
 const yzMe=()=>!S.demo&&S.lk&&S.lk.me?act().find(p=>p.id===S.lk.me)||null:null;
 const yzTurnP=()=>{const m=yzMe();if(m)return m;const P=act();if(!P.length)return null;return P[((S.yzt||0)%P.length+P.length)%P.length]};
 const yzYs=p=>{let n=0;for(let c=0;c<yzCols();c++){if(yzV(p,c,'yz')===50)n++;n+=((p.yz||{}).yb||[])[c]||0}return n};
-const yzDie=(v,sz,extra)=>{const P={1:[[50,50]],2:[[28,28],[72,72]],3:[[28,28],[50,50],[72,72]],4:[[28,28],[72,28],[28,72],[72,72]],5:[[28,28],[72,28],[50,50],[28,72],[72,72]],6:[[28,26],[72,26],[28,50],[72,50],[28,74],[72,74]]}[v]||[];
-  return `<svg class="yzdie" width="${sz}" height="${sz}" viewBox="0 0 100 100" aria-hidden="true"${extra||''}><rect x="5" y="5" width="90" height="90" rx="18" fill="#fffdf6" stroke="#26313b" stroke-width="7"/>${P.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="9.5" fill="#26313b"/>`).join('')}</svg>`};
-function yzSetup(){const X=YZX();
+const YZDARK=['red','blue','green','purple','black','gray','pink'];
+const yzDie=(v,sz,extra,col)=>{const P={1:[[50,50]],2:[[28,28],[72,72]],3:[[28,28],[50,50],[72,72]],4:[[28,28],[72,28],[28,72],[72,72]],5:[[28,28],[72,28],[50,50],[28,72],[72,72]],6:[[28,26],[72,26],[28,50],[72,50],[28,74],[72,74]]}[v]||[];
+  const pip=col&&YZDARK.includes(col)?'#fffdf6':'#26313b';
+  return `<svg class="yzdie" width="${sz}" height="${sz}" viewBox="0 0 100 100" aria-hidden="true"${extra||''}><rect x="5" y="5" width="90" height="90" rx="18" fill="#fffdf6" stroke="#26313b" stroke-width="7"${col?` style="fill:var(--t-${col})"`:''}/>${P.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="9.5" fill="${pip}"/>`).join('')}</svg>`};
+function yzSetup(){const X=YZX(),tgl=(k,label,sub)=>`<div class="prow"><div class="rtext"><b>${label}</b><div class="rlab">${sub}</div></div><button class="sw" role="switch" aria-checked="${!!X[k]}" data-a="yztg" data-k="${k}" aria-label="${label}"><i></i></button></div>`;
   const seg=(k,opts)=>`<div class="seg${opts.length===3?' three':''}">${opts.map(([v,t])=>`<button data-a="yzset" data-k="${k}" data-v="${v}" aria-pressed="${X[k]===v}">${t}</button>`).join('')}</div>`;
   const st=(k,v,min,max,step,label)=>`<div class="step"><button data-a="yzst" data-k="${k}" data-d="${-step}" ${v<=min?'disabled':''} aria-label="Less ${label}">−</button><span class="n num">${v}</span><button data-a="yzst" data-k="${k}" data-d="${step}" ${v>=max?'disabled':''} aria-label="More ${label}">+</button></div>`;
   const row=(label,sub,ctl)=>`<div class="srow"><span class="rlab"><b>${label}</b>${sub?` · ${sub}`:''}</span>${ctl}</div>`;
@@ -5444,7 +5452,47 @@ function yzSetup(){const X=YZX();
   ${sec('Version',seg('mode',[['regular','Yahtzee'],['triple','Triple Yahtzee']]),X.mode==='triple'?'Three columns each, worth 1×, 2× and 3×. You fill all three, 39 turns in all.':'One column each, 13 turns.')}
   ${sec('Joker rule',seg('joker',[['forced','Official'],['free','Free choice'],['off','No Joker']]),X.joker==='forced'?'After your first Yahtzee, another one must go in its matching upper box if it’s open. If not, it can fill Full house, Small or Large straight for full points.':X.joker==='free'?'An extra Yahtzee can go in any open box. It only counts as a Full house or straight once its matching upper box is filled.':'An extra Yahtzee never counts as a Full house or straight.')}
   ${sec('Yahtzee bonus',row('Each extra Yahtzee','points',st('bonusV',X.bonusV,0,500,50,'points'))+(X.mode==='triple'?seg('tBonus',[['mult','Times the column'],['flat','Same in every column']]):''),`Only if that column’s Yahtzee box already holds 50.${X.mode==='triple'?' Triple Yahtzee boxes differ on this one, so check the rule card.':''}`)}
+  ${sec('Helpers',tgl('pass','Pass-the-phone screen','When one phone goes around the table, show whose turn it is before their card appears.')+tgl('hints','Hint button','A 💡 button suggests which dice to hold or which box to pick.'),'')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
+/* ---- Yahtzee helpers: hint engine, sounds, bonus meter, solo best, pass screen ---- */
+const YZPAR={u1:3,u2:6,u3:9,u4:12,u5:15,u6:18,k3:20,k4:11,fh:21,ss:26,ls:29,yz:16,ch:21};
+/* how good is it to put this roll in the best open box (score minus what that box is usually worth, plus bonus effects) */
+function yzBoxVal(p,d){let best=null;for(let c=0;c<yzCols();c++){const o=yzOptions(p,c,d),m=yzMul(c);for(const k in o){let v=(o[k]-YZPAR[k])*m;
+      if(k[0]==='u'){const u=yzUp(p,c);if(u<63&&u+o[k]>=63)v+=35*m}if(yzIsY(d)&&yzV(p,c,'yz')===50)v+=YZX().bonusV;
+      if(!best||v>best.v)best={c,k,v,sc:o[k]}}}return best||{v:-99}}
+const yzRnd=()=>1+Math.floor(Math.random()*6);
+/* hold plans: a target the player keeps working toward across the remaining rolls */
+function yzPlans(d){const n=yzCnt(d),P=[{t:'all'},{t:'none'}];for(let v=1;v<=6;v++)if(n[v])P.push({t:'face',v});
+  for(const T of [[1,2,3,4,5],[2,3,4,5,6],[1,2,3,4],[2,3,4,5],[3,4,5,6]]){const have=T.filter(v=>n[v]).length;if(have>=3&&have<T.length)P.push({t:'run',T})}
+  if(n.filter(x=>x>=2).length>=2||n.some(x=>x===3)&&n.some(x=>x===2))P.push({t:'fh'});return P}
+function yzKeepPlan(plan,d){const n=yzCnt(d),k=[false,false,false,false,false];
+  if(plan.t==='all')return [true,true,true,true,true];if(plan.t==='none'){const v=n.indexOf(Math.max(...n.slice(1)),1);return plan.first?k:d.map(x=>x===v)}
+  if(plan.t==='face')return d.map(x=>x===plan.v);
+  if(plan.t==='run'){const used=new Set();return d.map(x=>{if(plan.T.includes(x)&&!used.has(x)){used.add(x);return true}return false})}
+  if(plan.t==='fh'){const c={};return d.map(x=>n[x]>=2&&(c[x]=(c[x]||0)+1)<=3?true:false)}return k}
+function yzPlanEV(p,d,plan,rolls){let tot=0;const N=260;for(let i=0;i<N;i++){let dd=d.slice();
+    for(let r=0;r<rolls;r++){const keep=yzKeepPlan(r===0?{...plan,first:true}:plan,dd);if(keep.every(Boolean))break;dd=dd.map((x,j)=>keep[j]?x:yzRnd())}
+    tot+=yzBoxVal(p,dd).v}return tot/N}
+const yzBoxName=k=>YZB.find(x=>x[0]===k)[1];
+function yzHint(p,d,rollsLeft){if(d.length!==5)return null;const now=yzBoxVal(p,d);
+  if(!rollsLeft||yzIsY(d))return {box:now,text:`Score it in ${yzBoxName(now.k)}${yzCols()>1?` ×${now.c+1}`:''} for ${now.sc}.${now.sc===0?' (a scratch: the least costly one)':''}`};
+  let best={plan:{t:'all'},ev:now.v};yzPlans(d).forEach(pl=>{if(pl.t==='all')return;const ev=yzPlanEV(p,d,pl,rollsLeft);if(ev>best.ev+0.4)best={plan:pl,ev}});
+  if(best.plan.t==='all')return {box:now,text:`Good roll. Score it now in ${yzBoxName(now.k)} for ${now.sc}.`};
+  const hold=yzKeepPlan({...best.plan,first:true},d),what=best.plan.t==='face'?`the ${best.plan.v}s`:best.plan.t==='run'?'the straight':best.plan.t==='fh'?'the pairs':'nothing';
+  return {hold,text:best.plan.t==='none'||hold.every(x=>!x)?'Roll all five again.':`Hold ${what} and roll again.`}}
+function yzSnd(kind){if(!SET.sound)return;try{const c=ac();if(!c)return;const t=c.currentTime+.04;
+  const N={scratch:[[392,0,.2],[330,.2,.2],[262,.4,.6]],bonus:[[1046,0,.12],[1568,.11,.4]],straight:[[523,0,.1],[659,.08,.1],[784,.16,.1],[1046,.24,.35]]}[kind]||[];
+  N.forEach(([f,dd,l])=>brass(c,f,t+dd,l,{vol:kind==='scratch'?.05:.06}))}catch(e){}}
+function yzMeter(p){const C=yzCols();return `<div class="yzmeter">${Array.from({length:C},(_,c)=>{const u=yzUp(p,c),done=YZU.filter(([k])=>yzV(p,c,k)!==null),pace=done.reduce((a,[k])=>a+3*+k[1],0),df=u-pace,ok=u>=63,left=YZU.length-done.length;
+    return `<div class="yzm${ok?' ok':''}"><div class="yzmh"><b>${C>1?`×${c+1} `:''}Upper bonus</b><span class="num">${ok?'Made! +35':`${u} / 63`}</span></div><div class="yzmb"><i style="width:${Math.min(100,u/63*100)}%"></i></div>
+      <small>${ok?'Bonus locked in.':!left?'Missed it this time.':df>=0?`On pace${df>0?`, ${df} ahead`:''}. Keep getting three of each number.`:`${-df} behind pace. You’ll need four of a number to catch up.`}</small></div>`}).join('')}</div>`}
+const yzBest=p=>{const prev=H.games.filter(g=>g.game==='yahtzee'&&g.id!==S.gameId).map(g=>({g,q:g.players.find(q=>p.rid?q.rid===p.rid:q.name===nm(p))})).filter(x=>x.q);
+  if(!prev.length)return null;const b=prev.reduce((a,x)=>x.q.total>a.q.total?x:a);return {v:b.q.total,date:b.g.date,n:prev.length}};
+let YZPASS=null,YZHINT=null;
+const yzPassOn=()=>YZX().pass&&!yzMe()&&act().length>1&&!S.demo;
+function yzPassSheet(q){return `<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="yzp-h" style="${pc(q.color)}">
+  <svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="yzp-h">${esc(nm(q))}</h2>
+  <p class="rlab">${yzFilled(q)} of ${yzNeed()} boxes filled · ${yzTot(q)} points</p><button class="btn primary wide" data-a="yzpassok">I’m ${esc(nm(q))}, start my turn</button></div></div>`}
 let YZFIX=null,YZSHAKE=false;
 const yzRoller=()=>!!YZX().roller;
 const yzRS=()=>{if(!S.yzr)S.yzr={n:0,h:[false,false,false,false,false]};return S.yzr};
@@ -5466,22 +5514,26 @@ function yzScore(){const X=YZX(),P=act(),C=yzCols(),done=yzDone(),cur=yzTurnP(),
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Turn">${done?'Done':`${Math.min(yzNeed(),yzFilled(cur)+1)}/${yzNeed()}`}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo">↶<span class="undo-w"> Undo</span></button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-a="yzwho" data-k="${k}" data-lp="ph:${q.id}" aria-pressed="${q===cur}"><div class="tn">${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${hid(q)?'••':sc[k]}</div><div class="tr num">${yzFilled(q)} of ${yzNeed()}</div></button>`).join('')}</div>
   <p class="hint lv-hint hftip">${me?`This phone scores ${esc(nm(me))}. Everyone else’s total stays hidden until the reveal.`:'Tap a name to switch whose turn it is. Tap a filled box to fix it.'}</p>`;
+  if(P.length===1&&!S.demo&&cur){const B=yzBest(cur),t=yzTot(cur);out+=`<div class="banner ${B&&t>B.v?'pb':'rival'}"><span class="crown">Solo challenge</span><p>${B?(t>B.v?`<b>New best!</b> ${t} beats your old record of ${B.v}.`:`Beat your best: <b class="num">${B.v}</b> (${fmtD(B.date,{month:'short',day:'numeric'})}). You need <b class="num">${B.v-t+1}</b> more.`):'Your first solo game sets the record to beat.'}</p></div>`}
+  const HK=JSON.stringify([d,R.n,cur&&cur.id]),HT=YZHINT&&YZHINT.key===HK?YZHINT:null;
   if(!done&&cur){const opts=Array.from({length:C},(_,c)=>yzOptions(cur,c,d)),best=Math.max(-1,...opts.flatMap(o=>Object.values(o)));
     out+=`<div class="nxcard yzroll" style="${pc(cur.color)}"><div class="nxh"><b>${esc(nm(cur))}’s roll</b><div class="seg yzmode"><button data-a="yzmode" data-v="0" aria-pressed="${!roll}">Real dice</button><button data-a="yzmode" data-v="1" aria-pressed="${roll}">Roll here</button></div></div>`;
-    if(roll){out+=`<div class="yzdice${YZSHAKE?' shake':''}">${[0,1,2,3,4].map(i=>d[i]?`<button class="${R.h[i]?'held':''}" data-a="yzhold" data-i="${i}" ${R.n>=3||R.n===0?'disabled':''} aria-pressed="${!!R.h[i]}" aria-label="${R.h[i]?'Holding':'Hold'} ${d[i]}">${yzDie(d[i],50)}${R.h[i]?'<i>HOLD</i>':''}</button>`:`<span class="yzslot big"></span>`).join('')}</div>
+    if(roll){out+=`<div class="yzdice${YZSHAKE?' shake':''}">${[0,1,2,3,4].map(i=>d[i]?`<button class="${R.h[i]?'held':HT&&HT.hold&&HT.hold[i]?'tip':''}" data-a="yzhold" data-i="${i}" ${R.n>=3||R.n===0?'disabled':''} aria-pressed="${!!R.h[i]}" aria-label="${R.h[i]?'Holding':'Hold'} ${d[i]}">${yzDie(d[i],50,'',IMGC.includes(cur.color)?cur.color:'red')}${R.h[i]?'<i>HOLD</i>':''}</button>`:`<span class="yzslot big"></span>`).join('')}</div>
       <button class="btn primary wide" data-a="yzroll" ${R.n>=3?'disabled':''}>${R.n===0?'Roll the dice':R.n>=3?'No rolls left: pick a box':`Roll again (${3-R.n} left)`}</button>
       <p class="rlab" style="margin:6px 0 0">${R.n===0?'Three rolls per turn.':R.n<3?'Tap dice to hold them, then roll again. Or pick a box now.':'Pick a box below.'}</p>`}
     else out+=`<div class="yzdice">${[0,1,2,3,4].map(i=>d[i]?`<button data-a="yzdel" data-i="${i}" aria-label="Remove ${d[i]}">${yzDie(d[i],46)}</button>`:`<span class="yzslot"></span>`).join('')}</div>
       <div class="yzpad">${[1,2,3,4,5,6].map(v=>`<button data-a="yzadd" data-v="${v}" ${d.length>=5?'disabled':''} aria-label="Add a ${v}">${yzDie(v,38)}</button>`).join('')}</div>
       ${d.length?`<div class="htbtns" style="margin-top:6px"><button data-a="yzclr">Clear dice</button></div>`:''}
       <p class="rlab" style="margin:6px 0 0">${d.length<5?'Tap the five dice you ended with.':'Now tap the box to score it in.'}</p>`;
+    if(X.hints&&d.length===5&&!(roll&&R.n===0))out+=HT?`<div class="yzhint">💡 ${esc(HT.text)}${HT.hold&&HT.hold.some(Boolean)?` <button class="btn sm" data-a="yzhintdo">Hold them</button>`:''}</div>`:`<div class="htbtns" style="margin-top:6px"><button data-a="yzhint">💡 Hint</button></div>`;
     out+=`${d.length===5&&yzIsY(d)?`<p class="yzyell">YAHTZEE!${opts.some((o,c)=>yzV(cur,c,'yz')===50)?` Bonus +${X.bonusV}`:''}</p>`:''}</div>`;
     const cell=(q,c,k)=>{const v=yzV(q,c,k),mine=q===cur,o=mine?opts[c]:{};if(v!==null)return `<button class="yzc yzf num" data-a="yzfix" data-p="${q.id}" data-c="${c}" data-k="${k}" aria-label="Fix ${esc(nm(q))} ${k}">${v}</button>`;
       if(!mine||!(k in o))return `<span class="yzc num">${mine&&d.length===5?'':'·'}</span>`;
-      return `<button class="yzc yzo num${o[k]===best&&best>0?' best':''}${o[k]===0?' zero':''}" data-a="yzpick" data-c="${c}" data-k="${k}">${o[k]}</button>`};
+      return `<button class="yzc yzo num${o[k]===best&&best>0?' best':''}${o[k]===0?' zero':''}${HT&&HT.box&&HT.box.k===k&&HT.box.c===c&&mine?' tip':''}" data-a="yzpick" data-c="${c}" data-k="${k}">${o[k]}</button>`};
     const cols=wide?P.map(q=>[q,0]):Array.from({length:C},(_,c)=>[cur,c]);
     const head=wide?`<div class="yzrow yzhd"><span></span>${P.map(q=>`<span style="${pc(q.color)}" class="${q===cur?'me':''}">${esc(nm(q))}</span>`).join('')}</div>`:C>1?`<div class="yzrow yzhd"><span></span>${cols.map(([,c])=>`<span>×${c+1}</span>`).join('')}</div>`:'';
     const sub=(label,f)=>`<div class="yzrow yzsub"><span>${label}</span>${cols.map(([q,c])=>`<span class="yzc num">${f(q,c)}</span>`).join('')}</div>`;
+    if(!wide)out+=yzMeter(cur);
     out+=`<div class="sec${wide?' yzwide':''}"><div class="panel yzcard" style="--yc:${cols.length}">${head}
       ${YZU.map(([k,l])=>`<div class="yzrow"><span>${l}</span>${cols.map(([q,c])=>cell(q,c,k)).join('')}</div>`).join('')}
       ${sub('Upper bonus',(q,c)=>yzUB(q,c)?'+35':`${Math.max(0,63-yzUp(q,c))} to go`)}
@@ -5492,6 +5544,7 @@ function yzScore(){const X=YZX(),P=act(),C=yzCols(),done=yzDone(),cur=yzTurnP(),
   else out+=`<div class="hfmin"><span class="hfbeat"><b>Every box is filled.</b> ${lead?`${esc(nm(lead))} is ahead with ${hi}.`:''}</span></div>`;
   out+=`<div class="actions"><div class="in">${done?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<button class="btn sm" data-a="finish">End game</button>`}</div></div>`;
   if(YZFIX)out+=yzFixSheet();
+  if(!done&&cur&&YZPASS===cur.id&&yzPassOn())out+=yzPassSheet(cur);
   if(WARN)out+=`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
     <div class="sheet-btns"><button class="btn" data-a="warnclose">Go back and check</button><button class="btn primary" data-a="revstart">Reveal anyway</button></div></div></div>`;
   YZSHAKE=false;return out}
@@ -5509,8 +5562,9 @@ function yzAwards(){const P=act(),out=[],C=yzCols(),add=(title,f,min,why)=>{cons
   add('Lucky chance',p=>Math.max(0,...Array.from({length:C},(_,c)=>yzV(p,c,'ch')||0)),27,v=>`${v} on Chance`);return out}
 function yzRevSteps(){const C=yzCols(),f=g=>p=>{let t=0;for(let c=0;c<C;c++)t+=g(p,c);return t};
   return [{name:'Upper section',f:f((p,c)=>yzMul(c)*yzUp(p,c))},{name:'Upper bonus',f:f((p,c)=>yzMul(c)*yzUB(p,c))},{name:'Lower section',f:f((p,c)=>yzMul(c)*yzLo(p,c))},{name:'Yahtzee bonuses',f:f(yzBon)}]}
-function yzResults(){const rk=ranking(),C=yzCols(),st=yzRevSteps();
+function yzResults(){const rk=ranking(),C=yzCols(),st=yzRevSteps(),solo=act().length===1&&!S.demo?act()[0]:null,SB=solo?yzBest(solo):null;
   return `<div class="bar"><button class="back" data-a="go" data-s="score">‹ Score card</button><h1>Results</h1></div>
+  ${solo?`<div class="banner ${!SB||total(solo)>SB.v?'pb':'rival'}"><span class="crown">${!SB?'First solo game':total(solo)>SB.v?'New personal best':'Solo challenge'}</span><p>${!SB?`${total(solo)} is the score to beat next time.`:total(solo)>SB.v?`${total(solo)} beats your old best of ${SB.v}.`:`${total(solo)} this time. Your best is still ${SB.v}, ${SB.v-total(solo)} more next time.`}</p></div>`:''}
   <div class="podium">${rk.list.map(({p,rank})=>{let t=0;return `<div class="res ${rank===1?'win':''}" style="${pc(p.color)}"><div class="rtop"><span class="rank num">${rank}</span><span class="rname">${esc(nm(p))}</span><span class="rtot num">${total(p)}</span></div>
     <div class="rbreak crun"><span class="crh"><i>Part</i><i>Points</i><i>Total</i></span>${st.map(s=>{const v=s.f(p);t+=v;return `<span><i>${s.name}</i><b class="num">${v}</b><em class="num">${t}</em></span>`}).join('')}</div></div>`}).join('')}</div>
   ${awardsHtml()}${photoBlock()}
@@ -7908,6 +7962,10 @@ document.addEventListener('click',e=>{
     case 'yzset':YZX()[k]=b.dataset.v;yzKeep();break;
     case 'yzst':{const X=YZX();X[k]=Math.max(0,Math.min(500,(+X[k]||0)+(+b.dataset.d)));yzKeep();break}
     case 'yzadd':{if((S.yzd||[]).length<5){S.yzd=[...(S.yzd||[]),+b.dataset.v];if(S.yzd.length===5&&yzIsY(S.yzd))setTimeout(()=>yzCheer(yzTurnP()),60)}break}
+    case 'yztg':{const X=YZX();X[k]=!X[k];yzKeep();break}
+    case 'yzhint':{const q=yzTurnP(),R=yzRS(),h=yzHint(q,S.yzd||[],YZX().roller?3-R.n:0);if(h)YZHINT={...h,key:JSON.stringify([S.yzd||[],R.n,q&&q.id])};break}
+    case 'yzhintdo':{if(YZHINT&&YZHINT.hold){yzRS().h=YZHINT.hold.slice()}break}
+    case 'yzpassok':YZPASS=null;window.scrollTo(0,0);break;
     case 'yzmode':{YZX().roller=b.dataset.v==='1';yzKeep();S.yzd=[];S.yzr=null;break}
     case 'yzroll':{yzRollDice();if(yzIsY(S.yzd))setTimeout(()=>yzCheer(yzTurnP()),450);break}
     case 'yzhold':{const R=yzRS(),i=+b.dataset.i;R.h[i]=!R.h[i];break}
@@ -7919,8 +7977,9 @@ document.addEventListener('click',e=>{
     case 'yzclr':S.yzd=[];S.yzr=null;break;
     case 'yzwho':{if(yzMe()){toast(`This phone scores ${nm(yzMe())}.`);break}S.yzt=+k;S.yzd=[];S.yzr=null;break}
     case 'yzpick':{const q=yzTurnP(),c=+b.dataset.c,d=S.yzd||[],o=yzOptions(q,c,d);if(!q||!(k in o))break;snap();const Y=yzP(q);
-      if(yzIsY(d)&&yzV(q,c,'yz')===50&&YZX().bonusV>0)Y.yb[c]=(Y.yb[c]||0)+1;Y.c[c][k]=o[k];
-      const P=act();S.yzd=[];S.yzr=null;if(yzMe()){toast(`${nm(q)}: ${YZB.find(x=>x[0]===k)[1]} ${o[k]}`);window.scrollTo(0,0);break}let n=1;while(n<=P.length&&yzFilled(P[(S.yzt+n)%P.length])>=yzNeed())n++;S.yzt=(S.yzt+(n>P.length?1:n))%P.length;S.hr=Math.min(...P.map(yzFilled));
+      if(yzIsY(d)&&yzV(q,c,'yz')===50&&YZX().bonusV>0)Y.yb[c]=(Y.yb[c]||0)+1;const ub0=yzUB(q,c);Y.c[c][k]=o[k];
+      if(o[k]===0)yzSnd('scratch');else if(!ub0&&yzUB(q,c))setTimeout(()=>{yzSnd('bonus');toast(`${nm(q)} made the upper bonus! +35`)},250);else if(k==='ls')yzSnd('straight');
+      const P=act();S.yzd=[];S.yzr=null;if(yzMe()){toast(`${nm(q)}: ${YZB.find(x=>x[0]===k)[1]} ${o[k]}`);window.scrollTo(0,0);break}let n=1;while(n<=P.length&&yzFilled(P[(S.yzt+n)%P.length])>=yzNeed())n++;S.yzt=(S.yzt+(n>P.length?1:n))%P.length;{const nx=P[S.yzt];if(nx&&nx!==q&&yzFilled(nx)<yzNeed())YZPASS=nx.id}S.hr=Math.min(...P.map(yzFilled));
       toast(`${nm(q)}: ${YZB.find(x=>x[0]===k)[1]} ${o[k]}${yzMul(c)>1?` ×${yzMul(c)}`:''}`);window.scrollTo(0,0);break}
     case 'rkdemo':rkDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'rkpre':{const p=RKPRE.find(x=>x[0]===k);if(p)Object.assign(RKX(),p[2]);rkKeep();break}
