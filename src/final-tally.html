@@ -514,6 +514,13 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .ctcard .step button{width:40px;height:40px}.ctcard .step .n{min-width:26px;text-align:center;font-weight:800}.ctcard.turn{box-shadow:0 0 0 2px var(--pc)}
 .ctbadges button{display:flex;align-items:center;justify-content:center;gap:5px;font-size:13.5px;white-space:nowrap;padding:0 6px}.ctbadges button:disabled{opacity:.45}.ctbadges button.ctla[aria-pressed=true]{opacity:1}
 .ctbadges button[aria-pressed=true] svg path{stroke:#fff}
+.ctmet{display:grid;gap:4px}.ctmet button{display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px}.ctmet button i{width:12px;height:12px;border-radius:50%;background:var(--mc);border:1.5px solid #26313b}.ctmet .htbtns button[aria-pressed=true]{background:var(--mc);border-color:#26313b;color:#fff}.ctmet button:disabled{opacity:.4}
+.ctkn{display:grid;gap:6px}.ctkchips{display:flex;flex-wrap:wrap;gap:6px}.ctkchip{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}.ctkchip button{padding:6px 8px;font-size:13px;font-weight:700;color:var(--ink);background:none;border:0;min-height:40px}.ctkchip button:first-child{display:grid;line-height:1.1;min-width:58px;text-align:left}.ctkchip button:first-child b{letter-spacing:1px;font-size:11px}.ctkchip button+button{border-left:1px solid var(--line);color:var(--muted)}.ctkchip button:disabled{opacity:.3}
+.ctkchip.on{border-color:var(--pc);background:color-mix(in srgb,var(--pc) 22%,var(--surface))}.ctkhint{margin:0;font-size:12.5px}
+.ctbar{margin:12px 0;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:grid;gap:8px}.ctbar .ctdh b{display:flex;align-items:center;gap:6px}
+.ctbtrack{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}.ctbtrack i{height:30px;border-radius:7px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-style:normal;color:var(--muted)}.ctbtrack i.past{background:color-mix(in srgb,#5b3a29 25%,var(--soft))}.ctbtrack i.on{background:color-mix(in srgb,var(--accent) 45%,var(--soft))}.ctbtrack i:last-child{font-size:18px}
+.ctbvs{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ctbvs span{display:grid;justify-items:center;padding:6px;border-radius:10px;background:var(--soft);font-size:13px}.ctbvs b{font-size:26px;line-height:1.1}.ctbvs small{color:var(--muted)}
+.ctatkl{list-style:none;padding:0;margin:10px 0;display:grid;gap:4px}.ctatkl li{display:flex;justify-content:space-between;padding:6px 10px;border-left:5px solid var(--pc);background:var(--soft);border-radius:8px}
 .ctwin{display:grid;gap:6px;margin:10px 0;padding:12px;border-radius:14px;background:color-mix(in srgb,var(--accent) 22%,var(--surface));border:2px solid var(--accent)}
 .ctdice{margin:12px 0;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}.ctdh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .ctnums{display:grid;grid-template-columns:repeat(11,1fr);gap:3px;margin-top:8px}.ctnums>*{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:64px;padding:0 0 4px;border-radius:8px;background:var(--soft);overflow:hidden;line-height:1.1}
@@ -1215,7 +1222,7 @@ const padSC=()=>Math.max(1,Math.round(Math.max(1,...act().map(p=>Math.abs(total(
 const LOW=()=>S.game==='phase10'||S.game==='mextrain'||S.game==='uno'&&UNX().mode==='low'||S.game==='golf'||S.game==='skyjo'||S.game==='gnome'&&!gnRW()||S.game==='hearts'||S.game==='crowns'||S.game==='pad'&&!!(S.px||{}).low,RS=p=>S.game==='darts'?dRankKey(p):S.game==='phase10'?ptKey(p):LOW()?-total(p):total(p),RU=(n,p)=>LOW()?-upto(n,p):upto(n,p);
 const total=p=>S.game==='carc'?cTot(p):HFE()?hfTot(p):S.game==='nerts'?nxTot(p):S.game==='pad'?pxTot(p):S.game==='darts'?dTot(p):S.game==='pool'?plTot(p):S.game==='hearts'?htTot(p):S.game==='spades'?sdTot(p):S.game==='rage'?rgTot(p):S.game==='ohell'?ohTot(p):S.game==='uno'?unTot(p):S.game==='munchkin'?mkTot(p):S.game==='crowns'?fcTot(p):S.game==='skipbo'?sbTot(p):S.game==='gnome'?gnTot(p):S.game==='skyjo'?skTot(p):S.game==='wingspan'?wsTot(p):S.game==='wyrmspan'?wyTot(p):S.game==='phase10'?ptTot(p):S.game==='rook'?rkTot(p):S.game==='yahtzee'?yzTot(p):S.game==='mextrain'?mtTot(p):S.game==='catan'?ctTot(p):S.game==='golf'?gfTot(p):S.game==='tripoley'?tpTot(p):S.game==='quacks'?qkTot(p):hsPts(p)+routePts(p)+tkNet(p)+extrasPts(p)+bonusPts(p);
 
-function resetScores(){['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[]}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.active=0}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
+function resetScores(){['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[]}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.active=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
 let UNDO=[],KP='',RULESHEET=false;
 if(S.hideTotals===undefined)S.hideTotals=true;
 function setMap(k){
@@ -1575,7 +1582,7 @@ function saveGame(){
       tix:p.tickets.filter(t=>t.name).map(t=>[t.name,t.done?1:0]),...((S.tturn||{})[p.id]?{tn:S.tturn[p.id].n,tms:Math.round(S.tturn[p.id].ms)}:{})})),
     ...(S.playMs>60e3?{dur:Math.round(S.playMs/60000)}:{}),
     awards:awards().map(a=>({title:a.title,names:a.ps.map(nm)})),
-    state:JSON.parse(JSON.stringify({game:S.game||'ttr',map:S.map,preset:S.preset||null,rules:S.rules,picks:S.picks,players:act(),cx:S.cx||null,clog:S.clog||null,cend:S.cend||null,...(HFG?{hx:S.hx}:{}),...(S.game==='nerts'?{nx:S.nx}:{}),...(S.game==='pad'?{px:S.px}:{}),...(S.game==='pool'?{plx:S.plx,pk:S.pk}:{}),...(S.game==='hearts'?{htx:S.htx}:{}),...(S.game==='spades'?{sdx:S.sdx}:{}),...(S.game==='rage'?{rgx:S.rgx}:{}),...(S.game==='ohell'?{ohx:S.ohx,ohtr:S.ohtr}:{}),...(S.game==='uno'?{unx:S.unx,unside:S.unside}:{}),...(S.game==='munchkin'?{mkx:S.mkx,mklog:S.mklog,mkdeals:S.mkdeals||[]}:{}),...(S.game==='crowns'?{fcx:S.fcx,fctb:S.fctb||null}:{}),...(S.game==='skipbo'?{sbx:S.sbx}:{}),...(S.game==='gnome'?{gnx:S.gnx}:{}),...(S.game==='skyjo'?{skx:S.skx}:{}),...(S.game==='phase10'?{ptx:S.ptx}:{}),...(S.game==='rook'?{rkx:S.rkx,rk:S.rk||[]}:{}),...(S.game==='yahtzee'?{yzx:S.yzx}:{}),...(S.game==='mextrain'?{mtx:S.mtx}:{}),...(S.game==='catan'?{ctx:S.ctx,ctr:S.ctr||[]}:{}),...(S.game==='wingspan'?{wsx:S.wsx}:{}),...(S.game==='golf'?{gfx:S.gfx}:{}),...(S.game==='tripoley'?{tpx:S.tpx,tph:S.tph}:{}),...(S.game==='quacks'?{qkx:S.qkx,qkfc:S.qkfc||[]}:{}),...(S.game==='darts'?{dx:S.dx,dturns:S.dturns,dkill:S.dkill,dfirst:S.dfirst,dt:dtSaveExtra()}:{})}))};
+    state:JSON.parse(JSON.stringify({game:S.game||'ttr',map:S.map,preset:S.preset||null,rules:S.rules,picks:S.picks,players:act(),cx:S.cx||null,clog:S.clog||null,cend:S.cend||null,...(HFG?{hx:S.hx}:{}),...(S.game==='nerts'?{nx:S.nx}:{}),...(S.game==='pad'?{px:S.px}:{}),...(S.game==='pool'?{plx:S.plx,pk:S.pk}:{}),...(S.game==='hearts'?{htx:S.htx}:{}),...(S.game==='spades'?{sdx:S.sdx}:{}),...(S.game==='rage'?{rgx:S.rgx}:{}),...(S.game==='ohell'?{ohx:S.ohx,ohtr:S.ohtr}:{}),...(S.game==='uno'?{unx:S.unx,unside:S.unside}:{}),...(S.game==='munchkin'?{mkx:S.mkx,mklog:S.mklog,mkdeals:S.mkdeals||[]}:{}),...(S.game==='crowns'?{fcx:S.fcx,fctb:S.fctb||null}:{}),...(S.game==='skipbo'?{sbx:S.sbx}:{}),...(S.game==='gnome'?{gnx:S.gnx}:{}),...(S.game==='skyjo'?{skx:S.skx}:{}),...(S.game==='phase10'?{ptx:S.ptx}:{}),...(S.game==='rook'?{rkx:S.rkx,rk:S.rk||[]}:{}),...(S.game==='yahtzee'?{yzx:S.yzx}:{}),...(S.game==='mextrain'?{mtx:S.mtx}:{}),...(S.game==='catan'?{ctx:S.ctx,ctr:S.ctr||[],ctb:S.ctb||0}:{}),...(S.game==='wingspan'?{wsx:S.wsx}:{}),...(S.game==='golf'?{gfx:S.gfx}:{}),...(S.game==='tripoley'?{tpx:S.tpx,tph:S.tph}:{}),...(S.game==='quacks'?{qkx:S.qkx,qkfc:S.qkfc||[]}:{}),...(S.game==='darts'?{dx:S.dx,dturns:S.dturns,dkill:S.dkill,dfirst:S.dfirst,dt:dtSaveExtra()}:{})}))};
   const i=H.games.findIndex(g=>g.id===rec.id);
   if(i>=0){['photo','photoData'].forEach(k=>{if(H.games[i][k])rec[k]=H.games[i][k]})}
   const same=i>=0&&JSON.stringify(H.games[i])===JSON.stringify(rec);
@@ -4465,7 +4472,7 @@ function usualUI(g){if(S.demo)return '';const G=UG[g],d=G.def(),cur=G.get()||{},
    scoring and winning, all written from the house rules in use.
    ===================================================================== */
 const GDICON='<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="9" width="17" height="24" rx="3" transform="rotate(-12 14 21)" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="16" y="7" width="17" height="24" rx="3" transform="rotate(10 24 19)" fill="currentColor"/></svg>';
-const guideBtn=()=>`<button class="mgbtn" data-a="rules">${GDICON}<span><b>Quick guide</b><small>${S.game==='wingspan'?'Round goals, ties and final scoring for your board side':S.game==='wyrmspan'?'Round objectives, ties and final scoring':S.game==='phase10'?'The phases, card points and how to win':S.game==='rook'?'Counters, bidding and how to win':S.game==='yahtzee'?'Every box, the bonuses and the Joker rule':S.game==='mextrain'?'Rounds, dealing and scoring':S.game==='catan'?'Victory points, Longest Road and Largest Army':'Setup, dealing, card values and scoring for your rules'}</small></span><i>›</i></button>`;
+const guideBtn=()=>`<button class="mgbtn" data-a="rules">${GDICON}<span><b>Quick guide</b><small>${S.game==='wingspan'?'Round goals, ties and final scoring for your board side':S.game==='wyrmspan'?'Round objectives, ties and final scoring':S.game==='phase10'?'The phases, card points and how to win':S.game==='rook'?'Counters, bidding and how to win':S.game==='yahtzee'?'Every box, the bonuses and the Joker rule':S.game==='mextrain'?'Rounds, dealing and scoring':S.game==='catan'?(ctCK()?'Metropolises, the Merchant and the barbarians':'Victory points, Longest Road and Largest Army'):'Setup, dealing, card values and scoring for your rules'}</small></span><i>›</i></button>`;
 function guideSheet(title,secs){
   return `<div class="sheet-bg" data-a="rulesclose"><div class="sheet rsheet" role="dialog" aria-modal="true" aria-labelledby="rs-h" data-stop="1">
   <div class="rs-top"><div><h2 id="rs-h">${title}</h2><small class="lp-sub">Quick guide for your house rules</small></div><button class="btn sm" data-a="rulesclose">Close</button></div>
@@ -5693,81 +5700,128 @@ function mtDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
   Object.assign(S,{started:true,screen:'score',hr:12,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
 
 /* =====================================================================
-   CATAN (live tracker, base game + 5-6 player extension)
-   p.ct = {s: settlements on the board, c: cities, k: knights played, vp: victory point cards shown,
-           lr: holds Longest Road, la: holds Largest Army, r7: sevens rolled}
-   S.ctr = dice rolls in order [{n, pid}]
+   CATAN (live tracker: base game + 5-6 player extension, Cities & Knights)
+   p.ct = {s: settlements on the board, c: cities (incl. metropolises), k: knights played (base), vp: victory point cards shown (base),
+           lr: holds Longest Road, la: holds Largest Army (base),
+           met: metropolises held ['trade','politics','science'], def: Defender of Catan cards, mer: holds the Merchant,
+           pvp: Printer/Constitution progress cards, kn: knights on the board [{l:1|2|3, a:active}]}   (C&K)
+   S.ctr = dice rolls [{n, pid}], S.ctb = barbarian ship steps (C&K)
    ===================================================================== */
-const CTDEF={goal:10};
+const CTDEF={mode:'base',goal:10,goalCK:13};
 const CTX=()=>{if(!S.ctx)S.ctx={...CTDEF};const X=S.ctx;for(const k in CTDEF)if(X[k]===undefined)X[k]=CTDEF[k];return X};
 function ctSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.ctx'))}catch(e){}return Object.assign({...CTDEF},x||{})}
 function ctKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.ctx',JSON.stringify(CTX()))}catch(e){}}
 const CT_COLORS=['red','blue','white','yellow','green','black','purple','pink'];
-function ctFresh(){return {game:'catan',screen:'map',map:'catan',rules:{},started:false,active:0,picks:{},hr:0,ctr:[],ctx:ctSaved(),players:CT_COLORS.map((c,i)=>newPlayer('',c,i<4))}}
-function CTM(){const X=CTX();return {name:'Catan',meta:`live tracker · first to ${X.goal}`,min:2,max:6,teams:false,colors:CT_COLORS,lengths:[],pieces:0,piece:'',own:[],defaults:[],tb:[]}}
+const ctCK=()=>CTX().mode==='ck';
+const ctGoal=()=>ctCK()?CTX().goalCK:CTX().goal;
+const CTBAR=7;
+function ctFresh(){return {game:'catan',screen:'map',map:'catan',rules:{},started:false,active:0,picks:{},hr:0,ctr:[],ctb:0,ctx:ctSaved(),players:CT_COLORS.map((c,i)=>newPlayer('',c,i<4))}}
+function CTM(){return {name:ctCK()?'Catan: Cities & Knights':'Catan',meta:`live tracker · first to ${ctGoal()}`,min:2,max:6,teams:false,colors:CT_COLORS,lengths:[],pieces:0,piece:'',own:[],defaults:[],tb:[]}}
 const CTMAX={s:5,c:4};
-const ctP=p=>{if(!p.ct)p.ct={s:2,c:0,k:0,vp:0,lr:false,la:false,r7:0};return p.ct};
-const ctF=(p,k)=>{const C=ctP(p);return k==='s'?C.s:k==='c'?C.c*2:k==='lr'?(C.lr?2:0):k==='la'?(C.la?2:0):k==='vp'?C.vp:0};
-const ctTot=p=>ctF(p,'s')+ctF(p,'c')+ctF(p,'lr')+ctF(p,'la')+ctF(p,'vp');
-const ctWon=()=>act().filter(p=>ctTot(p)>=CTX().goal);
-/* Largest Army: 3+ knights, and you only take it from the holder by playing MORE knights than they have */
+const CTMET=[['trade','Trade','#e3b71f'],['politics','Politics','#2b62b8'],['science','Science','#2e8b4a']];
+const ctP=p=>{if(!p.ct)p.ct=ctCK()?{s:1,c:1}:{s:2,c:0};const C=p.ct;for(const [k,v] of Object.entries({k:0,vp:0,lr:false,la:false,r7:0,def:0,mer:false,pvp:0}))if(C[k]===undefined)C[k]=v;if(!C.met)C.met=[];if(!C.kn)C.kn=[];return C};
+const ctStr=p=>ctP(p).kn.filter(x=>x.a).reduce((a,x)=>a+x.l,0);
+const ctF=(p,k)=>{const C=ctP(p),ck=ctCK();return k==='s'?C.s:k==='c'?C.c*2:k==='met'?(ck?C.met.length*2:0):k==='lr'?(C.lr?2:0):k==='la'?(!ck&&C.la?2:0):k==='vp'?(ck?0:C.vp):k==='def'?(ck?C.def:0):k==='mer'?(ck&&C.mer?1:0):k==='pvp'?(ck?C.pvp:0):0};
+const CTLAB0=[['s','Settlements'],['c','Cities'],['lr','Longest Road'],['la','Largest Army'],['vp','Victory point cards']];
+const CTLABK=[['s','Settlements'],['c','Cities'],['met','Metropolises'],['lr','Longest Road'],['def','Defender of Catan'],['mer','Merchant'],['pvp','Progress cards']];
+const CTLAB_=()=>ctCK()?CTLABK:CTLAB0;
+const ctTot=p=>CTLAB_().reduce((a,[k])=>a+ctF(p,k),0);
+const ctWon=()=>act().filter(p=>ctTot(p)>=ctGoal());
+const ctSum=f=>act().reduce((a,p)=>a+f(ctP(p)),0);
+/* Largest Army (base game): 3+ knights, and you only take it from the holder by playing MORE knights than they have */
 function ctArmy(){const P=act(),h=P.find(p=>ctP(p).la),k=p=>ctP(p).k;
   if(h&&k(h)>=3&&P.every(q=>q===h||k(q)<=k(h)))return;
   P.forEach(p=>ctP(p).la=false);
   const best=Math.max(...P.map(k));if(best<3)return;const top=P.filter(p=>k(p)===best);
   if(top.length===1)ctP(top[0]).la=true;else if(h&&top.includes(h))ctP(h).la=true}
 const ctRolls=()=>S.ctr||(S.ctr=[]);
-const CTEXP={2:1,3:2,4:3,5:4,6:5,7:6,8:5,9:4,10:3,11:2,12:1};
 function ctIcon(k){const st='stroke="#26313b" stroke-width="1.6" stroke-linejoin="round"';
   return k==='s'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 21v-9l8-7 8 7v9z" fill="var(--pc)" ${st}/></svg>`
    :k==='c'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M2 21v-8l5-4 5 4v-6h10v14z" fill="var(--pc)" ${st}/></svg>`
    :k==='k'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 19l11-11 2-4 2 2-4 2-11 11z" fill="#c9ccd1" ${st}/><path d="M4 16l4 4" ${st} stroke-linecap="round"/></svg>`
-   :k==='vp'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" fill="#f2c230" ${st}/><path d="M12 7.5l1.3 2.8 3 .3-2.3 2 .7 3-2.7-1.6-2.7 1.6.7-3-2.3-2 3-.3z" fill="#fff" stroke="#26313b" stroke-width=".9"/></svg>`
+   :k==='vp'||k==='pvp'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" fill="${k==='pvp'?'#9cc24a':'#f2c230'}" ${st}/><path d="M12 7.5l1.3 2.8 3 .3-2.3 2 .7 3-2.7-1.6-2.7 1.6.7-3-2.3-2 3-.3z" fill="#fff" stroke="#26313b" stroke-width=".9"/></svg>`
+   :k==='def'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z" fill="#c0392b" ${st}/><path d="M12 7v9M8.5 10.5h7" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>`
    :k==='lr'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 18l6-4 6 2 6-6" fill="none" stroke="#26313b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18l6-4 6 2 6-6" fill="none" stroke="var(--pc)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+   :k==='mer'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="6.5" r="3.5" fill="var(--pc)" ${st}/><path d="M6 21l2-9h8l2 9z" fill="var(--pc)" ${st}/></svg>`
+   :k==='ship'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 15h18l-3 5H6z" fill="#5b3a29" ${st}/><path d="M12 3v11M12 4l6 8h-6z" fill="#efe6d2" ${st}/></svg>`
    :`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z" fill="var(--pc)" ${st}/><path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>`}
-function ctSetup(){const X=CTX();
+function ctSetup(){const X=CTX(),ck=ctCK(),gk=ck?'goalCK':'goal',off=ck?13:10;
   const st=(k,v,min,max,step,label)=>`<div class="step"><button data-a="ctst" data-k="${k}" data-d="${-step}" ${v<=min?'disabled':''} aria-label="Less ${label}">−</button><span class="n num">${v}</span><button data-a="ctst" data-k="${k}" data-d="${step}" ${v>=max?'disabled':''} aria-label="More ${label}">+</button></div>`;
   const row=(label,sub,ctl)=>`<div class="srow"><span class="rlab"><b>${label}</b>${sub?` · ${sub}`:''}</span>${ctl}</div>`;
   const sec=(t,body,hint)=>`<div class="sec"><div class="sec-h"><h3>${t}</h3></div><div class="panel hfpanel">${body}</div>${hint?`<p class="hint">${hint}</p>`:''}</div>`;
   return `<div class="bar"><h1>Catan</h1></div><img class="hero hfhero" src="art/catan-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">Keep this open on the table and tap as things happen. Your house rules are remembered for next time. ${usualUI('catan')}</p>
-  ${sec('Points to win',row('Victory points','goal',st('goal',X.goal,5,20,1,'points')),X.goal===10?'Official: 10 points, with 3 to 4 players, or 5 to 6 with the extension.':`House rule: first to ${X.goal}. Official is 10.`)}
-  <p class="hint">Seafarers, Cities &amp; Knights and Traders &amp; Barbarians are coming next.</p>
+  ${sec('Which game',`<div class="seg">${[['base','Base game'],['ck','Cities & Knights']].map(([v,t])=>`<button data-a="ctmode" data-v="${v}" aria-pressed="${X.mode===v}">${t}</button>`).join('')}</div>`,ck?'Metropolises, the Merchant, Defender of Catan and the barbarian attack. Everyone starts with a settlement and a city.':'Settlements, cities, Longest Road, Largest Army and victory point cards. Works with the 5–6 player extension.')}
+  ${sec('Points to win',row('Victory points','goal',st(gk,X[gk],5,25,1,'points')),X[gk]===off?`Official: ${off} points.`:`House rule: first to ${X[gk]}. Official is ${off}.`)}
+  <p class="hint">Seafarers and Traders &amp; Barbarians are coming next.</p>
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
 function ctStep(i,k,v,max,label,dis){return `<div class="ctrow"><span class="ctlab">${ctIcon(k)}<b>${label}</b></span><div class="step"><button data-a="ctadd" data-i="${i}" data-k="${k}" data-d="-1" ${v<=0?'disabled':''} aria-label="One less ${label}">−</button><span class="n num">${v}</span><button data-a="ctadd" data-i="${i}" data-k="${k}" data-d="1" ${dis||v>=max?'disabled':''} aria-label="One more ${label}">+</button></div></div>`}
-function ctScore(){const X=CTX(),P=act(),won=ctWon(),R=ctRolls(),cur=P[S.active]||P[0];
+const CTKN=['','Basic','Strong','Mighty'];
+function ctKnights(p,i){const C=ctP(p),n=l=>C.kn.filter(x=>x.l===l).length;
+  return `<div class="ctkn"><div class="ctrow"><span class="ctlab">${ctIcon('k')}<b>Knights</b><small class="rlab">active strength ${ctStr(p)}</small></span><button class="btn sm" data-a="ctknadd" data-i="${i}" ${n(1)>=2?'disabled':''}>+ Knight</button></div>
+    ${C.kn.length?`<div class="ctkchips">${C.kn.map((x,j)=>`<span class="ctkchip${x.a?' on':''}"><button data-a="ctkn" data-i="${i}" data-j="${j}" aria-pressed="${x.a}" aria-label="${CTKN[x.l]} knight, ${x.a?'active':'not active'}"><b>${'●'.repeat(x.l)}</b>${x.a?'Active':'Idle'}</button><button data-a="ctkup" data-i="${i}" data-j="${j}" ${x.l>=3||n(x.l+1)>=2?'disabled':''} aria-label="Promote">▲</button><button data-a="ctkdel" data-i="${i}" data-j="${j}" aria-label="Remove knight">×</button></span>`).join('')}</div><p class="hint ctkhint">Tap a knight to activate it. ▲ promotes it.</p>`:''}</div>`}
+function ctBarPanel(){const b=S.ctb||0,atk=ctSum(C=>C.c),def=act().reduce((a,p)=>a+ctStr(p),0);
+  return `<div class="ctbar"><div class="ctdh"><b>${ctIcon('ship')} Barbarians</b><span class="rlab">${b>=CTBAR?'They’ve landed!':`${CTBAR-b} step${CTBAR-b===1?'':'s'} away`}</span></div>
+    <div class="ctbtrack">${Array.from({length:CTBAR+1},(_,j)=>`<i class="${j===b?'on':j<b?'past':''}">${j===b?ctIcon('ship'):j===CTBAR?'⬢':''}</i>`).join('')}</div>
+    <div class="ctbvs"><span>Barbarians <b class="num">${atk}</b><small>cities on the board</small></span><span>Knights <b class="num">${def}</b><small>active strength</small></span></div>
+    <div class="htbtns"><button data-a="ctship" ${b>=CTBAR?'disabled':''}>Ship moves</button><button data-a="ctatk">Attack now</button></div></div>`}
+function ctAttackSheet(){if(!CTATK)return '';const P=act(),atk=ctSum(C=>C.c),str=P.map(ctStr),def=str.reduce((a,b)=>a+b,0),won=def>=atk;let body='',btn='';
+  if(won){const top=Math.max(...str),tops=P.filter((p,i)=>str[i]===top&&top>0),left=6-ctSum(C=>C.def);
+    if(tops.length===1){body=`<p><b>Catan is saved!</b> ${esc(nm(tops[0]))} gave the most knight strength (${top}).</p>${left>0?'':'<p class="rlab">All 6 Defender cards are gone, so they take a progress card instead.</p>'}`;btn=`<button class="btn primary" data-a="ctatkgo" data-v="def" data-k="${tops[0].id}">${left>0?`Give ${esc(nm(tops[0]))} a Defender (+1)`:'Done'}</button>`}
+    else{body=`<p><b>Catan is saved!</b> ${tops.length?`${tops.map(p=>esc(nm(p))).join(' and ')} tied for the most knight strength, so nobody gets a Defender of Catan. Each of them takes a progress card of their choice.`:'No knights were needed.'}</p>`;btn=`<button class="btn primary" data-a="ctatkgo" data-v="ok">Done</button>`}}
+  else{const vul=P.filter(p=>ctP(p).c-ctP(p).met.length>0);
+    if(!vul.length){body=`<p><b>The barbarians win,</b> but nobody has a city without a metropolis, so nothing is lost.</p>`;btn=`<button class="btn primary" data-a="ctatkgo" data-v="ok">Done</button>`}
+    else{const lo=Math.min(...vul.map(ctStr)),hit=vul.filter(p=>ctStr(p)===lo);
+      body=`<p><b>The barbarians win.</b> ${hit.map(p=>esc(nm(p))).join(' and ')} gave the least knight strength (${lo}) and ${hit.length>1?'each lose':'loses'} a city. It goes back to a settlement, and its city wall comes off. Metropolises are safe.</p>`;btn=`<button class="btn primary" data-a="ctatkgo" data-v="lose">${hit.length>1?'Each loses a city':`${esc(nm(hit[0]))} loses a city`}</button>`}}
+  return `<div class="sheet-bg" data-a="ctatkx"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ca-h" data-stop="1"><h2 id="ca-h">The barbarians attack!</h2>
+    <div class="ctbvs"><span>Barbarians <b class="num">${atk}</b><small>cities on the board</small></span><span>Knights <b class="num">${def}</b><small>active strength</small></span></div>
+    <ul class="ctatkl">${P.map((p,i)=>`<li style="${pc(p.color)}"><b>${esc(nm(p))}</b><span class="num">${str[i]}</span></li>`).join('')}</ul>${body}
+    <p class="hint">Afterward every knight goes idle and the ship goes back to the start.</p>
+    <div class="sheet-btns"><button class="btn" data-a="ctatkx">Not yet</button>${btn}</div></div></div>`}
+let CTATK=false;
+function ctScore(){const X=CTX(),ck=ctCK(),P=act(),won=ctWon(),R=ctRolls(),cur=P[S.active]||P[0],goal=ctGoal();
   const sc=P.map(ctTot),hi=Math.max(...sc),lead=sc.filter(v=>v===hi).length===1&&hi>2?P[sc.indexOf(hi)]:null;
   const cnt={};for(let n=2;n<=12;n++)cnt[n]=0;R.forEach(r=>cnt[r.n]++);const mx=Math.max(1,...Object.values(cnt)),last=R[R.length-1];
-  let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1>Catan</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo">↶<span class="undo-w"> Undo</span></button></div>
-  <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-a="nxjump" data-k="${q.id}" data-lp="ph:${q.id}"><div class="tn">${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">of ${X.goal}</div></button>`).join('')}</div>
-  ${won.length?`<div class="ctwin" style="${pc(won[0].color)}"><b>${won.map(p=>esc(nm(p))).join(' and ')} ${won.length>1?'have':'has'} ${X.goal} points!</b><span class="rlab">Catan is won on your own turn. When it’s official, finish the game.</span><button class="btn primary" data-a="finish">Finish &amp; reveal</button></div>`:''}
+  const defLeft=6-ctSum(C=>C.def),pvpLeft=2-ctSum(C=>C.pvp);
+  let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1>${ck?'Cities &amp; Knights':'Catan'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo">↶<span class="undo-w"> Undo</span></button></div>
+  <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-a="nxjump" data-k="${q.id}" data-lp="ph:${q.id}"><div class="tn">${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">of ${goal}</div></button>`).join('')}</div>
+  ${won.length?`<div class="ctwin" style="${pc(won[0].color)}"><b>${won.map(p=>esc(nm(p))).join(' and ')} ${won.length>1?'have':'has'} ${goal} points!</b><span class="rlab">Catan is won on your own turn. When it’s official, finish the game.</span><button class="btn primary" data-a="finish">Finish &amp; reveal</button></div>`:''}
+  ${ck?ctBarPanel():''}
   <div class="ctdice"><div class="ctdh"><b>Roll</b><span class="rlab">${esc(nm(cur))} is rolling${last?` · last roll ${last.n}`:''}</span></div>
     <div class="ctnums">${Object.keys(cnt).map(n=>`<button data-a="ctroll" data-v="${n}" class="${+n===7?'r7':''}${+n===6||+n===8?' hot':''}" aria-label="Rolled ${n}"><i style="height:${Math.round(cnt[n]/mx*100)}%"></i><b>${n}</b><small class="num">${cnt[n]||''}</small></button>`).join('')}</div>
-    <p class="hint">Tap the number rolled. It counts the roll and passes the dice to the next player.${R.length?` ${R.length} roll${R.length===1?'':'s'} so far.`:''}</p></div>
-  <div class="nxlist">${P.map((p,i)=>{const C=ctP(p),turn=p===cur;return `<div class="nxcard ctcard${turn?' turn':''}" id="nxc-${p.id}" style="${pc(p.color)}"><div class="nxh"><b>${esc(nm(p))}${turn?' <small class="rlab">· rolling</small>':''}</b><span class="num nxpts">${ctTot(p)} <small>/ ${X.goal}</small></span></div>
-    ${ctStep(i,'s',C.s,CTMAX.s,'Settlements')}${ctStep(i,'c',C.c,CTMAX.c,'Cities',C.s<=0)}${ctStep(i,'k',C.k,99,'Knights played')}${ctStep(i,'vp',C.vp,99,'Victory point cards')}
-    <div class="htbtns ctbadges"><button data-a="ctlr" data-i="${i}" aria-pressed="${!!C.lr}">${ctIcon('lr')} Longest Road${C.lr?' +2':''}</button><button class="ctla" aria-pressed="${!!C.la}" disabled>${ctIcon('la')} Largest Army${C.la?' +2':''}</button></div></div>`}).join('')}</div>
-  <p class="hint">A city replaces a settlement, so adding a city takes one settlement back. Largest Army moves by itself as knights are played. Add victory point cards when they are revealed.</p>`;
+    <p class="hint">Tap the number rolled. It counts the roll and passes the dice to the next player.${ck?' If the event die shows the ship, also tap Ship moves.':''}${R.length?` ${R.length} roll${R.length===1?'':'s'} so far.`:''}</p></div>
+  <div class="nxlist">${P.map((p,i)=>{const C=ctP(p),turn=p===cur,free=C.c-C.met.length;return `<div class="nxcard ctcard${turn?' turn':''}" id="nxc-${p.id}" style="${pc(p.color)}"><div class="nxh"><b>${esc(nm(p))}${turn?' <small class="rlab">· rolling</small>':''}</b><span class="num nxpts">${ctTot(p)} <small>/ ${goal}</small></span></div>
+    ${ctStep(i,'s',C.s,CTMAX.s,'Settlements')}${ctStep(i,'c',C.c,CTMAX.c,'Cities',C.s<=0)}
+    ${ck?`<div class="ctmet"><span class="rlab">Metropolis (+2)</span><div class="htbtns">${CTMET.map(([t,lab,col])=>{const has=C.met.includes(t);return `<button data-a="ctmet" data-i="${i}" data-v="${t}" aria-pressed="${has}" ${!has&&free<1?'disabled':''} style="--mc:${col}"><i></i>${lab}</button>`}).join('')}</div></div>
+      ${ctKnights(p,i)}${ctStep(i,'def',C.def,6,'Defender of Catan',defLeft<=0)}${ctStep(i,'pvp',C.pvp,2,'Printer / Constitution',pvpLeft<=0)}
+      <div class="htbtns ctbadges"><button data-a="ctlr" data-i="${i}" aria-pressed="${!!C.lr}">${ctIcon('lr')} Longest Road${C.lr?' +2':''}</button><button data-a="ctmer" data-i="${i}" aria-pressed="${!!C.mer}">${ctIcon('mer')} Merchant${C.mer?' +1':''}</button></div>`
+    :`${ctStep(i,'k',C.k,99,'Knights played')}${ctStep(i,'vp',C.vp,99,'Victory point cards')}
+    <div class="htbtns ctbadges"><button data-a="ctlr" data-i="${i}" aria-pressed="${!!C.lr}">${ctIcon('lr')} Longest Road${C.lr?' +2':''}</button><button class="ctla" aria-pressed="${!!C.la}" disabled>${ctIcon('la')} Largest Army${C.la?' +2':''}</button></div>`}</div>`}).join('')}</div>
+  <p class="hint">A city replaces a settlement, so adding a city takes one settlement back.${ck?' A metropolis sits on one of your cities, so each needs its own city.':' Largest Army moves by itself as knights are played. Add victory point cards when they are revealed.'}</p>`;
   out+=`<div class="actions"><div class="in"><button class="btn${won.length?' sm':' primary'}" data-a="finish">End game</button></div></div>`;
+  out+=ctAttackSheet();
   if(WARN)out+=`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
     <div class="sheet-btns"><button class="btn" data-a="warnclose">Go back and check</button><button class="btn primary" data-a="revstart">Reveal anyway</button></div></div></div>`;
   return out}
-const CTLAB=[['s','Settlements',1],['c','Cities',2],['lr','Longest Road',2],['la','Largest Army',2],['vp','Victory point cards',1]];
-function ctRows(p){const C=ctP(p);return CTLAB.map(([k,t])=>({k,t,v:ctF(p,k),n:k==='s'?C.s:k==='c'?C.c:k==='vp'?C.vp:null})).filter(x=>x.v>0)}
-function ctHistory(pid){const p=act().find(q=>q.id===pid);if(!p)return '';const C=ctP(p),r=ctRolls().filter(x=>x.pid===p.id);
+function ctRows(p){const C=ctP(p);return CTLAB_().map(([k,t])=>({k,t,v:ctF(p,k),n:k==='s'?C.s:k==='c'?C.c:k==='vp'?C.vp:k==='met'?C.met.length:k==='def'?C.def:k==='pvp'?C.pvp:null})).filter(x=>x.v>0)}
+const ctMul=k=>k==='c'||k==='met'?2:1;
+function ctHistory(pid){const p=act().find(q=>q.id===pid);if(!p)return '';const C=ctP(p),r=ctRolls().filter(x=>x.pid===p.id),ck=ctCK();
   return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet phsheet" role="dialog" aria-modal="true" aria-labelledby="lp-h" data-stop="1" style="${pc(p.color)}">
     <div class="rs-top"><div><h2 id="lp-h">${esc(nm(p))}</h2><small class="lp-sub">${ctTot(p)} points</small></div><button class="btn sm" data-a="lpclose">Close</button></div>
-    <div class="rs-body"><ul class="phlist hfhist">${ctRows(p).map(x=>`<li><span><b>${x.t}</b>${x.n!==null?`<br><small>${x.n} × ${x.k==='c'?2:1}</small>`:''}</span><span class="hfh-v"><b class="num">${x.v}</b></span></li>`).join('')}
-      <li><span><b>Knights played</b></span><span class="hfh-v"><b class="num">${C.k}</b></span></li><li><span><b>Rolls</b><br><small>${r.length?r.map(x=>x.n).join(' · '):'none yet'}</small></span><span class="hfh-v"><b class="num">${r.length}</b></span></li></ul></div></div></div>`}
-function ctChecks(){const w=[],X=CTX();if(!ctWon().length)w.push(`Nobody has ${X.goal} points yet.`);
+    <div class="rs-body"><ul class="phlist hfhist">${ctRows(p).map(x=>`<li><span><b>${x.t}</b>${x.n!==null?`<br><small>${x.n} × ${ctMul(x.k)}</small>`:''}</span><span class="hfh-v"><b class="num">${x.v}</b></span></li>`).join('')}
+      ${ck?`<li><span><b>Knights</b><br><small>${C.kn.map(x=>CTKN[x.l]+(x.a?' (active)':'')).join(' · ')||'none'}</small></span><span class="hfh-v"><b class="num">${C.kn.length}</b></span></li>`:`<li><span><b>Knights played</b></span><span class="hfh-v"><b class="num">${C.k}</b></span></li>`}<li><span><b>Rolls</b><br><small>${r.length?r.map(x=>x.n).join(' · '):'none yet'}</small></span><span class="hfh-v"><b class="num">${r.length}</b></span></li></ul></div></div></div>`}
+function ctChecks(){const w=[];if(!ctWon().length)w.push(`Nobody has ${ctGoal()} points yet.`);
   act().forEach(p=>{const C=ctP(p);if(C.s+C.c===0)w.push(`${nm(p)} has no settlements or cities.`)});return w}
-function ctAwards(){const P=act(),out=[],R=ctRolls(),add=(title,f,min,why)=>{const vals=P.map(f),best=Math.max(...vals);if(best<min)return;const ps=P.filter((p,i)=>vals[i]===best);if(ps.length<P.length)out.push({title,ps,why:why(best)})};
+function ctAwards(){const P=act(),out=[],R=ctRolls(),ck=ctCK(),add=(title,f,min,why)=>{const vals=P.map(f),best=Math.max(...vals);if(best<min)return;const ps=P.filter((p,i)=>vals[i]===best);if(ps.length<P.length)out.push({title,ps,why:why(best)})};
   add('City planner',p=>ctP(p).c,2,v=>`built ${v} cities`);
   add('Road warrior',p=>ctP(p).lr?1:0,1,()=>'held Longest Road at the end');
-  add('Knight commander',p=>ctP(p).k,3,v=>`played ${v} knights`);
-  add('Secret keeper',p=>ctP(p).vp,2,v=>`revealed ${v} victory point cards`);
+  if(ck){add('Metropolitan',p=>ctP(p).met.length,1,v=>`ran ${v===1?'a metropolis':v+' metropolises'}`);
+    add('Defender of Catan',p=>ctP(p).def,1,v=>`saved Catan ${v===1?'once':v+' times'}`);
+    add('Knight commander',p=>ctP(p).kn.reduce((a,x)=>a+x.l,0),4,v=>`knights worth ${v} strength`)}
+  else{add('Knight commander',p=>ctP(p).k,3,v=>`played ${v} knights`);
+    add('Secret keeper',p=>ctP(p).vp,2,v=>`revealed ${v} victory point cards`)}
   add('Robber baron',p=>R.filter(x=>x.pid===p.id&&x.n===7).length,2,v=>`rolled ${v} sevens`);return out}
-function ctRevSteps(){return CTLAB.map(([k,t])=>({name:t,f:p=>ctF(p,k)}))}
+function ctRevSteps(){return CTLAB_().map(([k,t])=>({name:t,f:p=>ctF(p,k)}))}
 function ctResults(){const rk=ranking(),R=ctRolls();const cnt={};for(let n=2;n<=12;n++)cnt[n]=0;R.forEach(r=>cnt[r.n]++);const mx=Math.max(1,...Object.values(cnt));
   return `<div class="bar"><button class="back" data-a="go" data-s="score">‹ Score sheet</button><h1>Results</h1></div>
   <div class="podium">${rk.list.map(({p,rank})=>`<div class="res ${rank===1?'win':''}" style="${pc(p.color)}"><div class="rtop"><span class="rank num">${rank}</span><span class="rname">${esc(nm(p))}</span><span class="rtot num">${total(p)}</span></div>
@@ -5775,23 +5829,31 @@ function ctResults(){const rk=ranking(),R=ctRolls();const cnt={};for(let n=2;n<=
   ${R.length?`<div class="sec"><div class="sec-h"><h3>Dice rolls</h3></div><div class="panel"><div class="ctnums ctchart">${Object.keys(cnt).map(n=>`<div><i style="height:${Math.round(cnt[n]/mx*100)}%"></i><b>${n}</b><small class="num">${cnt[n]}</small></div>`).join('')}</div><p class="hint">${R.length} rolls. Expected most often: 6, 7 and 8.</p></div></div>`:''}
   ${awardsHtml()}${photoBlock()}
   <div class="actions"><div class="in">${S.demo?'<button class="btn" data-a="revstart">Watch the reveal again</button><button class="btn primary" data-a="demoexit">Exit sample</button>':'<button class="btn primary" data-a="rematch">Rematch, same players</button>'}</div></div>`}
-function ctGuide(){const X=CTX();
+function ctGuide(){const X=CTX(),g=ctGoal(),off=ctCK()?13:10;
+  if(ctCK())return guideSheet('Cities & Knights',[
+    ['Winning',[['Goal',`The first player to reach ${g} victory points on their own turn wins.${g!==off?` (House rule. Official is ${off}.)`:''}`],['Starting out','Everyone places one settlement and one city.']]],
+    ['Victory points',[['Settlement','1 point.'],['City','2 points. A city replaces one of your settlements.'],['Metropolis','2 more points on top of its city. One each for trade, politics and science; the first player to reach that improvement’s 4th level takes it. Each metropolis needs its own city.'],['Longest Road','2 points, same as the base game.'],['Defender of Catan','1 point each, for the player who gave the most knight strength when Catan beats the barbarians.'],['Merchant','1 point while the Merchant is yours.'],['Printer and Constitution','1 point each. These progress cards are played right away.'],['Not used','Largest Army and the base game’s development cards.']]],
+    ['The barbarians',[['The ship','Moves one step each time the event die shows the ship. When it reaches Catan, they attack.'],['Attack','Barbarian strength is the number of cities and metropolises on the board. Catan’s strength is all active knights added up: basic 1, strong 2, mighty 3.'],['Catan wins','The player with the most knight strength gets a Defender of Catan. If it’s a tie, each tied player takes a progress card instead.'],['Barbarians win','The player with the least knight strength loses a city (it goes back to a settlement). Ties all lose one. Players with only settlements or metropolises are skipped.'],['Afterward','Every knight goes idle and the ship goes back to the start.']]],
+    ['Everything else',[['Commodities, improvements, progress cards and knight actions','Check the rule card in the box.']]]]);
   return guideSheet('Catan',[
-    ['Winning',[['Goal',`The first player to reach ${X.goal} victory points on their own turn wins.${X.goal!==10?' (House rule. Official is 10.)':''}`]]],
+    ['Winning',[['Goal',`The first player to reach ${g} victory points on their own turn wins.${g!==10?' (House rule. Official is 10.)':''}`]]],
     ['Victory points',[['Settlement','1 point. Each player starts with 2.'],['City','2 points. A city replaces one of your settlements.'],['Longest Road','2 points for the longest continuous road of at least 5 pieces. Someone takes it only with a longer road.'],['Largest Army','2 points for the first player with 3 knights played. Someone takes it only by playing more knights.'],['Victory point cards','1 point each. Keep them hidden until you win, or until the game ends.']]],
     ['Pieces',[['Each player has','5 settlements, 4 cities and 15 roads. The app stops at 5 settlements and 4 cities.']]],
     ['5 to 6 players',[['Extension','Uses the extension’s board, pieces and the special building phase. Check its rule card.']]],
     ['Everything else',[['Trading, the robber and development cards','Check the rule card in the box.']]]])}
-function ctHomeCard(){const st=gamePeek('catan');
-  return `<div class="game"><div class="gtop"><img class="gart" src="art/catan-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart ctart&quot; aria-hidden=&quot;true&quot;>⬢</div>'"><div><h2>Catan</h2><div class="meta">Live tracker · first to ${(st&&st.ctx&&st.ctx.goal)||ctSaved().goal}</div></div></div>
+function ctHomeCard(){const st=gamePeek('catan'),x=(st&&st.ctx)||ctSaved(),ck=x.mode==='ck';
+  return `<div class="game"><div class="gtop"><img class="gart" src="art/catan-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart ctart&quot; aria-hidden=&quot;true&quot;>⬢</div>'"><div><h2>Catan</h2><div class="meta">${ck?'Cities &amp; Knights':'Live tracker'} · first to ${ck?x.goalCK||13:x.goal||10}</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="catan">Resume game</button><button class="btn" data-a="gnew" data-k="catan">New game</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="catan">Track a game</button>`}</div>`}
-const CTDEMOS=[{id:'ctfam',title:'Family night · Catan',tip:'Lily just hit 10. Tap Finish & reveal, or press and hold a name to see their points.',blurb:'Four players. Dad holds Longest Road, Ben grabbed Largest Army, and Lily sneaks to 10 with two hidden victory point cards.'}];
-function ctDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=ctFresh();S.ctx={...CTDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  const D=[{s:3,c:2,k:1,vp:0},{s:4,c:1,k:0,vp:1,lr:true},{s:2,c:2,k:4,vp:0},{s:2,c:3,k:2,vp:2}];
-  D.forEach((d,i)=>P[i].ct={s:d.s,c:d.c,k:d.k,vp:d.vp,lr:!!d.lr,la:false,r7:0});
+const CTDEMOS=[{id:'ctfam',title:'Family night · Catan',tip:'Lily just hit 10. Tap Finish & reveal, or press and hold a name to see their points.',blurb:'Four players. Dad holds Longest Road, Ben grabbed Largest Army, and Lily sneaks to 10 with two hidden victory point cards.'},
+  {id:'ctck',title:'Cities & Knights · barbarians at the gate',tip:'The ship is one step away. Tap Ship moves to see the attack.',blurb:'Four players, first to 13. Mom runs the science metropolis, Dad has the Merchant, and Lily’s knights are all asleep.'}];
+function ctDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=ctFresh();S.ctx={...CTDEF,mode:id==='ctck'?'ck':'base'};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
+  if(id==='ctck'){const D=[{s:2,c:3,met:['science'],def:1,kn:[{l:2,a:true},{l:1,a:true}]},{s:3,c:2,mer:true,lr:true,kn:[{l:1,a:true}]},{s:1,c:3,met:['trade'],pvp:1,kn:[{l:3,a:true},{l:1,a:false}]},{s:4,c:2,kn:[{l:1,a:false},{l:2,a:false}]}];
+    D.forEach((d,i)=>P[i].ct={s:d.s,c:d.c,k:0,vp:0,lr:!!d.lr,la:false,r7:0,met:d.met||[],def:d.def||0,mer:!!d.mer,pvp:d.pvp||0,kn:d.kn});S.ctb=CTBAR-1}
+  else{const D=[{s:3,c:2,k:1,vp:0},{s:4,c:1,k:0,vp:1,lr:true},{s:2,c:2,k:4,vp:0},{s:2,c:3,k:2,vp:2}];
+    D.forEach((d,i)=>P[i].ct={s:d.s,c:d.c,k:d.k,vp:d.vp,lr:!!d.lr,la:false,r7:0})}
   const seq=[8,6,5,9,7,10,4,6,8,3,11,6,9,5,8,7,10,6,4,9,8,12,5,6,7,8,9,2,6,10,5,8];S.ctr=seq.map((n,j)=>({n,pid:P[j%4].id}));
-  Object.assign(S,{started:true,screen:'score',hr:0,active:seq.length%4,hideTotals:false});ctArmy();UNDO=[];KP='';WARN=null;REV=null}
+  Object.assign(S,{started:true,screen:'score',hr:0,active:seq.length%4,hideTotals:false});CTATK=false;if(id!=='ctck')ctArmy();UNDO=[];KP='';WARN=null;REV=null}
 
 /* =====================================================================
    GOLF (card game)
@@ -7032,7 +7094,7 @@ function editGame(id){const g=H.games.find(x=>x.id===id);if(!g||!g.state)return;
   if(st.game==='rook'){S=rkFresh();Object.assign(S,{rkx:st.rkx||S.rkx,rk:st.rk||[],players:st.players,gameId:g.id,gameDate:g.date,started:true,finished:true,screen:'score',active:0,hr:0,editing:g.id,hideTotals:false});while(S.players.length<8)S.players.push(newPlayer('',CARC_COLORS.find(c=>!S.players.some(p=>p.color===c))||'gray',false));UNDO=[];WARN=null;REV=null;return}
   if(st.game==='yahtzee'){S=yzFresh();Object.assign(S,{yzx:st.yzx||S.yzx,players:st.players,gameId:g.id,gameDate:g.date,started:true,finished:true,screen:'score',active:0,hr:0,editing:g.id,hideTotals:false});while(S.players.length<8)S.players.push(newPlayer('',CARC_COLORS.find(c=>!S.players.some(p=>p.color===c))||'gray',false));UNDO=[];WARN=null;REV=null;return}
   if(st.game==='mextrain'){S=mtFresh();Object.assign(S,{mtx:st.mtx||S.mtx,players:st.players,gameId:g.id,gameDate:g.date,started:true,finished:true,screen:'score',active:0,hr:0,editing:g.id,hideTotals:false});while(S.players.length<8)S.players.push(newPlayer('',CARC_COLORS.find(c=>!S.players.some(p=>p.color===c))||'gray',false));UNDO=[];WARN=null;REV=null;return}
-  if(st.game==='catan'){S=ctFresh();Object.assign(S,{ctx:st.ctx||S.ctx,ctr:st.ctr||[],players:st.players,gameId:g.id,gameDate:g.date,started:true,finished:true,screen:'score',active:0,hr:0,editing:g.id,hideTotals:false});while(S.players.length<8)S.players.push(newPlayer('',CARC_COLORS.find(c=>!S.players.some(p=>p.color===c))||'gray',false));UNDO=[];WARN=null;REV=null;return}
+  if(st.game==='catan'){S=ctFresh();Object.assign(S,{ctx:st.ctx||S.ctx,ctr:st.ctr||[],ctb:st.ctb||0,players:st.players,gameId:g.id,gameDate:g.date,started:true,finished:true,screen:'score',active:0,hr:0,editing:g.id,hideTotals:false});while(S.players.length<8)S.players.push(newPlayer('',CARC_COLORS.find(c=>!S.players.some(p=>p.color===c))||'gray',false));UNDO=[];WARN=null;REV=null;return}
   if(st.game==='wingspan'){S=wsFresh();Object.assign(S,{wsx:st.wsx||S.wsx,players:st.players,gameId:g.id,gameDate:g.date,started:true,finished:true,screen:'score',active:0,hr:4,editing:g.id,hideTotals:false});while(S.players.length<8)S.players.push(newPlayer('',CARC_COLORS.find(c=>!S.players.some(p=>p.color===c))||'gray',false));UNDO=[];WARN=null;REV=null;return}
   if(st.game==='wyrmspan'){S=wyFresh();Object.assign(S,{players:st.players,gameId:g.id,gameDate:g.date,started:true,finished:true,screen:'score',active:0,hr:4,editing:g.id,hideTotals:false});while(S.players.length<8)S.players.push(newPlayer('',CARC_COLORS.find(c=>!S.players.some(p=>p.color===c))||'gray',false));UNDO=[];WARN=null;REV=null;return}
   if(st.game==='gnome'){S=gnFresh();Object.assign(S,{gnx:st.gnx||S.gnx,players:st.players,gameId:g.id,gameDate:g.date,started:true,finished:true,screen:'score',active:0,hr:0,editing:g.id,hideTotals:false});while(S.players.length<8)S.players.push(newPlayer('',CARC_COLORS.find(c=>!S.players.some(p=>p.color===c))||'gray',false));UNDO=[];WARN=null;REV=null;return}
@@ -8009,7 +8071,7 @@ function kpShow(){const d=document.getElementById('kp-disp');if(d)d.innerHTML=KP
 function kpKey(v){if(v==='C')KP='';else if(v==='B')KP=KP.slice(0,-1);else if(KP.length<2)KP=(KP+v).replace(/^0+/,'');kpShow()}
 function kpAdd(done){const v=parseInt(KP,10);if(!v){const d=document.getElementById('kp-disp');if(d){d.classList.remove('shake');void d.offsetWidth;d.classList.add('shake')}return}
   snap();act()[S.active].tickets.push({v,done});KP='';render()}
-function snap(){UNDO.push(JSON.stringify({players:S.players,picks:S.picks,log:S.log||[],clog:S.clog,cend:S.cend,pk:S.pk,rk:S.game==='rook'?S.rk:undefined,tph:S.game==='tripoley'?S.tph:undefined,ctr:S.game==='catan'?{r:S.ctr||[],a:S.active}:undefined,yzt:S.game==='yahtzee'?S.yzt:undefined,yzd:S.game==='yahtzee'?S.yzd:undefined,yzr:S.game==='yahtzee'?S.yzr:undefined}));if(UNDO.length>60)UNDO.shift()}
+function snap(){UNDO.push(JSON.stringify({players:S.players,picks:S.picks,log:S.log||[],clog:S.clog,cend:S.cend,pk:S.pk,rk:S.game==='rook'?S.rk:undefined,tph:S.game==='tripoley'?S.tph:undefined,ctr:S.game==='catan'?{r:S.ctr||[],a:S.active,b:S.ctb||0}:undefined,yzt:S.game==='yahtzee'?S.yzt:undefined,yzd:S.game==='yahtzee'?S.yzd:undefined,yzr:S.game==='yahtzee'?S.yzr:undefined}));if(UNDO.length>60)UNDO.shift()}
 const MUT=new Set(['xnl','xmo','xmy','tmon','lclaim','pkadd','route','rmt','flip','xc','xneg','xchip','xchipx','harbor','xprov','xu','xut','xt','xd','xl','xp','pick']);
 function setX(p,key,val){const [id,sub]=key.split('.');if(sub){p.x[id]={...xv(p,id),[sub]:val}}else p.x[id]=val}
 function refreshTotals(){if(S.hideTotals)return;const P=act(),p=P[S.active];document.querySelector('.who .big').textContent=total(p);
@@ -8113,7 +8175,7 @@ document.addEventListener('click',e=>{
     case 'editdone':if(S.finished)saveGame();exitDemo();S.screen='stats';window.scrollTo(0,0);break;
     case 'backup':backup();return;
     case 'flip':{const t=p.tickets[b.dataset.i];t.done=!t.done;break}
-    case 'undo':{const u=UNDO.pop();if(u){const o=JSON.parse(u);S.players=o.players;S.picks=o.picks;S.log=o.log||[];if(o.clog)S.clog=o.clog;if(o.cend)S.cend=o.cend;if(o.pk)S.pk=o.pk;if(o.rk)S.rk=o.rk;if(o.tph)S.tph=o.tph;if(o.ctr){S.ctr=o.ctr.r;S.active=o.ctr.a}if(o.yzd){S.yzd=o.yzd;S.yzt=o.yzt;S.yzr=o.yzr||null}}break}
+    case 'undo':{const u=UNDO.pop();if(u){const o=JSON.parse(u);S.players=o.players;S.picks=o.picks;S.log=o.log||[];if(o.clog)S.clog=o.clog;if(o.cend)S.cend=o.cend;if(o.pk)S.pk=o.pk;if(o.rk)S.rk=o.rk;if(o.tph)S.tph=o.tph;if(o.ctr){S.ctr=o.ctr.r;S.active=o.ctr.a;S.ctb=o.ctr.b||0}if(o.yzd){S.yzd=o.yzd;S.yzt=o.yzt;S.yzr=o.yzr||null}}break}
     case 'rules':RULESHEET=true;break;
     case 'lpclose':if(e.target.closest('[data-stop]')&&!e.target.closest('button'))return;LPTIP=null;LPSUP=0;break;
     case 'mguide':RULESHEET=false;MEEPLESHEET=true;break;
@@ -8191,14 +8253,30 @@ document.addEventListener('click',e=>{
     case 'gfhand':{S.hr=+b.dataset.v;GFSEL=null;LPTIP=null;window.scrollTo(0,0);break}
     case 'gfnext':{S.hr=gfCur()+1;GFSEL=null;window.scrollTo(0,0);break}
     case 'ctdemo':ctDemo(b.dataset.k);window.scrollTo(0,0);break;
-    case 'ctst':{const X=CTX();X[k]=Math.max(5,Math.min(20,(+X[k]||0)+(+b.dataset.d)));ctKeep();break}
+    case 'ctst':{const X=CTX();X[k]=Math.max(5,Math.min(25,(+X[k]||0)+(+b.dataset.d)));ctKeep();break}
+    case 'ctmode':{const X=CTX();X.mode=b.dataset.v;ctKeep();break}
     case 'ctadd':{const q=act()[+b.dataset.i],C=ctP(q),d=+b.dataset.d;snap();
       if(k==='s')C.s=Math.max(0,Math.min(CTMAX.s,C.s+d));
-      else if(k==='c'){if(d>0&&C.s>0&&C.c<CTMAX.c){C.c++;C.s--}else if(d<0&&C.c>0){C.c--;if(C.s<CTMAX.s)C.s++}}
+      else if(k==='c'){if(d>0&&C.s>0&&C.c<CTMAX.c){C.c++;C.s--}else if(d<0&&C.c>0){C.c--;if(C.s<CTMAX.s)C.s++;while(C.met.length>C.c)C.met.pop()}}
       else if(k==='k'){C.k=Math.max(0,C.k+d);ctArmy()}
       else if(k==='vp')C.vp=Math.max(0,C.vp+d);
+      else if(k==='def')C.def=Math.max(0,Math.min(6,C.def+d));
+      else if(k==='pvp')C.pvp=Math.max(0,Math.min(2,C.pvp+d));
       if(!S.started)S.started=true;{const w=ctWon();if(d>0&&w.includes(q))setTimeout(()=>toast(`${nm(q)} has ${ctTot(q)} points!`),30)}break}
     case 'ctlr':{const q=act()[+b.dataset.i],on=!ctP(q).lr;snap();act().forEach(o=>ctP(o).lr=false);ctP(q).lr=on;break}
+    case 'ctmer':{const q=act()[+b.dataset.i],on=!ctP(q).mer;snap();act().forEach(o=>ctP(o).mer=false);ctP(q).mer=on;break}
+    case 'ctmet':{const q=act()[+b.dataset.i],C=ctP(q),t=b.dataset.v;snap();if(C.met.includes(t))C.met=C.met.filter(x=>x!==t);else if(C.c-C.met.length>0){act().forEach(o=>{const M=ctP(o);M.met=M.met.filter(x=>x!==t)});C.met.push(t);setTimeout(()=>toast(`${nm(q)} takes the ${t} metropolis`),30)}break}
+    case 'ctknadd':{const C=ctP(act()[+b.dataset.i]);snap();if(C.kn.filter(x=>x.l===1).length<2)C.kn.push({l:1,a:false});break}
+    case 'ctkn':{const x=ctP(act()[+b.dataset.i]).kn[+b.dataset.j];snap();if(x)x.a=!x.a;break}
+    case 'ctkup':{const C=ctP(act()[+b.dataset.i]),x=C.kn[+b.dataset.j];snap();if(x&&x.l<3&&C.kn.filter(y=>y.l===x.l+1).length<2)x.l++;break}
+    case 'ctkdel':{const C=ctP(act()[+b.dataset.i]);snap();C.kn.splice(+b.dataset.j,1);break}
+    case 'ctship':{snap();S.ctb=Math.min(CTBAR,(S.ctb||0)+1);if(S.ctb>=CTBAR)CTATK=true;else toast(`The barbarian ship moves. ${CTBAR-S.ctb} to go.`);break}
+    case 'ctatk':CTATK=true;break;
+    case 'ctatkx':CTATK=false;break;
+    case 'ctatkgo':{const v=b.dataset.v,P=act();snap();
+      if(v==='def'){const q=P.find(o=>o.id===k);if(q&&ctSum(C=>C.def)<6)ctP(q).def++}
+      if(v==='lose'){const vul=P.filter(p=>ctP(p).c-ctP(p).met.length>0),lo=Math.min(...vul.map(ctStr));vul.filter(p=>ctStr(p)===lo).forEach(p=>{const C=ctP(p);C.c--;C.s=Math.min(CTMAX.s,C.s+1)})}
+      P.forEach(p=>ctP(p).kn.forEach(x=>x.a=false));S.ctb=0;CTATK=false;toast('Knights go idle. The ship heads back out.');break}
     case 'ctroll':{const P=act(),cur=P[S.active]||P[0],n=+b.dataset.v;snap();ctRolls().push({n,pid:cur.id});S.active=(P.indexOf(cur)+1)%P.length;toast(`${nm(cur)} rolled ${n}${n===7?': move the robber!':''}`);break}
     case 'mtdemo':mtDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'mtset':{const X=MTX();X.set=+b.dataset.v;mtKeep();break}
