@@ -671,7 +671,7 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 /* Carcassonne reveal bars */
 .rv-bar.ctl,.rv-bar.cwl{background:none;overflow:visible;position:relative;border-radius:0}
 .rv-bar.ctl{height:44px}
-.rv-bar.trl i{height:28px}.rv-bar.trl .mkstrip{-webkit-mask-image:none;mask-image:none}.rv-bar.trl:has(.mkstrip){height:66px}.rv-bar.ctl.trl [data-bar]:has(image){height:31px}.rv-bar.ctl.trl:has(image){height:50px}.rv-bar.ctl.trl:has(.wypile){height:66px}.rv-bar.ctl.trl [data-bar]:has(.wypile){height:48px}.rv-bar.ctl.trl [data-bar]:has(.wypile) .cmk{right:-12px;bottom:3px}.rv-bar.trl [data-bar]:has(.mkstrip){height:36px}.rv-bar.ctl.trl .cmk{right:-25px;bottom:4px;width:24px;height:24px}.rv-bar.trl{margin-right:26px}.rv-bar.cwl{height:52px}
+.rv-bar.trl i{height:28px}.rv-bar.trl .mkstrip{-webkit-mask-image:none;mask-image:none}.rv-bar.trl:has(.mkstrip){height:66px}.rv-bar.ctl.trl [data-bar]:has(image){height:31px}.rv-bar.ctl.trl:has(image){height:50px}.rv-bar.ctl.trl:has(.wypile){height:66px}.rv-bar.ctl.trl [data-bar]:has(.qkpile){height:30px}.rv-bar.ctl.trl [data-bar]:has(.qkpile) .cmk{right:-22px;bottom:3px}.rv-bar.ctl.trl [data-bar]:has(.wypile){height:48px}.rv-bar.ctl.trl [data-bar]:has(.wypile) .cmk{right:-12px;bottom:3px}.rv-bar.trl [data-bar]:has(.mkstrip){height:36px}.rv-bar.ctl.trl .cmk{right:-25px;bottom:4px;width:24px;height:24px}.rv-bar.trl{margin-right:26px}.rv-bar.cwl{height:52px}
 .rv-bar.ctl i,.rv-bar.cwl i{position:absolute;left:0;bottom:0;background:none;border-radius:0;overflow:visible;transition:width .7s cubic-bezier(.2,.8,.2,1)}
 .rv-bar.ctl i{height:24px}.rv-bar.cwl i{height:36px}
 .cstrip{position:absolute;inset:0;overflow:hidden;display:block;text-decoration:none}.cstrip svg{position:absolute;left:0;bottom:0;display:block}
@@ -6800,7 +6800,7 @@ function cTileStrip(p){let h=hashOf(p),o='';const n=34,s=24;for(let t=0;t<n;t++)
 
 
 /* Board-game reveal look: a trail of that game's own pieces, with the player's meeple out in front */
-const TRP=24,trP=()=>S.game==='wingspan'?28:S.game==='wyrmspan'?12:TRP;
+const TRP=24,trP=()=>S.game==='wingspan'?28:S.game==='wyrmspan'?12:S.game==='quacks'?20:TRP;
 const mkGoal=()=>Math.max(2,MKX().target||10),mkStepW=()=>mkGoal()>12?13:24;
 const trArt={
   wingspan:(x,i,h)=>{const c=['#2b7bc8','#e3b71f','#2e8b4a','#5aa9e6'][h%4];return i%2?`<ellipse cx="${x+12}" cy="15" rx="6" ry="7.5" fill="#bfe0f5" stroke="#26313b" stroke-width="1.4"/><circle cx="${x+10}" cy="13" r="1.1" fill="#2b62b8"/><circle cx="${x+14}" cy="17" r="1" fill="#2b62b8"/><circle cx="${x+11}" cy="19" r=".8" fill="#2b62b8"/>`
@@ -6826,7 +6826,12 @@ function wyPileStrip(p){const n=70,P=12,H=48,G=['blue','green','purple'];let h=h
     for(let j=0;j<k;j++){const y=H-17-j*7+(j?jit:0);o+=`<image href="art/trail/wy-${(r>>(j+6))&1?'coin-tilt':'coin'}.png" x="${x-1+(j%2?3:0)}" y="${y}" width="16" height="16"/>`}
     const top=H-17-k*7;if(r%11===0)o+=`<image href="art/trail/wy-egg.png" x="${x+1}" y="${top-3}" width="13" height="17"/>`;else if(r%3===0)o+=`<image href="art/trail/wy-gem-${G[(r>>3)%3]}.png" x="${x}" y="${top+3}" width="15" height="13"/>`}
   return `<u class="cstrip wypile"><svg width="${n*P}" height="${H}" viewBox="0 0 ${n*P} ${H}" aria-hidden="true">${o}</svg></u><svg class="cmk" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg>`}
-function trailStrip(p){if(S.game==='munchkin')return mkSteps(p);if(S.game==='wingspan')return wsArtStrip(p);if(S.game==='wyrmspan')return wyPileStrip(p);const g=trArt[S.game]?S.game:'quacks',n=40;let h=hashOf(p),o=g==='wingspan'?`<path d="M0 22.5h${n*TRP}" stroke="#8a5531" stroke-width="3" stroke-linecap="round"/>`:'';
+/* Quacks: illustrated ingredient chips, slightly overlapping and tilted, as if drawn from the bag (white cherry bombs most often) */
+function qkChipStrip(p){const n=50,P=20,C=['orange','green','blue','red','yellow','purple','black'];let h=hashOf(p),o='';
+  for(let t=0;t<n;t++){h=(Math.imul(h,1103515245)+12345)>>>0;const r=(h>>>8)&4095,c=r%10<3?'white':C[(r>>4)%7],x=t*P,y=3+(r>>8)%3,a=((r>>5)%17)-8;
+    o+=`<image href="art/trail/qk-${c}.png" x="${x-1}" y="${y}" width="23" height="23" transform="rotate(${a} ${x+10.5} ${y+11.5})"/>`}
+  return `<u class="cstrip qkpile"><svg width="${n*P}" height="30" viewBox="0 0 ${n*P} 30" aria-hidden="true">${o}</svg></u><svg class="cmk" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg>`}
+function trailStrip(p){if(S.game==='munchkin')return mkSteps(p);if(S.game==='quacks')return qkChipStrip(p);if(S.game==='wingspan')return wsArtStrip(p);if(S.game==='wyrmspan')return wyPileStrip(p);const g=trArt[S.game]?S.game:'quacks',n=40;let h=hashOf(p),o=g==='wingspan'?`<path d="M0 22.5h${n*TRP}" stroke="#8a5531" stroke-width="3" stroke-linecap="round"/>`:'';
   for(let t=0;t<n;t++){h=(Math.imul(h,1103515245)+12345)>>>0;o+=trArt[g](t*TRP,t,(h>>>8)&1023)}
   return `<u class="cstrip"><svg width="${n*TRP}" height="28" viewBox="0 0 ${n*TRP} 28" aria-hidden="true">${o}</svg></u><svg class="cmk" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg>`}
 /* Carcassonne look 2: a stone city wall with towers, the player's banner on the front tower */
