@@ -557,6 +557,8 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .ctbtrack{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}.ctbtrack i{height:30px;border-radius:7px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-style:normal;color:var(--muted)}.ctbtrack i.past{background:color-mix(in srgb,#5b3a29 25%,var(--soft))}.ctbtrack i.on{background:color-mix(in srgb,var(--accent) 45%,var(--soft))}.ctbtrack i:last-child{font-size:18px}
 .ctbvs{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ctbvs span{display:grid;justify-items:center;padding:6px;border-radius:10px;background:var(--soft);font-size:13px}.ctbvs b{font-size:26px;line-height:1.1}.ctbvs small{color:var(--muted)}
 .ctatkl{list-style:none;padding:0;margin:10px 0;display:grid;gap:4px}.ctatkl li{display:flex;justify-content:space-between;padding:6px 10px;border-left:5px solid var(--pc);background:var(--soft);border-radius:8px}
+.ctscen{display:grid;grid-template-columns:1fr 1fr;gap:6px}.ctscen button{min-height:44px;padding:6px 8px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-weight:700;font-size:14.5px;display:grid;line-height:1.2}.ctscen button small{font-weight:500;color:var(--muted);font-size:12px}.ctscen button[aria-pressed=true]{background:#1b1f24;color:#fff;border-color:#1b1f24}.ctscen button[aria-pressed=true] small{color:#d6d9de}
+.ctbadges{flex-wrap:wrap}.ctbadges button{flex:1 1 45%}
 .ctwin{display:grid;gap:6px;margin:10px 0;padding:12px;border-radius:14px;background:color-mix(in srgb,var(--accent) 22%,var(--surface));border:2px solid var(--accent)}
 .ctdice{margin:12px 0;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}.ctdh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .ctnums{display:grid;grid-template-columns:repeat(11,1fr);gap:3px;margin-top:8px}.ctnums>*{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:64px;padding:0 0 4px;border-radius:8px;background:var(--soft);overflow:hidden;line-height:1.1}
@@ -4508,7 +4510,7 @@ function usualUI(g){if(S.demo)return '';const G=UG[g],d=G.def(),cur=G.get()||{},
    scoring and winning, all written from the house rules in use.
    ===================================================================== */
 const GDICON='<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="9" width="17" height="24" rx="3" transform="rotate(-12 14 21)" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="16" y="7" width="17" height="24" rx="3" transform="rotate(10 24 19)" fill="currentColor"/></svg>';
-const guideBtn=()=>`<button class="mgbtn" data-a="rules">${GDICON}<span><b>Quick guide</b><small>${S.game==='wingspan'?'Round goals, ties and final scoring for your board side':S.game==='wyrmspan'?'Round objectives, ties and final scoring':S.game==='phase10'?'The phases, card points and how to win':S.game==='rook'?'Counters, bidding and how to win':S.game==='yahtzee'?'Every box, the bonuses and the Joker rule':S.game==='mextrain'?'Rounds, dealing and scoring':S.game==='catan'?(ctCK()?'Metropolises, the Merchant and the barbarians':ctSF()?'Trade routes, island points and scenario goals':'Victory points, Longest Road and Largest Army'):'Setup, dealing, card values and scoring for your rules'}</small></span><i>›</i></button>`;
+const guideBtn=()=>`<button class="mgbtn" data-a="rules">${GDICON}<span><b>Quick guide</b><small>${S.game==='wingspan'?'Round goals, ties and final scoring for your board side':S.game==='wyrmspan'?'Round objectives, ties and final scoring':S.game==='phase10'?'The phases, card points and how to win':S.game==='rook'?'Counters, bidding and how to win':S.game==='yahtzee'?'Every box, the bonuses and the Joker rule':S.game==='mextrain'?'Rounds, dealing and scoring':S.game==='catan'?(ctCK()?'Metropolises, the Merchant and the barbarians':ctTB()?'Scenario points and the goal':ctSF()?'Trade routes, island points and scenario goals':'Victory points, Longest Road and Largest Army'):'Setup, dealing, card values and scoring for your rules'}</small></span><i>›</i></button>`;
 function guideSheet(title,secs){
   return `<div class="sheet-bg" data-a="rulesclose"><div class="sheet rsheet" role="dialog" aria-modal="true" aria-labelledby="rs-h" data-stop="1">
   <div class="rs-top"><div><h2 id="rs-h">${title}</h2><small class="lp-sub">Quick guide for your house rules</small></div><button class="btn sm" data-a="rulesclose">Close</button></div>
@@ -5743,28 +5745,38 @@ function mtDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
            pvp: Printer/Constitution progress cards, kn: knights on the board [{l:1|2|3, a:active}]}   (C&K)
    S.ctr = dice rolls [{n, pid}], S.ctb = barbarian ship steps (C&K)
    ===================================================================== */
-const CTDEF={mode:'base',goal:10,goalCK:13,goalSF:12,cloth:false};
+const CTDEF={mode:'base',goal:10,goalCK:13,goalSF:12,cloth:false,tbs:'fish',hm:false,tbAdj:0};
 const CTX=()=>{if(!S.ctx)S.ctx={...CTDEF};const X=S.ctx;for(const k in CTDEF)if(X[k]===undefined)X[k]=CTDEF[k];return X};
 function ctSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.ctx'))}catch(e){}return Object.assign({...CTDEF},x||{})}
 function ctKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.ctx',JSON.stringify(CTX()))}catch(e){}}
 const CT_COLORS=['red','blue','white','yellow','green','black','purple','pink'];
 const ctCK=()=>CTX().mode==='ck';
 const ctSF=()=>CTX().mode==='sf';
-const ctGoal=()=>ctCK()?CTX().goalCK:ctSF()?CTX().goalSF:CTX().goal;
+const ctTB=()=>CTX().mode==='tb';
+/* Traders & Barbarians: official goals from the rulebook; Harbormaster adds 1 to any of them */
+const CTTBS=[['none','Harbormaster only',10],['fish','Fishermen of Catan',10],['rivers','Rivers of Catan',10],['caravans','The Caravans',12],['barb','Barbarian Attack',12],['tb','Traders & Barbarians',13]];
+const ctTBoff=()=>{const X=CTX(),r=CTTBS.find(x=>x[0]===X.tbs)||CTTBS[1];return r[2]+(X.hm||X.tbs==='none'?1:0)};
+const ctGoal=()=>ctCK()?CTX().goalCK:ctSF()?CTX().goalSF:ctTB()?ctTBoff()+(CTX().tbAdj||0):CTX().goal;
+const ctT=k=>ctTB()&&CTX().tbs===k;
+const ctHM=()=>ctTB()&&(CTX().hm||CTX().tbs==='none');
+const ctGoalP=p=>ctGoal()+(ctT('fish')&&ctP(p).boot?1:0);
 const CTBAR=7;
 function ctFresh(){return {game:'catan',screen:'map',map:'catan',rules:{},started:false,active:0,picks:{},hr:0,ctr:[],ctb:0,ctx:ctSaved(),players:CT_COLORS.map((c,i)=>newPlayer('',c,i<4))}}
-function CTM(){return {name:ctCK()?'Catan: Cities & Knights':ctSF()?'Catan: Seafarers':'Catan',meta:`live tracker · first to ${ctGoal()}`,min:2,max:6,teams:false,colors:CT_COLORS,lengths:[],pieces:0,piece:'',own:[],defaults:[],tb:[]}}
+function CTM(){return {name:ctCK()?'Catan: Cities & Knights':ctSF()?'Catan: Seafarers':ctTB()?'Catan: '+(CTTBS.find(x=>x[0]===CTX().tbs)||CTTBS[1])[1]:'Catan',meta:`live tracker · first to ${ctGoal()}`,min:2,max:6,teams:false,colors:CT_COLORS,lengths:[],pieces:0,piece:'',own:[],defaults:[],tb:[]}}
 const CTMAX={s:5,c:4};
 const CTMET=[['trade','Trade','#e3b71f'],['politics','Politics','#2b62b8'],['science','Science','#2e8b4a']];
-const ctP=p=>{if(!p.ct)p.ct=ctCK()?{s:1,c:1}:{s:2,c:0};const C=p.ct;for(const [k,v] of Object.entries({k:0,vp:0,lr:false,la:false,r7:0,def:0,mer:false,pvp:0,isl:0,clo:0}))if(C[k]===undefined)C[k]=v;if(!C.met)C.met=[];if(!C.kn)C.kn=[];return C};
+const ctP=p=>{if(!p.ct)p.ct=ctCK()?{s:1,c:1}:{s:2,c:0};const C=p.ct;for(const [k,v] of Object.entries({k:0,vp:0,lr:false,la:false,r7:0,def:0,mer:false,pvp:0,isl:0,clo:0,hm:false,boot:false,rich:false,poor:false,cam:0,pri:0,com:0,bag:false}))if(C[k]===undefined)C[k]=v;if(!C.met)C.met=[];if(!C.kn)C.kn=[];return C};
 const ctStr=p=>ctP(p).kn.filter(x=>x.a).reduce((a,x)=>a+x.l,0);
-const ctF=(p,k)=>{const C=ctP(p),ck=ctCK();return k==='s'?C.s:k==='c'?C.c*2:k==='met'?(ck?C.met.length*2:0):k==='lr'?(C.lr?2:0):k==='la'?(!ck&&C.la?2:0):k==='vp'?(ck?0:C.vp):k==='def'?(ck?C.def:0):k==='mer'?(ck&&C.mer?1:0):k==='pvp'?(ck?C.pvp:0):k==='isl'?(ctSF()?C.isl:0):k==='clo'?(ctSF()&&CTX().cloth?Math.floor(C.clo/2):0):0};
+const ctF=(p,k)=>{const C=ctP(p),ck=ctCK();return k==='s'?C.s:k==='c'?C.c*2:k==='met'?(ck?C.met.length*2:0):k==='lr'?(C.lr?2:0):k==='la'?(!ck&&C.la?2:0):k==='vp'?(ck?0:C.vp):k==='def'?(ck?C.def:0):k==='mer'?(ck&&C.mer?1:0):k==='pvp'?(ck?C.pvp:0):k==='isl'?(ctSF()?C.isl:0):k==='clo'?(ctSF()&&CTX().cloth?Math.floor(C.clo/2):0)
+  :k==='hm'?(ctHM()&&C.hm?2:0):k==='rich'?(ctT('rivers')&&C.rich?1:0):k==='poor'?(ctT('rivers')&&C.poor?-2:0):k==='cam'?(ctT('caravans')?C.cam:0):k==='pri'?(ctT('barb')?Math.floor(C.pri/2):0):k==='com'?(ctT('tb')?C.com:0):k==='bag'?(ctT('tb')&&C.bag?1:0):0};
 const CTLAB0=[['s','Settlements'],['c','Cities'],['lr','Longest Road'],['la','Largest Army'],['vp','Victory point cards']];
 const CTLABK=[['s','Settlements'],['c','Cities'],['met','Metropolises'],['lr','Longest Road'],['def','Defender of Catan'],['mer','Merchant'],['pvp','Progress cards']];
 const CTLABS=()=>[['s','Settlements'],['c','Cities'],['lr','Longest Trade Route'],['la','Largest Army'],['vp','Victory point cards'],['isl','Island points'],...(CTX().cloth?[['clo','Cloth']]:[])];
-const CTLAB_=()=>ctCK()?CTLABK:ctSF()?CTLABS():CTLAB0;
+const CTLABT=()=>{const t=CTX().tbs;return [['s','Settlements'],['c','Cities'],...(t==='tb'?[]:[['lr','Longest Road']]),...(t==='barb'?[]:[['la','Largest Army']]),['vp','Victory point cards'],
+  ...(ctHM()?[['hm','Harbormaster']]:[]),...(t==='rivers'?[['rich','Wealthiest Settler'],['poor','Poor Settler']]:[]),...(t==='caravans'?[['cam','Caravan bonus']]:[]),...(t==='barb'?[['pri','Barbarian prisoners']]:[]),...(t==='tb'?[['com','Commodities delivered'],['bag','Baggage train']]:[])]};
+const CTLAB_=()=>ctCK()?CTLABK:ctSF()?CTLABS():ctTB()?CTLABT():CTLAB0;
 const ctTot=p=>CTLAB_().reduce((a,[k])=>a+ctF(p,k),0);
-const ctWon=()=>act().filter(p=>ctTot(p)>=ctGoal());
+const ctWon=()=>act().filter(p=>ctTot(p)>=ctGoalP(p));
 const ctSum=f=>act().reduce((a,p)=>a+f(ctP(p)),0);
 /* Largest Army (base game): 3+ knights, and you only take it from the holder by playing MORE knights than they have */
 function ctArmy(){const P=act(),h=P.find(p=>ctP(p).la),k=p=>ctP(p).k;
@@ -5783,6 +5795,9 @@ function ctIcon(k){const st='stroke="#26313b" stroke-width="1.6" stroke-linejoin
    :k==='mer'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="6.5" r="3.5" fill="var(--pc)" ${st}/><path d="M6 21l2-9h8l2 9z" fill="var(--pc)" ${st}/></svg>`
    :k==='isl'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#f2c230" ${st}/><path d="M6 14c2-3 4-4 6-4s4 1 6 4z" fill="#2e8b4a" stroke="#26313b" stroke-width="1"/><path d="M5 15.5h14" stroke="#2b7bc8" stroke-width="2"/></svg>`
    :k==='clo'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 6h16v12H4z" fill="#7b4ba9" ${st}/><path d="M4 10h16M4 14h16M9 6v12M15 6v12" stroke="#c9a6e6" stroke-width="1.2"/></svg>`
+   :k==='cam'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 18v-5l3-3 2 2 3-4 3 4 2-2 3 3v5" fill="#d9a55b" ${st}/><path d="M6 18v3M10 18v3M14 18v3M18 18v3" stroke="#26313b" stroke-width="1.6"/></svg>`
+   :k==='pri'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="#8a5531" ${st}/><path d="M5 21c0-5 3-8 7-8s7 3 7 8z" fill="#8a5531" ${st}/><path d="M6 15h12M6 18h12" stroke="#c9ccd1" stroke-width="1.6"/></svg>`
+   :k==='com'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 9l8-5 8 5v10l-8 3-8-3z" fill="#c9a36b" ${st}/><path d="M4 9l8 4 8-4M12 13v9" fill="none" ${st}/></svg>`
    :k==='ship'?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 15h18l-3 5H6z" fill="#5b3a29" ${st}/><path d="M12 3v11M12 4l6 8h-6z" fill="#efe6d2" ${st}/></svg>`
    :`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z" fill="var(--pc)" ${st}/><path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>`}
 function ctSetup(){const X=CTX(),ck=ctCK(),sf=ctSF(),gk=ck?'goalCK':sf?'goalSF':'goal',off=ck?13:sf?null:10;
@@ -5790,12 +5805,15 @@ function ctSetup(){const X=CTX(),ck=ctCK(),sf=ctSF(),gk=ck?'goalCK':sf?'goalSF':
   const st=(k,v,min,max,step,label)=>`<div class="step"><button data-a="ctst" data-k="${k}" data-d="${-step}" ${v<=min?'disabled':''} aria-label="Less ${label}">−</button><span class="n num">${v}</span><button data-a="ctst" data-k="${k}" data-d="${step}" ${v>=max?'disabled':''} aria-label="More ${label}">+</button></div>`;
   const row=(label,sub,ctl)=>`<div class="srow"><span class="rlab"><b>${label}</b>${sub?` · ${sub}`:''}</span>${ctl}</div>`;
   const sec=(t,body,hint)=>`<div class="sec"><div class="sec-h"><h3>${t}</h3></div><div class="panel hfpanel">${body}</div>${hint?`<p class="hint">${hint}</p>`:''}</div>`;
+  const tb=ctTB(),tbo=tb?ctTBoff():0;
   return `<div class="bar"><h1>Catan</h1></div><img class="hero hfhero" src="art/catan-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">Keep this open on the table and tap as things happen. Your house rules are remembered for next time. ${usualUI('catan')}</p>
-  ${sec('Which game',`<div class="seg">${[['base','Base game'],['sf','Seafarers'],['ck','Cities & Knights']].map(([v,t])=>`<button data-a="ctmode" data-v="${v}" aria-pressed="${X.mode===v}">${t}</button>`).join('')}</div>`,sf?'Ships, Longest Trade Route and island points. Works with every scenario; check your scenario page for the board and any special rules.':ck?'Metropolises, the Merchant, Defender of Catan and the barbarian attack. Everyone starts with a settlement and a city.':'Settlements, cities, Longest Road, Largest Army and victory point cards. Works with the 5–6 player extension.')}
-  ${sec('Points to win',row('Victory points','goal',st(gk,X[gk],5,25,1,'points')),sf?'Each scenario has its own goal. Set it from your scenario page; the app remembers the last one you used.':X[gk]===off?`Official: ${off} points.`:`House rule: first to ${X[gk]}. Official is ${off}.`)}
+  ${sec('Which game',`<div class="ctscen">${[['base','Base game'],['sf','Seafarers'],['ck','Cities & Knights'],['tb','Traders & Barbarians']].map(([v,t])=>`<button data-a="ctmode" data-v="${v}" aria-pressed="${X.mode===v}">${t}</button>`).join('')}</div>`,tb?'Pick a scenario below. Each one adds its own points to the base game.':sf?'Ships, Longest Trade Route and island points. Works with every scenario; check your scenario page for the board and any special rules.':ck?'Metropolises, the Merchant, Defender of Catan and the barbarian attack. Everyone starts with a settlement and a city.':'Settlements, cities, Longest Road, Largest Army and victory point cards. Works with the 5–6 player extension.')}
+  ${tb?sec('Scenario',`<div class="ctscen">${CTTBS.map(([v,t,g])=>`<button data-a="cttbs" data-v="${v}" aria-pressed="${X.tbs===v}"><b>${t}</b><small>${v==='none'?'base game · 11 points':`${g} points`}</small></button>`).join('')}</div>`+(X.tbs==='none'?'':tg('hm','Add Harbormaster','2 points for the player with the most harbor points. Adds 1 to the goal.')),
+    X.tbs==='fish'?'The Old Boot makes its holder need 1 more point to win.':X.tbs==='rivers'?'Wealthiest Settler +1, Poor Settler −2.':X.tbs==='caravans'?'Each settlement or city between 2 camels is worth 1 more point.':X.tbs==='barb'?'Every 2 barbarian prisoners are worth 1 point. No Largest Army.':X.tbs==='tb'?'Each delivered commodity is worth 1 point, and so is the last baggage train upgrade. No Longest Road.':'Base game plus the Harbormaster.'):''}
+  ${tb?sec('Points to win',row('Victory points','goal',st('tbAdj',ctGoal(),5,25,1,'points')),X.tbAdj?`House rule: first to ${ctGoal()}. Official is ${tbo}.`:`Official: ${tbo} points.`):sec('Points to win',row('Victory points','goal',st(gk,X[gk],5,25,1,'points')),sf?'Each scenario has its own goal. Set it from your scenario page; the app remembers the last one you used.':X[gk]===off?`Official: ${off} points.`:`House rule: first to ${X[gk]}. Official is ${off}.`)}
   ${sf?sec('Scenario extras',tg('cloth','Cloth for Catan','Count cloth tokens. Every 2 cloth is worth 1 point.'),''):''}
-  <p class="hint">Traders &amp; Barbarians is coming next.</p>
+  
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
 function ctStep(i,k,v,max,label,dis,sub){return `<div class="ctrow"><span class="ctlab">${ctIcon(k)}<b>${label}</b>${sub||''}</span><div class="step"><button data-a="ctadd" data-i="${i}" data-k="${k}" data-d="-1" ${v<=0?'disabled':''} aria-label="One less ${label}">−</button><span class="n num">${v}</span><button data-a="ctadd" data-i="${i}" data-k="${k}" data-d="1" ${dis||v>=max?'disabled':''} aria-label="One more ${label}">+</button></div></div>`}
 const CTKN=['','Basic','Strong','Mighty'];
@@ -5821,25 +5839,35 @@ function ctAttackSheet(){if(!CTATK)return '';const P=act(),atk=ctSum(C=>C.c),str
     <p class="hint">Afterward every knight goes idle and the ship goes back to the start.</p>
     <div class="sheet-btns"><button class="btn" data-a="ctatkx">Not yet</button>${btn}</div></div></div>`}
 let CTATK=false;
-function ctScore(){const X=CTX(),ck=ctCK(),sf=ctSF(),P=act(),won=ctWon(),R=ctRolls(),cur=P[S.active]||P[0],goal=ctGoal();
+function ctTBHint(){const t=CTX().tbs;return (ctHM()?' Harbormaster goes to the first player with 3 harbor points (settlement 1, city 2), and moves to anyone with more.':'')+(t==='fish'?' Only one player holds the Old Boot.':t==='rivers'?' Wealthiest Settler goes to whoever has the most coins. Poor Settler can go to more than one player.':t==='barb'?' Take conquered settlements and cities off your count; they score nothing.':t==='tb'?' Quarry, Glassmaking and Toolmaking are victory point cards.':'')}
+function ctTBRows(p,i){const C=ctP(p),t=CTX().tbs;
+  return t==='caravans'?ctStep(i,'cam',C.cam,9,'Between 2 camels',false,'<small class="rlab">+1 each</small>')
+    :t==='barb'?ctStep(i,'pri',C.pri,99,'Prisoners',false,`<small class="rlab">${Math.floor(C.pri/2)} pt</small>`)
+    :t==='tb'?ctStep(i,'com',C.com,99,'Commodities delivered'):''}
+function ctTBBadges(p,i){const C=ctP(p),t=CTX().tbs,b=(a,on,ic,lab,pts,extra)=>`<button data-a="${a}" data-i="${i}" aria-pressed="${!!on}"${extra||''}>${ic?ctIcon(ic)+' ':''}${lab}${on&&pts?' '+pts:''}</button>`;
+  return (ctHM()?b('cthm',C.hm,'la','Harbormaster','+2'):'')
+    +(t==='fish'?b('ctboot',C.boot,'','👢 Old Boot','· needs +1'):'')
+    +(t==='rivers'?b('ctrich',C.rich,'','🪙 Wealthiest','+1')+b('ctpoor',C.poor,'','Poor Settler','−2'):'')
+    +(t==='tb'?b('ctbag',C.bag,'','🛒 Last baggage train','+1'):'')}
+function ctScore(){const X=CTX(),ck=ctCK(),sf=ctSF(),tb=ctTB(),P=act(),won=ctWon(),R=ctRolls(),cur=P[S.active]||P[0],goal=ctGoal();
   const sc=P.map(ctTot),hi=Math.max(...sc),lead=sc.filter(v=>v===hi).length===1&&hi>2?P[sc.indexOf(hi)]:null;
   const cnt={};for(let n=2;n<=12;n++)cnt[n]=0;R.forEach(r=>cnt[r.n]++);const mx=Math.max(1,...Object.values(cnt)),last=R[R.length-1];
   const defLeft=6-ctSum(C=>C.def),pvpLeft=2-ctSum(C=>C.pvp);
-  let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1>${ck?'Cities &amp; Knights':sf?'Seafarers':'Catan'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo">↶<span class="undo-w"> Undo</span></button></div>
-  <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-a="nxjump" data-k="${q.id}" data-lp="ph:${q.id}"><div class="tn">${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">of ${goal}</div></button>`).join('')}</div>
-  ${won.length?`<div class="ctwin" style="${pc(won[0].color)}"><b>${won.map(p=>esc(nm(p))).join(' and ')} ${won.length>1?'have':'has'} ${goal} points!</b><span class="rlab">Catan is won on your own turn. When it’s official, finish the game.</span><button class="btn primary" data-a="finish">Finish &amp; reveal</button></div>`:''}
+  let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1>${ck?'Cities &amp; Knights':sf?'Seafarers':tb?esc((CTTBS.find(x=>x[0]===X.tbs)||CTTBS[1])[1]):'Catan'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo">↶<span class="undo-w"> Undo</span></button></div>
+  <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-a="nxjump" data-k="${q.id}" data-lp="ph:${q.id}"><div class="tn">${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">of ${ctGoalP(q)}</div></button>`).join('')}</div>
+  ${won.length?`<div class="ctwin" style="${pc(won[0].color)}"><b>${won.map(p=>esc(nm(p))).join(' and ')} ${won.length>1?'have':'has'} ${won.length>1?'enough':ctTot(won[0])} points!</b><span class="rlab">Catan is won on your own turn. When it’s official, finish the game.</span><button class="btn primary" data-a="finish">Finish &amp; reveal</button></div>`:''}
   ${ck?ctBarPanel():''}
   <div class="ctdice"><div class="ctdh"><b>Roll</b><span class="rlab">${esc(nm(cur))} is rolling${last?` · last roll ${last.n}`:''}</span></div>
     <div class="ctnums">${Object.keys(cnt).map(n=>`<button data-a="ctroll" data-v="${n}" class="${+n===7?'r7':''}${+n===6||+n===8?' hot':''}" aria-label="Rolled ${n}"><i style="height:${Math.round(cnt[n]/mx*100)}%"></i><b>${n}</b><small class="num">${cnt[n]||''}</small></button>`).join('')}</div>
     <p class="hint">Tap the number rolled. It counts the roll and passes the dice to the next player.${ck?' If the event die shows the ship, also tap Ship moves.':''}${R.length?` ${R.length} roll${R.length===1?'':'s'} so far.`:''}</p></div>
-  <div class="nxlist">${P.map((p,i)=>{const C=ctP(p),turn=p===cur,free=C.c-C.met.length;return `<div class="nxcard ctcard${turn?' turn':''}" id="nxc-${p.id}" style="${pc(p.color)}"><div class="nxh"><b>${esc(nm(p))}${turn?' <small class="rlab">· rolling</small>':''}</b><span class="num nxpts">${ctTot(p)} <small>/ ${goal}</small></span></div>
+  <div class="nxlist">${P.map((p,i)=>{const C=ctP(p),turn=p===cur,free=C.c-C.met.length;return `<div class="nxcard ctcard${turn?' turn':''}" id="nxc-${p.id}" style="${pc(p.color)}"><div class="nxh"><b>${esc(nm(p))}${turn?' <small class="rlab">· rolling</small>':''}</b><span class="num nxpts">${ctTot(p)} <small>/ ${ctGoalP(p)}</small></span></div>
     ${ctStep(i,'s',C.s,CTMAX.s,'Settlements')}${ctStep(i,'c',C.c,CTMAX.c,'Cities',C.s<=0)}
     ${ck?`<div class="ctmet"><span class="rlab">Metropolis (+2)</span><div class="htbtns">${CTMET.map(([t,lab,col])=>{const has=C.met.includes(t);return `<button data-a="ctmet" data-i="${i}" data-v="${t}" aria-pressed="${has}" ${!has&&free<1?'disabled':''} style="--mc:${col}"><i></i>${lab}</button>`}).join('')}</div></div>
       ${ctKnights(p,i)}${ctStep(i,'def',C.def,6,'Defender of Catan',defLeft<=0)}${ctStep(i,'pvp',C.pvp,2,'Printer / Constitution',pvpLeft<=0)}
       <div class="htbtns ctbadges"><button data-a="ctlr" data-i="${i}" aria-pressed="${!!C.lr}">${ctIcon('lr')} Longest Road${C.lr?' +2':''}</button><button data-a="ctmer" data-i="${i}" aria-pressed="${!!C.mer}">${ctIcon('mer')} Merchant${C.mer?' +1':''}</button></div>`
-    :`${ctStep(i,'k',C.k,99,'Knights played')}${ctStep(i,'vp',C.vp,99,'Victory point cards')}${sf?ctStep(i,'isl',C.isl,99,'Island points')+(X.cloth?ctStep(i,'clo',C.clo,99,'Cloth',false,`<small class="rlab">${Math.floor(C.clo/2)} pt</small>`):''):''}
-    <div class="htbtns ctbadges"><button data-a="ctlr" data-i="${i}" aria-pressed="${!!C.lr}">${ctIcon('lr')} ${sf?'Trade Route':'Longest Road'}${C.lr?' +2':''}</button><button class="ctla" aria-pressed="${!!C.la}" disabled>${ctIcon('la')} Largest Army${C.la?' +2':''}</button></div>`}</div>`}).join('')}</div>
-  <p class="hint">A city replaces a settlement, so adding a city takes one settlement back.${sf?' Island points: add the value on each special victory point token you earn.':''}${ck?' A metropolis sits on one of your cities, so each needs its own city.':' Largest Army moves by itself as knights are played. Add victory point cards when they are revealed.'}</p>`;
+    :`${tb&&X.tbs==='barb'?'':ctStep(i,'k',C.k,99,'Knights played')}${ctStep(i,'vp',C.vp,99,'Victory point cards')}${tb?ctTBRows(p,i):''}${sf?ctStep(i,'isl',C.isl,99,'Island points')+(X.cloth?ctStep(i,'clo',C.clo,99,'Cloth',false,`<small class="rlab">${Math.floor(C.clo/2)} pt</small>`):''):''}
+    <div class="htbtns ctbadges">${tb&&X.tbs==='tb'?'':`<button data-a="ctlr" data-i="${i}" aria-pressed="${!!C.lr}">${ctIcon('lr')} ${sf?'Trade Route':'Longest Road'}${C.lr?' +2':''}</button>`}${tb&&X.tbs==='barb'?'':`<button class="ctla" aria-pressed="${!!C.la}" disabled>${ctIcon('la')} Largest Army${C.la?' +2':''}</button>`}${tb?ctTBBadges(p,i):''}</div>`}</div>`}).join('')}</div>
+  <p class="hint">A city replaces a settlement, so adding a city takes one settlement back.${tb?ctTBHint():''}${sf?' Island points: add the value on each special victory point token you earn.':''}${ck?' A metropolis sits on one of your cities, so each needs its own city.':' Largest Army moves by itself as knights are played. Add victory point cards when they are revealed.'}</p>`;
   out+=`<div class="actions"><div class="in"><button class="btn${won.length?' sm':' primary'}" data-a="finish">End game</button></div></div>`;
   out+=ctAttackSheet();
   if(WARN)out+=`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
@@ -5872,6 +5900,15 @@ function ctResults(){const rk=ranking(),R=ctRolls();const cnt={};for(let n=2;n<=
   ${awardsHtml()}${photoBlock()}
   <div class="actions"><div class="in">${S.demo?'<button class="btn" data-a="revstart">Watch the reveal again</button><button class="btn primary" data-a="demoexit">Exit sample</button>':'<button class="btn primary" data-a="rematch">Rematch, same players</button>'}</div></div>`}
 function ctGuide(){const X=CTX(),g=ctGoal(),off=ctCK()?13:10;
+  if(ctTB()){const t=X.tbs,n=(CTTBS.find(x=>x[0]===t)||CTTBS[1])[1];return guideSheet(n,[
+    ['Winning',[['Goal',`First to ${g} victory points on their own turn.${X.tbAdj?` (House rule. Official is ${ctTBoff()}.)`:''}${ctHM()&&t!=='none'?' Harbormaster adds 1 to the goal.':''}`],t==='fish'?['Old Boot','Whoever holds the Old Boot needs 1 more point to win. It isn’t a negative point.']:null]],
+    ['Victory points',[['Base game','Settlements, cities'+(t==='tb'?'':', Longest Road')+(t==='barb'?'':', Largest Army')+' and victory point cards count as usual.'],
+      ctHM()?['Harbormaster','2 points. A settlement on a harbor gives 1 harbor point and a city gives 2. The first player with 3 harbor points takes it; someone with more takes it away.']:null,
+      t==='rivers'?['Wealthiest Settler','+1 point for the player with the most coins.']:null,t==='rivers'?['Poor Settler','−2 points.']:null,
+      t==='caravans'?['Camels','Each settlement or city between 2 camels is worth 1 more point.']:null,
+      t==='barb'?['Prisoners','Every 2 barbarian prisoners are worth 1 point. Conquered settlements and cities score nothing. Largest Army isn’t used.']:null,
+      t==='tb'?['Commodities','Each delivered commodity is worth 1 point.']:null,t==='tb'?['Baggage train','Upgrading to the last baggage train card is worth 1 point. Longest Road isn’t used.']:null,t==='tb'?['Development cards','Quarry, Glassmaking and Toolmaking are worth 1 point each.']:null]],
+    ['Everything else',[['Setup, special pieces and scenario rules','Check the scenario page in the box.']]]])}
   if(ctSF())return guideSheet('Seafarers',[
     ['Winning',[['Goal',`First to ${g} victory points on their own turn. Each scenario sets its own goal; check your scenario page.`]]],
     ['Victory points',[['Settlement and city','1 and 2 points, same as the base game.'],['Longest Trade Route','2 points. Roads and ships both count, linked through a settlement or city where they meet.'],['Largest Army and victory point cards','Same as the base game.'],['Island points','Many scenarios give special victory point tokens, for example for your first settlement on a new island. Add the value printed on each token.'],X.cloth?['Cloth','Every 2 cloth tokens are worth 1 point.']:null]],
@@ -5888,7 +5925,7 @@ function ctGuide(){const X=CTX(),g=ctGoal(),off=ctCK()?13:10;
     ['5 to 6 players',[['Extension','Uses the extension’s board, pieces and the special building phase. Check its rule card.']]],
     ['Everything else',[['Trading, the robber and development cards','Check the rule card in the box.']]]])}
 function ctHomeCard(){const st=gamePeek('catan'),x=(st&&st.ctx)||ctSaved(),ck=x.mode==='ck';
-  return `<div class="game"><div class="gtop"><img class="gart" src="art/catan-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart ctart&quot; aria-hidden=&quot;true&quot;>⬢</div>'"><div><h2>Catan</h2><div class="meta">${ck?'Cities &amp; Knights':x.mode==='sf'?'Seafarers':'Live tracker'} · first to ${ck?x.goalCK||13:x.mode==='sf'?x.goalSF||12:x.goal||10}</div></div></div>
+  return `<div class="game"><div class="gtop"><img class="gart" src="art/catan-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart ctart&quot; aria-hidden=&quot;true&quot;>⬢</div>'"><div><h2>Catan</h2><div class="meta">${ck?'Cities &amp; Knights':x.mode==='sf'?'Seafarers':x.mode==='tb'?'Traders &amp; Barbarians':'Live tracker'}${x.mode==='tb'?'':` · first to ${ck?x.goalCK||13:x.mode==='sf'?x.goalSF||12:x.goal||10}`}</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="catan">Resume game</button><button class="btn" data-a="gnew" data-k="catan">New game</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="catan">Track a game</button>`}</div>`}
 const CTDEMOS=[{id:'ctfam',title:'Family night · Catan',tip:'Lily just hit 10. Tap Finish & reveal, or press and hold a name to see their points.',blurb:'Four players. Dad holds Longest Road, Ben grabbed Largest Army, and Lily sneaks to 10 with two hidden victory point cards.'},
@@ -8299,7 +8336,10 @@ document.addEventListener('click',e=>{
     case 'gfhand':{S.hr=+b.dataset.v;GFSEL=null;LPTIP=null;window.scrollTo(0,0);break}
     case 'gfnext':{S.hr=gfCur()+1;GFSEL=null;window.scrollTo(0,0);break}
     case 'ctdemo':ctDemo(b.dataset.k);window.scrollTo(0,0);break;
-    case 'ctst':{const X=CTX();X[k]=Math.max(5,Math.min(25,(+X[k]||0)+(+b.dataset.d)));ctKeep();break}
+    case 'ctst':{const X=CTX();if(k==='tbAdj'){const g=ctGoal()+(+b.dataset.d);if(g>=5&&g<=25)X.tbAdj=(X.tbAdj||0)+(+b.dataset.d)}else X[k]=Math.max(5,Math.min(25,(+X[k]||0)+(+b.dataset.d)));ctKeep();break}
+    case 'cttbs':{const X=CTX();X.tbs=b.dataset.v;ctKeep();break}
+    case 'cthm':case 'ctboot':case 'ctrich':{const f={cthm:'hm',ctboot:'boot',ctrich:'rich'}[a],q=act()[+b.dataset.i],on=!ctP(q)[f];snap();act().forEach(o=>ctP(o)[f]=false);ctP(q)[f]=on;break}
+    case 'ctpoor':case 'ctbag':{const f=a==='ctpoor'?'poor':'bag',C=ctP(act()[+b.dataset.i]);snap();C[f]=!C[f];break}
     case 'cttg':{const X=CTX();X[k]=!X[k];ctKeep();break}
     case 'ctmode':{const X=CTX();X.mode=b.dataset.v;ctKeep();break}
     case 'ctadd':{const q=act()[+b.dataset.i],C=ctP(q),d=+b.dataset.d;snap();
@@ -8309,7 +8349,7 @@ document.addEventListener('click',e=>{
       else if(k==='vp')C.vp=Math.max(0,C.vp+d);
       else if(k==='def')C.def=Math.max(0,Math.min(6,C.def+d));
       else if(k==='pvp')C.pvp=Math.max(0,Math.min(2,C.pvp+d));
-      else if(k==='isl'||k==='clo')C[k]=Math.max(0,C[k]+d);
+      else if(k==='isl'||k==='clo'||k==='cam'||k==='pri'||k==='com')C[k]=Math.max(0,C[k]+d);
       if(!S.started)S.started=true;{const w=ctWon();if(d>0&&w.includes(q))setTimeout(()=>toast(`${nm(q)} has ${ctTot(q)} points!`),30)}break}
     case 'ctlr':{const q=act()[+b.dataset.i],on=!ctP(q).lr;snap();act().forEach(o=>ctP(o).lr=false);ctP(q).lr=on;break}
     case 'ctmer':{const q=act()[+b.dataset.i],on=!ctP(q).mer;snap();act().forEach(o=>ctP(o).mer=false);ctP(q).mer=on;break}
@@ -8835,6 +8875,6 @@ render();
 
 <script type="module" src="fb-firebase.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='274190';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='8a181e';</script>
 </body>
 </html>
