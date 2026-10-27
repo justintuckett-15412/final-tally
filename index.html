@@ -524,6 +524,17 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .demo{display:grid;gap:4px;text-align:left;padding:12px 14px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
 .demo b{font-family:var(--display);font-weight:800;font-size:20px;text-transform:uppercase;line-height:1.05}
 .demo span{font-size:14px;color:var(--muted)}
+.wloader{display:flex;justify-content:center;align-items:flex-end;gap:10px;height:58px;margin:14px 0 4px}.wloader span{width:34px;height:34px;display:block}
+.wloader img{width:34px;height:34px;object-fit:contain;display:block}.wdf{position:relative;display:block;width:30px;height:30px;margin:2px}.wdf svg{position:absolute;inset:0;opacity:0}
+@media (prefers-reduced-motion:no-preference){.wloader span{animation:wbounce 1.4s cubic-bezier(.35,0,.25,1) infinite;animation-delay:calc(var(--i)*.14s)}
+  .wdice .wdf{animation:wspin 1.4s linear infinite;animation-delay:calc(var(--i)*.14s)}
+  .wdf svg{animation:wface 2.8s steps(1) infinite;animation-delay:calc(var(--i)*-.47s)}
+  .wdf svg[data-v="2"]{animation-name:wface2}.wdf svg[data-v="3"]{animation-name:wface3}.wdf svg[data-v="4"]{animation-name:wface4}.wdf svg[data-v="5"]{animation-name:wface5}.wdf svg[data-v="6"]{animation-name:wface6}}
+@media (prefers-reduced-motion:reduce){.wdf svg[data-v="5"]{opacity:1}}
+@keyframes wbounce{0%,55%,100%{transform:translateY(0)}25%{transform:translateY(-20px)}}
+@keyframes wspin{0%,55%,100%{transform:rotate(0)}25%{transform:rotate(-90deg)}}
+@keyframes wface{0%,100%{opacity:1}16.66%{opacity:0}}@keyframes wface2{0%,16.65%{opacity:0}16.66%,33.32%{opacity:1}33.33%,100%{opacity:0}}@keyframes wface3{0%,33.32%{opacity:0}33.33%,49.99%{opacity:1}50%,100%{opacity:0}}
+@keyframes wface4{0%,49.99%{opacity:0}50%,66.65%{opacity:1}66.66%,100%{opacity:0}}@keyframes wface5{0%,66.65%{opacity:0}66.66%,83.32%{opacity:1}83.33%,100%{opacity:0}}@keyframes wface6{0%,83.32%{opacity:0}83.33%,99.99%{opacity:1}100%{opacity:0}}
 .yzdice{display:flex;gap:6px;justify-content:center;margin:6px 0}.yzdice button{padding:0;line-height:0}.yzslot{width:46px;height:46px;border:2px dashed var(--line);border-radius:10px}
 .yzpad{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;justify-items:center}.yzpad button{padding:4px;border-radius:10px;background:var(--soft);line-height:0}.yzpad button:disabled{opacity:.35}
 .yzyell{font-family:var(--display);font-weight:800;font-size:28px;text-align:center;color:var(--accent);margin:4px 0 0;letter-spacing:.02em}
@@ -1872,7 +1883,17 @@ function lkWhoScreen(){const P=act(),dev=window.FTLINK?window.FTLINK.dev():'';
   <div class="sec"><div class="panel">${P.map(p=>{const s=LKSEATS[p.id],taken=s&&s.dev&&s.dev!==dev;
     return `<div class="seat" style="${pc(p.color)}"><i class="dot"></i><div class="seat-m"><b>${esc(nm(p))}</b><small>${taken?'Taken: on another phone 🔒':S.lk.me===p.id?'This phone':'Free'}</small></div><button class="btn sm${S.lk.me===p.id?' primary':''}" data-a="lkpick" data-k="${p.id}" ${taken?'disabled':''}>${S.lk.me===p.id?'That’s me':'I’m '+esc(nm(p))}</button></div>`}).join('')}</div></div>
   <button class="btn wide" data-a="lkpick" data-k="">${lkHost()?'I’m not playing, just scoring':'Just watching'}</button>`}
-function lkWaitScreen(){return `<div class="bar"><h1>Linked game</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>Waiting for the host</h2><p>The host is still choosing the game and rules. Scoring opens here as soon as they start.</p></div>`}
+
+/* Waiting loader for linked games: five of the game's own pieces bouncing in a wave (dice for most games) */
+function waitLoader(msg){const g=S.game,A=(k)=>`<img src="art/trail/${k}.png" alt="">`;
+  const set=g==='wingspan'?['ws-bird-blue','ws-egg-blue','ws-bird-yellow','ws-egg-cream','ws-bird-green'].map(A)
+    :g==='wyrmspan'?['wy-coin','wy-gem-blue','wy-coin-tilt','wy-gem-purple','wy-egg'].map(A)
+    :g==='quacks'?['qk-orange','qk-white','qk-green','qk-blue','qk-purple'].map(A)
+    :g==='munchkin'?['mk-slime','mk-bat','mk-goblin','mk-chest','mk-crown'].map(A)
+    :[1,2,3,4,5].map(()=>'');
+  const dice=set.every(x=>!x);
+  return `<div class="wloader${dice?' wdice':''}" role="status" aria-label="${esc(msg||'Waiting')}">${set.map((x,i)=>`<span style="--i:${i}">${dice?`<b class="wdf">${[1,2,3,4,5,6].map(v=>yzDie(v,30,` data-v="${v}"`)).join('')}</b>`:x}</span>`).join('')}</div>${msg?`<p class="rlab" style="text-align:center;margin:2px 0 0">${esc(msg)}</p>`:''}`}
+function lkWaitScreen(){return `<div class="bar"><h1>Linked game</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>Waiting for the host</h2><p>The host is still choosing the game and rules. Scoring opens here as soon as they start.</p>${waitLoader('Shaking the dice…')}</div>`}
 function lkBar(){if(!S.lk||S.demo||['lkwho','home'].includes(S.screen))return '';const seat=lkSeated(),n=lkReadyN(),mine=lkMine(),me=S.lk.me&&act().find(p=>p.id===S.lk.me);
   const head=`<div class="lkbar${LKOPEN?' open':''}"><button class="lkb-main" data-a="lkopen" aria-expanded="${LKOPEN}"><span class="lkb-code">📱 <b class="num">${fmtCode(S.lk.code)}</b></span><span class="lkb-st">${S.lklock?'🔒 ':''}${S.finished?'Revealed':seat.length?`${n}/${seat.length} done`:'No phones joined yet'}${me?' · '+esc(nm(me)):lkHost()?' · Host':''}</span><span class="chev">${LKOPEN?'▴':'▾'}</span></button>
     ${me&&S.started&&!S.finished?`<button class="btn sm${lkOk(mine)?'':' primary'}" data-a="lkready" data-k="${lkOk(mine)?'0':'1'}">${lkOk(mine)?'Not done':'I’m done'}</button>`:''}</div>`;
@@ -2025,7 +2046,7 @@ function lobbyScreen(){
   <div class="sec"><div class="sec-h"><h3>Players</h3><span class="sub num">${n}/${P.length} ready</span></div><div class="panel">${P.map(p=>{const s=seatOf(p);
     return `<div class="seat" style="${pc(p.color)}"><i class="dot"></i><div class="seat-m"><b>${esc(nm(p))}${s.phone==='host'?' (you)':''}</b><small>${s.phone==='own'?'On their own phone':s.phone==='host'?'Host':'No phone · you score for them'}</small></div>${st(p)}
       ${s.phone!=='own'?`<button class="btn sm" data-a="lscore" data-k="${p.id}">${s.ready?'Edit':'Score'}</button>`:''}</div>`}).join('')}</div></div>
-  <p class="hint">Rules and setup are locked to what you picked as host. Each player taps “I'm done” when their scorecard is finished.</p>
+  <p class="hint">Rules and setup are locked to what you picked as host. Each player taps “I'm done” when their scorecard is finished.</p>${allReady()?'':waitLoader('Waiting on the other phones…')}
   <div class="actions"><div class="in">${allReady()?`<button class="btn primary" data-a="lreveal">Reveal on every phone</button>`
     :lk.confirm?`<button class="btn" data-a="lcancel">Wait</button><button class="btn warn" data-a="lforce">Tap again to reveal now</button>`
     :`<button class="btn" data-a="lforce">Reveal anyway</button><button class="btn primary" disabled>Waiting for ${P.length-n} player${P.length-n===1?'':'s'}</button>`}</div></div>`;
@@ -2033,7 +2054,7 @@ function lobbyScreen(){
 function playerPhone(p){const s=seatOf(p),host=act().find(q=>seatOf(q).phone==='host');
   return `<div class="bar"><h1>${esc(nm(p))}'s phone</h1></div>${viewSwitch()}
   <div class="pphone" style="${pc(p.color)}"><i class="dot"></i><div><b>Joined game ${fmtCode(L().code)}</b><small>Hosted by ${esc(nm(host))} · ${esc(M().name)}</small></div></div>
-  ${s.ready?`<div class="empty-state"><img class="wait-img" src="wait/secret-${IMGC.includes(p.color)?p.color:'red'}.png" alt="" width="400" height="368"><h2>You're done ✓</h2><p>Waiting for ${esc(nm(host))} to start the reveal. Your score stays hidden until then.</p><button class="btn" data-a="lunready" data-k="${p.id}">Edit my scorecard</button></div>`
+  ${s.ready?`<div class="empty-state"><img class="wait-img" src="wait/secret-${IMGC.includes(p.color)?p.color:'red'}.png" alt="" width="400" height="368"><h2>You're done ✓</h2><p>Waiting for ${esc(nm(host))} to start the reveal. Your score stays hidden until then.</p>${waitLoader('')}<button class="btn" data-a="lunready" data-k="${p.id}">Edit my scorecard</button></div>`
     :`<div class="empty-state"><h2>Scoring…</h2><p>${esc(nm(p))} fills in their own routes and tickets here, with the same Rules button and scorecard you use.</p><button class="btn primary" data-a="lready" data-k="${p.id}">I'm done</button></div>`}
   <p class="hint">This is a preview: tap the buttons to act as ${esc(nm(p))}, then switch back to your phone.</p>`}
 function samplesScreen(){return `<div class="bar"><h1>Sample games</h1></div>${demoList()}`}
@@ -8330,6 +8351,6 @@ render();
 
 <script type="module" src="fb-firebase.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='b9d300';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='5a1d41';</script>
 </body>
 </html>
