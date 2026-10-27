@@ -6837,7 +6837,7 @@ function cTileStrip(p){let h=hashOf(p),o='';const n=34,s=24;for(let t=0;t<n;t++)
 
 /* Board-game reveal look: a trail of that game's own pieces, with the player's meeple out in front */
 const TRP=24,trP=()=>S.game==='wingspan'?28:S.game==='wyrmspan'?12:S.game==='quacks'?20:TRP;
-const mkGoal=()=>Math.max(2,MKX().target||10),mkStepW=()=>mkGoal()>12?13:24;
+const mkGoal=()=>Math.max(2,MKX().target||10),mkStepW=()=>{const N=mkGoal();return N<=10?24:N<=14?18:N<=20?13:Math.max(5,Math.floor(262/N))};
 const trArt={
   wingspan:(x,i,h)=>{const c=['#2b7bc8','#e3b71f','#2e8b4a','#5aa9e6'][h%4];return i%2?`<ellipse cx="${x+12}" cy="15" rx="6" ry="7.5" fill="#bfe0f5" stroke="#26313b" stroke-width="1.4"/><circle cx="${x+10}" cy="13" r="1.1" fill="#2b62b8"/><circle cx="${x+14}" cy="17" r="1" fill="#2b62b8"/><circle cx="${x+11}" cy="19" r=".8" fill="#2b62b8"/>`
     :`<path d="M${x+5} 21q7 -14 15 -3z" fill="${c}" stroke="#26313b" stroke-width="1.4" stroke-linejoin="round"/><circle cx="${x+15}" cy="10" r="4.2" fill="${c}" stroke="#26313b" stroke-width="1.4"/><path d="M${x+19} 9.5l3.5 1.2-3.3 1.6z" fill="#f0b43a" stroke="#26313b" stroke-width=".9" stroke-linejoin="round"/><circle cx="${x+16}" cy="9.2" r=".9" fill="#26313b"/>`},
@@ -6848,14 +6848,24 @@ const trArt={
 const mkStepH=(t,N)=>Math.round(13+t*(23/(N-1)));
 /* Munchkin: a dungeon staircase, one stone step per level. Each step below the player holds a monster or treasure they got past; the winner wears the crown. */
 const MKSI=['door','slime','bat','goblin','potion','skull','sword','bat','chest'];
-function mkSteps(p){const N=mkGoal(),w=mkStepW(),HT=56,lv=Math.max(1,Math.min(N,mkLv(p))),isz=w>=20?17:11;let o='',it='';
-  for(let t=0;t<N;t++){const x=t*w,h=mkStepH(t,N),top=t===N-1,y=HT-h;
+function mkSteps(p){const N=mkGoal(),w=mkStepW(),HT=56,lv=Math.max(1,Math.min(N,mkLv(p))),isz=w>=20?17:w>=13?11:w>=9?8:0,lab=w>=18?1:w>=13?2:w>=8?5:10;let o='',it='',web='',hh=hashOf(p);
+  const rnd=()=>{hh=(Math.imul(hh,1103515245)+12345)>>>0;return (hh>>>8)&1023},WC='#aeb6c1';
+  /* a corner web: radial threads from (cx,cy) toward (dx,dy), with sagging rings */
+  const cweb=(cx,cy,R,a0,a1,op)=>{let g='';const K=4;for(let i=0;i<=K;i++){const a=a0+(a1-a0)*i/K;g+=`<path d="M${cx} ${cy}l${(R*Math.cos(a)).toFixed(1)} ${(R*Math.sin(a)).toFixed(1)}"/>`}
+    for(const f of [.38,.68,.95]){let d='';for(let i=0;i<=K;i++){const a=a0+(a1-a0)*i/K,x=cx+R*f*Math.cos(a),y=cy+R*f*Math.sin(a);if(!i)d=`M${x.toFixed(1)} ${y.toFixed(1)}`;else{const am=a0+(a1-a0)*(i-.5)/K,s2=R*f*.86;d+=`Q${(cx+s2*Math.cos(am)).toFixed(1)} ${(cy+s2*Math.sin(am)).toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)}`}}g+=`<path d="${d}"/>`}
+    return `<g stroke="${WC}" stroke-width=".7" fill="none" opacity="${op}">${g}</g>`};
+  for(let t=0;t<N;t++){const x=t*w,h=mkStepH(t,N),top=t===N-1,y=HT-h,r=rnd();
     o+=`<rect x="${x+.6}" y="${y}" width="${w-1.2}" height="${h}" rx="1.5" fill="${top?'#f2c230':'#596273'}" stroke="#1d242c" stroke-width="1.3"/><path d="M${x+2} ${y+2.3}h${w-4}" stroke="${top?'#fff3b0':'#8790a0'}" stroke-width="1.2"/>`;
-    for(let yy=y+9,r=0;yy<HT-2;yy+=8,r++)o+=`<path d="M${x+1.5} ${yy}h${w-3}" stroke="${top?'#c9961a':'#454d5b'}" stroke-width=".8"/><path d="M${x+(r%2?w*.66:w*.33)} ${yy}v-8" stroke="${top?'#c9961a':'#454d5b'}" stroke-width=".8"/>`;
-    if(w>=20||t%2===1||top)o+=`<text x="${x+w/2}" y="${Math.min(HT-3,y+11)}" text-anchor="middle" font-size="${w>=20?9:7}" font-weight="700" font-family="system-ui,sans-serif" fill="${top?'#26313b':'#dfe4ea'}">${t+1}</text>`;
-    if(t<lv-1){const k=t===N-2?'chest':MKSI[t%MKSI.length];it+=`<image href="art/trail/mk-${k}.png" x="${x+(w-isz)/2}" y="${y-isz+1}" width="${isz}" height="${isz}"/>`}}
-  const mb=mkStepH(lv-1,N)-1,mr=w>=20?2:-6;
-  return `<u class="cstrip mkstrip"><svg width="${N*w}" height="${HT}" viewBox="0 0 ${N*w} ${HT}" aria-hidden="true">${o}${it}</svg></u><svg class="cmk" style="bottom:${mb}px;right:${mr}px" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg>${lv>=N?`<img class="mkcrown" src="art/trail/mk-crown.png" alt="" style="bottom:${mb+21}px;right:${mr+5}px">`:''}`}
+    for(let yy=y+9,k=0;yy<HT-2;yy+=8,k++)o+=`<path d="M${x+1.5} ${yy}h${w-3}" stroke="${top?'#c9961a':'#454d5b'}" stroke-width=".8"/><path d="M${x+(k%2?w*.66:w*.33)} ${yy}v-8" stroke="${top?'#c9961a':'#454d5b'}" stroke-width=".8"/>`;
+    if(!top&&w>=9&&r%3===0)web+=cweb(x+1.3,y+1.3,Math.min(w*.75,h*.6),0,Math.PI/2,.85);
+    if(((t+1)%lab===0||t===0&&lab===1||top)&&!(top&&w<13&&N>=10))o+=`<text x="${x+w/2}" y="${Math.min(HT-3,y+11)}" text-anchor="middle" font-size="${w>=20?9:7}" font-weight="700" font-family="system-ui,sans-serif" fill="${top?'#26313b':'#dfe4ea'}">${t+1}</text>`;
+    if(isz&&t<lv-1&&(w>=13||t%2===0)){const k=t===N-2?'chest':MKSI[t%MKSI.length];it+=`<image href="art/trail/mk-${k}.png" x="${x+(w-isz)/2}" y="${y-isz+1}" width="${isz}" height="${isz}"/>`}}
+  /* a big web in the top corner, and a spider dangling over one of the climbed steps */
+  web=cweb(0,0,24,0,Math.PI/2,.9)+web;
+  if(lv>=3){const t=1+rnd()%Math.max(1,lv-2),x=t*w+w/2,yb=Math.max(5,HT-mkStepH(t,N)-(isz||0)-9);
+    web+=`<path d="M${x} 0V${yb}" stroke="${WC}" stroke-width=".7"/><g transform="translate(${x} ${yb+2.5})" stroke="#aeb6c1" stroke-width=".9" stroke-linecap="round"><path d="M-1.5 -.5l-3 -2M-1.5 .5l-3.4 .6M-1.5 1.2l-2.6 2.4M1.5 -.5l3 -2M1.5 .5l3.4 .6M1.5 1.2l2.6 2.4" fill="none"/><ellipse rx="2.4" ry="2.8" fill="#2a2f38" stroke="#aeb6c1" stroke-width=".7"/><circle cx="-.8" cy="-.7" r=".45" fill="#f2c230" stroke="none"/><circle cx=".8" cy="-.7" r=".45" fill="#f2c230" stroke="none"/></g>`}
+  const mb=mkStepH(lv-1,N)-1,mr=w>=20?2:w>=13?-6:Math.round(w/2-12);
+  return `<u class="cstrip mkstrip"><svg width="${N*w}" height="${HT}" viewBox="0 0 ${N*w} ${HT}" aria-hidden="true">${o}${web}${it}</svg></u><svg class="cmk" style="bottom:${mb}px;right:${mr}px" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg>${lv>=N?`<img class="mkcrown" src="art/trail/mk-crown.png" alt="" style="bottom:${mb+21}px;right:${mr+5}px">`:''}`}
 /* Wingspan: illustrated birds perched along a branch, with eggs between them */
 function wsArtStrip(p){const n=36,P=28,B=['blue','yellow','green','sky'];let h=hashOf(p),o=`<path d="M0 27.5h${n*P}" stroke="#7a4a26" stroke-width="3.2" stroke-linecap="round"/><path d="M0 26.6h${n*P}" stroke="#a8703e" stroke-width="1"/>`;
   for(let t=0;t<n;t++){h=(Math.imul(h,1103515245)+12345)>>>0;const x=t*P,r=(h>>>8)&1023;
@@ -8173,6 +8183,6 @@ render();
 
 <script type="module" src="fb-firebase.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='e96236';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='ce5a3a';</script>
 </body>
 </html>
