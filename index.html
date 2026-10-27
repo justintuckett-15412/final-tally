@@ -525,7 +525,7 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .demo b{font-family:var(--display);font-weight:800;font-size:20px;text-transform:uppercase;line-height:1.05}
 .demo span{font-size:14px;color:var(--muted)}
 .wloader{display:flex;justify-content:center;align-items:flex-end;gap:10px;height:58px;margin:14px 0 4px}.wloader span{width:34px;height:34px;display:block}
-.wloader img{width:34px;height:34px;object-fit:contain;display:block}.wdf{position:relative;display:block;width:30px;height:30px;margin:2px}.wdf svg{position:absolute;inset:0;opacity:0}
+.wloader img{width:34px;height:34px;object-fit:contain;display:block}.wloader span svg{display:block;margin:0 auto;max-width:34px;max-height:34px}.wloader .wtrain{width:40px;margin-left:-3px}.wloader:has(.wtrain){gap:6px}.wdf{position:relative;display:block;width:30px;height:30px;margin:2px}.wdf svg{position:absolute;inset:0;opacity:0}
 @media (prefers-reduced-motion:no-preference){.wloader span{animation:wbounce 1.4s cubic-bezier(.35,0,.25,1) infinite;animation-delay:calc(var(--i)*.14s)}
   .wdice .wdf{animation:wspin 1.4s linear infinite;animation-delay:calc(var(--i)*.14s)}
   .wdf svg{animation:wface 2.8s steps(1) infinite;animation-delay:calc(var(--i)*-.47s)}
@@ -1884,16 +1884,37 @@ function lkWhoScreen(){const P=act(),dev=window.FTLINK?window.FTLINK.dev():'';
     return `<div class="seat" style="${pc(p.color)}"><i class="dot"></i><div class="seat-m"><b>${esc(nm(p))}</b><small>${taken?'Taken: on another phone 🔒':S.lk.me===p.id?'This phone':'Free'}</small></div><button class="btn sm${S.lk.me===p.id?' primary':''}" data-a="lkpick" data-k="${p.id}" ${taken?'disabled':''}>${S.lk.me===p.id?'That’s me':'I’m '+esc(nm(p))}</button></div>`}).join('')}</div></div>
   <button class="btn wide" data-a="lkpick" data-k="">${lkHost()?'I’m not playing, just scoring':'Just watching'}</button>`}
 
-/* Waiting loader for linked games: five of the game's own pieces bouncing in a wave (dice for most games) */
-function waitLoader(msg){const g=S.game,A=(k)=>`<img src="art/trail/${k}.png" alt="">`;
-  const set=g==='wingspan'?['ws-bird-blue','ws-egg-blue','ws-bird-yellow','ws-egg-cream','ws-bird-green'].map(A)
-    :g==='wyrmspan'?['wy-coin','wy-gem-blue','wy-coin-tilt','wy-gem-purple','wy-egg'].map(A)
-    :g==='quacks'?['qk-orange','qk-white','qk-green','qk-blue','qk-purple'].map(A)
-    :g==='munchkin'?['mk-slime','mk-bat','mk-goblin','mk-chest','mk-crown'].map(A)
-    :[1,2,3,4,5].map(()=>'');
-  const dice=set.every(x=>!x);
-  return `<div class="wloader${dice?' wdice':''}" role="status" aria-label="${esc(msg||'Waiting')}">${set.map((x,i)=>`<span style="--i:${i}">${dice?`<b class="wdf">${[1,2,3,4,5,6].map(v=>yzDie(v,30,` data-v="${v}"`)).join('')}</b>`:x}</span>`).join('')}</div>${msg?`<p class="rlab" style="text-align:center;margin:2px 0 0">${esc(msg)}</p>`:''}`}
-function lkWaitScreen(){return `<div class="bar"><h1>Linked game</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>Waiting for the host</h2><p>The host is still choosing the game and rules. Scoring opens here as soon as they start.</p>${waitLoader('Shaking the dice…')}</div>`}
+/* Waiting loader for linked games: five of the game's own pieces bouncing in a wave */
+const WLK='#26313b';
+const wlSvg=(w,h,inner,dw,dh)=>`<svg width="${dw||w}" height="${dh||h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">${inner}</svg>`;
+const wlCard=(sym,col)=>wlSvg(26,34,`<rect x="1.5" y="1.5" width="23" height="31" rx="3.5" fill="#fffdf6" stroke="${WLK}" stroke-width="2"/><text x="13" y="23.5" text-anchor="middle" font-size="17" font-family="system-ui,sans-serif" fill="${col}">${sym}&#xFE0E;</text>`);
+const wlNum=(n,col)=>wlSvg(26,34,`<rect x="1.5" y="1.5" width="23" height="31" rx="3.5" fill="${col}" stroke="${WLK}" stroke-width="2"/><ellipse cx="13" cy="17" rx="7.5" ry="10.5" fill="#fffdf6"/><text x="13" y="22" text-anchor="middle" font-size="13" font-weight="800" font-family="system-ui,sans-serif" fill="${col}">${n}</text>`);
+const wlBack=()=>wlSvg(26,34,`<rect x="1.5" y="1.5" width="23" height="31" rx="3.5" fill="#2b62b8" stroke="${WLK}" stroke-width="2"/><rect x="5" y="5" width="16" height="24" rx="2" fill="none" stroke="#fffdf6" stroke-width="1.5"/><path d="M13 9l4 8-4 8-4-8z" fill="#fffdf6"/>`);
+const wlChip=col=>wlSvg(30,30,`<circle cx="15" cy="15" r="13" fill="${col}" stroke="${WLK}" stroke-width="2"/><circle cx="15" cy="15" r="9.5" fill="none" stroke="#fffdf6" stroke-width="2.4" stroke-dasharray="4 3.4"/><circle cx="15" cy="15" r="5" fill="#fffdf6" opacity=".85"/>`);
+const wlBall=(n,col,stripe)=>wlSvg(30,30,`<defs><clipPath id="wlb${n}"><circle cx="15" cy="15" r="13"/></clipPath></defs><circle cx="15" cy="15" r="13" fill="${stripe?'#fffdf6':col}"/>${stripe?`<rect x="0" y="9" width="30" height="12" fill="${col}" clip-path="url(#wlb${n})"/>`:''}<circle cx="15" cy="15" r="13" fill="none" stroke="${WLK}" stroke-width="2"/><circle cx="15" cy="15" r="5.6" fill="#fffdf6"/><text x="15" y="18.4" text-anchor="middle" font-size="8.5" font-weight="800" font-family="system-ui,sans-serif" fill="${WLK}">${n}</text>`);
+const wlBoard=()=>wlSvg(30,30,`<circle cx="15" cy="15" r="13.5" fill="#2b2d31" stroke="${WLK}" stroke-width="1.5"/>${[11,8.5,5.5].map((r,i)=>`<circle cx="15" cy="15" r="${r}" fill="${['#e0352b','#f2efe8','#2fa43a'][i]}"/>`).join('')}<circle cx="15" cy="15" r="2.4" fill="#e0352b"/><path d="M15 15l9 -9" stroke="#e3b71f" stroke-width="2" stroke-linecap="round"/><path d="M24 6l3 -1-1 3z" fill="#2b62b8"/>`);
+const wlGolf=flag=>flag?wlSvg(30,34,`<path d="M9 31V4" stroke="${WLK}" stroke-width="2.2" stroke-linecap="round"/><path d="M10 4l14 5-14 5z" fill="#e3b71f" stroke="${WLK}" stroke-width="1.6" stroke-linejoin="round"/><ellipse cx="12" cy="31" rx="9" ry="2.6" fill="#2fa43a"/>`)
+  :wlSvg(30,30,`<circle cx="15" cy="15" r="12" fill="#fffdf6" stroke="${WLK}" stroke-width="2"/>${[[11,11],[17,10],[13,16],[19,16],[10,20],[16,21]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.3" fill="#c3bbae"/>`).join('')}`);
+function wlPieces(g){const A=k=>`<img src="art/trail/${k}.png" alt="">`,D=()=>`<b class="wdf">${[1,2,3,4,5,6].map(v=>yzDie(v,30,` data-v="${v}"`)).join('')}</b>`,R='#c8372d',K='#26313b',C=['#c8372d','#2b62b8','#2e8b4a','#e3b71f'];
+  if(g==='wingspan')return [['ws-bird-blue','ws-egg-blue','ws-bird-yellow','ws-egg-cream','ws-bird-green'].map(A),'Filling the bird feeder…'];
+  if(g==='wyrmspan')return [['wy-coin','wy-gem-blue','wy-coin-tilt','wy-gem-purple','wy-egg'].map(A),'Counting the hoard…'];
+  if(g==='quacks')return [['qk-orange','qk-white','qk-green','qk-blue','qk-purple'].map(A),'Stirring the pot…'];
+  if(g==='munchkin')return [['mk-slime','mk-bat','mk-goblin','mk-chest','mk-crown'].map(A),'Kicking open the door…'];
+  if(!g||g==='ttr')return [['engine','box','tank','hopper','caboose'].map(k=>`<img class="wtrain" src="train/${k}-red.png" alt="">`),'Laying track…'];
+  if(g==='carc')return [['cross','city','road','mon','bigcity'].map(k=>wlSvg(26,26,cTileArt(1,k,24),32,32)),'Placing tiles…'];
+  if(g==='hearts')return [[wlCard('♥',R),wlCard('♥',R),wlCard('♠',K),wlCard('♥',R),wlCard('♥',R)],'Passing three cards…'];
+  if(g==='spades')return [[wlCard('♠',K),wlCard('♠',K),wlCard('♥',R),wlCard('♠',K),wlCard('♠',K)],'Counting bids…'];
+  if(g==='crowns')return [[wlCard('★','#e3b71f'),wlCard('♥',R),wlCard('♠',K),wlCard('♦',R),wlCard('♣',K)],'Shuffling the deck…'];
+  if(['uno','rage','skipbo','skyjo','phase10','rook'].includes(g))return [[wlNum(1,C[0]),wlNum(5,C[1]),wlNum(7,C[2]),wlNum(9,C[3]),g==='rook'?wlBack():wlNum(10,C[0])],'Shuffling the deck…'];
+  if(g==='tripoley')return [C.concat(['#2b2d31']).map(wlChip),'Stacking the chips…'];
+  if(g==='pool')return [[wlBall(1,'#e3b71f'),wlBall(2,'#2b62b8'),wlBall(8,'#2b2d31'),wlBall(11,'#c8372d',1),wlBall(14,'#2e8b4a',1)],'Racking the balls…'];
+  if(g==='darts')return [[1,2,3,4,5].map(wlBoard),'Chalking the board…'];
+  if(g==='gnome')return [[wlGolf(),wlGolf(),wlGolf(1),wlGolf(),wlGolf()],'Teeing up…'];
+  if(['hf','canasta','nerts','ohell','golf'].includes(g))return [[wlCard('♠',K),wlCard('♥',R),wlCard('♣',K),wlCard('♦',R),wlBack()],'Shuffling the deck…'];
+  return [[D(),D(),D(),D(),D()],'Shaking the dice…']}
+function waitLoader(msg){const [set,def]=wlPieces(S.game),dice=set.every(x=>x.includes('class="wdf"')),m=msg===undefined||msg==='*'?def:msg;
+  return `<div class="wloader${dice?' wdice':''}" role="status" aria-label="${esc(m||'Waiting')}">${set.map((x,i)=>`<span style="--i:${i}">${x}</span>`).join('')}</div>${m?`<p class="rlab" style="text-align:center;margin:2px 0 0">${esc(m)}</p>`:''}`}
+function lkWaitScreen(){return `<div class="bar"><h1>Linked game</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>Waiting for the host</h2><p>The host is still choosing the game and rules. Scoring opens here as soon as they start.</p>${waitLoader('*')}</div>`}
 function lkBar(){if(!S.lk||S.demo||['lkwho','home'].includes(S.screen))return '';const seat=lkSeated(),n=lkReadyN(),mine=lkMine(),me=S.lk.me&&act().find(p=>p.id===S.lk.me);
   const head=`<div class="lkbar${LKOPEN?' open':''}"><button class="lkb-main" data-a="lkopen" aria-expanded="${LKOPEN}"><span class="lkb-code">📱 <b class="num">${fmtCode(S.lk.code)}</b></span><span class="lkb-st">${S.lklock?'🔒 ':''}${S.finished?'Revealed':seat.length?`${n}/${seat.length} done`:'No phones joined yet'}${me?' · '+esc(nm(me)):lkHost()?' · Host':''}</span><span class="chev">${LKOPEN?'▴':'▾'}</span></button>
     ${me&&S.started&&!S.finished?`<button class="btn sm${lkOk(mine)?'':' primary'}" data-a="lkready" data-k="${lkOk(mine)?'0':'1'}">${lkOk(mine)?'Not done':'I’m done'}</button>`:''}</div>`;
@@ -2046,7 +2067,7 @@ function lobbyScreen(){
   <div class="sec"><div class="sec-h"><h3>Players</h3><span class="sub num">${n}/${P.length} ready</span></div><div class="panel">${P.map(p=>{const s=seatOf(p);
     return `<div class="seat" style="${pc(p.color)}"><i class="dot"></i><div class="seat-m"><b>${esc(nm(p))}${s.phone==='host'?' (you)':''}</b><small>${s.phone==='own'?'On their own phone':s.phone==='host'?'Host':'No phone · you score for them'}</small></div>${st(p)}
       ${s.phone!=='own'?`<button class="btn sm" data-a="lscore" data-k="${p.id}">${s.ready?'Edit':'Score'}</button>`:''}</div>`}).join('')}</div></div>
-  <p class="hint">Rules and setup are locked to what you picked as host. Each player taps “I'm done” when their scorecard is finished.</p>${allReady()?'':waitLoader('Waiting on the other phones…')}
+  <p class="hint">Rules and setup are locked to what you picked as host. Each player taps “I'm done” when their scorecard is finished.</p>${allReady()?'':waitLoader('*')}
   <div class="actions"><div class="in">${allReady()?`<button class="btn primary" data-a="lreveal">Reveal on every phone</button>`
     :lk.confirm?`<button class="btn" data-a="lcancel">Wait</button><button class="btn warn" data-a="lforce">Tap again to reveal now</button>`
     :`<button class="btn" data-a="lforce">Reveal anyway</button><button class="btn primary" disabled>Waiting for ${P.length-n} player${P.length-n===1?'':'s'}</button>`}</div></div>`;
@@ -8351,6 +8372,6 @@ render();
 
 <script type="module" src="fb-firebase.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='5a1d41';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='6adf2b';</script>
 </body>
 </html>
