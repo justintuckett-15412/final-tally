@@ -671,7 +671,7 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 /* Carcassonne reveal bars */
 .rv-bar.ctl,.rv-bar.cwl{background:none;overflow:visible;position:relative;border-radius:0}
 .rv-bar.ctl{height:44px}
-.rv-bar.trl i{height:28px}.rv-bar.trl .mkstrip{-webkit-mask-image:none;mask-image:none}.rv-bar.trl:has(.mkstrip){height:66px}.rv-bar.ctl.trl [data-bar]:has(image){height:31px}.rv-bar.ctl.trl:has(image){height:50px}.rv-bar.ctl.trl:has(.wypile){height:66px}.rv-bar.ctl.trl [data-bar]:has(.qkpile){height:30px}.rv-bar.ctl.trl [data-bar]:has(.qkpile) .cmk{right:-22px;bottom:3px}.rv-bar.ctl.trl [data-bar]:has(.wypile){height:48px}.rv-bar.ctl.trl [data-bar]:has(.wypile) .cmk{right:-12px;bottom:3px}.rv-bar.trl [data-bar]:has(.mkstrip){height:36px}.rv-bar.ctl.trl .cmk{right:-25px;bottom:4px;width:24px;height:24px}.rv-bar.trl{margin-right:26px}.rv-bar.cwl{height:52px}
+.rv-bar.trl i{height:28px}.rv-bar.trl .mkstrip{-webkit-mask-image:none;mask-image:none}.rv-bar.ctl.trl:has(.mkstrip){height:86px}.rv-bar.ctl.trl [data-bar]:has(.mkstrip){height:56px}.mkcrown{position:absolute;width:15px;height:auto;pointer-events:none}[data-bar].z .mkcrown{display:none}.rv-bar.ctl.trl [data-bar]:has(image){height:31px}.rv-bar.ctl.trl:has(image){height:50px}.rv-bar.ctl.trl:has(.wypile){height:66px}.rv-bar.ctl.trl [data-bar]:has(.qkpile){height:30px}.rv-bar.ctl.trl [data-bar]:has(.qkpile) .cmk{right:-22px;bottom:3px}.rv-bar.ctl.trl [data-bar]:has(.wypile){height:48px}.rv-bar.ctl.trl [data-bar]:has(.wypile) .cmk{right:-12px;bottom:3px}.rv-bar.trl [data-bar]:has(.mkstrip){height:56px}.rv-bar.ctl.trl .cmk{right:-25px;bottom:4px;width:24px;height:24px}.rv-bar.trl{margin-right:26px}.rv-bar.cwl{height:52px}
 .rv-bar.ctl i,.rv-bar.cwl i{position:absolute;left:0;bottom:0;background:none;border-radius:0;overflow:visible;transition:width .7s cubic-bezier(.2,.8,.2,1)}
 .rv-bar.ctl i{height:24px}.rv-bar.cwl i{height:36px}
 .cstrip{position:absolute;inset:0;overflow:hidden;display:block;text-decoration:none}.cstrip svg{position:absolute;left:0;bottom:0;display:block}
@@ -6810,11 +6810,16 @@ const trArt={
   quacks:(x,i,h)=>{const C=[['#f07c22','#fff'],['#2e8b4a','#fff'],['#2b62b8','#fff'],['#e3b71f','#26313b'],['#7b4ba9','#fff'],['#f2efe8','#26313b'],['#2b2d31','#fff']][h%7],n=1+(h>>>3)%4;
     return `<circle cx="${x+12}" cy="15" r="8.5" fill="${C[0]}" stroke="#26313b" stroke-width="1.4"/><circle cx="${x+12}" cy="15" r="6" fill="none" stroke="${C[1]}" stroke-opacity=".5" stroke-width="1"/><text x="${x+12}" y="18.6" text-anchor="middle" font-size="10" font-weight="700" font-family="system-ui,sans-serif" fill="${C[1]}">${n}</text>`}};
 const mkStepH=(t,N)=>Math.round(13+t*(23/(N-1)));
-function mkSteps(p){const N=mkGoal(),w=mkStepW();let o='';for(let t=0;t<N;t++){const x=t*w,h=mkStepH(t,N),top=t===N-1,y=36-h;
-    o+=`<rect x="${x+.7}" y="${y}" width="${w-1.4}" height="${h}" rx="1.5" fill="${top?'#f2c230':'#9a9183'}" stroke="#26313b" stroke-width="1.3"/><path d="M${x+2} ${y+2.5}h${w-4}" stroke="${top?'#fff3b0':'#c3bbae'}" stroke-width="1.2"/>`;
-    if(w>=20||t%2===1||top)o+=`<text x="${x+w/2}" y="${y+11}" text-anchor="middle" font-size="${w>=20?9:7}" font-weight="700" font-family="system-ui,sans-serif" fill="#26313b">${t+1}</text>`}
-  const lv=Math.max(1,Math.min(N,mkLv(p)));
-  return `<u class="cstrip mkstrip"><svg width="${N*w}" height="36" viewBox="0 0 ${N*w} 36" aria-hidden="true">${o}</svg></u><svg class="cmk" style="bottom:${mkStepH(lv-1,N)-1}px;right:${w>=20?2:-6}px" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg>`}
+/* Munchkin: a dungeon staircase, one stone step per level. Each step below the player holds a monster or treasure they got past; the winner wears the crown. */
+const MKSI=['door','slime','bat','goblin','potion','skull','sword','bat','chest'];
+function mkSteps(p){const N=mkGoal(),w=mkStepW(),HT=56,lv=Math.max(1,Math.min(N,mkLv(p))),isz=w>=20?17:11;let o='',it='';
+  for(let t=0;t<N;t++){const x=t*w,h=mkStepH(t,N),top=t===N-1,y=HT-h;
+    o+=`<rect x="${x+.6}" y="${y}" width="${w-1.2}" height="${h}" rx="1.5" fill="${top?'#f2c230':'#596273'}" stroke="#1d242c" stroke-width="1.3"/><path d="M${x+2} ${y+2.3}h${w-4}" stroke="${top?'#fff3b0':'#8790a0'}" stroke-width="1.2"/>`;
+    for(let yy=y+9,r=0;yy<HT-2;yy+=8,r++)o+=`<path d="M${x+1.5} ${yy}h${w-3}" stroke="${top?'#c9961a':'#454d5b'}" stroke-width=".8"/><path d="M${x+(r%2?w*.66:w*.33)} ${yy}v-8" stroke="${top?'#c9961a':'#454d5b'}" stroke-width=".8"/>`;
+    if(w>=20||t%2===1||top)o+=`<text x="${x+w/2}" y="${Math.min(HT-3,y+11)}" text-anchor="middle" font-size="${w>=20?9:7}" font-weight="700" font-family="system-ui,sans-serif" fill="${top?'#26313b':'#dfe4ea'}">${t+1}</text>`;
+    if(t<lv-1){const k=t===N-2?'chest':MKSI[t%MKSI.length];it+=`<image href="art/trail/mk-${k}.png" x="${x+(w-isz)/2}" y="${y-isz+1}" width="${isz}" height="${isz}"/>`}}
+  const mb=mkStepH(lv-1,N)-1,mr=w>=20?2:-6;
+  return `<u class="cstrip mkstrip"><svg width="${N*w}" height="${HT}" viewBox="0 0 ${N*w} ${HT}" aria-hidden="true">${o}${it}</svg></u><svg class="cmk" style="bottom:${mb}px;right:${mr}px" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg>${lv>=N?`<img class="mkcrown" src="art/trail/mk-crown.png" alt="" style="bottom:${mb+21}px;right:${mr+5}px">`:''}`}
 /* Wingspan: illustrated birds perched along a branch, with eggs between them */
 function wsArtStrip(p){const n=36,P=28,B=['blue','yellow','green','sky'];let h=hashOf(p),o=`<path d="M0 27.5h${n*P}" stroke="#7a4a26" stroke-width="3.2" stroke-linecap="round"/><path d="M0 26.6h${n*P}" stroke="#a8703e" stroke-width="1"/>`;
   for(let t=0;t<n;t++){h=(Math.imul(h,1103515245)+12345)>>>0;const x=t*P,r=(h>>>8)&1023;
