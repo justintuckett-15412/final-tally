@@ -4611,7 +4611,7 @@ function htDeal(r){const P=act(),n=P.length,X=HTX();let deck=[];for(const s of H
   const g={r,phase:dir==='hold'?'play':'pass',h,sel:{},got:{},t:[],turn:null,lead:null,n:0,broken:false,tk:{},last:null,kitty,out,dir,per};
   P.forEach(p=>g.tk[p.id]=[]);
   if(g.phase==='play')htStartPlay(g);else P.forEach(p=>{if(p.bot)g.sel[p.id]=htBotPass(g.h[p.id],p.bot)});
-  S.htg=g;HTSEL=[];HTVIEW=null}
+  g._atom=1;S.htg=g;HTSEL=[];HTVIEW=null}
 function htLowClub(g){let best=null;for(const pid in g.h)for(const c of g.h[pid])if(c[1]==='C'&&(!best||htRk(c)<htRk(best.c)))best={pid,c};return best}
 function htStartPlay(g){g.phase='play';const lc=htLowClub(g)||{pid:act()[0].id,c:null};g.lead=lc.c;g.turn=lc.pid;g.t=[]}
 function htSwap(g){const P=act(),nh={};P.forEach(p=>nh[p.id]=g.h[p.id].filter(c=>!(g.sel[p.id]||[]).includes(c)));
@@ -4689,7 +4689,7 @@ function htActive(){const g=htG();if(!g)return null;const P=act();
 const htNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(htHumans().length<2)return null;const a=htActive();return a&&HTVIEW!==a.id?a:null};
 
 /* ---------------- the table runs here (host phone, or this phone) ---------------- */
-function htTick(){if(S.game!=='hearts'||!htPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo&&!htG())return;if(!htRes())return;
+function htTick(){if(S.game!=='hearts'||!htPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo&&!htG())return;if(!htRes())return;if(lkqRun()){save();render();return}
   const g=htG();if(!g||g.r!==htCur()&&g.phase!=='done'){htDeal(htCur());save();render();return}
   if(g.phase==='pass'){if(act().every(p=>(g.sel[p.id]||[]).length===3)){htSwap(g);save();render()}return}
   if(g.phase==='moon'){if(g.ms){htEndHand(g);save();render()}return}
@@ -4744,10 +4744,10 @@ function htAct(a,b,k){const g=htG();
     if(g.phase!=='play'||g.turn!==V.id){toast(g.turn?`It’s ${nm(act().find(p=>p.id===g.turn))}’s turn.`:'Hang on…');return true}
     if(!htLegal(g,V.id).includes(c)){toast(g.t.length?'Follow suit: play a '+{C:'club',D:'diamond',S:'spade',H:'heart'}[g.t[0].c[1]]+' if you have one.':g.n===0&&g.lead?`The ${htName(g.lead)} leads the first trick.`:'Hearts aren’t broken yet.');return true}
     if(HTSEL[0]!==c){HTSEL=[c];return true}
-    HTSEL=[];htPlayCard(V.id,c);return true}
-  if(a==='htpass'){const V=htViewer();if(!g||!V||g.phase!=='pass'||HTSEL.length!==3)return true;g.sel[V.id]=HTSEL.slice();HTSEL=[];if(!S.lk)HTVIEW=null;return true}
+    HTSEL=[];lkq('htPlay',V.id,c);return true}
+  if(a==='htpass'){const V=htViewer();if(!g||!V||g.phase!=='pass'||HTSEL.length!==3)return true;lkq('htPass',V.id,HTSEL.slice());HTSEL=[];if(!S.lk)HTVIEW=null;return true}
   if(a==='htdeal'){if(!htRes())return true;S.hr=(htCur())+1;htDeal(S.hr);window.scrollTo(0,0);return true}
-  if(a==='htmsel'){if(!g||g.phase!=='moon')return true;g.ms=k;if(htRes())htEndHand(g);return true}
+  if(a==='htmsel'){if(!g||g.phase!=='moon')return true;lkq('htMoon',k);return true}
   return false}
 
 function htHistory(pid){const p=act().find(q=>q.id===pid);if(!p)return '';let run=0;
@@ -4885,7 +4885,7 @@ function sdDeal(r){const P=act(),n=P.length;let deck=[];for(const s of 'CDHS')fo
   const out=SDOUT[n]||[];deck=deck.filter(c=>!out.includes(c));htShuffle(deck);const per=Math.floor(deck.length/n),h={};
   P.forEach((p,i)=>h[p.id]=sdSort(deck.slice(i*per,(i+1)*per)));const dealer=P[r%n].id;
   const g={r,phase:'bid',dealer,h,bids:{},seen:{},bidTurn:sdNext(dealer),t:[],turn:null,n:0,broken:false,won:{},last:null,out,per};
-  P.forEach(p=>g.won[p.id]=0);S.sdg=g;SDSEL=null;SDVIEW=null}
+  P.forEach(p=>g.won[p.id]=0);g._atom=1;S.sdg=g;SDSEL=null;SDVIEW=null}
 const sdBidDone=g=>act().every(p=>g.bids[p.id]!==undefined);
 function sdBid(pid,v){const g=sdG();if(!g||g.phase!=='bid'||g.bidTurn!==pid)return false;g.bids[pid]=v;g.seen[pid]=1;
   if(sdBidDone(g)){g.phase='play';g.bidTurn=null;g.turn=SDX().lead2c?(sdLow2c(g)||sdNext(g.dealer)):sdNext(g.dealer);g.lead=SDX().lead2c?sdLowClub(g):null}else g.bidTurn=sdNext(pid);return true}
@@ -4946,7 +4946,7 @@ function sdActive(){const g=sdG();if(!g)return null;const id=g.phase==='bid'?g.b
 function sdViewer(){const g=sdG();if(!g)return null;if(S.lk&&!S.demo)return sdMe();const H=sdHumans();if(H.length===1)return H[0];if(!H.length)return null;const a=sdActive();return a&&SDVIEW===a.id?a:null}
 const sdNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(sdHumans().length<2)return null;const a=sdActive();return a&&SDVIEW!==a.id?a:null};
 
-function sdTick(){if(S.game!=='spades'||!sdPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!sdRes())return;
+function sdTick(){if(S.game!=='spades'||!sdPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!sdRes())return;if(lkqRun()){save();render();return}
   const g=sdG();if(!g||g.r!==sdCur()&&g.phase!=='done'){sdDeal(sdCur());save();render();return}
   if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot&&!SDBOTT)SDBOTT=setTimeout(()=>{SDBOTT=null;const g2=sdG();if(!g2||g2.phase!=='bid'||g2.bidTurn!==q.id)return;sdBid(q.id,sdBotBid(g2,q.id,q.bot));save();render()},700*htSpd());return}
   if(g.phase!=='play')return;
@@ -4991,12 +4991,12 @@ function sdModal(){const a=sdNeedHandoff();if(!a)return '';return `<div class="s
   <p class="rlab">${sdG().phase==='bid'?'Time to bid.':'It’s your turn to play a card.'} Everyone else, look away.</p><button class="btn primary wide" data-a="sdshow" data-k="${a.id}">I’m ${esc(nm(a))}, ${sdG().phase==='bid'&&SDX().nil&&SDX().blind&&!sdG().seen[a.id]?'I’m ready':'show my cards'}</button></div></div>`}
 function sdAct(a,b,k){const g=sdG();
   if(a==='sdshow'){SDVIEW=k;SDSEL=null;return}
-  if(a==='sdlook'){const V=sdViewer();if(g&&V)g.seen[V.id]=1;return}
-  if(a==='sdbid'){const V=sdViewer();if(!g||!V||g.phase!=='bid'||g.bidTurn!==V.id)return;const v=k==='nil'||k==='blind'?k:+k;if(v==='blind'&&g.seen[V.id])return;sdBid(V.id,v);return}
+  if(a==='sdlook'){const V=sdViewer();if(g&&V)lkq('sdLook',V.id);return}
+  if(a==='sdbid'){const V=sdViewer();if(!g||!V||g.phase!=='bid'||g.bidTurn!==V.id)return;const v=k==='nil'||k==='blind'?k:+k;if(v==='blind'&&g.seen[V.id])return;lkq('sdBid',V.id,v);return}
   if(a==='sdcard'){if(!g)return;const V=sdViewer();if(!V)return;const c=b.dataset.c;
     if(g.phase!=='play'||g.turn!==V.id){toast(g.phase==='bid'?'Bidding first.':g.turn?`It’s ${nm(act().find(p=>p.id===g.turn))}’s turn.`:'Hang on…');return}
     if(!sdLegal(g,V.id).includes(c)){toast(g.t.length?'Follow suit: play a '+{C:'club',D:'diamond',S:'spade',H:'heart'}[g.t[0].c[1]]+' if you have one.':g.n===0&&g.lead?`The ${htName(g.lead)} leads the first trick.`:'Spades aren’t broken yet.');return}
-    if(SDSEL!==c){SDSEL=c;return}SDSEL=null;sdPlayCard(V.id,c);return}
+    if(SDSEL!==c){SDSEL=c;return}SDSEL=null;lkq('sdPlay',V.id,c);return}
   if(a==='sddeal'){if(!sdRes())return;S.hr=sdCur()+1;sdDeal(S.hr);window.scrollTo(0,0)}}
 
 function sdHistory(pid){const p=act().find(q=>q.id===pid);if(!p)return '';const run=sdRun(p);
@@ -5110,7 +5110,7 @@ function rgDeal(r){const P=act(),n=rgCards(r);let deck=[];for(const s of 'roygbp
   const dealer=P[r%P.length].id,start=P.findIndex(p=>p.id===dealer)+1,h={};P.forEach((p,i)=>h[P[(start+i)%P.length].id]=deck.slice(i*n,(i+1)*n));
   const rest=deck.slice(n*P.length),ui=rest.findIndex(c=>!rgIsAct(c)),up=ui>=0?rest[ui]:null,tr=up?up[0]:null;for(const id in h)h[id]=rgSort(h[id],tr);
   const g={r,phase:'bid',dealer,h,tr,up,pile:ui>=0?rest.slice(ui+1):[],bids:{},bidTurn:rgNext(dealer),t:[],turn:null,n:0,won:{},bo:{},md:{},last:null,played:[],fore:rgFore(r)};
-  P.forEach(p=>{g.won[p.id]=0;g.bo[p.id]=0;g.md[p.id]=0});if(RGX().bidAll){g.bidTurn=null;P.forEach(p=>{if(p.bot)g.bids[p.id]=rgBotBid(g,p.id,p.bot)})}S.rgg=g;RGSEL=null;RGVIEW=null}
+  P.forEach(p=>{g.won[p.id]=0;g.bo[p.id]=0;g.md[p.id]=0});if(RGX().bidAll){g.bidTurn=null;P.forEach(p=>{if(p.bot)g.bids[p.id]=rgBotBid(g,p.id,p.bot)})}g._atom=1;S.rgg=g;RGSEL=null;RGVIEW=null}
 function rgFlip(g){const pile=g.pile||[];while(pile.length){const c=pile.shift();if(!rgIsAct(c)){g.tr=c[0];g.up=c;g.flip=true;g.pile=pile;return}}g.pile=pile;g.tr=null;g.up=null}
 function rgBid(pid,v){const g=rgG();if(!g||g.phase!=='bid')return false;v=+v;if(!(v>=0&&v<=rgCards(g.r)))return false;
   if(RGX().bidAll){if(g.bids[pid]!==undefined)return false;g.bids[pid]=v;return true}
@@ -5174,7 +5174,7 @@ function rgActive(){const g=rgG();if(!g)return null;if(g.phase==='bid'&&RGX().bi
 function rgViewer(){const g=rgG();if(!g)return null;if(S.lk&&!S.demo)return rgMe();const H=rgHumans();if(H.length===1)return H[0];if(!H.length)return null;const a=rgActive();return a&&RGVIEW===a.id?a:null}
 const rgNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(rgHumans().length<2)return null;const a=rgActive();return a&&RGVIEW!==a.id?a:null};
 
-function rgTick(){if(S.game!=='rage'||!rgPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!rgRes())return;
+function rgTick(){if(S.game!=='rage'||!rgPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!rgRes())return;if(lkqRun()){save();render();return}
   const g=rgG();if(!g||g.r!==rgCur()&&g.phase!=='done'){rgDeal(rgCur());save();render();return}
   const later=(ms,f)=>{if(!RGBOTT)RGBOTT=setTimeout(()=>{RGBOTT=null;f();save();render()},ms*htSpd())};
   if(g.phase==='bid'&&RGX().bidAll){if(act().every(p=>g.bids[p.id]!==undefined))cdRun(g,x=>{x.turn=rgNext(x.dealer)});return}
@@ -5227,15 +5227,15 @@ function rgModal(){const a=rgNeedHandoff();if(!a)return '';const g=rgG();return 
 function rgAct(a,b,k){const g=rgG();
   if(a==='rgrage'){const V=rgViewer()||rgMe();if(!V)return;if(Date.now()<RGRCOOL){toast('Catch your breath first.');return}RGRCOOL=Date.now()+4000;rgRage(V.id);rgEdge();vibe([40,40,70]);return}
   if(a==='rgshow'){RGVIEW=k;RGSEL=null;return}
-  if(a==='rgbid'){const V=rgViewer();if(g&&V&&!rgBid(V.id,+k))toast('You can’t bid that.');return}
-  if(a==='rgfore'){const V=rgViewer();if(!g||!V||g.turn!==V.id)return;const c=g.h[V.id][0];if(!c)return;const col=c[0]==='W'?(g.tr||rgLed(g.t)||'r'):c[0]==='C'?rgBestCol(g.h[V.id]):null;rgPlayCard(V.id,c,col,16);return}
-  if(a==='rgcolor'){const V=rgViewer();if(!g||!V||!RGSEL)return;if(RGSEL[0]==='W'&&RGX().wildNum){RGWC=k||null;return}const c=RGSEL;RGSEL=null;RGWC=null;rgPlayCard(V.id,c,k);return}
-  if(a==='rgnum'){const V=rgViewer();if(!g||!V||!RGSEL||!RGWC)return;const c=RGSEL,col=RGWC;RGSEL=null;RGWC=null;rgPlayCard(V.id,c,col,+k);return}
+  if(a==='rgbid'){const V=rgViewer();if(g&&V&&!lkq('rgBid',V.id,+k))toast('You can’t bid that.');return}
+  if(a==='rgfore'){const V=rgViewer();if(!g||!V||g.turn!==V.id)return;const c=g.h[V.id][0];if(!c)return;const col=c[0]==='W'?(g.tr||rgLed(g.t)||'r'):c[0]==='C'?rgBestCol(g.h[V.id]):null;lkq('rgPlay',V.id,c,col,16);return}
+  if(a==='rgcolor'){const V=rgViewer();if(!g||!V||!RGSEL)return;if(RGSEL[0]==='W'&&RGX().wildNum){RGWC=k||null;return}const c=RGSEL;RGSEL=null;RGWC=null;lkq('rgPlay',V.id,c,k);return}
+  if(a==='rgnum'){const V=rgViewer();if(!g||!V||!RGSEL||!RGWC)return;const c=RGSEL,col=RGWC;RGSEL=null;RGWC=null;lkq('rgPlay',V.id,c,col,+k);return}
   if(a==='rgcard'){if(!g)return;const V=rgViewer();if(!V)return;const c=b.dataset.c;
     if(g.phase!=='play'||g.turn!==V.id){toast(g.phase==='bid'?'Bidding first.':g.turn?`It’s ${nm(act().find(p=>p.id===g.turn))}’s turn.`:'Hang on…');return}
     if(!rgLegal(g,V.id).includes(c)){const led=rgLed(g.t);toast(led?`Follow ${RGC[led][0].toLowerCase()} if you can.${RGX().rageAny?'':' Rage cards are for when you can’t.'}`:'You can’t play that.');return}
     if(c[0]==='W'||c[0]==='C'&&!RGX().changeFlip){if(RGSEL!==c)RGWC=null;RGSEL=c;return}
-    if(RGSEL!==c){RGSEL=c;return}RGSEL=null;rgPlayCard(V.id,c);return}
+    if(RGSEL!==c){RGSEL=c;return}RGSEL=null;lkq('rgPlay',V.id,c);return}
   if(a==='rgdeal'){if(!rgRes())return;S.hr=rgCur()+1;rgDeal(S.hr);window.scrollTo(0,0)}}
 
 function rgSetup(){const X=RGX();
@@ -6275,7 +6275,7 @@ function rkSort(h,tr){const o='RGYB'.split('').filter(s=>s!==tr).concat(tr?[tr]:
 function rkDeal(r){const P=act(),X=RKX();let deck=['X'];for(const s of 'RGYB'){for(let n=5;n<=14;n++)deck.push(s+n);if(X.ones)deck.push(s+'1')}htShuffle(deck);
   const per=Math.floor((deck.length-5)/P.length),h={},dealer=P[r%P.length].id;P.forEach((p,i)=>h[p.id]=rkSort(deck.slice(i*per,(i+1)*per)));
   const g={r,phase:'bid',dealer,h,nest:deck.slice(per*P.length),bids:{},high:null,bidTurn:X.bidFirst==='left'?rkNext(dealer):dealer,bidder:null,trump:null,disc:[],t:[],turn:null,n:0,won:{},last:null,played:[],per};
-  P.forEach(p=>g.won[p.id]=[]);S.rkg=g;RKSEL=[];RKVIEW=null}
+  P.forEach(p=>g.won[p.id]=[]);g._atom=1;S.rkg=g;RKSEL=[];RKVIEW=null}
 const rkMinBid=g=>g.high?g.high.v+5:RKX().min;
 function rkBid(pid,v){const g=rkG();if(!g||g.phase!=='bid'||g.bidTurn!==pid)return false;const all=rkAll();
   if(v!=='pass'){v=+v;if(v<rkMinBid(g)||v>all||v%5)return false;g.high={p:pid,v};g.bids[pid]=v}else g.bids[pid]='pass';
@@ -6335,7 +6335,7 @@ function rkActive(){const g=rkG();if(!g)return null;const id=g.phase==='bid'?g.b
 function rkViewer(){const g=rkG();if(!g)return null;if(S.lk&&!S.demo)return rkMe();const H=rkHumans();if(H.length===1)return H[0];if(!H.length)return null;const a=rkActive();return a&&RKVIEW===a.id?a:null}
 const rkNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(rkHumans().length<2)return null;const a=rkActive();return a&&RKVIEW!==a.id?a:null};
 
-function rkTick(){if(S.game!=='rook'||!rkPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!rkRes())return;
+function rkTick(){if(S.game!=='rook'||!rkPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!rkRes())return;if(lkqRun()){save();render();return}
   const g=rkG();if(!g||g.r!==rkCur()&&g.phase!=='done'){rkDeal(rkCur());save();render();return}
   const later=(ms,f)=>{if(!RKBOTT)RKBOTT=setTimeout(()=>{RKBOTT=null;f();save();render()},ms*htSpd())};
   if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot)later(800,()=>{const g2=rkG();if(g2&&g2.phase==='bid'&&g2.bidTurn===q.id)rkBid(q.id,rkBotBid(g2,q.id,q.bot))});return}
@@ -6382,14 +6382,14 @@ function rkModal(){const a=rkNeedHandoff();if(!a)return '';const g=rkG();return 
   <p class="rlab">${g.phase==='bid'?'Time to bid.':g.phase==='nest'?'You won the bid: time for the nest.':'It’s your turn to play a card.'} Everyone else, look away.</p><button class="btn primary wide" data-a="rkshow" data-k="${a.id}">I’m ${esc(nm(a))}, show my cards</button></div></div>`}
 function rkAct(a,b,k){const g=rkG();
   if(a==='rkshow'){RKVIEW=k;RKSEL=[];RKTR=null;return}
-  if(a==='rkbid'){const V=rkViewer();if(g&&V&&!rkBid(V.id,k==='pass'?'pass':+k))toast('You can’t bid that.');return}
+  if(a==='rkbid'){const V=rkViewer();if(g&&V&&!lkq('rkBid',V.id,k==='pass'?'pass':+k))toast('You can’t bid that.');return}
   if(a==='rktrump'){RKTR=k;return}
-  if(a==='rknest'){const V=rkViewer();if(g&&V&&rkSetNest(V.id,RKSEL,RKTR)){RKSEL=[];RKTR=null}return}
+  if(a==='rknest'){const V=rkViewer();if(g&&V&&lkq('rkNest',V.id,RKSEL.slice(),RKTR)){RKSEL=[];RKTR=null}return}
   if(a==='rkcard'){if(!g)return;const V=rkViewer();if(!V)return;const c=b.dataset.c;
     if(g.phase==='nest'&&g.bidder===V.id){if(RKSEL.includes(c))RKSEL=RKSEL.filter(x=>x!==c);else if(!rkLayable(g.h[V.id]).includes(c))toast('House rule: counters can’t be laid aside.');else if(RKSEL.length<5)RKSEL=RKSEL.concat([c]);else toast('Pick 5. Tap one to put it back.');return}
     if(g.phase!=='play'||g.turn!==V.id){toast(g.phase==='bid'?'Bidding first.':g.phase==='nest'?'Waiting for the nest.':g.turn?`It’s ${nm(act().find(p=>p.id===g.turn))}’s turn.`:'Hang on…');return}
     if(!rkLegal(g,V.id).includes(c)){toast(RKX().rookAny?'Follow the color led if you can (or play the Rook).':'Follow the color led if you can.');return}
-    if(RKSEL[0]!==c){RKSEL=[c];return}RKSEL=[];rkPlayCard(V.id,c);return}
+    if(RKSEL[0]!==c){RKSEL=[c];return}RKSEL=[];lkq('rkPlay',V.id,c);return}
   if(a==='rkdeal'){if(!rkRes())return;S.hr=rkCur()+1;rkDeal(S.hr);window.scrollTo(0,0)}}
 
 function rkRows(p){const rows=[];let tot=0;const i=rkTeam(p);for(let r=0;r<rkN();r++){const H=(S.rk||[])[r];if(!rkHas(H))continue;const v=rkPts(p,r);tot+=v;rows.push({r,v,tot,bid:H.bt===i,amt:H.bid,took:H.bt===i?H.took:rkAll()-H.took,made:rkMade(H)})}return rows}
@@ -7570,7 +7570,7 @@ function ohDeal(r){const P=act(),n=ohCards(r);let deck=[];for(const s of 'CDHS')
   const rest=deck.slice(n*P.length),up=rest.length?rest[0]:null,tr=up?up[1]:'N';for(const id in h)h[id]=ohSortT(h[id],tr);
   const g={r,phase:'bid',dealer,h,up,tr,bids:{},bidTurn:OHX().hook?ohNext(dealer):null,t:[],turn:null,n:0,won:{},last:null,played:[]};P.forEach(p=>g.won[p.id]=0);
   if(!OHX().hook)P.forEach(p=>{if(p.bot)g.bids[p.id]=ohBotBid(g,p.id,p.bot)});
-  S.ohg=g;S.ohtr=S.ohtr||[];S.ohtr[r]=tr.toLowerCase();OHSEL=null;OHVIEW=null}
+  g._atom=1;S.ohg=g;S.ohtr=S.ohtr||[];S.ohtr[r]=tr.toLowerCase();OHSEL=null;OHVIEW=null}
 /* the hook rule: the dealer bids last and can't make the bids add up to the cards dealt */
 const ohBanned=(g,pid)=>{if(!OHX().hook||pid!==g.dealer)return null;const s=Object.values(g.bids).reduce((a,b)=>a+b,0),v=ohCards(g.r)-s;return v>=0?v:null};
 function ohBid(pid,v){const g=ohG();if(!g||g.phase!=='bid'||g.bids[pid]!==undefined)return false;if(OHX().hook&&g.bidTurn!==pid)return false;if(ohBanned(g,pid)===v)return false;
@@ -7615,7 +7615,7 @@ function ohActive(){const g=ohG();if(!g)return null;const P=act();
 function ohViewer(){const g=ohG();if(!g)return null;if(S.lk&&!S.demo)return ohMe();const H=ohHumans();if(H.length===1)return H[0];if(!H.length)return null;const a=ohActive();return a&&OHVIEW===a.id?a:null}
 const ohNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(ohHumans().length<2)return null;const a=ohActive();return a&&OHVIEW!==a.id?a:null};
 
-function ohTick(){if(S.game!=='ohell'||!ohPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!ohRes())return;
+function ohTick(){if(S.game!=='ohell'||!ohPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!ohRes())return;if(lkqRun()){save();render();return}
   const g=ohG();if(!g||g.r!==ohCur()&&g.phase!=='done'){ohDeal(ohCur());save();render();return}
   if(g.phase==='bid'&&act().every(p=>g.bids[p.id]!==undefined)){if(OHX().hook){g.phase='play';g.bidTurn=null;g.turn=ohNext(g.dealer);save();render()}else cdRun(g,x=>{x.turn=ohNext(x.dealer)});return}
   if(g.phase==='bid'){if(OHX().hook){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot&&!OHBOTT)OHBOTT=setTimeout(()=>{OHBOTT=null;const g2=ohG();if(!g2||g2.phase!=='bid'||g2.bidTurn!==q.id)return;ohBid(q.id,ohBotBid(g2,q.id,q.bot));save();render()},700*htSpd())}return}
@@ -7657,11 +7657,11 @@ function ohModal(){const a=ohNeedHandoff();if(!a)return '';return `<div class="s
   <p class="rlab">${ohG().phase==='bid'?'Time to bid.':'It’s your turn to play a card.'} Everyone else, look away.</p><button class="btn primary wide" data-a="ohshow" data-k="${a.id}">I’m ${esc(nm(a))}, show my cards</button></div></div>`}
 function ohAct(a,b,k){const g=ohG();
   if(a==='ohshow'){OHVIEW=k;OHSEL=null;return}
-  if(a==='ohbid'){const V=ohViewer();if(!g||!V)return;if(!ohBid(V.id,+k))toast('You can’t bid that.');return}
+  if(a==='ohbid'){const V=ohViewer();if(!g||!V)return;if(!lkq('ohBid',V.id,+k))toast('You can’t bid that.');return}
   if(a==='ohcard'){if(!g)return;const V=ohViewer();if(!V)return;const c=b.dataset.c;
     if(g.phase!=='play'||g.turn!==V.id){toast(g.phase==='bid'?'Bidding first.':g.turn?`It’s ${nm(act().find(p=>p.id===g.turn))}’s turn.`:'Hang on…');return}
     if(!ohLegal(g,V.id).includes(c)){toast('Follow suit: play a '+{C:'club',D:'diamond',S:'spade',H:'heart'}[g.t[0].c[1]]+' if you have one.');return}
-    if(OHSEL!==c){OHSEL=c;return}OHSEL=null;ohPlayCard(V.id,c);return}
+    if(OHSEL!==c){OHSEL=c;return}OHSEL=null;lkq('ohPlay',V.id,c);return}
   if(a==='ohdeal'){if(!ohRes())return;S.hr=ohCur()+1;ohDeal(S.hr);window.scrollTo(0,0)}}
 
 function ohRows(p){const rows=[];let tot=0;for(let r=0;r<ohN();r++){const c=ohCalc(p,r);if(!c)continue;tot+=c.v;rows.push({r,c,v:c.v,tot})}return rows}
@@ -8138,7 +8138,7 @@ function unModal(){const a=unNeedHandoff();if(!a)return '';const g=ung();return 
    The guest tries the move on a throwaway copy first, so it can say right away if the move isn't allowed. */
 let LKQN=0;
 const lkqOn=()=>lkGuest()&&!S.demo;
-const lkqKey=()=>{const g=S.game==='uno'?S.ung:S.gpg;return S.game+':'+(g?g.r:'-')};
+const lkqKey=()=>{const g={uno:S.ung,golf:S.gpg,skyjo:S.gpg,hearts:S.htg,spades:S.sdg,ohell:S.ohg,rook:S.rkg,rage:S.rgg}[S.game];return S.game+':'+(g?g.r:'-')};
 const LKQF={
   unPlay:(pid,c,o)=>{const g=ung();if(!g)return false;if((g.h[pid]||[]).length===2&&!unCallOn())g.uno[pid]=1;const r=unPlayCard(pid,c,o);unAfter(g);return r},
   unDraw:pid=>{const g=ung();if(!g)return false;const r=unDrawAct(g,pid);unAfter(g);return r},
@@ -8157,7 +8157,20 @@ const LKQF={
   gpFlipOne:(pid,i)=>{const g=gpG();return !!g&&gpFlipOne(g,pid,i)},
   gpPlace:(pid,i)=>{const g=gpG();return !!g&&gpPlace(g,pid,i)},
   gpTake:(pid,f)=>{const g=gpG();return !!g&&gpTake(g,pid,f)},
-  gpToss:pid=>{const g=gpG();return !!g&&gpToss(g,pid)}};
+  gpToss:pid=>{const g=gpG();return !!g&&gpToss(g,pid)},
+  htPlay:(pid,c)=>htPlayCard(pid,c)!==false,
+  htPass:(pid,cs)=>{const g=htG();if(!g||g.phase!=='pass'||g.sel[pid]||!Array.isArray(cs)||cs.length!==3||!cs.every(c=>(g.h[pid]||[]).includes(c)))return false;g.sel[pid]=cs.slice();return true},
+  htMoon:k=>{const g=htG();if(!g||g.phase!=='moon')return false;g.ms=k;if(htRes())htEndHand(g);return true},
+  sdLook:pid=>{const g=sdG();if(!g)return false;g.seen[pid]=1;return true},
+  sdBid:(pid,v)=>sdBid(pid,v)!==false,
+  sdPlay:(pid,c)=>sdPlayCard(pid,c)!==false,
+  ohBid:(pid,v)=>ohBid(pid,v)!==false,
+  ohPlay:(pid,c)=>ohPlayCard(pid,c)!==false,
+  rkBid:(pid,v)=>rkBid(pid,v)!==false,
+  rkNest:(pid,cs,tr)=>rkSetNest(pid,cs,tr)!==false,
+  rkPlay:(pid,c)=>rkPlayCard(pid,c)!==false,
+  rgBid:(pid,v)=>rgBid(pid,v)!==false,
+  rgPlay:(pid,c,col,num)=>rgPlayCard(pid,c,col,num)!==false};
 function lkq(fn,...args){if(!lkqOn())return LKQF[fn](...args);const snap=JSON.stringify(S);let r;try{r=LKQF[fn](...args)}catch(e){r=false}S=JSON.parse(snap);
   if(r===true){const me=S.lk.me;if(!me)return r;const q=(S.lkq=S.lkq||{}),done=(S.lkqa||{})[me]||0,mine=(q[me]||[]).filter(e=>e.id>done);mine.push({id:Date.now()*1000+(LKQN++%1000),k:lkqKey(),f:fn,a:args});q[me]=mine}
   return r}
@@ -9916,6 +9929,7 @@ document.addEventListener('click',e=>{
   if(BIDACTS.includes(a)){const key=a+'|'+k;if(BIDSEL!==key){BIDSEL=key;render();return}BIDSEL=null}else if(a!=='cardplay')BIDSEL=null;
   if(/^(ht|sd|oh|rk|rg)card$/.test(a)&&cardDrag()&&!DRAGPLAY&&b.classList.contains('ok')&&curSel()===b.dataset.c){toast('Drag it onto the table to play it.');return}
   if(a==='cardplay'){SET.cardPlay=SET.cardPlay==='drag'?'tap':'drag';saveSet();toast(SET.cardPlay==='drag'?'Drag cards onto the table to play them.':'Tap a card, then tap it again to play it.');render();return}
+  if(lkqWaiting()&&/^(unp(card|draw|keep|col|chal|swap|roul|aim|row|end)|gp(cell|deck|disc)|ht(card|pass|msel)|sd(card|bid|look)|oh(card|bid)|rk(card|bid|nest)|rg(card|bid|color|num|fore))$/.test(a))return;
   if(/^ht(card|pass|deal|msel|show)$/.test(a)&&S.game==='hearts'){htAct(a,b,k);render();return}
   if(/^sd(card|bid|deal|show|look)$/.test(a)&&S.game==='spades'){sdAct(a,b,k);render();return}
   if(/^oh(card|bid|deal|show)$/.test(a)&&S.game==='ohell'&&ohPlayOn()&&S.started){ohAct(a,b,k);render();return}
@@ -10610,6 +10624,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='887bf8';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='5e3702';</script>
 </body>
 </html>
