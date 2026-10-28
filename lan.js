@@ -43,7 +43,7 @@ const b64u={enc:u8=>{let s='';for(let i=0;i<u8.length;i+=0x8000)s+=String.fromCh
   dec:t=>{const s=atob(t.replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(s,c=>c.charCodeAt(0))}};
 async function squeeze(u8,dir){const cs=dir?new CompressionStream('deflate-raw'):new DecompressionStream('deflate-raw');const w=cs.writable.getWriter();w.write(u8);w.close();return new Uint8Array(await new Response(cs.readable).arrayBuffer())}
 /* keep only the SDP lines a data channel needs, so the QR stays small and easy to scan */
-const slim=sdp=>sdp.split(/\r?\n/).filter(l=>l&&!/^a=(extmap|rtcp|ssrc|msid)/.test(l)).join('\n');
+const slim=sdp=>sdp.split(/\r?\n/).filter(l=>l&&!/^a=(extmap|rtcp|ssrc|msid|ice-options)/.test(l)&&!/tcptype|typ (srflx|relay)/.test(l)).join('\n');
 async function pack(desc,tag){const j=JSON.stringify({t:desc.type[0],s:slim(desc.sdp),g:tag||''});
   try{return 'FT1'+b64u.enc(await squeeze(new TextEncoder().encode(j),true))}catch(e){return 'FT0'+b64u.enc(new TextEncoder().encode(j))}}
 async function unpack(text){text=String(text||'').trim();const m=/(FT[01])([A-Za-z0-9_-]+)/.exec(text);if(!m)throw new Error('That isn’t a Final Tally code.');

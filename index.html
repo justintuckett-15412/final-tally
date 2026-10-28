@@ -560,6 +560,7 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .ctatkl{list-style:none;padding:0;margin:10px 0;display:grid;gap:4px}.ctatkl li{display:flex;justify-content:space-between;padding:6px 10px;border-left:5px solid var(--pc);background:var(--soft);border-radius:8px}
 .ctscen{display:grid;grid-template-columns:1fr 1fr;gap:6px}.ctscen button{min-height:44px;padding:6px 8px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-weight:700;font-size:14.5px;display:grid;line-height:1.2}.ctscen button small{font-weight:500;color:var(--muted);font-size:12px}.ctscen button[aria-pressed=true]{background:#1b1f24;color:#fff;border-color:#1b1f24}.ctscen button[aria-pressed=true] small{color:#d6d9de}
 .ctbadges{flex-wrap:wrap}.ctbadges button{flex:1 1 45%}
+.appver{text-align:center;margin:18px 0 8px}.appver .link-btn{font-size:inherit}
 .lanlink{display:block;margin:8px auto 0;text-align:center}.lansheet .lanqr{display:block;width:min(78vw,340px);height:auto;margin:10px auto;border-radius:10px;border:1px solid var(--line);background:#fff}
 #lancam{position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.92);display:grid;place-items:center;padding:16px}.lancam-in{width:min(100%,460px);display:grid;gap:10px;color:#fff;text-align:center;position:relative}
 #lancam video{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:14px;background:#111}.lancam-box{position:absolute;left:15%;right:15%;top:22%;aspect-ratio:1;border:3px solid #f2c230;border-radius:14px;pointer-events:none}#lancam .rlab{color:#ddd}
@@ -1311,8 +1312,17 @@ function home(){
   <div class="sec hbk"><div class="prow"><button class="btn" style="flex:1" data-a="backup">💾 Back up everything</button><label class="btn" style="flex:1">Restore a backup<input type="file" accept=".json,application/json" id="restore-in" hidden></label></div>
     <p class="hint">${BKMSG?esc(BKMSG)+' ':''}${(()=>{const l=bkLast();if(!l)return 'No backup yet. Save one to your phone or computer now and then.';const d=Math.floor((Date.now()-new Date(l))/864e5);return `Last backup: ${d<1?'today':d===1?'yesterday':d+' days ago'}.`})()}</p></div>
   <button class="btn wide stats-btn samples-btn" data-a="go" data-s="samples">Sample games <span class="pill">${DEMOS.length+CDEMOS.length+HDEMOS.length+CADEMOS.length+NDEMOS.length+PDEMOS.length+DDEMOS.length+PLDEMOS.length+HTDEMOS.length+SDDEMOS.length+RGDEMOS.length+OHDEMOS.length+UNDEMOS.length+MKDEMOS.length+FCDEMOS.length+SBDEMOS.length+GNDEMOS.length+SKDEMOS.length+WSDEMOS.length+WYDEMOS.length+PTDEMOS.length+RKDEMOS.length+YZDEMOS.length+MTDEMOS.length+CTDEMOS.length+GFDEMOS.length+TPDEMOS.length+QKDEMOS.length+1}</span></button>
-  <div class="soon"><img src="art/more-games.png" alt="" width="900" height="494"><p>More games will be added here.</p></div>`;
+  <div class="soon"><img src="art/more-games.png" alt="" width="900" height="494"><p>More games will be added here.</p></div>
+  <p class="hint appver">Version ${esc(window.FT_BUILD||'dev')} · <button class="link-btn" data-a="appupdate" ${UPDBUSY?'disabled':''}>${UPDBUSY?esc(UPDBUSY):'Check for updates'}</button></p>`;
 }
+/* manual update check: ask the browser to fetch the newest version now, then restart into it */
+let UPDBUSY='';
+async function appUpdate(){if(!('serviceWorker' in navigator)){location.reload();return}UPDBUSY='Checking\u2026';render();
+  try{const r=await navigator.serviceWorker.getRegistration();if(!r){location.reload();return}await r.update();const nw=r.installing||r.waiting;
+    if(!nw){UPDBUSY='';toast('You have the newest version.');render();return}
+    UPDBUSY='Downloading the update\u2026';render();window.FT_UPD=1;
+    const done=()=>{if(nw.state==='activated'){location.reload();return true}return false};if(!done())nw.addEventListener('statechange',()=>{if(nw.state==='redundant'){UPDBUSY='';toast('The update didn\u2019t finish. Try again in a moment.');render()}done()})}
+  catch(e){UPDBUSY='';toast(navigator.onLine?'Couldn\u2019t check for updates right now.':'You\u2019re offline. Connect to check for updates.');render()}}
 function mapScreen(){
   const groups=GROUPS.map(([t,g])=>`<div class="sec"><div class="sec-h"><h3>${t}</h3></div><div class="maps">${Object.entries(g).map(([k,x])=>`<button class="mapc" data-a="map" data-k="${k}" aria-pressed="${S.map===k}"><b>${x.name}</b><span>${x.meta}</span></button>`).join('')}</div></div>`).join('');
   return `<div class="bar"><h1>Ticket to Ride</h1></div>
@@ -1774,7 +1784,7 @@ function settingsScreen(){
     <div class="prow"><div class="rtext"><b>Color-blind labels</b><div class="rlab">Shifts player colors to a color-blind-safe set (red becomes red-orange, green becomes teal-green, purple becomes pink-purple) and adds a short tag (Rd, Bl, Gn, Yl, Bk, Wh, Pu) next to each one. Only changes this device.</div></div>${sw('setcb','',!!SET.cb,'Color-blind labels')}</div>
     <div class="prow"><div class="rtext"><b>Large buttons</b><div class="rlab">Bigger buttons and numbers, handy for younger players.</div></div>${sw('setbig','',!!SET.big,'Large buttons')}</div>
     <div class="prow"><div class="rtext"><b>Walkthrough</b><div class="rlab">${SET.toursOff?'Walkthroughs are turned off.':'A short guided tour the first time you open each screen.'}</div></div><button class="btn sm" data-a="tourreset">Show it again</button></div></div></div>
-  <p class="hint">These settings apply to this device only.${window.FT_BUILD?` App version ${esc(window.FT_BUILD)}.`:''}</p>`;
+  <p class="hint">These settings apply to this device only.${window.FT_BUILD?` App version ${esc(window.FT_BUILD)}.`:''} <button class="link-btn" data-a="appupdate">Check for updates</button></p>`;
 }
 
 /* ---------- player dashboards: the numbers each player cares about, at a glance ----------
@@ -1891,7 +1901,7 @@ window.lkRecv=function(u){if(!S.lk)return;
     if(ch){lkItemsTo(S,res);changed=true}}
   if(Array.isArray(u.order)&&stable(u.order)!==stable(LKLAST.order)){LKLAST.order=u.order;changed=true}
   const keepP={};if(u.ps)for(const id in u.ps)if(u.ps[id]&&LKLAST.ps[id]!==u.ps[id]){if(cur.ps[id]&&cur.ps[id]!==LKLAST.ps[id])keepP[id]=cur.ps[id];LKLAST.ps[id]=u.ps[id];changed=true}
-  if(changed&&LKLAST.order){const old=S.players;S.players=LKLAST.order.map(id=>keepP[id]?JSON.parse(keepP[id]):LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):old.find(p=>p.id===id)).filter(Boolean)}
+  if(changed&&LKLAST.order){const old=S.players,unsent=id=>cur&&cur.ps[id]&&!(u.ps&&id in u.ps)&&cur.ps[id]!==LKLAST.ps[id];S.players=LKLAST.order.map(id=>keepP[id]?JSON.parse(keepP[id]):unsent(id)?JSON.parse(cur.ps[id]):LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):old.find(p=>p.id===id)).filter(Boolean)}
   if(changed){lkTouch();UNDO.length=0;if(!S.finished&&S.screen==='reveal'){S.screen=lkScreen();REV=null}LKMUTE=true;save();LKMUTE=false}
   if(u.rv!==undefined&&u.rv!==LKRV){LKRV=u.rv;if(u.rv&&S.lk.rv!==u.rv){S.lk.rv=u.rv;vibe([30,40,30]);LKMUTE=true;startReveal();save();LKMUTE=false;render();return}}
   if(lkHost()&&!LKRV&&!S.finished&&S.started){const seat=lkSeated();if(seat.length&&seat.every(([,s])=>lkOk(s))){window.FTLINK.reveal();toast('Everyone is done. Revealing on every phone!')}}
@@ -1913,6 +1923,7 @@ async function lkJoin(code){if(!window.FTLINK)return;const c=String(code||'').re
     const ps={};(g.players||[]).forEach(d=>ps[d.id]=d.j);
     const n={...lkUnflat(g.mflat||{}),players:(g.order||[]).map(id=>ps[id]?JSON.parse(ps[id]):null).filter(Boolean)};lkItemsTo(n,g.items||{});
     n.lk={code:c,role:'guest',me:undefined,at:Date.now()};n.screen='lkwho';n.active=0;
+    {const mine=window.FTLINK.dev(),seat=Object.entries(g.seats||{}).find(([id,x])=>x&&x.dev===mine&&(g.order||[]).includes(id));if(seat){n.lk.me=seat[0];n.lk.claimed=true}}
     S=n;LKUI='';LKLAST={m:g.mflat||{},order:g.order,ps,items:{...(g.items||{})}};LKSEATS=g.seats||{};LKRD=g.rd||0;LKRV=g.rv||null;S.lk.rv=LKRV;
     try{localStorage.setItem(KEY+'.lkon','1')}catch(e){}LKMUTE=true;save();LKMUTE=false;LKCODE='';lkGo();window.scrollTo(0,0)}
   catch(e){LKMSG=(e&&e.message)||'Couldn’t join. Check the code and your internet connection.'}LKBUSY=false;render()}
@@ -2008,7 +2019,7 @@ function lkHomeCard(){if(!window.FTLINK&&!window.FTLAN)return '';
 window.lkBoot=function(){if(lanBootCheck()){render();return}if(S.lk&&S.lk.lan){render();return}if(S.lk&&window.FTLINK&&!lkIdleCheck()){LKLAST=(()=>{const x=lkSplit();return {m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}}})();window.FTLINK.resume(S.lk.code,S.lk.role)}render()};
 
 /* ---------- offline linked games: phones on the host's hotspot, paired by scanning QR codes (window.FTLAN comes from lan.js) ---------- */
-let LANUI=null,LANSTOP=null,LANLOST=false;const LANREADY=false;
+let LANUI=null,LANSTOP=null,LANLOST=false;const LANREADY=true;
 const lanOn=()=>!!(S.lk&&S.lk.lan);
 const lanN=()=>{const h=window.FTLAN&&FTLAN.hub;return h&&h.role==='host'?h.count():0};
 function lanCam(show,title){let el=document.getElementById('lancam');
@@ -8896,6 +8907,7 @@ document.addEventListener('click',e=>{
     case 'lkleave':if(S.lk&&S.lk.me)window.FTLINK.seat(S.lk.me,null);lkClear('You left the linked game.');return;
     case 'lkback':lkGo();if(S.screen==='home')S.screen=lkScreen();window.scrollTo(0,0);break;
     case 'lkjoin':{const v=(document.getElementById('lk-code')||{}).value||'';LKCODE=v.replace(/\D/g,'');lkJoin(v);return}
+    case 'appupdate':appUpdate();return;
     case 'lanhost':lanHost(k);return;
     case 'lanjoin':lanJoin();return;
     case 'lanadd':lanAdd();return;
@@ -8987,6 +8999,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='9ab8b7';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='6d8be3';</script>
 </body>
 </html>
