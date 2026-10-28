@@ -809,6 +809,10 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .hthand .unc.jump:not([aria-pressed="true"]){transform:translateY(-6px);outline:3px solid var(--accent);outline-offset:1px}
 .unhands .hthand{padding:12px 0 2px;min-height:96px}.unhands .hthand+.hthand{margin-top:-4px}
 .unchip{width:28px;height:28px;border-radius:8px;background:var(--uc);border:2px solid rgba(0,0,0,.18);flex:none}.unchip.any{background:conic-gradient(#d23a2f 0 25%,#e3a600 0 50%,#2e8b45 0 75%,#2b63c4 0)}
+.ktcenter{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58%;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 6px;z-index:25}.ktcenter .dosslot .htc{--cw:46px}.kttable.crowd .ktcenter .dosslot .htc{--cw:40px}.ktcenter .dosm .htc{--cw:28px}
+.dosslot{position:relative;background:none;border:0;padding:4px;border-radius:12px}.dosslot .htc{--cw:58px}
+.dosslot:not([aria-disabled="true"]){outline:2px dashed color-mix(in srgb,var(--accent) 70%,transparent);outline-offset:2px}.dosslot.used>.htc{opacity:.55}
+.dosm{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);display:flex;gap:2px}.dosm .htc{--cw:34px}
 .unorow{display:flex;justify-content:center;margin:8px 0 0}.unobtn{font-size:22px;font-weight:900;letter-spacing:.04em;padding:10px 26px;background:#d23a2f;color:#fff;border-color:#a12a21}
 .uncatchbtn{background:#d23a2f!important;border-color:#a12a21!important;color:#fff!important}
 .ktseat.uncatch{border-color:#d23a2f!important;box-shadow:0 0 0 3px rgba(210,58,47,.35)}
@@ -4487,6 +4491,7 @@ const cardPlayHint=()=>`${cardDrag()?'Drag a card onto the table to play it.':(c
 const KTSW={},KTMS=750;
 /* dealing: card backs fly from the middle to each seat when a new hand is dealt (each phone plays it once) */
 const DLS={},DLMS=1500;
+const dealBusy=()=>Object.values(DLS).some(d=>d.at&&Date.now()-d.at<DLMS);
 function dealAnim(tag,g,fresh){if(!g||g.r===undefined)return null;const k=tag+':'+(S.gameId||'')+':'+g.r+':'+(g.dealer||''),pv=DLS[tag];
   if(!pv||pv.k!==k){DLS[tag]={k,at:(pv||fresh)&&fresh?Date.now():0};if(DLS[tag].at)setTimeout(render,DLMS+80)}const d=DLS[tag];if(!d.at)return null;const el=Date.now()-d.at;return el<DLMS?el:null}
 /* Bid reveal: right after the 3-2-1 countdown, each seat shows its bid in a big bubble that fades away */
@@ -4509,7 +4514,7 @@ function ktTable(o){const P=o.P,n=P.length,v=Math.max(0,P.findIndex(p=>o.me&&p.i
     if(el!==null){const per=Math.max(1,Math.min(7,...P.map(q=>((g.h||{})[q.id]||[]).length||1))),step=(DLMS-520)/(per*n);
       for(let i=0;i<per;i++)P.forEach((q,k)=>{const {x,y}=pos(k);deal+=`<i class="ktdeal" style="--x:${50+x*(n>6?36:40)}%;--y:${50+y*41}%;--r:${(k*47+i*23)%40-20}deg;animation-delay:${Math.round((i*n+k)*step-el)}ms"></i>`});
       deal=`<i class="ktdeck" style="animation-delay:-${el}ms"></i>`+deal}}
-  return `<div class="kttable${o.faded&&!sweep?' faded':''}${n>6?' crowd':n>4?' many':''}${deal?' dealing':''}">${seats}<div class="ktpile">${deal?'':cards}${deal}</div>${o.note?`<div class="ktnote">${o.note}</div>`:''}</div>`}
+  return `<div class="kttable${o.faded&&!sweep?' faded':''}${n>6?' crowd':n>4?' many':''}${deal?' dealing':''}">${seats}<div class="ktpile">${deal?'':cards}${deal}</div>${o.center&&!deal?`<div class="ktcenter">${o.center}</div>`:''}${o.note?`<div class="ktnote">${o.note}</div>`:''}</div>`}
 const HTR='23456789TJQKA',HTSU={C:'♣',D:'♦',S:'♠',H:'♥'},HTSO='CDSH';
 const htRk=c=>HTR.indexOf(c[0]),htSu=c=>c[1],htLab=c=>(c[0]==='T'?'10':c[0])+HTSU[c[1]]+'︎';
 const htIsPt=c=>c[1]==='H'||c==='QS';
@@ -7694,14 +7699,14 @@ function unSetup(){const X=UNX(),v=unV();
   return `<div class="bar"><h1>UNO</h1></div><img class="hero hfhero" src="art/uno-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">Your house rules, remembered for next time. ${usualUI('uno')}</p>
   ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([vv,t])=>`<button data-a="unplaymode" data-k="${vv}" aria-pressed="${!!X.play===!!vv}">${t}</button>`).join('')}</div>`,
-    S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals and runs the game: matching, draw cards, Wilds, calling UNO and the score. Computer players, pass-and-play and linked phones all work. Classic, Flip and No Mercy for now.':'Play with real cards and enter what’s left in each hand. Just score keeping, every version.')}
-  ${sec('Which UNO?',`<div class="unvers">${(X.play?UNPV:UNVER).map(k=>`<button data-a="unver" data-k="${k}" aria-pressed="${X.ver===k}">${esc(UNV[k].short)}</button>`).join('')}</div>`,esc(v.deck)+(X.play?' The other versions are score-only for now.':''))}
+    S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals and runs the game: matching, draw cards, Wilds, calling UNO and the score. Computer players, pass-and-play and linked phones all work. Every version except Dare!':'Play with real cards and enter what’s left in each hand. Just score keeping, every version.')}
+  ${sec('Which UNO?',`<div class="unvers">${(X.play?UNPV:UNVER).map(k=>`<button data-a="unver" data-k="${k}" aria-pressed="${X.ver===k}">${esc(UNV[k].short)}</button>`).join('')}</div>`,esc(v.deck)+(X.play?' Dare! is score-only for now.':''))}
   ${sec('Scoring',seg('mode',[['take','Winner takes points'],['low','Low score wins'],['wins','Count wins']],'three')
     +(X.mode==='wins'?row('Wins needed','',st('unst','winsT',X.winsT,1,30,1,'wins')):row(X.mode==='low'?'Game ends at':'Play to','points',st('untgt','t',unTarget(),50,5000,50,'points'))),
     X.mode==='take'?`Official: whoever goes out scores every card left in everyone else’s hands${v.ko?`, plus ${v.ko} for each player knocked out by the Mercy rule`:''}. First to ${unTarget()} wins.`:X.mode==='low'?`Everyone adds up the cards left in their own hand. When someone reaches ${unTarget()}, the lowest score wins.`:`Whoever goes out wins the hand. First to ${X.winsT} wins.`)}
   ${X.mode==='wins'?'':sec('Card values',`${v.num?row('Number cards',v.num,'<span class="rlab">face value</span>'):''}${valRows(v.cards,v.flip?'light side':'')}${v.flip?valRows(v.dark,'dark side'):''}${changedVals?`<button class="link-btn" data-a="unvalreset">Back to the printed values</button>`:''}`,'Printed values from the rule sheet. Change any to match your house rules.')}
   ${X.mode==='wins'||X.play?'':sec('Entering hands',seg('entry',[['type','Type each total'],['tap','Count the cards']]),X.entry==='tap'?'Enter the number cards’ total, then tap how many of each special card are left. The app adds it up.':'Each player adds up their own hand and you type the total.')}
-  ${sec('House rules',UNHR.filter(([k])=>!(X.play&&X.ver==='nomercy'&&['stack','seven0','drawplay','challenge'].includes(k))&&!(X.play&&k==='challenge'&&false)).map(([k,l,s])=>tg(k,k==='challenge'&&X.ver==='flip'?'Challenge a Wild Draw Two or Draw Color':l,X.play&&k==='callUno'?'Tap UNO! before you’re down to one card. Forget, and anyone can tap “Catch them” before the next player goes: you draw 2.':k==='challenge'&&X.ver==='flip'?'Only allowed when you have no card of the current color. Challenge it: if you’re right, they take the cards; if not, you take them plus 2.':X.play&&k==='jump'?'Hold the exact same card (color and number or symbol) as the top card? Play it out of turn, and play goes on from you.':s)).join(''),X.play?(X.ver==='nomercy'?'No Mercy always stacks draw cards, swaps on 7 and 0, and draws until you can play. The phone plays by the switches that are on.':'The phone plays by the switches that are on, and so do the computer players.'):'These don’t change the scoring; they’re listed in the quick guide so everyone plays the same way.')}
+  ${sec('House rules',UNHR.filter(([k])=>!X.play||({nomercy:['stack','seven0','drawplay','challenge'],allwild:['seven0','challenge','jump','drawplay','force'],attack:['stack','challenge','drawplay'],dos:['stack','seven0','drawplay','challenge','jump','force']}[X.ver]||[]).indexOf(k)<0).map(([k,l,s])=>tg(k,k==='challenge'&&X.ver==='flip'?'Challenge a Wild Draw Two or Draw Color':k==='callUno'&&X.ver==='dos'?'DOS! penalty':l,X.play&&k==='callUno'?(X.ver==='dos'?'Tap DOS! when you’re down to 2 cards. Forget, and anyone can tap “Catch them” before the next player goes: you draw 2.':X.ver==='attack'?'Tap UNO! before you’re down to one card. Forget, and anyone can tap “Catch them” before the next player goes: you press the launcher twice.':'Tap UNO! before you’re down to one card. Forget, and anyone can tap “Catch them” before the next player goes: you draw 2.'):k==='challenge'&&X.ver==='flip'?'Only allowed when you have no card of the current color. Challenge it: if you’re right, they take the cards; if not, you take them plus 2.':X.play&&k==='jump'?'Hold the exact same card (color and number or symbol) as the top card? Play it out of turn, and play goes on from you.':s)).join(''),X.play?(X.ver==='nomercy'?'No Mercy always stacks draw cards, swaps on 7 and 0, and draws until you can play. The phone plays by the switches that are on.':'The phone plays by the switches that are on, and so do the computer players.'):'These don’t change the scoring; they’re listed in the quick guide so everyone plays the same way.')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
 function unScore(){if(unPlayOn()&&S.started&&!S.demo)return unPlay();const X=UNX(),v=unV(),P=act(),r=unCur(),N=unN(),W=X.mode==='wins',over=unOver(),w=unWinner(r),low=X.mode==='low';
   const sc=P.map(unTot),best=low?Math.min(...sc):Math.max(...sc),lead=unLast()>=0&&sc.filter(x=>x===best).length===1?P[sc.indexOf(best)]:null;
@@ -7755,10 +7760,13 @@ function unGuide(){const X=UNX(),v=unV();const vals=(list,side)=>list.map(([id,l
     ['On your turn',[['Match',v.short==='DOS'?'Match a center card by number with one card, or with two cards that add up to it.':v.short==='All Wild'?'Every card is wild: play anything.':'Play a card that matches the top card by color, number or symbol, or play a Wild.'],['Can’t play?',X.hr.drawplay?'Draw until you get a card you can play (house rule).':'Draw one card. If it can be played, you may play it.'],['UNO!',v.short==='DOS'?'Say DOS when you’re down to 2 cards.':'Say UNO when you’re down to 1 card.']]],
     ['Special cards',v.acts],
     X.play&&UNPV.includes(X.ver)?['On the phone',[['Calling UNO',X.hr.callUno?'Tap UNO! while you hold 2 cards (or right after you play down to 1). Forget, and anyone can tap “Catch them” before the next player goes: you draw 2.':'The phone calls UNO for you.'],
-      ['Drawing',X.ver==='nomercy'?'Draw until you get a card you can play, then play it.':X.hr.drawplay?'Draw until you get a card you can play. Play it or keep it.':'Draw one card. If it can be played, play it or keep it.'],
+      ['Drawing',X.ver==='attack'?'Press the launcher once. Whatever comes out is yours, and your turn is over.':X.ver==='dos'?'Draw one card. Match with it if you can; if not, add a card to the center row.':X.ver==='nomercy'?'Draw until you get a card you can play, then play it.':X.hr.drawplay?'Draw until you get a card you can play. Play it or keep it.':'Draw one card. If it can be played, play it or keep it.'],
       X.ver!=='nomercy'&&X.hr.challenge?['Challenges',X.ver==='flip'?'A Wild Draw Two or Wild Draw Color is only allowed when you have no card of the current color. The next player can challenge: if they’re right, you take the cards; if not, they take them plus 2 more.':'A Wild Draw Four is only allowed when you have no card of the current color. The next player can challenge: if they’re right, you draw 4; if not, they draw 6.']:null,
       X.ver==='flip'?['Flip','The discard pile and draw pile turn over and every hand flips. The bottom card of the discard pile comes up on its other side. If that’s a Wild, the next player can play any card.']:null,
       X.ver==='classic'?['Wild Customizable','Plays as a plain Wild on the phone.']:null,
+      X.ver==='attack'?['The launcher','The phone plays the card launcher: each press shoots out a random number of cards, often none, sometimes a bunch. When you can’t play, press it once and your turn is over, even if what comes out could be played.']:null,
+      X.ver==='allwild'?['All Wild','Every card can be played on anything, and nobody picks a color. The first card’s action doesn’t count. Wild Forced Swap as your last card hands your empty hand to someone else, and they win.']:null,
+      X.ver==='dos'?['DOS on the phone','Pick 1 card (same number) or 2 cards (that add up), then tap the center card. Each Color Match lets you add a card to the center row at the end of your turn; each Double Color Match also makes everyone else draw 1. No match after drawing? Add a card to the center row.']:null,
       X.ver==='nomercy'?['Mercy rule','Reach 25 cards and you’re out of the hand. If everyone else is knocked out, the last player standing wins it.']:null]]:null,
     ['House rules',UNHR.filter(([k])=>X.hr[k]).map(([,l,s])=>[l,s]).concat(UNHR.some(([k])=>X.hr[k])?[]:[['None','Playing by the rule sheet.']])],
     ['Scoring',X.mode==='wins'?[['Each hand','Whoever goes out wins the hand.'],['Winning',`First to ${X.winsT} wins.`]]:[['Going out',X.mode==='take'?'Whoever goes out first scores the cards left in everyone else’s hands.':'Everyone else adds up the cards left in their own hand; going out scores 0.'],
@@ -7785,7 +7793,7 @@ function unDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
             ask:{p,t:'swap'|'roul'}|null, uno:{pid:1} (called UNO), catch:{p,id}|null (forgot to call: catchable),
             ko:{pid:1} (No Mercy knockouts), shout:{p,k}, msg, n (play counter), phase:'play'|'done', win} */
 const UNBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Card Bot'],hard:['Hard','Wild Bot']};
-const UNPV=['classic','flip','nomercy'];
+const UNPV=['classic','flip','nomercy','allwild','attack','dos'];
 const unPlayOn=()=>!!UNX().play;
 const ung=()=>S.ung||null;
 const unRes=()=>!S.lk||S.demo||lkHost();
@@ -7793,18 +7801,20 @@ const UNCOL={r:['Red','#d23a2f'],y:['Yellow','#e3a600'],g:['Green','#2e8b45'],b:
 const unSideCols=g=>g.side==='D'?['k','t','o','p']:['r','y','g','b'];
 const unF=(c,side)=>{let s=String(c).split('#')[0];if(s.includes('~'))s=s.split('~')[side==='D'?1:0];return {col:s[0]==='x'?null:s[0],k:s.slice(1)}};
 const unFace=(g,c)=>unF(c,g.side);
-const unIsNum=k=>/^\d$/.test(k);
-const UNDRAW={D1:1,D2:2,D4:4,D5:5,W2:2,W4:4,WR4:4,W6:6,W10:10};
-const UNKN={S:'Skip',R:'Reverse',D1:'Draw One',D2:'Draw Two',D4:'Draw Four',D5:'Draw Five',F:'Flip',E:'Skip Everyone',A:'Discard All',W:'Wild',W4:'Wild Draw Four',W2:'Wild Draw Two',WC:'Wild Draw Color',WS:'Wild Shuffle Hands',WU:'Wild Customizable',WR4:'Wild Reverse Draw Four',W6:'Wild Draw Six',W10:'Wild Draw Ten',WR:'Wild Color Roulette'};
-const UNSYM={S:'⊘',R:'⇄',D1:'+1',D2:'+2',D4:'+4',D5:'+5',F:'⇅',E:'⊘',A:'✱',W:'W',W4:'+4',W2:'+2',WC:'+?',WS:'⇆',WU:'W',WR4:'+4',W6:'+6',W10:'+10',WR:'?'};
-const UNTAG={S:'SKIP',R:'REVERSE',D1:'DRAW',D2:'DRAW',D4:'DRAW',D5:'DRAW',F:'FLIP',E:'EVERYONE',A:'DISCARD ALL',W:'WILD',W4:'WILD',W2:'WILD',WC:'DRAW COLOR',WS:'SHUFFLE',WU:'WILD',WR4:'REVERSE',W6:'WILD',W10:'WILD',WR:'ROULETTE'};
-const UNVID={classic:{D2:'d2',R:'rev',S:'skip',W:'wild',W4:'wd4',WS:'wsh',WU:'wcu'},flipL:{D1:'d1',R:'rev',S:'skip',F:'flip',W:'wild',W2:'wd2'},flipD:{D5:'d5',R:'rev',E:'skipe',F:'flip',W:'wild',WC:'wdc'},nomercy:{D2:'d2',D4:'d4',S:'skip',R:'rev',A:'disc',E:'skipe',WR4:'wrd4',W6:'wd6',W10:'wd10',WR:'wcr'}};
+const unIsNum=k=>/^\d+$/.test(k);
+const UNDRAW={D1:1,D2:2,D4:4,D5:5,W2:2,W4:4,WR4:4,W6:6,W10:10,VD2:2,VD4:4};
+const UNKN={S:'Skip',R:'Reverse',D1:'Draw One',D2:'Draw Two',D4:'Draw Four',D5:'Draw Five',F:'Flip',E:'Skip Everyone',A:'Discard All',W:'Wild',W4:'Wild Draw Four',W2:'Wild Draw Two',WC:'Wild Draw Color',WS:'Wild Shuffle Hands',WU:'Wild Customizable',WR4:'Wild Reverse Draw Four',W6:'Wild Draw Six',W10:'Wild Draw Ten',WR:'Wild Color Roulette',H2:'Hit 2',T:'Trade Hands',WHF:'Wild Hit-Fire',WAH:'Wild All Hit',VR:'Wild Reverse',VS:'Wild Skip',V2:'Wild Skip Two',VD2:'Wild Draw Two',VD4:'Wild Draw Four',VT:'Wild Targeted Draw Two',VF:'Wild Forced Swap',WD:'Wild DOS',WN:'Wild #'};
+const UNSYM={S:'⊘',R:'⇄',D1:'+1',D2:'+2',D4:'+4',D5:'+5',F:'⇅',E:'⊘',A:'✱',W:'W',W4:'+4',W2:'+2',WC:'+?',WS:'⇆',WU:'W',WR4:'+4',W6:'+6',W10:'+10',WR:'?',H2:'🎯2',T:'⇆',WHF:'🔥',WAH:'💥',VR:'⇄',VS:'⊘',V2:'⊘2',VD2:'+2',VD4:'+4',VT:'→2',VF:'⇆',WD:'2',WN:'#'};
+const UNTAG={S:'SKIP',R:'REVERSE',D1:'DRAW',D2:'DRAW',D4:'DRAW',D5:'DRAW',F:'FLIP',E:'EVERYONE',A:'DISCARD ALL',W:'WILD',W4:'WILD',W2:'WILD',WC:'DRAW COLOR',WS:'SHUFFLE',WU:'WILD',WR4:'REVERSE',W6:'WILD',W10:'WILD',WR:'ROULETTE',H2:'HIT 2',T:'TRADE',WHF:'HIT-FIRE',WAH:'ALL HIT',VR:'REVERSE',VS:'SKIP',V2:'SKIP TWO',VD2:'DRAW',VD4:'DRAW',VT:'TARGET',VF:'SWAP',WD:'WILD DOS',WN:'WILD #'};
+const UNVID={classic:{D2:'d2',R:'rev',S:'skip',W:'wild',W4:'wd4',WS:'wsh',WU:'wcu'},flipL:{D1:'d1',R:'rev',S:'skip',F:'flip',W:'wild',W2:'wd2'},flipD:{D5:'d5',R:'rev',E:'skipe',F:'flip',W:'wild',WC:'wdc'},nomercy:{D2:'d2',D4:'d4',S:'skip',R:'rev',A:'disc',E:'skipe',WR4:'wrd4',W6:'wd6',W10:'wd10',WR:'wcr'},attack:{R:'rev',S:'skip',H2:'hit2',A:'disc',T:'trade',W:'wild',WHF:'whf',WAH:'wah'},allwild:{W:'wild',VR:'wact',VS:'wact',V2:'wact',VD2:'wact',VD4:'wact',VT:'wact',VF:'wact'},dos:{WD:'wdos',WN:'wnum'}};
 const unNM=g=>(g?g.ver:UNX().ver)==='nomercy';
 const unStackOn=g=>unNM(g)||!!UNX().hr.stack;
 const unSevenOn=g=>unNM(g)||!!UNX().hr.seven0;
 const unChalOn=g=>!unNM(g)&&!!UNX().hr.challenge;
 const unDrawUntil=g=>unNM(g)||!!UNX().hr.drawplay;
 const unCallOn=()=>!!UNX().hr.callUno;
+const unAW=g=>g&&g.ver==='allwild',unAT=g=>g&&g.ver==='attack',unDOS=g=>g&&g.ver==='dos';
+const unCallWord=g=>unDOS(g)?'DOS':'UNO';
 const unJumpOn=()=>!!UNX().hr.jump;
 const nmid=id=>nm(act().find(p=>p.id===id)||{name:''});
 const unColName=c=>c?UNCOL[c][0]:'any color';
@@ -7814,6 +7824,9 @@ function unNext(g,pid,steps=1){const P=act(),n=P.length;let i=P.findIndex(p=>p.i
   while(s<steps&&guard++<n*4){i=(i+g.dir+n)%n;if(!(g.ko||{})[P[i].id])s++}return P[i].id}
 function unBuild(ver){const L=[],add=(f,n)=>{for(let i=0;i<n;i++)L.push(f)};
   if(ver==='nomercy'){for(const c of 'rygb'){for(let v=0;v<=9;v++)add(c+v,2);add(c+'S',3);add(c+'R',3);add(c+'A',3);add(c+'D2',2);add(c+'D4',2);add(c+'E',2)}add('xWR4',8);add('xW6',4);add('xW10',4);add('xWR',8);return L.map((f,i)=>f+'#'+i)}
+  if(ver==='allwild'){add('xW',54);add('xVR',14);add('xVS',14);add('xV2',6);add('xVD2',10);add('xVD4',6);add('xVT',4);add('xVF',4);return L.map((f,i)=>f+'#'+i)}
+  if(ver==='attack'){for(const c of 'rygb'){for(let v=1;v<=9;v++)add(c+v,2);add(c+'R',2);add(c+'S',2);add(c+'H2',2);add(c+'A',1);add(c+'T',1)}add('xW',4);add('xWHF',2);add('xWAH',2);return L.map((f,i)=>f+'#'+i)}
+  if(ver==='dos'){for(const c of 'rygb'){for(const v of [1,3,4,5])add(c+v,3);for(const v of [6,7,8,9,10])add(c+v,2);add(c+'WN',2)}add('xWD',12);return L.map((f,i)=>f+'#'+i)}
   if(ver==='flip'){for(const c of 'rygb'){for(let v=1;v<=9;v++)add(c+v,2);for(const k of ['D1','R','S','F'])add(c+k,2)}add('xW',4);add('xW2',4);
     const D=[];for(const c of 'ktop'){for(let v=1;v<=9;v++)D.push(c+v,c+v);for(const k of ['D5','R','E','F'])D.push(c+k,c+k)}for(let i=0;i<4;i++)D.push('xW','xWC');htShuffle(D);return L.map((f,i)=>f+'~'+D[i]+'#'+i)}
   for(const c of 'rygb'){add(c+'0',1);for(let v=1;v<=9;v++)add(c+v,2);add(c+'S',2);add(c+'R',2);add(c+'D2',2)}add('xW',4);add('xW4',4);add('xWS',1);add('xWU',3);return L.map((f,i)=>f+'#'+i)}
@@ -7821,13 +7834,15 @@ function unCardPts(g,c){const f=unFace(g,c);if(unIsNum(f.k))return +f.k;const v=
 const unSort=(g,h)=>{const o=unSideCols(g);return h.slice().sort((a,b)=>{const fa=unFace(g,a),fb=unFace(g,b),ca=fa.col===null?9:o.indexOf(fa.col),cb=fb.col===null?9:o.indexOf(fb.col);if(ca!==cb)return ca-cb;const na=unIsNum(fa.k),nb=unIsNum(fb.k);if(na!==nb)return na?-1:1;return na?+fa.k-+fb.k:fa.k.localeCompare(fb.k)})};
 
 /* ---------------- the deal ---------------- */
-function unDeal(r){const P=act(),X=UNX(),ver=UNPV.includes(X.ver)?X.ver:'classic',dealer=P[r%P.length].id;
+function unDeal(r){const P=act(),X=UNX(),ver=UNPV.includes(X.ver)?X.ver:'classic',dealer=P[r%P.length].id;if(ver==='dos')return dosDeal(r,dealer);
   const g={_atom:1,r,ver,side:'L',h:{},deck:htShuffle(unBuild(ver)),disc:[],col:null,dir:1,dealer,turn:null,pend:null,drawn:null,ask:null,uno:{},catch:null,ko:{},shout:null,msg:'',n:0,phase:'play',win:null};
   P.forEach(p=>g.h[p.id]=[]);for(let i=0;i<7;i++)P.forEach(p=>g.h[p.id].push(g.deck.pop()));
   let first=unNext(g,dealer),guard=0;
   while(guard++<500){const c=g.deck.pop(),f=unF(c,'L');
-    if(ver==='nomercy'&&!unIsNum(f.k)||f.k==='W4'||f.k==='W2'){g.deck.splice(Math.floor(Math.random()*g.deck.length),0,c);continue}
+    if(ver==='nomercy'&&!unIsNum(f.k)||f.k==='W4'||f.k==='W2'||f.k==='WHF'||f.k==='WAH'){g.deck.splice(Math.floor(Math.random()*g.deck.length),0,c);continue}
     g.disc.push({c,p:null,w:null});g.col=f.col;
+    if(ver==='allwild'){g.msg=`${nmid(dealer)} dealt. The first card’s action doesn’t count. ${nmid(first)} goes first.`;break}
+    if(f.k==='H2'){g.hit={p:first,n:2,start:1};g.msg=`The first card is a Hit 2: ${nmid(first)} presses the launcher twice.`;break}
     if(UNDRAW[f.k]){const n=UNDRAW[f.k];unGive(g,first,n);g.msg=`${nmid(first)} draws ${n} to start and is skipped.`;first=unNext(g,first)}
     else if(f.k==='S'){g.msg=`The first card is a Skip: ${nmid(first)} is skipped.`;first=unNext(g,first)}
     else if(f.k==='R'){if(P.length>2){g.dir=-1;first=dealer;g.msg='The first card is a Reverse: the dealer goes first and play goes the other way.'}else{first=unNext(g,first);g.msg=`The first card is a Reverse: ${nmid(dealer)} goes first.`}}
@@ -7839,37 +7854,46 @@ function unDeal(r){const P=act(),X=UNX(),ver=UNPV.includes(X.ver)?X.ver:'classic
 /* ---------------- drawing cards ---------------- */
 function unPull(g){if(!g.deck.length){if(g.disc.length<2)return null;const top=g.disc.pop();g.deck=htShuffle(g.disc.map(x=>x.c));g.disc=[top]}return g.deck.pop()||null}
 function unMercy(g,pid){if(!unNM(g)||g.ko[pid]||(g.h[pid]||[]).length<25)return;g.ko[pid]=1;g.deck.unshift(...g.h[pid]);g.h[pid]=[];delete g.uno[pid];if(g.catch&&g.catch.p===pid)g.catch=null;g.msg+=` 💀 ${nmid(pid)} has 25 cards and is knocked out by the Mercy rule!`}
-function unGive(g,pid,n){let got=0;for(let i=0;i<n;i++){const c=unPull(g);if(!c)break;g.h[pid].push(c);got++;if(unNM(g)&&g.h[pid].length>=25)break}if(g.h[pid].length>1)delete g.uno[pid];return got}
+function unGive(g,pid,n){let got=0;for(let i=0;i<n;i++){const c=unPull(g);if(!c)break;g.h[pid].push(c);got++;if(unNM(g)&&g.h[pid].length>=25)break}if(g.h[pid].length>(g.ver==='dos'?2:1))delete g.uno[pid];return got}
+function unLaunch(g,pid){const r=Math.random(),left=g.deck.length+Math.max(0,g.disc.length-1);let n=r<.5?0:r<.75?1:r<.87?2+Math.floor(Math.random()*2):r<.95?4+Math.floor(Math.random()*3):7+Math.floor(Math.random()*5);n=Math.min(n,left);
+  const got=unGive(g,pid,n);g.shout={p:pid,k:(g.shout?g.shout.k:0)+1,t:got?`💥 +${got}`:'💨 0'};if(S.lk&&S.lk.me===pid||!S.lk&&!act().find(p=>p.id===pid).bot)vibe(got?[40,30,80]:20);return got}
 function unGiveUntil(g,pid,col){let n=0;for(;;){const c=unPull(g);if(!c)break;g.h[pid].push(c);n++;if(unFace(g,c).col===col)break;if(unNM(g)&&g.h[pid].length>=25)break}if(g.h[pid].length>1)delete g.uno[pid];return n}
 
 /* ---------------- what can be played ---------------- */
-function unCanOn(g,c){const f=unFace(g,c),top=g.disc[g.disc.length-1],tf=top?unFace(g,top.c):null;
+function unCanOn(g,c){const f=unFace(g,c),top=g.disc[g.disc.length-1],tf=top?unFace(g,top.c):null;if(g.hit)return false;
   if(g.pend){if(g.pend.wc||!unStackOn(g))return false;const d=UNDRAW[f.k]||0;return d>0&&d>=g.pend.v}
   if(f.col===null)return true;if(!g.col)return true;
   return f.col===g.col||!!tf&&tf.col!==null&&tf.k===f.k}
 function unLegal(g,pid){if(!g||g.phase!=='play'||g.ask||g.ko[pid])return [];if(g.drawn)return g.drawn.p===pid&&unCanOn(g,g.drawn.c)?[g.drawn.c]:[];if(g.turn!==pid)return [];return (g.h[pid]||[]).filter(c=>unCanOn(g,c))}
-function unJumpable(g,pid){if(!g||!unJumpOn()||g.phase!=='play'||g.pend||g.ask||g.drawn||g.turn===pid||g.ko[pid])return [];const top=g.disc[g.disc.length-1];if(!top)return [];const tf=unFace(g,top.c);if(tf.col===null)return [];
+function unJumpable(g,pid){if(!g||!unJumpOn()||unDOS(g)||g.phase!=='play'||g.pend||g.hit||g.ask||g.drawn||g.turn===pid||g.ko[pid])return [];const top=g.disc[g.disc.length-1];if(!top)return [];const tf=unFace(g,top.c);if(tf.col===null)return [];
   return (g.h[pid]||[]).filter(c=>{const f=unFace(g,c);return f.col===tf.col&&f.k===tf.k})}
 function unWhyNot(g,pid,c){if(!g||g.phase!=='play')return 'Hang on…';if(g.ask)return g.ask.p===pid?'Make your pick first.':`Waiting for ${nmid(g.ask.p)}…`;if(g.drawn)return g.drawn.p===pid?'Play the card you drew, or keep it.':`Waiting for ${nmid(g.drawn.p)}…`;
-  if(g.turn!==pid)return `It’s ${nmid(g.turn)}’s turn.`;if(g.pend)return g.pend.wc?'You have to draw.':`Stack a draw card of +${g.pend.v} or more, or draw ${g.pend.n}.`;
+  if(g.turn!==pid)return `It’s ${nmid(g.turn)}’s turn.`;if(g.hit)return 'Press the launcher first.';if(unAW(g))return 'Every card is wild: play anything.';if(g.pend)return g.pend.wc?'You have to draw.':`Stack a draw card of +${g.pend.v} or more, or draw ${g.pend.n}.`;
   const top=g.disc[g.disc.length-1],tf=top?unFace(g,top.c):null;return `Match ${unColName(g.col).toLowerCase()}${tf&&tf.col!==null?` or the ${unIsNum(tf.k)?tf.k:UNKN[tf.k]}`:''}, or play a Wild.`}
 
 /* ---------------- playing a card ---------------- */
 function unPlayCard(pid,c,o={}){const g=ung();if(!g||g.phase!=='play')return false;const jump=!!o.jump;
   if(jump?(g.turn===pid||!unJumpable(g,pid).includes(c)):!unLegal(g,pid).includes(c))return false;
-  const f=unFace(g,c);if(f.col===null&&!(o.col&&unSideCols(g).includes(o.col)))return false;
+  const f=unFace(g,c);if(f.col===null&&!unAW(g)&&!(o.col&&unSideCols(g).includes(o.col)))return false;
   const h=g.h[pid],prev=g.col;h.splice(h.indexOf(c),1);g.drawn=null;if(g.catch&&g.catch.p!==pid)g.catch=null;
   const guilty=f.col===null&&!!prev&&h.some(x=>unFace(g,x).col===prev);
-  g.disc.push({c,p:pid,w:f.col===null?o.col:null});g.col=f.col===null?o.col:f.col;g.n++;
-  g.msg=`${nmid(pid)} ${jump?'jumped in with':'played'} ${unName(g,c)}${f.col===null?`, color ${UNCOL[o.col][0].toLowerCase()}`:''}.`;
+  g.disc.push({c,p:pid,w:f.col===null&&!unAW(g)?o.col:null});g.col=unAW(g)?null:f.col===null?o.col:f.col;g.n++;
+  g.msg=`${nmid(pid)} ${jump?'jumped in with':'played'} ${unName(g,c)}${f.col===null&&!unAW(g)?`, color ${UNCOL[o.col][0].toLowerCase()}`:''}.`;
   if(h.length===1){if(unCallOn()&&!g.uno[pid])g.catch={p:pid,id:g.n}}else if(h.length>1)delete g.uno[pid];
   const two=unAlive(g).length===2;let nxt=unNext(g,pid);
   if(g.pend&&UNDRAW[f.k]){if(f.k==='WR4'){g.dir*=-1;nxt=unNext(g,pid)}g.pend={n:g.pend.n+UNDRAW[f.k],v:UNDRAW[f.k],by:pid,ch:null};g.msg+=` The draw pile-up is ${g.pend.n}.`}
   else if(UNDRAW[f.k]){if(f.k==='WR4'){g.dir*=-1;nxt=unNext(g,pid)}g.pend={n:UNDRAW[f.k],v:UNDRAW[f.k],by:pid,ch:unChalOn(g)&&(f.k==='W4'||f.k==='W2')?{guilty,prev}:null}}
   else if(f.k==='WC')g.pend={wc:g.col,by:pid,ch:unChalOn(g)?{guilty,prev}:null};
+  else if(f.k==='VF'){const others=unAlive(g).filter(p=>p.id!==pid);if(others.length===1){unSwap(g,pid,others[0].id,true)}else{g.ask={p:pid,t:'swap',forced:1};nxt=pid}}
+  else if(f.k==='H2'){g.hit={p:nxt,n:2}}
+  else if(f.k==='WHF'){g.hit={p:nxt,fire:1}}
+  else if(f.k==='WAH'){unAlive(g).filter(p=>p.id!==pid).forEach(p=>{const n=unLaunch(g,p.id);g.msg+=` ${nmid(p.id)}: ${n?n+' card'+(n===1?'':'s'):'nothing'}.`})}
   else if(h.length)switch(f.k){
-    case 'S':nxt=unNext(g,pid,2);g.msg+=` ${nmid(unNext(g,pid))} is skipped.`;break;
-    case 'R':if(two){nxt=pid;g.msg+=' With 2 players it works like a Skip.'}else{g.dir*=-1;nxt=unNext(g,pid)}break;
+    case 'VS':case 'S':nxt=unNext(g,pid,2);g.msg+=` ${nmid(unNext(g,pid))} is skipped.`;break;
+    case 'VR':case 'R':if(two){nxt=pid;g.msg+=' With 2 players it works like a Skip.'}else{g.dir*=-1;nxt=unNext(g,pid)}break;
+    case 'V2':nxt=two?pid:unNext(g,pid,3);g.msg+=` ${nmid(unNext(g,pid))} and ${nmid(unNext(g,pid,2))} are skipped.`;break;
+    case 'VT':{const others=unAlive(g).filter(p=>p.id!==pid);if(others.length===1){unAim(g,pid,others[0].id,true)}else{g.ask={p:pid,t:'target'};nxt=pid}break}
+    case 'T':{const others=unAlive(g).filter(p=>p.id!==pid);if(others.length===1)unSwap(g,pid,others[0].id,true);else{g.ask={p:pid,t:'swap'};nxt=pid}break}
     case 'E':nxt=pid;g.msg+=` Everyone else is skipped: ${nmid(pid)} goes again.`;break;
     case 'A':{const same=h.filter(x=>unFace(g,x).col===f.col);same.forEach(x=>{h.splice(h.indexOf(x),1);g.disc.splice(g.disc.length-1,0,{c:x,p:pid,w:null})});if(same.length)g.msg+=` Out go ${same.length} more ${UNCOL[f.col][0].toLowerCase()} card${same.length===1?'':'s'}.`;if(h.length===1&&unCallOn()&&!g.uno[pid])g.catch={p:pid,id:g.n};break}
     case 'F':unFlip(g);nxt=unNext(g,pid);g.msg+=` Everything flips to the ${g.side==='D'?'dark':'light'} side!`;break;
@@ -7877,8 +7901,9 @@ function unPlayCard(pid,c,o={}){const g=ung();if(!g||g.phase!=='play')return fal
     case 'WR':g.ask={p:nxt,t:'roul'};break;
     case '7':if(unSevenOn(g)){const others=unAlive(g).filter(p=>p.id!==pid);if(others.length===1)unSwap(g,pid,others[0].id,true);else{g.ask={p:pid,t:'swap'};nxt=pid}}break;
     case '0':if(unSevenOn(g)){unRotate(g);g.msg+=' Everyone passes their hand along.'}break}
-  g.turn=nxt;
-  if(!h.length&&!g.ko[pid]){if(g.pend){const v=g.turn;if(g.pend.wc){const n=unGiveUntil(g,v,g.pend.wc);g.msg+=` ${nmid(v)} draws ${n}.`}else{unGive(g,v,g.pend.n);g.msg+=` ${nmid(v)} draws ${g.pend.n}.`}g.pend=null;unMercy(g,v)}unEnd(g,pid);return true}
+  if(g.phase==='done')return true;g.turn=nxt;
+  if(!g.h[pid].length&&!g.ko[pid]&&!(g.ask&&g.ask.forced)){if(g.hit){const v=g.hit.p;let n=0;if(g.hit.fire){for(let i=0;i<30;i++){const x=unLaunch(g,v);n+=x;if(x)break}}else for(let i=0;i<g.hit.n;i++)n+=unLaunch(g,v);g.msg+=` ${nmid(v)} takes ${n} from the launcher.`;g.hit=null}
+    if(g.pend){const v=g.turn;if(g.pend.wc){const n=unGiveUntil(g,v,g.pend.wc);g.msg+=` ${nmid(v)} draws ${n}.`}else{unGive(g,v,g.pend.n);g.msg+=` ${nmid(v)} draws ${g.pend.n}.`}g.pend=null;unMercy(g,v)}unEnd(g,pid);return true}
   unAuto(g);return true}
 /* a draw nobody can answer is taken right away */
 function unAuto(g){const p=g.pend;if(!p||p.ch)return;const v=g.turn;if(!p.wc&&unStackOn(g)&&(g.h[v]||[]).some(c=>(UNDRAW[unFace(g,c).k]||0)>=p.v))return;unResolvePend(g,v)}
@@ -7893,23 +7918,29 @@ function unFlip(g){g.side=g.side==='D'?'L':'D';g.disc.reverse();g.deck.reverse()
   Object.keys(g.h).forEach(id=>g.h[id]=unSort(g,g.h[id]))}
 function unShuffleHands(g,pid){const P=unAlive(g),all=htShuffle(P.flatMap(p=>g.h[p.id]));P.forEach(p=>g.h[p.id]=[]);let id=unNext(g,pid);while(all.length){g.h[id].push(all.pop());id=unNext(g,id)}g.uno={};g.catch=null}
 function unRotate(g){const P=unAlive(g),n=P.length,hs=P.map(p=>g.h[p.id]),d=g.dir;P.forEach((p,i)=>{g.h[p.id]=hs[(i-d+n*2)%n]});g.uno={};g.catch=null;P.forEach(p=>unMercy(g,p.id))}
-function unSwap(g,pid,t,auto){if(!g.h[t]||t===pid)return false;[g.h[pid],g.h[t]]=[g.h[t],g.h[pid]];g.uno={};g.catch=null;g.ask=null;g.msg+=` ${nmid(pid)} swaps hands with ${nmid(t)}.`;unMercy(g,pid);unMercy(g,t);if(!auto)g.turn=unNext(g,pid);return true}
+function unSwap(g,pid,t,auto){if(!g.h[t]||t===pid)return false;[g.h[pid],g.h[t]]=[g.h[t],g.h[pid]];g.uno={};g.catch=null;g.ask=null;g.msg+=` ${nmid(pid)} swaps hands with ${nmid(t)}.`;unMercy(g,pid);unMercy(g,t);if(!auto)g.turn=unNext(g,pid);if(!g.h[t].length){unEnd(g,t);return true}if(unCallOn()&&g.h[t].length===1)g.catch={p:t,id:g.n};return true}
+function unAim(g,pid,t,auto){if(!g.h[t]||t===pid)return false;g.ask=null;unGive(g,t,2);g.msg+=` ${nmid(t)} draws 2.`;if(!auto)g.turn=unNext(g,pid);return true}
+function unPress(g,pid){const h=g.hit;if(!h||h.p!==pid||g.turn!==pid)return false;if(g.catch&&g.catch.p!==pid)g.catch=null;const n=unLaunch(g,pid);g.msg=`${nmid(pid)} pressed the launcher: ${n?`💥 ${n} card${n===1?'':'s'}!`:'nothing came out.'}`;
+  if(h.fire){if(n>0){g.hit=null;g.turn=unNext(g,pid);g.msg+=' It fired!'}}else{h.n--;if(h.n<=0){g.hit=null;g.turn=unNext(g,pid)}}return true}
 function unRoul(g,pid,col){if(!g.ask||g.ask.t!=='roul'||g.ask.p!==pid||!unSideCols(g).includes(col))return false;g.ask=null;const n=unGiveUntil(g,pid,col);g.msg=`Color Roulette: ${nmid(pid)} named ${UNCOL[col][0].toLowerCase()} and flipped ${n} card${n===1?'':'s'}.`;unMercy(g,pid);g.turn=unNext(g,pid);return true}
 function unDrawAct(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||g.ask||g.drawn)return false;if(g.catch&&g.catch.p!==pid)g.catch=null;
   if(g.pend){g.msg='';unResolvePend(g,pid);g.msg=g.msg.trim();return true}
-  if(UNX().hr.force&&!unNM(g)&&unLegal(g,pid).length)return 'force';
-  let c=null,n=0;if(unDrawUntil(g)){for(;;){c=unPull(g);if(!c)break;g.h[pid].push(c);n++;if(unCanOn(g,c))break;if(unNM(g)&&g.h[pid].length>=25)break}}else{c=unPull(g);if(c){g.h[pid].push(c);n=1}}
+  if(g.hit)return unPress(g,pid);
+  if(unAT(g)){const n=unLaunch(g,pid);g.msg=`${nmid(pid)} pressed the launcher: ${n?`💥 ${n} card${n===1?'':'s'}!`:'nothing came out.'}`;g.turn=unNext(g,pid);return true}
+  if(UNX().hr.force&&!unNM(g)&&!unAW(g)&&unLegal(g,pid).length)return 'force';
+  let c=null,n=0;if(unDrawUntil(g)&&!unAW(g)){for(;;){c=unPull(g);if(!c)break;g.h[pid].push(c);n++;if(unCanOn(g,c))break;if(unNM(g)&&g.h[pid].length>=25)break}}else{c=unPull(g);if(c){g.h[pid].push(c);n=1}}
   if(g.h[pid].length>1)delete g.uno[pid];g.msg=`${nmid(pid)} drew ${n} card${n===1?'':'s'}.`;unMercy(g,pid);
   if(g.ko[pid]){g.turn=unNext(g,pid);return true}
   if(c&&unCanOn(g,c)){g.drawn={p:pid,c};return true}
   g.turn=unNext(g,pid);return true}
 function unKeepAct(g,pid){if(!g||!g.drawn||g.drawn.p!==pid||unNM(g))return false;g.drawn=null;g.msg=`${nmid(pid)} kept the card.`;g.turn=unNext(g,pid);return true}
-function unCallUno(g,pid){const h=g.h[pid]||[];if(!unCallOn()||!h.length||h.length>2||g.uno[pid])return false;g.uno[pid]=1;if(g.catch&&g.catch.p===pid)g.catch=null;g.shout={p:pid,k:(g.shout?g.shout.k:0)+1};return true}
-function unCatch(g,by,t){if(!g||!g.catch||g.catch.p!==t||g.phase!=='play')return false;g.catch=null;unGive(g,t,2);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without an UNO! ${nmid(t)} draws 2.`;return true}
+function unCallUno(g,pid){const h=g.h[pid]||[];if(!unCallOn()||!h.length||h.length>(unDOS(g)?3:2)||g.uno[pid])return false;g.uno[pid]=1;if(g.catch&&g.catch.p===pid)g.catch=null;g.shout={p:pid,k:(g.shout?g.shout.k:0)+1,t:unCallWord(g)+'!'};return true}
+function unCatch(g,by,t){if(!g||!g.catch||g.catch.p!==t||g.phase!=='play')return false;g.catch=null;if(unAT(g)){const n=unLaunch(g,t)+unLaunch(g,t);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without an UNO! ${nmid(t)} presses the launcher twice: ${n} card${n===1?'':'s'}.`;return true}unGive(g,t,2);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without ${unDOS(g)?'a DOS':'an UNO'}! ${nmid(t)} draws 2.`;return true}
 function unEnd(g,w){act().forEach(p=>{const R=unR(p,g.r),ko=!!g.ko[p.id];R.won=p.id===w;R.ko=ko;R.pv=p.id===w||ko?0:(g.h[p.id]||[]).reduce((a,c)=>a+unCardPts(g,c),0);R.v=R.pv;R.num=null;R.c={}});
-  S.unside=S.unside||[];S.unside[g.r]=g.side==='D'?'dark':'light';g.phase='done';g.win=w;g.turn=null;g.pend=null;g.ask=null;g.drawn=null;g.catch=null;
+  S.unside=S.unside||[];S.unside[g.r]=g.side==='D'?'dark':'light';g.phase='done';g.win=w;g.turn=null;g.pend=null;g.hit=null;g.ask=null;g.drawn=null;g.catch=null;
   g.msg+=` ${nmid(w)} ${unAlive(g).length===1&&(g.h[w]||[]).length?'is the last one standing and':''} wins the hand!`.replace('  ',' ');S.hr=Math.max(S.hr||0,g.r)}
 function unAfter(g){if(!g||g.phase!=='play')return;act().forEach(p=>unMercy(g,p.id));const al=unAlive(g);if(al.length===1){unEnd(g,al[0].id);return}
+  {const w0=al.find(p=>!(g.h[p.id]||[]).length&&!(g.ask&&g.ask.forced&&g.ask.p===p.id));if(w0){unEnd(g,w0.id);return}}
   if(g.turn&&g.ko[g.turn])g.turn=unNext(g,g.turn);if(g.ask&&g.ko[g.ask.p]){g.ask=null;g.turn=unNext(g,g.turn)}if(UNSEL&&!Object.values(g.h).some(h=>h.includes(UNSEL)))UNSEL=null}
 
 /* ---------------- computer players ---------------- */
@@ -7918,17 +7949,20 @@ function unBotPick(g,pid,L,lv){if(lv==='easy')return L[Math.floor(Math.random()*
   const sc=c=>{const f=unFace(g,c);let s;if(f.col===null){s=-30;if(UNDRAW[f.k]||f.k==='WC'||f.k==='WR')s+=lv==='hard'&&danger?70:8;if(unChalOn(g)&&(f.k==='W4'||f.k==='W2'||f.k==='WC')&&g.col&&h.some(x=>x!==c&&unFace(g,x).col===g.col))s-=200;return s+Math.random()}
     s=10+h.filter(x=>unFace(g,x).col===f.col).length*2;if(unIsNum(f.k))s+=+f.k/3;else{s+=lv==='hard'&&danger&&f.k!=='F'?30:3;if(f.k==='A')s+=h.filter(x=>unFace(g,x).col===f.col).length*4;if(f.k==='7'&&unSevenOn(g))s+=h.length>4?12:-8;if(f.k==='0'&&unSevenOn(g))s+=h.length>4?6:-6}
     return s+Math.random()};
-  return L.slice().sort((a,b)=>sc(b)-sc(a))[0]}
+  const sc2=c=>{const f=unFace(g,c);let s=sc(c);if(f.k==='VF'){const mn=Math.min(...unAlive(g).filter(p=>p.id!==pid).map(p=>(g.h[p.id]||[]).length));s+=(h.length-1-mn)*6;if(h.length===1)s-=500}if(f.k==='VT')s+=lv==='hard'&&danger?40:4;if(f.k==='V2')s+=lv==='hard'&&danger?35:2;if(f.k==='W'&&unAW(g))s+=12;if(f.k==='T'){const mn=Math.min(...unAlive(g).filter(p=>p.id!==pid).map(p=>(g.h[p.id]||[]).length));s+=(h.length-1-mn)*5}return s};
+  return L.slice().sort((a,b)=>sc2(b)-sc2(a))[0]}
 function unBotPlay(g,pid,c,lv){const h=g.h[pid];if(h.length===2&&unCallOn()&&Math.random()>(lv==='easy'?.3:lv==='normal'?.08:0))unCallUno(g,pid);const f=unFace(g,c);
-  unPlayCard(pid,c,{col:f.col===null?unBestCol(g,h.filter(x=>x!==c)):null})}
+  unPlayCard(pid,c,{col:f.col===null&&!unAW(g)?unBestCol(g,h.filter(x=>x!==c)):null})}
 function unBotMove(g,q){const pid=q.id,lv=q.bot;
-  if(g.ask&&g.ask.p===pid){if(g.ask.t==='swap'){const t=unAlive(g).filter(p=>p.id!==pid).sort((a,b)=>g.h[a.id].length-g.h[b.id].length)[0];unSwap(g,pid,t.id)}else unRoul(g,pid,unSideCols(g)[Math.floor(Math.random()*4)]);return}
+  if(unDOS(g))return dosBotStep(g,q);
+  if(g.ask&&g.ask.p===pid){const others=unAlive(g).filter(p=>p.id!==pid).sort((a,b)=>g.h[a.id].length-g.h[b.id].length);if(g.ask.t==='swap'){const t=g.ask.forced&&!g.h[pid].length?others[others.length-1]:others[0];unSwap(g,pid,t.id)}else if(g.ask.t==='target')unAim(g,pid,others[0].id);else unRoul(g,pid,unSideCols(g)[Math.floor(Math.random()*4)]);return}
+  if(g.hit&&g.hit.p===pid){unPress(g,pid);return}
   if(g.drawn&&g.drawn.p===pid){if(lv==='easy'&&!unNM(g)&&Math.random()<.2){unKeepAct(g,pid);return}unBotPlay(g,pid,g.drawn.c,lv);return}
   if(g.turn!==pid)return;
   if(g.pend){const L=unLegal(g,pid);if(L.length&&(lv==='hard'||Math.random()<(lv==='easy'?.5:.85))){unBotPlay(g,pid,L.sort((a,b)=>UNDRAW[unFace(g,a).k]-UNDRAW[unFace(g,b).k])[0],lv);return}
     if(g.pend.ch){const bn=(g.h[g.pend.by]||[]).length,pr=lv==='easy'?.3:lv==='normal'?.25:(bn>=5?.45:.15);if(Math.random()<pr){unChallenge(g,pid);return}}
     g.msg='';unResolvePend(g,pid);g.msg=g.msg.trim();return}
-  const L=unLegal(g,pid);if(!L.length){unDrawAct(g,pid);return}
+  const L=unLegal(g,pid);if(!L.length||L.length===1&&g.h[pid].length===1&&unFace(g,L[0]).k==='VF'&&!g.drawn){unDrawAct(g,pid);return}
   unBotPlay(g,pid,unBotPick(g,pid,L,lv),lv)}
 
 /* ---------------- who is looking at this phone ---------------- */
@@ -7948,7 +7982,7 @@ function unTick(){if(S.game!=='uno'||!unPlayOn()||!S.started||S.finished||S.scre
   if(unJumpOn()&&!g.pend&&!g.ask&&!g.drawn&&g.disc.length){const top=g.disc[g.disc.length-1],key=g.r+':'+g.n+':'+top.c;if(!UNJS[key]){UNJS[key]=1;const cands=unAlive(g).filter(p=>p.bot&&p.id!==g.turn&&unJumpable(g,p.id).length);
     const q=cands.find(p=>Math.random()<({easy:0,normal:.2,hard:.5})[p.bot]);if(q)setTimeout(()=>{const g2=ung();if(!g2||g2.n!==g.n)return;const J=unJumpable(g2,q.id);if(!J.length)return;const h=g2.h[q.id];if(h.length===2&&unCallOn())unCallUno(g2,q.id);unPlayCard(q.id,J[0],{jump:true});unAfter(g2);save();render()},(450+Math.random()*400)*spd)}}
   const q=act().find(p=>p.id===unActorId(g));
-  if(q&&q.bot&&!document.querySelector('.sheet-bg')&&!UNBOTT)UNBOTT=setTimeout(()=>{UNBOTT=null;const g2=ung();if(g2&&g2.phase==='play'&&unActorId(g2)===q.id){unBotMove(g2,q);unAfter(g2);save()}render()},(g.catch?1800:g.pend?950:g.drawn?700:900)*spd)}
+  if(q&&q.bot&&!document.querySelector('.sheet-bg')&&!UNBOTT)UNBOTT=setTimeout(()=>{UNBOTT=null;const g2=ung();if(g2&&g2.phase==='play'&&unActorId(g2)===q.id){unBotMove(g2,q);unAfter(g2);save()}render()},(g.catch?1800:g.hit?750:g.pend?950:g.drawn?700:unDOS(g)&&g.m&&(g.m.made||g.m.drew)?650:900)*spd)}
 
 /* ---------------- drawing the table ---------------- */
 function unCardEl(g,c,o={}){const f=unFace(g,c),tag=o.btn?'button':'span',attr=o.btn?` data-a="unpcard" data-c="${c}" aria-pressed="${!!o.sel}"${o.dis?' aria-disabled="true"':''}`:'';
@@ -7956,7 +7990,7 @@ function unCardEl(g,c,o={}){const f=unFace(g,c),tag=o.btn?'button':'span',attr=o
   const st=`--uc:${wild?'#23272e':UNCOL[f.col][1]};${wild?`--q1:${cs[0]};--q2:${cs[1]};--q3:${cs[2]};--q4:${cs[3]};`:''}${o.w?`--uw:${UNCOL[o.w][1]};`:''}`;
   return `<${tag} class="htc unc${wild?' unw':''}${g.side==='D'?' undk':''}${o.w?' named':''}${o.cls?' '+o.cls:''}" style="${st}"${attr} aria-label="${esc(unName(g,c))}${o.w?', color '+UNCOL[o.w][0]:''}${o.sel?', picked':''}"><b${lab.length>2?' class="ten"':''}>${lab}</b><em>${lab}</em>${num?'':`<i>${UNTAG[f.k]}</i>`}</${tag}>`}
 function unShoutEl(g,q){const s=g.shout;if(!s)return '';const k=g.r+':'+s.p+':'+s.k,sn=UNSH.k;if(sn===undefined){UNSH.k=k;UNSH.at=0;return ''}
-  if(sn!==k){UNSH.k=k;UNSH.at=Date.now();setTimeout(render,1700)}if(s.p!==q.id||!UNSH.at)return '';const el=Date.now()-UNSH.at;return el<1600?`<i class="bidpop unshout" style="animation-delay:-${el}ms;animation-duration:1.6s" aria-hidden="true">UNO!</i>`:''}
+  if(sn!==k){UNSH.k=k;UNSH.at=Date.now();setTimeout(render,1700)}if(s.p!==q.id||!UNSH.at)return '';const el=Date.now()-UNSH.at;return el<1600?`<i class="bidpop unshout" style="animation-delay:-${el}ms;animation-duration:1.6s" aria-hidden="true">${esc(s.t||'UNO!')}</i>`:''}
 function unPlay(){const X=UNX(),P=act(),g=ung(),r=unCur(),W=X.mode==='wins',low=X.mode==='low',sc=P.map(unTot),best=low?Math.min(...sc):Math.max(...sc),lead=unLast()>=0&&sc.filter(x=>x===best).length===1?P[sc.indexOf(best)]:null;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">#${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&g.phase==='play'&&unActorId(g)===q.id}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${W?'wins':`${unWins(q)} won`}</div></button>`).join('')}</div>`;
@@ -7965,32 +7999,36 @@ function unPlay(){const X=UNX(),P=act(),g=ung(),r=unCur(),W=X.mode==='wins',low=
   let status='';
   if(g.phase==='done')status=`<b>Hand ${r+1} is over.</b>`;
   else if(V&&g.ko[V.id])status='<b>You’re knocked out of this hand</b> (Mercy rule). Hang tight until the next one.';
-  else if(mine&&g.ask)status=g.ask.t==='swap'?'<b>You played a 7.</b> Pick someone to swap hands with.':'<b>Color Roulette!</b> Name a color. You’ll flip cards until you hit it, and keep them all.';
+  else if(unDOS(g)&&mine)status=g.ask?`<b>Color match bonus!</b> Add ${g.ask.n} card${g.ask.n===1?'':'s'} from your hand to the center row.`:`<b>Your turn${S.lk||unHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.m.made?`${g.m.made} match${g.m.made===1?'':'es'} so far. Keep matching or end your turn.`:g.m.drew?'You drew. Match if you can, or add a card to the center row.':'Match the center row, or draw a card.'}`;
+  else if(mine&&g.hit)status=`<b>Press the launcher!</b> ${g.hit.fire?'Keep pressing until it fires.':`${g.hit.n} press${g.hit.n===1?'':'es'} to go, then your turn is over.`}`;
+  else if(mine&&g.ask)status=g.ask.t==='swap'?`<b>${g.ask.forced?'Wild Forced Swap!':'Swap!'}</b> Pick someone to swap hands with.${g.ask.forced&&!hand.length?' They get your empty hand and win!':''}`:g.ask.t==='target'?'<b>Wild Targeted Draw Two!</b> Pick who draws 2.':'<b>Color Roulette!</b> Name a color. You’ll flip cards until you hit it, and keep them all.';
   else if(mine&&g.drawn)status=`<b>You drew a card you can play.</b> ${unNM(g)?'Play it.':'Play it, or keep it and end your turn.'}`;
   else if(mine&&g.pend)status=g.pend.wc?`<b>Wild Draw Color!</b> You draw until you get a ${UNCOL[g.pend.wc][0].toLowerCase()} card.${g.pend.ch?' Or challenge it.':''}`:`<b>Draw ${g.pend.n}!</b> ${unStackOn(g)?`Stack a draw card of +${g.pend.v} or more to pass it on${g.pend.ch?', challenge it,':''} or take the cards.`:g.pend.ch?'Take the cards, or challenge it.':''}`;
   else if(mine)status=`<b>Your turn${S.lk||unHumans().length<2?'':', '+esc(nm(V))}.</b> ${unLegal(g,V.id).length?unWhyNot(g,V.id,''):'Nothing matches: draw a card.'}`;
-  else if(actor)status=`${actor.bot?'🤖 ':''}<b>${esc(nm(actor))}</b> ${g.ask?'is choosing…':g.pend?'has to answer a draw card…':'is playing…'}`;
+  else if(actor)status=`${actor.bot?'🤖 ':''}<b>${esc(nm(actor))}</b> ${g.hit?'is pressing the launcher…':g.ask?'is choosing…':g.pend?'has to answer a draw card…':'is playing…'}`;
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
-  const colSw=g.col?`<span class="unchip" style="--uc:${UNCOL[g.col][1]}"></span><span><b>Color: ${UNCOL[g.col][0]}</b>`:`<span class="unchip any"></span><span><b>Any color</b>`;
-  out+=`<div class="ohup unup">${colSw}<br><small>${g.dir===1?'↻ Play goes left':'↺ Play goes right'}${g.ver==='flip'?` · ${g.side==='D'?'☾ Dark side':'☀ Light side'}`:''} · ${g.deck.length} in the draw pile</small></span></div>`;
-  const shown=g.disc.slice(-4),catchT=g.catch&&g.phase==='play'?g.catch.p:null;
+  const colSw=unDOS(g)?`<span class="unchip any"></span><span><b>DOS</b>`:unAW(g)?`<span class="unchip any"></span><span><b>Every card is wild</b>`:g.col?`<span class="unchip" style="--uc:${UNCOL[g.col][1]}"></span><span><b>Color: ${UNCOL[g.col][0]}</b>`:`<span class="unchip any"></span><span><b>Any color</b>`;
+  out+=`<div class="ohup unup">${colSw}<br><small>${g.dir===1?'↻ Play goes left':'↺ Play goes right'}${g.ver==='flip'?` · ${g.side==='D'?'☾ Dark side':'☀ Light side'}`:''} · ${g.deck.length} in the ${unAT(g)?'launcher':'draw pile'}</small></span></div>`;
+  const shown=unDOS(g)?[]:g.disc.slice(-4),catchT=g.catch&&g.phase==='play'?g.catch.p:null;
   out+=ktTable({dealTag:S.game,dg:g,P,me:V?V.id:me?me.id:null,trick:shown.map(x=>({p:x.p||g.dealer,c:x.c})),faded:false,turn:g.phase==='play'?unActorId(g):null,won:null,
     card:c=>{const x=shown.find(y=>y.c===c);return unCardEl(g,c,{w:x&&x.w})},
-    label:q=>{const n=(g.h[q.id]||[]).length;return g.ko[q.id]?'💀 knocked out':g.phase==='done'&&q.id===g.win?'went out 🎉':`${n} card${n===1?'':'s'}${n===1&&g.uno[q.id]?' · UNO!':''}`},
-    seat:q=>q.id===catchT?{cls:'uncatch'}:null,pop:q=>unShoutEl(g,q),note:''});
+    label:q=>{const n=(g.h[q.id]||[]).length;return g.ko[q.id]?'💀 knocked out':g.phase==='done'&&q.id===g.win?'went out 🎉':`${n} card${n===1?'':'s'}${n<=(unDOS(g)?2:1)&&g.uno[q.id]?` · ${unCallWord(g)}!`:''}`},
+    seat:q=>q.id===catchT?{cls:'uncatch'}:null,pop:q=>unShoutEl(g,q),note:'',center:unDOS(g)?dosRowHtml(g,mine):''});
   if(g.phase==='done'){const rows=P.map(q=>{const R=(q.un||[])[g.r]||{},v=unHand(q,g.r);return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${R.won?'went out':R.ko?'knocked out by the Mercy rule':`${(g.h[q.id]||[]).length} cards left, worth ${R.pv||0}`}</small></span><span class="num"><b>${v?'+'+v:0}</b> · ${unTot(q)}</span></div>`}).join('');
     const over=unOver();out+=`<div class="panel htsum">${rows}</div><div class="actions"><div class="in">${over?(unRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Game over! Waiting for the host to reveal…</span>`):unRes()?`<button class="btn sm" data-a="finish">End game</button><button class="btn primary" data-a="unpdeal">Deal hand ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`;return out+unModal()}
-  if(catchT&&(!V||V.id!==catchT))out+=`<div class="actions unrow"><div class="in"><button class="btn primary uncatchbtn" data-a="unpcatch" data-k="${catchT}">🚨 ${esc(nmid(catchT))} didn’t say UNO! Catch them</button></div></div>`;
+  if(catchT&&(!V||V.id!==catchT))out+=`<div class="actions unrow"><div class="in"><button class="btn primary uncatchbtn" data-a="unpcatch" data-k="${catchT}">🚨 ${esc(nmid(catchT))} didn’t say ${unCallWord(g)}! Catch them</button></div></div>`;
+  if(unDOS(g))return out+dosHtml(g,V,mine)+unModal();
   if(V&&!g.ko[V.id]){const L=unLegal(g,V.id),J=unJumpable(g,V.id),sel=UNSEL&&hand.includes(UNSEL)?UNSEL:null;
     if(unCallOn()&&hand.length&&hand.length<=2&&!g.uno[V.id]&&(hand.length===2||catchT===V.id))out+=`<div class="unorow"><button class="btn unobtn" data-a="unpuno">UNO!</button></div>`;
-    if(mine&&g.ask&&g.ask.t==='swap')out+=`<div class="panel sdbids"><div class="lr sbwho">${unAlive(g).filter(p=>p.id!==V.id).map(p=>`<button style="${pc(p.color)}" data-a="unpswap" data-k="${p.id}"><i></i>${esc(nm(p))} · ${(g.h[p.id]||[]).length}</button>`).join('')}</div></div>`;
+    if(mine&&g.ask&&(g.ask.t==='swap'||g.ask.t==='target'))out+=`<div class="panel sdbids"><div class="lr sbwho">${unAlive(g).filter(p=>p.id!==V.id).map(p=>`<button style="${pc(p.color)}" data-a="${g.ask.t==='target'?'unpaim':'unpswap'}" data-k="${p.id}"><i></i>${esc(nm(p))} · ${(g.h[p.id]||[]).length}</button>`).join('')}</div></div>`;
     else if(mine&&g.ask)out+=`<div class="panel sdbids"><div class="rktr rgpick">${unSideCols(g).map(s=>`<button class="btn" data-a="unproul" data-k="${s}" style="--rk:${UNCOL[s][1]}"><i></i>${UNCOL[s][0]}</button>`).join('')}</div></div>`;
-    else if(sel&&unFace(g,sel).col===null&&L.includes(sel))out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>${esc(UNKN[unFace(g,sel).k])}: pick the color.</b></p><div class="rktr rgpick">${unSideCols(g).map(s=>`<button class="btn" data-a="unpcol" data-k="${s}" style="--rk:${UNCOL[s][1]}"><i></i>${UNCOL[s][0]}</button>`).join('')}</div></div>`;
+    else if(sel&&!unAW(g)&&unFace(g,sel).col===null&&L.includes(sel))out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>${esc(UNKN[unFace(g,sel).k])}: pick the color.</b></p><div class="rktr rgpick">${unSideCols(g).map(s=>`<button class="btn" data-a="unpcol" data-k="${s}" style="--rk:${UNCOL[s][1]}"><i></i>${UNCOL[s][0]}</button>`).join('')}</div></div>`;
     const rows=[];for(let i=0;i<hand.length;i+=12)rows.push(hand.slice(i,i+12));
     out+=`<div class="unhands" aria-label="Your cards">${rows.map(row=>`<div class="hthand" style="--n:${row.length}">${row.map(c=>{const ok=L.includes(c),jp=J.includes(c),act2=mine||L.length;return unCardEl(g,c,{btn:true,sel:sel===c,dis:!ok&&!jp,cls:[jp?'ok jump':act2?(ok?'ok':'no'):'',g.drawn&&g.drawn.c===c?'new':''].join(' ').trim()})}).join('')}</div>`).join('')||'<p class="hint" style="text-align:center">No cards.</p>'}</div>`;
     const btns=[];
-    if(mine&&!g.ask&&!g.drawn){if(g.pend){if(g.pend.ch)btns.push(`<button class="btn" data-a="unpchal">Challenge!</button>`);btns.push(`<button class="btn primary" data-a="unpdraw">${g.pend.wc?`Draw until ${UNCOL[g.pend.wc][0].toLowerCase()}`:`Take ${g.pend.n} cards`}</button>`)}
-      else btns.push(`<button class="btn${L.length?'':' primary'}" data-a="unpdraw" ${X.hr.force&&!unNM(g)&&L.length?'disabled':''}>Draw a card</button>`)}
+    if(mine&&g.hit)btns.push(`<button class="btn primary unlaunch" data-a="unpdraw">🎯 Press the launcher</button>`);
+    else if(mine&&!g.ask&&!g.drawn){if(g.pend){if(g.pend.ch)btns.push(`<button class="btn" data-a="unpchal">Challenge!</button>`);btns.push(`<button class="btn primary" data-a="unpdraw">${g.pend.wc?`Draw until ${UNCOL[g.pend.wc][0].toLowerCase()}`:`Take ${g.pend.n} cards`}</button>`)}
+      else btns.push(`<button class="btn${L.length?'':' primary'}" data-a="unpdraw" ${X.hr.force&&!unNM(g)&&!unAW(g)&&L.length?'disabled':''}>${unAT(g)?'🎯 Press the launcher':'Draw a card'}</button>`)}
     if(mine&&g.drawn&&!unNM(g))btns.push(`<button class="btn" data-a="unpkeep">Keep it</button>`);
     if(btns.length)out+=`<div class="actions"><div class="in">${btns.join('')}</div></div>`;
     if(L.length||J.length)out+=`<p class="hint" style="text-align:center">${J.length&&!L.length?'<b>Jump in!</b> You have the exact same card. ':''}${cardPlayHint()}</p>`}
@@ -7998,7 +8036,7 @@ function unPlay(){const X=UNX(),P=act(),g=ung(),r=unCur(),W=X.mode==='wins',low=
   return out+unModal()}
 function unModal(){const a=unNeedHandoff();if(!a)return '';const g=ung();return `<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="unp-h" style="${pc(a.color)}">
   <svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="unp-h">${esc(nm(a))}</h2>
-  <p class="rlab">${g.ask?(g.ask.t==='swap'?'Pick who to swap hands with.':'Color Roulette: name a color.'):g.pend?'A draw card is coming your way.':'It’s your turn.'} Everyone else, look away.</p><button class="btn primary wide" data-a="unpshow" data-k="${a.id}">I’m ${esc(nm(a))}, show my cards</button></div></div>`}
+  <p class="rlab">${g.ask?(g.ask.t==='swap'?'Pick who to swap hands with.':g.ask.t==='target'?'Pick who draws 2.':g.ask.t==='lay'?'Add cards to the center row.':'Color Roulette: name a color.'):g.hit?'Time to press the launcher.':g.pend?'A draw card is coming your way.':'It’s your turn.'} Everyone else, look away.</p><button class="btn primary wide" data-a="unpshow" data-k="${a.id}">I’m ${esc(nm(a))}, show my cards</button></div></div>`}
 function unAct(a,b,k){const g=ung();if(!g)return;
   if(a==='unpshow'){UNVIEW=k;UNSEL=null;return}
   if(a==='unpdeal'){if(!unRes()||g.phase!=='done')return;S.hr=unCur()+1;unDeal(S.hr);window.scrollTo(0,0);return}
@@ -8006,6 +8044,14 @@ function unAct(a,b,k){const g=ung();if(!g)return;
   if(a==='unpcatch'){const by=(V||unMe()||{}).id||null;if(unCatch(g,by,k)){vibe(30);unAfter(g)}else toast('Too late, they’re safe.');return}
   if(!V)return;
   if(a==='unpuno'){if(unCallUno(g,V.id))vibe([30,40,30]);return}
+  if(unDOS(g)){
+    if(a==='unpdraw'){if(!dosDraw(g,V.id))toast(g.turn!==V.id?`It’s ${nmid(g.turn)}’s turn.`:'You can only draw before you match.');DOSSEL=[];unAfter(g);return}
+    if(a==='unpend'){const r=dosEnd(g,V.id);if(r==='draw')toast('Match something or draw a card first.');DOSSEL=[];unAfter(g);return}
+    if(a==='unprow'){if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}if(!DOSSEL.length){toast('Pick 1 or 2 cards from your hand first.');return}const i=+b.dataset.i,t=g.row[i],r=dosMatch(g,V.id,DOSSEL.slice(),i);
+      if(r===true){DOSSEL=[];vibe(20);unAfter(g)}else toast(r==='used'?'That center card is already matched this turn.':r==='nomatch'?(DOSSEL.length===1?`That isn’t a ${dosVals(t).length>2?'match':dosVals(t)[0]}.`:`Those don’t add up to ${dosVals(t).length>2?'1 to 10':dosVals(t)[0]}.`):'Hang on…');return}
+    if(a==='unpcard'){const c=b.dataset.c;if(g.ask&&g.ask.t==='lay'&&g.ask.p===V.id){dosLay(g,V.id,c);unAfter(g);return}if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}
+      if(DOSSEL.includes(c))DOSSEL=DOSSEL.filter(x=>x!==c);else{DOSSEL.push(c);if(DOSSEL.length>2)DOSSEL.shift()}return}}
+  if(a==='unpaim'){if(g.ask&&g.ask.t==='target'&&g.ask.p===V.id&&unAim(g,V.id,k))unAfter(g);return}
   if(a==='unpdraw'){const r=unDrawAct(g,V.id);if(r==='force')toast('You have a card you can play.');else if(!r)toast(unWhyNot(g,V.id,''));UNSEL=null;unAfter(g);return}
   if(a==='unpkeep'){unKeepAct(g,V.id);UNSEL=null;unAfter(g);return}
   if(a==='unpchal'){if(unChallenge(g,V.id))unAfter(g);return}
@@ -8014,10 +8060,62 @@ function unAct(a,b,k){const g=ung();if(!g)return;
   if(a==='unpcol'){if(!UNSEL)return;const c=UNSEL;UNSEL=null;if(!unPlayCard(V.id,c,{col:k}))toast('You can’t play that now.');unAfter(g);return}
   if(a==='unpcard'){const c=b.dataset.c,L=unLegal(g,V.id),J=unJumpable(g,V.id);
     if(!L.includes(c)&&!J.includes(c)){toast(unWhyNot(g,V.id,c));return}
-    if(unFace(g,c).col===null){UNSEL=c;return}
+    if(unFace(g,c).col===null&&!unAW(g)){UNSEL=c;return}
     if(UNSEL!==c){UNSEL=c;return}UNSEL=null;
     if((g.h[V.id]||[]).length===2&&!unCallOn())g.uno[V.id]=1;
     unPlayCard(V.id,c,{jump:!L.includes(c)});unAfter(g);return}}
+
+/* ---------------- DOS: match the center row by number, or with two cards that add up ----------------
+   g.row = [card ids face up in the center]; g.m = this turn so far: {used:{rowIndex:[cards]}, made, bonus (color matches), dbl (double color matches), drew}
+   Wild DOS (xWD) is a 2 of any color. Wild # (cWN) is any number 1 to 10 in its color. */
+const dosVals=c=>{const f=unF(c);return f.k==='WD'?[2]:f.k==='WN'?[1,2,3,4,5,6,7,8,9,10]:[+f.k]};
+const dosCols=c=>{const f=unF(c);return f.k==='WD'?['r','y','g','b']:[f.col]};
+function dosCheck(cards,t){if(!cards.length||cards.length>2)return null;const tv=dosVals(t);let ok=false;
+  if(cards.length===1)ok=dosVals(cards[0]).some(v=>tv.includes(v));else ok=dosVals(cards[0]).some(a=>dosVals(cards[1]).some(b=>tv.includes(a+b)));if(!ok)return null;
+  const col=dosCols(t).some(cl=>cards.every(c=>dosCols(c).includes(cl)));return {col,dbl:cards.length===2}}
+function dosDeal(r,dealer){const P=act();const g={_atom:1,r,ver:'dos',side:'L',h:{},deck:htShuffle(unBuild('dos')),disc:[],row:[],col:null,dir:1,dealer,turn:null,pend:null,hit:null,drawn:null,ask:null,uno:{},catch:null,ko:{},shout:null,msg:'',n:0,phase:'play',win:null,m:{used:{},made:0,bonus:0,dbl:0,drew:false}};
+  P.forEach(p=>g.h[p.id]=[]);for(let i=0;i<7;i++)P.forEach(p=>g.h[p.id].push(g.deck.pop()));g.row=[g.deck.pop(),g.deck.pop()];
+  g.turn=unNext(g,dealer);g.msg=`${nmid(dealer)} dealt. ${nmid(g.turn)} goes first.`;S.ung=g;UNSEL=null;UNVIEW=null;DOSSEL=[]}
+function dosMatch(g,pid,cards,i){if(!g||g.phase!=='play'||g.turn!==pid||g.ask)return 'wait';const t=g.row[i];if(t===undefined)return 'gone';if(g.m.used[i])return 'used';
+  const h=g.h[pid];if(!cards.every(c=>h.includes(c))||new Set(cards).size!==cards.length)return 'gone';const m=dosCheck(cards,t);if(!m)return 'nomatch';
+  if(g.catch&&g.catch.p!==pid)g.catch=null;cards.forEach(c=>h.splice(h.indexOf(c),1));g.m.used[i]=cards.slice();g.m.made++;if(m.col)g.m.bonus++;if(m.col&&m.dbl)g.m.dbl++;g.n++;
+  g.msg=`${nmid(pid)}: ${m.dbl?(m.col?'Double Color Match!':'Double Match'):m.col?'Color Match!':'Match'} on the ${dosName(t)}.`;
+  if(!h.length)dosClose(g,pid);return true}
+const dosName=c=>{const f=unF(c);return f.k==='WD'?'Wild DOS':f.k==='WN'?`${UNCOL[f.col][0].toLowerCase()} Wild #`:`${UNCOL[f.col][0].toLowerCase()} ${f.k}`};
+function dosDraw(g,pid){if(!g||g.turn!==pid||g.ask||g.m.made||g.m.drew)return false;if(g.catch&&g.catch.p!==pid)g.catch=null;const c=unPull(g);if(c)g.h[pid].push(c);if(g.h[pid].length>2)delete g.uno[pid];g.m.drew=true;g.n++;g.msg=`${nmid(pid)} drew a card.`;return true}
+function dosEnd(g,pid){if(!g||g.turn!==pid||g.ask)return false;if(!g.m.made&&!g.m.drew)return 'draw';const lay=Math.min(g.h[pid].length,g.m.bonus+(g.m.made?0:1));
+  if(lay>0){g.ask={p:pid,t:'lay',n:lay};return true}dosClose(g,pid);return true}
+function dosLay(g,pid,c){if(!g.ask||g.ask.t!=='lay'||g.ask.p!==pid)return false;const h=g.h[pid];if(!h.includes(c))return false;h.splice(h.indexOf(c),1);(g.m.lay=g.m.lay||[]).push(c);g.ask.n--;
+  if(g.ask.n<=0||!h.length){g.ask=null;dosClose(g,pid)}return true}
+function dosClose(g,pid){const used=Object.keys(g.m.used).map(Number).sort((a,b)=>b-a);used.forEach(i=>{g.disc.push({c:g.row[i]});g.m.used[i].forEach(c=>g.disc.push({c}));g.row.splice(i,1)});
+  while(g.row.length<2){const c=unPull(g);if(!c)break;g.row.push(c)}(g.m.lay||[]).forEach(c=>g.row.push(c));
+  const others=unAlive(g).filter(p=>p.id!==pid);if(g.m.dbl){others.forEach(p=>unGive(g,p.id,g.m.dbl));g.msg+=` Everyone else draws ${g.m.dbl}.`}
+  const lay=(g.m.lay||[]).length;if(lay)g.msg+=` ${nmid(pid)} adds ${lay} card${lay===1?'':'s'} to the center row.`;
+  const h=g.h[pid];g.m={used:{},made:0,bonus:0,dbl:0,drew:false};g.n++;
+  if(!h.length){unEnd(g,pid);return}
+  if(h.length===2&&unCallOn()&&!g.uno[pid])g.catch={p:pid,id:g.n};
+  g.turn=unNext(g,pid)}
+/* computer players: take the best match they can find, one at a time */
+function dosBest(g,pid,lv){const h=g.h[pid];let best=null;
+  g.row.forEach((t,i)=>{if(g.m.used[i])return;const tries=[];h.forEach((a,x)=>{tries.push([a]);h.forEach((b,y)=>{if(y>x)tries.push([a,b])})});
+    tries.forEach(cs=>{const m=dosCheck(cs,t);if(!m)return;const pts=cs.reduce((s,c)=>s+unCardPts(g,c),0);let sc=(m.col?(m.dbl?40:30):m.dbl?20:10)+pts/10+(cs.length-1)*3;if(cs.some(c=>unF(c).k==='WD'||unF(c).k==='WN'))sc-=lv==='hard'?6:2;if(lv==='easy')sc=Math.random()*10;if(!best||sc>best.sc)best={sc,cs,i}})});return best}
+function dosBotStep(g,q){const pid=q.id,lv=q.bot,h=g.h[pid];
+  if(g.ask&&g.ask.t==='lay'){const c=h.slice().sort((a,b)=>unCardPts(g,b)-unCardPts(g,a))[lv==='easy'?Math.floor(Math.random()*h.length):0];dosLay(g,pid,c);return}
+  if(g.turn!==pid)return;
+  const b=dosBest(g,pid,lv);if(b&&!(lv==='easy'&&g.m.made&&Math.random()<.3)){if(h.length-b.cs.length===2&&unCallOn()&&Math.random()>(lv==='easy'?.3:lv==='normal'?.08:0))g.uno[pid]=1,g.shout={p:pid,k:(g.shout?g.shout.k:0)+1,t:'DOS!'};dosMatch(g,pid,b.cs,b.i);return}
+  if(!g.m.made&&!g.m.drew){dosDraw(g,pid);return}
+  if(h.length===2&&unCallOn()&&!g.uno[pid]&&Math.random()>(lv==='easy'?.3:lv==='normal'?.08:0))unCallUno(g,pid);
+  dosEnd(g,pid)}
+let DOSSEL=[];
+function dosRowHtml(g,mine){const m=g.m,lay=mine&&g.ask&&g.ask.t==='lay';return g.row.map((t,i)=>{const u=m.used[i];return `<button class="dosslot${u?' used':''}" data-a="unprow" data-i="${i}" ${!mine||u||lay?'aria-disabled="true"':''} aria-label="Center card ${esc(dosName(t))}${u?', matched':''}">${unCardEl(g,t,{})}${u?`<span class="dosm">${u.map(c=>unCardEl(g,c,{})).join('')}</span>`:''}</button>`}).join('')}
+function dosHtml(g,V,mine){let out='';const m=g.m,hand=V?unSort(g,g.h[V.id]||[]):[];DOSSEL=DOSSEL.filter(c=>hand.includes(c));const lay=mine&&g.ask&&g.ask.t==='lay';
+  out+=`<p class="hint" style="text-align:center">${lay?`<b>Add ${g.ask.n} card${g.ask.n===1?'':'s'} to the center row:</b> tap ${g.ask.n===1?'a card':'cards'} in your hand.`:mine?(DOSSEL.length?`Now tap a center card that ${DOSSEL.length===1?'has the same number':'they add up to'}.`:'Pick 1 card with the same number as a center card, or 2 that add up to it. Then tap the center card.'):''}</p>`;
+  if(V&&!g.ko[V.id]){const rows=[];for(let i=0;i<hand.length;i+=12)rows.push(hand.slice(i,i+12));
+    if(unCallOn()&&hand.length&&hand.length<=3&&!g.uno[V.id]&&(hand.length<=2||mine))out+=`<div class="unorow"><button class="btn unobtn" data-a="unpuno">DOS!</button></div>`;
+    out+=`<div class="unhands" aria-label="Your cards">${rows.map(row=>`<div class="hthand" style="--n:${row.length}">${row.map(c=>unCardEl(g,c,{btn:true,sel:DOSSEL.includes(c),cls:mine?'':'no'})).join('')}</div>`).join('')||'<p class="hint" style="text-align:center">No cards.</p>'}</div>`;
+    const btns=[];if(mine&&!g.ask){if(!m.made&&!m.drew)btns.push(`<button class="btn" data-a="unpdraw">Draw a card</button>`);if(m.made||m.drew)btns.push(`<button class="btn primary" data-a="unpend">${m.made?(m.bonus?`End turn: add ${m.bonus} card${m.bonus===1?'':'s'} ›`:'End turn ›'):'No match: add a card ›'}</button>`)}
+    if(btns.length)out+=`<div class="actions"><div class="in">${btns.join('')}</div></div>`}
+  return out}
 
 /* =====================================================================
    MUNCHKIN (Original and Deluxe): a table companion
@@ -9331,7 +9429,7 @@ function render(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();navSync();if(S.game==='yahtzee')yzBotTick();if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();
+  tourApply();navSync();if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();}
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -9537,7 +9635,7 @@ document.addEventListener('click',e=>{
   if(/^oh(card|bid|deal|show)$/.test(a)&&S.game==='ohell'&&ohPlayOn()&&S.started){ohAct(a,b,k);render();return}
   if(/^rk(card|bid|deal|show|trump|nest)$/.test(a)&&S.game==='rook'&&rkPlayOn()&&S.started){rkAct(a,b,k);render();return}
   if(/^rg(card|bid|deal|show|color|num|fore|rage)$/.test(a)&&S.game==='rage'&&rgPlayOn()&&S.started){rgAct(a,b,k);render();return}
-  if(/^unp(card|draw|keep|col|uno|catch|chal|swap|roul|show|deal)$/.test(a)&&S.game==='uno'&&unPlayOn()&&S.started){unAct(a,b,k);save();render();return}
+  if(/^unp(card|draw|keep|col|uno|catch|chal|swap|roul|show|deal|aim|row|end)$/.test(a)&&S.game==='uno'&&unPlayOn()&&S.started){unAct(a,b,k);save();render();return}
   switch(a){
     case 'kpadd':kpAdd(b.dataset.v==='1');return;
     case 'pkadd':p.tickets.push({v:+b.dataset.v,done:b.dataset.d==='1',name:k});TKQ='';render();{const si=document.getElementById('tk-search');if(si)si.focus({preventScroll:true})}return;
