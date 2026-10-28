@@ -802,6 +802,7 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .ktpile{position:absolute;inset:0;pointer-events:none}.ktcard{position:absolute}.ktcard .htc{--cw:54px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
 @media (prefers-reduced-motion:no-preference){.ktcard.new{animation:ktin .22s ease-out}}@keyframes ktin{from{opacity:0;margin-top:14px}to{opacity:1;margin-top:0}}
 .kttable.faded .ktcard .htc{opacity:.6}
+.kttable.crowd .ktseat{padding:3px 6px;max-width:31%}.kttable.crowd .ktseat b{font-size:11.5px}.kttable.crowd .ktseat span{font-size:10.5px;white-space:normal}.kttable.crowd .ktcard .htc{--cw:44px}.kttable.many .ktcard .htc{--cw:48px}
 .ktnote{position:absolute;left:50%;bottom:30%;transform:translate(-50%,0);font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap;z-index:30;background:var(--bg);padding:2px 8px;border-radius:10px}
 .ohup{display:flex;align-items:center;gap:10px;margin:10px 0 0;font-size:13px}.ohup .htc{--cw:40px}.ohup small{color:var(--muted)}
 .hthand .htc.trump:not(.no){box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 70%,transparent),0 1px 2px rgba(0,0,0,.18)}
@@ -812,6 +813,11 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .rkbids{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .rktr{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.rktr .btn{min-height:44px;padding:0 4px;font-size:13px;gap:4px}.rktr .btn i{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--rk)}
 .lkvote{padding:14px;margin:14px 0}.lkvbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lkvbtns .btn{display:grid;gap:2px;min-height:58px}.lkvbtns .btn small{font-size:11.5px;font-weight:600;opacity:.75}.lkvbtns.sm{margin-top:8px}.lkvbtns.sm .btn{min-height:36px}.lkvtally{margin:8px 0 0}
+.rgact{background:#2b2f36;color:#fff;border-color:#111}.rgact::before{display:none}.rgact b{color:#f4d35e}.rgact i{position:absolute;left:5px;top:calc(var(--cw)*.42);font-style:normal;font-size:calc(var(--cw)*.15);letter-spacing:.08em;color:#f4d35e;opacity:.85}.rgact em{position:absolute;right:4px;bottom:5px;font-style:normal;font-size:calc(var(--cw)*.2);font-weight:800;line-height:1}
+.rgact.rgA b,.rgact.rgA em{color:#7be08a}.rgact.rgM b,.rgact.rgM em{color:#ff8a7a}.rgact[style*="--rk"]{box-shadow:0 0 0 3px var(--rk),0 2px 6px rgba(0,0,0,.25)}
+.rgback{background:repeating-linear-gradient(45deg,#2b2f36 0 8px,#3a404a 8px 16px);border-color:#111}.rgback em{color:#f4d35e;font-size:calc(var(--cw)*.6);right:auto;left:50%;transform:translateX(-50%);bottom:18%}
+.rgtr{display:inline-block;width:40px;height:40px;border-radius:10px;background:var(--rk);border:2px solid rgba(0,0,0,.2)}.rgtr.none{background:repeating-linear-gradient(45deg,var(--soft) 0 6px,var(--line) 6px 12px)}
+.rgpick{grid-template-columns:repeat(3,1fr)}
 .sdbids{padding:12px;margin-top:8px}.sdbidgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}.sdbidgrid .btn{min-height:44px;padding:0}
 .htsum{padding:10px 14px;margin-top:10px}.htsum .srow{padding:6px 0}.htsum .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--pc)}
 
@@ -1281,7 +1287,7 @@ const padSC=()=>Math.max(1,Math.round(Math.max(1,...act().map(p=>Math.abs(total(
 const LOW=()=>S.game==='phase10'||S.game==='mextrain'||S.game==='uno'&&UNX().mode==='low'||S.game==='golf'||S.game==='skyjo'||S.game==='gnome'&&!gnRW()||S.game==='hearts'||S.game==='crowns'||S.game==='pad'&&!!(S.px||{}).low,RS=p=>S.game==='darts'?dRankKey(p):S.game==='phase10'?ptKey(p):LOW()?-total(p):total(p),RU=(n,p)=>LOW()?-upto(n,p):upto(n,p);
 const total=p=>S.game==='carc'?cTot(p):HFE()?hfTot(p):S.game==='nerts'?nxTot(p):S.game==='pad'?pxTot(p):S.game==='darts'?dTot(p):S.game==='pool'?plTot(p):S.game==='hearts'?htTot(p):S.game==='spades'?sdTot(p):S.game==='rage'?rgTot(p):S.game==='ohell'?ohTot(p):S.game==='uno'?unTot(p):S.game==='munchkin'?mkTot(p):S.game==='crowns'?fcTot(p):S.game==='skipbo'?sbTot(p):S.game==='gnome'?gnTot(p):S.game==='skyjo'?skTot(p):S.game==='wingspan'?wsTot(p):S.game==='wyrmspan'?wyTot(p):S.game==='phase10'?ptTot(p):S.game==='rook'?rkTot(p):S.game==='yahtzee'?yzTot(p):S.game==='mextrain'?mtTot(p):S.game==='catan'?ctTot(p):S.game==='golf'?gfTot(p):S.game==='tripoley'?tpTot(p):S.game==='quacks'?qkTot(p):hsPts(p)+routePts(p)+tkNet(p)+extrasPts(p)+bonusPts(p);
 
-function resetScores(){delete S.lkvote;delete S.htg;delete S.sdg;delete S.ohg;delete S.rkg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
+function resetScores(){delete S.lkvote;delete S.htg;delete S.sdg;delete S.ohg;delete S.rkg;delete S.rgg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
 let UNDO=[],KP='',RULESHEET=false;
 if(S.hideTotals===undefined)S.hideTotals=true;
 function setMap(k){
@@ -1897,7 +1903,7 @@ function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK||LKSWAP)return;if(lkHost()&&L
 /* "Your turn!" on a linked phone: a strong buzz, plus a notification if the app is in the background (and notifications are allowed) */
 let LKTURN=null;
 function lkTurnOwner(){if(!S.started||S.finished)return null;const P=act();if(!P.length)return null;
-  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='rook')return rkPlayOn()&&S.rkg?(S.rkg.phase==='bid'?S.rkg.bidTurn:S.rkg.phase==='nest'?S.rkg.bidder:S.rkg.phase==='play'?S.rkg.turn:null)||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
+  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='rage')return rgPlayOn()&&S.rgg?(S.rgg.phase==='bid'?S.rgg.bidTurn:S.rgg.phase==='play'?S.rgg.turn:null)||null:null;if(S.game==='rook')return rkPlayOn()&&S.rkg?(S.rkg.phase==='bid'?S.rkg.bidTurn:S.rkg.phase==='nest'?S.rkg.bidder:S.rkg.phase==='play'?S.rkg.turn:null)||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
   if(S.rules&&S.rules.live||S.game==='carc')return S.turnId||null;return null}
 function lkTurnCheck(){const o=lkTurnOwner(),was=LKTURN;LKTURN=o;if(!o||o===was||!S.lk||o!==S.lk.me||was===null)return;
   vibe([250,120,250,120,400]);toast('Your turn!');
@@ -3643,11 +3649,11 @@ function nxPlayers(){const m=M(),n=act().length,sl=S.players.slice(0,8);
   const rows=sl.map((p,i)=>`<div class="prow ${p.on?'':'off'}">
     <button class="swatch" style="background:var(--t-${p.color});${pc(p.color)}" data-a="colpick" data-i="${i}" aria-expanded="${COLPICK===i}" aria-label="Color ${CNAME[p.color]}, tap to choose a color"></button>
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="Player ${i+1}" aria-label="Player ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
-    ${(S.game==='yahtzee'&&yzRoller()||S.game==='hearts'&&htPlayOn()||S.game==='spades'&&sdPlayOn()||S.game==='ohell'&&ohPlayOn()||S.game==='rook'&&rkPlayOn())&&(!S.lk||lkHost()&&!S.started)&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`🤖<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
+    ${(S.game==='yahtzee'&&yzRoller()||S.game==='hearts'&&htPlayOn()||S.game==='spades'&&sdPlayOn()||S.game==='ohell'&&ohPlayOn()||S.game==='rook'&&rkPlayOn()||S.game==='rage'&&rgPlayOn())&&(!S.lk||lkHost()&&!S.started)&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`🤖<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button></div>${COLPICK===i?colPicker(p,i):''}`).join('');
   const fam=H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the seats.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="map">‹ House rules</button><h1>Players</h1><span class="sub num">${n}</span></div>${steps(2)}
-  ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${S.game==='rook'&&rkPlayOn()?'4 players: seats 1 & 3 are partners against seats 2 & 4.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='ohell'&&ohPlayOn()?'2 to 7 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='hearts'?(htPlayOn()?(S.lk?'3 to 6 players.':'3 to 6 players; 4 is the classic game. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'3 to 7 players; 4 is the classic game.'):S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk||!yzRoller()?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':S.game==='spades'?(SDX().teams?'4 players: seats 1 & 3 are partners against seats 2 & 4.':'3 to 5 players, everyone alone.')+(S.lk?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
+  ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${S.game==='rage'&&rgPlayOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rook'&&rkPlayOn()?'4 players: seats 1 & 3 are partners against seats 2 & 4.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='ohell'&&ohPlayOn()?'2 to 7 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='hearts'?(htPlayOn()?(S.lk?'3 to 6 players.':'3 to 6 players; 4 is the classic game. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'3 to 7 players; 4 is the classic game.'):S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk||!yzRoller()?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':S.game==='spades'?(SDX().teams?'4 players: seats 1 & 3 are partners against seats 2 & 4.':'3 to 5 players, everyone alone.')+(S.lk?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
   ${S.game==='quacks'?firstPicker():''}
   <div class="actions"><div class="in"><button class="btn primary" data-a="start">${S.started?'Back to scoring':'Start scoring'}</button></div></div>`}
 
@@ -4404,10 +4410,10 @@ function htScore(){if(htPlayOn()&&S.started&&!S.demo)return htPlay();const X=HTX
    and each card lands in the middle, nudged toward whoever played it, like one shared pile */
 function ktTable(o){const P=o.P,n=P.length,v=Math.max(0,P.findIndex(p=>o.me&&p.id===o.me)),T=o.trick||[];
   const pos=k=>{const rel=(k-v+n)%n,a=(90+rel*360/n)*Math.PI/180;return {x:Math.cos(a),y:Math.sin(a)}};
-  const seats=P.map((q,k)=>{const {x,y}=pos(k);return `<div class="ktseat${o.turn===q.id?' now':''}${o.won===q.id?' won':''}" style="left:${50+x*40}%;top:${50+y*41}%;${pc(q.color)}"><b>${q.bot?'🤖 ':''}${esc(nm(q))}${o.me&&q.id===o.me?' <small>(you)</small>':''}</b><span>${o.label(q)}</span></div>`}).join('');
+  const seats=P.map((q,k)=>{const {x,y}=pos(k);return `<div class="ktseat${o.turn===q.id?' now':''}${o.won===q.id?' won':''}" style="left:${50+x*(n>6?36:40)}%;top:${50+y*41}%;${pc(q.color)}"><b>${q.bot?'🤖 ':''}${esc(nm(q))}${o.me&&q.id===o.me?' <small>(you)</small>':''}</b><span>${o.label(q)}</span></div>`}).join('');
   const CE=o.card||htCardEl,cards=T.map((t,i)=>{const k=P.findIndex(p=>p.id===t.p),{x,y}=pos(k),rot=(([...t.c].reduce((a,ch)=>a+ch.charCodeAt(0),0)*7+k*13)%15)-7;
     return `<div class="ktcard${i===T.length-1&&!o.faded?' new':''}" style="left:${50+x*15}%;top:${50+y*17}%;z-index:${i+1};transform:translate(-50%,-50%) rotate(${rot}deg)">${CE(t.c)}</div>`}).join('');
-  return `<div class="kttable${o.faded?' faded':''}">${seats}<div class="ktpile">${cards}</div>${o.note?`<div class="ktnote">${o.note}</div>`:''}</div>`}
+  return `<div class="kttable${o.faded?' faded':''}${n>6?' crowd':n>4?' many':''}">${seats}<div class="ktpile">${cards}</div>${o.note?`<div class="ktnote">${o.note}</div>`:''}</div>`}
 const HTR='23456789TJQKA',HTSU={C:'♣',D:'♦',S:'♠',H:'♥'},HTSO='CDSH';
 const htRk=c=>HTR.indexOf(c[0]),htSu=c=>c[1],htLab=c=>(c[0]==='T'?'10':c[0])+HTSU[c[1]]+'︎';
 const htIsPt=c=>c[1]==='H'||c==='QS';
@@ -4854,7 +4860,7 @@ function sdDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    Everyone alone. Hands shrink each round (10 down to 1 by default).
    p.rg[r] = {b,t,bo,md}: bid, tricks, Bonus Rage cards, Mad Rage cards.
    ===================================================================== */
-const RGDEF={start:10,order:'down',fore:true,trickV:1,bidV:10,zeroV:5,missV:5,missKeep:true,bonusV:5,madV:5,sweep:true};
+const RGDEF={start:10,order:'down',fore:true,trickV:1,bidV:10,zeroV:5,missV:5,missKeep:true,bonusV:5,madV:5,sweep:true,play:false,rageAny:false};
 const RGX=()=>{if(!S.rgx)S.rgx={...RGDEF};const X=S.rgx;for(const k in RGDEF)if(X[k]===undefined)X[k]=RGDEF[k];return X};
 function rgSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.rgx'))}catch(e){}return Object.assign({...RGDEF},x||{})}
 function rgKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.rgx',JSON.stringify(RGX()))}catch(e){}}
@@ -4882,6 +4888,137 @@ function rgCheck(r){const P=act(),n=rgCards(r);let t=0,bo=0,md=0;P.forEach(p=>{c
   const m=[];if(t!==n)m.push(`${t} of ${n} trick${n===1?'':'s'} entered`);if(bo>2)m.push(`${bo} Bonus Rage cards (the deck has 2)`);if(md>2)m.push(`${md} Mad Rage cards (the deck has 2)`);return m.join(', ')}
 function rgBidNote(r){const P=act(),n=rgCards(r);let s=0,all=true;P.forEach(p=>{const R=(p.rg||[])[r];if(!R||R.b===null||R.b===undefined)all=false;else s+=+R.b});
   if(!all)return '';return s===n?`Bids add up to exactly ${n}. Somebody’s going to miss.`:s>n?`Bids total ${s} for ${n} trick${n===1?'':'s'}: overbid by ${s-n}.`:`Bids total ${s} for ${n} trick${n===1?'':'s'}: underbid by ${n-s}.`}
+/* ================= Rage on the phone (classic rules) =================
+   Deck: 6 colors (r o y g b p) numbered 0 to 15, plus Rage cards: 2 Wild (W), 4 Change (C), 4 Out (U), 2 Bonus (A), 2 Mad (M).
+   Trump: turn up the leftover pile until a color card shows. Bids go around the table from the dealer's left; that player leads.
+   Follow the color led if you can; Rage cards are played when you lead or can't follow (house rule: any time).
+   Wild = a 16 of the color you name (the first Wild in a trick beats a second). Change = you name a new trump, right away.
+   Out = no trump from now on, until a Change. Bonus / Mad = whoever takes that trick gets the Bonus / Mad points.
+   A trick led by a Rage card takes its color from the first color card (or Wild) played after it; all-Rage tricks go to the first card.
+   S.rgg = {r, phase:'bid'|'play'|'done', dealer, h, tr (color letter or null), up (flipped card), bids, bidTurn, t:[{p,c,w}], turn, n,
+            won:{pid:count}, bo:{pid:n}, md:{pid:n}, last:{t,w}, played} */
+const RGBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Card Bot'],hard:['Hard','Rage Bot']};
+const RGC={r:['Red','#d23a2f'],o:['Orange','#e47b16'],y:['Yellow','#d9a400'],g:['Green','#2e8b45'],b:['Blue','#2b63c4'],p:['Purple','#7d46b8']};
+const RGACT={W:'Wild',C:'Change',U:'Out',A:'Bonus',M:'Mad'};
+const rgPlayOn=()=>!!RGX().play;
+const rgG=()=>S.rgg||null;
+const rgRes=()=>!S.lk||S.demo||lkHost();
+const rgIsAct=c=>/^[WCUAM]/.test(c),rgCol=c=>rgIsAct(c)?null:c[0],rgNum=c=>+c.slice(1);
+const rgNext=pid=>{const P=act(),i=P.findIndex(p=>p.id===pid);return P[(i+1)%P.length].id};
+const rgSort=(h,tr)=>{const o='roygbp'.split('').filter(s=>s!==tr).concat(tr?[tr]:[]);return h.slice().sort((a,b)=>{const ia=rgIsAct(a),ib=rgIsAct(b);if(ia!==ib)return ia?1:-1;if(ia)return a.localeCompare(b);return o.indexOf(a[0])-o.indexOf(b[0])||rgNum(a)-rgNum(b)})};
+function rgDeal(r){const P=act(),n=rgCards(r);let deck=[];for(const s of 'roygbp')for(let v=0;v<=15;v++)deck.push(s+v);
+  deck.push('W1','W2','C1','C2','C3','C4','U1','U2','U3','U4','A1','A2','M1','M2');htShuffle(deck);
+  const dealer=P[r%P.length].id,start=P.findIndex(p=>p.id===dealer)+1,h={};P.forEach((p,i)=>h[P[(start+i)%P.length].id]=deck.slice(i*n,(i+1)*n));
+  const rest=deck.slice(n*P.length);let up=null;for(const c of rest)if(!rgIsAct(c)){up=c;break}const tr=up?up[0]:null;for(const id in h)h[id]=rgSort(h[id],tr);
+  const g={r,phase:'bid',dealer,h,tr,up,bids:{},bidTurn:rgNext(dealer),t:[],turn:null,n:0,won:{},bo:{},md:{},last:null,played:[],fore:rgFore(r)};
+  P.forEach(p=>{g.won[p.id]=0;g.bo[p.id]=0;g.md[p.id]=0});S.rgg=g;RGSEL=null;RGVIEW=null}
+function rgBid(pid,v){const g=rgG();if(!g||g.phase!=='bid'||g.bidTurn!==pid)return false;v=+v;if(!(v>=0&&v<=rgCards(g.r)))return false;g.bids[pid]=v;
+  if(act().every(p=>g.bids[p.id]!==undefined)){g.phase='play';g.bidTurn=null;g.turn=rgNext(g.dealer)}else g.bidTurn=rgNext(pid);return true}
+/* the color a played card counts as, and its rank */
+const rgEff=x=>x.c[0]==='W'?x.w:rgCol(x.c);
+const rgLed=t=>{for(const x of t){const e=rgEff(x);if(e)return e}return null};
+function rgLegal(g,pid){const h=g.h[pid]||[];if(g.fore)return h;if(!g.t.length)return h;const led=rgLed(g.t);if(!led)return h;
+  const f=h.filter(c=>rgCol(c)===led);if(!f.length)return h;return RGX().rageAny?f.concat(h.filter(rgIsAct)):f}
+function rgWinner(g,t){const rank=(x,i)=>x.c[0]==='W'?16+(t.length-i)/100:rgNum(x.c);const tr=g.tr,led=rgLed(t);
+  let pool=tr?t.map((x,i)=>({x,i})).filter(o=>rgEff(o.x)===tr):[];if(!pool.length&&led)pool=t.map((x,i)=>({x,i})).filter(o=>rgEff(o.x)===led);
+  if(!pool.length)return t[0].p;return pool.reduce((a,o)=>rank(o.x,o.i)>rank(a.x,a.i)?o:a,pool[0]).x.p}
+function rgPlayCard(pid,c,col){const g=rgG();if(!g||g.phase!=='play'||g.turn!==pid||!rgLegal(g,pid).includes(c))return false;
+  if((c[0]==='W'||c[0]==='C')&&!RGC[col])return false;
+  g.h[pid]=g.h[pid].filter(x=>x!==c);const e={p:pid,c};if(c[0]==='W')e.w=col;if(c[0]==='C'){e.w=col;g.tr=col}if(c[0]==='U')g.tr=null;
+  g.t=g.t.concat([e]);g.turn=g.t.length>=act().length?null:rgNext(pid);playCard();return true}
+function rgCollect(g){const w=rgWinner(g,g.t);g.won[w]=(g.won[w]||0)+1;g.t.forEach(x=>{if(x.c[0]==='A')g.bo[w]++;if(x.c[0]==='M')g.md[w]++});
+  g.played=(g.played||[]).concat(g.t.map(x=>x.c));g.last={t:g.t,w};g.t=[];g.n++;g.turn=w;if(!Object.values(g.h).some(h=>h.length))rgEndRound(g)}
+function rgEndRound(g){act().forEach(p=>{const R=rgR(p,g.r);R.b=g.bids[p.id];R.t=g.won[p.id]||0;R.bo=g.bo[p.id]||0;R.md=g.md[p.id]||0});g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
+const rgOverNow=()=>{const g=rgG();return !!g&&g.phase==='done'&&g.r>=rgN()-1};
+
+/* ---------------- bots ---------------- */
+function rgBestCol(h){let best='r',bv=-1;for(const s of 'roygbp'){const v=h.filter(c=>c[0]===s).reduce((a,c)=>a+1+rgNum(c)/15,0);if(v>bv){bv=v;best=s}}return best}
+function rgEstimate(g,h,pid){const np=act().length,tr=g.tr;let e=0;
+  if(g.fore){/* forehead: you see everyone else's card; guess how strong yours is from what's left */
+    const others=act().filter(p=>p.id!==pid).map(p=>(g.h[p.id]||[])[0]).filter(Boolean),strong=others.filter(c=>c[0]==='W'||rgCol(c)===tr&&rgNum(c)>=8).length;return strong?0:(np<=3?.6:.3)}
+  for(const c of h){if(c[0]==='W'){e+=.95;continue}if(rgIsAct(c))continue;const v=rgNum(c),L=h.filter(x=>x[0]===c[0]).length;
+    if(c[0]===tr)e+=v>=13?.9:v>=10?.65:v>=6?.4:.2;else e+=(v>=15?.75:v>=14?.5:v>=13&&L<=3?.25:0)*(L>=5?.6:1)}
+  return e*({2:2.2,3:1.6,4:1.25,5:1,6:.85,7:.75,8:.65}[np]||1)}
+function rgBotBid(g,pid,lv){const h=g.h[pid],n=rgCards(g.r);let b=Math.round(rgEstimate(g,h,pid)+(lv==='easy'?(Math.random()*2-1):0));return Math.max(0,Math.min(n,b))}
+function rgBotCard(g,pid,lv){const L=rgLegal(g,pid);const pick=c=>({c,col:c[0]==='W'?(rgLed(g.t)&&!g.tr?rgLed(g.t):g.tr||rgLed(g.t)||rgBestCol(g.h[pid])):c[0]==='C'?rgBestCol(g.h[pid].filter(x=>x!==c)):null});
+  if(L.length===1)return pick(L[0]);
+  const colors=L.filter(c=>!rgIsAct(c)),lo=a=>a.slice().sort((x,y)=>rgNum(x)-rgNum(y))[0],hi=a=>a.slice().sort((x,y)=>rgNum(y)-rgNum(x))[0];
+  if(lv==='easy')return pick(Math.random()<.5&&colors.length?lo(colors):L[Math.floor(Math.random()*L.length)]);
+  const need=(g.won[pid]||0)<g.bids[pid],tr=g.tr;
+  if(!g.t.length){if(need){const tops=colors.filter(c=>rgNum(c)>=14||c[0]===tr&&rgNum(c)>=11);if(tops.length)return pick(hi(tops));if(L.some(c=>c[0]==='W'))return pick(L.find(c=>c[0]==='W'))}
+    const safe=colors.filter(c=>c[0]!==tr);return pick(safe.length?lo(safe):colors.length?lo(colors):L.find(c=>c[0]!=='W')||L[0])}
+  const led=rgLed(g.t),cur=rgWinner(g,g.t),mine=cur===pid;
+  const wouldWin=c=>{const tt=g.t.concat([{p:pid,c,w:c[0]==='W'?(tr||led||'r'):c[0]==='C'?rgBestCol(g.h[pid]):undefined}]);const sav=g.tr;if(c[0]==='C')g.tr=tt[tt.length-1].w;if(c[0]==='U')g.tr=null;const w=rgWinner(g,tt)===pid;g.tr=sav;return w};
+  const winners=L.filter(wouldWin),losers=L.filter(c=>!wouldWin(c)),last=g.t.length===act().length-1;
+  if(need){if(winners.length){const cw=winners.filter(c=>!rgIsAct(c));if(cw.length)return pick(last?lo(cw):hi(cw));const a=winners.find(c=>c[0]==='A')||winners.find(c=>c[0]!=='M')||winners[0];return pick(a)}
+    const dump=L.filter(c=>c[0]==='M')[0]||lo(colors.length?colors:L);return pick(dump)}
+  if(losers.length){const mad=losers.find(c=>c[0]==='M');if(mad&&!mine)return pick(mad);const lc=losers.filter(c=>!rgIsAct(c)&&c[0]!==tr);if(lc.length)return pick(hi(lc));const anyc=losers.filter(c=>!rgIsAct(c));return pick(anyc.length?hi(anyc):losers.find(c=>c[0]!=='A')||losers[0])}
+  return pick(colors.length?lo(colors):L[0])}
+
+/* ---------------- who is looking at this phone ---------------- */
+let RGSEL=null,RGVIEW=null,RGBOTT=null,RGCOLT=null;
+const rgHumans=()=>act().filter(p=>!p.bot);
+const rgMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
+function rgActive(){const g=rgG();if(!g)return null;const id=g.phase==='bid'?g.bidTurn:g.phase==='play'?g.turn:null;const q=act().find(p=>p.id===id);return q&&!q.bot?q:null}
+function rgViewer(){const g=rgG();if(!g)return null;if(S.lk&&!S.demo)return rgMe();const H=rgHumans();if(H.length===1)return H[0];if(!H.length)return null;const a=rgActive();return a&&RGVIEW===a.id?a:null}
+const rgNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(rgHumans().length<2)return null;const a=rgActive();return a&&RGVIEW!==a.id?a:null};
+
+function rgTick(){if(S.game!=='rage'||!rgPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!rgRes())return;
+  const g=rgG();if(!g||g.r!==rgCur()&&g.phase!=='done'){rgDeal(rgCur());save();render();return}
+  const later=(ms,f)=>{if(!RGBOTT)RGBOTT=setTimeout(()=>{RGBOTT=null;f();save();render()},ms*htSpd())};
+  if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot)later(700,()=>{const g2=rgG();if(g2&&g2.phase==='bid'&&g2.bidTurn===q.id)rgBid(q.id,rgBotBid(g2,q.id,q.bot))});return}
+  if(g.phase!=='play')return;
+  if(g.t.length>=act().length){if(!RGCOLT)RGCOLT=setTimeout(()=>{RGCOLT=null;const g2=rgG();if(g2&&g2.t.length>=act().length){rgCollect(g2);save();render()}},1300*htSpd());return}
+  const q=act().find(p=>p.id===g.turn);if(q&&q.bot&&!document.querySelector('.sheet-bg'))later(g.t.length?750:1000,()=>{const g2=rgG();if(g2&&g2.phase==='play'&&g2.turn===q.id){const m=rgBotCard(g2,q.id,q.bot);rgPlayCard(q.id,m.c,m.col)}})}
+
+/* ---------------- drawing ---------------- */
+function rgCardEl(c,o={}){const tag=o.btn?'button':'span',attr=o.btn?` data-a="rgcard" data-c="${c}" aria-pressed="${!!o.sel}"${o.dis?' aria-disabled="true"':''}`:'';
+  if(o.hidden)return `<span class="htc rgc rgback" aria-label="Your card, face down"><em>?</em></span>`;
+  if(rgIsAct(c)){const X=RGX(),k=c[0],lab=k==='A'?`+${X.bonusV}`:k==='M'?`−${X.madV}`:RGACT[k],w=o.w&&RGC[o.w]?RGC[o.w][1]:null;
+    return `<${tag} class="htc rgc rgact rg${k}${o.cls?' '+o.cls:''}"${w?` style="--rk:${w}"`:''}${attr} aria-label="${RGACT[k]} Rage${o.w&&RGC[o.w]?', '+RGC[o.w][0]:''}${o.sel?', picked':''}"><b>${k==='A'||k==='M'?lab:RGACT[k][0]}</b><i>RAGE</i><em>${k==='A'||k==='M'?(k==='A'?'★':'☠'):RGACT[k]}</em></${tag}>`}
+  const [nmC,col]=RGC[c[0]],n=rgNum(c);
+  return `<${tag} class="htc rkc rgc${o.cls?' '+o.cls:''}" style="--rk:${col}"${attr} aria-label="${nmC} ${n}${o.sel?', picked':''}"><b${n>=10?' class="ten"':''}>${n}</b><i>${nmC[0]}</i><em>${n}</em></${tag}>`}
+function rgPlay(){const X=RGX(),P=act(),g=rgG(),r=rgCur(),N=rgN(),sc=P.map(rgTot),hi=Math.max(...sc),lead=rgLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
+  let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Round ${r+1} of ${N}">${r+1}/${N}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
+  <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&(g.turn===q.id||g.bidTurn===q.id)}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${rgHits(q)} made</div></button>`).join('')}</div>`;
+  if(!g)return out+`<div class="panel" style="padding:16px">${waitLoader(rgRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
+  const V=rgViewer(),hand=V?g.h[V.id]||[]:[],me=rgMe(),n=rgCards(g.r),bidP=P.find(p=>p.id===g.bidTurn),turnP=P.find(p=>p.id===g.turn);
+  const trName=g.tr?RGC[g.tr][0]:'No trump';let status='';
+  if(g.phase==='bid')status=V&&g.bidTurn===V.id?`<b>Your bid${S.lk||rgHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.fore?'You can’t see your own card, only everyone else’s. Will yours win?':'How many tricks will you win?'}`:`${bidP&&bidP.bot?'🤖 ':''}<b>${esc(nm(bidP||{name:''}))}</b> is bidding…`;
+  else if(g.phase==='play'){if(!turnP)status='Collecting the trick…';else if(V&&turnP.id===V.id){const led=rgLed(g.t);status=`<b>Your turn${S.lk||rgHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.fore?'Play your card (you still can’t see it).':g.t.length?(led?`Follow ${RGC[led][0].toLowerCase()} if you can. Can’t? Play anything, Rage cards too.`:'A Rage card led: play anything.'):'Lead any card.'} You bid ${g.bids[V.id]}, won ${g.won[V.id]||0}.`}else status=`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is playing…`}
+  else if(g.phase==='done')status=`<b>Round ${r+1} is over.</b>`;
+  out+=`<div class="hfmin htstat"><span>${status}</span><span>${g.fore?'Forehead round':`${n} card${n===1?'':'s'} each`} · ${esc(nm(P.find(p=>p.id===g.dealer)||{name:''}))} dealt${g.phase!=='bid'?` · bids total ${P.reduce((a,p)=>a+(g.bids[p.id]||0),0)} for ${n}`:''}</span></div>`;
+  if(g.phase!=='done'){const showT=g.t.length?g.t:g.last&&g.phase==='play'?g.last.t:[],faded=!g.t.length&&!!g.last,lw=faded&&g.last?P.find(p=>p.id===g.last.w):null;
+    out+=`<div class="ohup">${g.tr?`<span class="rgtr" style="--rk:${RGC[g.tr][1]}"></span><span><b>Trump: ${trName}</b><br><small>${g.up&&g.up[0]===g.tr?'the turned-up card':'changed by a Change Rage'}</small></span>`:`<span class="rgtr none"></span><span><b>No trump</b><br><small>${g.up?'an Out Rage took it away':'no color card to turn up'}</small></span>`}</div>`;
+    const TE=x=>rgCardEl(x.c,{w:x.w});const trickEls=showT.map(x=>({p:x.p,c:x.c,w:x.w}));
+    out+=ktTable({P,me:V?V.id:me?me.id:null,trick:trickEls,faded,turn:g.phase==='bid'?g.bidTurn:g.turn,won:lw&&lw.id,card:(c)=>{const x=trickEls.find(y=>y.c===c);return rgCardEl(c,{w:x&&x.w})},
+      label:q=>{const b=g.bids[q.id],fc=g.fore&&g.phase!=='done'&&(g.h[q.id]||[])[0]&&(V?q.id!==V.id:(q.bot||S.lk))?` · ${(()=>{const c=g.h[q.id][0];return rgIsAct(c)?RGACT[c[0]]:RGC[c[0]][0]+' '+rgNum(c)})()}`:'';return (b===undefined?(g.phase==='bid'?'bidding…':''):`bid ${b} · won ${g.won[q.id]||0}`)+fc+((g.bo[q.id]||0)?` · +${g.bo[q.id]*X.bonusV}`:'')+((g.md[q.id]||0)?` · −${g.md[q.id]*X.madV}`:'')},
+      note:lw?`${esc(nm(lw))} took it`:g.phase==='bid'?'Bidding…':''})}
+  if(g.phase==='done'){const rows=P.map(q=>{const c=rgCalc(q,g.r);return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${c?`bid ${c.b}, took ${c.t}${c.hit?' ✓':''}${c.bo?` · +${c.bo*X.bonusV} Bonus`:''}${c.md?` · −${c.md*X.madV} Mad`:''}${c.sw?' · moon!':''}`:''}</small></span><span class="num"><b>${c&&c.v>0?'+':''}${c?c.v:0}</b> · ${rgTot(q)}</span></div>`}).join('');
+    const over=rgOverNow();out+=`<div class="panel htsum">${rows}</div><div class="actions"><div class="in">${over?(rgRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Game over! Waiting for the host to reveal…</span>`):rgRes()?`<button class="btn sm" data-a="finish">End game</button><button class="btn primary" data-a="rgdeal">Deal round ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`;return out+rgModal()}
+  if(V){const L=g.phase==='play'&&g.turn===V.id?rgLegal(g,V.id):[];
+    if(g.fore){out+=`<div class="hthand" style="--n:1">${rgCardEl('',{hidden:true})}</div>`;if(L.length)out+=`<div class="actions"><div class="in"><button class="btn primary" data-a="rgfore">Play my card</button></div></div>`}
+    else{out+=`<div class="hthand" style="--n:${hand.length}" aria-label="Your cards">${hand.map(c=>rgCardEl(c,{btn:true,sel:RGSEL===c,dis:!L.includes(c),cls:[g.phase==='play'?(L.includes(c)?'ok':'no'):'',c[0]===g.tr?'trump':''].join(' ').trim()})).join('')}</div>`;
+      if(RGSEL&&(RGSEL[0]==='W'||RGSEL[0]==='C')&&L.includes(RGSEL))out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>${RGSEL[0]==='W'?'Wild: it becomes a 16 of the color you pick.':'Change: pick the new trump color.'}</b></p><div class="rktr rgpick">${'roygbp'.split('').map(s=>`<button class="btn" data-a="rgcolor" data-k="${s}" style="--rk:${RGC[s][1]}"><i></i>${RGC[s][0]}</button>`).join('')}</div></div>`;
+      else if(L.length)out+=`<p class="hint" style="text-align:center">${RGSEL?'Tap it again to play it.':'Tap a card to play it.'}</p>`}
+    if(g.phase==='bid'&&g.bidTurn===V.id)out+=`<div class="panel sdbids"><div class="sdbidgrid">${Array.from({length:n+1},(_,i)=>i).map(v=>`<button class="btn" data-a="rgbid" data-k="${v}">${v}</button>`).join('')}</div></div>`}
+  else if(!S.lk&&rgHumans().length>1)out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
+  return out+rgModal()}
+function rgModal(){const a=rgNeedHandoff();if(!a)return '';const g=rgG();return `<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="rgp-h" style="${pc(a.color)}">
+  <svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="rgp-h">${esc(nm(a))}</h2>
+  <p class="rlab">${g.phase==='bid'?'Time to bid.':'It’s your turn to play a card.'} Everyone else, look away.</p><button class="btn primary wide" data-a="rgshow" data-k="${a.id}">I’m ${esc(nm(a))}, ${g.fore?'I’m ready':'show my cards'}</button></div></div>`}
+function rgAct(a,b,k){const g=rgG();
+  if(a==='rgshow'){RGVIEW=k;RGSEL=null;return}
+  if(a==='rgbid'){const V=rgViewer();if(g&&V&&!rgBid(V.id,+k))toast('You can’t bid that.');return}
+  if(a==='rgfore'){const V=rgViewer();if(!g||!V||g.turn!==V.id)return;const c=g.h[V.id][0];if(!c)return;const col=c[0]==='W'?(g.tr||rgLed(g.t)||'r'):c[0]==='C'?rgBestCol(g.h[V.id]):null;rgPlayCard(V.id,c,col);return}
+  if(a==='rgcolor'){const V=rgViewer();if(!g||!V||!RGSEL)return;const c=RGSEL;RGSEL=null;rgPlayCard(V.id,c,k);return}
+  if(a==='rgcard'){if(!g)return;const V=rgViewer();if(!V)return;const c=b.dataset.c;
+    if(g.phase!=='play'||g.turn!==V.id){toast(g.phase==='bid'?'Bidding first.':g.turn?`It’s ${nm(act().find(p=>p.id===g.turn))}’s turn.`:'Hang on…');return}
+    if(!rgLegal(g,V.id).includes(c)){const led=rgLed(g.t);toast(led?`Follow ${RGC[led][0].toLowerCase()} if you can.${RGX().rageAny?'':' Rage cards are for when you can’t.'}`:'You can’t play that.');return}
+    if(c[0]==='W'||c[0]==='C'){RGSEL=c;return}
+    if(RGSEL!==c){RGSEL=c;return}RGSEL=null;rgPlayCard(V.id,c);return}
+  if(a==='rgdeal'){if(!rgRes())return;S.hr=rgCur()+1;rgDeal(S.hr);window.scrollTo(0,0)}}
+
 function rgSetup(){const X=RGX();
   const st=(k,v,min,max,step,label)=>`<div class="step"><button data-a="rgst" data-k="${k}" data-d="${-step}" ${v<=min?'disabled':''} aria-label="Less ${label}">−</button><span class="n num">${v}</span><button data-a="rgst" data-k="${k}" data-d="${step}" ${v>=max?'disabled':''} aria-label="More ${label}">+</button></div>`;
   const row=(label,sub,ctl)=>`<div class="srow"><span class="rlab"><b>${label}</b>${sub?` · ${sub}`:''}</span>${ctl}</div>`;
@@ -4890,14 +5027,16 @@ function rgSetup(){const X=RGX();
   const changed=Object.keys(RGDEF).some(k=>X[k]!==RGDEF[k]),n=act().length,maxS=Math.min(15,Math.floor(109/Math.max(2,n)));
   return `<div class="bar"><h1>Rage</h1></div><img class="hero hfhero" src="art/rage-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">Your house rules, remembered for next time. ${usualUI('rage')}</p>
+  ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([v,t])=>`<button data-a="rgplaymode" data-k="${v}" aria-pressed="${!!X.play===!!v}">${t}</button>`).join('')}</div>`,
+    S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals the Rage deck and turns up trump; you bid and play on screen, Rage cards and all. Computer players, pass-and-play and linked phones all work.':'Play with real cards and enter bids, tricks and Bonus/Mad cards each round. Just score keeping.')}
   ${sec('Rounds',`<div class="seg three">${[['down','Count down'],['downup','Down and back'],['up','Count up']].map(([v,t])=>`<button data-a="rgset" data-k="order" data-v="${v}" aria-pressed="${X.order===v}">${t}</button>`).join('')}</div>`
     +row(X.order==='up'?'Last hand':'First hand','cards each',st('start',X.start,1,maxS,1,'cards'))+tg('fore','Forehead bonus round','One last round: 1 card each, held on your forehead so everyone sees it but you. Bid on what you see.'),
     `${rgN()} rounds: ${X.order==='up'?`1 card up to ${X.start}`:X.order==='downup'?`${X.start} cards down to 1, then back up to ${X.start}`:`${X.start} cards, then ${X.start>1?X.start-1:''}${X.start>2?'… ':''}down to 1`}${X.fore?', then the forehead round':''}.${X.start>Math.floor(109/Math.max(2,n))?' That’s more cards than the deck can deal to everyone.':''}`)}
   ${sec('Scoring',row('Each trick','',st('trickV',X.trickV,0,10,1,'points'))+row('Making your bid','',st('bidV',X.bidV,0,50,1,'points'))+row('Making a bid of zero','',st('zeroV',X.zeroV,0,50,1,'points'))+row('Missing your bid','taken off',st('missV',X.missV,0,50,1,'points'))+tg('missKeep','Keep trick points on a miss','Turn off and a missed bid scores only the penalty.')
     +row('Bonus Rage','added',st('bonusV',X.bonusV,0,50,1,'points'))+row('Mad Rage','taken off',st('madV',X.madV,0,50,1,'points'))
-    +tg('sweep','Double for shooting the moon','Bid every trick and take them all: each trick counts twice. Never on a 1-card hand.'),X.missKeep?`Miss your bid: \u2212${X.missV}, but you keep your trick points.`:`Miss your bid: \u2212${X.missV} and no trick points.`)}
+    +tg('sweep','Double for shooting the moon','Bid every trick and take them all: each trick counts twice. Never on a 1-card hand.')+(X.play?tg('rageAny','Rage cards any time','Play a Rage card even when you could follow the color led. Official: only when you lead or can’t follow.'):''),X.missKeep?`Miss your bid: \u2212${X.missV}, but you keep your trick points.`:`Miss your bid: \u2212${X.missV} and no trick points.`)}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
-function rgScore(){const X=RGX(),P=act(),r=rgCur(),N=rgN(),n=rgCards(r),ph=rgPhase(r),chk=rgDone(r)?rgCheck(r):'',bn=rgBidNote(r);
+function rgScore(){if(rgPlayOn()&&S.started&&!S.demo)return rgPlay();const X=RGX(),P=act(),r=rgCur(),N=rgN(),n=rgCards(r),ph=rgPhase(r),chk=rgDone(r)?rgCheck(r):'',bn=rgBidNote(r);
   const sc=P.map(rgTot),hi=Math.max(...sc),lead=rgLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null,last=r>=N-1;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1>${rgFore(r)?'Forehead':`Round ${r+1}`}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="House rules">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo">↶<span class="undo-w"> Undo</span></button></div>
   <div class="hfrounds" role="tablist" aria-label="Rounds">${Array.from({length:N},(_,i)=>`<button data-a="rghand" data-v="${i}" aria-pressed="${i===r}">${rgFore(i)?'Forehead':rgLab(i)}${rgDone(i)?' ✓':''}</button>`).join('')}</div>
@@ -4947,7 +5086,7 @@ function rgRulesSheet(){const X=RGX();
 function rgHomeCard(){const st=gamePeek('rage');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/rage-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart rgart&quot; aria-hidden=&quot;true&quot;>!</div>'"><div><h2>Rage</h2><div class="meta">Card game · bid your tricks</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="rage">Resume game</button><button class="btn" data-a="gnew" data-k="rage">New game</button></div>`
-      :`<button class="btn primary wide" data-a="gnew" data-k="rage">Score a game</button>`}</div>`}
+      :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="rgstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="rgstart" data-k="0">Score a game</button></div>`}</div>`}
 const RGDEMOS=[{id:'rgfam',title:'Family night · Rage',tip:'Set bids, then tricks. Tap Bonus or Mad for whoever won those cards. Press and hold a name for their round-by-round history.',blurb:'Four players, 10 cards down to 1, then the forehead round. Lily calls her bids perfectly, Dad keeps winning the Mad Rage card.'}];
 function rgDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=rgFresh();S.rgx={...RGDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
   // [bid,tricks,bonus,mad] per player for each round (10 cards down to 1)
@@ -5032,14 +5171,14 @@ function sdGuide(){const X=SDX(),n=gdPeople(),D=gdSplit52(n);
 function rgGuide(){const X=RGX(),n=act().length,N=rgBase();
   const seq=Array.from({length:N},(_,r)=>rgCards(r)),show=seq.length>6?`${seq.slice(0,3).join(', ')} … ${seq.slice(-2).join(', ')}`:seq.join(', ');
   return guideSheet('Rage',[
-    ['Setup',[['Cards','The 110-card deck: 6 colors numbered 0 to 15, plus 16 action cards (2 Wild, 4 Change, 4 Out, 2 Bonus, 2 Mad).'],
+    ['Setup',[['Cards','The 110-card deck: 6 colors numbered 0 to 15, plus 14 Rage cards (2 Wild, 4 Change, 4 Out, 2 Bonus, 2 Mad).'],
       ['The deal',`Cards each round: ${show}${X.fore?', then 1 for the forehead round':''}. ${rgN()} rounds in all. The deal passes left.`],
       ['Trump','Put the leftover cards face down and flip the top one. Its color is trump. Flip again if it’s an action card.'],
       X.start*n>109?['Heads up',`${n} players × ${X.start} cards is more than the deck holds. Lower the first hand.`]:null]],
     ['Bidding',[['Your bid','Everyone says how many tricks they’ll win, from 0 to the cards in hand, starting left of the dealer.'],
       ['Shooting the moon','Bidding every trick in the round.'],X.fore?['Forehead round','Everyone holds their single card on their forehead without looking, then bids 0 or 1 based on everyone else’s cards.']:null]],
-    ['Play',[['Following','Follow the color led if you can. Highest trump wins; otherwise the highest card of the color led.'],['Action cards','Play one when you lead or can’t follow.'],
-      ['Wild','Name a color; it’s the highest card of that color.'],['Change','Pick a new trump color from the pile.'],['Out','No trump for the rest of the round.'],
+    ['Play',[['Following','Follow the color led if you can. Highest trump wins; otherwise the highest card of the color led.'],['Action cards',X.rageAny&&X.play?'Play one any time (house rule).':'Play one when you lead or can’t follow. If a Rage card leads, the first color card after it sets the color.'],
+      ['Wild','Name a color; it’s the highest card of that color.'],['Change','Name a new trump color. It counts right away, for this trick too.'],['Out','No trump from now on, until someone plays a Change.'],
       ['Bonus / Mad',`Whoever wins that trick gets +${X.bonusV} or −${X.madV}.`]]],
     ['Scoring',[['Each trick',`+${X.trickV}`],['Exact bid',`+${X.bidV}, or +${X.zeroV} for a bid of zero.`],['Missed bid',`−${X.missV}${X.missKeep?' (you keep your trick points)':' and no trick points'}.`],
       X.sweep?['Shooting the moon','Bid every trick and take them all: trick points double. Never on a 1-card round.']:null]],
@@ -8795,7 +8934,7 @@ function render(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();navSync();if(S.game==='yahtzee')yzBotTick();if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();
+  tourApply();navSync();if(S.game==='yahtzee')yzBotTick();if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -8997,6 +9136,7 @@ document.addEventListener('click',e=>{
   if(/^sd(card|bid|deal|show|look)$/.test(a)&&S.game==='spades'){sdAct(a,b,k);render();return}
   if(/^oh(card|bid|deal|show)$/.test(a)&&S.game==='ohell'&&ohPlayOn()&&S.started){ohAct(a,b,k);render();return}
   if(/^rk(card|bid|deal|show|trump|nest)$/.test(a)&&S.game==='rook'&&rkPlayOn()&&S.started){rkAct(a,b,k);render();return}
+  if(/^rg(card|bid|deal|show|color|fore)$/.test(a)&&S.game==='rage'&&rgPlayOn()&&S.started){rgAct(a,b,k);render();return}
   switch(a){
     case 'kpadd':kpAdd(b.dataset.v==='1');return;
     case 'pkadd':p.tickets.push({v:+b.dataset.v,done:b.dataset.d==='1',name:k});TKQ='';render();{const si=document.getElementById('tk-search');if(si)si.focus({preventScroll:true})}return;
@@ -9143,7 +9283,7 @@ document.addEventListener('click',e=>{
     case 'mtdb':{const q=act()[+b.dataset.i],R=mtR(q,mtCur());snap();R.db=!R.db;break}
     case 'mthand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'mtnext':{S.hr=Math.min(mtN()-1,mtCur()+1);window.scrollTo(0,0);break}
-    case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:S.game==='rook'?RKBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS),Object.values(RKBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
+    case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:S.game==='rook'?RKBOTS:S.game==='rage'?RGBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS),Object.values(RKBOTS),Object.values(RGBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
       if(!q.name||defs.includes(base(q.name))){let nmv=nx?BT[nx][1]:'';if(nmv){let j=1;while(S.players.some(o=>o!==q&&o.on&&o.name===(j>1?nmv+' '+j:nmv)))j++;if(j>1)nmv+=' '+j}q.name=nmv}if(nx)q.bot=nx;else delete q.bot;delete q.rid;break}
     case 'htstart':{switchGame('hearts');resetScores();S.started=false;S.screen='map';HTX().play=k==='1';htKeep();window.scrollTo(0,0);break}
     case 'htplaymode':{if(S.started)break;HTX().play=k==='1';if(HTX().play&&act().length>6)toast('Playing on the phone works for 3 to 6 players.');htKeep();break}
@@ -9375,6 +9515,8 @@ document.addEventListener('click',e=>{
     case 'rgdemo':rgDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'rgst':{const X=RGX();X[k]=Math.max(0,X[k]+(+b.dataset.d));rgKeep();break}
     case 'rgset':RGX()[k]=b.dataset.v;rgKeep();break;
+    case 'rgstart':{switchGame('rage');resetScores();S.started=false;S.screen='map';RGX().play=k==='1';rgKeep();window.scrollTo(0,0);break}
+    case 'rgplaymode':{if(S.started)break;RGX().play=k==='1';rgKeep();break}
     case 'rgtg':{const X=RGX();X[k]=!X[k];rgKeep();break}
     case 'rgreset':S.rgx={...RGDEF};rgKeep();break;
     case 'rgb':case 'rgt':{const q=act()[+k],r=rgCur(),R=rgR(q,r),f=a==='rgb'?'b':'t',n=rgCards(r);snap();const was=R[f];R[f]=Math.max(0,Math.min(n,(R[f]===null||R[f]===undefined?0:+R[f])+d));if(f==='b')S.rgbid=r;if(d>0&&R[f]===n&&+was!==n&&rgMoon(r)){playPew();toast(f==='b'?`${nm(q)} is shooting the moon!`:`${nm(q)} took every trick!`)}break}
