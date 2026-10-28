@@ -2019,6 +2019,15 @@ async function lanJoin(){if(!window.FTLAN){toast('Offline linking isn’t ready 
       try{const g=await FTLAN.joinWith(t);lanCam(false);LANUI={mode:'guest',step:'reply',qr:await FTLAN.qrSvg(g.reply),noAddr:g.noAddr,mine:g.addrs,theirs:g.hostAddrs};render();
         const dt=setInterval(async()=>{if(!LANUI||LANUI.step!=='reply'){clearInterval(dt);return}LANUI.diag=await FTLAN.iceInfo(g.pc);render()},3000);const code=await g.connected.finally(()=>clearInterval(dt));window.FTLINK=g.link;LANUI=null;LANLOST=false;await lkJoin(code);if(S.lk){S.lk.lan=true;save()}else{FTLAN.stop();window.FTLINK=window.FTLINK_NET}render()}
       catch(e){lanErr(e)}})}catch(e){lanErr(e&&e.name==='NotAllowedError'?new Error('Final Tally needs the camera to scan the code. Allow the camera in your settings and try again.'):e)}}
+let LKCHOOSE=false;
+function lkChooseSheet(){if(!LKCHOOSE)return '';const on=!!window.FTLINK&&navigator.onLine;
+  return `<div class="sheet-bg" data-a="lkchoosex"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="lkc-h" data-stop="1"><h2 id="lkc-h">Link phones</h2>
+    <p class="rlab">Everyone scores on their own phone, and the reveal plays on every phone together.</p>
+    <div style="display:grid;gap:10px;margin-top:10px">
+      <button class="btn${on?' primary':''}" data-a="lkchoosego" data-k="net" ${on&&!LKBUSY?'':'disabled'}>📶 With internet<br><small>Others type a 6-number code</small></button>
+      <button class="btn${on?'':' primary'}" data-a="lkchoosego" data-k="lan" ${window.FTLAN&&!LKBUSY?'':'disabled'}>✈️ Without internet<br><small>Phones on the same Wi-Fi or hotspot pair by scanning codes</small></button></div>
+    ${LKBUSY?`<div style="margin-top:10px">${waitLoader('Starting the link\u2026')}</div>`:''}${LKMSG?`<p class="hint"><b>${esc(LKMSG)}</b></p>`:''}${!on?'<p class="hint">No internet right now, so only the Wi-Fi option is available.</p>':''}
+    <div class="sheet-btns" style="margin-top:12px"><button class="btn" data-a="lkchoosex">Cancel</button></div></div></div>`}
 function lanSheet(){if(!LANUI)return '';const U=LANUI,host=U.mode==='host',n=lanN();let body='';
   const ad=a=>a&&a.length?a.map(x=>/\.local$/.test(x)?'hidden ('+x.slice(0,6)+'…)':x).join(', '):'none';
   const net=(U.mine||U.theirs)?`<p class="hint lanaddr">This phone: <b>${esc(ad(U.mine))}</b>${U.theirs?` · ${host?'Their phone':'Host'}: <b>${esc(ad(U.theirs))}</b>`:''}. To connect, both need the same first three numbers (like 192.168.43).</p>`:'';
@@ -8100,14 +8109,14 @@ function render(){
   const winY=SLOCK?null:window.scrollY,winScr=S.screen;
   const KEEPSC=['.csheet .cbody','.rsheet .rs-body','.cpick'],keepSc=KEEPSC.map(q=>{const el=document.querySelector(q);return el?el.scrollTop:null});
   document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+dashSheet()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','phase10','rook','yahtzee','mextrain','catan','golf','tripoley','quacks'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||LPTIP.startsWith('ph:')||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
-  if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar){bar.insertAdjacentHTML('afterbegin',HOMEBTN);if(dashOn()&&!S.editing)bar.insertAdjacentHTML('beforeend','<button class="btn sm dashbtn" data-a="dashopen" aria-label="Everyone at a glance">📊</button>');if(window.FTLINK&&!S.lk&&!S.demo&&!S.editing&&S.started&&!S.finished&&['score','live'].includes(S.screen))bar.insertAdjacentHTML('beforeend','<button class="btn sm lkbtn" data-a="lkhost" data-k="'+(S.game||'ttr')+'" aria-label="Link phones">📱 Link</button>')}}
+  if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar){bar.insertAdjacentHTML('afterbegin',HOMEBTN);if(dashOn()&&!S.editing)bar.insertAdjacentHTML('beforeend','<button class="btn sm dashbtn" data-a="dashopen" aria-label="Everyone at a glance">📊</button>');if((window.FTLINK||window.FTLAN)&&!S.lk&&!S.demo&&!S.editing&&S.started&&!S.finished&&['score','live'].includes(S.screen))bar.insertAdjacentHTML('beforeend','<button class="btn sm lkbtn" data-a="lkchoose" aria-label="Link phones">📱 Link</button>')}}
   rcHydrate(document.getElementById('app'));
   if(S.game==='canasta'&&S.screen!=='home'&&S.screen!=='stats')caWords(document.getElementById('app'));
   {const hr=document.querySelector('.hfrounds [aria-pressed=true]');if(hr){const c=hr.parentElement;c.scrollLeft=hr.offsetLeft-c.offsetLeft-c.clientWidth/2+hr.offsetWidth/2}}
   KEEPSC.forEach((q,i)=>{const el=document.querySelector(q);if(el&&keepSc[i])el.scrollTop=keepSc[i]});
   if(S.screen==='reveal'&&!RCWARMED){RCWARMED=true;setTimeout(()=>{try{const w=winMoment();rcWarm([w.src,...(w.layers||[]),...Object.values(loserMoments()).map(m=>m.img.u),...(LOOK()==='art'?act().flatMap(p=>['box','tank','hopper','caboose','engine'].map(k=>`train/${k}-${TCOL(p.color)}.png`)):[])])}catch(e){}},50)}else if(S.screen!=='reveal')RCWARMED=false;
   if(REMATCH)document.getElementById('app').insertAdjacentHTML('beforeend',rematchSheet());
-  if(LANUI)document.getElementById('app').insertAdjacentHTML('beforeend',lanSheet());
+  if(LANUI)document.getElementById('app').insertAdjacentHTML('beforeend',lanSheet());else if(LKCHOOSE)document.getElementById('app').insertAdjacentHTML('beforeend',lkChooseSheet());
   if(WARN&&!document.getElementById('warn-h'))document.getElementById('app').insertAdjacentHTML('beforeend',`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
     <div class="sheet-btns"><button class="btn" data-a="warnclose">Go back and check</button><button class="btn primary" data-a="revstart">Reveal anyway</button></div></div></div>`);
   sheetLock(!!document.querySelector('#app .sheet-bg'));
@@ -8885,6 +8894,10 @@ document.addEventListener('click',e=>{
     case 'lkleave':if(S.lk&&S.lk.me)window.FTLINK.seat(S.lk.me,null);lkClear('You left the linked game.');return;
     case 'lkback':lkGo();if(S.screen==='home')S.screen=lkScreen();window.scrollTo(0,0);break;
     case 'lkjoin':{const v=(document.getElementById('lk-code')||{}).value||'';LKCODE=v.replace(/\D/g,'');lkJoin(v);return}
+    case 'lkchoose':LKCHOOSE=true;LKMSG='';break;
+    case 'lkchoosex':LKCHOOSE=false;LKMSG='';break;
+    case 'lkchoosego':{const g=S.game||'ttr';if(k==='lan'){LKCHOOSE=false;lanHost(g);return}
+      (async()=>{await lkHostStart(g);if(S.lk)LKCHOOSE=false;render()})();return}
     case 'appupdate':appUpdate();return;
     case 'lanhost':lanHost(k);return;
     case 'lanjoin':lanJoin();return;
