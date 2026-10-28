@@ -855,6 +855,8 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .rgback{background:repeating-linear-gradient(45deg,#2b2f36 0 8px,#3a404a 8px 16px);border-color:#111}.rgback em{color:#f4d35e;font-size:calc(var(--cw)*.6);right:auto;left:50%;transform:translateX(-50%);bottom:18%}
 .rgtr{display:inline-block;width:40px;height:40px;border-radius:10px;background:var(--rk);border:2px solid rgba(0,0,0,.2)}.rgtr.none{background:repeating-linear-gradient(45deg,var(--soft) 0 6px,var(--line) 6px 12px)}
 .rgpick{grid-template-columns:repeat(3,1fr)}
+.cdbox{position:fixed;inset:0;z-index:40;display:grid;place-content:center;justify-items:center;gap:6px;background:rgba(10,15,20,.55);pointer-events:none}.cdbox b{font-family:var(--display);font-size:120px;line-height:1;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.4)}.cdbox span{color:#fff;font-weight:700}
+@media (prefers-reduced-motion:no-preference){.cdbox b{animation:cdpop .85s ease-out}}@keyframes cdpop{from{transform:scale(1.6);opacity:.2}to{transform:scale(1);opacity:1}}
 .sdbids{padding:12px;margin-top:8px}.sdbidgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}.sdbidgrid .btn{min-height:44px;padding:0}
 .htsum{padding:10px 14px;margin-top:10px}.htsum .srow{padding:6px 0}.htsum .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--pc)}
 
@@ -1940,7 +1942,7 @@ function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK||LKSWAP)return;if(lkHost()&&L
 /* "Your turn!" on a linked phone: a strong buzz, plus a notification if the app is in the background (and notifications are allowed) */
 let LKTURN=null;
 function lkTurnOwner(){if(!S.started||S.finished)return null;const P=act();if(!P.length)return null;
-  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='rage')return rgPlayOn()&&S.rgg?(S.rgg.phase==='bid'?S.rgg.bidTurn:S.rgg.phase==='play'?S.rgg.turn:null)||null:null;if(S.game==='rook')return rkPlayOn()&&S.rkg?(S.rkg.phase==='bid'?S.rkg.bidTurn:S.rkg.phase==='nest'?S.rkg.bidder:S.rkg.phase==='play'?S.rkg.turn:null)||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
+  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='rage')return rgPlayOn()&&S.rgg?(S.rgg.phase==='bid'?(RGX().bidAll?null:S.rgg.bidTurn):S.rgg.phase==='play'?S.rgg.turn:null)||null:null;if(S.game==='rook')return rkPlayOn()&&S.rkg?(S.rkg.phase==='bid'?S.rkg.bidTurn:S.rkg.phase==='nest'?S.rkg.bidder:S.rkg.phase==='play'?S.rkg.turn:null)||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
   if(S.rules&&S.rules.live||S.game==='carc')return S.turnId||null;return null}
 function lkTurnCheck(){const o=lkTurnOwner(),was=LKTURN;LKTURN=o;if(!o||o===was||!S.lk||o!==S.lk.me||was===null)return;
   vibe([250,120,250,120,400]);toast('Your turn!');
@@ -4897,7 +4899,7 @@ function sdDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    Everyone alone. Hands shrink each round (10 down to 1 by default).
    p.rg[r] = {b,t,bo,md}: bid, tricks, Bonus Rage cards, Mad Rage cards.
    ===================================================================== */
-const RGDEF={start:10,order:'down',fore:true,trickV:1,bidV:10,zeroV:5,missV:5,missKeep:true,bonusV:5,madV:5,sweep:true,play:false,rageAny:false,outOne:false,changeFlip:false,wild2nd:false,amigoDeck:false,wildNum:false};
+const RGDEF={start:10,order:'down',fore:true,trickV:1,bidV:10,zeroV:5,missV:5,missKeep:true,bonusV:5,madV:5,sweep:true,play:false,rageAny:false,outOne:false,changeFlip:false,wild2nd:false,amigoDeck:false,wildNum:false,bidAll:false};
 const RGX=()=>{if(!S.rgx)S.rgx={...RGDEF};const X=S.rgx;for(const k in RGDEF)if(X[k]===undefined)X[k]=RGDEF[k];return X};
 function rgSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.rgx'))}catch(e){}return Object.assign({...RGDEF},x||{})}
 function rgKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.rgx',JSON.stringify(RGX()))}catch(e){}}
@@ -4934,6 +4936,12 @@ function rgBidNote(r){const P=act(),n=rgCards(r);let s=0,all=true;P.forEach(p=>{
    A trick led by a Rage card takes its color from the first color card (or Wild) played after it; all-Rage tricks go to the first card.
    S.rgg = {r, phase:'bid'|'play'|'done', dealer, h, tr (color letter or null), up (flipped card), bids, bidTurn, t:[{p,c,w}], turn, n,
             won:{pid:count}, bo:{pid:n}, md:{pid:n}, last:{t,w}, played} */
+/* bids all at once: once every bid is in, the table phone counts 3-2-1 on every phone, then the bids show and play starts */
+let CDT=null;
+function cdRun(g,start){if(!g||CDT)return;if(g.cd===undefined||g.cd===null){g.cd=3;save();render()}
+  CDT=setTimeout(function step(){CDT=null;const cur=S.game==='rage'?S.rgg:S.ohg;if(!cur||cur!==g&&cur.r!==g.r||cur.phase!=='bid')return;cur.cd=(cur.cd||1)-1;
+    if(cur.cd<=0){delete cur.cd;cur.phase='play';cur.bidTurn=null;start(cur);vibe([20,30,60])}else vibe(15);save();render();if(cur.phase==='bid')CDT=setTimeout(step,850*htSpd())},850*htSpd())}
+const cdHtml=g=>g&&g.cd?`<div class="cdbox" aria-live="assertive"><span class="rlab">Everyone’s bid in. Showing bids in…</span><b class="num">${g.cd}</b></div>`:'';
 const RGBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Card Bot'],hard:['Hard','Rage Bot']};
 const RGC={r:['Red','#d23a2f'],o:['Orange','#e47b16'],y:['Yellow','#d9a400'],g:['Green','#2e8b45'],b:['Blue','#2b63c4'],p:['Purple','#7d46b8']};
 const RGACT={W:'Wild',C:'Change',U:'Out',A:'Bonus',M:'Mad'};
@@ -4948,9 +4956,11 @@ function rgDeal(r){const P=act(),n=rgCards(r);let deck=[];for(const s of 'roygbp
   const dealer=P[r%P.length].id,start=P.findIndex(p=>p.id===dealer)+1,h={};P.forEach((p,i)=>h[P[(start+i)%P.length].id]=deck.slice(i*n,(i+1)*n));
   const rest=deck.slice(n*P.length),ui=rest.findIndex(c=>!rgIsAct(c)),up=ui>=0?rest[ui]:null,tr=up?up[0]:null;for(const id in h)h[id]=rgSort(h[id],tr);
   const g={r,phase:'bid',dealer,h,tr,up,pile:ui>=0?rest.slice(ui+1):[],bids:{},bidTurn:rgNext(dealer),t:[],turn:null,n:0,won:{},bo:{},md:{},last:null,played:[],fore:rgFore(r)};
-  P.forEach(p=>{g.won[p.id]=0;g.bo[p.id]=0;g.md[p.id]=0});S.rgg=g;RGSEL=null;RGVIEW=null}
+  P.forEach(p=>{g.won[p.id]=0;g.bo[p.id]=0;g.md[p.id]=0});if(RGX().bidAll){g.bidTurn=null;P.forEach(p=>{if(p.bot)g.bids[p.id]=rgBotBid(g,p.id,p.bot)})}S.rgg=g;RGSEL=null;RGVIEW=null}
 function rgFlip(g){const pile=g.pile||[];while(pile.length){const c=pile.shift();if(!rgIsAct(c)){g.tr=c[0];g.up=c;g.flip=true;g.pile=pile;return}}g.pile=pile;g.tr=null;g.up=null}
-function rgBid(pid,v){const g=rgG();if(!g||g.phase!=='bid'||g.bidTurn!==pid)return false;v=+v;if(!(v>=0&&v<=rgCards(g.r)))return false;g.bids[pid]=v;
+function rgBid(pid,v){const g=rgG();if(!g||g.phase!=='bid')return false;v=+v;if(!(v>=0&&v<=rgCards(g.r)))return false;
+  if(RGX().bidAll){if(g.bids[pid]!==undefined)return false;g.bids[pid]=v;return true}
+  if(g.bidTurn!==pid)return false;g.bids[pid]=v;
   if(act().every(p=>g.bids[p.id]!==undefined)){g.phase='play';g.bidTurn=null;g.turn=rgNext(g.dealer)}else g.bidTurn=rgNext(pid);return true}
 /* the color a played card counts as, and its rank */
 const rgEff=x=>x.c[0]==='W'?x.w:rgCol(x.c),rgWN=x=>x.n===undefined||x.n===null?16:+x.n;
@@ -4973,13 +4983,20 @@ const rgOverNow=()=>{const g=rgG();return !!g&&g.phase==='done'&&g.r>=rgN()-1};
 /* ---------------- bots ---------------- */
 function rgBestCol(h){let best='r',bv=-1;for(const s of 'roygbp'){const v=h.filter(c=>c[0]===s).reduce((a,c)=>a+1+rgNum(c)/15,0);if(v>bv){bv=v;best=s}}return best}
 function rgEstimate(g,h,pid){const np=act().length,tr=g.tr;let e=0;
-  if(g.fore){/* forehead: you see everyone else's card; guess how strong yours is from what's left */
-    const others=act().filter(p=>p.id!==pid).map(p=>(g.h[p.id]||[])[0]).filter(Boolean),strong=others.filter(c=>c[0]==='W'||rgCol(c)===tr&&rgNum(c)>=8).length;return strong?0:(np<=3?.6:.3)}
+  if(g.fore)return rgForeP(g,pid);
   for(const c of h){if(c[0]==='W'){e+=.95;continue}if(rgIsAct(c))continue;const v=rgNum(c),L=h.filter(x=>x[0]===c[0]).length;
     if(c[0]===tr)e+=v>=13?.9:v>=10?.65:v>=6?.4:.2;else e+=(v>=15?.75:v>=14?.5:v>=13&&L<=3?.25:0)*(L>=5?.6:1)}
   return e*({2:2.2,3:1.6,4:1.25,5:1,6:.85,7:.75,8:.65}[np]||1)}
-function rgBotBid(g,pid,lv){const h=g.h[pid],n=rgCards(g.r);let b=Math.round(rgEstimate(g,h,pid)+(lv==='easy'?(Math.random()*2-1):0));return Math.max(0,Math.min(n,b))}
-function rgBotCard(g,pid,lv){const L=rgLegal(g,pid),X=RGX();const pick=(c,duck)=>{const led=rgLed(g.t);if(c[0]==='W'&&duck&&X.wildNum){const off='roygbp'.split('').find(s=>s!==g.tr&&s!==led)||'r';return {c,col:led&&led!==g.tr?led:off,num:0}}return {c,col:c[0]==='W'?(led&&!g.tr?led:g.tr||led||rgBestCol(g.h[pid])):c[0]==='C'?rgBestCol(g.h[pid].filter(x=>x!==c)):null,num:16}};
+/* forehead round: the bot can't see its own card either. It tries every card it could be holding (everything it can't see)
+   against the cards on everyone else's forehead, and works out how often it would take the trick */
+function rgForeP(g,pid){const P=act(),seen=new Set(P.filter(p=>p.id!==pid).map(p=>(g.h[p.id]||[])[0]).filter(Boolean));if(g.up)seen.add(g.up);
+  const deck=[];for(const s of 'roygbp')for(let v=0;v<=15;v++)deck.push(s+v);deck.push('W1','W2','C1','C2','C3','C4','U1','U2','U3','U4','A1','A2','M1','M2');if(RGX().amigoDeck)deck.push('A3','M3');
+  const cands=deck.filter(c=>!seen.has(c));if(!cands.length)return 0;const lead=rgNext(g.dealer),order=[];let q=lead;for(let i=0;i<P.length;i++){order.push(q);q=rgNext(q)}let wins=0;
+  for(const mine of cands){let tr=g.tr;const t=[];for(const id of order){const c=id===pid?mine:(g.h[id]||[])[0];if(!c)continue;const e={p:id,c};if(c[0]==='W'){e.w=tr||rgLed(t)||'r';e.n=16}if(c[0]==='U')tr=null;t.push(e)}
+    if(t.length&&rgWinner({tr},t)===pid)wins++}
+  return wins/cands.length}
+function rgBotBid(g,pid,lv){if(g.fore){const pw=rgForeP(g,pid);return lv==='easy'?(Math.random()<pw+.15?1:0):lv==='hard'?(pw>.5?1:0):(pw>.45?1:0)}const h=g.h[pid],n=rgCards(g.r);let b=Math.round(rgEstimate(g,h,pid)+(lv==='easy'?(Math.random()*2-1):0));return Math.max(0,Math.min(n,b))}
+function rgBotCard(g,pid,lv){const L=rgLegal(g,pid),X=RGX();if(g.fore){const c=L[0];return {c,col:c[0]==='W'?(g.tr||rgLed(g.t)||'r'):c[0]==='C'?rgBestCol(g.h[pid]):null,num:16}}const pick=(c,duck)=>{const led=rgLed(g.t);if(c[0]==='W'&&duck&&X.wildNum){const off='roygbp'.split('').find(s=>s!==g.tr&&s!==led)||'r';return {c,col:led&&led!==g.tr?led:off,num:0}}return {c,col:c[0]==='W'?(led&&!g.tr?led:g.tr||led||rgBestCol(g.h[pid])):c[0]==='C'?rgBestCol(g.h[pid].filter(x=>x!==c)):null,num:16}};
   if(L.length===1)return pick(L[0]);
   const colors=L.filter(c=>!rgIsAct(c)),lo=a=>a.slice().sort((x,y)=>rgNum(x)-rgNum(y))[0],hi=a=>a.slice().sort((x,y)=>rgNum(y)-rgNum(x))[0];
   if(lv==='easy')return pick(Math.random()<.5&&colors.length?lo(colors):L[Math.floor(Math.random()*L.length)]);
@@ -4999,13 +5016,14 @@ function rgBotCard(g,pid,lv){const L=rgLegal(g,pid),X=RGX();const pick=(c,duck)=
 let RGSEL=null,RGVIEW=null,RGBOTT=null,RGCOLT=null,RGWC=null;
 const rgHumans=()=>act().filter(p=>!p.bot);
 const rgMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
-function rgActive(){const g=rgG();if(!g)return null;const id=g.phase==='bid'?g.bidTurn:g.phase==='play'?g.turn:null;const q=act().find(p=>p.id===id);return q&&!q.bot?q:null}
+function rgActive(){const g=rgG();if(!g)return null;if(g.phase==='bid'&&RGX().bidAll){return act().find(p=>!p.bot&&g.bids[p.id]===undefined)||null}const id=g.phase==='bid'?g.bidTurn:g.phase==='play'?g.turn:null;const q=act().find(p=>p.id===id);return q&&!q.bot?q:null}
 function rgViewer(){const g=rgG();if(!g)return null;if(S.lk&&!S.demo)return rgMe();const H=rgHumans();if(H.length===1)return H[0];if(!H.length)return null;const a=rgActive();return a&&RGVIEW===a.id?a:null}
 const rgNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(rgHumans().length<2)return null;const a=rgActive();return a&&RGVIEW!==a.id?a:null};
 
 function rgTick(){if(S.game!=='rage'||!rgPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!rgRes())return;
   const g=rgG();if(!g||g.r!==rgCur()&&g.phase!=='done'){rgDeal(rgCur());save();render();return}
   const later=(ms,f)=>{if(!RGBOTT)RGBOTT=setTimeout(()=>{RGBOTT=null;f();save();render()},ms*htSpd())};
+  if(g.phase==='bid'&&RGX().bidAll){if(act().every(p=>g.bids[p.id]!==undefined))cdRun(g,x=>{x.turn=rgNext(x.dealer)});return}
   if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot)later(700,()=>{const g2=rgG();if(g2&&g2.phase==='bid'&&g2.bidTurn===q.id)rgBid(q.id,rgBotBid(g2,q.id,q.bot))});return}
   if(g.phase!=='play')return;
   if(g.t.length>=act().length){if(!RGCOLT)RGCOLT=setTimeout(()=>{RGCOLT=null;const g2=rgG();if(g2&&g2.t.length>=act().length){rgCollect(g2);save();render()}},1300*htSpd());return}
@@ -5025,7 +5043,8 @@ function rgPlay(){const X=RGX(),P=act(),g=rgG(),r=rgCur(),N=rgN(),sc=P.map(rgTot
   if(!g)return out+`<div class="panel" style="padding:16px">${waitLoader(rgRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
   const V=rgViewer(),hand=V?g.h[V.id]||[]:[],me=rgMe(),n=rgCards(g.r),bidP=P.find(p=>p.id===g.bidTurn),turnP=P.find(p=>p.id===g.turn);
   const trName=g.tr?RGC[g.tr][0]:'No trump';let status='';
-  if(g.phase==='bid')status=V&&g.bidTurn===V.id?`<b>Your bid${S.lk||rgHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.fore?'You can’t see your own card, only everyone else’s. Will yours win?':'How many tricks will you win?'}`:`${bidP&&bidP.bot?'🤖 ':''}<b>${esc(nm(bidP||{name:''}))}</b> is bidding…`;
+  const allMode=RGX().bidAll,myTurnBid=V&&g.phase==='bid'&&(allMode?g.bids[V.id]===undefined&&!g.cd:g.bidTurn===V.id);
+  if(g.phase==='bid')status=myTurnBid?`<b>Your bid${S.lk||rgHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.fore?'You can’t see your own card, only everyone else’s. Will yours win?':'How many tricks will you win?'}${allMode?' Bids stay hidden until everyone locks theirs in.':''}`:allMode?(g.cd?'Get ready…':V&&g.bids[V.id]!==undefined?`You locked in <b>${g.bids[V.id]}</b>. Waiting for ${P.filter(p=>g.bids[p.id]===undefined).map(p=>esc(nm(p))).join(', ')}…`:`Everyone is locking in a bid (${P.filter(p=>g.bids[p.id]!==undefined).length} of ${P.length} in).`):`${bidP&&bidP.bot?'🤖 ':''}<b>${esc(nm(bidP||{name:''}))}</b> is bidding…`;
   else if(g.phase==='play'){if(!turnP)status='Collecting the trick…';else if(V&&turnP.id===V.id){const led=rgLed(g.t);status=`<b>Your turn${S.lk||rgHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.fore?'Play your card (you still can’t see it).':g.t.length?(led?`Follow ${RGC[led][0].toLowerCase()} if you can. Can’t? Play anything, Rage cards too.`:'A Rage card led: play anything.'):'Lead any card.'} You bid ${g.bids[V.id]}, won ${g.won[V.id]||0}.`}else status=`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is playing…`}
   else if(g.phase==='done')status=`<b>Round ${r+1} is over.</b>`;
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${g.fore?'Forehead round':`${n} card${n===1?'':'s'} each`} · ${esc(nm(P.find(p=>p.id===g.dealer)||{name:''}))} dealt${g.phase!=='bid'?` · bids total ${P.reduce((a,p)=>a+(g.bids[p.id]||0),0)} for ${n}`:''}</span></div>`;
@@ -5033,7 +5052,7 @@ function rgPlay(){const X=RGX(),P=act(),g=rgG(),r=rgCur(),N=rgN(),sc=P.map(rgTot
     out+=`<div class="ohup">${g.tr?`<span class="rgtr" style="--rk:${RGC[g.tr][1]}"></span><span><b>Trump: ${trName}</b><br><small>${g.flip?'just turned up':g.up&&g.up[0]===g.tr?'the turned-up card':'changed by a Change Rage'}</small></span>`:`<span class="rgtr none"></span><span><b>No trump${g.outT?' this trick':''}</b><br><small>${g.outT?'Out Rage. A new trump is turned up after this trick.':g.up?'an Out Rage took it away':'no color card to turn up'}</small></span>`}</div>`;
     const trickEls=showT.map(x=>({p:x.p,c:x.c,w:x.w,n:x.n}));
     out+=ktTable({P,me:V?V.id:me?me.id:null,trick:trickEls,faded,turn:g.phase==='bid'?g.bidTurn:g.turn,won:lw&&lw.id,card:(c)=>{const x=trickEls.find(y=>y.c===c);return rgCardEl(c,{w:x&&(x.c[0]==='W'||!RGX().changeFlip)?x.w:x&&x.c[0]==='C'?x.w:null,n:x&&x.n})},
-      label:q=>{const b=g.bids[q.id],fc=g.fore&&g.phase!=='done'&&(g.h[q.id]||[])[0]&&(V?q.id!==V.id:(q.bot||S.lk))?` · ${(()=>{const c=g.h[q.id][0];return rgIsAct(c)?RGACT[c[0]]:RGC[c[0]][0]+' '+rgNum(c)})()}`:'';return (b===undefined?(g.phase==='bid'?'bidding…':''):`bid ${b} · won ${g.won[q.id]||0}`)+fc+((g.bo[q.id]||0)?` · +${g.bo[q.id]*X.bonusV}`:'')+((g.md[q.id]||0)?` · −${g.md[q.id]*X.madV}`:'')},
+      label:q=>{const b=g.phase==='bid'&&RGX().bidAll&&!(V&&q.id===V.id)?(g.bids[q.id]===undefined?undefined:'✓'):g.bids[q.id],fc=g.fore&&g.phase!=='done'&&(g.h[q.id]||[])[0]&&(V?q.id!==V.id:(q.bot||S.lk))?` · ${(()=>{const c=g.h[q.id][0];return rgIsAct(c)?RGACT[c[0]]:RGC[c[0]][0]+' '+rgNum(c)})()}`:'';return (b===undefined?(g.phase==='bid'?'bidding…':''):b==='✓'?'bid in ✓':`bid ${b} · won ${g.won[q.id]||0}`)+fc+((g.bo[q.id]||0)?` · +${g.bo[q.id]*X.bonusV}`:'')+((g.md[q.id]||0)?` · −${g.md[q.id]*X.madV}`:'')},
       note:lw?`${esc(nm(lw))} took it`:g.phase==='bid'?'Bidding…':''})}
   if(g.phase==='done'){const rows=P.map(q=>{const c=rgCalc(q,g.r);return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${c?`bid ${c.b}, took ${c.t}${c.hit?' ✓':''}${c.bo?` · +${c.bo*X.bonusV} Bonus`:''}${c.md?` · −${c.md*X.madV} Mad`:''}${c.sw?' · moon!':''}`:''}</small></span><span class="num"><b>${c&&c.v>0?'+':''}${c?c.v:0}</b> · ${rgTot(q)}</span></div>`}).join('');
     const over=rgOverNow();out+=`<div class="panel htsum">${rows}</div><div class="actions"><div class="in">${over?(rgRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Game over! Waiting for the host to reveal…</span>`):rgRes()?`<button class="btn sm" data-a="finish">End game</button><button class="btn primary" data-a="rgdeal">Deal round ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`;return out+rgModal()}
@@ -5043,12 +5062,12 @@ function rgPlay(){const X=RGX(),P=act(),g=rgG(),r=rgCur(),N=rgN(),sc=P.map(rgTot
       if(RGSEL&&RGSEL[0]==='W'&&RGWC&&X.wildNum&&L.includes(RGSEL))out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>Wild as a ${RGC[RGWC][0].toLowerCase()}: pick the number.</b> 16 beats every ${RGC[RGWC][0].toLowerCase()} card. Call it low to duck the trick. <button class="link-btn" data-a="rgcolor" data-k="">Change color</button></p><div class="sdbidgrid">${Array.from({length:17},(_,i)=>16-i).map(v=>`<button class="btn" data-a="rgnum" data-k="${v}" style="color:${RGC[RGWC][1]}">${v}</button>`).join('')}</div></div>`;
       else if(RGSEL&&(RGSEL[0]==='W'||RGSEL[0]==='C'&&!X.changeFlip)&&L.includes(RGSEL))out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>${RGSEL[0]==='W'?(X.wildNum?'Wild: pick its color, then its number.':'Wild: it becomes a 16 of the color you pick.'):'Change: pick the new trump color.'}</b></p><div class="rktr rgpick">${'roygbp'.split('').map(s=>`<button class="btn" data-a="rgcolor" data-k="${s}" style="--rk:${RGC[s][1]}"><i></i>${RGC[s][0]}</button>`).join('')}</div></div>`;
       else if(L.length)out+=`<p class="hint" style="text-align:center">${RGSEL?'Tap it again to play it.':'Tap a card to play it.'}</p>`}
-    if(g.phase==='bid'&&g.bidTurn===V.id)out+=`<div class="panel sdbids"><div class="sdbidgrid">${Array.from({length:n+1},(_,i)=>i).map(v=>`<button class="btn" data-a="rgbid" data-k="${v}">${v}</button>`).join('')}</div></div>`}
+    if(myTurnBid)out+=`<div class="panel sdbids"><div class="sdbidgrid">${Array.from({length:n+1},(_,i)=>i).map(v=>`<button class="btn" data-a="rgbid" data-k="${v}">${v}</button>`).join('')}</div>${allMode?'<p class="hint" style="margin:6px 0 0">Your bid locks in when you tap it.</p>':''}</div>`}
   else if(!S.lk&&rgHumans().length>1)out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
-  return out+rgModal()}
+  return out+cdHtml(g)+rgModal()}
 function rgModal(){const a=rgNeedHandoff();if(!a)return '';const g=rgG();return `<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="rgp-h" style="${pc(a.color)}">
   <svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="rgp-h">${esc(nm(a))}</h2>
-  <p class="rlab">${g.phase==='bid'?'Time to bid.':'It’s your turn to play a card.'} Everyone else, look away.</p><button class="btn primary wide" data-a="rgshow" data-k="${a.id}">I’m ${esc(nm(a))}, ${g.fore?'I’m ready':'show my cards'}</button></div></div>`}
+  <p class="rlab">${g.phase==='bid'?(RGX().bidAll?'Time to lock in your bid. It stays hidden until everyone’s in.':'Time to bid.'):'It’s your turn to play a card.'} Everyone else, look away.</p><button class="btn primary wide" data-a="rgshow" data-k="${a.id}">I’m ${esc(nm(a))}, ${g.fore?'I’m ready':'show my cards'}</button></div></div>`}
 function rgAct(a,b,k){const g=rgG();
   if(a==='rgshow'){RGVIEW=k;RGSEL=null;return}
   if(a==='rgbid'){const V=rgViewer();if(g&&V&&!rgBid(V.id,+k))toast('You can’t bid that.');return}
@@ -5083,7 +5102,7 @@ function rgSetup(){const X=RGX();
       +tg('changeFlip','Change Rage turns up a new trump','The next color card from the pile becomes trump, instead of the player naming one.')
       +tg('wildNum','Wild: pick the number too','Call it any color and number, 0 to 16. A low Wild can duck a trick.')
       +tg('wild2nd','The 2nd Wild beats the 1st','When both Wilds land in one trick.')
-      +tg('amigoDeck','3 Bonus and 3 Mad cards','The AMIGO deck has one more of each.'),
+      +tg('amigoDeck','3 Bonus and 3 Mad cards','The AMIGO deck has one more of each.')+tg('bidAll','Everyone bids at once','Every round, forehead round too: everyone locks in a bid, then after a 3-2-1 countdown all the bids show at the same moment. Official: bids go around the table from the dealer’s left.'),
       'Classic Fundex rules are the default: Out lasts the rest of the round, you name the new trump with Change, a Wild is a 16, the 1st Wild wins, 2 Bonus and 2 Mad.')})():''}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
 function rgScore(){if(rgPlayOn()&&S.started&&!S.demo)return rgPlay();const X=RGX(),P=act(),r=rgCur(),N=rgN(),n=rgCards(r),ph=rgPhase(r),chk=rgDone(r)?rgCheck(r):'',bn=rgBidNote(r);
@@ -5225,7 +5244,7 @@ function rgGuide(){const X=RGX(),n=act().length,N=rgBase();
       ['The deal',`Cards each round: ${show}${X.fore?', then 1 for the forehead round':''}. ${rgN()} rounds in all. The deal passes left.`],
       ['Trump','Put the leftover cards face down and flip the top one. Its color is trump. Flip again if it’s an action card.'],
       X.start*n>109?['Heads up',`${n} players × ${X.start} cards is more than the deck holds. Lower the first hand.`]:null]],
-    ['Bidding',[['Your bid','Everyone says how many tricks they’ll win, from 0 to the cards in hand, starting left of the dealer.'],
+    ['Bidding',[['Your bid',X.bidAll&&X.play?'Everyone locks in how many tricks they’ll win, from 0 to the cards in hand. After a 3-2-1 countdown all the bids show at once.':'Everyone says how many tricks they’ll win, from 0 to the cards in hand, starting left of the dealer.'],
       ['Shooting the moon','Bidding every trick in the round.'],X.fore?['Forehead round','Everyone holds their single card on their forehead without looking, then bids 0 or 1 based on everyone else’s cards.']:null]],
     ['Play',[['Following','Follow the color led if you can. Highest trump wins; otherwise the highest card of the color led.'],['Action cards',X.rageAny&&X.play?'Play one any time (house rule).':'Play one when you lead or can’t follow. If a Rage card leads, the first color card after it sets the color.'],
       ['Wild',X.wildNum?'Name a color and a number, 0 to 16. Call it high to win, or low to duck.':'Name a color; it’s a 16, the highest card of that color.'],['Change',X.changeFlip?'Turn up the next color card from the pile: that’s the new trump, right away.':'Name a new trump color. It counts right away, for this trick too.'],['Out',X.outOne?'No trump for this trick. Afterwards a new trump is turned up from the pile.':'No trump from now on, until someone plays a Change.'],
@@ -7390,7 +7409,7 @@ function ohDeal(r){const P=act(),n=ohCards(r);let deck=[];for(const s of 'CDHS')
 const ohBanned=(g,pid)=>{if(!OHX().hook||pid!==g.dealer)return null;const s=Object.values(g.bids).reduce((a,b)=>a+b,0),v=ohCards(g.r)-s;return v>=0?v:null};
 function ohBid(pid,v){const g=ohG();if(!g||g.phase!=='bid'||g.bids[pid]!==undefined)return false;if(OHX().hook&&g.bidTurn!==pid)return false;if(ohBanned(g,pid)===v)return false;
   g.bids[pid]=v;if(OHX().hook)g.bidTurn=act().every(p=>g.bids[p.id]!==undefined)?null:ohNext(pid);
-  if(act().every(p=>g.bids[p.id]!==undefined)){g.phase='play';g.turn=ohNext(g.dealer)}return true}
+  if(OHX().hook&&act().every(p=>g.bids[p.id]!==undefined)){g.phase='play';g.turn=ohNext(g.dealer)}return true}
 function ohLegal(g,pid){const h=g.h[pid]||[];if(!g.t.length)return h;const f=h.filter(c=>c[1]===g.t[0].c[1]);return f.length?f:h}
 function ohWinner(g,t){const tp=t.filter(x=>x.c[1]===g.tr),pool=tp.length?tp:t.filter(x=>x.c[1]===t[0].c[1]);return pool.reduce((a,x)=>htRk(x.c)>htRk(a.c)?x:a,pool[0]).p}
 function ohPlayCard(pid,c){const g=ohG();if(!g||g.phase!=='play'||g.turn!==pid||!ohLegal(g,pid).includes(c))return false;
@@ -7432,7 +7451,7 @@ const ohNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(ohHumans().length<2)ret
 
 function ohTick(){if(S.game!=='ohell'||!ohPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!ohRes())return;
   const g=ohG();if(!g||g.r!==ohCur()&&g.phase!=='done'){ohDeal(ohCur());save();render();return}
-  if(g.phase==='bid'&&act().every(p=>g.bids[p.id]!==undefined)){g.phase='play';g.bidTurn=null;g.turn=ohNext(g.dealer);save();render();return}
+  if(g.phase==='bid'&&act().every(p=>g.bids[p.id]!==undefined)){if(OHX().hook){g.phase='play';g.bidTurn=null;g.turn=ohNext(g.dealer);save();render()}else cdRun(g,x=>{x.turn=ohNext(x.dealer)});return}
   if(g.phase==='bid'){if(OHX().hook){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot&&!OHBOTT)OHBOTT=setTimeout(()=>{OHBOTT=null;const g2=ohG();if(!g2||g2.phase!=='bid'||g2.bidTurn!==q.id)return;ohBid(q.id,ohBotBid(g2,q.id,q.bot));save();render()},700*htSpd())}return}
   if(g.phase!=='play')return;
   if(g.t.length>=act().length){if(!OHCOLT)OHCOLT=setTimeout(()=>{OHCOLT=null;const g2=ohG();if(g2&&g2.t.length>=act().length){ohCollect(g2);save();render()}},1300*htSpd());return}
@@ -7444,7 +7463,7 @@ function ohPlay(){const X=OHX(),P=act(),g=ohG(),r=ohCur(),N=ohN(),sc=P.map(ohTot
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Round ${r+1} of ${N}">${r+1}/${N}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&(g.turn===q.id||g.bidTurn===q.id)}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${ohHits(q)} made</div></button>`).join('')}</div>`;
   if(!g)return out+`<div class="panel" style="padding:16px">${waitLoader(ohRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
-  const V=ohViewer(),hand=V?g.h[V.id]||[]:[],me=ohMe(),n=ohCards(g.r),allIn=P.every(p=>g.bids[p.id]!==undefined),showBids=allIn||X.hook;
+  const V=ohViewer(),hand=V?g.h[V.id]||[]:[],me=ohMe(),n=ohCards(g.r),allIn=P.every(p=>g.bids[p.id]!==undefined),showBids=allIn&&!g.cd||X.hook;
   const trName=g.tr==='N'?'No trump':{S:'Spades',H:'Hearts',D:'Diamonds',C:'Clubs'}[g.tr]+' are trump';
   const sum=P.reduce((a,p)=>a+(g.bids[p.id]||0),0);
   let status='';const bidTurnP=P.find(p=>p.id===g.bidTurn),turnP=P.find(p=>p.id===g.turn);
@@ -7466,7 +7485,7 @@ function ohPlay(){const X=OHX(),P=act(),g=ohG(),r=ohCur(),N=ohN(),sc=P.map(ohTot
     else if(g.phase==='bid')out+=`<p class="hint" style="text-align:center">You bid <b>${g.bids[V.id]}</b>.${X.hook?'':' Bids show when everyone is in.'}</p>`;
     else if(L.length)out+=`<p class="hint" style="text-align:center">${OHSEL?'Tap it again to play it.':'Tap a card to play it.'}</p>`}
   else if(!S.lk&&ohHumans().length>1)out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
-  return out+ohModal()}
+  return out+cdHtml(g)+ohModal()}
 function ohModal(){const a=ohNeedHandoff();if(!a)return '';return `<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="ohp-h" style="${pc(a.color)}">
   <svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="ohp-h">${esc(nm(a))}</h2>
   <p class="rlab">${ohG().phase==='bid'?'Time to bid.':'It’s your turn to play a card.'} Everyone else, look away.</p><button class="btn primary wide" data-a="ohshow" data-k="${a.id}">I’m ${esc(nm(a))}, show my cards</button></div></div>`}
@@ -9864,6 +9883,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='adbbc7';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='14d031';</script>
 </body>
 </html>
