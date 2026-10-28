@@ -8399,7 +8399,7 @@ const gpWith=(cells,i,c)=>cells.map((x,j)=>j===i?{c,up:true,gone:false}:x);
 function gpBestPlace(g,pid,c){const cells=g.h[pid];let best=null;cells.forEach((x,i)=>{if(x.gone)return;const e=gpEval(g,gpWith(cells,i,c));if(!best||e<best.e)best={i,e}});return best}
 function gpOthersLow(g,pid){const avg=gpAvg(g);return Math.min(...act().filter(p=>p.id!==pid).map(p=>gpEval(g,g.h[p.id])))}
 const gpWouldEnd=(cells,i)=>cells.every((x,j)=>j===i||x.up||x.gone);
-function gpBotStep(g,q){if(gpGN(g)&&g.phase!=='flip')return gpnBotStep(g,q);const pid=q.id,lv=q.bot,cells=g.h[pid],noise=lv==='easy'?4:lv==='normal'?1:.3,jit=()=>(Math.random()*2-1)*noise;
+function gpBotStep(g,q){if(gpGN(g)&&g.phase!=='flip')return gpnBotStep(g,q);const pid=q.id,lv=q.bot,cells=g.h[pid],SKB=gpSK(g),noise=SKB?(lv==='easy'?8:lv==='normal'?5:4):lv==='easy'?4:lv==='normal'?1:.3,oops=SKB?(lv==='easy'?.2:lv==='normal'?.13:.1):0,jit=()=>(Math.random()*2-1)*noise;
   if(g.phase==='flip'){gpBotFlips(g,q);gpStartIfReady(g);return}
   if(g.turn!==pid)return;
   const now=gpEval(g,cells),downs=cells.map((x,i)=>i).filter(i=>!cells[i].up&&!cells[i].gone);
@@ -8408,6 +8408,7 @@ function gpBotStep(g,q){if(gpGN(g)&&g.phase!=='flip')return gpnBotStep(g,q);cons
   const scoreOf=(i,c)=>{const nc=gpWith(cells,i,c),e=gpEval(g,nc);return gpWouldEnd(cells,i)&&!endOK(e)?e+30:e};
   if(g.flip===pid){const opts=downs.filter(i=>!(downs.length===1&&!endOK(now)));const pool=opts.length?opts:downs;gpFlipOne(g,pid,pool[Math.floor(Math.random()*pool.length)]);return}
   if(g.hold&&g.hold.p===pid){const c=g.hold.c;let best=null;cells.forEach((x,i)=>{if(x.gone)return;const e=scoreOf(i,c)+jit();if(!best||e<best.e)best={i,e}});
+    if(oops&&Math.random()<oops){/* a human-sized slip */const ok=cells.map((x,i)=>i).filter(i=>!cells[i].gone);gpPlace(g,pid,ok[Math.floor(Math.random()*ok.length)]);return}
     if(g.hold.from==='disc'||!best){gpPlace(g,pid,best.i);return}
     /* toss instead? keeps the grid as it is (and flips a card if that rule is on) */
     const toss=now+(downs.length===1&&(gpSK(g)||GFX().flipDisc)&&!endOK(now)?30:0)+(g.ender?0:lv==='hard'?0.8:0.4);
