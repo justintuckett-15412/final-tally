@@ -66,14 +66,19 @@ async function askLocal(){try{if(/^(localhost|127\.|10\.|192\.168\.|\[)/.test(lo
       fetch('http://192.168.1.1/',{targetAddressSpace:'local',mode:'no-cors',cache:'no-store'}).then(()=>{clearTimeout(t);res()},()=>{setTimeout(()=>{clearTimeout(t);res()},perm&&perm.state==='prompt'?1500:0)})});
     return await lnaState()}catch(e){return 'error'}}
 async function lnaState(){const out=[];for(const n of ['local-network-access','local-network','loopback-network']){try{const r=await navigator.permissions.query({name:n});out.push(n+':'+r.state)}catch(e){}}return out.join(' ')||'no LNA permission'}
-async function iceInfo(pc){try{const st=await pc.getStats();let sent=0,back=0,heard=0,pairs=0,state=pc.iceConnectionState,loc=[],rem=[];
+/* Chrome and Safari throw away their check counts once a try fails, so sample them while it is running and keep the busiest moment */
+function watchIce(pc){if(pc._ftw)return;pc._ftw=setInterval(async()=>{if(pc.connectionState==='closed'){clearInterval(pc._ftw);return}
+  try{const t=await iceNow(pc);if(t&&(!pc._ftbest||t.score>=pc._ftbest.score))pc._ftbest=t}catch(e){}},700)}
+async function iceInfo(pc){const now=await iceNow(pc);const b=pc._ftbest;
+  return (b&&b.score>now.score?'during the try: '+b.text+' · now '+(pc.iceConnectionState)+'/'+pc.connectionState:now.text)}
+async function iceNow(pc){try{const st=await pc.getStats();let sent=0,back=0,heard=0,pairs=0,state=pc.iceConnectionState,loc=[],rem=[];
   st.forEach(r=>{if(r.type==='candidate-pair'){pairs++;sent+=r.requestsSent||0;back+=r.responsesReceived||0;heard+=r.requestsReceived||0}
     if(r.type==='local-candidate')loc.push((r.address||r.ip||'?')+':'+r.port+'/'+r.protocol);if(r.type==='remote-candidate')rem.push((r.address||r.ip||'?')+':'+r.port)});
-  return `checks ${state}/${pc.connectionState}: ${pairs} route${pairs===1?'':'s'}, sent ${sent}, answered ${back}, heard from them ${heard} · mine ${loc.join(' ')||'none'} · theirs ${rem.join(' ')||'none'} · code had ${(pc._ftc||{}).n??'?'} added ${(pc._ftc||{}).ok??'?'}${(pc._ftc||{}).err?' ('+pc._ftc.err+')':''} · ${await lnaState()} · ${(navigator.userAgent.match(/(Chrome|Firefox|Version)\/[\d.]+/)||[''])[0]}`}catch(e){return 'stats error '+e.message}}
+  const text=`checks ${state}/${pc.connectionState}: ${pairs} route${pairs===1?'':'s'}, sent ${sent}, answered ${back}, heard from them ${heard} · mine ${loc.join(' ')||'none'} · theirs ${rem.join(' ')||'none'} · code had ${(pc._ftc||{}).n??'?'} added ${(pc._ftc||{}).ok??'?'}${(pc._ftc||{}).err?' ('+pc._ftc.err+')':''} · ${await lnaState()} · ${(navigator.userAgent.match(/(Chrome|Firefox|Version)\/[\d.]+/)||[''])[0]}`;return {text,score:pairs*1e6+sent+back*1e3+heard*1e3}}catch(e){return {text:'stats error '+e.message,score:-1}}}
 /* add each address from the other phone's code one by one too, in case the browser skipped them when reading the code */
 async function addCands(pc,sdp){const r={n:0,ok:0,err:''};const mid=(sdp.match(/a=mid:(\S+)/)||[])[1]||'0';
   for(const l of sdp.split(/\r?\n/))if(l.startsWith('a=candidate:')){r.n++;try{await pc.addIceCandidate({candidate:l.slice(2),sdpMid:mid,sdpMLineIndex:0});r.ok++}catch(e){r.err=e.name+' '+e.message}}
-  pc._ftc=r;return r}
+  pc._ftc=r;watchIce(pc);return r}
 /* ---------------- host side ---------------- */
 let hub=null;
 function startHost(){if(hub&&hub.role==='host')return hub;stop();const st=Store(),me=myId(),peers=new Set();
