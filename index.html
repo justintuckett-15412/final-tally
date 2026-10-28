@@ -849,6 +849,21 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .dosslot{position:relative;background:none;border:0;padding:4px;border-radius:12px}.dosslot .htc{--cw:58px}
 .dosslot:not([aria-disabled="true"]){outline:2px dashed color-mix(in srgb,var(--accent) 70%,transparent);outline-offset:2px}.dosslot.used>.htc{opacity:.55}
 .dosm{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);display:flex;gap:2px}.dosm .htc{--cw:34px}
+.gpc{position:relative;display:grid;place-items:center;aspect-ratio:.72;border-radius:8px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-family:var(--display);font-weight:900;padding:0;width:100%}
+.gpc b{font-size:clamp(16px,6vw,26px);line-height:1}.gpgrid.mini .gpc b{font-size:12px}.gpc small{position:absolute;right:4px;bottom:2px;font-size:10px;font-weight:700;opacity:.7}.gpgrid.mini .gpc small,.gpgrid.mini .gpc i{display:none}
+.gpc i{position:absolute;left:5px;top:3px;font-style:normal;font-size:12px}.gpgf.red{color:#c0392b}.gpjk b{font-size:22px}
+.gpback{background:repeating-linear-gradient(45deg,#2b3a55 0 6px,#33476a 6px 12px);border-color:#f0b43a}.gpempty{border-style:dashed;background:none}
+.gpgone{border-style:dashed;opacity:.35;background:none}
+.sk-dk{background:#5b5fd6;color:#fff;border-color:#3b3fa8}.sk-lb{background:#7cc6ea;color:#123;border-color:#1d8fc9}.sk-gr{background:#7fcf8a;color:#123;border-color:#2e8b3d}.sk-yl{background:#f3d76a;color:#3a2c00;border-color:#b98a00}.sk-rd{background:#ee8a7c;color:#3a0b05;border-color:#c0392b}
+.gpgrid{display:grid;gap:6px;width:100%}.gpgrid.mini{gap:3px}.gpgrid.mini .gpc{border-radius:5px;border-width:1.5px}
+.gpgrid .gpc.pick{outline:3px solid var(--accent);outline-offset:1px}.gpgrid .gpc.new{box-shadow:0 0 0 3px var(--pc,var(--accent))}
+.gpothers{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:10px 0}
+.gpo,.gpme{border:2px solid var(--line);border-left:5px solid var(--pc);border-radius:12px;padding:6px 8px;background:var(--bg)}.gpo.now,.gpme.now{border-color:var(--pc);box-shadow:0 0 0 2px color-mix(in srgb,var(--pc) 30%,transparent)}.gpo.ender .gpon b::after{content:" ✓ out"}
+.gpon{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin:0 0 4px}.gpon .num{color:var(--muted);font-weight:700}
+.gpme{max-width:420px;margin:10px auto 0}.gpme .gpgrid{max-width:360px;margin:0 auto}
+.gppiles{display:flex;justify-content:center;align-items:flex-end;gap:16px;margin:12px 0}.gppile,.gphold{background:none;border:0;padding:0;display:grid;justify-items:center;gap:4px;width:72px}.gppile small,.gphold small{font-size:11.5px;color:var(--muted);font-weight:700}
+.gppile.go .gpc{outline:3px solid var(--accent);outline-offset:2px}.gphold .gpc{transform:translateY(-6px) rotate(-4deg);box-shadow:0 6px 14px rgba(0,0,0,.25)}
+.sharesheet{text-align:center}.shareqr{display:grid;place-items:center;margin:10px auto}.shareqr svg{width:min(240px,70vw);height:auto;border-radius:12px;box-shadow:0 0 0 1px var(--line)}.shareurl{margin:4px 0 8px;word-break:break-all}.sharesheet .glossary{text-align:left;margin-top:12px}
 .unorow{display:flex;justify-content:center;margin:8px 0 0}.unobtn{font-size:22px;font-weight:900;letter-spacing:.04em;padding:10px 26px;background:#d23a2f;color:#fff;border-color:#a12a21}
 .uncatchbtn{background:#d23a2f!important;border-color:#a12a21!important;color:#fff!important}
 .ktseat.uncatch{border-color:#d23a2f!important;box-shadow:0 0 0 3px rgba(210,58,47,.35)}
@@ -1377,7 +1392,7 @@ const padSC=()=>Math.max(1,Math.round(Math.max(1,...act().map(p=>Math.abs(total(
 const LOW=()=>S.game==='phase10'||S.game==='mextrain'||S.game==='uno'&&UNX().mode==='low'||S.game==='golf'||S.game==='skyjo'||S.game==='gnome'&&!gnRW()||S.game==='hearts'||S.game==='crowns'||S.game==='pad'&&!!(S.px||{}).low,RS=p=>S.game==='darts'?dRankKey(p):S.game==='phase10'?ptKey(p):LOW()?-total(p):total(p),RU=(n,p)=>LOW()?-upto(n,p):upto(n,p);
 const total=p=>S.game==='carc'?cTot(p):HFE()?hfTot(p):S.game==='nerts'?nxTot(p):S.game==='pad'?pxTot(p):S.game==='darts'?dTot(p):S.game==='pool'?plTot(p):S.game==='hearts'?htTot(p):S.game==='spades'?sdTot(p):S.game==='rage'?rgTot(p):S.game==='ohell'?ohTot(p):S.game==='uno'?unTot(p):S.game==='munchkin'?mkTot(p):S.game==='crowns'?fcTot(p):S.game==='skipbo'?sbTot(p):S.game==='gnome'?gnTot(p):S.game==='skyjo'?skTot(p):S.game==='wingspan'?wsTot(p):S.game==='wyrmspan'?wyTot(p):S.game==='phase10'?ptTot(p):S.game==='rook'?rkTot(p):S.game==='yahtzee'?yzTot(p):S.game==='mextrain'?mtTot(p):S.game==='catan'?ctTot(p):S.game==='golf'?gfTot(p):S.game==='tripoley'?tpTot(p):S.game==='quacks'?qkTot(p):hsPts(p)+routePts(p)+tkNet(p)+extrasPts(p)+bonusPts(p);
 
-function resetScores(){delete S.lkvote;delete S.ung;delete S.rgrage;delete S.htg;delete S.sdg;delete S.ohg;delete S.rkg;delete S.rgg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
+function resetScores(){delete S.lkvote;delete S.ung;delete S.gpg;delete S.gpprev;delete S.rgrage;delete S.htg;delete S.sdg;delete S.ohg;delete S.rkg;delete S.rgg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
 let UNDO=[],KP='',RULESHEET=false;
 if(S.hideTotals===undefined)S.hideTotals=true;
 function setMap(k){
@@ -1423,7 +1438,8 @@ function home(){
     <p class="hint">${BKMSG?esc(BKMSG)+' ':''}${(()=>{const l=bkLast();if(!l)return 'No backup yet. Save one to your phone or computer now and then.';const d=Math.floor((Date.now()-new Date(l))/864e5);return `Last backup: ${d<1?'today':d===1?'yesterday':d+' days ago'}.`})()}</p></div>
   <button class="btn wide stats-btn samples-btn" data-a="go" data-s="samples">Sample games <span class="pill">${DEMOS.length+CDEMOS.length+HDEMOS.length+CADEMOS.length+NDEMOS.length+PDEMOS.length+DDEMOS.length+PLDEMOS.length+HTDEMOS.length+SDDEMOS.length+RGDEMOS.length+OHDEMOS.length+UNDEMOS.length+MKDEMOS.length+FCDEMOS.length+SBDEMOS.length+GNDEMOS.length+SKDEMOS.length+WSDEMOS.length+WYDEMOS.length+PTDEMOS.length+RKDEMOS.length+YZDEMOS.length+MTDEMOS.length+CTDEMOS.length+GFDEMOS.length+TPDEMOS.length+QKDEMOS.length+1}</span></button>
   <div class="soon"><img src="art/more-games.png" alt="" width="900" height="494"><p>More games will be added here.</p></div>
-  <p class="hint appver">Version ${esc(window.FT_BUILD||'dev')} · <button class="link-btn" data-a="appupdate" ${UPDBUSY?'disabled':''}>${UPDBUSY?esc(UPDBUSY):'Check for updates'}</button></p>`;
+  <button class="btn wide stats-btn" data-a="shareapp">📲 Share the app <span class="pill">QR code</span></button>
+  <p class="hint appver">Version ${esc(window.FT_BUILD||'dev')} · <button class="link-btn" data-a="appupdate" ${UPDBUSY?'disabled':''}>${UPDBUSY?esc(UPDBUSY):'Check for updates'}</button></p>${shareSheet()}`;
 }
 /* manual update check: ask the browser to fetch the newest version now, then restart into it */
 let UPDBUSY='';
@@ -1995,7 +2011,7 @@ function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK||LKSWAP)return;if(lkHost()&&L
 /* "Your turn!" on a linked phone: a strong buzz, plus a notification if the app is in the background (and notifications are allowed) */
 let LKTURN=null;
 function lkTurnOwner(){if(!S.started||S.finished)return null;const P=act();if(!P.length)return null;
-  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='rage')return rgPlayOn()&&S.rgg?(S.rgg.phase==='bid'?(RGX().bidAll?null:S.rgg.bidTurn):S.rgg.phase==='play'?S.rgg.turn:null)||null:null;if(S.game==='uno')return unPlayOn()&&S.ung&&S.ung.phase==='play'?(S.ung.ask?S.ung.ask.p:S.ung.drawn?S.ung.drawn.p:S.ung.turn)||null:null;if(S.game==='rook')return rkPlayOn()&&S.rkg?(S.rkg.phase==='bid'?S.rkg.bidTurn:S.rkg.phase==='nest'?S.rkg.bidder:S.rkg.phase==='play'?S.rkg.turn:null)||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
+  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='rage')return rgPlayOn()&&S.rgg?(S.rgg.phase==='bid'?(RGX().bidAll?null:S.rgg.bidTurn):S.rgg.phase==='play'?S.rgg.turn:null)||null:null;if(S.game==='golf'||S.game==='skyjo')return gpOn()&&S.gpg&&S.gpg.phase==='play'?S.gpg.turn||null:null;if(S.game==='uno')return unPlayOn()&&S.ung&&S.ung.phase==='play'?(S.ung.ask?S.ung.ask.p:S.ung.drawn?S.ung.drawn.p:S.ung.turn)||null:null;if(S.game==='rook')return rkPlayOn()&&S.rkg?(S.rkg.phase==='bid'?S.rkg.bidTurn:S.rkg.phase==='nest'?S.rkg.bidder:S.rkg.phase==='play'?S.rkg.turn:null)||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
   if(S.rules&&S.rules.live||S.game==='carc')return S.turnId||null;return null}
 function lkTurnCheck(){const o=lkTurnOwner(),was=LKTURN;LKTURN=o;if(!o||o===was||!S.lk||o!==S.lk.me||was===null)return;
   vibe([250,120,250,120,400]);toast('Your turn!');
@@ -3741,11 +3757,11 @@ function nxPlayers(){const m=M(),n=act().length,sl=S.players.slice(0,8);
   const rows=sl.map((p,i)=>`<div class="prow ${p.on?'':'off'}">
     <button class="swatch" style="background:var(--t-${p.color});${pc(p.color)}" data-a="colpick" data-i="${i}" aria-expanded="${COLPICK===i}" aria-label="Color ${CNAME[p.color]}, tap to choose a color"></button>
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="Player ${i+1}" aria-label="Player ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
-    ${(S.game==='yahtzee'&&yzRoller()||S.game==='hearts'&&htPlayOn()||S.game==='spades'&&sdPlayOn()||S.game==='ohell'&&ohPlayOn()||S.game==='rook'&&rkPlayOn()||S.game==='rage'&&rgPlayOn()||S.game==='uno'&&unPlayOn())&&(!S.lk||lkHost()&&!S.started)&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`🤖<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
+    ${(S.game==='yahtzee'&&yzRoller()||S.game==='hearts'&&htPlayOn()||S.game==='spades'&&sdPlayOn()||S.game==='ohell'&&ohPlayOn()||S.game==='rook'&&rkPlayOn()||S.game==='rage'&&rgPlayOn()||S.game==='uno'&&unPlayOn()||(S.game==='golf'||S.game==='skyjo')&&gpOn())&&(!S.lk||lkHost()&&!S.started)&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`🤖<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button></div>${COLPICK===i?colPicker(p,i):''}`).join('');
   const fam=H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the seats.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="map">‹ House rules</button><h1>Players</h1><span class="sub num">${n}</span></div>${steps(2)}
-  ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${S.game==='uno'&&unPlayOn()?'2 to 10 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rage'&&rgPlayOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rook'&&rkPlayOn()?'4 players: seats 1 & 3 are partners against seats 2 & 4.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='ohell'&&ohPlayOn()?'2 to 7 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='hearts'?(htPlayOn()?(S.lk?'3 to 6 players.':'3 to 6 players; 4 is the classic game. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'3 to 7 players; 4 is the classic game.'):S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk||!yzRoller()?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':S.game==='spades'?(SDX().teams?'4 players: seats 1 & 3 are partners against seats 2 & 4.':'3 to 5 players, everyone alone.')+(S.lk?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
+  ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${(S.game==='golf'||S.game==='skyjo')&&gpOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='uno'&&unPlayOn()?'2 to 10 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rage'&&rgPlayOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rook'&&rkPlayOn()?'4 players: seats 1 & 3 are partners against seats 2 & 4.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='ohell'&&ohPlayOn()?'2 to 7 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='hearts'?(htPlayOn()?(S.lk?'3 to 6 players.':'3 to 6 players; 4 is the classic game. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'3 to 7 players; 4 is the classic game.'):S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk||!yzRoller()?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':S.game==='spades'?(SDX().teams?'4 players: seats 1 & 3 are partners against seats 2 & 4.':'3 to 5 players, everyone alone.')+(S.lk?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
   ${S.game==='quacks'?firstPicker():''}
   <div class="actions"><div class="in"><button class="btn primary" data-a="start">${S.started?'Back to scoring':'Start scoring'}</button></div></div>`}
 
@@ -4524,6 +4540,14 @@ function dragEnd(e){if(!DRAG)return;const d=DRAG;DRAG=null;const t=document.quer
 document.addEventListener('pointerup',dragEnd);document.addEventListener('pointercancel',()=>{if(DRAG&&DRAG.el){DRAG.el.remove();DRAG.b.style.visibility=''}const t=document.querySelector('.kttable');if(t)t.classList.remove('dropzone','dropover');DRAG=null});
 document.addEventListener('click',e=>{if(Date.now()<DRAGSUP&&!DRAGPLAY&&e.target.closest('.hthand .htc')){e.stopImmediatePropagation();e.preventDefault()}},true);
 const cardPlayHint=()=>`${cardDrag()?'Drag a card onto the table to play it.':(curSel()?'Tap it again to play it.':'Tap a card to play it.')} <button class="link-btn" data-a="cardplay">${cardDrag()?'Tap to play instead':'Drag to play instead'}</button>`;
+/* "Share the app": a QR code for the website, so someone else can open and install it */
+const APPURL='https://justintuckett-15412.github.io/final-tally/';let SHAREQR=null;
+async function shareOpen(){SHAREQR={svg:''};render();try{SHAREQR={svg:window.FTLAN&&FTLAN.qrSvg?(await FTLAN.qrSvg(APPURL)).replace('aria-label="Pairing code"','aria-label="QR code for the Final Tally website"'):''}}catch(e){SHAREQR={svg:''}}if(SHAREQR)render()}
+function shareSheet(){if(!SHAREQR)return '';return `<div class="sheet-bg" data-a="shareclose"><div class="sheet sharesheet" role="dialog" aria-modal="true" aria-labelledby="share-h" data-stop="1">
+  <div class="rs-top"><h2 id="share-h">Share Final Tally</h2><button class="btn sm" data-a="shareclose">Close</button></div>
+  <p class="rlab">Point a phone’s camera at this code to open the app.</p><div class="shareqr">${SHAREQR.svg||(window.FTLAN?waitLoader('*'):'<p class="hint">The QR code needs the app to finish loading. Here’s the link instead.</p>')}</div>
+  <p class="shareurl"><b>${esc(APPURL.replace('https://',''))}</b></p><div class="sheet-btns"><button class="btn" data-a="sharecopy">Copy the link</button>${navigator.share?'<button class="btn primary" data-a="sharesend">Send it…</button>':''}</div>
+  <dl class="glossary"><dt>iPhone or iPad</dt><dd>Open it in Safari, tap Share, then <b>Add to Home Screen</b>.</dd><dt>Android</dt><dd>Open it in Chrome, tap ⋮, then <b>Install app</b> (or Add to Home screen).</dd><dt>Laptop</dt><dd>In Chrome or Edge, click the install icon in the address bar.</dd></dl></div></div>`}
 const KTSW={},KTMS=750;
 /* dealing: card backs fly from the middle to each seat when a new hand is dealt (each phone plays it once) */
 const DLS={},DLMS=1500;
@@ -5708,7 +5732,7 @@ function gnDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    12 cards in 4 columns of 3. A column of 3 matching cards is removed.
    p.sk[r] = {g:[12 cells, index row*4+col], v: typed total, s: sign, out: ended the round}
    ===================================================================== */
-const SKDEF={end:'points',target:100,rounds:10,entry:'grid',dbl:'printed',rowClear:false};
+const SKDEF={play:0,end:'points',target:100,rounds:10,entry:'grid',dbl:'printed',rowClear:false};
 const SKX=()=>{if(!S.skx)S.skx={...SKDEF};const X=S.skx;for(const k in SKDEF)if(X[k]===undefined)X[k]=SKDEF[k];return X};
 function skSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.skx'))}catch(e){}return Object.assign({...SKDEF},x||{})}
 function skKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.skx',JSON.stringify(SKX()))}catch(e){}}
@@ -5744,8 +5768,9 @@ function skSetup(){const X=SKX();
   const sec=(t,body,hint)=>`<div class="sec"><div class="sec-h"><h3>${t}</h3></div><div class="panel hfpanel">${body}</div>${hint?`<p class="hint">${hint}</p>`:''}</div>`;
   return `<div class="bar"><h1>Skyjo</h1></div><img class="hero hfhero" src="art/skyjo-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">Lowest score wins. Your house rules are remembered for next time. ${usualUI('skyjo')}</p>
+${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([vv,t])=>`<button data-a="gpplaymode" data-k="${vv}" aria-pressed="${!!X.play===!!vv}">${t}</button>`).join('')}</div>`,S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals the cards and runs every turn: drawing, swapping, flipping and the score. Computer players, pass-and-play and linked phones all work.':'Play with real cards and enter the cards (or totals) each round. Just score keeping.')}
   ${sec('How the game ends',seg('end',[['points','Someone hits a score'],['rounds','Set rounds'],['open','Until we stop']])+(X.end==='points'?row('Ends at','points',st('target',X.target,25,500,25,'points')):X.end==='rounds'?row('Rounds','',st('rounds',X.rounds,1,30,1,'rounds')):''),X.end==='points'?`When someone reaches ${X.target}, the lowest total wins.`:'Lowest total wins.')}
-  ${sec('Entering scores',seg('entry',[['grid','Fill in the 12 cards'],['type','Type the total']]),X.entry==='grid'?'Tap each player’s 12 cards. The app removes matching columns and adds it up. You can switch to typing during the game.':'Each player adds up their own cards. You can switch to the grid during the game.')}
+  ${X.play?'':sec('Entering scores',seg('entry',[['grid','Fill in the 12 cards'],['type','Type the total']]),X.entry==='grid'?'Tap each player’s 12 cards. The app removes matching columns and adds it up. You can switch to typing during the game.':'Each player adds up their own cards. You can switch to the grid during the game.')}
   ${sec('Ending the round',seg('dbl',[['printed','Doubled if not lowest'],['beat','Only if beaten'],['off','No doubling']]),X.dbl==='printed'?'Whoever flips their last card must have the lowest score, or their points double. A tie counts as not lowest. Never doubles 0 or less.':X.dbl==='beat'?'Doubled only if someone has a lower score. A tie is safe. Never doubles 0 or less.':'Ending the round never doubles your points.')}
   ${sec('Clearing cards',tg('rowClear','Clear matching rows too','A row of 4 matching cards is removed, like a column.'),'A column of 3 matching cards is always removed and scores 0.')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
@@ -5754,7 +5779,7 @@ function skGridUI(p,i,r){const R=skR(p,r),res=skGrid(R.g),sel=SKSEL&&SKSEL.i===i
   return `<div class="skgrid">${R.g.map((x,c)=>`<button data-a="skcell" data-i="${i}" data-c="${c}" class="${c===sel?'sel ':''}${res&&res.gone.has(c)?'gone ':''}${skCls(x)}" aria-label="Card ${c+1}${x!==null?': '+x:''}">${skCV(x)||'·'}</button>`).join('')}</div>
   ${sel>=0?`<div class="skpick">${[-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12].map(v=>`<button data-a="skval" data-i="${i}" data-v="${v}" class="${skCls(v)}">${v}</button>`).join('')}<button data-a="skval" data-i="${i}" data-v="" class="clr">Clear</button></div>`:''}
   ${res?`<p class="rlab" style="margin:4px 0 0">${res.cols.length||res.rows.length?[...res.cols.map(c=>`column of ${c.v}s cleared`),...res.rows.map(x=>`row of ${x.v}s cleared`)].join(' · '):'no columns cleared'}</p>`:skAny(R)?`<p class="rlab" style="margin:4px 0 0">${R.g.filter(x=>x===null).length} card${R.g.filter(x=>x===null).length===1?'':'s'} to go</p>`:''}`}
-function skScore(){const X=SKX(),P=act(),r=skCur(),N=skN(),grid=(S.skgrid??X.entry)==='grid',over=skOver();
+function skScore(){if(gpOn()&&S.started&&!S.demo)return gpPlay();const X=SKX(),P=act(),r=skCur(),N=skN(),grid=(S.skgrid??X.entry)==='grid',over=skOver();
   const sc=P.map(skTot),lo=Math.min(...sc),lead=skLast()>=0&&sc.filter(v=>v===lo).length===1?P[sc.indexOf(lo)]:null,last=X.end==='rounds'?r>=X.rounds-1:over;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1>Round ${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo">↶<span class="undo-w"> Undo</span></button></div>
   <div class="hfrounds" role="tablist" aria-label="Rounds">${Array.from({length:N},(_,i)=>`<button data-a="skhand" data-v="${i}" aria-pressed="${i===r}">Round ${i+1}${skDone(i)?' ✓':''}</button>`).join('')}</div>
@@ -5806,7 +5831,7 @@ function skGuide(){const X=SKX();
 function skHomeCard(){const st=gamePeek('skyjo');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/skyjo-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart skart&quot; aria-hidden=&quot;true&quot;>12</div>'"><div><h2>Skyjo</h2><div class="meta">Card game · low score wins</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="skyjo">Resume game</button><button class="btn" data-a="gnew" data-k="skyjo">New game</button></div>`
-      :`<button class="btn primary wide" data-a="gnew" data-k="skyjo">Score a game</button>`}</div>`}
+      :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gpstart" data-g="skyjo" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="gpstart" data-g="skyjo" data-k="0">Score a game</button></div>`}</div>`}
 const SKDEMOS=[{id:'skfam',title:'Family night · Skyjo',tip:'The last round is filled in card by card; matching columns are cleared. Press and hold a name for their history.',blurb:'Four players until someone hits 100. Dad ends a round too early and gets doubled; Lily clears three columns in the final round.'}];
 function skDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=skFresh();S.skx={...SKDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
   const D=[[14,9,22,17],[8,21,11,3],[19,6,-2,12],[11,15,24,9],[5,18,13,20],[16,12,9,14]],O=[1,3,2,0,0,1];
@@ -6909,7 +6934,7 @@ function ctDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    Each hole, every player has a grid (4, 6, 8 or 9 cards). Matching lines
    cancel. Low score wins. p.gf[r] = {g:[ranks], v, s, out}
    ===================================================================== */
-const GFDEF={size:9,lines:'rowcol',negCancel:true,jokers:true,vA:1,v2:-2,vJ:10,vQ:10,vK:0,vJk:-2,quadV:0,end:'rounds',holes:9,target:100,entry:'grid',outRule:'penalty',outP:10,outTie:true};
+const GFDEF={play:0,flipDisc:true,startFlip:true,size:9,lines:'rowcol',negCancel:true,jokers:true,vA:1,v2:-2,vJ:10,vQ:10,vK:0,vJk:-2,quadV:0,end:'rounds',holes:9,target:100,entry:'grid',outRule:'penalty',outP:10,outTie:true};
 const GFX=()=>{if(!S.gfx)S.gfx={...GFDEF};const X=S.gfx;for(const k in GFDEF)if(X[k]===undefined)X[k]=GFDEF[k];return X};
 function gfSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.gfx'))}catch(e){}return Object.assign({...GFDEF},x||{})}
 function gfKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.gfx',JSON.stringify(GFX()))}catch(e){}}
@@ -6951,6 +6976,8 @@ function gfSetup(){const X=GFX();
   const {rows,cols}=gfShape();
   return `<div class="bar"><h1>Golf</h1></div><img class="hero hfhero" src="art/golf-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">Lowest score wins. Golf has lots of versions, so set yours up here; it’s remembered for next time. ${usualUI('golf')}</p>
+${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([vv,t])=>`<button data-a="gpplaymode" data-k="${vv}" aria-pressed="${!!X.play===!!vv}">${t}</button>`).join('')}</div>`,S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals the cards and runs every turn: drawing, swapping, flipping and the score. Computer players, pass-and-play and linked phones all work.':'Play with real cards and enter the cards (or totals) each hole. Just score keeping.')}
+  ${X.play?sec('On the phone',tg('flipDisc','Discard a drawn card, then flip one','Don’t want the card you drew? Discard it and turn one of your face-down cards up. Off: discard it and your turn is over.')+tg('startFlip','Flip cards at the start','Everyone turns 2 cards face up before the hole (3 with 9 cards). Off: everyone starts blind.'),''):''}
   ${sec('Cards in your layout',`<div class="seg gfsize">${[['4','4'],['6','6'],['8','8'],['9','9']].map(([v,t])=>`<button data-a="gfset" data-k="size" data-v="${v}" aria-pressed="${String(X.size)===v}">${t} cards</button>`).join('')}</div>`,`${rows} rows of ${cols}.`)}
   ${sec('What cancels to 0',(X.size===9?seg('lines',[['col','Columns'],['rowcol','Rows & columns'],['all','+ Diagonals']]):'')+tg('negCancel','Negative cards cancel too','Off: a match of 2s or jokers keeps its minus points.')+(X.size!==9?row('Two matching columns','bonus (minus is good)',st('quadV',X.quadV,-50,0,5,'points')):''),
     X.size===9?(X.lines==='col'?'A column of 3 matching cards scores 0.':X.lines==='all'?'Any row, column or diagonal of 3 matching cards scores 0. A card can count in more than one.':'Any row or column of 3 matching cards scores 0. A card can count in both.'):`A matching pair in a column scores 0.${X.quadV?` Four of a kind (two matching columns) adds ${X.quadV}.`:''}`)}
@@ -6958,14 +6985,14 @@ function gfSetup(){const X=GFX();
   ${sec('Going out first',seg('outRule',[['penalty','Penalty if not lowest'],['double','Doubled if not lowest'],['none','Nothing']])+(X.outRule==='penalty'?row('Penalty','added',st('outP',X.outP,1,50,1,'points')):'')+(X.outRule!=='none'?tg('outTie','A tie counts as not lowest','Off: tying for lowest is safe.'):''),
     X.outRule==='penalty'?`Whoever flips their last card first gets +${X.outP} unless they have the lowest score that hole.`:X.outRule==='double'?'Whoever flips their last card first has a positive score doubled unless they’re lowest that hole.':'')}
   ${sec('How long',seg('end',[['rounds','Set holes'],['points','To a score'],['open','Until we stop']])+(X.end==='rounds'?row('Holes','',st('holes',X.holes,1,36,1,'holes')):X.end==='points'?row('Ends at','points',st('target',X.target,25,500,25,'points')):''),X.end==='rounds'?(X.holes===9?'A front nine.':X.holes===18?'A full 18.':''):X.end==='points'?`When someone reaches ${X.target}, the lowest total wins.`:'')}
-  ${sec('Entering scores',seg('entry',[['grid','Fill in the cards'],['type','Type the total']]),'')}
+  ${X.play?'':sec('Entering scores',seg('entry',[['grid','Fill in the cards'],['type','Type the total']]),'')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
 let GFSEL=null;
 function gfGridUI(p,i,r){const X=GFX(),R=gfR(p,r),res=gfGrid(R.g),sel=GFSEL&&GFSEL.i===i&&GFSEL.r===r?GFSEL.c:-1,{cols}=gfShape();
   return `<div class="gfgrid" style="grid-template-columns:repeat(${cols},minmax(0,1fr));max-width:${cols*64}px">${R.g.map((x,c)=>`<button data-a="gfcell" data-i="${i}" data-c="${c}" class="${c===sel?'sel ':''}${res&&res.gone.has(c)?'gone ':''}${gfCls(x)}" aria-label="Card ${c+1}${x!==null?': '+x:''}">${x===null?'·':gfLab(x)}</button>`).join('')}</div>
   ${sel>=0?`<div class="skpick gfpick">${GFRANKS().map(k=>`<button data-a="gfval" data-i="${i}" data-v="${k}" class="${gfCls(k)}"><b>${gfLab(k)}</b><small>${gfVal(k)}</small></button>`).join('')}<button data-a="gfval" data-i="${i}" data-v="" class="clr">Clear</button></div>`:''}
   ${res?`<p class="rlab" style="margin:4px 0 0">${res.hits.length?res.hits.map(h=>`${h.t==='col'?'column':h.t==='row'?'row':'diagonal'} of ${h.k==='Jk'?'jokers':h.k+'s'} cancels`).join(' · '):'nothing cancels'}${res.quads?` · four of a kind ${res.quads*X.quadV}`:''}</p>`:gfAny(R)?`<p class="rlab" style="margin:4px 0 0">${R.g.filter(x=>x===null).length} card${R.g.filter(x=>x===null).length===1?'':'s'} to go</p>`:''}`}
-function gfScore(){const X=GFX(),P=act(),r=gfCur(),N=gfN(),grid=(S.gfgrid??X.entry)==='grid',over=gfOver();
+function gfScore(){if(gpOn()&&S.started&&!S.demo)return gpPlay();const X=GFX(),P=act(),r=gfCur(),N=gfN(),grid=(S.gfgrid??X.entry)==='grid',over=gfOver();
   const sc=P.map(gfTot),lo=Math.min(...sc),lead=gfLast()>=0&&sc.filter(v=>v===lo).length===1?P[sc.indexOf(lo)]:null,last=X.end==='rounds'?r>=X.holes-1:over;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1>Hole ${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo">↶<span class="undo-w"> Undo</span></button></div>
   <div class="hfrounds" role="tablist" aria-label="Holes">${Array.from({length:N},(_,i)=>`<button data-a="gfhand" data-v="${i}" aria-pressed="${i===r}">Hole ${i+1}${gfDone(i)?' ✓':''}</button>`).join('')}</div>
@@ -7019,7 +7046,7 @@ function gfGuide(){const X=GFX(),n=act().length,{rows,cols}=gfShape(),decks=n*X.
 function gfHomeCard(){const st=gamePeek('golf');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/golf-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart gfart&quot; aria-hidden=&quot;true&quot;>⛳&#xFE0E;</div>'"><div><h2>Golf</h2><div class="meta">Card game · many versions · low score wins</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hole ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="golf">Resume game</button><button class="btn" data-a="gnew" data-k="golf">New game</button></div>`
-      :`<button class="btn primary wide" data-a="gnew" data-k="golf">Score a game</button>`}</div>`}
+      :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gpstart" data-g="golf" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="gpstart" data-g="golf" data-k="0">Score a game</button></div>`}</div>`}
 const GFDEMOS=[{id:'gffam',title:'Family night · Golf',tip:'Hole 9 is filled in card by card; matching rows and columns cancel. Press and hold a name for their history.',blurb:'Four players, 9-card golf over a front nine. Dad goes out early on the last hole and takes the +10.'}];
 function gfDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=gfFresh();S.gfx={...GFDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
   const D=[[12,18,9,15],[7,4,14,11],[3,19,6,10],[14,5,11,8],[2,16,-1,9],[9,3,12,13],[6,10,8,-2],[11,7,15,6]],O=[2,1,0,3,2,1,3,0];
@@ -8152,6 +8179,164 @@ function dosHtml(g,V,mine){let out='';const m=g.m,hand=V?unSort(g,g.h[V.id]||[])
     const btns=[];if(mine&&!g.ask){if(!m.made&&!m.drew)btns.push(`<button class="btn" data-a="unpdraw">Draw a card</button>`);if(m.made||m.drew)btns.push(`<button class="btn primary" data-a="unpend">${m.made?(m.bonus?`End turn: add ${m.bonus} card${m.bonus===1?'':'s'} ›`:'End turn ›'):'No match: add a card ›'}</button>`)}
     if(btns.length)out+=`<div class="actions"><div class="in">${btns.join('')}</div></div>`}
   return out}
+
+
+/* ================= Golf and Skyjo on the phone (one engine for both) =================
+   Everyone has a grid of face-down cards. On your turn take the top discard or draw from the deck,
+   then swap it for one of your cards (face up or down), or (deck only) discard it and flip a face-down card.
+   Skyjo: a column of 3 matching face-up cards is removed right away. Golf: matching lines cancel when the hole is scored.
+   When someone has every card face up, everyone else gets one more turn, then the hole is scored with the score-sheet rules.
+   S.gpg = {_atom, r, game, h:{pid:[{c,up,gone}]}, deck, disc:[ids], dealer, turn, phase:'flip'|'play'|'done',
+            need:{pid:n flips left}, hold:{p,c,from}|null, flip:pid|null (must flip a card), ender, left:[pids still to go], last:{p,i}, msg, n} */
+const GPBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Card Bot'],hard:['Hard','Ace Bot']};
+const gpOn=()=>(S.game==='golf'?GFX():S.game==='skyjo'?SKX():{}).play?true:false;
+const gpG=()=>S.gpg||null;
+const gpRes=()=>!S.lk||S.demo||lkHost();
+const gpSK=g=>(g?g.game:S.game)==='skyjo';
+const gpRank=c=>String(c).split('#')[0];
+const gpVal=(g,c)=>{const k=gpRank(c);return gpSK(g)?+k:gfVal(k==='Jk'?'Jk':k.slice(0,-1))};
+const gpRk=c=>{const k=gpRank(c);return k==='Jk'?'Jk':k.slice(0,-1)};          /* golf rank without the suit */
+const gpSame=(g,a,b)=>gpSK(g)?gpRank(a)===gpRank(b):gpRk(a)===gpRk(b);
+const gpShape=g=>gpSK(g)?{rows:3,cols:4}:gfShape();
+const gpSize=g=>gpSK(g)?12:GFX().size;
+function gpBuild(game,n){if(game==='skyjo'){const L=[];const add=(v,k)=>{for(let i=0;i<k;i++)L.push(v)};add(-2,5);add(-1,10);add(0,15);for(let v=1;v<=12;v++)add(v,10);return L.map((v,i)=>v+'#'+i)}
+  const X=GFX(),per=52+(X.jokers?2:0),decks=Math.max(1,Math.ceil((n*X.size+15)/per)),L=[];
+  for(let d=0;d<decks;d++){for(const s of 'SHDC')for(const r of ['A','2','3','4','5','6','7','8','9','10','J','Q','K'])L.push(r+s);if(X.jokers)L.push('Jk','Jk')}
+  return L.map((c,i)=>c+'#'+i)}
+function gpDeal(r){const P=act(),game=S.game,dealer=P[r%P.length].id,size=gpSize({game});
+  const g={_atom:1,r,game,h:{},deck:htShuffle(gpBuild(game,P.length)),disc:[],dealer,turn:null,phase:'flip',need:{},hold:null,flip:null,ender:null,left:[],last:null,msg:'',n:0};
+  P.forEach(p=>{g.h[p.id]=Array.from({length:size},()=>({c:g.deck.pop(),up:false,gone:false}));g.need[p.id]=game==='golf'&&size===9?3:2});
+  g.disc.push(g.deck.pop());
+  if(game==='golf'&&!GFX().startFlip)P.forEach(p=>g.need[p.id]=0);
+  P.forEach(p=>{if(p.bot)gpBotFlips(g,p)});
+  g.msg=`Everyone flips ${g.need[P[0].id]||'no'} card${g.need[P[0].id]===1?'':'s'} face up.`;S.gpg=g;GPVIEW=null;gpStartIfReady(g)}
+function gpBotFlips(g,p){const cells=g.h[p.id],n=g.need[p.id];const pick=[];const {cols}=gpShape(g);
+  const order=gpSK(g)?[0,4,8,1,5,9,2,6,10,3,7,11]:cells.map((_,i)=>i);for(const i of htShuffle(order.slice()))if(pick.length<n&&!pick.includes(i))pick.push(i);
+  pick.forEach(i=>cells[i].up=true);g.need[p.id]=0}
+function gpStartIfReady(g){if(g.phase!=='flip'||act().some(p=>g.need[p.id]>0))return;const P=act();
+  let first;if(gpSK(g)){const prev=g.r>0&&S.gpprev&&P.find(p=>p.id===S.gpprev);if(prev)first=prev.id;else{let best=-99;P.forEach(p=>{const s=g.h[p.id].filter(x=>x.up).reduce((a,x)=>a+gpVal(g,x.c),0);if(s>best){best=s;first=p.id}})}}
+  else first=gpNext(g,g.dealer);
+  g.phase='play';g.turn=first;g.msg=gpSK(g)?`${nmid(first)} goes first${g.r>0&&S.gpprev===first?' (ended last round)':' (highest flipped cards)'}.`:`${nmid(first)} goes first.`}
+const gpNext=(g,pid)=>{const P=act(),i=P.findIndex(p=>p.id===pid);return P[(i+1)%P.length].id};
+const gpTop=g=>g.disc[g.disc.length-1]||null;
+function gpPull(g){if(!g.deck.length){if(g.disc.length<2)return null;const top=g.disc.pop();g.deck=htShuffle(g.disc.slice());g.disc=[top]}return g.deck.pop()}
+/* Skyjo: clear any column (and row, with the house rule) of 3 matching face-up cards */
+function gpClear(g,pid){if(!gpSK(g))return;const cells=g.h[pid],X=SKX();let cl=0;
+  const sets=[];for(let c=0;c<4;c++)sets.push([c,c+4,c+8]);if(X.rowClear)for(let r=0;r<3;r++)sets.push([r*4,r*4+1,r*4+2,r*4+3]);
+  let v=null;sets.forEach(s=>{if(s.every(i=>cells[i].up&&!cells[i].gone)&&s.every(i=>gpSame(g,cells[i].c,cells[s[0]].c))){v=gpRank(cells[s[0]].c);s.forEach(i=>{cells[i].gone=true;g.disc.push(cells[i].c)});cl++}});
+  if(cl)g.msg+=` ${cl===1?'A line':cl+' lines'} of ${v}s cleared!`}
+function gpAllUp(g,pid){return g.h[pid].every(x=>x.up||x.gone)}
+function gpFlipStart(g,pid,i){if(g.phase!=='flip'||!(g.need[pid]>0))return false;const x=g.h[pid][i];if(!x||x.up)return false;x.up=true;g.need[pid]--;g.n++;gpStartIfReady(g);return true}
+function gpTake(g,pid,from){if(g.phase!=='play'||g.turn!==pid||g.hold||g.flip)return false;let c;if(from==='disc'){c=g.disc.pop();if(!c)return false}else{c=gpPull(g);if(!c)return false}
+  g.hold={p:pid,c,from};g.n++;g.msg=from==='disc'?`${nmid(pid)} took the ${gpName(g,c)} from the discard pile.`:`${nmid(pid)} drew a card.`;return true}
+function gpPlace(g,pid,i){const h=g.hold;if(!h||h.p!==pid)return false;const x=g.h[pid][i];if(!x||x.gone)return false;
+  const old=x.c,was=x.up;x.c=h.c;x.up=true;g.disc.push(old);g.hold=null;g.last={p:pid,i};g.n++;g.msg=`${nmid(pid)} swapped the ${gpName(g,h.c)} for ${was?'a '+gpName(g,old):'a face-down '+gpName(g,old)}.`;gpClear(g,pid);gpEndTurn(g,pid);return true}
+function gpToss(g,pid){const h=g.hold;if(!h||h.p!==pid||h.from!=='deck')return false;g.disc.push(h.c);g.hold=null;g.n++;g.msg=`${nmid(pid)} discarded the ${gpName(g,h.c)}.`;
+  const canFlip=g.h[pid].some(x=>!x.up&&!x.gone);if((gpSK(g)||GFX().flipDisc)&&canFlip){g.flip=pid;return true}gpEndTurn(g,pid);return true}
+function gpFlipOne(g,pid,i){if(g.flip!==pid)return false;const x=g.h[pid][i];if(!x||x.up||x.gone)return false;x.up=true;g.flip=null;g.last={p:pid,i};g.n++;g.msg+=` Flipped a ${gpName(g,x.c)}.`;gpClear(g,pid);gpEndTurn(g,pid);return true}
+function gpEndTurn(g,pid){if(g.ender){g.left=g.left.filter(x=>x!==pid);if(!g.left.length){gpScore(g);return}}
+  else if(gpAllUp(g,pid)){g.ender=pid;g.left=act().map(p=>p.id).filter(x=>x!==pid);g.msg+=` ${nmid(pid)} has every card face up! Everyone else gets one more turn.`;if(!g.left.length){gpScore(g);return}}
+  let nx=gpNext(g,pid);if(g.ender){let guard=0;while(!g.left.includes(nx)&&guard++<20)nx=gpNext(g,nx)}g.turn=nx}
+function gpScore(g){const P=act();P.forEach(p=>g.h[p.id].forEach(x=>x.up=true));
+  P.forEach(p=>{const cells=g.h[p.id];if(gpSK(g)){const R=skR(p,g.r);R.g=cells.map(x=>+gpRank(x.c));R.v=null;R.out=p.id===g.ender}else{const R=gfR(p,g.r);R.g=cells.map(x=>gpRk(x.c));R.v=null;R.out=p.id===g.ender}});
+  S.gpprev=g.ender;g.phase='done';g.turn=null;g.hold=null;g.flip=null;S.hr=Math.max(S.hr||0,g.r);
+  g.msg=`Hole’s over: everyone turns up their cards.`;if(gpSK(g))g.msg='Round over: everyone turns up their cards.'}
+const gpName=(g,c)=>{if(gpSK(g))return gpRank(c);const k=gpRk(c);return k==='Jk'?'joker':({A:'ace',J:'jack',Q:'queen',K:'king'}[k]||k)};
+const gpPts=(g,pid)=>{const p=act().find(q=>q.id===pid);return gpSK(g)?skPts(p,g.r):gfPts(p,g.r)};
+/* the score you can see right now (face-down cards count as 0) */
+function gpSeen(g,pid){const cells=g.h[pid],gone=new Set();if(!gpSK(g)){const X=GFX();gfLines(X).forEach(L=>{const x0=cells[L.idx[0]];if(L.idx.every(i=>cells[i].up)&&L.idx.every(i=>gpSame(g,cells[i].c,x0.c))&&(X.negCancel||gpVal(g,x0.c)>=0))L.idx.forEach(i=>gone.add(i))})}
+  return cells.reduce((a,x,i)=>a+(x.up&&!x.gone&&!gone.has(i)?gpVal(g,x.c):0),0)}
+
+/* ---------------- computer players ---------------- */
+function gpAvg(g){if(gpSK(g))return 5.07;const X=GFX(),ks=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];let t=ks.reduce((a,k)=>a+gfVal(k)*4,0),n=52;if(X.jokers){t+=gfVal('Jk')*2;n+=2}return t/n}
+/* expected score of a grid: face-down cards count as an average card; matching lines cancel */
+function gpEval(g,cells){const avg=gpAvg(g);if(gpSK(g)){let s=0;const gone=new Set();for(let c=0;c<4;c++){const a=[c,c+4,c+8];if(a.every(i=>cells[i].gone)||a.every(i=>cells[i].up&&!cells[i].gone)&&a.every(i=>gpSame(g,cells[i].c,cells[a[0]].c)))a.forEach(i=>gone.add(i))}
+    cells.forEach((x,i)=>{if(!gone.has(i)&&!x.gone)s+=x.up?gpVal(g,x.c):avg});return s}
+  const X=GFX(),gone=new Set();gfLines(X).forEach(L=>{const x0=cells[L.idx[0]];if(L.idx.every(i=>cells[i].up)&&L.idx.every(i=>gpSame(g,cells[i].c,x0.c))&&(X.negCancel||gpVal(g,x0.c)>=0))L.idx.forEach(i=>gone.add(i))});
+  let s=0;cells.forEach((x,i)=>{if(!gone.has(i))s+=x.up?gpVal(g,x.c):avg});
+  /* half credit for a line that only needs its last card */
+  gfLines(X).forEach(L=>{const ups=L.idx.filter(i=>cells[i].up&&!gone.has(i));if(ups.length===L.idx.length-1&&ups.every(i=>gpSame(g,cells[i].c,cells[ups[0]].c))){const v=gpVal(g,cells[ups[0]].c);if(v>0)s-=v*ups.length*.25}});return s}
+const gpWith=(cells,i,c)=>cells.map((x,j)=>j===i?{c,up:true,gone:false}:x);
+function gpBestPlace(g,pid,c){const cells=g.h[pid];let best=null;cells.forEach((x,i)=>{if(x.gone)return;const e=gpEval(g,gpWith(cells,i,c));if(!best||e<best.e)best={i,e}});return best}
+function gpOthersLow(g,pid){const avg=gpAvg(g);return Math.min(...act().filter(p=>p.id!==pid).map(p=>gpEval(g,g.h[p.id])))}
+const gpWouldEnd=(cells,i)=>cells.every((x,j)=>j===i||x.up||x.gone);
+function gpBotStep(g,q){const pid=q.id,lv=q.bot,cells=g.h[pid],noise=lv==='easy'?4:lv==='normal'?1:0,jit=()=>(Math.random()*2-1)*noise;
+  if(g.phase==='flip'){gpBotFlips(g,q);gpStartIfReady(g);return}
+  if(g.turn!==pid)return;
+  const now=gpEval(g,cells),downs=cells.map((x,i)=>i).filter(i=>!cells[i].up&&!cells[i].gone);
+  /* finishing my grid is only a good idea if I'm likely lowest (or it's my last turn anyway) */
+  const endOK=e=>lv==='easy'||!!g.ender||e<gpOthersLow(g,pid)-(lv==='hard'?1:0);
+  const scoreOf=(i,c)=>{const nc=gpWith(cells,i,c),e=gpEval(g,nc);return gpWouldEnd(cells,i)&&!endOK(e)?e+30:e};
+  if(g.flip===pid){const opts=downs.filter(i=>!(downs.length===1&&!endOK(now)));const pool=opts.length?opts:downs;gpFlipOne(g,pid,pool[Math.floor(Math.random()*pool.length)]);return}
+  if(g.hold&&g.hold.p===pid){const c=g.hold.c;let best=null;cells.forEach((x,i)=>{if(x.gone)return;const e=scoreOf(i,c)+jit();if(!best||e<best.e)best={i,e}});
+    if(g.hold.from==='disc'||!best){gpPlace(g,pid,best.i);return}
+    /* toss instead? keeps the grid as it is (and flips a card if that rule is on) */
+    const toss=now+(downs.length===1&&(gpSK(g)||GFX().flipDisc)&&!endOK(now)?30:0)+(g.ender?0:lv==='hard'?0.8:0.4);
+    if(best.e<toss)gpPlace(g,pid,best.i);else gpToss(g,pid);return}
+  const top=gpTop(g);if(top){let best=null;cells.forEach((x,i)=>{if(x.gone)return;const e=scoreOf(i,top)+jit();if(!best||e<best.e)best={i,e}});
+    /* what a blind draw is worth: try some likely cards */
+    let drawE=now-(lv==='hard'?2:1.5);if(lv==='hard'){const pool=gpSK(g)?[-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12].map(v=>v+'#t'):['A','2','3','4','5','6','7','8','9','10','J','Q','K'].map(r=>r+'S#t');
+      const w=gpSK(g)?[5,10,15,10,10,10,10,10,10,10,10,10,10,10,10]:pool.map(()=>4);let tot=0,sum=0;pool.forEach((c,j)=>{let b=now;cells.forEach((x,i)=>{if(!x.gone){const e=scoreOf(i,c);if(e<b)b=e}});sum+=b*w[j];tot+=w[j]});drawE=sum/tot}
+    if(best&&best.e<drawE-(lv==='easy'?0:.3)){gpTake(g,pid,'disc');return}}
+  gpTake(g,pid,'deck')}
+/* ---------------- who is looking at this phone ---------------- */
+let GPVIEW=null,GPBOTT=null;
+const gpMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
+const gpHumans=()=>act().filter(p=>!p.bot);
+function gpViewer(){const g=gpG();if(!g)return null;if(S.lk&&!S.demo)return gpMe();const H=gpHumans();if(!H.length)return null;if(H.length===1)return H[0];
+  if(g.phase==='flip'){return H.find(p=>g.need[p.id]>0)||H[0]}const t=act().find(p=>p.id===g.turn);return t&&!t.bot?t:H.find(p=>p.id===GPVIEW)||H[0]}
+function gpTick(){if((S.game!=='golf'&&S.game!=='skyjo')||!gpOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!gpRes())return;
+  const g=gpG(),cur=S.game==='golf'?gfCur():skCur();if(!g||g.game!==S.game||g.r!==cur&&g.phase!=='done'){gpDeal(cur);save();render();return}
+  if(g.phase==='done')return;const actor=g.phase==='flip'?null:g.turn,q=act().find(p=>p.id===actor);
+  if(q&&q.bot&&!GPBOTT)GPBOTT=setTimeout(()=>{GPBOTT=null;const g2=gpG();if(g2&&g2.phase==='play'&&g2.turn===q.id){gpBotStep(g2,q);save()}render()},(g.hold||g.flip?850:1000)*htSpd())}
+
+/* ---------------- drawing ---------------- */
+function gpCardEl(g,c,o={}){if(!c)return `<span class="gpc gpempty"></span>`;
+  if(o.down)return `<${o.btn?'button':'span'} class="gpc gpback${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="Face-down card"></${o.btn?'button':'span'}>`;
+  const tag=o.btn?'button':'span';
+  if(gpSK(g)){const v=+gpRank(c);return `<${tag} class="gpc gpsk ${v<0?'sk-dk':v===0?'sk-lb':v<=4?'sk-gr':v<=8?'sk-yl':'sk-rd'}${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="${v}"><b>${v}</b></${tag}>`}
+  const k=gpRk(c);if(k==='Jk')return `<${tag} class="gpc gpgf gpjk${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="Joker, ${gfVal('Jk')}"><b>🃏</b><small>${gfVal('Jk')}</small></${tag}>`;
+  const s=gpRank(c).slice(-1),red=s==='H'||s==='D';return `<${tag} class="gpc gpgf${red?' red':''}${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="${gpName(g,c)} of ${{S:'spades',H:'hearts',D:'diamonds',C:'clubs'}[s]}, ${gfVal(k)} points"><b>${k}</b><i>${HTSU[s]}︎</i><small>${gfVal(k)}</small></${tag}>`}
+function gpGridEl(g,pid,o={}){const {cols}=gpShape(g),cells=g.h[pid],mine=o.mine;
+  return `<div class="gpgrid${o.mini?' mini':''}" style="grid-template-columns:repeat(${cols},minmax(0,1fr));${o.mini?'':`max-width:${cols*86}px`}">${cells.map((x,i)=>{const nw=g.last&&g.last.p===pid&&g.last.i===i?' new':'';
+    if(x.gone)return `<span class="gpc gpgone${nw}" aria-label="Cleared"></span>`;
+    const attr=mine?` data-a="gpcell" data-i="${i}"`:'';return gpCardEl(g,x.c,{down:!x.up,btn:!!mine,attr,cls:(o.pick&&o.pick(x,i)?'pick':'')+nw})}).join('')}</div>`}
+function gpPlay(){const P=act(),g=gpG(),SK=S.game==='skyjo',r=SK?skCur():gfCur(),tot=SK?skTot:gfTot,sc=P.map(tot),lo=Math.min(...sc),lead=(SK?skLast():gfLast())>=0&&sc.filter(v=>v===lo).length===1?P[sc.indexOf(lo)]:null,W=SK?'Round':'Hole';
+  let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="${W} ${r+1}">${SK?'#':'⛳ '}${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
+  <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&g.turn===q.id}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${g&&g.phase!=='done'?`showing ${gpSeen(g,q.id)}`:'total'}</div></button>`).join('')}</div>`;
+  if(!g||g.game!==S.game)return out+`<div class="panel" style="padding:16px">${waitLoader(gpRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
+  const V=gpViewer(),turnP=P.find(p=>p.id===g.turn),mine=V&&g.turn===V.id,hold=g.hold;let status='';
+  if(g.phase==='flip')status=V&&g.need[V.id]>0?`<b>${S.lk||gpHumans().length<2?'Flip':esc(nm(V))+', flip'} ${g.need[V.id]} card${g.need[V.id]===1?'':'s'} face up.</b> Tap ${g.need[V.id]===1?'one':'them'} in your grid.`:`Waiting for ${P.filter(p=>g.need[p.id]>0).map(p=>esc(nm(p))).join(', ')} to flip…`;
+  else if(g.phase==='done')status=`<b>${W} ${r+1} is over.</b>`;
+  else if(mine&&g.flip===V.id)status='<b>Flip one of your face-down cards.</b>';
+  else if(mine&&hold)status=`<b>Tap one of your cards to swap it for the ${esc(gpName(g,hold.c))}.</b>${hold.from==='deck'?` Or tap the discard pile to toss it${gpSK(g)||GFX().flipDisc?' and flip a card':''}.`:''}`;
+  else if(mine)status=`<b>Your turn${S.lk||gpHumans().length<2?'':', '+esc(nm(V))}.</b> Take the ${gpTop(g)?esc(gpName(g,gpTop(g))):'discard'} or draw from the deck.${g.ender?' Last turn!':''}`;
+  else if(turnP)status=`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is playing…${g.ender?' (last turns)':''}`;
+  out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
+  /* everyone else, small */
+  const others=P.filter(p=>!V||p.id!==V.id);
+  out+=`<div class="gpothers">${others.map(p=>`<div class="gpo${g.turn===p.id?' now':''}${g.ender===p.id?' ender':''}" style="${pc(p.color)}"><div class="gpon"><b>${p.bot?'🤖 ':''}${esc(nm(p))}</b><span class="num">${g.phase==='done'?gpPts(g,p.id):gpSeen(g,p.id)}</span></div>${gpGridEl(g,p.id,{mini:true})}</div>`).join('')}</div>`;
+  /* the deck and the discard pile */
+  if(g.phase!=='done'){const top=gpTop(g),canTake=mine&&!hold&&!g.flip&&g.phase==='play',canToss=mine&&hold&&hold.from==='deck';
+    out+=`<div class="gppiles"><button class="gppile" data-a="gpdeck" ${canTake?'':'aria-disabled="true"'} aria-label="Draw from the deck, ${g.deck.length} left">${gpCardEl(g,'x',{down:true})}<small>Deck · ${g.deck.length}</small></button>
+      ${hold?`<div class="gphold" aria-label="${hold.p===(V&&V.id)?'Your':esc(nmid(hold.p))+'’s'} card">${gpCardEl(g,hold.c,{cls:'held'})}<small>${hold.p===(V&&V.id)?'Your card':esc(nmid(hold.p))+' has'}</small></div>`:''}
+      <button class="gppile${canTake||canToss?' go':''}" data-a="gpdisc" ${canTake&&top||canToss?'':'aria-disabled="true"'} aria-label="${canToss?'Discard your card':'Take the top discard'}">${gpCardEl(g,top)}<small>${canToss?'Toss it here':'Discard'}</small></button></div>`}
+  /* my grid, big */
+  if(V){const flipPick=g.phase==='flip'&&g.need[V.id]>0||g.flip===V.id,swap=mine&&hold;
+    out+=`<div class="gpme${g.turn===V.id?' now':''}" style="${pc(V.color)}"><div class="gpon"><b>${S.lk||gpHumans().length<2?'You':esc(nm(V))}</b><span class="num">${g.phase==='done'?gpPts(g,V.id)+' this '+W.toLowerCase():'showing '+gpSeen(g,V.id)}</span></div>${gpGridEl(g,V.id,{mine:flipPick||swap,pick:(x)=>flipPick?!x.up:swap})}</div>`}
+  if(g.phase==='done'){const over=SK?(SKX().end==='rounds'?r>=SKX().rounds-1:skOver()):(GFX().end==='rounds'?r>=GFX().holes-1:gfOver());
+    const rows=P.map(q=>{const R=(SK?q.sk:q.gf||[])||[],b=SK?skBase(q,r):gfBase(q,r),pt=gpPts(g,q.id),d=SK?skDoubled(q,r):gfMissed(q,r);return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${g.ender===q.id?(d?(SK?'ended it, not lowest: doubled':(GFX().outRule==='double'?'went out, not lowest: doubled':`went out, not lowest: +${GFX().outP}`)):'went out first'):''}${b!==pt&&!d?'':''}</small></span><span class="num"><b>${pt}</b> · ${tot(q)}</span></div>`}).join('');
+    out+=`<div class="panel htsum">${rows}</div><div class="actions"><div class="in">${over?(gpRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Game over! Waiting for the host…</span>`):gpRes()?`<button class="btn sm" data-a="finish">End game</button><button class="btn primary" data-a="gpdeal">Deal ${W.toLowerCase()} ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`}
+  return out}
+function gpAct(a,b,k){const g=gpG();if(!g)return;const V=gpViewer();
+  if(a==='gpdeal'){if(!gpRes()||g.phase!=='done')return;S.hr=(S.game==='golf'?gfCur():skCur())+1;gpDeal(S.hr);window.scrollTo(0,0);return}
+  if(!V)return;
+  if(a==='gpcell'){const i=+b.dataset.i;if(g.phase==='flip'){if(!gpFlipStart(g,V.id,i))toast('Pick a face-down card.');return}
+    if(g.flip===V.id){if(!gpFlipOne(g,V.id,i))toast('Pick a face-down card.');else vibe(15);return}
+    if(g.hold&&g.hold.p===V.id){if(gpPlace(g,V.id,i))vibe(15);return}
+    toast(g.turn===V.id?'Take the discard or draw from the deck first.':`It’s ${nmid(g.turn)}’s turn.`);return}
+  if(a==='gpdeck'){if(!gpTake(g,V.id,'deck'))toast(g.turn!==V.id?`It’s ${nmid(g.turn)}’s turn.`:'Finish this move first.');return}
+  if(a==='gpdisc'){if(g.hold&&g.hold.p===V.id){if(!gpToss(g,V.id))toast('You took this card from the discard pile, so it has to go in your grid.');return}if(!gpTake(g,V.id,'disc'))toast(g.turn!==V.id?`It’s ${nmid(g.turn)}’s turn.`:'Finish this move first.');return}}
 
 /* =====================================================================
    MUNCHKIN (Original and Deluxe): a table companion
@@ -9465,7 +9650,7 @@ function render(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();navSync();if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();}
+  tourApply();navSync();if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo')gpTick();}
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -9671,6 +9856,7 @@ document.addEventListener('click',e=>{
   if(/^oh(card|bid|deal|show)$/.test(a)&&S.game==='ohell'&&ohPlayOn()&&S.started){ohAct(a,b,k);render();return}
   if(/^rk(card|bid|deal|show|trump|nest)$/.test(a)&&S.game==='rook'&&rkPlayOn()&&S.started){rkAct(a,b,k);render();return}
   if(/^rg(card|bid|deal|show|color|num|fore|rage)$/.test(a)&&S.game==='rage'&&rgPlayOn()&&S.started){rgAct(a,b,k);render();return}
+  if(/^gp(cell|deck|disc|deal)$/.test(a)&&(S.game==='golf'||S.game==='skyjo')&&gpOn()&&S.started){gpAct(a,b,k);save();render();return}
   if(/^unp(card|draw|keep|col|uno|catch|chal|swap|roul|show|deal|aim|row|end)$/.test(a)&&S.game==='uno'&&unPlayOn()&&S.started){unAct(a,b,k);save();render();return}
   switch(a){
     case 'kpadd':kpAdd(b.dataset.v==='1');return;
@@ -9818,7 +10004,7 @@ document.addEventListener('click',e=>{
     case 'mtdb':{const q=act()[+b.dataset.i],R=mtR(q,mtCur());snap();R.db=!R.db;break}
     case 'mthand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'mtnext':{S.hr=Math.min(mtN()-1,mtCur()+1);window.scrollTo(0,0);break}
-    case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:S.game==='rook'?RKBOTS:S.game==='rage'?RGBOTS:S.game==='uno'?UNBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS),Object.values(RKBOTS),Object.values(RGBOTS),Object.values(UNBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
+    case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:S.game==='rook'?RKBOTS:S.game==='rage'?RGBOTS:S.game==='uno'?UNBOTS:S.game==='golf'||S.game==='skyjo'?GPBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS),Object.values(RKBOTS),Object.values(RGBOTS),Object.values(UNBOTS),Object.values(GPBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
       if(!q.name||defs.includes(base(q.name))){let nmv=nx?BT[nx][1]:'';if(nmv){let j=1;while(S.players.some(o=>o!==q&&o.on&&o.name===(j>1?nmv+' '+j:nmv)))j++;if(j>1)nmv+=' '+j}q.name=nmv}if(nx)q.bot=nx;else delete q.bot;delete q.rid;break}
     case 'htstart':{switchGame('hearts');resetScores();S.started=false;S.screen='map';HTX().play=k==='1';htKeep();window.scrollTo(0,0);break}
     case 'htplaymode':{if(S.started)break;HTX().play=k==='1';if(HTX().play&&act().length>6)toast('Playing on the phone works for 3 to 6 players.');htKeep();break}
@@ -10052,6 +10238,12 @@ document.addEventListener('click',e=>{
     case 'rgset':RGX()[k]=b.dataset.v;rgKeep();break;
     case 'rgamigo':{const X=RGX(),am=['outOne','changeFlip','wild2nd','amigoDeck','wildNum'],on=am.every(q=>X[q]);am.forEach(q=>X[q]=!on);rgKeep();break}
     case 'rgstart':{switchGame('rage');resetScores();S.started=false;S.screen='map';RGX().play=k==='1';rgKeep();window.scrollTo(0,0);break}
+    case 'shareapp':shareOpen();return;
+    case 'shareclose':SHAREQR=null;break;
+    case 'sharecopy':{try{navigator.clipboard.writeText(APPURL).then(()=>toast('Link copied.'),()=>toast(APPURL))}catch(e){toast(APPURL)}return}
+    case 'sharesend':{try{navigator.share({title:'Final Tally',text:'Our game-night score keeper',url:APPURL}).catch(()=>{})}catch(e){}return}
+    case 'gpstart':{const G=b.dataset.g;switchGame(G);resetScores();S.started=false;S.screen='map';const X=G==='golf'?GFX():SKX();X.play=k==='1'?1:0;G==='golf'?gfKeep():skKeep();window.scrollTo(0,0);break}
+    case 'gpplaymode':{if(S.started)break;const X=S.game==='golf'?GFX():SKX();X.play=k==='1'?1:0;S.game==='golf'?gfKeep():skKeep();break}
     case 'unstart':{switchGame('uno');resetScores();S.started=false;S.screen='map';const X=UNX();X.play=k==='1'?1:0;if(X.play&&!UNPV.includes(X.ver))X.ver='classic';unKeep();window.scrollTo(0,0);break}
     case 'unplaymode':{if(S.started)break;const X=UNX();X.play=k==='1'?1:0;if(X.play&&!UNPV.includes(X.ver))X.ver='classic';unKeep();break}
     case 'rgplaymode':{if(S.started)break;RGX().play=k==='1';rgKeep();break}
@@ -10351,6 +10543,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='9e9908';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='12ddd9';</script>
 </body>
 </html>
