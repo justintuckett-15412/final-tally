@@ -4710,7 +4710,7 @@ const htNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(htHumans().length<2)ret
 /* ---------------- the table runs here (host phone, or this phone) ---------------- */
 function htTick(){if(S.game!=='hearts'||!htPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo&&!htG())return;if(!htRes())return;if(lkqRun()){save();render();return}
   const g=htG();if(!g||cgStale(g)||g.r!==htCur()&&g.phase!=='done'){htDeal(htCur());save();render();return}
-  if(g.phase==='pass'){if(act().every(p=>(g.sel[p.id]||[]).length===3)){htSwap(g);save();render()}return}
+  if(g.phase==='pass'){act().forEach(p=>{if(p.bot&&(g.sel[p.id]||[]).length!==3)g.sel[p.id]=htBotPass(g.h[p.id],p.bot)});if(act().every(p=>(g.sel[p.id]||[]).length===3)){htSwap(g);save();render()}return}
   if(g.phase==='moon'){if(g.ms){htEndHand(g);save();render()}return}
   if(g.phase!=='play')return;
   if(g.t.length>=act().length){if(!HTCOLT)HTCOLT=setTimeout(()=>{HTCOLT=null;const g2=htG();if(g2&&g2.t.length>=act().length){htCollect(g2);save();render()}},1300*htSpd());return}
@@ -5196,7 +5196,7 @@ const rgNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(rgHumans().length<2)ret
 function rgTick(){if(S.game!=='rage'||!rgPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!rgRes())return;if(lkqRun()){save();render();return}
   const g=rgG();if(!g||cgStale(g)||g.r!==rgCur()&&g.phase!=='done'){rgDeal(rgCur());save();render();return}
   const later=(ms,f)=>{if(!RGBOTT)RGBOTT=setTimeout(()=>{RGBOTT=null;f();save();render()},ms*htSpd())};
-  if(g.phase==='bid'&&RGX().bidAll){if(act().every(p=>g.bids[p.id]!==undefined))cdRun(g,x=>{x.turn=rgNext(x.dealer)});return}
+  if(g.phase==='bid'&&RGX().bidAll){act().forEach(p=>{if(p.bot&&g.bids[p.id]===undefined)g.bids[p.id]=rgBotBid(g,p.id,p.bot)});if(act().every(p=>g.bids[p.id]!==undefined))cdRun(g,x=>{x.turn=rgNext(x.dealer)});return}
   if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot)later(700,()=>{const g2=rgG();if(g2&&g2.phase==='bid'&&g2.bidTurn===q.id)rgBid(q.id,rgBotBid(g2,q.id,q.bot))});return}
   if(g.phase!=='play')return;
   if(g.t.length>=act().length){if(!RGCOLT)RGCOLT=setTimeout(()=>{RGCOLT=null;const g2=rgG();if(g2&&g2.t.length>=act().length){rgCollect(g2);save();render()}},1300*htSpd());return}
@@ -7643,6 +7643,7 @@ const ohNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(ohHumans().length<2)ret
 
 function ohTick(){if(S.game!=='ohell'||!ohPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!ohRes())return;if(lkqRun()){save();render();return}
   const g=ohG();if(!g||cgStale(g)||g.r!==ohCur()&&g.phase!=='done'){ohDeal(ohCur());save();render();return}
+  if(g.phase==='bid'&&!OHX().hook)act().forEach(p=>{if(p.bot&&g.bids[p.id]===undefined)g.bids[p.id]=ohBotBid(g,p.id,p.bot)});
   if(g.phase==='bid'&&act().every(p=>g.bids[p.id]!==undefined)){if(OHX().hook){g.phase='play';g.bidTurn=null;g.turn=ohNext(g.dealer);save();render()}else cdRun(g,x=>{x.turn=ohNext(x.dealer)});return}
   if(g.phase==='bid'){if(OHX().hook){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot&&!OHBOTT)OHBOTT=setTimeout(()=>{OHBOTT=null;const g2=ohG();if(!g2||g2.phase!=='bid'||g2.bidTurn!==q.id)return;ohBid(q.id,ohBotBid(g2,q.id,q.bot));save();render()},700*htSpd())}return}
   if(g.phase!=='play')return;
@@ -8443,7 +8444,11 @@ function gpViewer(){const g=gpG();if(!g)return null;if(S.lk&&!S.demo)return gpMe
   if(g.phase==='flip'){return H.find(p=>g.need[p.id]>0)||H[0]}const t=act().find(p=>p.id===g.turn);return t&&!t.bot?t:H.find(p=>p.id===GPVIEW)||H[0]}
 function gpTick(){if((S.game!=='golf'&&S.game!=='skyjo'&&S.game!=='gnome')||!gpOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!gpRes())return;if(lkqRun()){save();render();return}
   const g=gpG(),cur=S.game==='golf'?gfCur():S.game==='gnome'?gnCur():skCur();if(!g||g.game!==S.game||cgStale(g)||g.r!==cur&&g.phase!=='done'){gpDeal(cur);save();render();return}
-  if(g.phase==='done')return;const actor=g.phase==='flip'?null:g.turn,q=act().find(p=>p.id===actor);
+  if(g.phase==='done')return;
+  /* players switched to computer after the deal catch up on anything they owe */
+  if(g.phase==='flip'&&act().some(p=>p.bot&&g.need[p.id]>0)){act().forEach(p=>{if(p.bot&&g.need[p.id]>0)gpBotFlips(g,p)});gpStartIfReady(g);save();render();return}
+  if(g.hzf&&act().some(p=>p.bot&&g.hzf[p.id])){act().forEach(p=>{if(p.bot&&g.hzf[p.id]){const idx=g.h[p.id].map((x,j)=>j).filter(j=>!g.h[p.id][j].up);if(idx.length>1)g.h[p.id][idx[Math.floor(Math.random()*idx.length)]].up=true;delete g.hzf[p.id]}});save();render();return}
+  const actor=g.phase==='flip'?null:g.turn,q=act().find(p=>p.id===actor);
   if(q&&q.bot&&!GPBOTT)GPBOTT=setTimeout(()=>{GPBOTT=null;const g2=gpG();if(g2&&g2.phase==='play'&&g2.turn===q.id){gpBotStep(g2,q);save()}render()},(g.hold||g.flip||g.bounce||g.left2?850:1000)*htSpd())}
 
 /* ---------------- drawing ---------------- */
@@ -10844,6 +10849,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='2e1d88';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='8f891f';</script>
 </body>
 </html>
