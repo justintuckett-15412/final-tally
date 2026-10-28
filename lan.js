@@ -56,6 +56,10 @@ const hasAddress=sdp=>/a=candidate:/.test(sdp);
 /* the local addresses this phone offered, for the pairing screen (helps spot two phones on different networks) */
 const addrs=sdp=>[...new Set((sdp.match(/a=candidate:\S+ \d+ udp \d+ (\S+) \d+ typ host/g)||[]).map(l=>l.split(' ')[4]))];
 
+/* connection checks so far, for troubleshooting: how many "are you there?" messages went out, came back, and arrived from the other phone */
+async function iceInfo(pc){try{const st=await pc.getStats();let sent=0,back=0,heard=0,pairs=0,state=pc.iceConnectionState;
+  st.forEach(r=>{if(r.type==='candidate-pair'){pairs++;sent+=r.requestsSent||0;back+=r.responsesReceived||0;heard+=r.requestsReceived||0}});
+  return `checks ${state}: ${pairs} route${pairs===1?'':'s'}, sent ${sent}, answered ${back}, heard from them ${heard}`}catch(e){return ''}}
 /* ---------------- host side ---------------- */
 let hub=null;
 function startHost(){if(hub&&hub.role==='host')return hub;stop();const st=Store(),me=myId(),peers=new Set();
@@ -66,7 +70,7 @@ function startHost(){if(hub&&hub.role==='host')return hub;stop();const st=Store(
       peer.code=await pack(pc.localDescription,'h');peer.noAddr=!hasAddress(pc.localDescription.sdp);peer.addrs=addrs(pc.localDescription.sdp);hub.pending=peer;return peer},
     async accept(text){const peer=hub.pending;if(!peer)throw new Error('Show your code first.');const d=await unpack(text);if(d.type!=='answer')throw new Error('That’s the host’s code. Scan the code on the other phone.');peer.theirAddrs=addrs(d.sdp);
       await peer.pc.setRemoteDescription({type:'answer',sdp:d.sdp});hub.pending=null;hub.last=peer;
-      return new Promise((res,rej)=>{const t=setTimeout(()=>rej(new Error('The phones couldn’t reach each other. Make sure the other phone is on this phone’s hotspot (Wi-Fi on), then try again.')),25000);peer.onopen=()=>{clearTimeout(t);res()}})}};
+      return new Promise((res,rej)=>{const t=setTimeout(async()=>{const e=new Error('The phones couldn’t reach each other. Make sure the other phone is on this phone’s hotspot (Wi-Fi on), then try again.');e.info=await iceInfo(peer.pc);rej(e)},25000);peer.onopen=()=>{clearTimeout(t);res()}})}};
   function wirePeer(peer){const {pc,dc}=peer;
     dc.onopen=()=>{peer.open=true;peers.add(peer);(peer.q||[]).forEach(j=>{try{dc.send(j)}catch(x){}});peer.q=[];peer.onopen&&peer.onopen();ping()};
     const gone=()=>{if(!peers.has(peer))return;peers.delete(peer);peer.open=false;peer.subs.forEach(u=>{try{u()}catch(e){}});peer.subs.clear();ping('lost')};
@@ -128,5 +132,5 @@ async function scan(video,onText){const stream=await navigator.mediaDevices.getU
 /* asking for the camera early also lets the phone share its real local address with the other phone */
 async function warmCamera(){try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});return()=>s.getTracks().forEach(t=>t.stop())}catch(e){return()=>{}}}
 
-window.FTLAN={startHost,joinWith,stop,qrSvg,scan,warmCamera,pack,unpack,get hub(){return hub},id:myId,Store,hostFb};
+window.FTLAN={iceInfo,startHost,joinWith,stop,qrSvg,scan,warmCamera,pack,unpack,get hub(){return hub},id:myId,Store,hostFb};
 try{window.lanReady&&window.lanReady()}catch(e){}
