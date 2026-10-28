@@ -838,6 +838,9 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .ktpile{position:absolute;inset:0;pointer-events:none}.ktcard{position:absolute}.ktcard .htc{--cw:54px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
 @media (prefers-reduced-motion:no-preference){.ktcard.new{animation:ktin .22s ease-out}}@keyframes ktin{from{opacity:0;margin-top:14px}to{opacity:1;margin-top:0}}
 .kttable.faded .ktcard .htc{opacity:.6}
+.ktseat.L{transform:translate(0,-50%)}.ktseat.R{transform:translate(-100%,-50%)}
+.ktcard.sweep{z-index:25!important;animation:ktsweep 750ms cubic-bezier(.45,0,.6,1) forwards}@keyframes ktsweep{0%{opacity:1}75%{opacity:.95}100%{left:var(--wl);top:var(--wt);opacity:0;transform:translate(-50%,-50%) scale(.5)}}
+@media (prefers-reduced-motion:reduce){.ktcard.sweep{animation-duration:1ms}}
 .kttable.crowd .ktseat{padding:3px 6px;max-width:31%}.kttable.crowd .ktseat b{font-size:11.5px}.kttable.crowd .ktseat span{font-size:10.5px;white-space:normal}.kttable.crowd .ktcard .htc{--cw:44px}.kttable.many .ktcard .htc{--cw:48px}
 .ktnote{position:absolute;left:50%;bottom:30%;transform:translate(-50%,0);font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap;z-index:30;background:var(--bg);padding:2px 8px;border-radius:10px}
 .ohup{display:flex;align-items:center;gap:10px;margin:10px 0 0;font-size:13px}.ohup .htc{--cw:40px}.ohup small{color:var(--muted)}
@@ -4447,12 +4450,17 @@ function htScore(){if(htPlayOn()&&S.started&&!S.demo)return htPlay();const X=HTX
    collects finished tricks, scores the hand and plays for the bots. Each person only plays cards from their own hand. */
 /* one table for trick games: you sit at the bottom, everyone else around it in play order (to your left first),
    and each card lands in the middle, nudged toward whoever played it, like one shared pile */
-function ktTable(o){const P=o.P,n=P.length,v=Math.max(0,P.findIndex(p=>o.me&&p.id===o.me)),T=o.trick||[];
+const KTSW={},KTMS=750;
+const ktKey=t=>(S.game||'')+':'+(t||[]).map(x=>x.c).join(',');
+/* is the last trick still sliding toward its winner? (each phone animates it once) */
+const ktFresh=g=>{if(!g||!g.last||g.t&&g.t.length)return false;const k=ktKey(g.last.t);return KTSW[k]===undefined||Date.now()-KTSW[k]<KTMS};
+function ktTable(o){const P=o.P,n=P.length,v=Math.max(0,P.findIndex(p=>o.me&&p.id===o.me));let T=o.trick||[];
   const pos=k=>{const rel=(k-v+n)%n,a=(90+rel*360/n)*Math.PI/180;return {x:Math.cos(a),y:Math.sin(a)}};
-  const seats=P.map((q,k)=>{const {x,y}=pos(k);return `<div class="ktseat${o.turn===q.id?' now':''}${o.won===q.id?' won':''}" style="left:${50+x*(n>6?36:40)}%;top:${50+y*41}%;${pc(q.color)}"><b>${q.bot?'🤖 ':''}${esc(nm(q))}${o.me&&q.id===o.me?' <small>(you)</small>':''}</b><span>${o.label(q)}</span></div>`}).join('');
+  const seats=P.map((q,k)=>{const {x,y}=pos(k),side=x<-.45?' L':x>.45?' R':'';return `<div class="ktseat${side}${o.turn===q.id?' now':''}${o.won===q.id?' won':''}" style="left:${side===' L'?1:side===' R'?99:50+x*(n>6?36:40)}%;top:${50+y*41}%;${pc(q.color)}"><b>${q.bot?'🤖 ':''}${esc(nm(q))}${o.me&&q.id===o.me?' <small>(you)</small>':''}</b><span>${o.label(q)}</span></div>`}).join('');
+  let sweep=null;if(o.faded&&T.length){const key=ktKey(T);if(KTSW[key]===undefined){KTSW[key]=Date.now();setTimeout(render,KTMS+40)}const el=Date.now()-KTSW[key];if(el<KTMS&&o.won){const wk=P.findIndex(p=>p.id===o.won),w=pos(wk);sweep={el,wl:50+w.x*(n>6?28:31),wt:50+w.y*33}}else T=[]}
   const CE=o.card||htCardEl,cards=T.map((t,i)=>{const k=P.findIndex(p=>p.id===t.p),{x,y}=pos(k),rot=(([...t.c].reduce((a,ch)=>a+ch.charCodeAt(0),0)*7+k*13)%15)-7;
-    return `<div class="ktcard${i===T.length-1&&!o.faded?' new':''}" style="left:${50+x*15}%;top:${50+y*17}%;z-index:${i+1};transform:translate(-50%,-50%) rotate(${rot}deg)">${CE(t.c)}</div>`}).join('');
-  return `<div class="kttable${o.faded?' faded':''}${n>6?' crowd':n>4?' many':''}">${seats}<div class="ktpile">${cards}</div>${o.note?`<div class="ktnote">${o.note}</div>`:''}</div>`}
+    return `<div class="ktcard${i===T.length-1&&!o.faded?' new':''}${sweep?' sweep':''}" style="left:${50+x*15}%;top:${50+y*17}%;z-index:${i+1};transform:translate(-50%,-50%) rotate(${rot}deg)${sweep?`;--wl:${sweep.wl}%;--wt:${sweep.wt}%;animation-delay:-${sweep.el}ms`:''}">${CE(t.c)}</div>`}).join('');
+  return `<div class="kttable${o.faded&&!sweep?' faded':''}${n>6?' crowd':n>4?' many':''}">${seats}<div class="ktpile">${cards}</div>${o.note?`<div class="ktnote">${o.note}</div>`:''}</div>`}
 const HTR='23456789TJQKA',HTSU={C:'♣',D:'♦',S:'♠',H:'♥'},HTSO='CDSH';
 const htRk=c=>HTR.indexOf(c[0]),htSu=c=>c[1],htLab=c=>(c[0]==='T'?'10':c[0])+HTSU[c[1]]+'︎';
 const htIsPt=c=>c[1]==='H'||c==='QS';
@@ -4576,8 +4584,8 @@ function htPlay(){const X=HTX(),P=act(),g=htG(),r=htCur(),sc=P.map(htTot),lo=Mat
   else if(g.phase==='done')status=`<b>Hand ${r+1} is over.</b>`;
   out+=`<div class="hfmin htstat"><span>${status}</span><span>Hand ${r+1} · ${g.dir==='hold'?'hold hand, no passing':`pass ${g.dir}`} · ${X.end==='points'?`game ends at ${X.target}`:X.end==='hands'?`${X.hands} hands`:'play until you stop'} · low score wins</span></div>`;
   /* the table: everyone's seat and the card they played */
-  const showT=g.t.length?g.t:g.last&&g.phase==='play'&&!g.t.length?g.last.t:[],faded=!g.t.length&&!!g.last;
-  if(g.phase!=='done'){const lw=faded&&g.last?P.find(p=>p.id===g.last.w):null,lp=lw?htTrickPts(g.last.t.map(x=>x.c)):0;
+  const showT=g.t.length?g.t:g.last&&(g.phase==='play'||g.phase==='done')&&!g.t.length?g.last.t:[],faded=!g.t.length&&!!g.last;
+  if(g.phase!=='done'||ktFresh(g)){const lw=faded&&g.last?P.find(p=>p.id===g.last.w):null,lp=lw?htTrickPts(g.last.t.map(x=>x.c)):0;
     out+=ktTable({P,me:V?V.id:me?me.id:null,trick:showT,faded,turn:g.turn,won:lw&&lw.id,label:q=>`${(g.h[q.id]||[]).length} cards${htTakenLab(g,q.id)!=='·'?' · '+htTakenLab(g,q.id):''}`,
       note:lw?`${esc(nm(lw))} took it${lp?` (+${lp})`:''}`:g.phase==='pass'?'Passing…':''})}
   /* hand-over summary */
@@ -4831,8 +4839,8 @@ function sdPlay(){const X=SDX(),P=act(),g=sdG(),r=sdCur(),runs=P.map(p=>sdRun(p)
   else if(g.phase==='done')status=`<b>Hand ${r+1} is over.</b>`;
   const dealerN=nm(P.find(p=>p.id===g.dealer)||{name:''});
   out+=`<div class="hfmin htstat"><span>${status}</span><span>Hand ${r+1} · ${esc(dealerN)} dealt · ${X.end==='points'?`play to ${X.target}`:X.end==='hands'?`${X.hands} hands`:'play until you stop'}</span></div>`;
-  const showT=g.t.length?g.t:g.last&&g.phase==='play'?g.last.t:[],faded=!g.t.length&&!!g.last;
-  if(g.phase!=='done'){const lw=faded&&g.last?P.find(p=>p.id===g.last.w):null;
+  const showT=g.t.length?g.t:g.last&&(g.phase==='play'||g.phase==='done')?g.last.t:[],faded=!g.t.length&&!!g.last;
+  if(g.phase!=='done'||ktFresh(g)){const lw=faded&&g.last?P.find(p=>p.id===g.last.w):null;
     out+=ktTable({P,me:V?V.id:me?me.id:null,trick:showT,faded,turn:g.phase==='bid'?g.bidTurn:g.turn,won:lw&&lw.id,label:q=>{const b=g.bids[q.id];return b===undefined?(g.phase==='bid'?'bidding…':''):`bid ${sdBidLab(b)} · won ${g.won[q.id]||0}`},
       note:lw?`${esc(nm(lw))} took it`:g.phase==='bid'?'Bidding…':''})}
   if(team&&g.phase==='play')out+=`<p class="hint" style="text-align:center;margin:4px 0 0">${[[P[0],P[2]],[P[1],P[3]]].map(([a,b])=>`${esc(nm(a))} & ${esc(nm(b))}: ${sdTeamWon(g,a.id)} of ${sdTeamBid(g,a.id)}`).join(' · ')}</p>`;
@@ -5048,7 +5056,7 @@ function rgPlay(){const X=RGX(),P=act(),g=rgG(),r=rgCur(),N=rgN(),sc=P.map(rgTot
   else if(g.phase==='play'){if(!turnP)status='Collecting the trick…';else if(V&&turnP.id===V.id){const led=rgLed(g.t);status=`<b>Your turn${S.lk||rgHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.fore?'Play your card (you still can’t see it).':g.t.length?(led?`Follow ${RGC[led][0].toLowerCase()} if you can. Can’t? Play anything, Rage cards too.`:'A Rage card led: play anything.'):'Lead any card.'} You bid ${g.bids[V.id]}, won ${g.won[V.id]||0}.`}else status=`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is playing…`}
   else if(g.phase==='done')status=`<b>Round ${r+1} is over.</b>`;
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${g.fore?'Forehead round':`${n} card${n===1?'':'s'} each`} · ${esc(nm(P.find(p=>p.id===g.dealer)||{name:''}))} dealt${g.phase!=='bid'?` · bids total ${P.reduce((a,p)=>a+(g.bids[p.id]||0),0)} for ${n}`:''}</span></div>`;
-  if(g.phase!=='done'){const showT=g.t.length?g.t:g.last&&g.phase==='play'?g.last.t:[],faded=!g.t.length&&!!g.last,lw=faded&&g.last?P.find(p=>p.id===g.last.w):null;
+  if(g.phase!=='done'||ktFresh(g)){const showT=g.t.length?g.t:g.last&&g.phase!=='bid'?g.last.t:[],faded=!g.t.length&&!!g.last,lw=faded&&g.last?P.find(p=>p.id===g.last.w):null;
     out+=`<div class="ohup">${g.tr?`<span class="rgtr" style="--rk:${RGC[g.tr][1]}"></span><span><b>Trump: ${trName}</b><br><small>${g.flip?'just turned up':g.up&&g.up[0]===g.tr?'the turned-up card':'changed by a Change Rage'}</small></span>`:`<span class="rgtr none"></span><span><b>No trump${g.outT?' this trick':''}</b><br><small>${g.outT?'Out Rage. A new trump is turned up after this trick.':g.up?'an Out Rage took it away':'no color card to turn up'}</small></span>`}</div>`;
     const trickEls=showT.map(x=>({p:x.p,c:x.c,w:x.w,n:x.n}));
     out+=ktTable({P,me:V?V.id:me?me.id:null,trick:trickEls,faded,turn:g.phase==='bid'?g.bidTurn:g.turn,won:lw&&lw.id,card:(c)=>{const x=trickEls.find(y=>y.c===c);return rgCardEl(c,{w:x&&(x.c[0]==='W'||!RGX().changeFlip)?x.w:x&&x.c[0]==='C'?x.w:null,n:x&&x.n})},
@@ -6200,7 +6208,7 @@ function rkPlay(){const X=RKX(),P=act(),g=rkG(),r=rkCur(),all=rkAll(),T=[P[0],P[
   else if(g.phase==='play'){if(!turnP)status='Collecting the trick…';else if(V&&turnP.id===V.id)status=`<b>Your turn${S.lk||rkHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.t.length?`Follow the color led if you can (${g.t[0].c==='X'||rkSuitOf(g.t[0].c,g.trump)===g.trump?'trump':RKCOL[g.t[0].c[0]][0].toLowerCase()}).${RKX().rookAny?' The Rook can be played any time.':''}`:'Lead any card.'}`;else status=`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is playing…`}
   else if(g.phase==='done')status=`<b>Hand ${r+1} is over.</b>`;
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(nm(P.find(p=>p.id===g.dealer)||{name:''}))} dealt${g.high&&g.phase!=='bid'?` · ${esc(nm(bidderP))} bid ${g.high.v}`:''}${g.trump?` · <b style="color:${RKCOL[g.trump][1]}">${trName}</b> is trump`:''} · ${all} points a hand</span></div>`;
-  if(g.phase==='play'){const showT=g.t.length?g.t:g.last?g.last.t:[],faded=!g.t.length&&!!g.last,lw=faded&&g.last?P.find(p=>p.id===g.last.w):null,lp=lw?g.last.t.reduce((a,x)=>a+rkVal(x.c),0):0;
+  if(g.phase==='play'||g.phase==='done'&&ktFresh(g)){const showT=g.t.length?g.t:g.last?g.last.t:[],faded=!g.t.length&&!!g.last,lw=faded&&g.last?P.find(p=>p.id===g.last.w):null,lp=lw?g.last.t.reduce((a,x)=>a+rkVal(x.c),0):0;
     const bt=rkTeamOf(g.bidder),bp=rkTeamPts(g,bt);
     out+=ktTable({P,me:V?V.id:me?me.id:null,trick:showT,faded,turn:g.turn,won:lw&&lw.id,card:rkCardEl,label:q=>`${(g.h[q.id]||[]).length} cards${q.id===g.bidder?' · bidder':''}`,note:lw?`${esc(nm(lw))} took it${lp?` (+${lp})`:''}`:''});
     out+=`<p class="hint" style="text-align:center;margin:4px 0 0">${team(bt)} need ${g.high.v}: they have ${bp} so far${(g.disc||[]).some(rkVal)&&RKX().nestTo!=='bidder'?' · the last trick also takes the laid-aside cards':''}.</p>`}
@@ -7472,7 +7480,7 @@ function ohPlay(){const X=OHX(),P=act(),g=ohG(),r=ohCur(),N=ohN(),sc=P.map(ohTot
   else if(g.phase==='play'){if(!turnP)status='Collecting the trick…';else if(V&&turnP.id===V.id)status=`<b>Your turn${S.lk||ohHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.t.length?`Follow suit if you can (${HTSU[g.t[0].c[1]]}︎).`:'Lead any card.'} You bid ${g.bids[V.id]} and have won ${g.won[V.id]||0}.`;else status=`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is playing…`}
   else if(g.phase==='done')status=`<b>Round ${r+1} is over.</b>`;
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${n} card${n===1?'':'s'} each · ${esc(nm(P.find(p=>p.id===g.dealer)||{name:''}))} dealt · ${trName}${showBids&&g.phase!=='done'?` · bids total ${sum} for ${n}`:''}</span></div>`;
-  if(g.phase!=='done'){const showT=g.t.length?g.t:g.last&&g.phase==='play'?g.last.t:[],faded=!g.t.length&&!!g.last,lw=faded&&g.last?P.find(p=>p.id===g.last.w):null;
+  if(g.phase!=='done'||ktFresh(g)){const showT=g.t.length?g.t:g.last&&g.phase!=='bid'?g.last.t:[],faded=!g.t.length&&!!g.last,lw=faded&&g.last?P.find(p=>p.id===g.last.w):null;
     out+=`<div class="ohup">${g.up?`${htCardEl(g.up)}<span><b>Trump: ${trName.replace(' are trump','')}</b><br><small>the turned-up card</small></span>`:`<span><b>No trump this round</b><br><small>every card was dealt</small></span>`}</div>`;
     out+=ktTable({P,me:V?V.id:me?me.id:null,trick:showT,faded,turn:g.phase==='bid'?g.bidTurn:g.turn,won:lw&&lw.id,label:q=>{const b=g.bids[q.id];return b===undefined?(g.phase==='bid'?'bidding…':''):showBids||(V&&q.id===V.id)?`bid ${b} · won ${g.won[q.id]||0}`:'bid in ✓'},
       note:lw?`${esc(nm(lw))} took it`:g.phase==='bid'?'Bidding…':''})}
@@ -9883,6 +9891,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='14d031';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='44f9f6';</script>
 </body>
 </html>
