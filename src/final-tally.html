@@ -4861,7 +4861,7 @@ function sdDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    Everyone alone. Hands shrink each round (10 down to 1 by default).
    p.rg[r] = {b,t,bo,md}: bid, tricks, Bonus Rage cards, Mad Rage cards.
    ===================================================================== */
-const RGDEF={start:10,order:'down',fore:true,trickV:1,bidV:10,zeroV:5,missV:5,missKeep:true,bonusV:5,madV:5,sweep:true,play:false,rageAny:false};
+const RGDEF={start:10,order:'down',fore:true,trickV:1,bidV:10,zeroV:5,missV:5,missKeep:true,bonusV:5,madV:5,sweep:true,play:false,rageAny:false,outOne:false,changeFlip:false,wild2nd:false,amigoDeck:false,wildNum:false};
 const RGX=()=>{if(!S.rgx)S.rgx={...RGDEF};const X=S.rgx;for(const k in RGDEF)if(X[k]===undefined)X[k]=RGDEF[k];return X};
 function rgSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.rgx'))}catch(e){}return Object.assign({...RGDEF},x||{})}
 function rgKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.rgx',JSON.stringify(RGX()))}catch(e){}}
@@ -4908,26 +4908,28 @@ const rgIsAct=c=>/^[WCUAM]/.test(c),rgCol=c=>rgIsAct(c)?null:c[0],rgNum=c=>+c.sl
 const rgNext=pid=>{const P=act(),i=P.findIndex(p=>p.id===pid);return P[(i+1)%P.length].id};
 const rgSort=(h,tr)=>{const o='roygbp'.split('').filter(s=>s!==tr).concat(tr?[tr]:[]);return h.slice().sort((a,b)=>{const ia=rgIsAct(a),ib=rgIsAct(b);if(ia!==ib)return ia?1:-1;if(ia)return a.localeCompare(b);return o.indexOf(a[0])-o.indexOf(b[0])||rgNum(a)-rgNum(b)})};
 function rgDeal(r){const P=act(),n=rgCards(r);let deck=[];for(const s of 'roygbp')for(let v=0;v<=15;v++)deck.push(s+v);
-  deck.push('W1','W2','C1','C2','C3','C4','U1','U2','U3','U4','A1','A2','M1','M2');htShuffle(deck);
+  deck.push('W1','W2','C1','C2','C3','C4','U1','U2','U3','U4','A1','A2','M1','M2');if(RGX().amigoDeck)deck.push('A3','M3');htShuffle(deck);
   const dealer=P[r%P.length].id,start=P.findIndex(p=>p.id===dealer)+1,h={};P.forEach((p,i)=>h[P[(start+i)%P.length].id]=deck.slice(i*n,(i+1)*n));
-  const rest=deck.slice(n*P.length);let up=null;for(const c of rest)if(!rgIsAct(c)){up=c;break}const tr=up?up[0]:null;for(const id in h)h[id]=rgSort(h[id],tr);
-  const g={r,phase:'bid',dealer,h,tr,up,bids:{},bidTurn:rgNext(dealer),t:[],turn:null,n:0,won:{},bo:{},md:{},last:null,played:[],fore:rgFore(r)};
+  const rest=deck.slice(n*P.length),ui=rest.findIndex(c=>!rgIsAct(c)),up=ui>=0?rest[ui]:null,tr=up?up[0]:null;for(const id in h)h[id]=rgSort(h[id],tr);
+  const g={r,phase:'bid',dealer,h,tr,up,pile:ui>=0?rest.slice(ui+1):[],bids:{},bidTurn:rgNext(dealer),t:[],turn:null,n:0,won:{},bo:{},md:{},last:null,played:[],fore:rgFore(r)};
   P.forEach(p=>{g.won[p.id]=0;g.bo[p.id]=0;g.md[p.id]=0});S.rgg=g;RGSEL=null;RGVIEW=null}
+function rgFlip(g){const pile=g.pile||[];while(pile.length){const c=pile.shift();if(!rgIsAct(c)){g.tr=c[0];g.up=c;g.flip=true;g.pile=pile;return}}g.pile=pile;g.tr=null;g.up=null}
 function rgBid(pid,v){const g=rgG();if(!g||g.phase!=='bid'||g.bidTurn!==pid)return false;v=+v;if(!(v>=0&&v<=rgCards(g.r)))return false;g.bids[pid]=v;
   if(act().every(p=>g.bids[p.id]!==undefined)){g.phase='play';g.bidTurn=null;g.turn=rgNext(g.dealer)}else g.bidTurn=rgNext(pid);return true}
 /* the color a played card counts as, and its rank */
-const rgEff=x=>x.c[0]==='W'?x.w:rgCol(x.c);
+const rgEff=x=>x.c[0]==='W'?x.w:rgCol(x.c),rgWN=x=>x.n===undefined||x.n===null?16:+x.n;
 const rgLed=t=>{for(const x of t){const e=rgEff(x);if(e)return e}return null};
 function rgLegal(g,pid){const h=g.h[pid]||[];if(g.fore)return h;if(!g.t.length)return h;const led=rgLed(g.t);if(!led)return h;
   const f=h.filter(c=>rgCol(c)===led);if(!f.length)return h;return RGX().rageAny?f.concat(h.filter(rgIsAct)):f}
-function rgWinner(g,t){const rank=(x,i)=>x.c[0]==='W'?16+(t.length-i)/100:rgNum(x.c);const tr=g.tr,led=rgLed(t);
+function rgWinner(g,t){const w2=RGX().wild2nd,rank=(x,i)=>x.c[0]==='W'?rgWN(x)+(w2?i:(t.length-i))/1000:rgNum(x.c)+(t.length-i)/100000;const tr=g.tr,led=rgLed(t);
   let pool=tr?t.map((x,i)=>({x,i})).filter(o=>rgEff(o.x)===tr):[];if(!pool.length&&led)pool=t.map((x,i)=>({x,i})).filter(o=>rgEff(o.x)===led);
   if(!pool.length)return t[0].p;return pool.reduce((a,o)=>rank(o.x,o.i)>rank(a.x,a.i)?o:a,pool[0]).x.p}
-function rgPlayCard(pid,c,col){const g=rgG();if(!g||g.phase!=='play'||g.turn!==pid||!rgLegal(g,pid).includes(c))return false;
-  if((c[0]==='W'||c[0]==='C')&&!RGC[col])return false;
-  g.h[pid]=g.h[pid].filter(x=>x!==c);const e={p:pid,c};if(c[0]==='W')e.w=col;if(c[0]==='C'){e.w=col;g.tr=col}if(c[0]==='U')g.tr=null;
+function rgPlayCard(pid,c,col,num){const g=rgG(),X=RGX();if(!g||g.phase!=='play'||g.turn!==pid||!rgLegal(g,pid).includes(c))return false;
+  if((c[0]==='W'||c[0]==='C'&&!X.changeFlip)&&!RGC[col])return false;
+  g.h[pid]=g.h[pid].filter(x=>x!==c);const e={p:pid,c};if(c[0]==='W'){e.w=col;if(X.wildNum){const n=Math.max(0,Math.min(16,+num));e.n=isNaN(n)?16:n}}
+  if(c[0]==='C'){if(X.changeFlip){rgFlip(g);e.w=g.tr}else{e.w=col;g.tr=col}g.outT=false}if(c[0]==='U'){g.tr=null;if(X.outOne)g.outT=true}
   g.t=g.t.concat([e]);g.turn=g.t.length>=act().length?null:rgNext(pid);playCard();return true}
-function rgCollect(g){const w=rgWinner(g,g.t);g.won[w]=(g.won[w]||0)+1;g.t.forEach(x=>{if(x.c[0]==='A')g.bo[w]++;if(x.c[0]==='M')g.md[w]++});
+function rgCollect(g){const w=rgWinner(g,g.t);g.flip=false;if(g.outT){g.outT=false;if(g.tr===null)rgFlip(g)}g.won[w]=(g.won[w]||0)+1;g.t.forEach(x=>{if(x.c[0]==='A')g.bo[w]++;if(x.c[0]==='M')g.md[w]++});
   g.played=(g.played||[]).concat(g.t.map(x=>x.c));g.last={t:g.t,w};g.t=[];g.n++;g.turn=w;if(!Object.values(g.h).some(h=>h.length))rgEndRound(g)}
 function rgEndRound(g){act().forEach(p=>{const R=rgR(p,g.r);R.b=g.bids[p.id];R.t=g.won[p.id]||0;R.bo=g.bo[p.id]||0;R.md=g.md[p.id]||0});g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
 const rgOverNow=()=>{const g=rgG();return !!g&&g.phase==='done'&&g.r>=rgN()-1};
@@ -4941,7 +4943,7 @@ function rgEstimate(g,h,pid){const np=act().length,tr=g.tr;let e=0;
     if(c[0]===tr)e+=v>=13?.9:v>=10?.65:v>=6?.4:.2;else e+=(v>=15?.75:v>=14?.5:v>=13&&L<=3?.25:0)*(L>=5?.6:1)}
   return e*({2:2.2,3:1.6,4:1.25,5:1,6:.85,7:.75,8:.65}[np]||1)}
 function rgBotBid(g,pid,lv){const h=g.h[pid],n=rgCards(g.r);let b=Math.round(rgEstimate(g,h,pid)+(lv==='easy'?(Math.random()*2-1):0));return Math.max(0,Math.min(n,b))}
-function rgBotCard(g,pid,lv){const L=rgLegal(g,pid);const pick=c=>({c,col:c[0]==='W'?(rgLed(g.t)&&!g.tr?rgLed(g.t):g.tr||rgLed(g.t)||rgBestCol(g.h[pid])):c[0]==='C'?rgBestCol(g.h[pid].filter(x=>x!==c)):null});
+function rgBotCard(g,pid,lv){const L=rgLegal(g,pid),X=RGX();const pick=(c,duck)=>{const led=rgLed(g.t);if(c[0]==='W'&&duck&&X.wildNum){const off='roygbp'.split('').find(s=>s!==g.tr&&s!==led)||'r';return {c,col:led&&led!==g.tr?led:off,num:0}}return {c,col:c[0]==='W'?(led&&!g.tr?led:g.tr||led||rgBestCol(g.h[pid])):c[0]==='C'?rgBestCol(g.h[pid].filter(x=>x!==c)):null,num:16}};
   if(L.length===1)return pick(L[0]);
   const colors=L.filter(c=>!rgIsAct(c)),lo=a=>a.slice().sort((x,y)=>rgNum(x)-rgNum(y))[0],hi=a=>a.slice().sort((x,y)=>rgNum(y)-rgNum(x))[0];
   if(lv==='easy')return pick(Math.random()<.5&&colors.length?lo(colors):L[Math.floor(Math.random()*L.length)]);
@@ -4949,15 +4951,16 @@ function rgBotCard(g,pid,lv){const L=rgLegal(g,pid);const pick=c=>({c,col:c[0]==
   if(!g.t.length){if(need){const tops=colors.filter(c=>rgNum(c)>=14||c[0]===tr&&rgNum(c)>=11);if(tops.length)return pick(hi(tops));if(L.some(c=>c[0]==='W'))return pick(L.find(c=>c[0]==='W'))}
     const safe=colors.filter(c=>c[0]!==tr);return pick(safe.length?lo(safe):colors.length?lo(colors):L.find(c=>c[0]!=='W')||L[0])}
   const led=rgLed(g.t),cur=rgWinner(g,g.t),mine=cur===pid;
-  const wouldWin=c=>{const tt=g.t.concat([{p:pid,c,w:c[0]==='W'?(tr||led||'r'):c[0]==='C'?rgBestCol(g.h[pid]):undefined}]);const sav=g.tr;if(c[0]==='C')g.tr=tt[tt.length-1].w;if(c[0]==='U')g.tr=null;const w=rgWinner(g,tt)===pid;g.tr=sav;return w};
+  const wouldWin=c=>{const tt=g.t.concat([{p:pid,c,w:c[0]==='W'?(tr||led||'r'):c[0]==='C'?rgBestCol(g.h[pid]):undefined}]);const sav=g.tr;if(c[0]==='C'&&!RGX().changeFlip)g.tr=tt[tt.length-1].w;if(c[0]==='U')g.tr=null;const w=rgWinner(g,tt)===pid;g.tr=sav;return w};
   const winners=L.filter(wouldWin),losers=L.filter(c=>!wouldWin(c)),last=g.t.length===act().length-1;
   if(need){if(winners.length){const cw=winners.filter(c=>!rgIsAct(c));if(cw.length)return pick(last?lo(cw):hi(cw));const a=winners.find(c=>c[0]==='A')||winners.find(c=>c[0]!=='M')||winners[0];return pick(a)}
     const dump=L.filter(c=>c[0]==='M')[0]||lo(colors.length?colors:L);return pick(dump)}
+  if(!losers.length&&X.wildNum&&L.some(c=>c[0]==='W'))return pick(L.find(c=>c[0]==='W'),true);
   if(losers.length){const mad=losers.find(c=>c[0]==='M');if(mad&&!mine)return pick(mad);const lc=losers.filter(c=>!rgIsAct(c)&&c[0]!==tr);if(lc.length)return pick(hi(lc));const anyc=losers.filter(c=>!rgIsAct(c));return pick(anyc.length?hi(anyc):losers.find(c=>c[0]!=='A')||losers[0])}
   return pick(colors.length?lo(colors):L[0])}
 
 /* ---------------- who is looking at this phone ---------------- */
-let RGSEL=null,RGVIEW=null,RGBOTT=null,RGCOLT=null;
+let RGSEL=null,RGVIEW=null,RGBOTT=null,RGCOLT=null,RGWC=null;
 const rgHumans=()=>act().filter(p=>!p.bot);
 const rgMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
 function rgActive(){const g=rgG();if(!g)return null;const id=g.phase==='bid'?g.bidTurn:g.phase==='play'?g.turn:null;const q=act().find(p=>p.id===id);return q&&!q.bot?q:null}
@@ -4970,12 +4973,12 @@ function rgTick(){if(S.game!=='rage'||!rgPlayOn()||!S.started||S.finished||S.scr
   if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot)later(700,()=>{const g2=rgG();if(g2&&g2.phase==='bid'&&g2.bidTurn===q.id)rgBid(q.id,rgBotBid(g2,q.id,q.bot))});return}
   if(g.phase!=='play')return;
   if(g.t.length>=act().length){if(!RGCOLT)RGCOLT=setTimeout(()=>{RGCOLT=null;const g2=rgG();if(g2&&g2.t.length>=act().length){rgCollect(g2);save();render()}},1300*htSpd());return}
-  const q=act().find(p=>p.id===g.turn);if(q&&q.bot&&!document.querySelector('.sheet-bg'))later(g.t.length?750:1000,()=>{const g2=rgG();if(g2&&g2.phase==='play'&&g2.turn===q.id){const m=rgBotCard(g2,q.id,q.bot);rgPlayCard(q.id,m.c,m.col)}})}
+  const q=act().find(p=>p.id===g.turn);if(q&&q.bot&&!document.querySelector('.sheet-bg'))later(g.t.length?750:1000,()=>{const g2=rgG();if(g2&&g2.phase==='play'&&g2.turn===q.id){const m=rgBotCard(g2,q.id,q.bot);rgPlayCard(q.id,m.c,m.col,m.num)}})}
 
 /* ---------------- drawing ---------------- */
 function rgCardEl(c,o={}){const tag=o.btn?'button':'span',attr=o.btn?` data-a="rgcard" data-c="${c}" aria-pressed="${!!o.sel}"${o.dis?' aria-disabled="true"':''}`:'';
   if(o.hidden)return `<span class="htc rgc rgback" aria-label="Your card, face down"><em>?</em></span>`;
-  if(c[0]==='W'&&o.w&&RGC[o.w]){const [wn,wc]=RGC[o.w];return `<${tag} class="htc rgc rgact rgW named${o.cls?' '+o.cls:''}" style="--rk:${wc}"${attr} aria-label="Wild Rage, played as a ${wn} 16"><b>16</b><i>WILD</i><em>${wn}</em></${tag}>`}
+  if(c[0]==='W'&&o.w&&RGC[o.w]){const [wn,wc]=RGC[o.w];return `<${tag} class="htc rgc rgact rgW named${o.cls?' '+o.cls:''}" style="--rk:${wc}"${attr} aria-label="Wild Rage, played as a ${wn} ${o.n===undefined||o.n===null?16:o.n}"><b>${o.n===undefined||o.n===null?16:o.n}</b><i>WILD</i><em>${wn}</em></${tag}>`}
   if(rgIsAct(c)){const X=RGX(),k=c[0],lab=k==='A'?`+${X.bonusV}`:k==='M'?`−${X.madV}`:RGACT[k],w=o.w&&RGC[o.w]?RGC[o.w][1]:null;
     return `<${tag} class="htc rgc rgact rg${k}${o.cls?' '+o.cls:''}"${w?` style="--rk:${w}"`:''}${attr} aria-label="${RGACT[k]} Rage${o.w&&RGC[o.w]?', '+RGC[o.w][0]:''}${o.sel?', picked':''}"><b>${k==='A'||k==='M'?lab:RGACT[k][0]}</b><i>RAGE</i><em>${k==='A'||k==='M'?(k==='A'?'★':'☠'):RGACT[k]}</em></${tag}>`}
   const [nmC,col]=RGC[c[0]],n=rgNum(c);
@@ -4991,9 +4994,9 @@ function rgPlay(){const X=RGX(),P=act(),g=rgG(),r=rgCur(),N=rgN(),sc=P.map(rgTot
   else if(g.phase==='done')status=`<b>Round ${r+1} is over.</b>`;
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${g.fore?'Forehead round':`${n} card${n===1?'':'s'} each`} · ${esc(nm(P.find(p=>p.id===g.dealer)||{name:''}))} dealt${g.phase!=='bid'?` · bids total ${P.reduce((a,p)=>a+(g.bids[p.id]||0),0)} for ${n}`:''}</span></div>`;
   if(g.phase!=='done'){const showT=g.t.length?g.t:g.last&&g.phase==='play'?g.last.t:[],faded=!g.t.length&&!!g.last,lw=faded&&g.last?P.find(p=>p.id===g.last.w):null;
-    out+=`<div class="ohup">${g.tr?`<span class="rgtr" style="--rk:${RGC[g.tr][1]}"></span><span><b>Trump: ${trName}</b><br><small>${g.up&&g.up[0]===g.tr?'the turned-up card':'changed by a Change Rage'}</small></span>`:`<span class="rgtr none"></span><span><b>No trump</b><br><small>${g.up?'an Out Rage took it away':'no color card to turn up'}</small></span>`}</div>`;
-    const TE=x=>rgCardEl(x.c,{w:x.w});const trickEls=showT.map(x=>({p:x.p,c:x.c,w:x.w}));
-    out+=ktTable({P,me:V?V.id:me?me.id:null,trick:trickEls,faded,turn:g.phase==='bid'?g.bidTurn:g.turn,won:lw&&lw.id,card:(c)=>{const x=trickEls.find(y=>y.c===c);return rgCardEl(c,{w:x&&x.w})},
+    out+=`<div class="ohup">${g.tr?`<span class="rgtr" style="--rk:${RGC[g.tr][1]}"></span><span><b>Trump: ${trName}</b><br><small>${g.flip?'just turned up':g.up&&g.up[0]===g.tr?'the turned-up card':'changed by a Change Rage'}</small></span>`:`<span class="rgtr none"></span><span><b>No trump${g.outT?' this trick':''}</b><br><small>${g.outT?'Out Rage. A new trump is turned up after this trick.':g.up?'an Out Rage took it away':'no color card to turn up'}</small></span>`}</div>`;
+    const trickEls=showT.map(x=>({p:x.p,c:x.c,w:x.w,n:x.n}));
+    out+=ktTable({P,me:V?V.id:me?me.id:null,trick:trickEls,faded,turn:g.phase==='bid'?g.bidTurn:g.turn,won:lw&&lw.id,card:(c)=>{const x=trickEls.find(y=>y.c===c);return rgCardEl(c,{w:x&&(x.c[0]==='W'||!RGX().changeFlip)?x.w:x&&x.c[0]==='C'?x.w:null,n:x&&x.n})},
       label:q=>{const b=g.bids[q.id],fc=g.fore&&g.phase!=='done'&&(g.h[q.id]||[])[0]&&(V?q.id!==V.id:(q.bot||S.lk))?` · ${(()=>{const c=g.h[q.id][0];return rgIsAct(c)?RGACT[c[0]]:RGC[c[0]][0]+' '+rgNum(c)})()}`:'';return (b===undefined?(g.phase==='bid'?'bidding…':''):`bid ${b} · won ${g.won[q.id]||0}`)+fc+((g.bo[q.id]||0)?` · +${g.bo[q.id]*X.bonusV}`:'')+((g.md[q.id]||0)?` · −${g.md[q.id]*X.madV}`:'')},
       note:lw?`${esc(nm(lw))} took it`:g.phase==='bid'?'Bidding…':''})}
   if(g.phase==='done'){const rows=P.map(q=>{const c=rgCalc(q,g.r);return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${c?`bid ${c.b}, took ${c.t}${c.hit?' ✓':''}${c.bo?` · +${c.bo*X.bonusV} Bonus`:''}${c.md?` · −${c.md*X.madV} Mad`:''}${c.sw?' · moon!':''}`:''}</small></span><span class="num"><b>${c&&c.v>0?'+':''}${c?c.v:0}</b> · ${rgTot(q)}</span></div>`}).join('');
@@ -5001,7 +5004,8 @@ function rgPlay(){const X=RGX(),P=act(),g=rgG(),r=rgCur(),N=rgN(),sc=P.map(rgTot
   if(V){const L=g.phase==='play'&&g.turn===V.id?rgLegal(g,V.id):[];
     if(g.fore){out+=`<div class="hthand" style="--n:1">${rgCardEl('',{hidden:true})}</div>`;if(L.length)out+=`<div class="actions"><div class="in"><button class="btn primary" data-a="rgfore">Play my card</button></div></div>`}
     else{out+=`<div class="hthand" style="--n:${hand.length}" aria-label="Your cards">${hand.map(c=>rgCardEl(c,{btn:true,sel:RGSEL===c,dis:!L.includes(c),cls:[g.phase==='play'?(L.includes(c)?'ok':'no'):'',c[0]===g.tr?'trump':''].join(' ').trim()})).join('')}</div>`;
-      if(RGSEL&&(RGSEL[0]==='W'||RGSEL[0]==='C')&&L.includes(RGSEL))out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>${RGSEL[0]==='W'?'Wild: it becomes a 16 of the color you pick.':'Change: pick the new trump color.'}</b></p><div class="rktr rgpick">${'roygbp'.split('').map(s=>`<button class="btn" data-a="rgcolor" data-k="${s}" style="--rk:${RGC[s][1]}"><i></i>${RGC[s][0]}</button>`).join('')}</div></div>`;
+      if(RGSEL&&RGSEL[0]==='W'&&RGWC&&X.wildNum&&L.includes(RGSEL))out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>Wild as a ${RGC[RGWC][0].toLowerCase()}: pick the number.</b> 16 beats every ${RGC[RGWC][0].toLowerCase()} card. Call it low to duck the trick. <button class="link-btn" data-a="rgcolor" data-k="">Change color</button></p><div class="sdbidgrid">${Array.from({length:17},(_,i)=>16-i).map(v=>`<button class="btn" data-a="rgnum" data-k="${v}" style="color:${RGC[RGWC][1]}">${v}</button>`).join('')}</div></div>`;
+      else if(RGSEL&&(RGSEL[0]==='W'||RGSEL[0]==='C'&&!X.changeFlip)&&L.includes(RGSEL))out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>${RGSEL[0]==='W'?(X.wildNum?'Wild: pick its color, then its number.':'Wild: it becomes a 16 of the color you pick.'):'Change: pick the new trump color.'}</b></p><div class="rktr rgpick">${'roygbp'.split('').map(s=>`<button class="btn" data-a="rgcolor" data-k="${s}" style="--rk:${RGC[s][1]}"><i></i>${RGC[s][0]}</button>`).join('')}</div></div>`;
       else if(L.length)out+=`<p class="hint" style="text-align:center">${RGSEL?'Tap it again to play it.':'Tap a card to play it.'}</p>`}
     if(g.phase==='bid'&&g.bidTurn===V.id)out+=`<div class="panel sdbids"><div class="sdbidgrid">${Array.from({length:n+1},(_,i)=>i).map(v=>`<button class="btn" data-a="rgbid" data-k="${v}">${v}</button>`).join('')}</div></div>`}
   else if(!S.lk&&rgHumans().length>1)out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
@@ -5012,12 +5016,13 @@ function rgModal(){const a=rgNeedHandoff();if(!a)return '';const g=rgG();return 
 function rgAct(a,b,k){const g=rgG();
   if(a==='rgshow'){RGVIEW=k;RGSEL=null;return}
   if(a==='rgbid'){const V=rgViewer();if(g&&V&&!rgBid(V.id,+k))toast('You can’t bid that.');return}
-  if(a==='rgfore'){const V=rgViewer();if(!g||!V||g.turn!==V.id)return;const c=g.h[V.id][0];if(!c)return;const col=c[0]==='W'?(g.tr||rgLed(g.t)||'r'):c[0]==='C'?rgBestCol(g.h[V.id]):null;rgPlayCard(V.id,c,col);return}
-  if(a==='rgcolor'){const V=rgViewer();if(!g||!V||!RGSEL)return;const c=RGSEL;RGSEL=null;rgPlayCard(V.id,c,k);return}
+  if(a==='rgfore'){const V=rgViewer();if(!g||!V||g.turn!==V.id)return;const c=g.h[V.id][0];if(!c)return;const col=c[0]==='W'?(g.tr||rgLed(g.t)||'r'):c[0]==='C'?rgBestCol(g.h[V.id]):null;rgPlayCard(V.id,c,col,16);return}
+  if(a==='rgcolor'){const V=rgViewer();if(!g||!V||!RGSEL)return;if(RGSEL[0]==='W'&&RGX().wildNum){RGWC=k||null;return}const c=RGSEL;RGSEL=null;RGWC=null;rgPlayCard(V.id,c,k);return}
+  if(a==='rgnum'){const V=rgViewer();if(!g||!V||!RGSEL||!RGWC)return;const c=RGSEL,col=RGWC;RGSEL=null;RGWC=null;rgPlayCard(V.id,c,col,+k);return}
   if(a==='rgcard'){if(!g)return;const V=rgViewer();if(!V)return;const c=b.dataset.c;
     if(g.phase!=='play'||g.turn!==V.id){toast(g.phase==='bid'?'Bidding first.':g.turn?`It’s ${nm(act().find(p=>p.id===g.turn))}’s turn.`:'Hang on…');return}
     if(!rgLegal(g,V.id).includes(c)){const led=rgLed(g.t);toast(led?`Follow ${RGC[led][0].toLowerCase()} if you can.${RGX().rageAny?'':' Rage cards are for when you can’t.'}`:'You can’t play that.');return}
-    if(c[0]==='W'||c[0]==='C'){RGSEL=c;return}
+    if(c[0]==='W'||c[0]==='C'&&!RGX().changeFlip){if(RGSEL!==c)RGWC=null;RGSEL=c;return}
     if(RGSEL!==c){RGSEL=c;return}RGSEL=null;rgPlayCard(V.id,c);return}
   if(a==='rgdeal'){if(!rgRes())return;S.hr=rgCur()+1;rgDeal(S.hr);window.scrollTo(0,0)}}
 
@@ -5037,6 +5042,13 @@ function rgSetup(){const X=RGX();
   ${sec('Scoring',row('Each trick','',st('trickV',X.trickV,0,10,1,'points'))+row('Making your bid','',st('bidV',X.bidV,0,50,1,'points'))+row('Making a bid of zero','',st('zeroV',X.zeroV,0,50,1,'points'))+row('Missing your bid','taken off',st('missV',X.missV,0,50,1,'points'))+tg('missKeep','Keep trick points on a miss','Turn off and a missed bid scores only the penalty.')
     +row('Bonus Rage','added',st('bonusV',X.bonusV,0,50,1,'points'))+row('Mad Rage','taken off',st('madV',X.madV,0,50,1,'points'))
     +tg('sweep','Double for shooting the moon','Bid every trick and take them all: each trick counts twice. Never on a 1-card hand.')+(X.play?tg('rageAny','Rage cards any time','Play a Rage card even when you could follow the color led. Official: only when you lead or can’t follow.'):''),X.missKeep?`Miss your bid: \u2212${X.missV}, but you keep your trick points.`:`Miss your bid: \u2212${X.missV} and no trick points.`)}
+  ${X.play?(()=>{const am=['outOne','changeFlip','wild2nd','amigoDeck','wildNum'],on=am.every(k=>X[k]);return sec('Rage cards',`<div style="padding:10px 12px 4px"><button class="btn${on?' primary':''} wide" data-a="rgamigo">${on?'✓ AMIGO rules':'Use the AMIGO rules'}</button></div>`
+      +tg('outOne','Out Rage lasts one trick','No trump for that trick only. Then a new trump is turned up from the pile.')
+      +tg('changeFlip','Change Rage turns up a new trump','The next color card from the pile becomes trump, instead of the player naming one.')
+      +tg('wildNum','Wild: pick the number too','Call it any color and number, 0 to 16. A low Wild can duck a trick.')
+      +tg('wild2nd','The 2nd Wild beats the 1st','When both Wilds land in one trick.')
+      +tg('amigoDeck','3 Bonus and 3 Mad cards','The AMIGO deck has one more of each.'),
+      'Classic Fundex rules are the default: Out lasts the rest of the round, you name the new trump with Change, a Wild is a 16, the 1st Wild wins, 2 Bonus and 2 Mad.')})():''}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
 function rgScore(){if(rgPlayOn()&&S.started&&!S.demo)return rgPlay();const X=RGX(),P=act(),r=rgCur(),N=rgN(),n=rgCards(r),ph=rgPhase(r),chk=rgDone(r)?rgCheck(r):'',bn=rgBidNote(r);
   const sc=P.map(rgTot),hi=Math.max(...sc),lead=rgLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null,last=r>=N-1;
@@ -5173,14 +5185,14 @@ function sdGuide(){const X=SDX(),n=gdPeople(),D=gdSplit52(n);
 function rgGuide(){const X=RGX(),n=act().length,N=rgBase();
   const seq=Array.from({length:N},(_,r)=>rgCards(r)),show=seq.length>6?`${seq.slice(0,3).join(', ')} … ${seq.slice(-2).join(', ')}`:seq.join(', ');
   return guideSheet('Rage',[
-    ['Setup',[['Cards','The 110-card deck: 6 colors numbered 0 to 15, plus 14 Rage cards (2 Wild, 4 Change, 4 Out, 2 Bonus, 2 Mad).'],
+    ['Setup',[['Cards',X.amigoDeck?'The 112-card deck: 6 colors numbered 0 to 15, plus 16 Rage cards (2 Wild, 4 Change, 4 Out, 3 Bonus, 3 Mad).':'The 110-card deck: 6 colors numbered 0 to 15, plus 14 Rage cards (2 Wild, 4 Change, 4 Out, 2 Bonus, 2 Mad).'],
       ['The deal',`Cards each round: ${show}${X.fore?', then 1 for the forehead round':''}. ${rgN()} rounds in all. The deal passes left.`],
       ['Trump','Put the leftover cards face down and flip the top one. Its color is trump. Flip again if it’s an action card.'],
       X.start*n>109?['Heads up',`${n} players × ${X.start} cards is more than the deck holds. Lower the first hand.`]:null]],
     ['Bidding',[['Your bid','Everyone says how many tricks they’ll win, from 0 to the cards in hand, starting left of the dealer.'],
       ['Shooting the moon','Bidding every trick in the round.'],X.fore?['Forehead round','Everyone holds their single card on their forehead without looking, then bids 0 or 1 based on everyone else’s cards.']:null]],
     ['Play',[['Following','Follow the color led if you can. Highest trump wins; otherwise the highest card of the color led.'],['Action cards',X.rageAny&&X.play?'Play one any time (house rule).':'Play one when you lead or can’t follow. If a Rage card leads, the first color card after it sets the color.'],
-      ['Wild','Name a color; it’s the highest card of that color.'],['Change','Name a new trump color. It counts right away, for this trick too.'],['Out','No trump from now on, until someone plays a Change.'],
+      ['Wild',X.wildNum?'Name a color and a number, 0 to 16. Call it high to win, or low to duck.':'Name a color; it’s a 16, the highest card of that color.'],['Change',X.changeFlip?'Turn up the next color card from the pile: that’s the new trump, right away.':'Name a new trump color. It counts right away, for this trick too.'],['Out',X.outOne?'No trump for this trick. Afterwards a new trump is turned up from the pile.':'No trump from now on, until someone plays a Change.'],
       ['Bonus / Mad',`Whoever wins that trick gets +${X.bonusV} or −${X.madV}.`]]],
     ['Scoring',[['Each trick',`+${X.trickV}`],['Exact bid',`+${X.bidV}, or +${X.zeroV} for a bid of zero.`],['Missed bid',`−${X.missV}${X.missKeep?' (you keep your trick points)':' and no trick points'}.`],
       X.sweep?['Shooting the moon','Bid every trick and take them all: trick points double. Never on a 1-card round.']:null]],
@@ -9138,7 +9150,7 @@ document.addEventListener('click',e=>{
   if(/^sd(card|bid|deal|show|look)$/.test(a)&&S.game==='spades'){sdAct(a,b,k);render();return}
   if(/^oh(card|bid|deal|show)$/.test(a)&&S.game==='ohell'&&ohPlayOn()&&S.started){ohAct(a,b,k);render();return}
   if(/^rk(card|bid|deal|show|trump|nest)$/.test(a)&&S.game==='rook'&&rkPlayOn()&&S.started){rkAct(a,b,k);render();return}
-  if(/^rg(card|bid|deal|show|color|fore)$/.test(a)&&S.game==='rage'&&rgPlayOn()&&S.started){rgAct(a,b,k);render();return}
+  if(/^rg(card|bid|deal|show|color|num|fore)$/.test(a)&&S.game==='rage'&&rgPlayOn()&&S.started){rgAct(a,b,k);render();return}
   switch(a){
     case 'kpadd':kpAdd(b.dataset.v==='1');return;
     case 'pkadd':p.tickets.push({v:+b.dataset.v,done:b.dataset.d==='1',name:k});TKQ='';render();{const si=document.getElementById('tk-search');if(si)si.focus({preventScroll:true})}return;
@@ -9517,6 +9529,7 @@ document.addEventListener('click',e=>{
     case 'rgdemo':rgDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'rgst':{const X=RGX();X[k]=Math.max(0,X[k]+(+b.dataset.d));rgKeep();break}
     case 'rgset':RGX()[k]=b.dataset.v;rgKeep();break;
+    case 'rgamigo':{const X=RGX(),am=['outOne','changeFlip','wild2nd','amigoDeck','wildNum'],on=am.every(q=>X[q]);am.forEach(q=>X[q]=!on);rgKeep();break}
     case 'rgstart':{switchGame('rage');resetScores();S.started=false;S.screen='map';RGX().play=k==='1';rgKeep();window.scrollTo(0,0);break}
     case 'rgplaymode':{if(S.started)break;RGX().play=k==='1';rgKeep();break}
     case 'rgtg':{const X=RGX();X[k]=!X[k];rgKeep();break}
