@@ -1267,7 +1267,7 @@ const padSC=()=>Math.max(1,Math.round(Math.max(1,...act().map(p=>Math.abs(total(
 const LOW=()=>S.game==='phase10'||S.game==='mextrain'||S.game==='uno'&&UNX().mode==='low'||S.game==='golf'||S.game==='skyjo'||S.game==='gnome'&&!gnRW()||S.game==='hearts'||S.game==='crowns'||S.game==='pad'&&!!(S.px||{}).low,RS=p=>S.game==='darts'?dRankKey(p):S.game==='phase10'?ptKey(p):LOW()?-total(p):total(p),RU=(n,p)=>LOW()?-upto(n,p):upto(n,p);
 const total=p=>S.game==='carc'?cTot(p):HFE()?hfTot(p):S.game==='nerts'?nxTot(p):S.game==='pad'?pxTot(p):S.game==='darts'?dTot(p):S.game==='pool'?plTot(p):S.game==='hearts'?htTot(p):S.game==='spades'?sdTot(p):S.game==='rage'?rgTot(p):S.game==='ohell'?ohTot(p):S.game==='uno'?unTot(p):S.game==='munchkin'?mkTot(p):S.game==='crowns'?fcTot(p):S.game==='skipbo'?sbTot(p):S.game==='gnome'?gnTot(p):S.game==='skyjo'?skTot(p):S.game==='wingspan'?wsTot(p):S.game==='wyrmspan'?wyTot(p):S.game==='phase10'?ptTot(p):S.game==='rook'?rkTot(p):S.game==='yahtzee'?yzTot(p):S.game==='mextrain'?mtTot(p):S.game==='catan'?ctTot(p):S.game==='golf'?gfTot(p):S.game==='tripoley'?tpTot(p):S.game==='quacks'?qkTot(p):hsPts(p)+routePts(p)+tkNet(p)+extrasPts(p)+bonusPts(p);
 
-function resetScores(){['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.active=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
+function resetScores(){['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
 let UNDO=[],KP='',RULESHEET=false;
 if(S.hideTotals===undefined)S.hideTotals=true;
 function setMap(k){
@@ -1877,6 +1877,16 @@ function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK)return;if(lkHost()&&LKRV&&S.s
   if(stable(x.order)!==stable(LKLAST.order)){u.order=x.order;LKLAST.order=x.order}
   const ps={};for(const id in x.ps)if(x.ps[id]!==LKLAST.ps[id]){ps[id]=x.ps[id];LKLAST.ps[id]=x.ps[id]}
   if(Object.keys(ps).length)u.ps=ps;if(Object.keys(u).length){lkTouch();window.FTLINK.push(u)}},250)}
+
+/* "Your turn!" on a linked phone: a strong buzz, plus a notification if the app is in the background (and notifications are allowed) */
+let LKTURN=null;
+function lkTurnOwner(){if(!S.started||S.finished)return null;const P=act();if(!P.length)return null;
+  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
+  if(S.rules&&S.rules.live||S.game==='carc')return S.turnId||null;return null}
+function lkTurnCheck(){const o=lkTurnOwner(),was=LKTURN;LKTURN=o;if(!o||o===was||!S.lk||o!==S.lk.me||was===null)return;
+  vibe([250,120,250,120,400]);toast('Your turn!');
+  try{if(document.hidden&&'Notification' in window&&Notification.permission==='granted')navigator.serviceWorker.ready.then(r=>r.showNotification('Your turn!',{body:`${M().name}: it’s ${nm(act().find(p=>p.id===o)||{})}’s turn.`,tag:'ft-turn',renotify:true,icon:'icons/icon-192.png',vibrate:[250,120,250]}))}catch(e){}}
+function lkAskNotify(){try{if(['munchkin','catan','ttr','carc'].includes(S.game)&&'Notification' in window&&Notification.permission==='default')Notification.requestPermission().catch(()=>{})}catch(e){}}
 const lkSeated=()=>Object.entries(LKSEATS).filter(([id,s])=>s&&s.dev&&act().some(p=>p.id===id));
 const lkOk=s=>!!(s&&s.ready&&(s.rd||0)===LKRD);
 const lkReadyN=()=>lkSeated().filter(([,s])=>lkOk(s)).length;
@@ -1906,7 +1916,7 @@ window.lkRecv=function(u){if(!S.lk)return;
   if(u.rv!==undefined&&u.rv!==LKRV){LKRV=u.rv;if(u.rv&&S.lk.rv!==u.rv){S.lk.rv=u.rv;vibe([30,40,30]);LKMUTE=true;startReveal();save();LKMUTE=false;render();return}}
   if(lkHost()&&!LKRV&&!S.finished&&S.started){const seat=lkSeated();if(seat.length&&seat.every(([,s])=>lkOk(s))){window.FTLINK.reveal();toast('Everyone is done. Revealing on every phone!')}}
   if(S.screen==='lkwait'&&S.started||lkGuest()&&!S.started&&S.screen!=='lkwho')lkGo();
-  const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&ae.id!=='lk-code'){LKPEND=true;return}
+  lkTurnCheck();const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&!/^(checkbox|radio|button|range|file)$/.test(ae.type||'')&&ae.id!=='lk-code'){LKPEND=true;return}
   LKPEND=false;render()};
 function lkClear(msg){const was=lkGuest();clearTimeout(LKT);try{window.FTLINK&&window.FTLINK.leave()}catch(e){}if(window.FTLAN&&FTLAN.hub){try{FTLAN.stop()}catch(e){}}if(window.FTLINK_NET||window.FTLAN)window.FTLINK=window.FTLINK_NET;LANLOST=false;LANUI=null;lanCam(false);LKLAST={m:null,order:null,ps:{},items:{}};LKSEATS={};LKRD=0;LKFREE=null;LKRV=null;LKOPEN=false;LKSTOP=false;
   if(was){try{localStorage.removeItem(KEY+'.linked');localStorage.removeItem(KEY+'.lkon')}catch(e){}const n=load();S=n||S;if(!n){delete S.lk}S.screen='home'}
@@ -1934,7 +1944,7 @@ async function lkPick(id){if(!S.lk||LKBUSY)return;const mine=window.FTLINK.dev()
   if(id&&id!==prev){LKBUSY=true;render();const s={dev:mine,ready:false,rd:LKRD};
     try{await window.FTLINK.seat(id,s);LKSEATS[id]=s}catch(e){LKBUSY=false;toast('Someone just took that player on another phone.');render();return}LKBUSY=false}
   if(prev&&prev!==id){window.FTLINK.seat(prev,null).catch(()=>{});delete LKSEATS[prev]}
-  S.lk.me=id||null;S.lk.claimed=!!id;if(id){const ix=act().findIndex(p=>p.id===id);if(ix>=0)S.active=ix}
+  if(id)lkAskNotify();S.lk.me=id||null;S.lk.claimed=!!id;LKTURN=lkTurnOwner();if(id){const ix=act().findIndex(p=>p.id===id);if(ix>=0)S.active=ix}
   LKMUTE=true;save();LKMUTE=false;S.screen=lkGuest()&&!S.started?'lkwait':lkScreen();window.scrollTo(0,0);render()}
 function lkFree(id){if(!lkHost())return;if(LKFREE!==id){LKFREE=id;render();return}LKFREE=null;window.FTLINK.seat(id,null).catch(()=>toast('Couldn\u2019t free that spot.'));delete LKSEATS[id];render()}
 function lkReady(on){const id=S.lk&&S.lk.me;if(!id)return;const s={...(LKSEATS[id]||{dev:window.FTLINK.dev()}),ready:!!on,rd:LKRD};LKSEATS[id]=s;window.FTLINK.seat(id,s).catch(()=>toast('Couldn\u2019t update. Check your connection.'));
@@ -5949,7 +5959,7 @@ function ctTBBadges(p,i){const C=ctP(p),t=CTX().tbs,b=(a,on,ic,lab,pts,extra)=>`
     +(t==='fish'?b('ctboot',C.boot,'','👢 Old Boot','· needs +1'):'')
     +(t==='rivers'?b('ctrich',C.rich,'','🪙 Wealthiest','+1')+b('ctpoor',C.poor,'','Poor Settler','−2'):'')
     +(t==='tb'?b('ctbag',C.bag,'','🛒 Last baggage train','+1'):'')}
-function ctScore(){const X=CTX(),ck=ctCK(),sf=ctSF(),tb=ctTB(),P=act(),won=ctWon(),R=ctRolls(),cur=P[S.active]||P[0],goal=ctGoal();
+function ctScore(){const X=CTX(),ck=ctCK(),sf=ctSF(),tb=ctTB(),P=act(),won=ctWon(),R=ctRolls(),cur=P[(S.cta||0)%P.length]||P[0],goal=ctGoal();
   const sc=P.map(ctTot),hi=Math.max(...sc),lead=sc.filter(v=>v===hi).length===1&&hi>2?P[sc.indexOf(hi)]:null;
   const cnt={};for(let n=2;n<=12;n++)cnt[n]=0;R.forEach(r=>cnt[r.n]++);const mx=Math.max(1,...Object.values(cnt)),last=R[R.length-1];
   const defLeft=6-ctSum(C=>C.def),pvpLeft=2-ctSum(C=>C.pvp);
@@ -6036,7 +6046,7 @@ function ctDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
   else{const D=[{s:3,c:2,k:1,vp:0},{s:4,c:1,k:0,vp:1,lr:true},{s:2,c:2,k:4,vp:0},{s:2,c:3,k:2,vp:2}];
     D.forEach((d,i)=>P[i].ct={s:d.s,c:d.c,k:d.k,vp:d.vp,lr:!!d.lr,la:false,r7:0})}
   const seq=[8,6,5,9,7,10,4,6,8,3,11,6,9,5,8,7,10,6,4,9,8,12,5,6,7,8,9,2,6,10,5,8];S.ctr=seq.map((n,j)=>({n,pid:P[j%4].id}));
-  Object.assign(S,{started:true,screen:'score',hr:0,active:seq.length%4,hideTotals:false});CTATK=false;if(id!=='ctck')ctArmy();UNDO=[];KP='';WARN=null;REV=null}
+  Object.assign(S,{started:true,screen:'score',hr:0,active:0,cta:seq.length%4,hideTotals:false});CTATK=false;if(id!=='ctck')ctArmy();UNDO=[];KP='';WARN=null;REV=null}
 
 /* =====================================================================
    GOLF (card game)
@@ -8266,7 +8276,7 @@ function kpShow(){const d=document.getElementById('kp-disp');if(d)d.innerHTML=KP
 function kpKey(v){if(v==='C')KP='';else if(v==='B')KP=KP.slice(0,-1);else if(KP.length<2)KP=(KP+v).replace(/^0+/,'');kpShow()}
 function kpAdd(done){const v=parseInt(KP,10);if(!v){const d=document.getElementById('kp-disp');if(d){d.classList.remove('shake');void d.offsetWidth;d.classList.add('shake')}return}
   snap();act()[S.active].tickets.push({v,done});KP='';render()}
-function snap(){UNDO.push(JSON.stringify({players:S.players,picks:S.picks,log:S.log||[],clog:S.clog,cend:S.cend,pk:S.pk,rk:S.game==='rook'?S.rk:undefined,tph:S.game==='tripoley'?S.tph:undefined,ctr:S.game==='catan'?{r:S.ctr||[],a:S.active,b:S.ctb||0}:undefined,yzt:S.game==='yahtzee'?S.yzt:undefined,yzd:S.game==='yahtzee'?S.yzd:undefined,yzr:S.game==='yahtzee'?S.yzr:undefined}));if(UNDO.length>60)UNDO.shift()}
+function snap(){UNDO.push(JSON.stringify({players:S.players,picks:S.picks,log:S.log||[],clog:S.clog,cend:S.cend,pk:S.pk,rk:S.game==='rook'?S.rk:undefined,tph:S.game==='tripoley'?S.tph:undefined,ctr:S.game==='catan'?{r:S.ctr||[],a:S.cta||0,b:S.ctb||0}:undefined,yzt:S.game==='yahtzee'?S.yzt:undefined,yzd:S.game==='yahtzee'?S.yzd:undefined,yzr:S.game==='yahtzee'?S.yzr:undefined}));if(UNDO.length>60)UNDO.shift()}
 const MUT=new Set(['xnl','xmo','xmy','tmon','lclaim','pkadd','route','rmt','flip','xc','xneg','xchip','xchipx','harbor','xprov','xu','xut','xt','xd','xl','xp','pick']);
 function setX(p,key,val){const [id,sub]=key.split('.');if(sub){p.x[id]={...xv(p,id),[sub]:val}}else p.x[id]=val}
 function refreshTotals(){if(S.hideTotals)return;const P=act(),p=P[S.active];document.querySelector('.who .big').textContent=total(p);
@@ -8370,7 +8380,7 @@ document.addEventListener('click',e=>{
     case 'editdone':if(S.finished)saveGame();exitDemo();S.screen='stats';window.scrollTo(0,0);break;
     case 'backup':backup();return;
     case 'flip':{const t=p.tickets[b.dataset.i];t.done=!t.done;break}
-    case 'undo':{const u=UNDO.pop();if(u){const o=JSON.parse(u);S.players=o.players;S.picks=o.picks;S.log=o.log||[];if(o.clog)S.clog=o.clog;if(o.cend)S.cend=o.cend;if(o.pk)S.pk=o.pk;if(o.rk)S.rk=o.rk;if(o.tph)S.tph=o.tph;if(o.ctr){S.ctr=o.ctr.r;S.active=o.ctr.a;S.ctb=o.ctr.b||0}if(o.yzd){S.yzd=o.yzd;S.yzt=o.yzt;S.yzr=o.yzr||null}}break}
+    case 'undo':{const u=UNDO.pop();if(u){const o=JSON.parse(u);S.players=o.players;S.picks=o.picks;S.log=o.log||[];if(o.clog)S.clog=o.clog;if(o.cend)S.cend=o.cend;if(o.pk)S.pk=o.pk;if(o.rk)S.rk=o.rk;if(o.tph)S.tph=o.tph;if(o.ctr){S.ctr=o.ctr.r;S.cta=o.ctr.a;S.ctb=o.ctr.b||0}if(o.yzd){S.yzd=o.yzd;S.yzt=o.yzt;S.yzr=o.yzr||null}}break}
     case 'rules':RULESHEET=true;break;
     case 'lpclose':if(e.target.closest('[data-stop]')&&!e.target.closest('button'))return;LPTIP=null;LPSUP=0;break;
     case 'mguide':RULESHEET=false;MEEPLESHEET=true;break;
@@ -8477,7 +8487,7 @@ document.addEventListener('click',e=>{
       if(v==='def'){const q=P.find(o=>o.id===k);if(q&&ctSum(C=>C.def)<6)ctP(q).def++}
       if(v==='lose'){const vul=P.filter(p=>ctP(p).c-ctP(p).met.length>0),lo=Math.min(...vul.map(ctStr));vul.filter(p=>ctStr(p)===lo).forEach(p=>{const C=ctP(p);C.c--;C.s=Math.min(CTMAX.s,C.s+1)})}
       P.forEach(p=>ctP(p).kn.forEach(x=>x.a=false));S.ctb=0;CTATK=false;toast('Knights go idle. The ship heads back out.');break}
-    case 'ctroll':{const P=act(),cur=P[S.active]||P[0],n=+b.dataset.v;snap();ctRolls().push({n,pid:cur.id});S.active=(P.indexOf(cur)+1)%P.length;toast(`${nm(cur)} rolled ${n}${n===7?': move the robber!':''}`);break}
+    case 'ctroll':{const P=act(),cur=P[(S.cta||0)%P.length]||P[0],n=+b.dataset.v;snap();ctRolls().push({n,pid:cur.id});S.cta=(P.indexOf(cur)+1)%P.length;toast(`${nm(cur)} rolled ${n}${n===7?': move the robber!':''}`);break}
     case 'mtdemo':mtDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'mtset':{const X=MTX();X.set=+b.dataset.v;mtKeep();break}
     case 'mtst':{const X=MTX();X[k]=Math.max(5,Math.min(100,(+X[k]||0)+(+b.dataset.d)));mtKeep();break}
@@ -8999,6 +9009,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='6d8be3';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='261c60';</script>
 </body>
 </html>

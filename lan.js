@@ -66,10 +66,10 @@ function startHost(){if(hub&&hub.role==='host')return hub;stop();const st=Store(
       await peer.pc.setRemoteDescription({type:'answer',sdp:d.sdp});hub.pending=null;
       return new Promise((res,rej)=>{const t=setTimeout(()=>rej(new Error('The phones couldn’t reach each other. Make sure the other phone is on this phone’s hotspot (Wi-Fi on), then try again.')),15000);peer.onopen=()=>{clearTimeout(t);res()}})}};
   function wirePeer(peer){const {pc,dc}=peer;
-    dc.onopen=()=>{peer.open=true;peers.add(peer);peer.onopen&&peer.onopen();ping()};
+    dc.onopen=()=>{peer.open=true;peers.add(peer);(peer.q||[]).forEach(j=>{try{dc.send(j)}catch(x){}});peer.q=[];peer.onopen&&peer.onopen();ping()};
     const gone=()=>{if(!peers.has(peer))return;peers.delete(peer);peer.open=false;peer.subs.forEach(u=>{try{u()}catch(e){}});peer.subs.clear();ping('lost')};
     dc.onclose=gone;pc.onconnectionstatechange=()=>{if(['failed','closed','disconnected'].includes(pc.connectionState))gone()};
-    dc.onmessage=async e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}const send=o=>{try{dc.readyState==='open'&&dc.send(JSON.stringify(o))}catch(x){}};
+    dc.onmessage=async e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}const send=o=>{const j=JSON.stringify(o);try{if(dc.readyState==='open')dc.send(j);else (peer.q||(peer.q=[])).push(j)}catch(x){}};
       if(m.t==='hi'){peer.client=m.id;send({t:'hi',id:me,code:st.code()});return}
       const fb=hostFb(st,peer.client||'?');
       if(m.t==='req'){try{const v=m.op==='code'?st.code():await fb[m.op](...m.args);send({t:'res',id:m.id,ok:true,v})}catch(x){send({t:'res',id:m.id,ok:false,e:x.message,c:x.code||''})}return}
@@ -91,9 +91,9 @@ async function joinWith(text){const d=await unpack(text);if(d.type!=='offer')thr
     del:p=>call('del',[p]),list:p=>call('list',[p]),watchDoc:(p,cb)=>sub(p,cb,true),watch:(p,cb)=>sub(p,cb,false)};
   g.link=makeLink(fb,{local:true});g.code=()=>call('code',[]);
   g.connected=new Promise((res,rej)=>{const t=setTimeout(()=>rej(new Error('Couldn’t reach the host phone. Make sure this phone is on the host’s hotspot, then scan again.')),60000);
-    pc.ondatachannel=e=>{dc=e.channel;const hello=()=>{if(g.open)return;g.open=true;g.send({t:'hi',id:me})};dc.onopen=hello;if(dc.readyState==='open')hello();
+    pc.ondatachannel=e=>{dc=e.channel;let tries=0;const hello=()=>{g.open=true;if(g.hostCode!==undefined||tries++>20)return;try{g.send({t:'hi',id:me})}catch(x){}setTimeout(hello,700)};dc.onopen=()=>{if(!g.open)hello()};if(dc.readyState==='open'&&!g.open)hello();
       dc.onmessage=e2=>{let m;try{m=JSON.parse(e2.data)}catch(x){return}
-        if(m.t==='hi'){clearTimeout(t);g.hostCode=m.code;res(m.code);return}
+        if(m.t==='hi'){clearTimeout(t);if(g.hostCode===undefined){g.hostCode=m.code;res(m.code)}return}
         if(m.t==='res'){const w=waits.get(m.id);if(w){waits.delete(m.id);if(m.ok)w.res(m.v);else{const er=new Error(m.e);er.code=m.c;w.rej(er)}}return}
         if(m.t==='ev'){const cb=subs.get(m.sid);if(cb)cb(m.ch,m.first,m.all,false);return}
         if(m.t==='evd'){const cb=subs.get(m.sid);if(cb)cb(m.d,false)}};
