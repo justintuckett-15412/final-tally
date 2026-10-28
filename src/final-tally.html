@@ -1160,6 +1160,7 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .fcsum+.fcsum{border-top:1px solid var(--line);margin-top:6px;padding-top:6px}
 .fcoutp{padding:10px 12px;margin:8px 0}.fcgoout{border:2px solid #e0a91e;background:color-mix(in srgb,#e0a91e 12%,var(--bg));padding:10px 12px;margin:10px 0;text-align:center}.fcgoout .rlab{margin:4px 0 8px}
 .fcarr{margin:12px auto 0;max-width:420px}
+.kt-crowns .ktdeal,.kt-crowns .ktdeck{background:url(art/crowns-back.jpg) center/100% 100% no-repeat,#4b2c7a;border-color:#e7b423}
 </style>
 
 <div id="app"></div>
@@ -4613,7 +4614,7 @@ function ktTable(o){const P=o.P,n=P.length,v=Math.max(0,P.findIndex(p=>o.me&&p.i
     if(el!==null){const per=Math.max(1,Math.min(7,...P.map(q=>((g.h||{})[q.id]||[]).length||1))),step=(DLMS-520)/(per*n);
       for(let i=0;i<per;i++)P.forEach((q,k)=>{const {x,y}=pos(k);deal+=`<i class="ktdeal" style="--x:${50+x*(n>6?36:40)}%;--y:${50+y*41}%;--r:${(k*47+i*23)%40-20}deg;animation-delay:${Math.round((i*n+k)*step-el)}ms"></i>`});
       deal=`<i class="ktdeck" style="animation-delay:-${el}ms"></i>`+deal}}
-  return `<div class="kttable${o.faded&&!sweep?' faded':''}${n>6?' crowd':n>4?' many':''}${deal?' dealing':''}">${seats}<div class="ktpile">${deal?'':cards}${deal}</div>${o.center&&!deal?`<div class="ktcenter">${o.center}</div>`:''}${o.note||o.lead?`<div class="ktnote">${o.note||''}${o.lead?`<small class="ktleadn">▶ ${esc(nm(P.find(p=>p.id===o.lead)||{name:''}))} leads the first trick</small>`:''}</div>`:''}</div>`}
+  return `<div class="kttable${o.dealTag?' kt-'+o.dealTag:''}${o.faded&&!sweep?' faded':''}${n>6?' crowd':n>4?' many':''}${deal?' dealing':''}">${seats}<div class="ktpile">${deal?'':cards}${deal}</div>${o.center&&!deal?`<div class="ktcenter">${o.center}</div>`:''}${o.note||o.lead?`<div class="ktnote">${o.note||''}${o.lead?`<small class="ktleadn">▶ ${esc(nm(P.find(p=>p.id===o.lead)||{name:''}))} leads the first trick</small>`:''}</div>`:''}</div>`}
 const HTR='23456789TJQKA',HTSU={C:'♣',D:'♦',S:'♠',H:'♥'},HTSO='CDSH';
 const htRk=c=>HTR.indexOf(c[0]),htSu=c=>c[1],htLab=c=>(c[0]==='T'?'10':c[0])+HTSU[c[1]]+'︎';
 const htIsPt=c=>c[1]==='H'||c==='QS';
