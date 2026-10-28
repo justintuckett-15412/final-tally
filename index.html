@@ -853,6 +853,8 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .gpc b{font-size:clamp(16px,6vw,26px);line-height:1}.gpgrid.mini .gpc b{font-size:12px}.gpc small{position:absolute;right:4px;bottom:2px;font-size:10px;font-weight:700;opacity:.7}.gpgrid.mini .gpc small,.gpgrid.mini .gpc i{display:none}
 .gpc i{position:absolute;left:5px;top:3px;font-style:normal;font-size:12px}.gpgf.red{color:#c0392b}.gpjk b{font-size:22px}
 .gpback{background:repeating-linear-gradient(45deg,#2b3a55 0 6px,#33476a 6px 12px);border-color:#f0b43a}.gpempty{border-style:dashed;background:none}
+@keyframes gpdeal{0%{opacity:0;transform:translateY(-70px) rotate(-25deg) scale(.4)}60%{opacity:1}100%{opacity:1;transform:none}}
+.gpc.gpdeal{animation:gpdeal .45s ease-out both}@media (prefers-reduced-motion:reduce){.gpc.gpdeal{animation-duration:.01s}}
 .gpgone{border-style:dashed;opacity:.35;background:none}
 .sk-dk{background:#5b5fd6;color:#fff;border-color:#3b3fa8}.sk-lb{background:#7cc6ea;color:#123;border-color:#1d8fc9}.sk-gr{background:#7fcf8a;color:#123;border-color:#2e8b3d}.sk-yl{background:#f3d76a;color:#3a2c00;border-color:#b98a00}.sk-rd{background:#ee8a7c;color:#3a0b05;border-color:#c0392b}
 .gpgrid{display:grid;gap:6px;width:100%}.gpgrid.mini{gap:3px}.gpgrid.mini .gpc{border-radius:5px;border-width:1.5px}
@@ -864,6 +866,13 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .gppiles{display:flex;justify-content:center;align-items:flex-end;gap:16px;margin:12px 0}.gppile,.gphold{background:none;border:0;padding:0;display:grid;justify-items:center;gap:4px;width:72px}.gppile small,.gphold small{font-size:11.5px;color:var(--muted);font-weight:700}
 .gppile.go .gpc{outline:3px solid var(--accent);outline-offset:2px}.gphold .gpc{transform:translateY(-6px) rotate(-4deg);box-shadow:0 6px 14px rgba(0,0,0,.25)}
 .sharesheet{text-align:center}.shareqr{display:grid;place-items:center;margin:10px auto}.shareqr svg{width:min(240px,70vw);height:auto;border-radius:12px;box-shadow:0 0 0 1px var(--line)}.shareurl{margin:4px 0 8px;word-break:break-all}.sharesheet .glossary{text-align:left;margin-top:12px}
+.lkreact{font-size:18px;padding:4px 10px}.rxpick{display:flex;justify-content:center;gap:6px;padding:6px 8px;margin:4px auto 0;max-width:420px;background:var(--bg);border:1.5px solid var(--line);border-radius:14px}
+.rxpick button{font-size:26px;background:none;border:0;padding:4px 6px;border-radius:10px}.rxpick button:active{background:var(--soft)}
+.rxlayer{position:fixed;left:0;right:0;top:72px;height:0;z-index:9000;pointer-events:none}
+.rxpop{position:absolute;transform:translateX(-50%);display:grid;justify-items:center;gap:2px;animation:rxpop 2.6s ease-out forwards}.rxpop b{font-size:56px;line-height:1;filter:drop-shadow(0 3px 6px rgba(0,0,0,.25))}
+.rxpop small{font-weight:800;font-size:13px;background:var(--pc);color:#fff;border-radius:999px;padding:2px 10px;text-shadow:0 1px 1px rgba(0,0,0,.3)}
+@keyframes rxpop{0%{opacity:0;transform:translate(-50%,30px) scale(.4)}12%{opacity:1;transform:translate(-50%,0) scale(1.15)}22%{transform:translate(-50%,0) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-50px) scale(.9)}}
+@media (prefers-reduced-motion:reduce){.rxpop{animation:rxfade 2.6s linear forwards}@keyframes rxfade{0%,75%{opacity:1}100%{opacity:0}}}
 .unorow{display:flex;justify-content:center;margin:8px 0 0}.unobtn{font-size:22px;font-weight:900;letter-spacing:.04em;padding:10px 26px;background:#d23a2f;color:#fff;border-color:#a12a21}
 .uncatchbtn{background:#d23a2f!important;border-color:#a12a21!important;color:#fff!important}
 .ktseat.uncatch{border-color:#d23a2f!important;box-shadow:0 0 0 3px rgba(210,58,47,.35)}
@@ -1392,7 +1401,7 @@ const padSC=()=>Math.max(1,Math.round(Math.max(1,...act().map(p=>Math.abs(total(
 const LOW=()=>S.game==='phase10'||S.game==='mextrain'||S.game==='uno'&&UNX().mode==='low'||S.game==='golf'||S.game==='skyjo'||S.game==='gnome'&&!gnRW()||S.game==='hearts'||S.game==='crowns'||S.game==='pad'&&!!(S.px||{}).low,RS=p=>S.game==='darts'?dRankKey(p):S.game==='phase10'?ptKey(p):LOW()?-total(p):total(p),RU=(n,p)=>LOW()?-upto(n,p):upto(n,p);
 const total=p=>S.game==='carc'?cTot(p):HFE()?hfTot(p):S.game==='nerts'?nxTot(p):S.game==='pad'?pxTot(p):S.game==='darts'?dTot(p):S.game==='pool'?plTot(p):S.game==='hearts'?htTot(p):S.game==='spades'?sdTot(p):S.game==='rage'?rgTot(p):S.game==='ohell'?ohTot(p):S.game==='uno'?unTot(p):S.game==='munchkin'?mkTot(p):S.game==='crowns'?fcTot(p):S.game==='skipbo'?sbTot(p):S.game==='gnome'?gnTot(p):S.game==='skyjo'?skTot(p):S.game==='wingspan'?wsTot(p):S.game==='wyrmspan'?wyTot(p):S.game==='phase10'?ptTot(p):S.game==='rook'?rkTot(p):S.game==='yahtzee'?yzTot(p):S.game==='mextrain'?mtTot(p):S.game==='catan'?ctTot(p):S.game==='golf'?gfTot(p):S.game==='tripoley'?tpTot(p):S.game==='quacks'?qkTot(p):hsPts(p)+routePts(p)+tkNet(p)+extrasPts(p)+bonusPts(p);
 
-function resetScores(){delete S.lkvote;delete S.ung;delete S.gpg;delete S.gpprev;delete S.rgrage;delete S.htg;delete S.sdg;delete S.ohg;delete S.rkg;delete S.rgg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
+function resetScores(){delete S.lkvote;delete S.ung;delete S.pst;delete S.lkq;delete S.lkqa;delete S.gpg;delete S.gpprev;delete S.rgrage;delete S.htg;delete S.sdg;delete S.ohg;delete S.rkg;delete S.rgg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
 let UNDO=[],KP='',RULESHEET=false;
 if(S.hideTotals===undefined)S.hideTotals=true;
 function setMap(k){
@@ -1997,7 +2006,8 @@ function lkIdleCheck(){if(!S.lk||S.demo||!S.lk.at||Date.now()-S.lk.at<LKIDLE)ret
   lkClear(host?`Linked game ${fmtCode(code)} sat idle for 12 hours, so it was unlinked. The game is still here on your phone.`:`Linked game ${fmtCode(code)} sat idle for 12 hours, so this phone left it.`);return true}
 setInterval(()=>{try{lkIdleCheck()}catch(e){}},10*60e3);
 const lkHost=()=>!!(S.lk&&S.lk.role==='host');
-function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK||LKSWAP)return;if(lkHost()&&LKRV&&S.started&&!S.finished){LKRV=null;window.FTLINK.reveal(false)}clearTimeout(LKT);LKT=setTimeout(()=>{if(!S.lk)return;const x=lkSplit(),u={};
+let LKT0=0;
+function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK||LKSWAP)return;if(lkHost()&&LKRV&&S.started&&!S.finished){LKRV=null;window.FTLINK.reveal(false)}if(LKT&&Date.now()-LKT0>300)return;clearTimeout(LKT);if(!LKT)LKT0=Date.now();LKT=setTimeout(()=>{LKT=null;if(!S.lk)return;const x=lkSplit(),u={};
   const old=LKLAST.m||{},sets=[],dels=[],keys=Object.keys(x.m);
   for(const p in x.m)if(x.m[p]!==old[p])sets.push(p);
   for(const p in old)if(!(p in x.m)&&!keys.some(q=>q.startsWith(p+LKSEP))&&!sets.some(q=>p.startsWith(q+LKSEP)))dels.push(p);
@@ -2080,7 +2090,7 @@ window.lkRecv=function(u){if(!S.lk)return;
   if(S.lk&&!S.lk.me)lkAutoSeat();
   lkTurnCheck();const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&!/^(checkbox|radio|button|range|file)$/.test(ae.type||'')&&ae.id!=='lk-code'){LKPEND=true;return}
   LKPEND=false;render()};
-function lkClear(msg){const was=lkGuest();clearTimeout(LKT);try{window.FTLINK&&window.FTLINK.leave()}catch(e){}if(window.FTLAN&&FTLAN.hub){try{FTLAN.stop()}catch(e){}}if(window.FTLINK_NET||window.FTLAN)window.FTLINK=window.FTLINK_NET;LANLOST=false;LANUI=null;lanCam(false);LKLAST={m:null,order:null,ps:{},items:{}};LKSEATS={};LKRD=0;LKFREE=null;LKRV=null;LKOPEN=false;LKSTOP=false;
+function lkClear(msg){const was=lkGuest();clearTimeout(LKT);LKT=null;try{window.FTLINK&&window.FTLINK.leave()}catch(e){}if(window.FTLAN&&FTLAN.hub){try{FTLAN.stop()}catch(e){}}if(window.FTLINK_NET||window.FTLAN)window.FTLINK=window.FTLINK_NET;LANLOST=false;LANUI=null;lanCam(false);LKLAST={m:null,order:null,ps:{},items:{}};LKSEATS={};LKRD=0;LKFREE=null;LKRV=null;LKOPEN=false;LKSTOP=false;
   if(was){try{localStorage.removeItem(KEY+'.linked');localStorage.removeItem(KEY+'.lkon')}catch(e){}const n=load();S=n||S;if(!n){delete S.lk}S.screen='home'}
   else{delete S.lk;save()}
   if(msg)toast(msg);window.scrollTo(0,0);render()}
@@ -2153,7 +2163,7 @@ function waitLoader(msg){const [set,def]=wlPieces(S.game),dice=set.every(x=>x.in
 function lkWaitScreen(){return `<div class="bar"><h1>Linked game</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>${LKSW?'Next game coming up':'Waiting for the host'}</h2><p>${LKSW?'The host is setting up the next game. This phone joins it by itself, no scanning needed.':S.lk&&S.lk.me?`You’re <b>${esc(nm(act().find(p=>p.id===S.lk.me)||{name:''}))}</b>. The host is still choosing the game and rules. Play opens here as soon as they start.`:'The host is still choosing the game and rules. Play opens here as soon as they start.'}</p>${waitLoader('*')}</div>`}
 function lkBar(){if(!S.lk||S.demo||['lkwho','home'].includes(S.screen))return '';const seat=lkSeated(),n=lkReadyN(),mine=lkMine(),me=S.lk.me&&act().find(p=>p.id===S.lk.me);
   const head=`<div class="lkbar${LKOPEN?' open':''}"><button class="lkb-main" data-a="lkopen" aria-expanded="${LKOPEN}"><span class="lkb-code">📱 <b class="num">${fmtCode(S.lk.code)}</b></span><span class="lkb-st">${lanOn()?(lkHost()?`✈️ ${lanN()} phone${lanN()===1?'':'s'} · `:LANLOST?'⚠️ Lost the host · ':'✈️ '):''}${S.lklock?'🔒 ':''}${S.finished?'Revealed':seat.length?`${n}/${seat.length} done`:'No phones joined yet'}${me?' · '+esc(nm(me)):lkHost()?' · Host':''}</span><span class="chev">${LKOPEN?'▴':'▾'}</span></button>
-    ${me&&S.started&&!S.finished?`<button class="btn sm${lkOk(mine)?'':' primary'}" data-a="lkready" data-k="${lkOk(mine)?'0':'1'}">${lkOk(mine)?'Not done':'I’m done'}</button>`:''}</div>`;
+    ${me&&!me.bot?`<button class="btn sm lkreact" data-a="rxopen" aria-expanded="${RXOPEN}" aria-label="Send a reaction">${RXOPEN?'✕':'😀'}</button>`:''}${me&&S.started&&!S.finished?`<button class="btn sm${lkOk(mine)?'':' primary'}" data-a="lkready" data-k="${lkOk(mine)?'0':'1'}">${lkOk(mine)?'Not done':'I’m done'}</button>`:''}</div>${RXOPEN&&me?`<div class="rxpick" role="group" aria-label="Reactions">${RXE.map(e=>`<button data-a="rxsend" data-k="${e}" aria-label="Send ${e}">${e}</button>`).join('')}</div>`:''}${rxLayer()}`;
   const dmine=me&&dashOn()?dashStrip(me):'';
   if(!LKOPEN)return head+dmine;
   const P=act();
@@ -4548,6 +4558,13 @@ function shareSheet(){if(!SHAREQR)return '';return `<div class="sheet-bg" data-a
   <p class="rlab">Point a phone’s camera at this code to open the app.</p><div class="shareqr">${SHAREQR.svg||(window.FTLAN?waitLoader('*'):'<p class="hint">The QR code needs the app to finish loading. Here’s the link instead.</p>')}</div>
   <p class="shareurl"><b>${esc(APPURL.replace('https://',''))}</b></p><div class="sheet-btns"><button class="btn" data-a="sharecopy">Copy the link</button>${navigator.share?'<button class="btn primary" data-a="sharesend">Send it…</button>':''}</div>
   <dl class="glossary"><dt>iPhone or iPad</dt><dd>Open it in Safari, tap Share, then <b>Add to Home Screen</b>.</dd><dt>Android</dt><dd>Open it in Chrome, tap ⋮, then <b>Install app</b> (or Add to Home screen).</dd><dt>Laptop</dt><dd>In Chrome or Edge, click the install icon in the address bar.</dd></dl></div></div>`}
+/* reactions on linked phones: S.react = {pid:{e,k}}; each phone pops the newest one up for a couple of seconds */
+const RXE=['😂','😱','🎉','👏','😡','🤞'],RXSEEN={},RXMS=2600;let RXOPEN=false,RXCOOL=0;const RXT0=Date.now();
+function rxLayer(){const R=S.react||{},out=[];for(const pid in R){const x=R[pid];if(!x)continue;let sn=RXSEEN[pid];if(!sn){sn=RXSEEN[pid]={k:Date.now()-RXT0>4000?null:x.k,at:0}}
+    if(x.k!==sn.k){sn.k=x.k;sn.at=Date.now();setTimeout(render,RXMS+60);if(!(S.lk&&S.lk.me===pid))vibe(15)}const el=Date.now()-sn.at;
+    if(sn.at&&el<RXMS){const p=act().find(q=>q.id===pid);if(p)out.push(`<div class="rxpop" style="${pc(p.color)};animation-delay:-${el}ms;left:${18+(out.length*27)%64}%"><b>${esc(x.e)}</b><small>${esc(nm(p))}</small></div>`)}}
+  return out.length?`<div class="rxlayer" aria-live="polite">${out.join('')}</div>`:''}
+function rxSend(e){const me=S.lk&&S.lk.me;if(!me||!RXE.includes(e))return;if(Date.now()<RXCOOL){toast('One at a time!');return}RXCOOL=Date.now()+1500;const cur=(S.react||{})[me];S.react={...(S.react||{}),[me]:{e,k:((cur&&cur.k)||0)+1}};RXOPEN=false;vibe(20)}
 const KTSW={},KTMS=750;
 /* dealing: card backs fly from the middle to each seat when a new hand is dealt (each phone plays it once) */
 const DLS={},DLMS=1500;
@@ -5276,7 +5293,7 @@ function rgAwards(){const P=act(),out=[],add=(title,f,min,why)=>{const vals=P.ma
   add('Fortune teller',rgHits,3,v=>`made ${v} bids`);
   add('Bonus magnet',p=>rgRows(p).reduce((a,x)=>a+x.c.bo,0),2,v=>`won ${v} Bonus Rage cards`);
   add('Trick hog',p=>rgRows(p).reduce((a,x)=>a+x.c.t,0),12,v=>`took ${v} tricks`);
-  add('Moon shooter',p=>rgRows(p).filter(x=>x.c.sw).length,1,v=>`shot the moon ${v===1?'once':v+' times'}`);return out}
+  add('Moon shooter',p=>rgRows(p).filter(x=>x.c.sw).length,1,v=>`shot the moon ${v===1?'once':v+' times'}`);add('Hothead',p=>(S.rgrage||{})[p.id]||0,3,v=>`hit the Rage button ${v} times`);return out}
 function rgRevSteps(){return Array.from({length:rgPlayed()},(_,r)=>({name:rgFore(r)?'Forehead round':`Round ${r+1}`,f:p=>rgHand(p,r)}))}
 function rgResults(){const rk=ranking();
   return `<div class="bar"><button class="back" data-a="go" data-s="score">‹ Score sheet</button><h1>Results</h1></div>
@@ -5819,7 +5836,10 @@ function skResults(){const rk=ranking();
   ${awardsHtml()}${photoBlock()}
   <div class="actions"><div class="in">${S.demo?'<button class="btn" data-a="revstart">Watch the reveal again</button><button class="btn primary" data-a="demoexit">Exit sample</button>':'<button class="btn primary" data-a="rematch">Rematch, same players</button>'}</div></div>`}
 function skGuide(){const X=SKX();
-  return guideSheet('Skyjo',[
+  return guideSheet('Skyjo',[X.play?['On the phone',[['Your turn','Tap the deck to draw, or tap the discard pile to take its top card. Then tap one of your cards to swap it in; the old card goes on the discard pile.'],
+      ['Don’t want it?',`If you drew from the deck, tap the discard pile to toss the card${true?', then tap one of your face-down cards to flip it':''}. A card taken from the discard pile has to go in your grid.`],
+      ['Ending','When someone has every card face up, everyone else gets one more turn. Then all cards turn over and the phone scores it with the rules above.'],
+      ['Computer players','Easy, Normal and Hard. They only know what you could see: face-up cards and the discard pile.']]]:null,
     ['Setup',[['Cards','150 cards numbered −2 to 12.'],['The deal','Deal 12 cards face down to each player. Lay them out in 4 columns of 3, then flip any 2 face up.'],
       ['Piles','The rest is the draw pile. Flip one card to start the discard pile.'],['Who starts','Whoever’s two face-up cards add up highest goes first. After that, whoever ended the last round starts.']]],
     ['On your turn',[['Take the discard','Swap it for any card in your grid, face up or face down. The swapped-out card goes on the discard pile face up.'],
@@ -7032,7 +7052,10 @@ function gfResults(){const rk=ranking();
   ${awardsHtml()}${photoBlock()}
   <div class="actions"><div class="in">${S.demo?'<button class="btn" data-a="revstart">Watch the reveal again</button><button class="btn primary" data-a="demoexit">Exit sample</button>':'<button class="btn primary" data-a="rematch">Rematch, same players</button>'}</div></div>`}
 function gfGuide(){const X=GFX(),n=act().length,{rows,cols}=gfShape(),decks=n*X.size+10>52+(X.jokers?2:0)?2:1;
-  return guideSheet('Golf',[
+  return guideSheet('Golf',[X.play?['On the phone',[['Your turn','Tap the deck to draw, or tap the discard pile to take its top card. Then tap one of your cards to swap it in; the old card goes on the discard pile.'],
+      ['Don’t want it?',`If you drew from the deck, tap the discard pile to toss the card${X.flipDisc?', then tap one of your face-down cards to flip it':''}. A card taken from the discard pile has to go in your grid.`],
+      ['Ending','When someone has every card face up, everyone else gets one more turn. Then all cards turn over and the phone scores it with the rules above.'],
+      ['Computer players','Easy, Normal and Hard. They only know what you could see: face-up cards and the discard pile.']]]:null,
     ['Setup',[['Cards',`${decks===2?'Two standard decks shuffled together':'One standard deck'}${X.jokers?', jokers in':', no jokers'}. ${decks===2?`With ${n} players you need the second deck.`:'Add a second deck for 5 or more players.'}`],
       ['The deal',`Deal ${X.size} cards face down to each player. Lay them out in ${rows} rows of ${cols}, then flip ${X.size===9?3:2} face up.`],
       ['Piles','The rest is the draw pile. Flip one card to start the discard pile.']]],
@@ -7809,7 +7832,11 @@ function unAwards(){const P=act(),out=[],add=(title,f,min,why)=>{const vals=P.ma
   add('Quick draw',unWins,2,v=>`went out ${v} times`);
   if(UNX().mode==='take')add('Big haul',p=>Math.max(0,...unRows(p).map(x=>x.v)),100,v=>`scored ${v} in one hand`);
   add('Card hoarder',p=>Math.max(0,...unRows(p).filter(x=>!x.won).map(x=>x.left)),80,v=>`got caught holding ${v} points`);
-  if(unV().ko)add('Mercy!',p=>unRows(p).filter(x=>x.ko).length,1,v=>`knocked out ${v===1?'once':v+' times'}`);return out}
+  if(unV().ko)add('Mercy!',p=>unRows(p).filter(x=>x.ko).length,1,v=>`knocked out ${v===1?'once':v+' times'}`);
+  if(UNX().play){const w=unCallWord(UNX());add('Caught napping',p=>pstv('caught',p),1,v=>`got caught without ${w==='DOS'?'a DOS':'an UNO'} ${v===1?'once':v+' times'}`);add('Eagle eye',p=>pstv('catches',p),2,v=>`caught ${v} people`);
+    add('Pile-up',p=>pstv('pile',p),6,v=>`took ${v} cards at once`);add('Called it',p=>pstv('chalwin',p),1,v=>`won ${v===1?'a challenge':v+' challenges'}`);
+    add('Launcher magnet',p=>pstv('launch',p),15,v=>`got ${v} cards from the launcher`);add('Color matcher',p=>pstv('colm',p),4,v=>`made ${v} color matches`)}
+  return out}
 function unRevSteps(){return Array.from({length:unPlayed()},(_,r)=>({name:`Hand ${r+1}`,f:p=>unHand(p,r)}))}
 function unResults(){const rk=ranking();
   return `<div class="bar"><button class="back" data-a="go" data-s="score">‹ Score sheet</button><h1>Results</h1></div>
@@ -7828,6 +7855,9 @@ function unGuide(){const X=UNX(),v=unV();const vals=(list,side)=>list.map(([id,l
       X.ver==='flip'?['Flip','The discard pile and draw pile turn over and every hand flips. The bottom card of the discard pile comes up on its other side. If that’s a Wild, the next player can play any card.']:null,
       X.ver==='classic'?['Wild Customizable','Plays as a plain Wild on the phone.']:null,
       X.ver==='attack'?['The launcher','The phone plays the card launcher: each press shoots out a random number of cards, often none, sometimes a bunch. When you can’t play, press it once and your turn is over, even if what comes out could be played.']:null,
+      X.ver==='attack'?['Attack cards','Hit 2: the next player presses twice. Wild Hit-Fire: the next player keeps pressing until cards come out. Wild All Hit: everyone else presses once. Trade Hands: pick someone to swap with. Discard All: the rest of that color in your hand goes too.']:null,
+      X.ver==='allwild'?['All Wild cards','Wild Skip Two skips the next two players. Wild Targeted Draw Two: pick who draws 2 (they still play). Wild Forced Swap: pick someone and swap hands. Draw cards stack only if Stacking is on.']:null,
+      X.ver==='dos'?['DOS scoring','Whoever goes out scores the cards left in everyone else’s hands: number cards at face value, Wild DOS 20, Wild # 40.']:null,
       X.ver==='allwild'?['All Wild','Every card can be played on anything, and nobody picks a color. The first card’s action doesn’t count. Wild Forced Swap as your last card hands your empty hand to someone else, and they win.']:null,
       X.ver==='dos'?['DOS on the phone','Pick 1 card (same number) or 2 cards (that add up), then tap the center card. Each Color Match lets you add a card to the center row at the end of your turn; each Double Color Match also makes everyone else draw 1. No match after drawing? Add a card to the center row.']:null,
       X.ver==='nomercy'?['Mercy rule','Reach 25 cards and you’re out of the hand. If everyone else is knocked out, the last player standing wins it.']:null]]:null,
@@ -7855,6 +7885,9 @@ function unDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
             pend:{n,v,by,ch:{guilty,prev}|null, wc}|null (a draw waiting on the next player), drawn:{p,c}|null (drew a playable card),
             ask:{p,t:'swap'|'roul'}|null, uno:{pid:1} (called UNO), catch:{p,id}|null (forgot to call: catchable),
             ko:{pid:1} (No Mercy knockouts), shout:{p,k}, msg, n (play counter), phase:'play'|'done', win} */
+/* play-mode stats for the end-of-game awards: S.pst = {stat:{pid:n}} */
+function pst(k,pid,n=1,max){if(!pid||S.demo)return;S.pst=S.pst||{};const o=S.pst[k]=S.pst[k]||{};o[pid]=max?Math.max(o[pid]||0,n):(o[pid]||0)+n}
+const pstv=(k,p)=>((S.pst||{})[k]||{})[p.id]||0;
 const UNBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Card Bot'],hard:['Hard','Wild Bot']};
 const UNPV=['classic','flip','nomercy','allwild','attack','dos'];
 const unPlayOn=()=>!!UNX().play;
@@ -7919,7 +7952,7 @@ function unPull(g){if(!g.deck.length){if(g.disc.length<2)return null;const top=g
 function unMercy(g,pid){if(!unNM(g)||g.ko[pid]||(g.h[pid]||[]).length<25)return;g.ko[pid]=1;g.deck.unshift(...g.h[pid]);g.h[pid]=[];delete g.uno[pid];if(g.catch&&g.catch.p===pid)g.catch=null;g.msg+=` 💀 ${nmid(pid)} has 25 cards and is knocked out by the Mercy rule!`}
 function unGive(g,pid,n){let got=0;for(let i=0;i<n;i++){const c=unPull(g);if(!c)break;g.h[pid].push(c);got++;if(unNM(g)&&g.h[pid].length>=25)break}if(g.h[pid].length>(g.ver==='dos'?2:1))delete g.uno[pid];return got}
 function unLaunch(g,pid){const r=Math.random(),left=g.deck.length+Math.max(0,g.disc.length-1);let n=r<.5?0:r<.75?1:r<.87?2+Math.floor(Math.random()*2):r<.95?4+Math.floor(Math.random()*3):7+Math.floor(Math.random()*5);n=Math.min(n,left);
-  const got=unGive(g,pid,n);g.shout={p:pid,k:(g.shout?g.shout.k:0)+1,t:got?`💥 +${got}`:'💨 0'};if(S.lk&&S.lk.me===pid||!S.lk&&!act().find(p=>p.id===pid).bot)vibe(got?[40,30,80]:20);return got}
+  const got=unGive(g,pid,n);pst('launch',pid,got);g.shout={p:pid,k:(g.shout?g.shout.k:0)+1,t:got?`💥 +${got}`:'💨 0'};if(S.lk&&S.lk.me===pid||!S.lk&&!act().find(p=>p.id===pid).bot)vibe(got?[40,30,80]:20);return got}
 function unGiveUntil(g,pid,col){let n=0;for(;;){const c=unPull(g);if(!c)break;g.h[pid].push(c);n++;if(unFace(g,c).col===col)break;if(unNM(g)&&g.h[pid].length>=25)break}if(g.h[pid].length>1)delete g.uno[pid];return n}
 
 /* ---------------- what can be played ---------------- */
@@ -7971,10 +8004,10 @@ function unPlayCard(pid,c,o={}){const g=ung();if(!g||g.phase!=='play')return fal
 /* a draw nobody can answer is taken right away */
 function unAuto(g){const p=g.pend;if(!p||p.ch)return;const v=g.turn;if(!p.wc&&unStackOn(g)&&(g.h[v]||[]).some(c=>(UNDRAW[unFace(g,c).k]||0)>=p.v))return;unResolvePend(g,v)}
 function unResolvePend(g,v){const p=g.pend;if(!p)return;if(g.catch&&g.catch.p!==v)g.catch=null;
-  if(p.wc){const n=unGiveUntil(g,v,p.wc);g.msg+=` ${nmid(v)} draws ${n} looking for ${UNCOL[p.wc][0].toLowerCase()} and loses the turn.`}else{unGive(g,v,p.n);g.msg+=` ${nmid(v)} draws ${p.n} and loses the turn.`}
+  if(p.wc){const n=unGiveUntil(g,v,p.wc);pst('pile',v,n,true);g.msg+=` ${nmid(v)} draws ${n} looking for ${UNCOL[p.wc][0].toLowerCase()} and loses the turn.`}else{unGive(g,v,p.n);pst('pile',v,p.n,true);g.msg+=` ${nmid(v)} draws ${p.n} and loses the turn.`}
   g.pend=null;g.turn=unNext(g,v)}
 function unChallenge(g,v){const p=g.pend;if(!p||!p.ch||g.turn!==v)return false;const by=p.by;if(g.catch&&g.catch.p!==v)g.catch=null;
-  if(p.ch.guilty){const n=p.wc?unGiveUntil(g,by,p.wc):(unGive(g,by,p.n),p.n);g.msg=`${nmid(v)} challenged and was right: ${nmid(by)} had a ${UNCOL[p.ch.prev][0].toLowerCase()} card and draws ${n}. ${nmid(v)} plays on.`;g.pend=null}
+  if(p.ch.guilty){pst('chalwin',v);const n=p.wc?unGiveUntil(g,by,p.wc):(unGive(g,by,p.n),p.n);g.msg=`${nmid(v)} challenged and was right: ${nmid(by)} had a ${UNCOL[p.ch.prev][0].toLowerCase()} card and draws ${n}. ${nmid(v)} plays on.`;g.pend=null}
   else{const n=p.wc?unGiveUntil(g,v,p.wc)+unGive(g,v,2):(unGive(g,v,p.n+2),p.n+2);g.msg=`${nmid(v)} challenged, but ${nmid(by)} had no ${unColName(p.ch.prev).toLowerCase()} card. ${nmid(v)} draws ${n}.`;g.pend=null;g.turn=unNext(g,v)}
   return true}
 function unFlip(g){g.side=g.side==='D'?'L':'D';g.disc.reverse();g.deck.reverse();const top=g.disc[g.disc.length-1];top.w=null;g.col=unFace(g,top.c).col;
@@ -7998,7 +8031,7 @@ function unDrawAct(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||g.ask||g.drawn)
   g.turn=unNext(g,pid);return true}
 function unKeepAct(g,pid){if(!g||!g.drawn||g.drawn.p!==pid||unNM(g))return false;g.drawn=null;g.msg=`${nmid(pid)} kept the card.`;g.turn=unNext(g,pid);return true}
 function unCallUno(g,pid){const h=g.h[pid]||[];if(!unCallOn()||!h.length||h.length>(unDOS(g)?3:2)||g.uno[pid])return false;g.uno[pid]=1;if(g.catch&&g.catch.p===pid)g.catch=null;g.shout={p:pid,k:(g.shout?g.shout.k:0)+1,t:unCallWord(g)+'!'};return true}
-function unCatch(g,by,t){if(!g||!g.catch||g.catch.p!==t||g.phase!=='play')return false;g.catch=null;if(unAT(g)){const n=unLaunch(g,t)+unLaunch(g,t);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without an UNO! ${nmid(t)} presses the launcher twice: ${n} card${n===1?'':'s'}.`;return true}unGive(g,t,2);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without ${unDOS(g)?'a DOS':'an UNO'}! ${nmid(t)} draws 2.`;return true}
+function unCatch(g,by,t){if(!g||!g.catch||g.catch.p!==t||g.phase!=='play')return false;g.catch=null;pst('caught',t);pst('catches',by);if(unAT(g)){const n=unLaunch(g,t)+unLaunch(g,t);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without an UNO! ${nmid(t)} presses the launcher twice: ${n} card${n===1?'':'s'}.`;return true}unGive(g,t,2);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without ${unDOS(g)?'a DOS':'an UNO'}! ${nmid(t)} draws 2.`;return true}
 function unEnd(g,w){act().forEach(p=>{const R=unR(p,g.r),ko=!!g.ko[p.id];R.won=p.id===w;R.ko=ko;R.pv=p.id===w||ko?0:(g.h[p.id]||[]).reduce((a,c)=>a+unCardPts(g,c),0);R.v=R.pv;R.num=null;R.c={}});
   S.unside=S.unside||[];S.unside[g.r]=g.side==='D'?'dark':'light';g.phase='done';g.win=w;g.turn=null;g.pend=null;g.hit=null;g.ask=null;g.drawn=null;g.catch=null;
   g.msg+=` ${nmid(w)} ${unAlive(g).length===1&&(g.h[w]||[]).length?'is the last one standing and':''} wins the hand!`.replace('  ',' ');S.hr=Math.max(S.hr||0,g.r)}
@@ -8037,7 +8070,7 @@ function unActive(){const g=ung();if(!g||g.phase!=='play')return null;const q=ac
 function unViewer(){const g=ung();if(!g)return null;if(S.lk&&!S.demo)return unMe();const H=unHumans();if(H.length===1)return H[0];if(!H.length)return null;const a=unActive();return a&&UNVIEW===a.id?a:null}
 const unNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(unHumans().length<2)return null;const a=unActive();return a&&UNVIEW!==a.id?a:null};
 
-function unTick(){if(S.game!=='uno'||!unPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!unRes())return;
+function unTick(){if(S.game!=='uno'||!unPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!unRes())return;if(lkqRun()){save();render();return}
   const g=ung();if(!g||g.r!==unCur()&&g.phase!=='done'){unDeal(unCur());save();render();return}
   if(g.phase!=='play')return;const spd=htSpd();
   if(g.catch){const tgt=g.catch.p,key=g.r+':'+g.catch.id+':'+tgt;if(!UNCS[key]){UNCS[key]=1;const cs=unAlive(g).filter(p=>p.bot&&p.id!==tgt),pr=Math.max(0,...cs.map(p=>({easy:.25,normal:.55,hard:.85})[p.bot]));
@@ -8100,33 +8133,64 @@ function unPlay(){const X=UNX(),P=act(),g=ung(),r=unCur(),W=X.mode==='wins',low=
 function unModal(){const a=unNeedHandoff();if(!a)return '';const g=ung();return `<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="unp-h" style="${pc(a.color)}">
   <svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="unp-h">${esc(nm(a))}</h2>
   <p class="rlab">${g.ask?(g.ask.t==='swap'?'Pick who to swap hands with.':g.ask.t==='target'?'Pick who draws 2.':g.ask.t==='lay'?'Add cards to the center row.':'Color Roulette: name a color.'):g.hit?'Time to press the launcher.':g.pend?'A draw card is coming your way.':'It’s your turn.'} Everyone else, look away.</p><button class="btn primary wide" data-a="unpshow" data-k="${a.id}">I’m ${esc(nm(a))}, show my cards</button></div></div>`}
+/* ---------------- linked moves: a guest phone sends its move to the host, which applies them in order ----------------
+   S.lkq = {pid:[{id,k,f,a}]} written only by that player's phone; S.lkqa = {pid:last id applied} written only by the host.
+   The guest tries the move on a throwaway copy first, so it can say right away if the move isn't allowed. */
+let LKQN=0;
+const lkqOn=()=>lkGuest()&&!S.demo;
+const lkqKey=()=>{const g=S.game==='uno'?S.ung:S.gpg;return S.game+':'+(g?g.r:'-')};
+const LKQF={
+  unPlay:(pid,c,o)=>{const g=ung();if(!g)return false;if((g.h[pid]||[]).length===2&&!unCallOn())g.uno[pid]=1;const r=unPlayCard(pid,c,o);unAfter(g);return r},
+  unDraw:pid=>{const g=ung();if(!g)return false;const r=unDrawAct(g,pid);unAfter(g);return r},
+  unKeep:pid=>{const g=ung();if(!g)return false;const r=unKeepAct(g,pid);unAfter(g);return r},
+  unChal:pid=>{const g=ung();if(!g)return false;const r=unChallenge(g,pid);unAfter(g);return r},
+  unSwap:(pid,t)=>{const g=ung();if(!g||!(g.ask&&g.ask.t==='swap'&&g.ask.p===pid))return false;const r=unSwap(g,pid,t);unAfter(g);return r},
+  unAim:(pid,t)=>{const g=ung();if(!g||!(g.ask&&g.ask.t==='target'&&g.ask.p===pid))return false;const r=unAim(g,pid,t);unAfter(g);return r},
+  unRoul:(pid,c)=>{const g=ung();if(!g)return false;const r=unRoul(g,pid,c);unAfter(g);return r},
+  unUno:pid=>{const g=ung();return !!g&&unCallUno(g,pid)},
+  unCatch:(by,t)=>{const g=ung();if(!g)return false;const r=unCatch(g,by,t);if(r)unAfter(g);return r},
+  dosDraw:pid=>{const g=ung();if(!g)return false;const r=dosDraw(g,pid);unAfter(g);return r},
+  dosEnd:pid=>{const g=ung();if(!g)return false;const r=dosEnd(g,pid);unAfter(g);return r},
+  dosMatch:(pid,cs,i)=>{const g=ung();if(!g)return false;const r=dosMatch(g,pid,cs,i);if(r===true)unAfter(g);return r},
+  dosLay:(pid,c)=>{const g=ung();if(!g)return false;const r=dosLay(g,pid,c);unAfter(g);return r},
+  gpFlipStart:(pid,i)=>{const g=gpG();return !!g&&gpFlipStart(g,pid,i)},
+  gpFlipOne:(pid,i)=>{const g=gpG();return !!g&&gpFlipOne(g,pid,i)},
+  gpPlace:(pid,i)=>{const g=gpG();return !!g&&gpPlace(g,pid,i)},
+  gpTake:(pid,f)=>{const g=gpG();return !!g&&gpTake(g,pid,f)},
+  gpToss:pid=>{const g=gpG();return !!g&&gpToss(g,pid)}};
+function lkq(fn,...args){if(!lkqOn())return LKQF[fn](...args);const snap=JSON.stringify(S);let r;try{r=LKQF[fn](...args)}catch(e){r=false}S=JSON.parse(snap);
+  if(r===true){const me=S.lk.me;if(!me)return r;const q=(S.lkq=S.lkq||{}),done=(S.lkqa||{})[me]||0,mine=(q[me]||[]).filter(e=>e.id>done);mine.push({id:Date.now()*1000+(LKQN++%1000),k:lkqKey(),f:fn,a:args});q[me]=mine}
+  return r}
+function lkqRun(){if(!lkHost()||S.demo||!S.lkq)return false;let did=false;S.lkqa=S.lkqa||{};const key=lkqKey();
+  const all=[];for(const pid in S.lkq)(S.lkq[pid]||[]).forEach(e=>{if(e&&e.id>(S.lkqa[pid]||0))all.push({pid,e})});all.sort((x,y)=>x.e.id-y.e.id);
+  for(const {pid,e} of all){if(e.k===key&&LKQF[e.f]){try{LKQF[e.f](...e.a)}catch(err){console.warn('lkq',err)}}S.lkqa[pid]=Math.max(S.lkqa[pid]||0,e.id);did=true}return did}
+const lkqWaiting=()=>lkqOn()&&S.lk.me&&((S.lkq||{})[S.lk.me]||[]).some(e=>e.id>((S.lkqa||{})[S.lk.me]||0));
 function unAct(a,b,k){const g=ung();if(!g)return;
   if(a==='unpshow'){UNVIEW=k;UNSEL=null;return}
   if(a==='unpdeal'){if(!unRes()||g.phase!=='done')return;S.hr=unCur()+1;unDeal(S.hr);window.scrollTo(0,0);return}
   const V=unViewer();
-  if(a==='unpcatch'){const by=(V||unMe()||{}).id||null;if(unCatch(g,by,k)){vibe(30);unAfter(g)}else toast('Too late, they’re safe.');return}
+  if(a==='unpcatch'){const by=(V||unMe()||{}).id||null;if(lkq('unCatch',by,k))vibe(30);else toast('Too late, they’re safe.');return}
   if(!V)return;
-  if(a==='unpuno'){if(unCallUno(g,V.id))vibe([30,40,30]);return}
+  if(a==='unpuno'){if(lkq('unUno',V.id))vibe([30,40,30]);return}
   if(unDOS(g)){
-    if(a==='unpdraw'){if(!dosDraw(g,V.id))toast(g.turn!==V.id?`It’s ${nmid(g.turn)}’s turn.`:'You can only draw before you match.');DOSSEL=[];unAfter(g);return}
-    if(a==='unpend'){const r=dosEnd(g,V.id);if(r==='draw')toast('Match something or draw a card first.');DOSSEL=[];unAfter(g);return}
-    if(a==='unprow'){if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}if(!DOSSEL.length){toast('Pick 1 or 2 cards from your hand first.');return}const i=+b.dataset.i,t=g.row[i],r=dosMatch(g,V.id,DOSSEL.slice(),i);
-      if(r===true){DOSSEL=[];vibe(20);unAfter(g)}else toast(r==='used'?'That center card is already matched this turn.':r==='nomatch'?(DOSSEL.length===1?`That isn’t a ${dosVals(t).length>2?'match':dosVals(t)[0]}.`:`Those don’t add up to ${dosVals(t).length>2?'1 to 10':dosVals(t)[0]}.`):'Hang on…');return}
-    if(a==='unpcard'){const c=b.dataset.c;if(g.ask&&g.ask.t==='lay'&&g.ask.p===V.id){dosLay(g,V.id,c);unAfter(g);return}if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}
+    if(a==='unpdraw'){if(!lkq('dosDraw',V.id))toast(g.turn!==V.id?`It’s ${nmid(g.turn)}’s turn.`:'You can only draw before you match.');DOSSEL=[];return}
+    if(a==='unpend'){const r=lkq('dosEnd',V.id);if(r==='draw')toast('Match something or draw a card first.');DOSSEL=[];return}
+    if(a==='unprow'){if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}if(!DOSSEL.length){toast('Pick 1 or 2 cards from your hand first.');return}const i=+b.dataset.i,t=g.row[i],r=lkq('dosMatch',V.id,DOSSEL.slice(),i);
+      if(r===true){DOSSEL=[];vibe(20)}else toast(r==='used'?'That center card is already matched this turn.':r==='nomatch'?(DOSSEL.length===1?`That isn’t a ${dosVals(t).length>2?'match':dosVals(t)[0]}.`:`Those don’t add up to ${dosVals(t).length>2?'1 to 10':dosVals(t)[0]}.`):'Hang on…');return}
+    if(a==='unpcard'){const c=b.dataset.c;if(g.ask&&g.ask.t==='lay'&&g.ask.p===V.id){lkq('dosLay',V.id,c);return}if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}
       if(DOSSEL.includes(c))DOSSEL=DOSSEL.filter(x=>x!==c);else{DOSSEL.push(c);if(DOSSEL.length>2)DOSSEL.shift()}return}}
-  if(a==='unpaim'){if(g.ask&&g.ask.t==='target'&&g.ask.p===V.id&&unAim(g,V.id,k))unAfter(g);return}
-  if(a==='unpdraw'){const r=unDrawAct(g,V.id);if(r==='force')toast('You have a card you can play.');else if(!r)toast(unWhyNot(g,V.id,''));UNSEL=null;unAfter(g);return}
-  if(a==='unpkeep'){unKeepAct(g,V.id);UNSEL=null;unAfter(g);return}
-  if(a==='unpchal'){if(unChallenge(g,V.id))unAfter(g);return}
-  if(a==='unpswap'){if(g.ask&&g.ask.t==='swap'&&g.ask.p===V.id&&unSwap(g,V.id,k))unAfter(g);return}
-  if(a==='unproul'){if(unRoul(g,V.id,k))unAfter(g);return}
-  if(a==='unpcol'){if(!UNSEL)return;const c=UNSEL;UNSEL=null;if(!unPlayCard(V.id,c,{col:k}))toast('You can’t play that now.');unAfter(g);return}
+  if(a==='unpaim'){lkq('unAim',V.id,k);return}
+  if(a==='unpdraw'){const r=lkq('unDraw',V.id);if(r==='force')toast('You have a card you can play.');else if(!r)toast(unWhyNot(g,V.id,''));UNSEL=null;return}
+  if(a==='unpkeep'){lkq('unKeep',V.id);UNSEL=null;return}
+  if(a==='unpchal'){lkq('unChal',V.id);return}
+  if(a==='unpswap'){lkq('unSwap',V.id,k);return}
+  if(a==='unproul'){lkq('unRoul',V.id,k);return}
+  if(a==='unpcol'){if(!UNSEL)return;const c=UNSEL;UNSEL=null;if(!lkq('unPlay',V.id,c,{col:k}))toast('You can’t play that now.');return}
   if(a==='unpcard'){const c=b.dataset.c,L=unLegal(g,V.id),J=unJumpable(g,V.id);
     if(!L.includes(c)&&!J.includes(c)){toast(unWhyNot(g,V.id,c));return}
     if(unFace(g,c).col===null&&!unAW(g)){UNSEL=c;return}
     if(UNSEL!==c){UNSEL=c;return}UNSEL=null;
-    if((g.h[V.id]||[]).length===2&&!unCallOn())g.uno[V.id]=1;
-    unPlayCard(V.id,c,{jump:!L.includes(c)});unAfter(g);return}}
+    lkq('unPlay',V.id,c,{jump:!L.includes(c)});return}}
 
 /* ---------------- DOS: match the center row by number, or with two cards that add up ----------------
    g.row = [card ids face up in the center]; g.m = this turn so far: {used:{rowIndex:[cards]}, made, bonus (color matches), dbl (double color matches), drew}
@@ -8141,7 +8205,7 @@ function dosDeal(r,dealer){const P=act();const g={_atom:1,r,ver:'dos',side:'L',h
   g.turn=unNext(g,dealer);g.msg=`${nmid(dealer)} dealt. ${nmid(g.turn)} goes first.`;S.ung=g;UNSEL=null;UNVIEW=null;DOSSEL=[]}
 function dosMatch(g,pid,cards,i){if(!g||g.phase!=='play'||g.turn!==pid||g.ask)return 'wait';const t=g.row[i];if(t===undefined)return 'gone';if(g.m.used[i])return 'used';
   const h=g.h[pid];if(!cards.every(c=>h.includes(c))||new Set(cards).size!==cards.length)return 'gone';const m=dosCheck(cards,t);if(!m)return 'nomatch';
-  if(g.catch&&g.catch.p!==pid)g.catch=null;cards.forEach(c=>h.splice(h.indexOf(c),1));g.m.used[i]=cards.slice();g.m.made++;if(m.col)g.m.bonus++;if(m.col&&m.dbl)g.m.dbl++;g.n++;
+  if(g.catch&&g.catch.p!==pid)g.catch=null;cards.forEach(c=>h.splice(h.indexOf(c),1));g.m.used[i]=cards.slice();g.m.made++;if(m.col){g.m.bonus++;pst('colm',pid)}if(m.col&&m.dbl)g.m.dbl++;g.n++;
   g.msg=`${nmid(pid)}: ${m.dbl?(m.col?'Double Color Match!':'Double Match'):m.col?'Color Match!':'Match'} on the ${dosName(t)}.`;
   if(!h.length)dosClose(g,pid);return true}
 const dosName=c=>{const f=unF(c);return f.k==='WD'?'Wild DOS':f.k==='WN'?`${UNCOL[f.col][0].toLowerCase()} Wild #`:`${UNCOL[f.col][0].toLowerCase()} ${f.k}`};
@@ -8260,7 +8324,7 @@ const gpWith=(cells,i,c)=>cells.map((x,j)=>j===i?{c,up:true,gone:false}:x);
 function gpBestPlace(g,pid,c){const cells=g.h[pid];let best=null;cells.forEach((x,i)=>{if(x.gone)return;const e=gpEval(g,gpWith(cells,i,c));if(!best||e<best.e)best={i,e}});return best}
 function gpOthersLow(g,pid){const avg=gpAvg(g);return Math.min(...act().filter(p=>p.id!==pid).map(p=>gpEval(g,g.h[p.id])))}
 const gpWouldEnd=(cells,i)=>cells.every((x,j)=>j===i||x.up||x.gone);
-function gpBotStep(g,q){const pid=q.id,lv=q.bot,cells=g.h[pid],noise=lv==='easy'?4:lv==='normal'?1:0,jit=()=>(Math.random()*2-1)*noise;
+function gpBotStep(g,q){const pid=q.id,lv=q.bot,cells=g.h[pid],noise=lv==='easy'?4:lv==='normal'?1:.3,jit=()=>(Math.random()*2-1)*noise;
   if(g.phase==='flip'){gpBotFlips(g,q);gpStartIfReady(g);return}
   if(g.turn!==pid)return;
   const now=gpEval(g,cells),downs=cells.map((x,i)=>i).filter(i=>!cells[i].up&&!cells[i].gone);
@@ -8285,7 +8349,7 @@ const gpMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
 const gpHumans=()=>act().filter(p=>!p.bot);
 function gpViewer(){const g=gpG();if(!g)return null;if(S.lk&&!S.demo)return gpMe();const H=gpHumans();if(!H.length)return null;if(H.length===1)return H[0];
   if(g.phase==='flip'){return H.find(p=>g.need[p.id]>0)||H[0]}const t=act().find(p=>p.id===g.turn);return t&&!t.bot?t:H.find(p=>p.id===GPVIEW)||H[0]}
-function gpTick(){if((S.game!=='golf'&&S.game!=='skyjo')||!gpOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!gpRes())return;
+function gpTick(){if((S.game!=='golf'&&S.game!=='skyjo')||!gpOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!gpRes())return;if(lkqRun()){save();render();return}
   const g=gpG(),cur=S.game==='golf'?gfCur():skCur();if(!g||g.game!==S.game||g.r!==cur&&g.phase!=='done'){gpDeal(cur);save();render();return}
   if(g.phase==='done')return;const actor=g.phase==='flip'?null:g.turn,q=act().find(p=>p.id===actor);
   if(q&&q.bot&&!GPBOTT)GPBOTT=setTimeout(()=>{GPBOTT=null;const g2=gpG();if(g2&&g2.phase==='play'&&g2.turn===q.id){gpBotStep(g2,q);save()}render()},(g.hold||g.flip?850:1000)*htSpd())}
@@ -8297,15 +8361,16 @@ function gpCardEl(g,c,o={}){if(!c)return `<span class="gpc gpempty"></span>`;
   if(gpSK(g)){const v=+gpRank(c);return `<${tag} class="gpc gpsk ${v<0?'sk-dk':v===0?'sk-lb':v<=4?'sk-gr':v<=8?'sk-yl':'sk-rd'}${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="${v}"><b>${v}</b></${tag}>`}
   const k=gpRk(c);if(k==='Jk')return `<${tag} class="gpc gpgf gpjk${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="Joker, ${gfVal('Jk')}"><b>🃏</b><small>${gfVal('Jk')}</small></${tag}>`;
   const s=gpRank(c).slice(-1),red=s==='H'||s==='D';return `<${tag} class="gpc gpgf${red?' red':''}${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="${gpName(g,c)} of ${{S:'spades',H:'hearts',D:'diamonds',C:'clubs'}[s]}, ${gfVal(k)} points"><b>${k}</b><i>${HTSU[s]}︎</i><small>${gfVal(k)}</small></${tag}>`}
-function gpGridEl(g,pid,o={}){const {cols}=gpShape(g),cells=g.h[pid],mine=o.mine;
+function gpGridEl(g,pid,o={}){const {cols}=gpShape(g),cells=g.h[pid],mine=o.mine,dl=o.deal,P=act(),k=P.findIndex(p=>p.id===pid),dly=i=>dl?` style="animation-delay:${Math.round((i*P.length+k)*(DLMS-550)/(cells.length*P.length)-dl.el)}ms"`:'';
   return `<div class="gpgrid${o.mini?' mini':''}" style="grid-template-columns:repeat(${cols},minmax(0,1fr));${o.mini?'':`max-width:${cols*86}px`}">${cells.map((x,i)=>{const nw=g.last&&g.last.p===pid&&g.last.i===i?' new':'';
     if(x.gone)return `<span class="gpc gpgone${nw}" aria-label="Cleared"></span>`;
-    const attr=mine?` data-a="gpcell" data-i="${i}"`:'';return gpCardEl(g,x.c,{down:!x.up,btn:!!mine,attr,cls:(o.pick&&o.pick(x,i)?'pick':'')+nw})}).join('')}</div>`}
+    const attr=(mine?` data-a="gpcell" data-i="${i}"`:'')+dly(i);return gpCardEl(g,x.c,{down:!x.up||!!dl,btn:!!mine,attr,cls:(o.pick&&o.pick(x,i)?'pick':'')+nw+(dl?' gpdeal':'')})}).join('')}</div>`}
 function gpPlay(){const P=act(),g=gpG(),SK=S.game==='skyjo',r=SK?skCur():gfCur(),tot=SK?skTot:gfTot,sc=P.map(tot),lo=Math.min(...sc),lead=(SK?skLast():gfLast())>=0&&sc.filter(v=>v===lo).length===1?P[sc.indexOf(lo)]:null,W=SK?'Round':'Hole';
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="${W} ${r+1}">${SK?'#':'⛳ '}${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&g.turn===q.id}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${g&&g.phase!=='done'?`showing ${gpSeen(g,q.id)}`:'total'}</div></button>`).join('')}</div>`;
   if(!g||g.game!==S.game)return out+`<div class="panel" style="padding:16px">${waitLoader(gpRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
   const V=gpViewer(),turnP=P.find(p=>p.id===g.turn),mine=V&&g.turn===V.id,hold=g.hold;let status='';
+  const dlEl=dealAnim('gp'+S.game,g,g.n===0&&g.phase==='flip'),deal=dlEl===null?null:{el:dlEl};
   if(g.phase==='flip')status=V&&g.need[V.id]>0?`<b>${S.lk||gpHumans().length<2?'Flip':esc(nm(V))+', flip'} ${g.need[V.id]} card${g.need[V.id]===1?'':'s'} face up.</b> Tap ${g.need[V.id]===1?'one':'them'} in your grid.`:`Waiting for ${P.filter(p=>g.need[p.id]>0).map(p=>esc(nm(p))).join(', ')} to flip…`;
   else if(g.phase==='done')status=`<b>${W} ${r+1} is over.</b>`;
   else if(mine&&g.flip===V.id)status='<b>Flip one of your face-down cards.</b>';
@@ -8315,7 +8380,7 @@ function gpPlay(){const P=act(),g=gpG(),SK=S.game==='skyjo',r=SK?skCur():gfCur()
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
   /* everyone else, small */
   const others=P.filter(p=>!V||p.id!==V.id);
-  out+=`<div class="gpothers">${others.map(p=>`<div class="gpo${g.turn===p.id?' now':''}${g.ender===p.id?' ender':''}" style="${pc(p.color)}"><div class="gpon"><b>${p.bot?'🤖 ':''}${esc(nm(p))}</b><span class="num">${g.phase==='done'?gpPts(g,p.id):gpSeen(g,p.id)}</span></div>${gpGridEl(g,p.id,{mini:true})}</div>`).join('')}</div>`;
+  out+=`<div class="gpothers">${others.map(p=>`<div class="gpo${g.turn===p.id?' now':''}${g.ender===p.id?' ender':''}" style="${pc(p.color)}"><div class="gpon"><b>${p.bot?'🤖 ':''}${esc(nm(p))}</b><span class="num">${g.phase==='done'?gpPts(g,p.id):gpSeen(g,p.id)}</span></div>${gpGridEl(g,p.id,{mini:true,deal})}</div>`).join('')}</div>`;
   /* the deck and the discard pile */
   if(g.phase!=='done'){const top=gpTop(g),canTake=mine&&!hold&&!g.flip&&g.phase==='play',canToss=mine&&hold&&hold.from==='deck';
     out+=`<div class="gppiles"><button class="gppile" data-a="gpdeck" ${canTake?'':'aria-disabled="true"'} aria-label="Draw from the deck, ${g.deck.length} left">${gpCardEl(g,'x',{down:true})}<small>Deck · ${g.deck.length}</small></button>
@@ -8323,7 +8388,7 @@ function gpPlay(){const P=act(),g=gpG(),SK=S.game==='skyjo',r=SK?skCur():gfCur()
       <button class="gppile${canTake||canToss?' go':''}" data-a="gpdisc" ${canTake&&top||canToss?'':'aria-disabled="true"'} aria-label="${canToss?'Discard your card':'Take the top discard'}">${gpCardEl(g,top)}<small>${canToss?'Toss it here':'Discard'}</small></button></div>`}
   /* my grid, big */
   if(V){const flipPick=g.phase==='flip'&&g.need[V.id]>0||g.flip===V.id,swap=mine&&hold;
-    out+=`<div class="gpme${g.turn===V.id?' now':''}" style="${pc(V.color)}"><div class="gpon"><b>${S.lk||gpHumans().length<2?'You':esc(nm(V))}</b><span class="num">${g.phase==='done'?gpPts(g,V.id)+' this '+W.toLowerCase():'showing '+gpSeen(g,V.id)}</span></div>${gpGridEl(g,V.id,{mine:flipPick||swap,pick:(x)=>flipPick?!x.up:swap})}</div>`}
+    out+=`<div class="gpme${g.turn===V.id?' now':''}" style="${pc(V.color)}"><div class="gpon"><b>${S.lk||gpHumans().length<2?'You':esc(nm(V))}</b><span class="num">${g.phase==='done'?gpPts(g,V.id)+' this '+W.toLowerCase():'showing '+gpSeen(g,V.id)}</span></div>${gpGridEl(g,V.id,{mine:!deal&&(flipPick||swap),pick:(x)=>!deal&&(flipPick?!x.up:swap),deal})}</div>`}
   if(g.phase==='done'){const over=SK?(SKX().end==='rounds'?r>=SKX().rounds-1:skOver()):(GFX().end==='rounds'?r>=GFX().holes-1:gfOver());
     const rows=P.map(q=>{const R=(SK?q.sk:q.gf||[])||[],b=SK?skBase(q,r):gfBase(q,r),pt=gpPts(g,q.id),d=SK?skDoubled(q,r):gfMissed(q,r);return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${g.ender===q.id?(d?(SK?'ended it, not lowest: doubled':(GFX().outRule==='double'?'went out, not lowest: doubled':`went out, not lowest: +${GFX().outP}`)):'went out first'):''}${b!==pt&&!d?'':''}</small></span><span class="num"><b>${pt}</b> · ${tot(q)}</span></div>`}).join('');
     out+=`<div class="panel htsum">${rows}</div><div class="actions"><div class="in">${over?(gpRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Game over! Waiting for the host…</span>`):gpRes()?`<button class="btn sm" data-a="finish">End game</button><button class="btn primary" data-a="gpdeal">Deal ${W.toLowerCase()} ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`}
@@ -8331,12 +8396,12 @@ function gpPlay(){const P=act(),g=gpG(),SK=S.game==='skyjo',r=SK?skCur():gfCur()
 function gpAct(a,b,k){const g=gpG();if(!g)return;const V=gpViewer();
   if(a==='gpdeal'){if(!gpRes()||g.phase!=='done')return;S.hr=(S.game==='golf'?gfCur():skCur())+1;gpDeal(S.hr);window.scrollTo(0,0);return}
   if(!V)return;
-  if(a==='gpcell'){const i=+b.dataset.i;if(g.phase==='flip'){if(!gpFlipStart(g,V.id,i))toast('Pick a face-down card.');return}
-    if(g.flip===V.id){if(!gpFlipOne(g,V.id,i))toast('Pick a face-down card.');else vibe(15);return}
-    if(g.hold&&g.hold.p===V.id){if(gpPlace(g,V.id,i))vibe(15);return}
+  if(a==='gpcell'){const i=+b.dataset.i;if(g.phase==='flip'){if(!lkq('gpFlipStart',V.id,i))toast('Pick a face-down card.');return}
+    if(g.flip===V.id){if(!lkq('gpFlipOne',V.id,i))toast('Pick a face-down card.');else vibe(15);return}
+    if(g.hold&&g.hold.p===V.id){if(lkq('gpPlace',V.id,i))vibe(15);return}
     toast(g.turn===V.id?'Take the discard or draw from the deck first.':`It’s ${nmid(g.turn)}’s turn.`);return}
-  if(a==='gpdeck'){if(!gpTake(g,V.id,'deck'))toast(g.turn!==V.id?`It’s ${nmid(g.turn)}’s turn.`:'Finish this move first.');return}
-  if(a==='gpdisc'){if(g.hold&&g.hold.p===V.id){if(!gpToss(g,V.id))toast('You took this card from the discard pile, so it has to go in your grid.');return}if(!gpTake(g,V.id,'disc'))toast(g.turn!==V.id?`It’s ${nmid(g.turn)}’s turn.`:'Finish this move first.');return}}
+  if(a==='gpdeck'){if(!lkq('gpTake',V.id,'deck'))toast(g.turn!==V.id?`It’s ${nmid(g.turn)}’s turn.`:'Finish this move first.');return}
+  if(a==='gpdisc'){if(g.hold&&g.hold.p===V.id){if(!lkq('gpToss',V.id))toast('You took this card from the discard pile, so it has to go in your grid.');return}if(!lkq('gpTake',V.id,'disc'))toast(g.turn!==V.id?`It’s ${nmid(g.turn)}’s turn.`:'Finish this move first.');return}}
 
 /* =====================================================================
    MUNCHKIN (Original and Deluxe): a table companion
@@ -10238,6 +10303,8 @@ document.addEventListener('click',e=>{
     case 'rgset':RGX()[k]=b.dataset.v;rgKeep();break;
     case 'rgamigo':{const X=RGX(),am=['outOne','changeFlip','wild2nd','amigoDeck','wildNum'],on=am.every(q=>X[q]);am.forEach(q=>X[q]=!on);rgKeep();break}
     case 'rgstart':{switchGame('rage');resetScores();S.started=false;S.screen='map';RGX().play=k==='1';rgKeep();window.scrollTo(0,0);break}
+    case 'rxopen':RXOPEN=!RXOPEN;break;
+    case 'rxsend':rxSend(k);break;
     case 'shareapp':shareOpen();return;
     case 'shareclose':SHAREQR=null;break;
     case 'sharecopy':{try{navigator.clipboard.writeText(APPURL).then(()=>toast('Link copied.'),()=>toast(APPURL))}catch(e){toast(APPURL)}return}
@@ -10543,6 +10610,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='12ddd9';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='887bf8';</script>
 </body>
 </html>
