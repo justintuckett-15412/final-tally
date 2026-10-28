@@ -853,6 +853,7 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .gpc b{font-size:clamp(16px,6vw,26px);line-height:1}.gpgrid.mini .gpc b{font-size:12px}.gpc small{position:absolute;right:4px;bottom:2px;font-size:10px;font-weight:700;opacity:.7}.gpgrid.mini .gpc small,.gpgrid.mini .gpc i{display:none}
 .gpc i{position:absolute;left:5px;top:3px;font-style:normal;font-size:12px}.gpgf.red{color:#c0392b}.gpjk b{font-size:22px}
 .gpback{background:repeating-linear-gradient(45deg,#2b3a55 0 6px,#33476a 6px 12px);border-color:#f0b43a}.gpempty{border-style:dashed;background:none}
+.gpback.gnback{background:url(art/gnome-back.png) center/cover no-repeat,repeating-linear-gradient(45deg,#2f5a35 0 6px,#376b3e 6px 12px);border-color:#f0b43a}
 @keyframes gpdeal{0%{opacity:0;transform:translateY(-70px) rotate(-25deg) scale(.4)}60%{opacity:1}100%{opacity:1;transform:none}}
 .gpc.gpdeal{animation:gpdeal .45s ease-out both}@media (prefers-reduced-motion:reduce){.gpc.gpdeal{animation-duration:.01s}}
 .gpgone{border-style:dashed;opacity:.35;background:none}
@@ -8447,7 +8448,7 @@ function gpTick(){if((S.game!=='golf'&&S.game!=='skyjo'&&S.game!=='gnome')||!gpO
 
 /* ---------------- drawing ---------------- */
 function gpCardEl(g,c,o={}){if(!c)return `<span class="gpc gpempty"></span>`;
-  if(o.down)return `<${o.btn?'button':'span'} class="gpc gpback${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="Face-down card"></${o.btn?'button':'span'}>`;
+  if(o.down)return `<${o.btn?'button':'span'} class="gpc gpback${gpGN(g)?' gnback':''}${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="Face-down card"></${o.btn?'button':'span'}>`;
   const tag=o.btn?'button':'span';
   if(gpGN(g)){const k=gpRank(c),v=+k;const cl=k==='H'?'gn-h':k==='M'?'gn-m':v<0?'gn-neg':'gn-pos gn'+v;return `<${tag} class="gpc gpgn ${cl}${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="${k==='H'?'Hazard, +'+GNX().hazV:k==='M'?'Mulligan, wild':v}"><b>${k==='H'?'⚠':k==='M'?'★':v}</b>${k==='H'?'<small>+'+GNX().hazV+'</small>':k==='M'?'<small>wild</small>':''}</${tag}>`}
   if(gpSK(g)){const v=+gpRank(c);return `<${tag} class="gpc gpsk ${v<0?'sk-dk':v===0?'sk-lb':v<=4?'sk-gr':v<=8?'sk-yl':'sk-rd'}${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="${v}"><b>${v}</b></${tag}>`}
@@ -10838,6 +10839,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='e3073b';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='cf9eac';</script>
 </body>
 </html>
