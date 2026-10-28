@@ -3561,11 +3561,11 @@ function nxPlayers(){const m=M(),n=act().length,sl=S.players.slice(0,8);
   const rows=sl.map((p,i)=>`<div class="prow ${p.on?'':'off'}">
     <button class="swatch" style="background:var(--t-${p.color});${pc(p.color)}" data-a="colpick" data-i="${i}" aria-expanded="${COLPICK===i}" aria-label="Color ${CNAME[p.color]}, tap to choose a color"></button>
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="Player ${i+1}" aria-label="Player ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
-    ${S.game==='yahtzee'&&!S.lk&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`🤖<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
+    ${S.game==='yahtzee'&&!S.lk&&p.on&&yzRoller()?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`🤖<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button></div>${COLPICK===i?colPicker(p,i):''}`).join('');
   const fam=H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the seats.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="map">‹ House rules</button><h1>Players</h1><span class="sub num">${n}</span></div>${steps(2)}
-  ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${S.game==='hearts'?'3 to 7 players; 4 is the classic game.':S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
+  ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${S.game==='hearts'?'3 to 7 players; 4 is the classic game.':S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk||!yzRoller()?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
   ${S.game==='quacks'?firstPicker():''}
   <div class="actions"><div class="in"><button class="btn primary" data-a="start">${S.started?'Back to scoring':'Start scoring'}</button></div></div>`}
 
@@ -5572,11 +5572,13 @@ function yzSetup(){const X=YZX(),tgl=(k,label,sub)=>`<div class="prow"><div clas
   const row=(label,sub,ctl)=>`<div class="srow"><span class="rlab"><b>${label}</b>${sub?` · ${sub}`:''}</span>${ctl}</div>`;
   const sec=(t,body,hint)=>`<div class="sec"><div class="sec-h"><h3>${t}</h3></div><div class="panel hfpanel">${body}</div>${hint?`<p class="hint">${hint}</p>`:''}</div>`;
   return `<div class="bar"><h1>Yahtzee</h1></div><img class="hero hfhero" src="art/yahtzee-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
-  ${guideBtn()}<p class="hint" style="margin-top:14px">Highest total wins. Pass the phone: each player taps their five dice and picks a box. Your house rules are remembered for next time. ${usualUI('yahtzee')}</p>
+  ${guideBtn()}<p class="hint" style="margin-top:14px">Highest total wins. Your house rules are remembered for next time. ${usualUI('yahtzee')}</p>
+  ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.roller?'🎲 Playing on the phone':'Scoring real dice'}</b></div>`:`<div class="seg">${[[1,'🎲 Play on the phone'],[0,'Score real dice']].map(([v,t])=>`<button data-a="yzplaymode" data-k="${v}" aria-pressed="${!!X.roller===!!v}">${t}</button>`).join('')}</div>`,
+    S.started?'This is set for the whole game. Start a new game to change it.':X.roller?'The phone rolls the dice. Tap dice to hold them. Computer players and hints are available.':'Roll your own dice and tap in what you got. Just score keeping.')}
   ${sec('Version',seg('mode',[['regular','Yahtzee'],['triple','Triple Yahtzee']]),X.mode==='triple'?'Three columns each, worth 1×, 2× and 3×. You fill all three, 39 turns in all.':'One column each, 13 turns.')}
   ${sec('Joker rule',seg('joker',[['forced','Official'],['free','Free choice'],['off','No Joker']]),X.joker==='forced'?'After your first Yahtzee, another one must go in its matching upper box if it’s open. If not, it can fill Full house, Small or Large straight for full points.':X.joker==='free'?'An extra Yahtzee can go in any open box. It only counts as a Full house or straight once its matching upper box is filled.':'An extra Yahtzee never counts as a Full house or straight.')}
   ${sec('Yahtzee bonus',row('Each extra Yahtzee','points',st('bonusV',X.bonusV,0,500,50,'points'))+(X.mode==='triple'?seg('tBonus',[['mult','Times the column'],['flat','Same in every column']]):''),`Only if that column’s Yahtzee box already holds 50.${X.mode==='triple'?' Triple Yahtzee boxes differ on this one, so check the rule card.':''}`)}
-  ${sec('Helpers',tgl('pass','Pass-the-phone screen','When one phone goes around the table, show whose turn it is before their card appears.')+tgl('hints','Hint button','A 💡 button suggests which dice to hold or which box to pick.'),'')}
+  ${sec('Helpers',tgl('pass','Pass-the-phone screen','When one phone goes around the table, show whose turn it is before their card appears.')+(X.roller?tgl('hints','Hint button','A 💡 button suggests which dice to hold or which box to pick.'):''),'')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
 /* ---- Yahtzee helpers: hint engine, sounds, bonus meter, solo best, pass screen ---- */
 const YZPAR={u1:3,u2:6,u3:9,u4:12,u5:15,u6:18,k3:20,k4:11,fh:21,ss:26,ls:29,yz:16,ch:21};
@@ -5615,7 +5617,7 @@ const yzBest=p=>{const prev=H.games.filter(g=>g.game==='yahtzee'&&g.id!==S.gameI
 
 /* ---------- computer players: they roll on this phone, hold dice and pick boxes on their own ---------- */
 const YZBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Dice Bot'],hard:['Hard','Yahtzee Bot']};
-const yzBot=q=>!!q&&!!q.bot&&!yzMe()&&!S.lk;
+const yzBot=q=>!!q&&!!q.bot&&!yzMe()&&!S.lk&&yzRoller();
 const yzHumans=()=>act().filter(q=>!q.bot);
 let YZBOTT=null,YZBOTHELD=false;
 function yzBotReady(){if(S.game!=='yahtzee'||S.screen!=='score'||yzDone()||WARN||YZFIX||RULESHEET||document.querySelector('.sheet-bg'))return null;const q=yzTurnP();return yzBot(q)?q:null}
@@ -5661,7 +5663,7 @@ function yzScore(){const X=YZX(),P=act(),C=yzCols(),done=yzDone(),cur=yzTurnP(),
     if(bot){out+=`<div class="nxcard yzroll yzbotcard" style="${pc(cur.color)}"><div class="nxh"><b>🤖 ${esc(nm(cur))}’s turn</b><span class="rlab">${YZBOTS[cur.bot][0]}</span></div>
       <div class="yzdice${YZSHAKE?' shake':''}">${[0,1,2,3,4].map(i=>d[i]?`<span class="yzbd${R.h[i]?' held':''}">${yzDie(d[i],50,'',IMGC.includes(cur.color)?cur.color:'red')}${R.h[i]?'<i>HOLD</i>':''}</span>`:`<span class="yzslot big"></span>`).join('')}</div>
       <p class="rlab" style="margin:6px 0 0">${R.n===0?'Picking up the dice…':YZBOTHELD?`Holding ${R.h.filter(Boolean).length?R.h.filter(Boolean).length+' and rolling again…':'nothing, rolling all five…'}`:R.n>=3?'Choosing a box…':`Roll ${R.n} of 3. Thinking…`}</p>${d.length===5&&yzIsY(d)?`<p class="yzyell">YAHTZEE!</p>`:''}</div>`}
-    else{out+=`<div class="nxcard yzroll" style="${pc(cur.color)}"><div class="nxh"><b>${esc(nm(cur))}’s roll</b><div class="seg yzmode"><button data-a="yzmode" data-v="0" aria-pressed="${!roll}">Real dice</button><button data-a="yzmode" data-v="1" aria-pressed="${roll}">Roll here</button></div></div>`;
+    else{out+=`<div class="nxcard yzroll" style="${pc(cur.color)}"><div class="nxh"><b>${esc(nm(cur))}’s roll</b><span class="rlab">${roll?'🎲 On the phone':'Real dice'}</span></div>`;
     if(roll){out+=`<div class="yzdice${YZSHAKE?' shake':''}">${[0,1,2,3,4].map(i=>d[i]?`<button class="${R.h[i]?'held':HT&&HT.hold&&HT.hold[i]?'tip':''}" data-a="yzhold" data-i="${i}" ${R.n>=3||R.n===0?'disabled':''} aria-pressed="${!!R.h[i]}" aria-label="${R.h[i]?'Holding':'Hold'} ${d[i]}">${yzDie(d[i],50,'',IMGC.includes(cur.color)?cur.color:'red')}${R.h[i]?'<i>HOLD</i>':''}</button>`:`<span class="yzslot big"></span>`).join('')}</div>
       <button class="btn primary wide" data-a="yzroll" ${R.n>=3?'disabled':''}>${R.n===0?'Roll the dice':R.n>=3?'No rolls left: pick a box':`Roll again (${3-R.n} left)`}</button>
       <p class="rlab" style="margin:6px 0 0">${R.n===0?'Three rolls per turn.':R.n<3?'Tap dice to hold them, then roll again. Or pick a box now.':'Pick a box below.'}</p>`}
@@ -5669,7 +5671,7 @@ function yzScore(){const X=YZX(),P=act(),C=yzCols(),done=yzDone(),cur=yzTurnP(),
       <div class="yzpad">${[1,2,3,4,5,6].map(v=>`<button data-a="yzadd" data-v="${v}" ${d.length>=5?'disabled':''} aria-label="Add a ${v}">${yzDie(v,38)}</button>`).join('')}</div>
       ${d.length?`<div class="htbtns" style="margin-top:6px"><button data-a="yzclr">Clear dice</button></div>`:''}
       <p class="rlab" style="margin:6px 0 0">${d.length<5?'Tap the five dice you ended with.':'Now tap the box to score it in.'}</p>`;
-    if(X.hints&&d.length===5&&!(roll&&R.n===0))out+=HT?`<div class="yzhint">💡 ${esc(HT.text)}${HT.hold&&HT.hold.some(Boolean)?` <button class="btn sm" data-a="yzhintdo">Hold them</button>`:''}</div>`:`<div class="htbtns" style="margin-top:6px"><button data-a="yzhint">💡 Hint</button></div>`;
+    if(X.hints&&yzRoller()&&d.length===5&&!(roll&&R.n===0))out+=HT?`<div class="yzhint">💡 ${esc(HT.text)}${HT.hold&&HT.hold.some(Boolean)?` <button class="btn sm" data-a="yzhintdo">Hold them</button>`:''}</div>`:`<div class="htbtns" style="margin-top:6px"><button data-a="yzhint">💡 Hint</button></div>`;
     out+=`${d.length===5&&yzIsY(d)?`<p class="yzyell">YAHTZEE!${opts.some((o,c)=>yzV(cur,c,'yz')===50)?` Bonus +${X.bonusV}`:''}</p>`:''}</div>`}
     const cell=(q,c,k)=>{const v=yzV(q,c,k),mine=q===cur&&!bot,o=mine?opts[c]:{};if(v!==null)return `<button class="yzc yzf num" data-a="yzfix" data-p="${q.id}" data-c="${c}" data-k="${k}" aria-label="Fix ${esc(nm(q))} ${k}">${v}</button>`;
       if(!mine||!(k in o))return `<span class="yzc num">${mine&&d.length===5?'':'·'}</span>`;
@@ -5722,9 +5724,9 @@ function yzGuide(){const X=YZX();
     X.mode==='triple'?['Triple Yahtzee',[['Columns','Fill three columns. The second counts double and the third triple.'],['Bonus','Check the rule card for how your box handles extra Yahtzees.']]]:null,
     ['Winning',[['Highest total','The rules don’t give a tiebreaker, so a tie is a shared win.']]]])}
 function yzHomeCard(){const st=gamePeek('yahtzee');
-  return `<div class="game"><div class="gtop"><img class="gart" src="art/yahtzee-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart yzart&quot; aria-hidden=&quot;true&quot;>🎲</div>'"><div><h2>Yahtzee</h2><div class="meta">Dice game · tap your dice, pick a box</div></div></div>
+  return `<div class="game"><div class="gtop"><img class="gart" src="art/yahtzee-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart yzart&quot; aria-hidden=&quot;true&quot;>🎲</div>'"><div><h2>Yahtzee</h2><div class="meta">Play with dice on the phone, or score real dice</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="yahtzee">Resume game</button><button class="btn" data-a="gnew" data-k="yahtzee">New game</button></div>`
-      :`<button class="btn primary wide" data-a="gnew" data-k="yahtzee">Score a game</button>`}</div>`}
+      :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="yzstart" data-k="1">🎲 Play</button><button class="btn" style="flex:1" data-a="yzstart" data-k="0">Score a game</button></div>`}</div>`}
 const YZDEMOS=[{id:'yzfam',title:'Family night · Yahtzee',tip:'Lily is on her last box with the dice already entered. Tap a gold box to score it, or press and hold a name to see a whole card.',blurb:'Four players, official rules. Ben rolls two Yahtzees for a 100-point bonus; Mom just misses the upper bonus.'}];
 function yzDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=yzFresh();S.yzx={...YZDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
   const G=[{u1:3,u2:6,u3:9,u4:12,u5:15,u6:17,k3:22,k4:0,fh:25,ss:30,ls:40,yz:0,ch:23},{u1:2,u2:8,u3:9,u4:16,u5:15,u6:18,k3:26,k4:19,fh:25,ss:30,ls:0,yz:0,ch:21},
@@ -8475,6 +8477,8 @@ document.addEventListener('click',e=>{
     case 'mtnext':{S.hr=Math.min(mtN()-1,mtCur()+1);window.scrollTo(0,0);break}
     case 'yzbot':{const q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).map(x=>x[1]);
       if(!q.name||defs.includes(q.name))q.name=nx?YZBOTS[nx][1]:'';if(nx)q.bot=nx;else delete q.bot;delete q.rid;break}
+    case 'yzstart':{switchGame('yahtzee');resetScores();S.started=false;S.screen='map';YZX().roller=k==='1';yzKeep();window.scrollTo(0,0);break}
+    case 'yzplaymode':{if(S.started)break;YZX().roller=k==='1';yzKeep();break}
     case 'yzdemo':yzDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'yzset':YZX()[k]=b.dataset.v;yzKeep();break;
     case 'yzst':{const X=YZX();X[k]=Math.max(0,Math.min(500,(+X[k]||0)+(+b.dataset.d)));yzKeep();break}
@@ -8483,7 +8487,7 @@ document.addEventListener('click',e=>{
     case 'yzhint':{const q=yzTurnP(),R=yzRS(),h=yzHint(q,S.yzd||[],YZX().roller?3-R.n:0);if(h)YZHINT={...h,key:JSON.stringify([S.yzd||[],R.n,q&&q.id])};break}
     case 'yzhintdo':{if(YZHINT&&YZHINT.hold){yzRS().h=YZHINT.hold.slice()}break}
     case 'yzpassok':YZPASS=null;window.scrollTo(0,0);break;
-    case 'yzmode':{YZX().roller=b.dataset.v==='1';yzKeep();S.yzd=[];S.yzr=null;break}
+    case 'yzmode':break;
     case 'yzroll':{yzRollDice();if(yzIsY(S.yzd))setTimeout(()=>yzCheer(yzTurnP()),450);break}
     case 'yzhold':{const R=yzRS(),i=+b.dataset.i;R.h[i]=!R.h[i];break}
     case 'yzfix':{const q=act().find(x=>x.id===b.dataset.p);if(q)YZFIX={pid:q.id,c:+b.dataset.c,k};document.querySelectorAll('.toast').forEach(t=>t.remove());break}
@@ -8983,6 +8987,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='0d63ed';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='9ab8b7';</script>
 </body>
 </html>
