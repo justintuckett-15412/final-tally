@@ -2036,13 +2036,13 @@ function lanCam(show,title){let el=document.getElementById('lancam');
   if(!show){if(LANSTOP){try{LANSTOP()}catch(e){}LANSTOP=null}if(el)el.remove();return null}
   if(!el){el=document.createElement('div');el.id='lancam';el.innerHTML=`<div class="lancam-in"><b></b><video playsinline muted></video><i class="lancam-box"></i><p class="rlab">Hold the code inside the square.</p><button class="btn wide" data-a="lancamx">Cancel</button></div>`;document.body.appendChild(el)}
   el.querySelector('b').textContent=title||'Scan the code';return el.querySelector('video')}
-function lanErr(e){lanCam(false);LANUI={...(LANUI||{}),step:'err',msg:(e&&e.message)||'Something went wrong. Try again.'};render()}
+function lanErr(e){lanCam(false);const h=window.FTLAN&&FTLAN.hub,l=h&&h.last;LANUI={...(LANUI||{}),step:'err',msg:(e&&e.message)||'Something went wrong. Try again.',mine:LANUI&&LANUI.mine||(l&&l.addrs),theirs:LANUI&&LANUI.theirs||(l&&l.theirAddrs)};render()}
 /* host: start the offline game, then show the first pairing code */
 async function lanHost(g){if(!window.FTLAN){toast('Offline linking isn’t ready yet. Close and reopen the app.');return}
   LKBUSY=true;render();try{const hub=FTLAN.startHost();window.FTLINK=hub.link;await lkHostStart(g);if(!S.lk){FTLAN.stop();window.FTLINK=window.FTLINK_NET;return}
     S.lk.lan=true;save();LKUI='';await lanAdd()}catch(e){lanErr(e)}LKBUSY=false;render()}
 async function lanAdd(){const hub=window.FTLAN&&FTLAN.hub;if(!hub||hub.role!=='host')return;LANUI={mode:'host',step:'busy'};render();
-  try{const stop=await FTLAN.warmCamera(),peer=await hub.offer();stop();LANUI={mode:'host',step:'show',qr:await FTLAN.qrSvg(peer.code),noAddr:peer.noAddr};render()}catch(e){lanErr(e)}}
+  try{const stop=await FTLAN.warmCamera(),peer=await hub.offer();stop();LANUI={mode:'host',step:'show',qr:await FTLAN.qrSvg(peer.code),noAddr:peer.noAddr,mine:peer.addrs};render()}catch(e){lanErr(e)}}
 async function lanHostScan(){const hub=FTLAN.hub,v=lanCam(true,'Scan the code on their phone');
   try{LANSTOP=await FTLAN.scan(v,async t=>{lanCam(false);LANUI={mode:'host',step:'busy',msg:'Connecting…'};render();
       try{await hub.accept(t);LANUI={mode:'host',step:'done'};vibe([30,40,30]);render()}catch(e){lanErr(e)}})}catch(e){lanErr(e&&e.name==='NotAllowedError'?new Error('Final Tally needs the camera to scan the code. Allow the camera in your settings and try again.'):e)}}
@@ -2050,19 +2050,21 @@ async function lanHostScan(){const hub=FTLAN.hub,v=lanCam(true,'Scan the code on
 async function lanJoin(){if(!window.FTLAN){toast('Offline linking isn’t ready yet. Close and reopen the app.');return}
   LKUI='';LANUI={mode:'guest',step:'scan'};render();const v=lanCam(true,'Scan the code on the host’s phone');
   try{LANSTOP=await FTLAN.scan(v,async t=>{LANUI={mode:'guest',step:'busy',msg:'Making your reply code…'};render();
-      try{const g=await FTLAN.joinWith(t);lanCam(false);LANUI={mode:'guest',step:'reply',qr:await FTLAN.qrSvg(g.reply),noAddr:g.noAddr};render();
+      try{const g=await FTLAN.joinWith(t);lanCam(false);LANUI={mode:'guest',step:'reply',qr:await FTLAN.qrSvg(g.reply),noAddr:g.noAddr,mine:g.addrs,theirs:g.hostAddrs};render();
         const code=await g.connected;window.FTLINK=g.link;LANUI=null;LANLOST=false;await lkJoin(code);if(S.lk){S.lk.lan=true;save()}else{FTLAN.stop();window.FTLINK=window.FTLINK_NET}render()}
       catch(e){lanErr(e)}})}catch(e){lanErr(e&&e.name==='NotAllowedError'?new Error('Final Tally needs the camera to scan the code. Allow the camera in your settings and try again.'):e)}}
 function lanSheet(){if(!LANUI)return '';const U=LANUI,host=U.mode==='host',n=lanN();let body='';
+  const ad=a=>a&&a.length?a.map(x=>/\.local$/.test(x)?'hidden ('+x.slice(0,6)+'…)':x).join(', '):'none';
+  const net=(U.mine||U.theirs)?`<p class="hint lanaddr">This phone: <b>${esc(ad(U.mine))}</b>${U.theirs?` · ${host?'Their phone':'Host'}: <b>${esc(ad(U.theirs))}</b>`:''}. To connect, both need the same first three numbers (like 192.168.43).</p>`:'';
   if(U.step==='busy')body=`${waitLoader(U.msg||'Getting ready…')}`;
-  else if(U.step==='err')body=`<p><b>${esc(U.msg)}</b></p><p class="rlab">${host?'Check that the other phone has Wi-Fi on and is joined to this phone’s hotspot.':'Check that Wi-Fi is on and this phone is joined to the host phone’s hotspot.'}</p>
+  else if(U.step==='err')body=`<p><b>${esc(U.msg)}</b></p><p class="rlab">${host?'Check that the other phone has Wi-Fi on and is joined to this phone’s hotspot.':'Check that Wi-Fi is on and this phone is joined to the host phone’s hotspot.'}</p>${net}
     <div class="sheet-btns"><button class="btn" data-a="lanx">Close</button><button class="btn primary" data-a="${host?'lanadd':'lanjoin'}">Try again</button></div>`;
   else if(U.step==='show')body=`<p class="rlab"><b>1.</b> On the other phone, open Final Tally, tap <b>📱 Join a game</b>, then <b>✈️ Join without internet</b>, and scan this code.</p>${U.qr}
     ${U.noAddr?'<p class="hint"><b>This phone has no Wi-Fi address yet.</b> Turn on its hotspot first, then tap Try again.</p>':''}
-    <p class="rlab"><b>2.</b> When their phone shows a code, scan it.</p><div class="sheet-btns"><button class="btn" data-a="lanx">Cancel</button><button class="btn primary" data-a="lanscan">Scan their code</button></div>`;
+    ${net}<p class="rlab"><b>2.</b> When their phone shows a code, scan it.</p><div class="sheet-btns"><button class="btn" data-a="lanx">Cancel</button><button class="btn primary" data-a="lanscan">Scan their code</button></div>`;
   else if(U.step==='done')body=`<p><b>Connected!</b> ${n} phone${n===1?'':'s'} linked without internet.</p><p class="rlab">They pick their player on their own phone. Add everyone who has a phone, one at a time.</p>
     <div class="sheet-btns"><button class="btn" data-a="lanx">Done</button><button class="btn primary" data-a="lanadd">Add another phone</button></div>`;
-  else if(U.step==='reply')body=`<p class="rlab">Show this code to the host. They tap <b>Scan their code</b>.</p>${U.qr}${U.noAddr?'<p class="hint"><b>This phone has no Wi-Fi address.</b> Join the host’s hotspot in Wi-Fi settings, then try again.</p>':''}${waitLoader('Waiting for the host…')}<div class="sheet-btns"><button class="btn" data-a="lanx">Cancel</button></div>`;
+  else if(U.step==='reply')body=`<p class="rlab">Show this code to the host. They tap <b>Scan their code</b>.</p>${U.qr}${U.noAddr?'<p class="hint"><b>This phone has no Wi-Fi address.</b> Join the host’s hotspot in Wi-Fi settings, then try again.</p>':''}${net}${waitLoader('Waiting for the host…')}<div class="sheet-btns"><button class="btn" data-a="lanx">Cancel</button></div>`;
   else body=waitLoader('Opening the camera…');
   return `<div class="sheet-bg" data-a="lanx"><div class="sheet lansheet" role="dialog" aria-modal="true" aria-labelledby="lan-h" data-stop="1"><h2 id="lan-h">${host?'Add a phone':'Join without internet'}</h2>${body}</div></div>`}
 function lanBootCheck(){if(!S.lk||!S.lk.lan)return false;if(window.FTLAN&&FTLAN.hub)return false;
@@ -9009,6 +9011,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='261c60';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='d5eaea';</script>
 </body>
 </html>

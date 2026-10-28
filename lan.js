@@ -53,6 +53,8 @@ async function unpack(text){text=String(text||'').trim();const m=/(FT[01])([A-Za
 function gathered(pc,ms){return new Promise(res=>{if(pc.iceGatheringState==='complete')return res();const t=setTimeout(res,ms);
   pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(t);res()}})})}
 const hasAddress=sdp=>/a=candidate:/.test(sdp);
+/* the local addresses this phone offered, for the pairing screen (helps spot two phones on different networks) */
+const addrs=sdp=>[...new Set((sdp.match(/a=candidate:\S+ \d+ udp \d+ (\S+) \d+ typ host/g)||[]).map(l=>l.split(' ')[4]))];
 
 /* ---------------- host side ---------------- */
 let hub=null;
@@ -61,10 +63,10 @@ function startHost(){if(hub&&hub.role==='host')return hub;stop();const st=Store(
     count:()=>[...peers].filter(p=>p.open).length,
     async offer(){const pc=new RTCPeerConnection({iceServers:[]}),dc=pc.createDataChannel('ft',{ordered:true}),peer={pc,dc,open:false,subs:new Map(),client:null};
       wirePeer(peer);await pc.setLocalDescription(await pc.createOffer());await gathered(pc,4000);
-      peer.code=await pack(pc.localDescription,'h');peer.noAddr=!hasAddress(pc.localDescription.sdp);hub.pending=peer;return peer},
-    async accept(text){const peer=hub.pending;if(!peer)throw new Error('Show your code first.');const d=await unpack(text);if(d.type!=='answer')throw new Error('That’s the host’s code. Scan the code on the other phone.');
-      await peer.pc.setRemoteDescription({type:'answer',sdp:d.sdp});hub.pending=null;
-      return new Promise((res,rej)=>{const t=setTimeout(()=>rej(new Error('The phones couldn’t reach each other. Make sure the other phone is on this phone’s hotspot (Wi-Fi on), then try again.')),15000);peer.onopen=()=>{clearTimeout(t);res()}})}};
+      peer.code=await pack(pc.localDescription,'h');peer.noAddr=!hasAddress(pc.localDescription.sdp);peer.addrs=addrs(pc.localDescription.sdp);hub.pending=peer;return peer},
+    async accept(text){const peer=hub.pending;if(!peer)throw new Error('Show your code first.');const d=await unpack(text);if(d.type!=='answer')throw new Error('That’s the host’s code. Scan the code on the other phone.');peer.theirAddrs=addrs(d.sdp);
+      await peer.pc.setRemoteDescription({type:'answer',sdp:d.sdp});hub.pending=null;hub.last=peer;
+      return new Promise((res,rej)=>{const t=setTimeout(()=>rej(new Error('The phones couldn’t reach each other. Make sure the other phone is on this phone’s hotspot (Wi-Fi on), then try again.')),25000);peer.onopen=()=>{clearTimeout(t);res()}})}};
   function wirePeer(peer){const {pc,dc}=peer;
     dc.onopen=()=>{peer.open=true;peers.add(peer);(peer.q||[]).forEach(j=>{try{dc.send(j)}catch(x){}});peer.q=[];peer.onopen&&peer.onopen();ping()};
     const gone=()=>{if(!peers.has(peer))return;peers.delete(peer);peer.open=false;peer.subs.forEach(u=>{try{u()}catch(e){}});peer.subs.clear();ping('lost')};
@@ -100,7 +102,7 @@ async function joinWith(text){const d=await unpack(text);if(d.type!=='offer')thr
       dc.onclose=()=>{if(g.open){g.open=false;ping('lost')}}}});
   pc.onconnectionstatechange=()=>{if(['failed','disconnected','closed'].includes(pc.connectionState)&&g.open){g.open=false;ping('lost')}};
   await pc.setRemoteDescription({type:'offer',sdp:d.sdp});await pc.setLocalDescription(await pc.createAnswer());await gathered(pc,4000);
-  g.reply=await pack(pc.localDescription,'g');g.noAddr=!hasAddress(pc.localDescription.sdp);return g}
+  g.reply=await pack(pc.localDescription,'g');g.noAddr=!hasAddress(pc.localDescription.sdp);g.addrs=addrs(pc.localDescription.sdp);g.hostAddrs=addrs(d.sdp);return g}
 
 function stop(){if(!hub)return;try{if(hub.role==='host')hub.peers.forEach(p=>{try{p.pc.close()}catch(e){}});else hub.pc.close()}catch(e){}if(hub.pending)try{hub.pending.pc.close()}catch(e){}hub=null}
 const ping=why=>{try{window.lanPing&&window.lanPing(why)}catch(e){}};
