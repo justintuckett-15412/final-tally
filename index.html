@@ -1353,7 +1353,7 @@ while(S.players.length<6)S.players.push(newPlayer('',ALLC.find(c=>!S.players.som
 let confirmKey=null;
 
 const act=()=>S.players.filter(p=>p.on);
-const nm=p=>p.name.trim()||((HFE()||S.game==='pool'||S.game==='spades'||S.game==='skipbo'||S.game==='rook')&&M().teams&&(p.mem||[]).some(x=>x.trim())?p.mem.map(x=>x.trim()).filter(Boolean).join(' & '):(M().teams?'Team ':'Player ')+(S.players.indexOf(p)+1));
+const nm=p=>p.name.trim()||((HFE()||S.game==='pool'||S.game==='spades'||S.game==='skipbo'||S.game==='rook')&&M().teams&&(p.mem||[]).some(x=>x.trim())?p.mem.map(x=>x.trim()).filter(Boolean).join(' & '):(S.players.indexOf(p)<0?'someone':(M().teams?'Team ':'Player ')+(S.players.indexOf(p)+1)));
 const HOUSE=()=>[...(S.map!=='europe'?['stations']:[]),...(S.map==='usa'?['mystery']:[]),...(S.map!=='oldwest'?['monsters']:[])];
 const on=id=>!!S.rules[id]&&(M().own.includes(id)||HOUSE().includes(id)||bonusDefs().some(b=>b.id===id)||['other','nofail'].includes(id));
 const ownOn=()=>M().own.concat(HOUSE(),'other').filter(id=>on(id)&&EX[id].kind!=='none');
@@ -1440,7 +1440,7 @@ function steps(n){const L=S.game==='rook'?['House rules','Teams']:S.game==='yaht
 function ttrHomeCard(TS,TM){return `<div class="game">
     <div class="gtop"><img class="gart" src="art/ttr-icon.png" alt="" width="84" height="84"><div><h2>Ticket to Ride</h2><div class="meta">${Object.keys(MAPS).length} maps · expansions · house rules</div></div></div>
     ${TS&&TS.started
-      ?`<div class="rlab">Game in progress: ${TM.name} · ${TM.meta}${TS.touched?` · last changed ${ago(TS.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="ttr">Resume game</button><button class="btn" data-a="gnew" data-k="ttr">New game</button></div>`
+      ?`<div class="rlab">Game in progress: ${TM.name} · ${TM.meta}${TS.touched?` · last changed ${ago(TS.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="ttr">Resume game</button><button class="btn" data-a="gnew" data-k="ttr">New game</button><button class="btn" data-a="gabandon" data-k="ttr" aria-label="Abandon this game">${ABANDON==='ttr'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="ttr">Score a game</button>`}
   </div>`}
 let HOMECAT=(()=>{try{return localStorage.getItem(KEY+'.homecat')||''}catch(e){return ''}})();
@@ -3687,7 +3687,7 @@ function hfRulesSheet(){const X=HX(),G=hfGroups();
     <p class="hint">Change these on the House rules screen before the game.</p></div></div></div>`}
 function caHomeCard(){const st=gamePeek('canasta');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/canasta-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart caart&quot; aria-hidden=&quot;true&quot;>C</div>'"><div><h2>Canasta</h2><div class="meta">Card game · teams · house rules</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="canasta">Resume game</button><button class="btn" data-a="gnew" data-k="canasta">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="canasta">Resume game</button><button class="btn" data-a="gnew" data-k="canasta">New game</button><button class="btn" data-a="gabandon" data-k="canasta" aria-label="Abandon this game">${ABANDON==='canasta'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="canasta">Score a game</button>`}</div>`}
 const CADEMOS=[{id:'cafam',title:'Family night · Canasta',tip:'Each team\u2019s meld minimum follows its own score: below zero, 50, 90 or 120. Tap Finish to watch the reveal.',blurb:'Mom & Dad vs. Grandma & Grandpa, playing to 5,000. A round with no melds turns Grandpa\u2019s red 3s into minus points, and all four red 3s pay 800 later on.'}];
 function caDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}
@@ -3702,7 +3702,7 @@ const CAW=[[/Hand and Foot/g,'Canasta'],[/hand and foot/g,'hand'],[/hand or foot
 function caWords(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode()){let t=n.nodeValue,o=t;if(!/[A-Za-z]/.test(t))continue;CAW.forEach(([a,b])=>{t=t.replace(a,b)});if(t!==o)n.nodeValue=t}}
 function hfHomeCard(){const st=gamePeek('hf');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/hf-icon.png" alt="" width="84" height="84"><div><h2>Hand and Foot</h2><div class="meta">Card game · teams · house rules</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="hf">Resume game</button><button class="btn" data-a="gnew" data-k="hf">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="hf">Resume game</button><button class="btn" data-a="gnew" data-k="hf">New game</button><button class="btn" data-a="gabandon" data-k="hf" aria-label="Abandon this game">${ABANDON==='hf'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="hf">Score a game</button>`}</div>`}
 const HDEMOS=[{id:'hfam',title:'Family night · Hand and Foot',tip:'Look through each team and round, then tap Finish to watch the reveal.',blurb:'Two teams playing to 5,000. Mom & Dad lead after two rounds, then Ben & Lily go out three rounds running and a red 3 gets stuck in Dad’s foot.'},
  {id:'hf3s',title:'Stuck with 3s',tip:'Check each team’s meld minimums at the top: they change with each team’s own score. Then tap Finish.',blurb:'Grandma & Grandpa vs. Aunt Sue & Uncle Bob. Meld minimums climb separately for each team, there are four perfect grabs, and two red 3s stuck in Grandpa’s foot hand the game away.'},
@@ -3861,7 +3861,7 @@ function nxRulesSheet(){const X=NX();
     <p class="hint">Change these on the House rules screen before the game.</p></div></div></div>`}
 function nxHomeCard(){const st=gamePeek('nerts');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/nerts-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart&quot; aria-hidden=&quot;true&quot;>N!</div>'"><div><h2>Nerts</h2><div class="meta">Card game · fast · house rules</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="nerts">Resume game</button><button class="btn" data-a="gnew" data-k="nerts">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="nerts">Resume game</button><button class="btn" data-a="gnew" data-k="nerts">New game</button><button class="btn" data-a="gabandon" data-k="nerts" aria-label="Abandon this game">${ABANDON==='nerts'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="nerts">Score a game</button>`}</div>`}
 function nxRecords(G){const NG=G.filter(g=>g.game==='nerts'&&g.state&&g.state.players);if(!NG.length)return '';
   const X0=g=>Object.assign({...NXDEF},g.state.nx||{});let hiH=null,calls=null,hiC=null;const per={};
@@ -3978,7 +3978,7 @@ function pxResults(){const rk=ranking(),steps=pxRevSteps();
   <div class="actions"><div class="in">${S.demo?'<button class="btn" data-a="revstart">Watch the reveal again</button><button class="btn primary" data-a="demoexit">Exit sample</button>':`<button class="btn primary" data-a="rematch">Rematch, same players</button>`}</div></div>`}
 function pxHomeCard(){const st=gamePeek('pad');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/pad-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart pxart&quot; aria-hidden=&quot;true&quot;>±</div>'"><div><h2>Score pad</h2><div class="meta">Any game · rounds · totals</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">${esc((st.px&&st.px.name)||'Game')} in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="pad">Resume game</button><button class="btn" data-a="gnew" data-k="pad">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">${esc((st.px&&st.px.name)||'Game')} in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="pad">Resume game</button><button class="btn" data-a="gnew" data-k="pad">New game</button><button class="btn" data-a="gabandon" data-k="pad" aria-label="Abandon this game">${ABANDON==='pad'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="pad">Score a game</button>`}</div>`}
 const PDEMOS=[{id:'pgolf',title:'Golf, the card game · low score wins',tip:'Low score wins here. Tap + on a score to make it negative.',blurb:'Four players, nine rounds of Golf. Grandpa starts in last place, but two negative rounds pull him into the lead.'},
  {id:'prummy',title:'Rummy to 500',tip:'Press and hold a name for their round-by-round history.',blurb:'Three players racing to 500. Dad leads after three rounds, but Mom\u2019s big finish takes it.'}];
@@ -4191,7 +4191,7 @@ function dRulesSheet(g0,lp){const X=DX(),g=g0||X.g;const R={x01:`Start at ${X.st
   <div class="rs-body"><p>${R}</p><p class="hint">Bull: ${X.bull50?'any bull is 50':'outer bull 25, bullseye 50 (counts as a double)'}.</p></div></div></div>`}
 function dtHomeCard(){const st=gamePeek('darts');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/darts-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart dtart&quot; aria-hidden=&quot;true&quot;>🎯</div>'"><div><h2>Darts</h2><div class="meta">${Object.keys(DGAMES).length} games · 501, Cricket, Killer and more</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">${esc(st.dx?(st.dx.g==='x01'?st.dx.start:DGAMES[st.dx.g].n):'Game')} in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="darts">Resume game</button><button class="btn" data-a="gnew" data-k="darts">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">${esc(st.dx?(st.dx.g==='x01'?st.dx.start:DGAMES[st.dx.g].n):'Game')} in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="darts">Resume game</button><button class="btn" data-a="gnew" data-k="darts">New game</button><button class="btn" data-a="gabandon" data-k="darts" aria-label="Abandon this game">${ABANDON==='darts'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="darts">Play darts</button>`}</div>`}
 function dtRecords(G){const DG=G.filter(g=>g.game==='darts'&&g.state&&g.state.dt);if(!DG.length)return '';let hi=null,co=null,avg=null,t180=0;
   DG.forEach(g=>{(g.state.dt.hi||[]).forEach(x=>{if(!hi||x.v>hi.v)hi={...x,g};t180+=x.n180||0});(g.state.dt.co||[]).forEach(x=>{if(!co||x.v>co.v)co={...x,g}});(g.state.dt.avg||[]).forEach(x=>{if(!avg||x.v>avg.v)avg={...x,g}})});
@@ -4350,7 +4350,7 @@ function plResults(){const rk=ranking(),X=PX2();
   <div class="actions"><div class="in">${S.demo?'<button class="btn primary" data-a="demoexit">Exit sample</button>':`<button class="btn primary" data-a="rematch">Rematch</button>`}</div></div>`}
 function plHomeCard(){const st=gamePeek('pool');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/pool-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart plart&quot; aria-hidden=&quot;true&quot;>🎱</div>'"><div><h2>Pool</h2><div class="meta">${Object.keys(PGAMES).length} games · 8-Ball, 9-Ball, Cutthroat and more</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">${esc(st.plx?PGAMES[st.plx.g].n:'Game')} in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="pool">Resume game</button><button class="btn" data-a="gnew" data-k="pool">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">${esc(st.plx?PGAMES[st.plx.g].n:'Game')} in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="pool">Resume game</button><button class="btn" data-a="gnew" data-k="pool">New game</button><button class="btn" data-a="gabandon" data-k="pool" aria-label="Abandon this game">${ABANDON==='pool'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="pool">Play pool</button>`}</div>`}
 const PLDEMOS=[{id:'p8',title:'8-Ball · family night',tip:'Tap a special shot first (like Break and run), then the winner. Tap a rack in the list to fix it.',blurb:'Dad and Ben trade racks all evening. Ben breaks and runs one, and Dad sinks the 8 on the break.'},
  {id:'pcut',title:'Cutthroat · three players',tip:'Tap balls as they drop. When a player’s balls are all down, they’re out.',blurb:'Mom, Lily and Ben in rack 3. Lily is down to one ball.'},
@@ -4709,7 +4709,7 @@ const htNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(htHumans().length<2)ret
 
 /* ---------------- the table runs here (host phone, or this phone) ---------------- */
 function htTick(){if(S.game!=='hearts'||!htPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo&&!htG())return;if(!htRes())return;if(lkqRun()){save();render();return}
-  const g=htG();if(!g||g.r!==htCur()&&g.phase!=='done'){htDeal(htCur());save();render();return}
+  const g=htG();if(!g||cgStale(g)||g.r!==htCur()&&g.phase!=='done'){htDeal(htCur());save();render();return}
   if(g.phase==='pass'){if(act().every(p=>(g.sel[p.id]||[]).length===3)){htSwap(g);save();render()}return}
   if(g.phase==='moon'){if(g.ms){htEndHand(g);save();render()}return}
   if(g.phase!=='play')return;
@@ -4724,7 +4724,7 @@ const htName=c=>({A:'Ace',K:'King',Q:'Queen',J:'Jack',T:'10'}[c[0]]||c[0])+' of 
 function htPlay(){const X=HTX(),P=act(),g=htG(),r=htCur(),sc=P.map(htTot),lo=Math.min(...sc),tied=sc.filter(v=>v===lo).length>1,lead=P[sc.indexOf(lo)];
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">♥︎${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&g.turn===q.id}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${htLast()>=0&&q===lead&&!tied?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${g?htTakenLab(g,q.id):''}</div></button>`).join('')}</div>`;
-  if(!g){return out+`<div class="panel" style="padding:16px">${waitLoader(htRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`}
+  if(!g||cgStale(g)){return out+`<div class="panel" style="padding:16px">${waitLoader(htRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`}
   const V=htViewer(),hand=V?g.h[V.id]||[]:[],turnP=P.find(p=>p.id===g.turn),me=htMe();
   /* status line */
   let status='';const dirTo=V&&g.dir!=='hold'?nm(P.find(p=>p.id===htTarget(V.id,g.dir))):'';
@@ -4797,7 +4797,7 @@ function htRulesSheet(){const X=HTX();
   <dt>Winning</dt><dd>${X.end==='points'?`When someone reaches ${X.target}, the lowest score wins.`:'Lowest score wins.'}</dd></dl></div></div></div>`}
 function htHomeCard(){const st=gamePeek('hearts');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/hearts-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart htart&quot; aria-hidden=&quot;true&quot;>♥&#xFE0E;</div>'"><div><h2>Hearts</h2><div class="meta">Play on the phone, or score real cards · low score wins</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="hearts">Resume game</button><button class="btn" data-a="gnew" data-k="hearts">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="hearts">Resume game</button><button class="btn" data-a="gnew" data-k="hearts">New game</button><button class="btn" data-a="gabandon" data-k="hearts" aria-label="Abandon this game">${ABANDON==='hearts'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="htstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="htstart" data-k="0">Score a game</button></div>`}</div>`}
 const HTDEMOS=[{id:'htfam',title:'Family night · Hearts',tip:'Low score wins. Press and hold a name for their hand-by-hand history.',blurb:'Four players to 100. Ben shoots the moon in hand 5, and Mom stays low all night.'}];
 function htDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=htFresh();S.htx={...HTDEF};S.demo=id;
@@ -4966,7 +4966,7 @@ function sdViewer(){const g=sdG();if(!g)return null;if(S.lk&&!S.demo)return sdMe
 const sdNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(sdHumans().length<2)return null;const a=sdActive();return a&&SDVIEW!==a.id?a:null};
 
 function sdTick(){if(S.game!=='spades'||!sdPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!sdRes())return;if(lkqRun()){save();render();return}
-  const g=sdG();if(!g||g.r!==sdCur()&&g.phase!=='done'){sdDeal(sdCur());save();render();return}
+  const g=sdG();if(!g||cgStale(g)||g.r!==sdCur()&&g.phase!=='done'){sdDeal(sdCur());save();render();return}
   if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot&&!SDBOTT)SDBOTT=setTimeout(()=>{SDBOTT=null;const g2=sdG();if(!g2||g2.phase!=='bid'||g2.bidTurn!==q.id)return;sdBid(q.id,sdBotBid(g2,q.id,q.bot));save();render()},700*htSpd());return}
   if(g.phase!=='play')return;
   if(g.t.length>=act().length){if(!SDCOLT)SDCOLT=setTimeout(()=>{SDCOLT=null;const g2=sdG();if(g2&&g2.t.length>=act().length){g2.played=(g2.played||[]).concat(g2.t.map(x=>x.c));sdCollect(g2);save();render()}},1300*htSpd());return}
@@ -4979,7 +4979,7 @@ function sdPlay(){const X=SDX(),P=act(),g=sdG(),r=sdCur(),runs=P.map(p=>sdRun(p)
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">♠︎${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&(g.turn===q.id||g.bidTurn===q.id)}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${lead&&sc[k]===hi&&sc.filter(v=>v===hi).length===(team?2:1)?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${X.bags?`${runs[k].bag} bag${runs[k].bag===1?'':'s'}`:''}</div></button>`).join('')}</div>`;
   if(team)out+=`<p class="hint lv-hint hftip">Partners: <b>${esc(nm(P[0]))} & ${esc(nm(P[2]))}</b> vs <b>${esc(nm(P[1]))} & ${esc(nm(P[3]))}</b>. Partners share a score.</p>`;
-  if(!g)return out+`<div class="panel" style="padding:16px">${waitLoader(sdRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
+  if(!g||cgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(sdRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
   const V=sdViewer(),hand=V?g.h[V.id]||[]:[],me=sdMe(),turnP=P.find(p=>p.id===(g.phase==='bid'?g.bidTurn:g.turn)),hidden=V&&g.phase==='bid'&&X.nil&&X.blind&&!g.seen[V.id]&&g.bids[V.id]===undefined;
   let status='';
   if(g.phase==='bid')status=V&&turnP&&turnP.id===V.id?`<b>Your bid${S.lk||sdHumans().length<2?'':', '+esc(nm(V))}.</b> How many tricks will you take?`:turnP?`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is bidding…`:'';
@@ -5043,7 +5043,7 @@ function sdRulesSheet(){const X=SDX();
   <dt>Winning</dt><dd>${X.end==='points'?`First to ${X.target}${X.lose?`; sinking to ${X.loseAt} loses`:''}.`:'Highest score wins.'}</dd></dl></div></div></div>`}
 function sdHomeCard(){const st=gamePeek('spades');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/spades-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart sdart&quot; aria-hidden=&quot;true&quot;>♠&#xFE0E;</div>'"><div><h2>Spades</h2><div class="meta">Play on the phone, or score real cards · bids and bags</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="spades">Resume game</button><button class="btn" data-a="gnew" data-k="spades">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="spades">Resume game</button><button class="btn" data-a="gnew" data-k="spades">New game</button><button class="btn" data-a="gabandon" data-k="spades" aria-label="Abandon this game">${ABANDON==='spades'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="sdstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="sdstart" data-k="0">Score a game</button></div>`}</div>`}
 const SDDEMOS=[{id:'sdfam',title:'Family night · Spades',tip:'Each partner has a bid and tricks. Press and hold a team for their hand-by-hand history.',blurb:'Mom & Dad vs. Ben & Lily, playing to 500. Ben makes a nil, Mom & Dad bag out and still win.'}];
 function sdDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=sdFresh();S.sdx={...SDDEF};S.demo=id;const [a,b]=S.players;a.mem=['Mom','Dad'];b.mem=['Ben','Lily'];
@@ -5194,7 +5194,7 @@ function rgViewer(){const g=rgG();if(!g)return null;if(S.lk&&!S.demo)return rgMe
 const rgNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(rgHumans().length<2)return null;const a=rgActive();return a&&RGVIEW!==a.id?a:null};
 
 function rgTick(){if(S.game!=='rage'||!rgPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!rgRes())return;if(lkqRun()){save();render();return}
-  const g=rgG();if(!g||g.r!==rgCur()&&g.phase!=='done'){rgDeal(rgCur());save();render();return}
+  const g=rgG();if(!g||cgStale(g)||g.r!==rgCur()&&g.phase!=='done'){rgDeal(rgCur());save();render();return}
   const later=(ms,f)=>{if(!RGBOTT)RGBOTT=setTimeout(()=>{RGBOTT=null;f();save();render()},ms*htSpd())};
   if(g.phase==='bid'&&RGX().bidAll){if(act().every(p=>g.bids[p.id]!==undefined))cdRun(g,x=>{x.turn=rgNext(x.dealer)});return}
   if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot)later(700,()=>{const g2=rgG();if(g2&&g2.phase==='bid'&&g2.bidTurn===q.id)rgBid(q.id,rgBotBid(g2,q.id,q.bot))});return}
@@ -5213,7 +5213,7 @@ function rgCardEl(c,o={}){const tag=o.btn?'button':'span',attr=o.btn?` data-a="r
 function rgPlay(){const X=RGX(),P=act(),g=rgG(),r=rgCur(),N=rgN(),sc=P.map(rgTot),hi=Math.max(...sc),lead=rgLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Round ${r+1} of ${N}">${r+1}/${N}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&(g.turn===q.id||g.bidTurn===q.id)}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${rgHits(q)} made</div></button>`).join('')}</div>`;
-  if(!g)return out+`<div class="panel" style="padding:16px">${waitLoader(rgRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
+  if(!g||cgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(rgRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
   const V=rgViewer(),hand=V?g.h[V.id]||[]:[],me=rgMe(),n=rgCards(g.r),bidP=P.find(p=>p.id===g.bidTurn),turnP=P.find(p=>p.id===g.turn);
   const trName=g.tr?RGC[g.tr][0]:'No trump';let status='';
   const allMode=RGX().bidAll,myTurnBid=V&&g.phase==='bid'&&(allMode?g.bids[V.id]===undefined&&!g.cd:g.bidTurn===V.id);
@@ -5331,7 +5331,7 @@ function rgRulesSheet(){const X=RGX();
   ${X.fore?`<dt>Forehead round</dt><dd>After the 1-card round, everyone gets one more card and holds it on their forehead without looking. Bid 0 or 1 based on everyone else\u2019s cards. Scored like any round.</dd>`:''}<dt>Winning</dt><dd>Highest score after the last round. A tie goes to whoever made more bids.</dd></dl></div></div></div>`}
 function rgHomeCard(){const st=gamePeek('rage');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/rage-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart rgart&quot; aria-hidden=&quot;true&quot;>!</div>'"><div><h2>Rage</h2><div class="meta">Card game · bid your tricks</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="rage">Resume game</button><button class="btn" data-a="gnew" data-k="rage">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="rage">Resume game</button><button class="btn" data-a="gnew" data-k="rage">New game</button><button class="btn" data-a="gabandon" data-k="rage" aria-label="Abandon this game">${ABANDON==='rage'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="rgstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="rgstart" data-k="0">Score a game</button></div>`}</div>`}
 const RGDEMOS=[{id:'rgfam',title:'Family night · Rage',tip:'Set bids, then tricks. Tap Bonus or Mad for whoever won those cards. Press and hold a name for their round-by-round history.',blurb:'Four players, 10 cards down to 1, then the forehead round. Lily calls her bids perfectly, Dad keeps winning the Mad Rage card.'}];
 function rgDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=rgFresh();S.rgx={...RGDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -5532,7 +5532,7 @@ function fcGuide(){const X=FCX(),n=act().length;
     ['Winning',[['After 11 rounds',`Lowest total wins. ${X.tie==='round'?'A tie plays a 6-card tie-breaker round.':X.tie==='share'?'Ties share the win.':'If it’s a tie, choose to share the win or play a 6-card tie-breaker.'}`]]]])}
 function fcHomeCard(){const st=gamePeek('crowns');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/crowns-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart fcart&quot; aria-hidden=&quot;true&quot;>♛&#xFE0E;</div>'"><div><h2>Five Crowns</h2><div class="meta">Card game · low score wins</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="crowns">Resume game</button><button class="btn" data-a="gnew" data-k="crowns">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="crowns">Resume game</button><button class="btn" data-a="gnew" data-k="crowns">New game</button><button class="btn" data-a="gabandon" data-k="crowns" aria-label="Abandon this game">${ABANDON==='crowns'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="crowns">Score a game</button>`}</div>`}
 const FCDEMOS=[{id:'fcfam',title:'Family night · Five Crowns',tip:'Low score wins. Switch between typing totals and tapping cards. Press and hold a name for their history.',blurb:'Four players, 3 cards up to 13. Mom goes out five times, and Ben gets stuck with a joker when the Kings go wild.'}];
 function fcDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=fcFresh();S.fcx={...FCDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -5633,7 +5633,7 @@ function sbGuide(){const X=SBX(),n=sbPeople(),W=X.mode==='wins';
     ['Winning the game',[[X.end==='points'?(W?`First to ${X.winsT} wins`:`First to ${X.target}`):X.end==='hands'?`${X.hands} hands`:'Until you stop',X.end==='points'?'The first to reach it wins.':`Most ${W?'wins':'points'} wins.`]]]])}
 function sbHomeCard(){const st=gamePeek('skipbo');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/skipbo-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart sbart&quot; aria-hidden=&quot;true&quot;>12</div>'"><div><h2>Skip-Bo</h2><div class="meta">Card game · empty your stock pile</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="skipbo">Resume game</button><button class="btn" data-a="gnew" data-k="skipbo">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="skipbo">Resume game</button><button class="btn" data-a="gnew" data-k="skipbo">New game</button><button class="btn" data-a="gabandon" data-k="skipbo" aria-label="Abandon this game">${ABANDON==='skipbo'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="sbstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="sbstart" data-k="0">Score a game</button></div>`}</div>`}
 const SBDEMOS=[{id:'sbfam',title:'Family night · Skip-Bo',tip:'Tap who emptied their stock pile, then type everyone else’s cards left. Press and hold a name for their history.',blurb:'Three players racing to 500. Lily wins the first two hands, then Dad catches a monster hand with 41 cards left on the table.'}];
 function sbDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=sbFresh();S.sbx={...SBDEF};S.demo=id;S.players.forEach((p,i)=>p.on=i<3);const P=S.players.slice(0,3);['Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -5760,7 +5760,7 @@ function gnGuide(){const X=GNX();
     ['Winning',[[X.end==='rounds'?`After ${X.rounds} rounds`:'When you stop',gnRW()?'Whoever won the most rounds (lowest score that round).':'Lowest total wins. A tie goes to the lower last round.']]]])}
 function gnHomeCard(){const st=gamePeek('gnome');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/gnome-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart gnart&quot; aria-hidden=&quot;true&quot;>⛳&#xFE0E;</div>'"><div><h2>Gnoming A Round</h2><div class="meta">Card game · mini-golf · low score wins</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="gnome">Resume game</button><button class="btn" data-a="gnew" data-k="gnome">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="gnome">Resume game</button><button class="btn" data-a="gnew" data-k="gnome">New game</button><button class="btn" data-a="gabandon" data-k="gnome" aria-label="Abandon this game">${ABANDON==='gnome'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gpstart" data-g="gnome" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="gpstart" data-g="gnome" data-k="0">Score a game</button></div>`}</div>`}
 const GNDEMOS=[{id:'gnfam',title:'Family night · Gnoming A Round',tip:'Round 9 is filled in card by card; tap any card to change it. Earlier rounds were typed. Press and hold a name for their history.',blurb:'Four players, a full front nine. Ben goes out first and gets punished, Mom builds two sets with one Mulligan.'}];
 function gnDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=gnFresh();S.gnx={...GNDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -5876,7 +5876,7 @@ function skGuide(){const X=SKX();
     ['Winning',[[X.end==='points'?`Someone reaches ${X.target}`:X.end==='rounds'?`After ${X.rounds} rounds`:'When you stop','Lowest total wins.']]]])}
 function skHomeCard(){const st=gamePeek('skyjo');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/skyjo-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart skart&quot; aria-hidden=&quot;true&quot;>12</div>'"><div><h2>Skyjo</h2><div class="meta">Card game · low score wins</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="skyjo">Resume game</button><button class="btn" data-a="gnew" data-k="skyjo">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="skyjo">Resume game</button><button class="btn" data-a="gnew" data-k="skyjo">New game</button><button class="btn" data-a="gabandon" data-k="skyjo" aria-label="Abandon this game">${ABANDON==='skyjo'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gpstart" data-g="skyjo" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="gpstart" data-g="skyjo" data-k="0">Score a game</button></div>`}</div>`}
 const SKDEMOS=[{id:'skfam',title:'Family night · Skyjo',tip:'The last round is filled in card by card; matching columns are cleared. Press and hold a name for their history.',blurb:'Four players until someone hits 100. Dad ends a round too early and gets doubled; Lily clears three columns in the final round.'}];
 function skDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=skFresh();S.skx={...SKDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -5978,7 +5978,7 @@ function wsGuide(){const X=WSX();
     ['Everything else',[['Setup and turns','Check the rulebook and your player mat.']]]])}
 function wsHomeCard(){const st=gamePeek('wingspan'),h=st?(st.hr||0):0;
   return `<div class="game"><div class="gtop"><img class="gart" src="art/wingspan-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart wsart&quot; aria-hidden=&quot;true&quot;>🐦</div>'"><div><h2>Wingspan</h2><div class="meta">Board game · high score wins</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: ${h>=4?'final count':`round ${h+1}`}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="wingspan">Resume game</button><button class="btn" data-a="gnew" data-k="wingspan">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: ${h>=4?'final count':`round ${h+1}`}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="wingspan">Resume game</button><button class="btn" data-a="gnew" data-k="wingspan">New game</button><button class="btn" data-a="gabandon" data-k="wingspan" aria-label="Abandon this game">${ABANDON==='wingspan'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="wingspan">Score a game</button>`}</div>`}
 const WSDEMOS=[{id:'wsfam',title:'Family night · Wingspan',tip:'All four round goals are in and the final count is filled out. Tap a round to see how placements and ties were scored.',blurb:'Four players on the placement side. Mom and Dad tie for 1st in round 2 and split the points, then tie at the end. Leftover food decides it.'}];
 function wsDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=wsFresh();S.wsx={...WSDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -6076,7 +6076,7 @@ function wyGuide(){
     ['Everything else',[['Setup and turns','Check the rulebook and your player mat.']]]])}
 function wyHomeCard(){const st=gamePeek('wyrmspan'),h=st?(st.hr||0):0;
   return `<div class="game"><div class="gtop"><img class="gart" src="art/wyrmspan-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart wyart&quot; aria-hidden=&quot;true&quot;>🐉</div>'"><div><h2>Wyrmspan</h2><div class="meta">Board game · high score wins</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: ${h>=4?'final count':`round ${h+1}`}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="wyrmspan">Resume game</button><button class="btn" data-a="gnew" data-k="wyrmspan">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: ${h>=4?'final count':`round ${h+1}`}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="wyrmspan">Resume game</button><button class="btn" data-a="gnew" data-k="wyrmspan">New game</button><button class="btn" data-a="gabandon" data-k="wyrmspan" aria-label="Abandon this game">${ABANDON==='wyrmspan'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="wyrmspan">Score a game</button>`}</div>`}
 const WYDEMOS=[{id:'wyfam',title:'Family night · Wyrmspan',tip:'All four round objectives are in and the final count is filled out. Tap a round to see how friendly ties were scored.',blurb:'Four players. Mom and Lily tie for 1st in round 3 and both score 6, so Dad still takes 2nd. Mom wins by a single point.'}];
 function wyDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=wyFresh();S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -6186,7 +6186,7 @@ function ptGuide(){const X=PTX(),L=ptList(),g=ptGoal();
     ['Everything else',[['Dealing and turns','Check the rule card in the box.']]]])}
 function ptHomeCard(){const st=gamePeek('phase10');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/phase10-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart ptart&quot; aria-hidden=&quot;true&quot;>10</div>'"><div><h2>Phase 10</h2><div class="meta">Card game · phases, then low score</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="phase10">Resume game</button><button class="btn" data-a="gnew" data-k="phase10">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="phase10">Resume game</button><button class="btn" data-a="gnew" data-k="phase10">New game</button><button class="btn" data-a="gabandon" data-k="phase10" aria-label="Abandon this game">${ABANDON==='phase10'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="phase10">Score a game</button>`}</div>`}
 const PTDEMOS=[{id:'ptfam',title:'Family night · Phase 10',tip:'The last hand is open. Ben and Lily both finish Phase 10 in it, so the lower total wins. Press and hold a name for their history.',blurb:'Four players, official rules. Dad gets stuck on the run of 9; Ben and Lily both finish in the same hand and the lower score takes it.'}];
 function ptDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=ptFresh();S.ptx=JSON.parse(JSON.stringify(PTDEF));S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -6362,7 +6362,7 @@ function rkViewer(){const g=rkG();if(!g)return null;if(S.lk&&!S.demo)return rkMe
 const rkNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(rkHumans().length<2)return null;const a=rkActive();return a&&RKVIEW!==a.id?a:null};
 
 function rkTick(){if(S.game!=='rook'||!rkPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!rkRes())return;if(lkqRun()){save();render();return}
-  const g=rkG();if(!g||g.r!==rkCur()&&g.phase!=='done'){rkDeal(rkCur());save();render();return}
+  const g=rkG();if(!g||cgStale(g)||g.r!==rkCur()&&g.phase!=='done'){rkDeal(rkCur());save();render();return}
   const later=(ms,f)=>{if(!RKBOTT)RKBOTT=setTimeout(()=>{RKBOTT=null;f();save();render()},ms*htSpd())};
   if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot)later(800,()=>{const g2=rkG();if(g2&&g2.phase==='bid'&&g2.bidTurn===q.id)rkBid(q.id,rkBotBid(g2,q.id,q.bot))});return}
   if(g.phase==='nest'){const q=act().find(p=>p.id===g.bidder);if(q&&q.bot)later(1200,()=>{const g2=rkG();if(g2&&g2.phase==='nest'){const x=rkBotNest(g2,q.id);rkSetNest(q.id,x.disc,x.tr)}});return}
@@ -6378,7 +6378,7 @@ function rkCardEl(c,o={}){const tag=o.btn?'button':'span',attr=o.btn?` data-a="r
 function rkPlay(){const X=RKX(),P=act(),g=rkG(),r=rkCur(),all=rkAll(),T=[P[0],P[1]].map(q=>rkTot(q)),team=(i)=>`${esc(nm(P[i]))} & ${esc(nm(P[i+2]))}`;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">🐦‍⬛${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="rkteams">${[0,1].map(i=>`<div class="rkteam" style="${pc(P[i].color)}"><b>${team(i)}</b><span class="num">${T[i]}</span><small>${T[i]>=X.target?'reached '+X.target:`${X.target-T[i]} to go`}</small></div>`).join('')}</div>`;
-  if(!g)return out+`<div class="panel" style="padding:16px">${waitLoader(rkRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
+  if(!g||cgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(rkRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
   const V=rkViewer(),hand=V?g.h[V.id]||[]:[],me=rkMe(),bidTurnP=P.find(p=>p.id===g.bidTurn),turnP=P.find(p=>p.id===g.turn),bidderP=P.find(p=>p.id===g.bidder);
   const trName=g.trump?RKCOL[g.trump][0]:'';
   let status='';
@@ -6447,7 +6447,7 @@ function rkGuide(){const X=RKX(),all=rkAll();
     X.play?['Playing on the phone',[['The deck',`2s, 3s and 4s out${X.ones?'; 1s in, above the 14':', and the 1s'}. 9 cards each${X.ones?' (10 with the 1s)':''}, 5 in the nest.`],['Bidding',`${X.bidFirst==='left'?'The player left of the dealer':'The dealer'} bids first. Pass and you’re out for the hand.`],['The nest',`The high bidder adds the nest, lays 5 cards aside (${X.layCounters?'counters allowed':'no counters'}) and names trump. ${X.nestTo==='bidder'?'The laid-aside cards count for the bidder’s team.':'The last trick takes the laid-aside cards.'}`],['The Rook',`${X.rookRank==='high'?'The highest trump':X.rookRank==='ten'?'A trump between the 10 and the 11':'The lowest trump'}, worth 20.${X.rookAny?' It can be played to any trick, even when you could follow the color led.':' It follows suit like any other trump.'}`],['Leading','The player left of the dealer leads the first trick.']]]:['Everything else',[['Dealing, trump and the Rook card','Check the rule card in the box.']]]])}
 function rkHomeCard(){const st=gamePeek('rook');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/rook-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart rkart&quot; aria-hidden=&quot;true&quot;>🐦‍⬛</div>'"><div><h2>Rook</h2><div class="meta">Play on the phone, or score real cards · partners</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="rook">Resume game</button><button class="btn" data-a="gnew" data-k="rook">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="rook">Resume game</button><button class="btn" data-a="gnew" data-k="rook">New game</button><button class="btn" data-a="gabandon" data-k="rook" aria-label="Abandon this game">${ABANDON==='rook'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="rkstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="rkstart" data-k="0">Score a game</button></div>`}</div>`}
 const RKDEMOS=[{id:'rkfam',title:'Family night · Rook',tip:'Both teams pass 300 in the last hand, so the higher total wins. Press and hold a team for their history.',blurb:'Mom & Dad against Ben & Lily, official rules. Mom & Dad get set on a bid of 90; in the last hand both teams pass 300 and the higher total takes it.'}];
 function rkDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=rkFresh();S.rkx={...RKDEF};S.demo=id;const P=S.players.slice(0,2);P[0].mem=['Mom','Dad'];P[1].mem=['Ben','Lily'];
@@ -6673,7 +6673,7 @@ function yzGuide(){const X=YZX();
     ['Winning',[['Highest total','The rules don’t give a tiebreaker, so a tie is a shared win.']]]])}
 function yzHomeCard(){const st=gamePeek('yahtzee');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/yahtzee-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart yzart&quot; aria-hidden=&quot;true&quot;>🎲</div>'"><div><h2>Yahtzee</h2><div class="meta">Play with dice on the phone, or score real dice</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="yahtzee">Resume game</button><button class="btn" data-a="gnew" data-k="yahtzee">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="yahtzee">Resume game</button><button class="btn" data-a="gnew" data-k="yahtzee">New game</button><button class="btn" data-a="gabandon" data-k="yahtzee" aria-label="Abandon this game">${ABANDON==='yahtzee'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="yzstart" data-k="1">🎲 Play</button><button class="btn" style="flex:1" data-a="yzstart" data-k="0">Score a game</button></div>`}</div>`}
 const YZDEMOS=[{id:'yzfam',title:'Family night · Yahtzee',tip:'Lily is on her last box with the dice already entered. Tap a gold box to score it, or press and hold a name to see a whole card.',blurb:'Four players, official rules. Ben rolls two Yahtzees for a 100-point bonus; Mom just misses the upper bonus.'}];
 function yzDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=yzFresh();S.yzx={...YZDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -6766,7 +6766,7 @@ function mtGuide(){const X=MTX(),n=act().length;
     ['Everything else',[['Trains, doubles and the Mexican Train','Check the rule card in the box.']]]])}
 function mtHomeCard(){const st=gamePeek('mextrain');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/mextrain-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart mtart&quot; aria-hidden=&quot;true&quot;>🁣</div>'"><div><h2>Mexican Train</h2><div class="meta">Dominoes · low score wins</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="mextrain">Resume game</button><button class="btn" data-a="gnew" data-k="mextrain">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="mextrain">Resume game</button><button class="btn" data-a="gnew" data-k="mextrain">New game</button><button class="btn" data-a="gabandon" data-k="mextrain" aria-label="Abandon this game">${ABANDON==='mextrain'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="mextrain">Score a game</button>`}</div>`}
 const MTDEMOS=[{id:'mtfam',title:'Family night · Mexican Train',tip:'The last round, the 0|0, is open. Press and hold a name to see every round.',blurb:'Four players, double-12. Ben goes out three times; Dad gets caught with a fistful of high dominoes in round 4.'}];
 function mtDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=mtFresh();S.mtx={...MTDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -6963,7 +6963,7 @@ function ctGuide(){const X=CTX(),g=ctGoal(),off=ctCK()?13:10;
     ['Everything else',[['Trading, the robber and development cards','Check the rule card in the box.']]]])}
 function ctHomeCard(){const st=gamePeek('catan'),x=(st&&st.ctx)||ctSaved(),ck=x.mode==='ck';
   return `<div class="game"><div class="gtop"><img class="gart" src="art/catan-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart ctart&quot; aria-hidden=&quot;true&quot;>⬢</div>'"><div><h2>Catan</h2><div class="meta">${ck?'Cities &amp; Knights':x.mode==='sf'?'Seafarers':x.mode==='tb'?'Traders &amp; Barbarians':'Live tracker'}${x.mode==='tb'?'':` · first to ${ck?x.goalCK||13:x.mode==='sf'?x.goalSF||12:x.goal||10}`}</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="catan">Resume game</button><button class="btn" data-a="gnew" data-k="catan">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="catan">Resume game</button><button class="btn" data-a="gnew" data-k="catan">New game</button><button class="btn" data-a="gabandon" data-k="catan" aria-label="Abandon this game">${ABANDON==='catan'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="catan">Track a game</button>`}</div>`}
 const CTDEMOS=[{id:'ctfam',title:'Family night · Catan',tip:'Lily just hit 10. Tap Finish & reveal, or press and hold a name to see their points.',blurb:'Four players. Dad holds Longest Road, Ben grabbed Largest Army, and Lily sneaks to 10 with two hidden victory point cards.'},
   {id:'ctck',title:'Cities & Knights · barbarians at the gate',tip:'The ship is one step away. Tap Ship moves to see the attack.',blurb:'Four players, first to 13. Mom runs the science metropolis, Dad has the Merchant, and Lily’s knights are all asleep.'}];
@@ -7094,7 +7094,7 @@ function gfGuide(){const X=GFX(),n=act().length,{rows,cols}=gfShape(),decks=n*X.
     ['Winning',[[X.end==='rounds'?`After ${X.holes} holes`:X.end==='points'?`Someone reaches ${X.target}`:'When you stop','Lowest total wins.']]]])}
 function gfHomeCard(){const st=gamePeek('golf');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/golf-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart gfart&quot; aria-hidden=&quot;true&quot;>⛳&#xFE0E;</div>'"><div><h2>Golf</h2><div class="meta">Card game · many versions · low score wins</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hole ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="golf">Resume game</button><button class="btn" data-a="gnew" data-k="golf">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hole ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="golf">Resume game</button><button class="btn" data-a="gnew" data-k="golf">New game</button><button class="btn" data-a="gabandon" data-k="golf" aria-label="Abandon this game">${ABANDON==='golf'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gpstart" data-g="golf" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="gpstart" data-g="golf" data-k="0">Score a game</button></div>`}</div>`}
 const GFDEMOS=[{id:'gffam',title:'Family night · Golf',tip:'Hole 9 is filled in card by card; matching rows and columns cancel. Press and hold a name for their history.',blurb:'Four players, 9-card golf over a front nine. Dad goes out early on the last hole and takes the +10.'}];
 function gfDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=gfFresh();S.gfx={...GFDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -7206,7 +7206,7 @@ function tpGuide(){const X=TPX(),n=act().length;
     ['Winning',[[X.end==='hands'?`After ${X.hands} hands`:'When you stop','Most chips wins. Chips left in pens stay there; the rulebook suggests a final hand of showdown poker to clear them.']]]])}
 function tpHomeCard(){const st=gamePeek('tripoley');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/tripoley-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart tpart&quot; aria-hidden=&quot;true&quot;>♥&#xFE0E;</div>'"><div><h2>Tripoley</h2><div class="meta">Card game · chips · the app is the bank</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="tripoley">Resume game</button><button class="btn" data-a="gnew" data-k="tripoley">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="tripoley">Resume game</button><button class="btn" data-a="gnew" data-k="tripoley">New game</button><button class="btn" data-a="gabandon" data-k="tripoley" aria-label="Abandon this game">${ABANDON==='tripoley'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="tripoley">Score a game</button>`}</div>`}
 const TPDEMOS=[{id:'tpfam',title:'Family night · Tripoley',tip:'Tap who claimed each pen, the poker bets and winner, then who went out first. The app moves the chips.',blurb:'Five players with 50 chips each. The King-Queen pen sits in the dead hand for three hands and grows, until Grandma finally collects it.'}];
 function tpDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=tpFresh();S.tpx={...TPDEF};S.demo=id;const P=S.players.slice(0,5);['Mom','Dad','Ben','Lily','Grandma'].forEach((n,i)=>P[i].name=n);const id_=i=>P[i].id;
@@ -7486,7 +7486,7 @@ function qkGuide(){const X=QKX(),n=act().length;
     ['Winning',[['Most points',`Highest score wins${X.herb?'; every unused witch penny is worth 2 points':''}. A tie goes to whoever got furthest in their pot in the last round.`]]]])}
 function qkHomeCard(){const st=gamePeek('quacks');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/quacks-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart qkart&quot; aria-hidden=&quot;true&quot;>⚗&#xFE0E;</div>'"><div><h2>The Quacks of Quedlinburg</h2><div class="meta">Board game · Herb Witches · Alchemists</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="quacks">Resume game</button><button class="btn" data-a="gnew" data-k="quacks">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="quacks">Resume game</button><button class="btn" data-a="gnew" data-k="quacks">New game</button><button class="btn" data-a="gabandon" data-k="quacks" aria-label="Abandon this game">${ABANDON==='quacks'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="quacks">Score a game</button>`}</div>`}
 const QKDEMOS=[{id:'qkfam',title:'Family night · Quacks',tip:'Each round, tap the scoring space and whether the pot exploded. The furthest pot rolls the bonus die. Round 9 adds leftover coins, rubies and witch pennies.',blurb:'Four players with both expansions. Ben blows up three pots but keeps taking the coins, and Lily rides the bonus die to a late lead.'}];
 function qkDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=qkFresh();S.qkx={...QKDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -7642,7 +7642,7 @@ function ohViewer(){const g=ohG();if(!g)return null;if(S.lk&&!S.demo)return ohMe
 const ohNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(ohHumans().length<2)return null;const a=ohActive();return a&&OHVIEW!==a.id?a:null};
 
 function ohTick(){if(S.game!=='ohell'||!ohPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!ohRes())return;if(lkqRun()){save();render();return}
-  const g=ohG();if(!g||g.r!==ohCur()&&g.phase!=='done'){ohDeal(ohCur());save();render();return}
+  const g=ohG();if(!g||cgStale(g)||g.r!==ohCur()&&g.phase!=='done'){ohDeal(ohCur());save();render();return}
   if(g.phase==='bid'&&act().every(p=>g.bids[p.id]!==undefined)){if(OHX().hook){g.phase='play';g.bidTurn=null;g.turn=ohNext(g.dealer);save();render()}else cdRun(g,x=>{x.turn=ohNext(x.dealer)});return}
   if(g.phase==='bid'){if(OHX().hook){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot&&!OHBOTT)OHBOTT=setTimeout(()=>{OHBOTT=null;const g2=ohG();if(!g2||g2.phase!=='bid'||g2.bidTurn!==q.id)return;ohBid(q.id,ohBotBid(g2,q.id,q.bot));save();render()},700*htSpd())}return}
   if(g.phase!=='play')return;
@@ -7654,7 +7654,7 @@ function ohTick(){if(S.game!=='ohell'||!ohPlayOn()||!S.started||S.finished||S.sc
 function ohPlay(){const X=OHX(),P=act(),g=ohG(),r=ohCur(),N=ohN(),sc=P.map(ohTot),hi=Math.max(...sc),lead=ohLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Round ${r+1} of ${N}">${r+1}/${N}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&(g.turn===q.id||g.bidTurn===q.id)}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${ohHits(q)} made</div></button>`).join('')}</div>`;
-  if(!g)return out+`<div class="panel" style="padding:16px">${waitLoader(ohRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
+  if(!g||cgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(ohRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
   const V=ohViewer(),hand=V?g.h[V.id]||[]:[],me=ohMe(),n=ohCards(g.r),allIn=P.every(p=>g.bids[p.id]!==undefined),showBids=allIn&&!g.cd||X.hook;
   const trName=g.tr==='N'?'No trump':{S:'Spades',H:'Hearts',D:'Diamonds',C:'Clubs'}[g.tr]+' are trump';
   const sum=P.reduce((a,p)=>a+(g.bids[p.id]||0),0);
@@ -7721,7 +7721,7 @@ function ohGuide(){const X=OHX(),n=act().length,N=ohN();
     ['Winning',[['After the last round','Highest score wins.']]]])}
 function ohHomeCard(){const st=gamePeek('ohell');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/ohell-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart ohart&quot; aria-hidden=&quot;true&quot;>♠</div>'"><div><h2>Oh Hell</h2><div class="meta">Play on the phone, or score real cards · bid exactly</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="ohell">Resume game</button><button class="btn" data-a="gnew" data-k="ohell">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="ohell">Resume game</button><button class="btn" data-a="gnew" data-k="ohell">New game</button><button class="btn" data-a="gabandon" data-k="ohell" aria-label="Abandon this game">${ABANDON==='ohell'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="ohstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="ohstart" data-k="0">Score a game</button></div>`}</div>`}
 const OHDEMOS=[{id:'ohfam',title:'Family night · Oh Hell',tip:'Set bids, then tricks won. Tap the trump suit each round. Press and hold a name for their round-by-round history.',blurb:'Four players, 13 rounds from 1 card up to 13. Mom nails her zero bids, Ben keeps overbidding.'}];
 function ohDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=ohFresh();S.ohx={...OHDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -7893,7 +7893,7 @@ function unGuide(){const X=UNX(),v=unV();const vals=(list,side)=>list.map(([id,l
       ['Winning',X.mode==='take'?`First to ${unTarget()} points wins.`:`When anyone reaches ${unTarget()}, the lowest score wins.`]]]])}
 function unHomeCard(){const st=gamePeek('uno');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/uno-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart unart&quot; aria-hidden=&quot;true&quot;>1</div>'"><div><h2>UNO</h2><div class="meta">Card game · Classic, Flip, No Mercy, Attack!, DOS, All Wild!</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="uno">Resume game</button><button class="btn" data-a="gnew" data-k="uno">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="uno">Resume game</button><button class="btn" data-a="gnew" data-k="uno">New game</button><button class="btn" data-a="gabandon" data-k="uno" aria-label="Abandon this game">${ABANDON==='uno'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="unstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="unstart" data-k="0">Score a game</button></div>`}</div>`}
 const UNDEMOS=[{id:'unfam',title:'Family night · UNO',tip:'Tap who went out, then type what everyone else had left. Press and hold a name for their history.',blurb:'Four players racing to 500 in classic UNO. Ben gets caught holding two Wild Draw Fours, and Lily sneaks out for the win.'}];
 function unDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=unFresh();S.unx=JSON.parse(JSON.stringify(UNDEF));S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -7938,7 +7938,7 @@ const unCallOn=()=>!!UNX().hr.callUno;
 const unAW=g=>g&&g.ver==='allwild',unAT=g=>g&&g.ver==='attack',unDOS=g=>g&&g.ver==='dos';
 const unCallWord=g=>unDOS(g)?'DOS':'UNO';
 const unJumpOn=()=>!!UNX().hr.jump;
-const nmid=id=>nm(act().find(p=>p.id===id)||{name:''});
+const nmid=id=>{const p=act().find(q=>q.id===id);return p?nm(p):'someone'};
 const unColName=c=>c?UNCOL[c][0]:'any color';
 const unName=(g,c)=>{const f=unFace(g,c);return f.col?`${UNCOL[f.col][0]} ${unIsNum(f.k)?f.k:UNKN[f.k]}`:UNKN[f.k]};
 const unAlive=g=>act().filter(p=>!(g.ko||{})[p.id]);
@@ -8097,7 +8097,7 @@ function unViewer(){const g=ung();if(!g)return null;if(S.lk&&!S.demo)return unMe
 const unNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(unHumans().length<2)return null;const a=unActive();return a&&UNVIEW!==a.id?a:null};
 
 function unTick(){if(S.game!=='uno'||!unPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!unRes())return;if(lkqRun()){save();render();return}
-  const g=ung();if(!g||g.r!==unCur()&&g.phase!=='done'){unDeal(unCur());save();render();return}
+  const g=ung();if(!g||cgStale(g)||g.r!==unCur()&&g.phase!=='done'){unDeal(unCur());save();render();return}
   if(g.phase!=='play')return;const spd=htSpd();
   if(g.catch){const tgt=g.catch.p,key=g.r+':'+g.catch.id+':'+tgt;if(!UNCS[key]){UNCS[key]=1;const cs=unAlive(g).filter(p=>p.bot&&p.id!==tgt),pr=Math.max(0,...cs.map(p=>({easy:.25,normal:.55,hard:.85})[p.bot]));
     if(cs.length&&Math.random()<pr){const who=cs.sort((a,b)=>({easy:0,normal:1,hard:2})[b.bot]-({easy:0,normal:1,hard:2})[a.bot])[0];setTimeout(()=>{const g2=ung();if(g2&&g2.catch&&g2.catch.p===tgt&&unCatch(g2,who.id,tgt)){unAfter(g2);save();render()}},(650+Math.random()*700)*spd)}}}
@@ -8116,7 +8116,7 @@ function unShoutEl(g,q){const s=g.shout;if(!s)return '';const k=g.r+':'+s.p+':'+
 function unPlay(){const X=UNX(),P=act(),g=ung(),r=unCur(),W=X.mode==='wins',low=X.mode==='low',sc=P.map(unTot),best=low?Math.min(...sc):Math.max(...sc),lead=unLast()>=0&&sc.filter(x=>x===best).length===1?P[sc.indexOf(best)]:null;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">#${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&g.phase==='play'&&unActorId(g)===q.id}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${W?'wins':`${unWins(q)} won`}</div></button>`).join('')}</div>`;
-  if(!g)return out+`<div class="panel" style="padding:16px">${waitLoader(unRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
+  if(!g||cgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(unRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
   const V=unViewer(),me=unMe(),hand=V?unSort(g,g.h[V.id]||[]):[],actor=g.phase==='play'?act().find(p=>p.id===unActorId(g)):null,mine=V&&actor&&actor.id===V.id,top=g.disc[g.disc.length-1];
   let status='';
   if(g.phase==='done')status=`<b>Hand ${r+1} is over.</b>`;
@@ -8358,7 +8358,7 @@ function gpScore(g){const P=act();P.forEach(p=>g.h[p.id].forEach(x=>x.up=true));
 const gpName=(g,c)=>{if(gpGN(g)){const k=gpRank(c);return k==='H'?'Hazard':k==='M'?'Mulligan':k}if(gpSK(g))return gpRank(c);const k=gpRk(c);return k==='Jk'?'joker':({A:'ace',J:'jack',Q:'queen',K:'king'}[k]||k)};
 const gpPts=(g,pid)=>{const p=act().find(q=>q.id===pid);return gpGN(g)?gnPts(p,g.r):gpSK(g)?skPts(p,g.r):gfPts(p,g.r)};
 /* the score you can see right now (face-down cards count as 0) */
-function gpSeen(g,pid){const cells=g.h[pid],gone=new Set();if(gpGN(g)){const r=gnGrid(cells.map(x=>{if(!x.up)return 0;const k=gpRank(x.c);return k==='H'||k==='M'?k:+k}));return r?r.score:0}if(!gpSK(g)){const X=GFX();gfLines(X).forEach(L=>{const x0=cells[L.idx[0]];if(L.idx.every(i=>cells[i].up)&&L.idx.every(i=>gpSame(g,cells[i].c,x0.c))&&(X.negCancel||gpVal(g,x0.c)>=0))L.idx.forEach(i=>gone.add(i))})}
+function gpSeen(g,pid){const cells=g.h[pid],gone=new Set();if(!cells)return 0;if(gpGN(g)){const r=gnGrid(cells.map(x=>{if(!x.up)return 0;const k=gpRank(x.c);return k==='H'||k==='M'?k:+k}));return r?r.score:0}if(!gpSK(g)){const X=GFX();gfLines(X).forEach(L=>{const x0=cells[L.idx[0]];if(L.idx.every(i=>cells[i].up)&&L.idx.every(i=>gpSame(g,cells[i].c,x0.c))&&(X.negCancel||gpVal(g,x0.c)>=0))L.idx.forEach(i=>gone.add(i))})}
   return cells.reduce((a,x,i)=>a+(x.up&&!x.gone&&!gone.has(i)?gpVal(g,x.c):0),0)}
 
 /* ---------------- computer players ---------------- */
@@ -8442,7 +8442,7 @@ const gpHumans=()=>act().filter(p=>!p.bot);
 function gpViewer(){const g=gpG();if(!g)return null;if(S.lk&&!S.demo)return gpMe();const H=gpHumans();if(!H.length)return null;if(H.length===1)return H[0];
   if(g.phase==='flip'){return H.find(p=>g.need[p.id]>0)||H[0]}const t=act().find(p=>p.id===g.turn);return t&&!t.bot?t:H.find(p=>p.id===GPVIEW)||H[0]}
 function gpTick(){if((S.game!=='golf'&&S.game!=='skyjo'&&S.game!=='gnome')||!gpOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!gpRes())return;if(lkqRun()){save();render();return}
-  const g=gpG(),cur=S.game==='golf'?gfCur():S.game==='gnome'?gnCur():skCur();if(!g||g.game!==S.game||g.r!==cur&&g.phase!=='done'){gpDeal(cur);save();render();return}
+  const g=gpG(),cur=S.game==='golf'?gfCur():S.game==='gnome'?gnCur():skCur();if(!g||g.game!==S.game||cgStale(g)||g.r!==cur&&g.phase!=='done'){gpDeal(cur);save();render();return}
   if(g.phase==='done')return;const actor=g.phase==='flip'?null:g.turn,q=act().find(p=>p.id===actor);
   if(q&&q.bot&&!GPBOTT)GPBOTT=setTimeout(()=>{GPBOTT=null;const g2=gpG();if(g2&&g2.phase==='play'&&g2.turn===q.id){gpBotStep(g2,q);save()}render()},(g.hold||g.flip||g.bounce||g.left2?850:1000)*htSpd())}
 
@@ -8461,7 +8461,7 @@ function gpGridEl(g,pid,o={}){const {cols}=gpShape(g),cells=g.h[pid],mine=o.mine
 function gpPlay(){const P=act(),g=gpG(),GN=S.game==='gnome',SK=S.game==='skyjo'||GN,r=GN?gnCur():S.game==='skyjo'?skCur():gfCur(),tot=GN?total:S.game==='skyjo'?skTot:gfTot,sc=P.map(tot),lo=Math.min(...sc),lead=(GN?gnLast():S.game==='skyjo'?skLast():gfLast())>=0&&sc.filter(v=>v===lo).length===1?P[sc.indexOf(lo)]:null,W=SK?'Round':'Hole';
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="${W} ${r+1}">${SK?'#':'⛳ '}${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&g.turn===q.id}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${g&&g.phase!=='done'?`showing ${gpSeen(g,q.id)}`:'total'}</div></button>`).join('')}</div>`;
-  if(!g||g.game!==S.game)return out+`<div class="panel" style="padding:16px">${waitLoader(gpRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
+  if(!g||g.game!==S.game||cgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(gpRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
   const V=gpViewer(),turnP=P.find(p=>p.id===g.turn),mine=V&&g.turn===V.id,hold=g.hold;let status='';
   const dlEl=dealAnim('gp'+S.game,g,g.n===0&&g.phase==='flip'),deal=dlEl===null?null:{el:dlEl};
   if(g.phase==='flip')status=V&&g.need[V.id]>0?`<b>${S.lk||gpHumans().length<2?'Flip':esc(nm(V))+', flip'} ${g.need[V.id]} card${g.need[V.id]===1?'':'s'} face up.</b> Tap ${g.need[V.id]===1?'one':'them'} in your grid.`:`Waiting for ${P.filter(p=>g.need[p.id]>0).map(p=>esc(nm(p))).join(', ')} to flip…`;
@@ -8503,6 +8503,7 @@ function gpPlay(){const P=act(),g=gpG(),GN=S.game==='gnome',SK=S.game==='skyjo'|
 function gpAct(a,b,k){const g=gpG();if(!g)return;const V=gpViewer();
   if(a==='gpdeal'){if(!gpRes()||g.phase!=='done')return;S.hr=(S.game==='golf'?gfCur():S.game==='gnome'?gnCur():skCur())+1;gpDeal(S.hr);window.scrollTo(0,0);return}
   if(!V)return;
+  if(g.phase==='flip'&&a!=='gpcell'){toast(g.need[V.id]>0?`Flip ${g.need[V.id]} of your cards face up first.`:'Waiting for everyone to flip their cards.');return}
   if(gpGN(g)){
     if(a==='gpcell'&&g.phase==='play'&&g.hzf[V.id]){if(!lkq('gpHz',V.id,+b.dataset.i))toast('Pick a face-down card.');return}
     if(a==='gpcell'&&g.phase==='play'&&g.hold&&g.hold.p===V.id){if(lkq('gpPlace',V.id,+b.dataset.i))vibe(15);else toast(gpRank(g.hold.c)==='M'?'Only one Mulligan in your grid: swap it for the one you have.':'Pick a different card.');return}
@@ -8526,6 +8527,8 @@ function gpAct(a,b,k){const g=gpG();if(!g)return;const V=gpViewer();
 const SBBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Card Bot'],hard:['Hard','Stack Bot']};
 const sbOn=()=>!!SBX().play;
 const sbG=()=>S.sbg||null;
+/* a dealt hand that doesn't match the players at the table (they were changed after the deal) gets dealt again */
+function cgStale(g){if(!g||!g.h)return false;const ids=act().map(p=>p.id),ks=Object.keys(g.h);return ids.some(id=>!g.h[id])||ks.some(id=>!ids.includes(id))}
 const sbRes=()=>!S.lk||S.demo||lkHost();
 const sbVal=c=>{const k=String(c).split('#')[0];return k==='W'?0:+k};
 const sbWild=c=>String(c)[0]==='W';
@@ -8587,7 +8590,7 @@ const sbHumans=()=>act().filter(p=>!p.bot);
 function sbViewer(){const g=sbG();if(!g)return null;if(S.lk&&!S.demo)return sbMe();const H=sbHumans();if(H.length===1)return H[0];if(!H.length)return null;const t=act().find(p=>p.id===g.turn);return t&&!t.bot&&SBVIEW===t.id?t:null}
 const sbNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=sbG();if(!g||g.phase!=='play'||sbHumans().length<2)return null;const t=act().find(p=>p.id===g.turn);return t&&!t.bot&&SBVIEW!==t.id?t:null};
 function sbTick(){if(S.game!=='skipbo'||!sbOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!sbRes())return;if(lkqRun()){save();render();return}
-  const g=sbG(),cur=sbCur();if(!g||g.r!==cur&&g.phase!=='done'){sbDeal(cur);save();render();return}
+  const g=sbG(),cur=sbCur();if(!g||cgStale(g)||g.r!==cur&&g.phase!=='done'){sbDeal(cur);save();render();return}
   if(g.phase!=='play')return;const q=act().find(p=>p.id===g.turn);
   if(q&&q.bot&&!SBBOTT&&!document.querySelector('.sheet-bg'))SBBOTT=setTimeout(()=>{SBBOTT=null;const g2=sbG();if(g2&&g2.phase==='play'&&g2.turn===q.id){sbBotStep(g2,q);save()}render()},700*htSpd())}
 
@@ -8598,7 +8601,7 @@ function sbCardEl(c,o={}){const tag=o.btn?'button':'span';if(!c)return `<${tag} 
 function sbPlayUI(){const X=SBX(),P=act(),g=sbG(),r=sbCur(),sc=P.map(sbTot),hi=Math.max(...sc),lead=sbLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">#${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&g.turn===q.id}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${g&&g.st[q.id]?g.st[q.id].length+' in stock':''}</div></button>`).join('')}</div>`;
-  if(!g)return out+`<div class="panel" style="padding:16px">${waitLoader(sbRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
+  if(!g||cgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(sbRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
   const V=sbViewer(),turnP=P.find(p=>p.id===g.turn),mine=V&&g.turn===V.id,sel=mine?SBSEL:null,selC=sel?sbCard(g,V.id,sel):null;
   let status=g.phase==='done'?`<b>Hand ${r+1} is over.</b>`:mine?(selC?`<b>Tap a building pile</b> to play the ${sbWild(selC)?'Skip-Bo card':sbVal(selC)}${sel.f==='hand'?', or one of your discard piles to discard it and end your turn':''}.`:`<b>Your turn${S.lk||sbHumans().length<2?'':', '+esc(nm(V))}.</b> Tap a card from your hand, stock pile or discard piles.`):turnP?`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is playing…`:'';
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
@@ -8892,7 +8895,7 @@ function mkGuide(){const X=MKX();
     ['Races & classes',[['Elf','+1 to Run Away; gain a level for each monster you help kill.'],['Dwarf','Carry any number of Big items; keep 6 cards in hand.'],['Halfling','Sell one item a turn for double.'],['Warrior','Wins ties in combat; Berserking.'],['Wizard','Flight spell and Charm.'],['Cleric','Resurrection and Turning (+3 vs. undead).'],['Thief','Backstab and Theft.'],['Half-Breed / Super Munchkin','Two races / two classes at once.'],(X.xr.length||X.xc.length)?['From expansions',`${[...X.xr,...X.xc].map(esc).join(', ')}: check the card for their powers.`]:null]]])}
 function mkHomeCard(){const st=gamePeek('munchkin');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/munchkin-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart mkart&quot; aria-hidden=&quot;true&quot;>⚔</div>'"><div><h2>Munchkin</h2><div class="meta">Card game · levels, gear, combat helper</div></div></div>
-    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="munchkin">Resume game</button><button class="btn" data-a="gnew" data-k="munchkin">New game</button></div>`
+    ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="munchkin">Resume game</button><button class="btn" data-a="gnew" data-k="munchkin">New game</button><button class="btn" data-a="gabandon" data-k="munchkin" aria-label="Abandon this game">${ABANDON==='munchkin'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="munchkin">Start a game</button>`}</div>`}
 const MKDEMOS=[{id:'mkfam',title:'Family night · Munchkin',tip:'Tap + and − for levels and gear, ⚔ to fight a monster, 🎲 to run away. Press and hold a name for their level history.',blurb:'Four players mid-game: Ben the Elf Wizard is one kill from winning, Dad is a Dwarf Warrior with a mountain of gear.'}];
 function mkDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=mkFresh();S.mkx=mkDefs();S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
@@ -8905,7 +8908,7 @@ function mkDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
 
 function cHomeCard(){const st=gamePeek('carc'),m='Carcassonne';
   return `<div class="game"><div class="gtop"><img class="gart" src="art/carc-icon.png" alt="" width="84" height="84" onerror="this.style.visibility='hidden'"><div><h2>Carcassonne</h2><div class="meta">3 editions · ${CEXP.length} expansions · house rules</div></div></div>
-    ${st&&st.started?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="carc">Resume game</button><button class="btn" data-a="gnew" data-k="carc">New game</button></div>`
+    ${st&&st.started?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="carc">Resume game</button><button class="btn" data-a="gnew" data-k="carc">New game</button><button class="btn" data-a="gabandon" data-k="carc" aria-label="Abandon this game">${ABANDON==='carc'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="carc">Score a game</button>`}</div>`}
 
 /* ---------- sample game ---------- */
@@ -9390,6 +9393,7 @@ const TCOL=c=>IMGC.includes(c)?c:'red';
 function artCars(p){const c=TCOL(p.color),K=['box','tank','hopper','caboose'];let h=[...String(p.id||nm(p))].reduce((a,ch)=>(a*31+ch.charCodeAt(0))>>>0,11),prev=-1,out=[];
   for(let i=0;i<24;i++){h=(h*1103515245+12345)>>>0;let k=(h>>>16)%4;if(k===prev)k=(k+1)%4;prev=k;out.push(K[k])}
   return `<span class="tr-row">${out.map(k=>`<img src="train/${k}-${c}.png" alt="" width="132" height="90">`).join('')}<img class="tr-eng" src="train/engine-${c}.png" alt="" width="172" height="86"></span>`}
+let ABANDON=null,ABT=null;
 let REV=null,REVBUSY=false,REVPAUSE=false,AUTOT=null;const RSP=()=>SET.revFast?.5:1;
 function goFinal(){REV.phase='roll';window.scrollTo(0,0);render();if(SET.sound)ac();const d=(SET.sound?(SND.roll?3.5:2.6):1.6)*RSP();if(SET.sound)playRoll(2.6*RSP());
   setTimeout(()=>{if(REV&&REV.phase==='roll'&&S.screen==='reveal'){REV.phase='final';render()}},d*1000+(SET.sound?(SND.roll?30:150):0))}
@@ -10205,6 +10209,7 @@ document.addEventListener('click',e=>{
     case 'setbig':SET.big=!SET.big;saveSet();break;
     case 'setcb':SET.cb=!SET.cb;saveSet();break;
     case 'hcat':{HOMECAT=HOMECAT===k?'':k;try{localStorage.setItem(KEY+'.homecat',HOMECAT)}catch(e){}break}
+    case 'gabandon':{if(ABANDON!==k){ABANDON=k;clearTimeout(ABT);ABT=setTimeout(()=>{ABANDON=null;render()},4000);break}ABANDON=null;clearTimeout(ABT);const was=S.game;switchGame(k);delete S.tmatch;resetScores();if(k==='carc'){S.clog=[];S.cend={}}S.started=false;S.finished=false;S.gameId=null;S.gameDate=null;S.endBy=null;S.screen='home';save();if(was&&was!==k)switchGame(was);S.screen='home';toast('Game abandoned. Nothing was saved to your history.');break}
     case 'gnew':switchGame(k);delete S.tmatch;if(k==='carc'){S.clog=[];S.cend={};S.started=false;S.finished=false;S.gameId=null;S.gameDate=null;S.endBy=null;S.screen='map'}else{resetScores();S.started=false;S.screen='map'}window.scrollTo(0,0);break;
     case 'gresume':switchGame(k);S.screen=S.finished?'results':S.rules.live?'live':'score';if(S.game==='carc'&&!S.finished)S.screen='live';window.scrollTo(0,0);break;
     case 'cdemo':cDemo(b.dataset.k);window.scrollTo(0,0);break;
@@ -10839,6 +10844,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='a87f92';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='2e1d88';</script>
 </body>
 </html>
