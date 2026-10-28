@@ -870,6 +870,9 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .ktseat.enraged::after{content:"🔥";position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:24px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
 @media (prefers-reduced-motion:no-preference){.ktseat.enraged{animation:rgshake .45s ease-in-out 6;animation-delay:var(--rgd,0ms)}.ktseat.enraged::after{animation:rgflame .35s ease-in-out infinite alternate}
   .ktseat.L.enraged{animation-name:rgshakeL}.ktseat.R.enraged{animation-name:rgshakeR}}
+.rageedge{position:fixed;inset:0;pointer-events:none;z-index:9999;box-shadow:inset 0 0 0 4px rgba(224,50,31,.9),inset 0 0 40px 14px rgba(255,70,30,.75),inset 0 0 110px 30px rgba(224,50,31,.35);animation:rgedge 1.3s ease-out forwards}
+@keyframes rgedge{0%{opacity:0}12%{opacity:1}30%{opacity:.75}45%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.rageedge{animation-duration:1.6s}}
 @keyframes rgshake{0%,100%{transform:translate(-50%,-50%) rotate(0)}20%{transform:translate(calc(-50% - 4px),-50%) rotate(-4deg)}40%{transform:translate(calc(-50% + 4px),-50%) rotate(4deg)}60%{transform:translate(calc(-50% - 3px),-50%) rotate(-3deg)}80%{transform:translate(calc(-50% + 3px),-50%) rotate(3deg)}}
 @keyframes rgshakeL{0%,100%{transform:translate(0,-50%) rotate(0)}25%{transform:translate(-3px,-50%) rotate(-4deg)}75%{transform:translate(3px,-50%) rotate(4deg)}}
 @keyframes rgshakeR{0%,100%{transform:translate(-100%,-50%) rotate(0)}25%{transform:translate(calc(-100% - 3px),-50%) rotate(-4deg)}75%{transform:translate(calc(-100% + 3px),-50%) rotate(4deg)}}
@@ -4994,6 +4997,7 @@ const cdHtml=g=>g&&g.cd?`<div class="cdbox" aria-live="assertive"><span class="r
 const RGRSEEN={},RAGEMS=3000;let RGRCOOL=0;
 function rgRageSeat(q){const n=(S.rgrage||{})[q.id]||0,sn=RGRSEEN[q.id];if(!sn){RGRSEEN[q.id]={n,at:0};return null}
   if(n>sn.n){sn.n=n;sn.at=Date.now();setTimeout(render,RAGEMS+60);if(!(S.lk&&S.lk.me===q.id))vibe([25,30,25])}const el=Date.now()-sn.at;return el<RAGEMS?{cls:'enraged',style:`--rgd:-${el}ms;`}:null}
+function rgEdge(){document.querySelectorAll('.rageedge').forEach(e=>e.remove());const e=document.createElement('div');e.className='rageedge';document.body.appendChild(e);setTimeout(()=>e.remove(),1400)}
 function rgRage(pid){if(!pid)return;S.rgrage={...(S.rgrage||{}),[pid]:((S.rgrage||{})[pid]||0)+1}}
 /* gentle nudge: when every other phone is waiting on this phone's bid */
 const NUDGE={key:'',since:0,count:0,last:0};
@@ -5133,7 +5137,7 @@ function rgModal(){const a=rgNeedHandoff();if(!a)return '';const g=rgG();return 
   <svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="rgp-h">${esc(nm(a))}</h2>
   <p class="rlab">${g.phase==='bid'?(RGX().bidAll?'Time to lock in your bid. It stays hidden until everyone’s in.':'Time to bid.'):'It’s your turn to play a card.'} Everyone else, look away.</p><button class="btn primary wide" data-a="rgshow" data-k="${a.id}">I’m ${esc(nm(a))}, ${g.fore?'I’m ready':'show my cards'}</button></div></div>`}
 function rgAct(a,b,k){const g=rgG();
-  if(a==='rgrage'){const V=rgViewer()||rgMe();if(!V)return;if(Date.now()<RGRCOOL){toast('Catch your breath first.');return}RGRCOOL=Date.now()+4000;rgRage(V.id);vibe(30);return}
+  if(a==='rgrage'){const V=rgViewer()||rgMe();if(!V)return;if(Date.now()<RGRCOOL){toast('Catch your breath first.');return}RGRCOOL=Date.now()+4000;rgRage(V.id);rgEdge();vibe([40,40,70]);return}
   if(a==='rgshow'){RGVIEW=k;RGSEL=null;return}
   if(a==='rgbid'){const V=rgViewer();if(g&&V&&!rgBid(V.id,+k))toast('You can’t bid that.');return}
   if(a==='rgfore'){const V=rgViewer();if(!g||!V||g.turn!==V.id)return;const c=g.h[V.id][0];if(!c)return;const col=c[0]==='W'?(g.tr||rgLed(g.t)||'r'):c[0]==='C'?rgBestCol(g.h[V.id]):null;rgPlayCard(V.id,c,col,16);return}
@@ -9952,6 +9956,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='8121f4';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='2f4840';</script>
 </body>
 </html>
