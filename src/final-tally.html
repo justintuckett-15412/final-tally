@@ -1775,9 +1775,11 @@ const DASHX={
   catan:p=>{const C=ctP(p),g=ctGoalP(p),t=[{k:'To win',v:Math.max(0,g-ctTot(p)),s:`of ${g}`},{k:'Cities',v:C.c,s:`${C.s} settlement${C.s===1?'':'s'}`}];
     if(ctCK())t.push({k:'Knights',v:ctStr(p),s:'active strength',i:'⚔️'});else if(!ctT('barb'))t.push({k:'Knights',v:C.k,i:'⚔️'});
     t.push({k:'Sevens rolled',v:ctRolls().filter(x=>x.pid===p.id&&x.n===7).length});return t}};
-function dashTiles(p,own){const t=[],P=act(),lo=LOW(),sc=P.map(q=>{try{return dashScore(q)}catch(e){return 0}}),me=(()=>{try{return dashScore(p)}catch(e){return 0}})();
+const lkHidden=()=>!!(S.lk&&!S.demo&&!(S.game==='yahtzee'&&yzShared()&&YZX().showAll));
+function dashTiles(p,own){const t=[],P=act(),HID=lkHidden(),lo=LOW(),sc=P.map(q=>{try{return dashScore(q)}catch(e){return 0}}),me=(()=>{try{return dashScore(p)}catch(e){return 0}})();
   const better=sc.filter(v=>lo?v<me:v>me).length,lead=lo?Math.min(...sc):Math.max(...sc);
-  t.push({k:(S.game||'ttr')==='ttr'?'Route points':S.game==='carc'?'Points so far':'Score',v:me});
+  t.push({k:(S.game||'ttr')==='ttr'?'Route points':S.game==='carc'?'Points so far':'Score',v:HID&&!own?'••':me});
+  if(HID){}else 
   if(P.length>1&&S.game==='phase10'){const ord=n=>n+(n%10===1&&n%100!==11?'st':n%10===2&&n%100!==12?'nd':n%10===3&&n%100!==13?'rd':'th'),r=(ranking().list.find(x=>x.p===p)||{}).rank||1;t.push({k:'Place',v:ord(r),s:`of ${P.length}`})}
   else if(P.length>1){const ord=n=>n+(n%10===1&&n%100!==11?'st':n%10===2&&n%100!==12?'nd':n%10===3&&n%100!==13?'rd':'th');t.push({k:'Place',v:ord(better+1),s:`of ${P.length}`});t.push(me===lead?(sc.filter(v=>v===lead).length>1?{k:'Lead',v:'Tied',s:'for 1st'}:{k:'Lead',v:Math.abs(me-[...sc].sort((a,b)=>lo?a-b:b-a)[1]),s:'ahead of 2nd'}):{k:'Behind',v:Math.abs(lead-me),s:'the leader'})}
   try{const x=DASHX[S.game||'ttr'];if(x)x(p).forEach(d=>{if(!d.priv||own)t.push(d)})}catch(e){}
@@ -1847,7 +1849,7 @@ function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK)return;if(lkHost()&&LKRV&&S.s
 /* "Your turn!" on a linked phone: a strong buzz, plus a notification if the app is in the background (and notifications are allowed) */
 let LKTURN=null;
 function lkTurnOwner(){if(!S.started||S.finished)return null;const P=act();if(!P.length)return null;
-  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
+  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
   if(S.rules&&S.rules.live||S.game==='carc')return S.turnId||null;return null}
 function lkTurnCheck(){const o=lkTurnOwner(),was=LKTURN;LKTURN=o;if(!o||o===was||!S.lk||o!==S.lk.me||was===null)return;
   vibe([250,120,250,120,400]);toast('Your turn!');
@@ -5521,7 +5523,7 @@ function rkDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    p.yz = {c:[{box:score}...per column], yb:[bonus count per column]}
    S.yzd = dice being entered, S.yzt = whose turn
    ===================================================================== */
-const YZDEF={mode:'regular',joker:'forced',bonusV:100,tBonus:'mult',roller:false,pass:true,hints:true};
+const YZDEF={mode:'regular',joker:'forced',bonusV:100,tBonus:'mult',roller:false,pass:true,hints:true,showAll:true};
 const YZX=()=>{if(!S.yzx)S.yzx={...YZDEF};const X=S.yzx;for(const k in YZDEF)if(X[k]===undefined)X[k]=YZDEF[k];return X};
 function yzSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.yzx'))}catch(e){}return Object.assign({...YZDEF},x||{})}
 function yzKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.yzx',JSON.stringify(YZX()))}catch(e){}}
@@ -5560,7 +5562,15 @@ const yzFilled=p=>{let n=0;for(let c=0;c<yzCols();c++)n+=YZK.filter(k=>yzV(p,c,k
 const yzNeed=()=>13*yzCols();
 const yzDone=()=>act().length>0&&act().every(p=>yzFilled(p)>=yzNeed());
 const yzMe=()=>!S.demo&&S.lk&&S.lk.me?act().find(p=>p.id===S.lk.me)||null:null;
-const yzTurnP=()=>{const m=yzMe();if(m)return m;const P=act();if(!P.length)return null;return P[((S.yzt||0)%P.length+P.length)%P.length]};
+/* linked phones playing with the phone's dice: one shared turn order, everyone watches the roller's dice, the host phone rolls for the bots */
+const yzShared=()=>!!(S.lk&&!S.demo&&YZX().roller);
+const yzMine=()=>{if(!yzShared())return true;const q=yzTurnP();if(!q)return false;return q.bot?lkHost():!!(S.lk.me&&q.id===S.lk.me)};
+let YZMIR=null;
+function yzLive(){if(!yzShared()||S.screen!=='score')return;const q=yzTurnP();if(!q)return;
+  if(yzMine()){if(YZMIR&&YZMIR!==q.id){S.yzd=[];S.yzr=null}YZMIR=null;const v={p:q.id,d:(S.yzd||[]).slice(),r:S.yzr?JSON.parse(JSON.stringify(S.yzr)):null};
+    if(JSON.stringify(v)!==JSON.stringify(S.yzlv||null)){S.yzlv=v;lkPush()}}
+  else{const L=S.yzlv;if(L&&L.p===q.id){S.yzd=(L.d||[]).slice();S.yzr=L.r?JSON.parse(JSON.stringify(L.r)):null}else{S.yzd=[];S.yzr=null}YZMIR=q.id}}
+const yzTurnP=()=>{const m=yzMe();if(m&&!yzShared())return m;const P=act();if(!P.length)return null;return P[((S.yzt||0)%P.length+P.length)%P.length]};
 const yzYs=p=>{let n=0;for(let c=0;c<yzCols();c++){if(yzV(p,c,'yz')===50)n++;n+=((p.yz||{}).yb||[])[c]||0}return n};
 const YZDARK=['red','blue','green','purple','black','gray','pink'];
 const yzDie=(v,sz,extra,col)=>{const P={1:[[50,50]],2:[[28,28],[72,72]],3:[[28,28],[50,50],[72,72]],4:[[28,28],[72,28],[28,72],[72,72]],5:[[28,28],[72,28],[50,50],[28,72],[72,72]],6:[[28,26],[72,26],[28,50],[72,50],[28,74],[72,74]]}[v]||[];
@@ -5578,7 +5588,7 @@ function yzSetup(){const X=YZX(),tgl=(k,label,sub)=>`<div class="prow"><div clas
   ${sec('Version',seg('mode',[['regular','Yahtzee'],['triple','Triple Yahtzee']]),X.mode==='triple'?'Three columns each, worth 1×, 2× and 3×. You fill all three, 39 turns in all.':'One column each, 13 turns.')}
   ${sec('Joker rule',seg('joker',[['forced','Official'],['free','Free choice'],['off','No Joker']]),X.joker==='forced'?'After your first Yahtzee, another one must go in its matching upper box if it’s open. If not, it can fill Full house, Small or Large straight for full points.':X.joker==='free'?'An extra Yahtzee can go in any open box. It only counts as a Full house or straight once its matching upper box is filled.':'An extra Yahtzee never counts as a Full house or straight.')}
   ${sec('Yahtzee bonus',row('Each extra Yahtzee','points',st('bonusV',X.bonusV,0,500,50,'points'))+(X.mode==='triple'?seg('tBonus',[['mult','Times the column'],['flat','Same in every column']]):''),`Only if that column’s Yahtzee box already holds 50.${X.mode==='triple'?' Triple Yahtzee boxes differ on this one, so check the rule card.':''}`)}
-  ${sec('Helpers',tgl('pass','Pass-the-phone screen','When one phone goes around the table, show whose turn it is before their card appears.')+(X.roller?tgl('hints','Hint button','A 💡 button suggests which dice to hold or which box to pick.'):''),'')}
+  ${sec('Helpers',tgl('pass','Pass-the-phone screen','When one phone goes around the table, show whose turn it is before their card appears.')+(X.roller?tgl('hints','Hint button','A 💡 button suggests which dice to hold or which box to pick.')+tgl('showAll','Show everyone’s scores on linked phones','When each person plays on their own phone, everyone sees every score sheet, like a real table. Turn off to keep totals secret until the reveal.'):''),'')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
 /* ---- Yahtzee helpers: hint engine, sounds, bonus meter, solo best, pass screen ---- */
 const YZPAR={u1:3,u2:6,u3:9,u4:12,u5:15,u6:18,k3:20,k4:11,fh:21,ss:26,ls:29,yz:16,ch:21};
@@ -5617,7 +5627,7 @@ const yzBest=p=>{const prev=H.games.filter(g=>g.game==='yahtzee'&&g.id!==S.gameI
 
 /* ---------- computer players: they roll on this phone, hold dice and pick boxes on their own ---------- */
 const YZBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Dice Bot'],hard:['Hard','Yahtzee Bot']};
-const yzBot=q=>!!q&&!!q.bot&&!yzMe()&&!S.lk&&yzRoller();
+const yzBot=q=>!!q&&!!q.bot&&yzRoller()&&(S.lk&&!S.demo?yzShared()&&lkHost():!yzMe());
 const yzHumans=()=>act().filter(q=>!q.bot);
 let YZBOTT=null,YZBOTHELD=false;
 function yzBotReady(){if(S.game!=='yahtzee'||S.screen!=='score'||yzDone()||WARN||YZFIX||RULESHEET||document.querySelector('.sheet-bg'))return null;const q=yzTurnP();return yzBot(q)?q:null}
@@ -5651,18 +5661,18 @@ function yzFixSheet(){const F=YZFIX,P=act(),q=P.find(x=>x.id===F.pid);if(!q)retu
     <h2 id="yzf-h">${esc(nm(q))}: ${lab}${yzCols()>1?` ×${F.c+1}`:''}</h2><p class="rlab">Scored ${v}. Clear it to score this box again: it becomes ${esc(nm(q))}’s turn, and you enter the dice for it.</p>
     <div class="srow" style="padding:6px 0"><span class="rlab"><b>Yahtzee bonuses</b>${yzCols()>1?` · column ×${F.c+1}`:''}</span><div class="step"><button data-a="yzfixb" data-d="-1" ${yb<=0?'disabled':''} aria-label="One fewer bonus">−</button><span class="n num">${yb}</span><button data-a="yzfixb" data-d="1" aria-label="One more bonus">+</button></div></div>
     <div class="sheet-btns"><button class="btn" data-a="yzfixx">Keep it</button><button class="btn warn" data-a="yzfixclr">Clear and re-score</button></div></div></div>`}
-function yzScore(){const X=YZX(),P=act(),C=yzCols(),done=yzDone(),cur=yzTurnP(),d=S.yzd||[],bot=yzBot(cur),roll=yzRoller()||bot,R=yzRS();
-  const me=yzMe(),hid=q=>!!me&&q!==me,sc=P.map(yzTot),hi=Math.max(...sc),lead=!me&&sc.some(v=>v>0)&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
+function yzScore(){yzLive();const X=YZX(),P=act(),C=yzCols(),done=yzDone(),cur=yzTurnP(),d=S.yzd||[],bot=yzBot(cur),roll=yzRoller()||bot,R=yzRS(),watch=!yzMine(),sheetP=watch&&yzMe()?yzMe():cur;
+  const open=yzShared()&&YZX().showAll,me=open?null:yzMe(),hid=q=>!!me&&q!==me,sc=P.map(yzTot),hi=Math.max(...sc),lead=!me&&sc.some(v=>v>0)&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
   const wide=!me&&window.innerWidth>=740&&C===1&&P.length>1&&P.length<=6;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Turn">${done?'Done':`${Math.min(yzNeed(),yzFilled(cur)+1)}/${yzNeed()}`}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo">↶<span class="undo-w"> Undo</span></button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-a="yzwho" data-k="${k}" data-lp="ph:${q.id}" aria-pressed="${q===cur}"><div class="tn">${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${hid(q)?'••':sc[k]}</div><div class="tr num">${yzFilled(q)} of ${yzNeed()}</div></button>`).join('')}</div>
-  <p class="hint lv-hint hftip">${me?`This phone scores ${esc(nm(me))}. Everyone else’s total stays hidden until the reveal.`:'Tap a name to switch whose turn it is. Tap a filled box to fix it.'}</p>`;
+  <p class="hint lv-hint hftip">${yzMe()&&yzShared()?(watch?`${esc(nm(cur))}’s turn${cur&&cur.bot&&!lkHost()?' (the host phone rolls for the bots)':''}.`:`Your turn${cur&&cur.bot?` (rolling for ${esc(nm(cur))})`:''}.`)+(open?' Everyone sees every score.':' Your total stays hidden from the others until the reveal.'):me?`This phone scores ${esc(nm(me))}. Everyone else’s total stays hidden until the reveal.`:'Tap a name to switch whose turn it is. Tap a filled box to fix it.'}</p>`;
   if(P.length===1&&!S.demo&&cur){const B=yzBest(cur),t=yzTot(cur);out+=`<div class="banner ${B&&t>B.v?'pb':'rival'}"><span class="crown">Solo challenge</span><p>${B?(t>B.v?`<b>New best!</b> ${t} beats your old record of ${B.v}.`:`Beat your best: <b class="num">${B.v}</b> (${fmtD(B.date,{month:'short',day:'numeric'})}). You need <b class="num">${B.v-t+1}</b> more.`):'Your first solo game sets the record to beat.'}</p></div>`}
   const HK=JSON.stringify([d,R.n,cur&&cur.id]),HT=YZHINT&&YZHINT.key===HK?YZHINT:null;
   if(!done&&cur){const opts=Array.from({length:C},(_,c)=>yzOptions(cur,c,d)),best=Math.max(-1,...opts.flatMap(o=>Object.values(o)));
-    if(bot){out+=`<div class="nxcard yzroll yzbotcard" style="${pc(cur.color)}"><div class="nxh"><b>🤖 ${esc(nm(cur))}’s turn</b><span class="rlab">${YZBOTS[cur.bot][0]}</span></div>
+    if(bot||watch){out+=`<div class="nxcard yzroll yzbotcard" style="${pc(cur.color)}"><div class="nxh"><b>${cur.bot?'🤖 ':''}${esc(nm(cur))}’s turn</b><span class="rlab">${cur.bot?YZBOTS[cur.bot][0]:'Watching'}</span></div>
       <div class="yzdice${YZSHAKE?' shake':''}">${[0,1,2,3,4].map(i=>d[i]?`<span class="yzbd${R.h[i]?' held':''}">${yzDie(d[i],50,'',IMGC.includes(cur.color)?cur.color:'red')}${R.h[i]?'<i>HOLD</i>':''}</span>`:`<span class="yzslot big"></span>`).join('')}</div>
-      <p class="rlab" style="margin:6px 0 0">${R.n===0?'Picking up the dice…':YZBOTHELD?`Holding ${R.h.filter(Boolean).length?R.h.filter(Boolean).length+' and rolling again…':'nothing, rolling all five…'}`:R.n>=3?'Choosing a box…':`Roll ${R.n} of 3. Thinking…`}</p>${d.length===5&&yzIsY(d)?`<p class="yzyell">YAHTZEE!</p>`:''}</div>`}
+      <p class="rlab" style="margin:6px 0 0">${watch&&!bot?(R.n===0?`Waiting for ${esc(nm(cur))} to roll…`:`Roll ${R.n} of 3${R.h.some(Boolean)?` · holding ${R.h.filter(Boolean).length}`:''}`):R.n===0?'Picking up the dice…':YZBOTHELD?`Holding ${R.h.filter(Boolean).length?R.h.filter(Boolean).length+' and rolling again…':'nothing, rolling all five…'}`:R.n>=3?'Choosing a box…':`Roll ${R.n} of 3. Thinking…`}</p>${d.length===5&&yzIsY(d)?`<p class="yzyell">YAHTZEE!</p>`:''}</div>`}
     else{out+=`<div class="nxcard yzroll" style="${pc(cur.color)}"><div class="nxh"><b>${esc(nm(cur))}’s roll</b><span class="rlab">${roll?'🎲 On the phone':'Real dice'}</span></div>`;
     if(roll){out+=`<div class="yzdice${YZSHAKE?' shake':''}">${[0,1,2,3,4].map(i=>d[i]?`<button class="${R.h[i]?'held':HT&&HT.hold&&HT.hold[i]?'tip':''}" data-a="yzhold" data-i="${i}" ${R.n>=3||R.n===0?'disabled':''} aria-pressed="${!!R.h[i]}" aria-label="${R.h[i]?'Holding':'Hold'} ${d[i]}">${yzDie(d[i],50,'',IMGC.includes(cur.color)?cur.color:'red')}${R.h[i]?'<i>HOLD</i>':''}</button>`:`<span class="yzslot big"></span>`).join('')}</div>
       <button class="btn primary wide" data-a="yzroll" ${R.n>=3?'disabled':''}>${R.n===0?'Roll the dice':R.n>=3?'No rolls left: pick a box':`Roll again (${3-R.n} left)`}</button>
@@ -5673,10 +5683,10 @@ function yzScore(){const X=YZX(),P=act(),C=yzCols(),done=yzDone(),cur=yzTurnP(),
       <p class="rlab" style="margin:6px 0 0">${d.length<5?'Tap the five dice you ended with.':'Now tap the box to score it in.'}</p>`;
     if(X.hints&&yzRoller()&&d.length===5&&!(roll&&R.n===0))out+=HT?`<div class="yzhint">💡 ${esc(HT.text)}${HT.hold&&HT.hold.some(Boolean)?` <button class="btn sm" data-a="yzhintdo">Hold them</button>`:''}</div>`:`<div class="htbtns" style="margin-top:6px"><button data-a="yzhint">💡 Hint</button></div>`;
     out+=`${d.length===5&&yzIsY(d)?`<p class="yzyell">YAHTZEE!${opts.some((o,c)=>yzV(cur,c,'yz')===50)?` Bonus +${X.bonusV}`:''}</p>`:''}</div>`}
-    const cell=(q,c,k)=>{const v=yzV(q,c,k),mine=q===cur&&!bot,o=mine?opts[c]:{};if(v!==null)return `<button class="yzc yzf num" data-a="yzfix" data-p="${q.id}" data-c="${c}" data-k="${k}" aria-label="Fix ${esc(nm(q))} ${k}">${v}</button>`;
+    const cell=(q,c,k)=>{const v=yzV(q,c,k),mine=q===cur&&!bot&&!watch,o=mine?opts[c]:{};if(v!==null)return `<button class="yzc yzf num" data-a="yzfix" data-p="${q.id}" data-c="${c}" data-k="${k}" aria-label="Fix ${esc(nm(q))} ${k}">${v}</button>`;
       if(!mine||!(k in o))return `<span class="yzc num">${mine&&d.length===5?'':'·'}</span>`;
       return `<button class="yzc yzo num${o[k]===best&&best>0?' best':''}${o[k]===0?' zero':''}${HT&&HT.box&&HT.box.k===k&&HT.box.c===c&&mine?' tip':''}" data-a="yzpick" data-c="${c}" data-k="${k}">${o[k]}</button>`};
-    const cols=wide?P.map(q=>[q,0]):Array.from({length:C},(_,c)=>[cur,c]);
+    const cols=wide?P.map(q=>[q,0]):Array.from({length:C},(_,c)=>[open?cur:sheetP,c]);
     const head=wide?`<div class="yzrow yzhd"><span></span>${P.map(q=>`<span style="${pc(q.color)}" class="${q===cur?'me':''}">${esc(nm(q))}</span>`).join('')}</div>`:C>1?`<div class="yzrow yzhd"><span></span>${cols.map(([,c])=>`<span>×${c+1}</span>`).join('')}</div>`:'';
     const sub=(label,f)=>`<div class="yzrow yzsub"><span>${label}</span>${cols.map(([q,c])=>`<span class="yzc num">${f(q,c)}</span>`).join('')}</div>`;
     if(!wide)out+=yzMeter(cur);
@@ -8488,8 +8498,8 @@ document.addEventListener('click',e=>{
     case 'yzhintdo':{if(YZHINT&&YZHINT.hold){yzRS().h=YZHINT.hold.slice()}break}
     case 'yzpassok':YZPASS=null;window.scrollTo(0,0);break;
     case 'yzmode':break;
-    case 'yzroll':{yzRollDice();if(yzIsY(S.yzd))setTimeout(()=>yzCheer(yzTurnP()),450);break}
-    case 'yzhold':{const R=yzRS(),i=+b.dataset.i;R.h[i]=!R.h[i];break}
+    case 'yzroll':{if(!yzMine()){toast(`It’s ${nm(yzTurnP())}’s turn.`);break}yzRollDice();if(yzIsY(S.yzd))setTimeout(()=>yzCheer(yzTurnP()),450);break}
+    case 'yzhold':{if(!yzMine())break;const R=yzRS(),i=+b.dataset.i;R.h[i]=!R.h[i];break}
     case 'yzfix':{const q=act().find(x=>x.id===b.dataset.p);if(q)YZFIX={pid:q.id,c:+b.dataset.c,k};document.querySelectorAll('.toast').forEach(t=>t.remove());break}
     case 'yzfixx':YZFIX=null;break;
     case 'yzfixb':{const q=act().find(x=>x.id===YZFIX.pid);snap();const Y=yzP(q);Y.yb[YZFIX.c]=Math.max(0,(Y.yb[YZFIX.c]||0)+(+b.dataset.d));break}
@@ -8497,10 +8507,10 @@ document.addEventListener('click',e=>{
     case 'yzdel':{S.yzd=(S.yzd||[]).filter((x,i)=>i!==+b.dataset.i);break}
     case 'yzclr':S.yzd=[];S.yzr=null;break;
     case 'yzwho':{if(yzMe()){toast(`This phone scores ${nm(yzMe())}.`);break}S.yzt=+k;S.yzd=[];S.yzr=null;break}
-    case 'yzpick':{const q=yzTurnP(),c=+b.dataset.c,d=S.yzd||[],o=yzOptions(q,c,d);if(!q||!(k in o))break;snap();const Y=yzP(q);
+    case 'yzpick':{if(!yzMine()){toast(`It’s ${nm(yzTurnP())}’s turn.`);break}const q=yzTurnP(),c=+b.dataset.c,d=S.yzd||[],o=yzOptions(q,c,d);if(!q||!(k in o))break;snap();const Y=yzP(q);
       if(yzIsY(d)&&yzV(q,c,'yz')===50&&YZX().bonusV>0)Y.yb[c]=(Y.yb[c]||0)+1;const ub0=yzUB(q,c);Y.c[c][k]=o[k];
       if(o[k]===0)yzSnd('scratch');else if(!ub0&&yzUB(q,c))setTimeout(()=>{yzSnd('bonus');toast(`${nm(q)} made the upper bonus! +35`)},250);else if(k==='ls')yzSnd('straight');
-      const P=act();S.yzd=[];S.yzr=null;if(yzMe()){toast(`${nm(q)}: ${YZB.find(x=>x[0]===k)[1]} ${o[k]}`);window.scrollTo(0,0);break}let n=1;while(n<=P.length&&yzFilled(P[(S.yzt+n)%P.length])>=yzNeed())n++;S.yzt=(S.yzt+(n>P.length?1:n))%P.length;{const nx=P[S.yzt];if(nx&&nx!==q&&!nx.bot&&yzFilled(nx)<yzNeed()){let pv=null;for(let j=1;j<=P.length;j++){const z=P[(S.yzt-j+P.length*2)%P.length];if(!z.bot){pv=z;break}}if(pv!==nx)YZPASS=nx.id}}S.hr=Math.min(...P.map(yzFilled));
+      const P=act();S.yzd=[];S.yzr=null;if(yzMe()&&!yzShared()){toast(`${nm(q)}: ${YZB.find(x=>x[0]===k)[1]} ${o[k]}`);window.scrollTo(0,0);break}let n=1;while(n<=P.length&&yzFilled(P[(S.yzt+n)%P.length])>=yzNeed())n++;S.yzt=(S.yzt+(n>P.length?1:n))%P.length;{const nx=P[S.yzt];if(nx&&nx!==q&&!nx.bot&&!S.lk&&yzFilled(nx)<yzNeed()){let pv=null;for(let j=1;j<=P.length;j++){const z=P[(S.yzt-j+P.length*2)%P.length];if(!z.bot){pv=z;break}}if(pv!==nx)YZPASS=nx.id}}S.hr=Math.min(...P.map(yzFilled));
       toast(`${nm(q)}: ${YZB.find(x=>x[0]===k)[1]} ${o[k]}${yzMul(c)>1?` ×${yzMul(c)}`:''}`);window.scrollTo(0,0);break}
     case 'rkdemo':rkDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'rkpre':{const p=RKPRE.find(x=>x[0]===k);if(p)Object.assign(RKX(),p[2]);rkKeep();break}
