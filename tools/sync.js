@@ -75,9 +75,21 @@ export function startSync(fb){
       if(!f)throw new Error('No family uses that code. Check it and try again.');
       fid=code;RAW.set(FK,fid);RAW.set(JK,'1');meta={};saveMeta();RAW.remove(DK);await connect()},
     leave(){disconnect();fid='';RAW.remove(FK);RAW.remove(DK);RAW.remove(JK);meta={};saveMeta();state='off';err='';try{window.FTHIST&&window.FTHIST.detach()}catch(e){}ping()}};
+  window.FTLINK=window.FTLINK_NET=makeLink(fb);
+  try{window.lkBoot&&window.lkBoot()}catch(e){}
+  addEventListener('online',()=>{ping();window.ftDirty()});addEventListener('offline',ping);
+  setInterval(ping,30000);
+  if(fid)connect();
+  const m=/#join=([A-Za-z0-9-]+)/.exec(location.hash);
+  if(m){history.replaceState(null,'',location.pathname+location.search);if(!fid&&window.ftOpenSync)window.ftOpenSync(m[1])}
+  ping()}
+
+/* ---- linked games: one shared game, several phones. `fb` is Firebase online, or the host phone's own store when playing offline ---- */
+export function makeLink(fb,o={}){
+  const withTimeout=(p,ms,msg)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error(msg)),ms))]);
   /* ---- linked games: one shared game, several phones, joined with a 6-number code ---- */
   let lk=null,uid='',lastRd=0;const gref=c=>['games',c],exp=()=>fb.when(Date.now()+3*864e5);
-  const authed=async()=>{uid=await withTimeout(fb.ready(),20000,'Couldn\u2019t connect. Check your internet connection.');return uid};
+  const authed=async()=>{uid=await withTimeout(fb.ready(),20000,o.local?'Couldn\u2019t reach the host phone.':'Couldn\u2019t connect. Check your internet connection.');return uid};
   const seatMap=all=>{const m={};all.forEach(d=>{if(d.data&&d.data.uid)m[d.id]={dev:d.data.uid,ready:!!d.data.ready,rd:d.data.rd||0}});return m};
   function lkStop(){if(lk){lk.un.forEach(u=>{try{u()}catch(e){}});lk=null}}
   function lkWatch(code){lkStop();const un=[],send=u=>{try{window.lkRecv&&window.lkRecv(u)}catch(e){console.error(e)}};
@@ -95,8 +107,8 @@ export function startSync(fb){
   const IDLE=12*3600e3;
   async function purge(c){try{for(const sub of ['p','i','seats']){const L=await fb.list([...gref(c),sub]);await Promise.all(L.map(x=>fb.del([...gref(c),sub,x.id]).catch(()=>{})))}
       await fb.del(gref(c))}catch(e){fail(e)}}
-  window.FTLINK={dev:()=>uid,
-    async host(x){if(!navigator.onLine)throw new Error('Connect to the internet to link phones.');
+  return {dev:()=>uid,local:!!o.local,
+    async host(x){if(!o.local&&!navigator.onLine)throw new Error('Connect to the internet to link phones.');
       await authed();
       for(let i=0;i<8;i++){const a=new Uint32Array(1);crypto.getRandomValues(a);const c=String(100000+a[0]%900000);
         const ex=await withTimeout(fb.get(gref(c)),15000,'Couldn’t reach the database. Try again in a moment.');
@@ -106,7 +118,7 @@ export function startSync(fb){
         await Promise.all([...Object.entries(x.ps).map(([id,j])=>fb.set([...gref(c),'p',id],{j,t:Date.now(),expireAt:exp()})),...Object.entries(x.items||{}).map(([k,j])=>fb.set([...gref(c),'i',k],{j,t:Date.now(),expireAt:exp()}))]);
         lkWatch(c);return c}
       throw new Error('Couldn’t find a free game code. Try again.')},
-    async join(c){if(!navigator.onLine)throw new Error('Connect to the internet to join a game.');
+    async join(c){if(!o.local&&!navigator.onLine)throw new Error('Connect to the internet to join a game.');
       await authed();
       const d=await withTimeout(fb.get(gref(c)),15000,'Couldn’t reach the database. Try again in a moment.');
       if(!d||d.ended)throw new Error('No game is using that code right now. Check the number on the host’s phone.');
@@ -128,10 +140,4 @@ export function startSync(fb){
     /* a guest leaving a game that has sat idle tidies it up too */
     tidy(c){authed().then(()=>fb.get(gref(c))).then(d=>{if(d&&(d.ended||Date.now()-(d.t||d.created||0)>IDLE))return purge(c)}).catch(()=>{})},
     leave(){lkStop()}};
-  try{window.lkBoot&&window.lkBoot()}catch(e){}
-  addEventListener('online',()=>{ping();window.ftDirty()});addEventListener('offline',ping);
-  setInterval(ping,30000);
-  if(fid)connect();
-  const m=/#join=([A-Za-z0-9-]+)/.exec(location.hash);
-  if(m){history.replaceState(null,'',location.pathname+location.search);if(!fid&&window.ftOpenSync)window.ftOpenSync(m[1])}
-  ping()}
+}

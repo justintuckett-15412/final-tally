@@ -524,6 +524,9 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .ctatkl{list-style:none;padding:0;margin:10px 0;display:grid;gap:4px}.ctatkl li{display:flex;justify-content:space-between;padding:6px 10px;border-left:5px solid var(--pc);background:var(--soft);border-radius:8px}
 .ctscen{display:grid;grid-template-columns:1fr 1fr;gap:6px}.ctscen button{min-height:44px;padding:6px 8px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-weight:700;font-size:14.5px;display:grid;line-height:1.2}.ctscen button small{font-weight:500;color:var(--muted);font-size:12px}.ctscen button[aria-pressed=true]{background:#1b1f24;color:#fff;border-color:#1b1f24}.ctscen button[aria-pressed=true] small{color:#d6d9de}
 .ctbadges{flex-wrap:wrap}.ctbadges button{flex:1 1 45%}
+.lanlink{display:block;margin:8px auto 0;text-align:center}.lansheet .lanqr{display:block;width:min(78vw,340px);height:auto;margin:10px auto;border-radius:10px;border:1px solid var(--line);background:#fff}
+#lancam{position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.92);display:grid;place-items:center;padding:16px}.lancam-in{width:min(100%,460px);display:grid;gap:10px;color:#fff;text-align:center;position:relative}
+#lancam video{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:14px;background:#111}.lancam-box{position:absolute;left:15%;right:15%;top:22%;aspect-ratio:1;border:3px solid #f2c230;border-radius:14px;pointer-events:none}#lancam .rlab{color:#ddd}
 .ctwin{display:grid;gap:6px;margin:10px 0;padding:12px;border-radius:14px;background:color-mix(in srgb,var(--accent) 22%,var(--surface));border:2px solid var(--accent)}
 .ctdice{margin:12px 0;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}.ctdh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .ctnums{display:grid;grid-template-columns:repeat(11,1fr);gap:3px;margin-top:8px}.ctnums>*{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:64px;padding:0 0 4px;border-radius:8px;background:var(--soft);overflow:hidden;line-height:1.1}
@@ -1227,7 +1230,7 @@ const padSC=()=>Math.max(1,Math.round(Math.max(1,...act().map(p=>Math.abs(total(
 const LOW=()=>S.game==='phase10'||S.game==='mextrain'||S.game==='uno'&&UNX().mode==='low'||S.game==='golf'||S.game==='skyjo'||S.game==='gnome'&&!gnRW()||S.game==='hearts'||S.game==='crowns'||S.game==='pad'&&!!(S.px||{}).low,RS=p=>S.game==='darts'?dRankKey(p):S.game==='phase10'?ptKey(p):LOW()?-total(p):total(p),RU=(n,p)=>LOW()?-upto(n,p):upto(n,p);
 const total=p=>S.game==='carc'?cTot(p):HFE()?hfTot(p):S.game==='nerts'?nxTot(p):S.game==='pad'?pxTot(p):S.game==='darts'?dTot(p):S.game==='pool'?plTot(p):S.game==='hearts'?htTot(p):S.game==='spades'?sdTot(p):S.game==='rage'?rgTot(p):S.game==='ohell'?ohTot(p):S.game==='uno'?unTot(p):S.game==='munchkin'?mkTot(p):S.game==='crowns'?fcTot(p):S.game==='skipbo'?sbTot(p):S.game==='gnome'?gnTot(p):S.game==='skyjo'?skTot(p):S.game==='wingspan'?wsTot(p):S.game==='wyrmspan'?wyTot(p):S.game==='phase10'?ptTot(p):S.game==='rook'?rkTot(p):S.game==='yahtzee'?yzTot(p):S.game==='mextrain'?mtTot(p):S.game==='catan'?ctTot(p):S.game==='golf'?gfTot(p):S.game==='tripoley'?tpTot(p):S.game==='quacks'?qkTot(p):hsPts(p)+routePts(p)+tkNet(p)+extrasPts(p)+bonusPts(p);
 
-function resetScores(){['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[]}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.active=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
+function resetScores(){['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.active=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
 let UNDO=[],KP='',RULESHEET=false;
 if(S.hideTotals===undefined)S.hideTotals=true;
 function setMap(k){
@@ -1859,7 +1862,7 @@ window.lkRecv=function(u){if(!S.lk)return;
   if(S.screen==='lkwait'&&S.started||lkGuest()&&!S.started&&S.screen!=='lkwho')lkGo();
   const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&ae.id!=='lk-code'){LKPEND=true;return}
   LKPEND=false;render()};
-function lkClear(msg){const was=lkGuest();clearTimeout(LKT);try{window.FTLINK&&window.FTLINK.leave()}catch(e){}LKLAST={m:null,order:null,ps:{},items:{}};LKSEATS={};LKRD=0;LKFREE=null;LKRV=null;LKOPEN=false;LKSTOP=false;
+function lkClear(msg){const was=lkGuest();clearTimeout(LKT);try{window.FTLINK&&window.FTLINK.leave()}catch(e){}if(window.FTLAN&&FTLAN.hub){try{FTLAN.stop()}catch(e){}}if(window.FTLINK_NET||window.FTLAN)window.FTLINK=window.FTLINK_NET;LANLOST=false;LANUI=null;lanCam(false);LKLAST={m:null,order:null,ps:{},items:{}};LKSEATS={};LKRD=0;LKFREE=null;LKRV=null;LKOPEN=false;LKSTOP=false;
   if(was){try{localStorage.removeItem(KEY+'.linked');localStorage.removeItem(KEY+'.lkon')}catch(e){}const n=load();S=n||S;if(!n){delete S.lk}S.screen='home'}
   else{delete S.lk;save()}
   if(msg)toast(msg);window.scrollTo(0,0);render()}
@@ -1930,7 +1933,7 @@ function waitLoader(msg){const [set,def]=wlPieces(S.game),dice=set.every(x=>x.in
   return `<div class="wloader${dice?' wdice':''}" role="status" aria-label="${esc(m||'Waiting')}">${set.map((x,i)=>`<span style="--i:${i}">${x}</span>`).join('')}</div>${m?`<p class="rlab" style="text-align:center;margin:2px 0 0">${esc(m)}</p>`:''}`}
 function lkWaitScreen(){return `<div class="bar"><h1>Linked game</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>Waiting for the host</h2><p>The host is still choosing the game and rules. Scoring opens here as soon as they start.</p>${waitLoader('*')}</div>`}
 function lkBar(){if(!S.lk||S.demo||['lkwho','home'].includes(S.screen))return '';const seat=lkSeated(),n=lkReadyN(),mine=lkMine(),me=S.lk.me&&act().find(p=>p.id===S.lk.me);
-  const head=`<div class="lkbar${LKOPEN?' open':''}"><button class="lkb-main" data-a="lkopen" aria-expanded="${LKOPEN}"><span class="lkb-code">📱 <b class="num">${fmtCode(S.lk.code)}</b></span><span class="lkb-st">${S.lklock?'🔒 ':''}${S.finished?'Revealed':seat.length?`${n}/${seat.length} done`:'No phones joined yet'}${me?' · '+esc(nm(me)):lkHost()?' · Host':''}</span><span class="chev">${LKOPEN?'▴':'▾'}</span></button>
+  const head=`<div class="lkbar${LKOPEN?' open':''}"><button class="lkb-main" data-a="lkopen" aria-expanded="${LKOPEN}"><span class="lkb-code">📱 <b class="num">${fmtCode(S.lk.code)}</b></span><span class="lkb-st">${lanOn()?(lkHost()?`✈️ ${lanN()} phone${lanN()===1?'':'s'} · `:LANLOST?'⚠️ Lost the host · ':'✈️ '):''}${S.lklock?'🔒 ':''}${S.finished?'Revealed':seat.length?`${n}/${seat.length} done`:'No phones joined yet'}${me?' · '+esc(nm(me)):lkHost()?' · Host':''}</span><span class="chev">${LKOPEN?'▴':'▾'}</span></button>
     ${me&&S.started&&!S.finished?`<button class="btn sm${lkOk(mine)?'':' primary'}" data-a="lkready" data-k="${lkOk(mine)?'0':'1'}">${lkOk(mine)?'Not done':'I’m done'}</button>`:''}</div>`;
   const dmine=me&&dashOn()?dashStrip(me):'';
   if(!LKOPEN)return head+dmine;
@@ -1941,26 +1944,75 @@ function lkBar(){if(!S.lk||S.demo||['lkwho','home'].includes(S.screen))return ''
     <p class="rlab">${lkHost()?`Others join from the home screen with code <b class="num">${fmtCode(S.lk.code)}</b>.`:`Hosted game <b class="num">${fmtCode(S.lk.code)}</b>.`} When everyone with a phone taps <b>I’m done</b>, the reveal starts on every phone.</p>
     ${P.map(p=>{const s=LKSEATS[p.id];return `<div class="seat" style="${pc(p.color)}"><i class="dot"></i><div class="seat-m"><b>${esc(nm(p))}${S.lk.me===p.id?' (this phone)':''}</b><small>${s&&s.dev?'On a phone · locked to it':'No phone · scored by anyone'}</small></div>${s&&s.dev?(lkOk(s)?'<span class="st ok">Done ✓</span>':'<span class="st">Scoring…</span>'):''}${lkHost()&&s&&s.dev&&S.lk.me!==p.id?`<button class="btn sm" data-a="lkfree" data-k="${p.id}">${LKFREE===p.id?'Tap to free':'Free'}</button>`:''}</div>`}).join('')}
     <div class="prow">${lkHost()&&S.started&&!S.finished?(LKSTOP==='rev'?`<button class="btn warn" style="flex:1" data-a="lkrevnow">Tap again to reveal now</button>`:`<button class="btn" style="flex:1" data-a="lkrevnow">Reveal now</button>`):''}
+      ${lanOn()&&lkHost()?`<button class="btn" style="flex:1" data-a="lanadd">✈️ Add a phone</button>`:''}${lanOn()&&lkGuest()&&LANLOST?`<button class="btn primary" style="flex:1" data-a="lanjoin">✈️ Reconnect</button>`:''}
       <button class="btn" style="flex:1" data-a="lkwho">Change player</button>
       <button class="btn" style="flex:1" data-a="lkstop">${LKSTOP==='stop'?'Tap again':lkHost()?'End linking':'Leave game'}</button></div>
     ${lkHost()?'<p class="hint" style="margin:0">Each player can only be on one phone. If someone\u2019s phone dies, tap <b>Free</b> so they can join again on another device.</p>':''}
     ${LKSTOP==='stop'?`<p class="hint">${lkHost()?'Other phones leave the game. You keep it on this phone.':'You leave this game. Your own games come back.'}</p>`:''}</div>`+dmine}
-function lkHomeCard(){if(!window.FTLINK)return '';
+function lkHomeCard(){if(!window.FTLINK&&!window.FTLAN)return '';
   if(lkGuest())return `<div class="sec lkhome"><div class="sec-h"><h3>Linked game</h3></div><div class="panel" style="padding:12px;display:grid;gap:10px"><div class="rlab">You’re in game <b class="num">${fmtCode(S.lk.code)}</b>${S.started?' · '+esc(M().name):''}.</div><div class="prow"><button class="btn primary" style="flex:1" data-a="lkback">Back to the game</button><button class="btn" style="flex:1" data-a="lkleave">Leave it</button></div></div></div>`;
   const live=['ttr','carc','quacks','hf','canasta','nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','phase10','rook','yahtzee','mextrain','catan','golf','tripoley','pad','darts','pool'].filter(g=>{const x=gamePeek(g);return x&&x.started&&!x.finished});
   const name=g=>({ttr:'Ticket to Ride',carc:'Carcassonne',quacks:'Quacks',hf:'Hand and Foot',canasta:'Canasta',nerts:'Nerts',hearts:'Hearts',spades:'Spades',rage:'Rage',ohell:'Oh Hell',uno:'UNO',munchkin:'Munchkin',crowns:'Five Crowns',skipbo:'Skip-Bo',gnome:'Gnoming A Round',skyjo:'Skyjo',wingspan:'Wingspan',wyrmspan:'Wyrmspan',phase10:'Phase 10',rook:'Rook',yahtzee:'Yahtzee',mextrain:'Mexican Train',catan:'Catan',golf:'Golf',tripoley:'Tripoley',pad:'Score pad',darts:'Darts',pool:'Pool'})[g]||g;
   if(S.lk&&lkHost())return `<div class="sec lkhome"><div class="panel lkrow"><span>📱 Hosting <b class="num">${fmtCode(S.lk.code)}</b> · ${esc(M().name)}</span><button class="btn sm primary" data-a="lkback">Back to the game</button></div></div>`;
   const msg=LKMSG?`<p class="hint" style="margin:0"><b>${esc(LKMSG)}</b></p>`:'';
   if(LKUI==='join')return `<div class="sec lkhome"><div class="panel" style="padding:12px;display:grid;gap:10px">
-    <div class="rlab"><b>Join a game.</b> Type the 6-number code shown on the host\u2019s phone.</div>
+    <div class="rlab"><b>Join a game.</b> Type the 6-number code shown on the host\u2019s phone.</div>${LANREADY?'<button class="btn" data-a="lanjoin">✈️ Join without internet</button>':''}
     <div class="prow" style="padding:0"><input id="lk-code" class="search num" inputmode="numeric" pattern="[0-9]*" maxlength="7" placeholder="123 456" value="${esc(fmtCode(LKCODE))}" autocomplete="off" enterkeyhint="go" style="flex:1"><button class="btn primary" data-a="lkjoin" ${LKBUSY?'disabled':''}>${LKBUSY?'Joining\u2026':'Join'}</button></div>
     <button class="link-btn" data-a="lkui" data-k="">Cancel</button>${msg}</div></div>`;
   if(LKUI==='host')return `<div class="sec lkhome"><div class="panel" style="padding:12px;display:grid;gap:10px">
     <div class="rlab"><b>Host a game.</b> ${live.length?'Pick a game in progress. Everyone joins with the code it shows and scores on their own phone.':'Start a game first, then tap 📱 Link at the top of its scoring screen, or come back here.'}</div>
     ${live.length?`<div class="lr">${live.map(g=>`<button data-a="lkhost" data-k="${g}" ${LKBUSY?'disabled':''}>📱 ${esc(name(g))}</button>`).join('')}</div>`:''}
     <button class="link-btn" data-a="lkui" data-k="">Cancel</button>${msg}</div></div>`;
-  return `<div class="sec lkhome"><div class="lkbtns"><button class="btn" data-a="lkui" data-k="join">📱 Join a game</button><button class="btn" data-a="lkui" data-k="host">📱 Host a game</button></div></div>`}
-window.lkBoot=function(){if(S.lk&&window.FTLINK&&!lkIdleCheck()){LKLAST=(()=>{const x=lkSplit();return {m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}}})();window.FTLINK.resume(S.lk.code,S.lk.role)}render()};
+  if(LKUI==='lan')return `<div class="sec lkhome"><div class="panel" style="padding:12px;display:grid;gap:10px">
+    <div class="rlab"><b>No internet? Link phones over a hotspot.</b> One phone turns on its hotspot (it works in airplane mode on many Android phones). The other phones join that Wi-Fi. Then pair each phone by scanning codes.</div>
+    ${live.length?`<div class="rlab"><b>Host:</b> pick the game to share.</div><div class="lr">${live.map(g=>`<button data-a="lanhost" data-k="${g}" ${LKBUSY?'disabled':''}>✈️ ${esc(name(g))}</button>`).join('')}</div>`:'<div class="rlab"><b>Host:</b> start a game first, then come back here.</div>'}
+    <div class="rlab"><b>Everyone else:</b></div><button class="btn primary" data-a="lanjoin">✈️ Join without internet</button>
+    <button class="link-btn" data-a="lkui" data-k="">Cancel</button>${msg}</div></div>`;
+  return `<div class="sec lkhome"><div class="lkbtns"><button class="btn" data-a="lkui" data-k="join" ${window.FTLINK?'':'disabled'}>📱 Join a game</button><button class="btn" data-a="lkui" data-k="host" ${window.FTLINK?'':'disabled'}>📱 Host a game</button></div>${LANREADY?`<button class="link-btn lanlink" data-a="lkui" data-k="lan">✈️ No internet? Link phones over a hotspot</button>`:''}</div>`}
+window.lkBoot=function(){if(lanBootCheck()){render();return}if(S.lk&&S.lk.lan){render();return}if(S.lk&&window.FTLINK&&!lkIdleCheck()){LKLAST=(()=>{const x=lkSplit();return {m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}}})();window.FTLINK.resume(S.lk.code,S.lk.role)}render()};
+
+/* ---------- offline linked games: phones on the host's hotspot, paired by scanning QR codes (window.FTLAN comes from lan.js) ---------- */
+let LANUI=null,LANSTOP=null,LANLOST=false;const LANREADY=false;
+const lanOn=()=>!!(S.lk&&S.lk.lan);
+const lanN=()=>{const h=window.FTLAN&&FTLAN.hub;return h&&h.role==='host'?h.count():0};
+function lanCam(show,title){let el=document.getElementById('lancam');
+  if(!show){if(LANSTOP){try{LANSTOP()}catch(e){}LANSTOP=null}if(el)el.remove();return null}
+  if(!el){el=document.createElement('div');el.id='lancam';el.innerHTML=`<div class="lancam-in"><b></b><video playsinline muted></video><i class="lancam-box"></i><p class="rlab">Hold the code inside the square.</p><button class="btn wide" data-a="lancamx">Cancel</button></div>`;document.body.appendChild(el)}
+  el.querySelector('b').textContent=title||'Scan the code';return el.querySelector('video')}
+function lanErr(e){lanCam(false);LANUI={...(LANUI||{}),step:'err',msg:(e&&e.message)||'Something went wrong. Try again.'};render()}
+/* host: start the offline game, then show the first pairing code */
+async function lanHost(g){if(!window.FTLAN){toast('Offline linking isn’t ready yet. Close and reopen the app.');return}
+  LKBUSY=true;render();try{const hub=FTLAN.startHost();window.FTLINK=hub.link;await lkHostStart(g);if(!S.lk){FTLAN.stop();window.FTLINK=window.FTLINK_NET;return}
+    S.lk.lan=true;save();LKUI='';await lanAdd()}catch(e){lanErr(e)}LKBUSY=false;render()}
+async function lanAdd(){const hub=window.FTLAN&&FTLAN.hub;if(!hub||hub.role!=='host')return;LANUI={mode:'host',step:'busy'};render();
+  try{const stop=await FTLAN.warmCamera(),peer=await hub.offer();stop();LANUI={mode:'host',step:'show',qr:await FTLAN.qrSvg(peer.code),noAddr:peer.noAddr};render()}catch(e){lanErr(e)}}
+async function lanHostScan(){const hub=FTLAN.hub,v=lanCam(true,'Scan the code on their phone');
+  try{LANSTOP=await FTLAN.scan(v,async t=>{lanCam(false);LANUI={mode:'host',step:'busy',msg:'Connecting…'};render();
+      try{await hub.accept(t);LANUI={mode:'host',step:'done'};vibe([30,40,30]);render()}catch(e){lanErr(e)}})}catch(e){lanErr(e&&e.name==='NotAllowedError'?new Error('Final Tally needs the camera to scan the code. Allow the camera in your settings and try again.'):e)}}
+/* guest: scan the host's code, show a reply code, then join the game once the phones connect */
+async function lanJoin(){if(!window.FTLAN){toast('Offline linking isn’t ready yet. Close and reopen the app.');return}
+  LKUI='';LANUI={mode:'guest',step:'scan'};render();const v=lanCam(true,'Scan the code on the host’s phone');
+  try{LANSTOP=await FTLAN.scan(v,async t=>{LANUI={mode:'guest',step:'busy',msg:'Making your reply code…'};render();
+      try{const g=await FTLAN.joinWith(t);lanCam(false);LANUI={mode:'guest',step:'reply',qr:await FTLAN.qrSvg(g.reply),noAddr:g.noAddr};render();
+        const code=await g.connected;window.FTLINK=g.link;LANUI=null;LANLOST=false;await lkJoin(code);if(S.lk){S.lk.lan=true;save()}else{FTLAN.stop();window.FTLINK=window.FTLINK_NET}render()}
+      catch(e){lanErr(e)}})}catch(e){lanErr(e&&e.name==='NotAllowedError'?new Error('Final Tally needs the camera to scan the code. Allow the camera in your settings and try again.'):e)}}
+function lanSheet(){if(!LANUI)return '';const U=LANUI,host=U.mode==='host',n=lanN();let body='';
+  if(U.step==='busy')body=`${waitLoader(U.msg||'Getting ready…')}`;
+  else if(U.step==='err')body=`<p><b>${esc(U.msg)}</b></p><p class="rlab">${host?'Check that the other phone has Wi-Fi on and is joined to this phone’s hotspot.':'Check that Wi-Fi is on and this phone is joined to the host phone’s hotspot.'}</p>
+    <div class="sheet-btns"><button class="btn" data-a="lanx">Close</button><button class="btn primary" data-a="${host?'lanadd':'lanjoin'}">Try again</button></div>`;
+  else if(U.step==='show')body=`<p class="rlab"><b>1.</b> On the other phone, open Final Tally, tap <b>📱 Join a game</b>, then <b>✈️ Join without internet</b>, and scan this code.</p>${U.qr}
+    ${U.noAddr?'<p class="hint"><b>This phone has no Wi-Fi address yet.</b> Turn on its hotspot first, then tap Try again.</p>':''}
+    <p class="rlab"><b>2.</b> When their phone shows a code, scan it.</p><div class="sheet-btns"><button class="btn" data-a="lanx">Cancel</button><button class="btn primary" data-a="lanscan">Scan their code</button></div>`;
+  else if(U.step==='done')body=`<p><b>Connected!</b> ${n} phone${n===1?'':'s'} linked without internet.</p><p class="rlab">They pick their player on their own phone. Add everyone who has a phone, one at a time.</p>
+    <div class="sheet-btns"><button class="btn" data-a="lanx">Done</button><button class="btn primary" data-a="lanadd">Add another phone</button></div>`;
+  else if(U.step==='reply')body=`<p class="rlab">Show this code to the host. They tap <b>Scan their code</b>.</p>${U.qr}${U.noAddr?'<p class="hint"><b>This phone has no Wi-Fi address.</b> Join the host’s hotspot in Wi-Fi settings, then try again.</p>':''}${waitLoader('Waiting for the host…')}<div class="sheet-btns"><button class="btn" data-a="lanx">Cancel</button></div>`;
+  else body=waitLoader('Opening the camera…');
+  return `<div class="sheet-bg" data-a="lanx"><div class="sheet lansheet" role="dialog" aria-modal="true" aria-labelledby="lan-h" data-stop="1"><h2 id="lan-h">${host?'Add a phone':'Join without internet'}</h2>${body}</div></div>`}
+function lanBootCheck(){if(!S.lk||!S.lk.lan)return false;if(window.FTLAN&&FTLAN.hub)return false;
+  if(lkHost()){delete S.lk;save();toast('The offline link ended when the app restarted. Host again to relink the phones.')}
+  else lkClear('Lost the offline link. Ask the host to add this phone again.');return true}
+window.lanReady=()=>{if(lanBootCheck())render();else render()};
+window.lanPing=why=>{if(why==='lost'){if(lkGuest()&&lanOn()){LANLOST=true;vibe([60,60,60]);toast('Lost the host phone. Keep this app open near them, and ask the host to add you again.')}else if(lkHost()&&lanOn())toast('A phone disconnected. Tap 📱 then Add a phone to reconnect it.')}render()};
 
 /* ---------- family sync (installed app only: window.FTSYNC comes from sync.js) ---------- */
 let SYNCMSG='',SYNCBUSY=false,SYNCPRE='',SYNCLEAVE=false,FTPEND=false;
@@ -8028,6 +8080,7 @@ function render(){
   KEEPSC.forEach((q,i)=>{const el=document.querySelector(q);if(el&&keepSc[i])el.scrollTop=keepSc[i]});
   if(S.screen==='reveal'&&!RCWARMED){RCWARMED=true;setTimeout(()=>{try{const w=winMoment();rcWarm([w.src,...(w.layers||[]),...Object.values(loserMoments()).map(m=>m.img.u),...(LOOK()==='art'?act().flatMap(p=>['box','tank','hopper','caboose','engine'].map(k=>`train/${k}-${TCOL(p.color)}.png`)):[])])}catch(e){}},50)}else if(S.screen!=='reveal')RCWARMED=false;
   if(REMATCH)document.getElementById('app').insertAdjacentHTML('beforeend',rematchSheet());
+  if(LANUI)document.getElementById('app').insertAdjacentHTML('beforeend',lanSheet());
   if(WARN&&!document.getElementById('warn-h'))document.getElementById('app').insertAdjacentHTML('beforeend',`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
     <div class="sheet-btns"><button class="btn" data-a="warnclose">Go back and check</button><button class="btn primary" data-a="revstart">Reveal anyway</button></div></div></div>`);
   sheetLock(!!document.querySelector('#app .sheet-bg'));
@@ -8803,6 +8856,12 @@ document.addEventListener('click',e=>{
     case 'lkleave':if(S.lk&&S.lk.me)window.FTLINK.seat(S.lk.me,null);lkClear('You left the linked game.');return;
     case 'lkback':lkGo();if(S.screen==='home')S.screen=lkScreen();window.scrollTo(0,0);break;
     case 'lkjoin':{const v=(document.getElementById('lk-code')||{}).value||'';LKCODE=v.replace(/\D/g,'');lkJoin(v);return}
+    case 'lanhost':lanHost(k);return;
+    case 'lanjoin':lanJoin();return;
+    case 'lanadd':lanAdd();return;
+    case 'lanscan':lanHostScan();return;
+    case 'lancamx':lanCam(false);if(LANUI&&LANUI.mode==='guest'){try{FTLAN.stop()}catch(e){}}LANUI=null;break;
+    case 'lanx':lanCam(false);if(LANUI&&LANUI.mode==='guest'&&!S.lk){try{FTLAN.stop()}catch(e){}}if(LANUI&&LANUI.mode==='host'&&FTLAN.hub&&FTLAN.hub.pending){try{FTLAN.hub.pending.pc.close()}catch(e){}FTLAN.hub.pending=null}LANUI=null;break;
     case 'lkhost':try{lkHostStart(k)}catch(e){}return;
     case 'lkpick':lkPick(k||null);return;
     case 'lkfree':lkFree(k);return;
