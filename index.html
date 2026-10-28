@@ -860,6 +860,11 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .rgpick{grid-template-columns:repeat(3,1fr)}
 .cdbox{position:fixed;inset:0;z-index:40;display:grid;place-content:center;justify-items:center;gap:6px;background:rgba(10,15,20,.55);pointer-events:none}.cdbox b{font-family:var(--display);font-size:120px;line-height:1;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.4)}.cdbox span{color:#fff;font-weight:700}
 @media (prefers-reduced-motion:no-preference){.cdbox b{animation:cdpop .85s ease-out}}@keyframes cdpop{from{transform:scale(1.6);opacity:.2}to{transform:scale(1);opacity:1}}
+.rgled{font-size:12.5px;color:var(--muted);text-align:center;margin:8px 0 -4px;min-height:1.2em}.rgled b{filter:brightness(.9)}
+.bidsel{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 45%,transparent)}
+.dragcard{position:fixed;left:0;top:0;z-index:60;pointer-events:none;margin:0!important;box-shadow:0 10px 28px rgba(0,0,0,.35)!important;--cw:62px}
+.kttable.dropzone{outline:2px dashed color-mix(in srgb,var(--accent) 60%,transparent);outline-offset:-6px}.kttable.dropover{outline-style:solid;background:radial-gradient(ellipse at center,color-mix(in srgb,var(--accent) 30%,var(--surface)) 0%,var(--surface) 72%)}
+body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .sdbids{padding:12px;margin-top:8px}.sdbidgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}.sdbidgrid .btn{min-height:44px;padding:0}
 .htsum{padding:10px 14px;margin-top:10px}.htsum .srow{padding:6px 0}.htsum .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--pc)}
 
@@ -1834,6 +1839,8 @@ function settingsScreen(){
     <p class="hint">${(SET.hlook||'cards')==='cards'?'Each team or player\u2019s stack of cards grows as their score climbs, and the top card flips over with every round. Used for the card games.':'Simple colored bars that grow with each score.'}</p></div>
   <div class="sec"><div class="sec-h"><h3>Ticket to Ride reveal look</h3></div>${seg('look',[['art','Illustrated trains'],['trains','Simple trains'],['bars','Classic bars']])}
     <p class="hint">${SET.cb&&SET.look==='art'?'Color-blind mode is on, so this phone shows Simple trains in color-blind-safe colors. ':''}${SET.look==='bars'?'Simple colored bars that grow with each score.':SET.look==='art'?'Each player gets a cartoon train in their color, with an engine, a mix of cars and a caboose. It adds cars as their score climbs.':'Each player\'s train grows a car at a time along the track as their score climbs.'}</p></div>
+  <div class="sec"><div class="sec-h"><h3>Playing cards on the phone</h3></div><div class="seg">${[['tap','Tap twice'],['drag','Drag to the table']].map(([v,t])=>`<button data-a="set" data-k="cardPlay" data-v="${v}" aria-pressed="${(SET.cardPlay||'tap')===v}">${t}</button>`).join('')}</div>
+    <p class="hint">${SET.cardPlay==='drag'?'Drag a card from your hand onto the table to play it. Tapping a card only lifts it, so you can’t play one by accident.':'Tap a card to lift it, then tap it again to play it.'} Bids always take two taps: pick a number, then tap it again to lock it in.</p></div>
   <div class="sec"><div class="sec-h"><h3>Sounds &amp; vibration</h3></div><div class="panel"><div class="prow"><div class="rtext"><b>Sounds</b><div class="rlab">A fanfare with applause for the winner, a sad trombone for everyone else, and the pew when someone shoots the moon.</div></div>${sw('setsound','',SET.sound,'Sounds')}</div>
     <div class="prow"><div class="rtext"><b>Tap feedback</b><div class="rlab">A tiny tap you can feel when you press a button.${IOS?' On iPhone and iPad this needs iOS 18 or newer.':''}</div></div>${sw('sethaptic','',SET.haptic!==false,'Tap feedback')}</div>
     <div class="prow"><div class="rtext"><b>Vibrate at the reveal</b><div class="rlab">${IOS?'iPhone and iPad don\u2019t let web apps vibrate, so this does nothing here. It works on Android.':'A happy double buzz when you win, one long buzz when you don\u2019t, and a nudge when a linked game\u2019s reveal starts.'}</div></div>${sw('setvibe','',SET.vibe!==false,'Vibrate at the reveal')}</div>
@@ -4450,6 +4457,30 @@ function htScore(){if(htPlayOn()&&S.started&&!S.demo)return htPlay();const X=HTX
    collects finished tricks, scores the hand and plays for the bots. Each person only plays cards from their own hand. */
 /* one table for trick games: you sit at the bottom, everyone else around it in play order (to your left first),
    and each card lands in the middle, nudged toward whoever played it, like one shared pile */
+/* bids need two taps: the first picks a number, the second locks it in */
+let BIDSEL=null;const BIDACTS=['sdbid','ohbid','rkbid','rgbid'];
+function bidMark(){if(!BIDSEL)return;const [a,k]=BIDSEL.split('|'),b=[...document.querySelectorAll(`[data-a="${a}"]`)].find(x=>x.dataset.k===k);if(!b||b.disabled){BIDSEL=null;return}
+  b.classList.add('primary','bidsel');b.setAttribute('aria-pressed','true');const box=b.closest('.sdbids')||b.parentElement;if(box&&!box.querySelector('.bidconf'))box.insertAdjacentHTML('beforeend',`<p class="hint bidconf" style="margin:8px 0 0;text-align:center"><b>Tap ${esc(b.textContent.trim().split(/[:(]/)[0].trim())} again to lock it in.</b></p>`)}
+/* playing a card: tap it, then tap it again (default), or drag it onto the table */
+const cardDrag=()=>SET.cardPlay==='drag';
+const curSel=()=>S.game==='hearts'?HTSEL[0]:S.game==='spades'?SDSEL:S.game==='ohell'?OHSEL:S.game==='rook'?RKSEL[0]:S.game==='rage'?RGSEL:null;
+let DRAG=null,DRAGPLAY=false,DRAGSUP=0;
+document.addEventListener('pointerdown',e=>{if(!cardDrag())return;const b=e.target.closest('.hthand .htc.ok');if(!b||b.disabled)return;
+  DRAG={b,c:b.dataset.c,a:b.dataset.a,x0:e.clientX,y0:e.clientY,el:null,id:e.pointerId}},{passive:true});
+document.addEventListener('pointermove',e=>{if(!DRAG||e.pointerId!==DRAG.id)return;const dx=e.clientX-DRAG.x0,dy=e.clientY-DRAG.y0;
+  if(!DRAG.el){if(Math.hypot(dx,dy)<8)return;const r=DRAG.b.getBoundingClientRect(),el=DRAG.b.cloneNode(true);el.classList.add('dragcard');el.style.width=r.width+'px';el.style.height=r.height+'px';
+    DRAG.ox=DRAG.x0-r.left;DRAG.oy=DRAG.y0-r.top;document.body.appendChild(el);DRAG.el=el;DRAG.b.style.visibility='hidden';const t=document.querySelector('.kttable');if(t)t.classList.add('dropzone')}
+  DRAG.el.style.transform=`translate(${e.clientX-DRAG.ox}px,${e.clientY-DRAG.oy}px) rotate(${Math.max(-12,Math.min(12,dx/12))}deg)`;
+  const t=document.querySelector('.kttable');if(t){const r=t.getBoundingClientRect();t.classList.toggle('dropover',e.clientX>r.left&&e.clientX<r.right&&e.clientY>r.top&&e.clientY<r.bottom)}},{passive:true});
+function dragEnd(e){if(!DRAG)return;const d=DRAG;DRAG=null;const t=document.querySelector('.kttable');if(t)t.classList.remove('dropzone','dropover');if(!d.el)return;
+  DRAGSUP=Date.now()+400;d.el.remove();d.b.style.visibility='';const r=t&&t.getBoundingClientRect(),over=r&&e&&e.clientX>r.left&&e.clientX<r.right&&e.clientY>r.top&&e.clientY<r.bottom;
+  if(!over&&!(e&&d.y0-e.clientY>110))return;
+  /* dropped on the table: select it and play it, just like two taps */
+  const click=()=>{const x=[...document.querySelectorAll(`.hthand [data-a="${d.a}"]`)].find(q=>q.dataset.c===d.c);if(x){DRAGPLAY=true;x.click();DRAGPLAY=false}};
+  if(curSel()!==d.c)click();click()}
+document.addEventListener('pointerup',dragEnd);document.addEventListener('pointercancel',()=>{if(DRAG&&DRAG.el){DRAG.el.remove();DRAG.b.style.visibility=''}const t=document.querySelector('.kttable');if(t)t.classList.remove('dropzone','dropover');DRAG=null});
+document.addEventListener('click',e=>{if(Date.now()<DRAGSUP&&!DRAGPLAY&&e.target.closest('.hthand .htc')){e.stopImmediatePropagation();e.preventDefault()}},true);
+const cardPlayHint=()=>`${cardDrag()?'Drag a card onto the table to play it.':(curSel()?'Tap it again to play it.':'Tap a card to play it.')} <button class="link-btn" data-a="cardplay">${cardDrag()?'Tap to play instead':'Drag to play instead'}</button>`;
 const KTSW={},KTMS=750;
 const ktKey=t=>(S.game||'')+':'+(t||[]).map(x=>x.c).join(',');
 /* is the last trick still sliding toward its winner? (each phone animates it once) */
@@ -4597,7 +4628,7 @@ function htPlay(){const X=HTX(),P=act(),g=htG(),r=htCur(),sc=P.map(htTot),lo=Mat
     HTSEL=HTSEL.filter(c=>hand.includes(c));
     out+=`<div class="hthand" style="--n:${hand.length}" aria-label="Your cards">${hand.map(c=>htCardEl(c,{btn:true,sel:HTSEL.includes(c),dis:picking?false:!L.includes(c),cls:[picking?'':L.includes(c)?'ok':'no',got.includes(c)&&g.n===0?'new':''].join(' ').trim()})).join('')}</div>`;
     if(picking)out+=`<div class="actions"><div class="in"><button class="btn primary" data-a="htpass" ${HTSEL.length===3?'':'disabled'}>${HTSEL.length===3?`Pass these 3 to ${esc(dirTo)}`:`Pick ${3-HTSEL.length} more`}</button></div></div>`;
-    else if(L.length)out+=`<p class="hint" style="text-align:center">${HTSEL.length===1?'Tap it again to play it.':'Tap a card to play it.'}</p>`;
+    else if(L.length)out+=`<p class="hint" style="text-align:center">${cardPlayHint()}</p>`;
     if(got.length&&g.n===0&&g.phase==='play')out+=`<p class="hint" style="text-align:center">Gold edges: the cards you were passed.</p>`}
   else if(!S.lk&&htHumans().length>1)out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
   return out+htModal()}
@@ -4852,7 +4883,7 @@ function sdPlay(){const X=SDX(),P=act(),g=sdG(),r=sdCur(),runs=P.map(p=>sdRun(p)
     if(g.phase==='bid'&&g.bidTurn===V.id){const q=sdPartner(V.id),pb=q?g.bids[q.id]:undefined,max=hand.length-(typeof pb==='number'?pb:0);
       out+=`<div class="panel sdbids">${q?`<p class="rlab" style="margin:0 0 6px">${pb===undefined?`${esc(nm(q))} hasn’t bid yet.`:`${esc(nm(q))} bid <b>${sdBidLab(pb)}</b>.`}</p>`:''}<div class="sdbidgrid">${Array.from({length:hand.length},(_,i)=>i+1).map(v=>`<button class="btn" data-a="sdbid" data-k="${v}" ${q&&v>max?'disabled':''}>${v}</button>`).join('')}</div>
         ${X.nil?`<button class="btn" data-a="sdbid" data-k="nil" style="margin-top:8px;width:100%">Nil: take no tricks (±${X.nilV})</button>`:''}${X.nil?'':`<button class="btn" data-a="sdbid" data-k="0" style="margin-top:8px;width:100%">0</button>`}</div>`}
-    else if(L.length)out+=`<p class="hint" style="text-align:center">${SDSEL?'Tap it again to play it.':'Tap a card to play it.'}</p>`}
+    else if(L.length)out+=`<p class="hint" style="text-align:center">${cardPlayHint()}</p>`}
   else if(!S.lk&&sdHumans().length>1)out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
   return out+sdModal()}
 function sdModal(){const a=sdNeedHandoff();if(!a)return '';return `<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="sdp-h" style="${pc(a.color)}">
@@ -5057,6 +5088,7 @@ function rgPlay(){const X=RGX(),P=act(),g=rgG(),r=rgCur(),N=rgN(),sc=P.map(rgTot
   else if(g.phase==='done')status=`<b>Round ${r+1} is over.</b>`;
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${g.fore?'Forehead round':`${n} card${n===1?'':'s'} each`} · ${esc(nm(P.find(p=>p.id===g.dealer)||{name:''}))} dealt${g.phase!=='bid'?` · bids total ${P.reduce((a,p)=>a+(g.bids[p.id]||0),0)} for ${n}`:''}</span></div>`;
   if(g.phase!=='done'||ktFresh(g)){const showT=g.t.length?g.t:g.last&&g.phase!=='bid'?g.last.t:[],faded=!g.t.length&&!!g.last,lw=faded&&g.last?P.find(p=>p.id===g.last.w):null;
+    {const ld=g.t.length?rgLed(g.t):null;out+=`<div class="rgled">${g.t.length?(ld?`Led: <b style="color:${RGC[ld][1]}">${RGC[ld][0]}</b>`:'Led: a Rage card, so the first color played sets it'):'&nbsp;'}</div>`}
     out+=`<div class="ohup">${g.tr?`<span class="rgtr" style="--rk:${RGC[g.tr][1]}"></span><span><b>Trump: ${trName}</b><br><small>${g.flip?'just turned up':g.up&&g.up[0]===g.tr?'the turned-up card':'changed by a Change Rage'}</small></span>`:`<span class="rgtr none"></span><span><b>No trump${g.outT?' this trick':''}</b><br><small>${g.outT?'Out Rage. A new trump is turned up after this trick.':g.up?'an Out Rage took it away':'no color card to turn up'}</small></span>`}</div>`;
     const trickEls=showT.map(x=>({p:x.p,c:x.c,w:x.w,n:x.n}));
     out+=ktTable({P,me:V?V.id:me?me.id:null,trick:trickEls,faded,turn:g.phase==='bid'?g.bidTurn:g.turn,won:lw&&lw.id,card:(c)=>{const x=trickEls.find(y=>y.c===c);return rgCardEl(c,{w:x&&(x.c[0]==='W'||!RGX().changeFlip)?x.w:x&&x.c[0]==='C'?x.w:null,n:x&&x.n})},
@@ -5069,7 +5101,7 @@ function rgPlay(){const X=RGX(),P=act(),g=rgG(),r=rgCur(),N=rgN(),sc=P.map(rgTot
     else{out+=`<div class="hthand" style="--n:${hand.length}" aria-label="Your cards">${hand.map(c=>rgCardEl(c,{btn:true,sel:RGSEL===c,dis:!L.includes(c),cls:[g.phase==='play'?(L.includes(c)?'ok':'no'):'',c[0]===g.tr?'trump':''].join(' ').trim()})).join('')}</div>`;
       if(RGSEL&&RGSEL[0]==='W'&&RGWC&&X.wildNum&&L.includes(RGSEL))out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>Wild as a ${RGC[RGWC][0].toLowerCase()}: pick the number.</b> 16 beats every ${RGC[RGWC][0].toLowerCase()} card. Call it low to duck the trick. <button class="link-btn" data-a="rgcolor" data-k="">Change color</button></p><div class="sdbidgrid">${Array.from({length:17},(_,i)=>16-i).map(v=>`<button class="btn" data-a="rgnum" data-k="${v}" style="color:${RGC[RGWC][1]}">${v}</button>`).join('')}</div></div>`;
       else if(RGSEL&&(RGSEL[0]==='W'||RGSEL[0]==='C'&&!X.changeFlip)&&L.includes(RGSEL))out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>${RGSEL[0]==='W'?(X.wildNum?'Wild: pick its color, then its number.':'Wild: it becomes a 16 of the color you pick.'):'Change: pick the new trump color.'}</b></p><div class="rktr rgpick">${'roygbp'.split('').map(s=>`<button class="btn" data-a="rgcolor" data-k="${s}" style="--rk:${RGC[s][1]}"><i></i>${RGC[s][0]}</button>`).join('')}</div></div>`;
-      else if(L.length)out+=`<p class="hint" style="text-align:center">${RGSEL?'Tap it again to play it.':'Tap a card to play it.'}</p>`}
+      else if(L.length)out+=`<p class="hint" style="text-align:center">${cardPlayHint()}</p>`}
     if(myTurnBid)out+=`<div class="panel sdbids"><div class="sdbidgrid">${Array.from({length:n+1},(_,i)=>i).map(v=>`<button class="btn" data-a="rgbid" data-k="${v}">${v}</button>`).join('')}</div>${allMode?'<p class="hint" style="margin:6px 0 0">Your bid locks in when you tap it.</p>':''}</div>`}
   else if(!S.lk&&rgHumans().length>1)out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
   return out+cdHtml(g)+rgModal()}
@@ -6221,7 +6253,7 @@ function rkPlay(){const X=RKX(),P=act(),g=rkG(),r=rkCur(),all=rkAll(),T=[P[0],P[
     else if(nesting){out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>${RKSEL.length} of 5</b> picked to lay aside. ${!X.layCounters?'Counters can’t be laid aside.':RKSEL.some(rkVal)?(X.nestTo==='bidder'?'Counters you lay aside count for your team.':'Counters you lay aside go to whoever takes the last trick.'):''}</p>
       <div class="rktr">${'RGYB'.split('').map(s=>`<button class="btn${RKTR===s?' primary':''}" data-a="rktrump" data-k="${s}" style="--rk:${RKCOL[s][1]}"><i></i>${RKCOL[s][0]}</button>`).join('')}</div>
       <button class="btn primary" data-a="rknest" style="margin-top:8px;width:100%" ${RKSEL.length===5&&RKTR?'':'disabled'}>${RKSEL.length!==5?`Pick ${5-RKSEL.length>0?5-RKSEL.length+' more':RKSEL.length-5+' fewer'}`:!RKTR?'Now name trump':`Lay aside 5 · ${RKCOL[RKTR][0]} is trump`}</button></div>`}
-    else if(L.length)out+=`<p class="hint" style="text-align:center">${RKSEL.length?'Tap it again to play it.':'Tap a card to play it.'}</p>`}
+    else if(L.length)out+=`<p class="hint" style="text-align:center">${cardPlayHint()}</p>`}
   else if(!S.lk&&rkHumans().length>1)out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
   return out+rkModal()}
 function rkModal(){const a=rkNeedHandoff();if(!a)return '';const g=rkG();return `<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="rkp-h" style="${pc(a.color)}">
@@ -7491,7 +7523,7 @@ function ohPlay(){const X=OHX(),P=act(),g=ohG(),r=ohCur(),N=ohN(),sc=P.map(ohTot
     if(g.phase==='bid'&&g.bids[V.id]===undefined&&(!X.hook||g.bidTurn===V.id)){const ban=ohBanned(g,V.id);
       out+=`<div class="panel sdbids"><div class="sdbidgrid">${Array.from({length:n+1},(_,i)=>i).map(v=>`<button class="btn" data-a="ohbid" data-k="${v}" ${ban===v?'disabled':''}>${v}</button>`).join('')}</div>${ban!==null?`<p class="hint" style="margin:6px 0 0">Hook rule: as dealer you can’t bid ${ban}.</p>`:''}</div>`}
     else if(g.phase==='bid')out+=`<p class="hint" style="text-align:center">You bid <b>${g.bids[V.id]}</b>.${X.hook?'':' Bids show when everyone is in.'}</p>`;
-    else if(L.length)out+=`<p class="hint" style="text-align:center">${OHSEL?'Tap it again to play it.':'Tap a card to play it.'}</p>`}
+    else if(L.length)out+=`<p class="hint" style="text-align:center">${cardPlayHint()}</p>`}
   else if(!S.lk&&ohHumans().length>1)out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
   return out+cdHtml(g)+ohModal()}
 function ohModal(){const a=ohNeedHandoff();if(!a)return '';return `<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="ohp-h" style="${pc(a.color)}">
@@ -8992,6 +9024,7 @@ function render(){
   document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+dashSheet()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','phase10','rook','yahtzee','mextrain','catan','golf','tripoley','quacks'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||LPTIP.startsWith('ph:')||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
   if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar){bar.insertAdjacentHTML('afterbegin',HOMEBTN);if(dashOn()&&!S.editing)bar.insertAdjacentHTML('beforeend','<button class="btn sm dashbtn" data-a="dashopen" aria-label="Everyone at a glance">📊</button>');if((window.FTLINK||window.FTLAN)&&!S.lk&&!S.demo&&!S.editing&&S.started&&!S.finished&&['score','live'].includes(S.screen))bar.insertAdjacentHTML('beforeend','<button class="btn sm lkbtn" data-a="lkchoose" aria-label="Link phones">📱 Link</button>')}}
   if(S.screen==='results'&&S.lk&&!S.demo&&S.finished){const app=document.getElementById('app'),ac=app.querySelector('.actions');if(ac){ac.querySelectorAll('[data-a="rematch"]').forEach(x=>x.remove());ac.insertAdjacentHTML('beforebegin',lkVoteHtml());if(!ac.querySelector('button'))ac.remove()}else app.insertAdjacentHTML('beforeend',lkVoteHtml())}
+  bidMark();
   rcHydrate(document.getElementById('app'));
   if(S.game==='canasta'&&S.screen!=='home'&&S.screen!=='stats')caWords(document.getElementById('app'));
   {const hr=document.querySelector('.hfrounds [aria-pressed=true]');if(hr){const c=hr.parentElement;c.scrollLeft=hr.offsetLeft-c.offsetLeft-c.clientWidth/2+hr.offsetWidth/2}}
@@ -9209,6 +9242,9 @@ document.addEventListener('click',e=>{
   if(a!=='delg')DELG=null;if(a!=='delr')DELR=null;
   if(a==='kp'){kpKey(b.dataset.v);return}
   if(MUT.has(a))snap();
+  if(BIDACTS.includes(a)){const key=a+'|'+k;if(BIDSEL!==key){BIDSEL=key;render();return}BIDSEL=null}else if(a!=='cardplay')BIDSEL=null;
+  if(/^(ht|sd|oh|rk|rg)card$/.test(a)&&cardDrag()&&!DRAGPLAY&&b.classList.contains('ok')&&curSel()===b.dataset.c){toast('Drag it onto the table to play it.');return}
+  if(a==='cardplay'){SET.cardPlay=SET.cardPlay==='drag'?'tap':'drag';saveSet();toast(SET.cardPlay==='drag'?'Drag cards onto the table to play them.':'Tap a card, then tap it again to play it.');render();return}
   if(/^ht(card|pass|deal|msel|show)$/.test(a)&&S.game==='hearts'){htAct(a,b,k);render();return}
   if(/^sd(card|bid|deal|show|look)$/.test(a)&&S.game==='spades'){sdAct(a,b,k);render();return}
   if(/^oh(card|bid|deal|show)$/.test(a)&&S.game==='ohell'&&ohPlayOn()&&S.started){ohAct(a,b,k);render();return}
@@ -9891,6 +9927,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='44f9f6';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='c35cb8';</script>
 </body>
 </html>
