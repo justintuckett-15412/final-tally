@@ -2000,19 +2000,21 @@ function lanCam(show,title){let el=document.getElementById('lancam');
   if(!show){if(LANSTOP){try{LANSTOP()}catch(e){}LANSTOP=null}if(el)el.remove();return null}
   if(!el){el=document.createElement('div');el.id='lancam';el.innerHTML=`<div class="lancam-in"><b></b><video playsinline muted></video><i class="lancam-box"></i><p class="rlab">Hold the code inside the square.</p><button class="btn wide" data-a="lancamx">Cancel</button></div>`;document.body.appendChild(el)}
   el.querySelector('b').textContent=title||'Scan the code';return el.querySelector('video')}
+/* Chrome must be allowed to reach devices on the local network, or the phones can never connect */
+async function lanLocalOk(){if(!window.FTLAN||!FTLAN.askLocal)return '';const st=await FTLAN.askLocal();if(/denied/.test(st))throw new Error('Chrome is blocking Final Tally from reaching other phones on this Wi-Fi. Tap the icon left of the web address (or Chrome’s ⋮ menu, then Site settings), find Local network access, choose Allow, then try again.');return st}
 function lanErr(e){lanCam(false);const h=window.FTLAN&&FTLAN.hub,l=h&&h.last;LANUI={...(LANUI||{}),step:'err',msg:(e&&e.message)||'Something went wrong. Try again.',diag:e&&e.info||'',mine:LANUI&&LANUI.mine||(l&&l.addrs),theirs:LANUI&&LANUI.theirs||(l&&l.theirAddrs)};render()}
 /* host: start the offline game, then show the first pairing code */
 async function lanHost(g){if(!window.FTLAN){toast('Offline linking isn’t ready yet. Close and reopen the app.');return}
-  LKBUSY=true;render();try{const hub=FTLAN.startHost();window.FTLINK=hub.link;await lkHostStart(g);if(!S.lk){FTLAN.stop();window.FTLINK=window.FTLINK_NET;return}
+  LKBUSY=true;render();try{await lanLocalOk();const hub=FTLAN.startHost();window.FTLINK=hub.link;await lkHostStart(g);if(!S.lk){FTLAN.stop();window.FTLINK=window.FTLINK_NET;return}
     S.lk.lan=true;save();LKUI='';await lanAdd()}catch(e){lanErr(e)}LKBUSY=false;render()}
 async function lanAdd(){const hub=window.FTLAN&&FTLAN.hub;if(!hub||hub.role!=='host')return;LANUI={mode:'host',step:'busy'};render();
-  try{const stop=await FTLAN.warmCamera(),peer=await hub.offer();stop();LANUI={mode:'host',step:'show',qr:await FTLAN.qrSvg(peer.code),noAddr:peer.noAddr,mine:peer.addrs};render()}catch(e){lanErr(e)}}
+  try{await lanLocalOk();const stop=await FTLAN.warmCamera(),peer=await hub.offer();stop();LANUI={mode:'host',step:'show',qr:await FTLAN.qrSvg(peer.code),noAddr:peer.noAddr,mine:peer.addrs};render()}catch(e){lanErr(e)}}
 async function lanHostScan(){const hub=FTLAN.hub,v=lanCam(true,'Scan the code on their phone');
   try{LANSTOP=await FTLAN.scan(v,async t=>{lanCam(false);LANUI={mode:'host',step:'busy',msg:'Connecting…'};render();
       try{await hub.accept(t);LANUI={mode:'host',step:'done'};vibe([30,40,30]);render()}catch(e){lanErr(e)}})}catch(e){lanErr(e&&e.name==='NotAllowedError'?new Error('Final Tally needs the camera to scan the code. Allow the camera in your settings and try again.'):e)}}
 /* guest: scan the host's code, show a reply code, then join the game once the phones connect */
 async function lanJoin(){if(!window.FTLAN){toast('Offline linking isn’t ready yet. Close and reopen the app.');return}
-  LKUI='';LANUI={mode:'guest',step:'scan'};render();const v=lanCam(true,'Scan the code on the host’s phone');
+  LKUI='';LANUI={mode:'guest',step:'busy',msg:'Getting ready…'};render();try{await lanLocalOk()}catch(e){lanErr(e);return}LANUI={mode:'guest',step:'scan'};render();const v=lanCam(true,'Scan the code on the host’s phone');
   try{LANSTOP=await FTLAN.scan(v,async t=>{LANUI={mode:'guest',step:'busy',msg:'Making your reply code…'};render();
       try{const g=await FTLAN.joinWith(t);lanCam(false);LANUI={mode:'guest',step:'reply',qr:await FTLAN.qrSvg(g.reply),noAddr:g.noAddr,mine:g.addrs,theirs:g.hostAddrs};render();
         const dt=setInterval(async()=>{if(!LANUI||LANUI.step!=='reply'){clearInterval(dt);return}LANUI.diag=await FTLAN.iceInfo(g.pc);render()},3000);const code=await g.connected.finally(()=>clearInterval(dt));window.FTLINK=g.link;LANUI=null;LANLOST=false;await lkJoin(code);if(S.lk){S.lk.lan=true;save()}else{FTLAN.stop();window.FTLINK=window.FTLINK_NET}render()}

@@ -57,9 +57,19 @@ const hasAddress=sdp=>/a=candidate:/.test(sdp);
 const addrs=sdp=>[...new Set((sdp.match(/a=candidate:\S+ \d+ udp \d+ (\S+) \d+ typ host/g)||[]).map(l=>l.split(' ')[4]))];
 
 /* connection checks so far, for troubleshooting: how many "are you there?" messages went out, came back, and arrived from the other phone */
-async function iceInfo(pc){try{const st=await pc.getStats();let sent=0,back=0,heard=0,pairs=0,state=pc.iceConnectionState;
-  st.forEach(r=>{if(r.type==='candidate-pair'){pairs++;sent+=r.requestsSent||0;back+=r.responsesReceived||0;heard+=r.requestsReceived||0}});
-  return `checks ${state}: ${pairs} route${pairs===1?'':'s'}, sent ${sent}, answered ${back}, heard from them ${heard}`}catch(e){return ''}}
+/* Chrome asks "allow this site to find and connect to devices on your local network?" before a web page can reach phones on the same Wi-Fi.
+   A connection attempt alone doesn't show that question, so ask for it with a tiny local request while the person is tapping a button. */
+async function askLocal(){try{if(/^(localhost|127\.|10\.|192\.168\.|\[)/.test(location.hostname))return 'local page';
+    const st=await lnaState();if(!/prompt/.test(st))return st;
+    let perm=null;try{perm=await navigator.permissions.query({name:st.split(':')[0]})}catch(e){}
+    await new Promise(res=>{const t=setTimeout(res,30000);if(perm)perm.onchange=()=>{if(perm.state!=='prompt'){clearTimeout(t);res()}};
+      fetch('http://192.168.1.1/',{targetAddressSpace:'local',mode:'no-cors',cache:'no-store'}).then(()=>{clearTimeout(t);res()},()=>{setTimeout(()=>{clearTimeout(t);res()},perm&&perm.state==='prompt'?1500:0)})});
+    return await lnaState()}catch(e){return 'error'}}
+async function lnaState(){for(const n of ['local-network-access','local-network','loopback-network']){try{const r=await navigator.permissions.query({name:n});return n+':'+r.state}catch(e){}}return 'no LNA permission'}
+async function iceInfo(pc){try{const st=await pc.getStats();let sent=0,back=0,heard=0,pairs=0,state=pc.iceConnectionState,loc=[],rem=[];
+  st.forEach(r=>{if(r.type==='candidate-pair'){pairs++;sent+=r.requestsSent||0;back+=r.responsesReceived||0;heard+=r.requestsReceived||0}
+    if(r.type==='local-candidate')loc.push((r.address||r.ip||'?')+':'+r.port+'/'+r.protocol);if(r.type==='remote-candidate')rem.push((r.address||r.ip||'?')+':'+r.port)});
+  return `checks ${state}/${pc.connectionState}: ${pairs} route${pairs===1?'':'s'}, sent ${sent}, answered ${back}, heard from them ${heard} · mine ${loc.join(' ')||'none'} · theirs ${rem.join(' ')||'none'} · ${await lnaState()} · ${(navigator.userAgent.match(/(Chrome|Firefox|Version)\/[\d.]+/)||[''])[0]}`}catch(e){return 'stats error '+e.message}}
 /* ---------------- host side ---------------- */
 let hub=null;
 function startHost(){if(hub&&hub.role==='host')return hub;stop();const st=Store(),me=myId(),peers=new Set();
@@ -132,5 +142,5 @@ async function scan(video,onText){const stream=await navigator.mediaDevices.getU
 /* asking for the camera early also lets the phone share its real local address with the other phone */
 async function warmCamera(){try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});return()=>s.getTracks().forEach(t=>t.stop())}catch(e){return()=>{}}}
 
-window.FTLAN={iceInfo,startHost,joinWith,stop,qrSvg,scan,warmCamera,pack,unpack,get hub(){return hub},id:myId,Store,hostFb};
+window.FTLAN={askLocal,lnaState,iceInfo,startHost,joinWith,stop,qrSvg,scan,warmCamera,pack,unpack,get hub(){return hub},id:myId,Store,hostFb};
 try{window.lanReady&&window.lanReady()}catch(e){}
