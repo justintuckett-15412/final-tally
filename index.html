@@ -5824,7 +5824,7 @@ function ptDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    points the bidding team took. The other team gets the rest.
    S.rk[r] = {bt: team index, bid, took}
    ===================================================================== */
-const RKDEF={ones:false,last:0,min:70,target:300,made:'taken',play:false};
+const RKDEF={ones:false,last:0,min:70,target:300,made:'taken',play:false,rookRank:'high',rookAny:true,layCounters:true,bidFirst:'dealer',nestTo:'last'};
 const RKPRE=[['kd','Official (Kentucky Discard)',{ones:false,last:0,min:70,target:300}],['kr','Kentucky Rook (1s count)',{ones:true,last:0,min:100,target:500}],['k2','1s and last trick (200)',{ones:true,last:20,min:100,target:500}]];
 const RKX=()=>{if(!S.rkx)S.rkx={...RKDEF};const X=S.rkx;for(const k in RKDEF)if(X[k]===undefined)X[k]=RKDEF[k];return X};
 function rkSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.rkx'))}catch(e){}return Object.assign({...RKDEF},x||{})}
@@ -5861,7 +5861,14 @@ function rkSetup(){const X=RKX(),all=rkAll(),pre=rkPreset();
   ${sec('Points in a hand',row('5s','',`<span class="rlab">5 each</span>`)+row('10s and 14s','',`<span class="rlab">10 each</span>`)+row('The Rook','',`<span class="rlab">20</span>`)+tg('ones','1s count 15','Play with the 1s in the deck, worth 15 each.')+row('Last trick bonus','points',st('last',+X.last||0,0,50,5,'points')),`That’s ${all} points in every hand.`)}
   ${sec('Bidding',row('Lowest bid','',st('min',X.min,5,all,5,'points'))+`<div class="srow"><span class="rlab"><b>Making your bid</b></span></div><div class="seg">${[['taken','Score what you took'],['bid','Score just the bid']].map(([v,t])=>`<button data-a="rkset" data-k="made" data-v="${v}" aria-pressed="${X.made===v}">${t}</button>`).join('')}</div>`,`Bids go up by 5. Miss your bid and lose the whole bid. The other team always scores what they took.`)}
   ${sec('Winning',row('Play to','points',st('target',X.target,50,2000,50,'points')),`First team to ${X.target} wins. If both teams pass it in the same hand, the higher total wins.`)}
-  ${X.play?sec('Playing the cards',`<p class="rlab" style="margin:0">Kentucky Discard, as in the official rules: the 2s, 3s and 4s are out${X.ones?' (1s are in, ranked above the 14)':' and so are the 1s'}. 9 cards each${X.ones?' (10 with the 1s)':''} and 5 in the nest. The dealer bids first. The high bidder takes the nest, lays 5 cards aside (counters allowed) and names trump. The Rook is the highest trump and can be played to any trick. The player left of the dealer leads. The last trick takes the laid-aside cards.</p>`,'Your family plays differently? Tell me and it can become a house rule.'):''}
+  ${X.play?(()=>{const sg=(k,opts)=>`<div class="seg${opts.length>2?' three':''}">${opts.map(([v,t])=>`<button data-a="rkset" data-k="${k}" data-v="${v}" aria-pressed="${X[k]===v}">${t}</button>`).join('')}</div>`,lab=t=>`<div class="srow"><span class="rlab"><b>${t}</b></span></div>`;
+    return sec('Playing the cards',`<p class="rlab" style="margin:0;padding:12px 14px 4px">The deck: 2s, 3s and 4s out${X.ones?'; 1s in, ranked above the 14. 10 cards each':' and so are the 1s. 9 cards each'}, 5 in the nest. The player left of the dealer leads.</p>`
+      +lab('The Rook card')+sg('rookRank',[['high','Highest trump'],['ten','10½'],['low','Lowest trump']])
+      +tg('rookAny','The Rook can be played any time','Even when you could follow the color led. Off: it follows suit like any other trump.')
+      +lab('Who bids first')+sg('bidFirst',[['dealer','The dealer'],['left','Left of the dealer']])
+      +tg('layCounters','Counters can be laid aside','The high bidder may put point cards in the nest. Off: only cards with no points.')
+      +lab('The laid-aside cards go to')+sg('nestTo',[['last','Last trick'],['bidder','Bidder’s team']]),
+      `Official Kentucky Discard: ${['Rook is the highest trump','playable any time','dealer bids first','counters can be laid aside','the last trick takes them'].join(', ')}.`)})():''}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: ${X.play?'Players':'Teams'} ›</button></div></div>`}
 function rkScore(){if(rkPlayOn()&&S.started&&!S.demo)return rkPlay();const X=RKX(),P=act(),r=rkCur(),N=rkN(),all=rkAll(),H=rkH(r),over=rkOverAt(),done=over>=0&&r>=over;
   const sc=P.map(rkTot),hi=Math.max(...sc),lead=rkLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
@@ -5906,7 +5913,7 @@ const rkPlayOn=()=>!!RKX().play;
 const rkG=()=>S.rkg||null;
 const rkRes=()=>!S.lk||S.demo||lkHost();
 const rkNum=c=>c==='X'?0:+c.slice(1),rkCo=c=>c==='X'?'X':c[0];
-const rkRank=c=>c==='X'?99:rkNum(c)===1?15:rkNum(c);
+const rkRank=c=>c==='X'?({high:99,ten:10.5,low:4}[RKX().rookRank]||99):rkNum(c)===1?15:rkNum(c);
 const rkVal=c=>c==='X'?20:rkNum(c)===5?5:rkNum(c)===10||rkNum(c)===14?10:rkNum(c)===1?(RKX().ones?15:0):0;
 const rkTeamOf=pid=>act().findIndex(p=>p.id===pid)%2;
 const rkNext=pid=>{const P=act(),i=P.findIndex(p=>p.id===pid);return P[(i+1)%P.length].id};
@@ -5914,7 +5921,7 @@ const rkSuitOf=(c,tr)=>c==='X'?tr||'X':c[0];
 function rkSort(h,tr){const o='RGYB'.split('').filter(s=>s!==tr).concat(tr?[tr]:[]);return h.slice().sort((a,b)=>{const sa=rkSuitOf(a,tr),sb=rkSuitOf(b,tr);return (o.indexOf(sa)-o.indexOf(sb))||(rkRank(a)-rkRank(b))})}
 function rkDeal(r){const P=act(),X=RKX();let deck=['X'];for(const s of 'RGYB'){for(let n=5;n<=14;n++)deck.push(s+n);if(X.ones)deck.push(s+'1')}htShuffle(deck);
   const per=Math.floor((deck.length-5)/P.length),h={},dealer=P[r%P.length].id;P.forEach((p,i)=>h[p.id]=rkSort(deck.slice(i*per,(i+1)*per)));
-  const g={r,phase:'bid',dealer,h,nest:deck.slice(per*P.length),bids:{},high:null,bidTurn:dealer,bidder:null,trump:null,disc:[],t:[],turn:null,n:0,won:{},last:null,played:[],per};
+  const g={r,phase:'bid',dealer,h,nest:deck.slice(per*P.length),bids:{},high:null,bidTurn:X.bidFirst==='left'?rkNext(dealer):dealer,bidder:null,trump:null,disc:[],t:[],turn:null,n:0,won:{},last:null,played:[],per};
   P.forEach(p=>g.won[p.id]=[]);S.rkg=g;RKSEL=[];RKVIEW=null}
 const rkMinBid=g=>g.high?g.high.v+5:RKX().min;
 function rkBid(pid,v){const g=rkG();if(!g||g.phase!=='bid'||g.bidTurn!==pid)return false;const all=rkAll();
@@ -5925,19 +5932,20 @@ function rkBid(pid,v){const g=rkG();if(!g||g.phase!=='bid'||g.bidTurn!==pid)retu
   if(g.high&&g.high.v>=all){rkWonBid(g);return true}
   let n=rkNext(pid);for(let i=0;i<P.length&&g.bids[n]==='pass';i++)n=rkNext(n);g.bidTurn=n;return true}
 function rkWonBid(g){g.bidder=g.high.p;g.bidTurn=null;g.phase='nest';g.h[g.bidder]=rkSort(g.h[g.bidder].concat(g.nest));g.nest=[]}
-function rkSetNest(pid,disc,tr){const g=rkG();if(!g||g.phase!=='nest'||g.bidder!==pid||disc.length!==5||!'RGYB'.includes(tr))return false;
+const rkLayable=h=>{if(RKX().layCounters)return h;const ok=h.filter(c=>!rkVal(c));return ok.length>=5?ok:h};
+function rkSetNest(pid,disc,tr){const g=rkG();if(!g||g.phase!=='nest'||g.bidder!==pid||disc.length!==5||!'RGYB'.includes(tr))return false;const lay=rkLayable(g.h[pid]);if(disc.some(c=>!lay.includes(c)))return false;
   g.h[pid]=rkSort(g.h[pid].filter(c=>!disc.includes(c)),tr);for(const id in g.h)if(id!==pid)g.h[id]=rkSort(g.h[id],tr);
   g.disc=disc.slice();g.trump=tr;g.phase='play';g.turn=rkNext(g.dealer);return true}
 function rkLegal(g,pid){const h=g.h[pid]||[];if(!g.t.length)return h;const tr=g.trump,led=rkSuitOf(g.t[0].c,tr);
   const f=h.filter(c=>rkSuitOf(c,tr)===led);if(!f.length)return h;
   if(led===tr)return f;/* trump led: any trump, the Rook included (and it's forced when it's the last trump) */
-  return h.includes('X')?f.concat(['X']):f}
-function rkWinner(g,t){const tr=g.trump;if(t.some(x=>x.c==='X'))return t.find(x=>x.c==='X').p;
+  return h.includes('X')&&RKX().rookAny?f.concat(['X']):f}
+function rkWinner(g,t){const tr=g.trump;
   const tp=t.filter(x=>rkSuitOf(x.c,tr)===tr),pool=tp.length?tp:t.filter(x=>rkSuitOf(x.c,tr)===rkSuitOf(t[0].c,tr));return pool.reduce((a,x)=>rkRank(x.c)>rkRank(a.c)?x:a,pool[0]).p}
 function rkPlayCard(pid,c){const g=rkG();if(!g||g.phase!=='play'||g.turn!==pid||!rkLegal(g,pid).includes(c))return false;
   g.h[pid]=g.h[pid].filter(x=>x!==c);g.t=g.t.concat([{p:pid,c}]);g.turn=g.t.length>=act().length?null:rkNext(pid);playCard();return true}
 function rkCollect(g){const w=rkWinner(g,g.t);g.won[w]=(g.won[w]||[]).concat(g.t.map(x=>x.c));g.played=(g.played||[]).concat(g.t.map(x=>x.c));g.last={t:g.t,w};g.t=[];g.n++;g.turn=w;
-  if(!Object.values(g.h).some(h=>h.length)){g.lastW=w;g.won[w]=g.won[w].concat(g.disc);rkEndHand(g)}}
+  if(!Object.values(g.h).some(h=>h.length)){g.lastW=w;const to=RKX().nestTo==='bidder'?g.bidder:w;g.won[to]=g.won[to].concat(g.disc);rkEndHand(g)}}
 const rkTeamPts=(g,team)=>{let v=0;act().forEach((p,i)=>{if(i%2===team)(g.won[p.id]||[]).forEach(c=>v+=rkVal(c))});if(g.lastW&&rkTeamOf(g.lastW)===team)v+=+RKX().last||0;return v};
 function rkEndHand(g){const bt=rkTeamOf(g.bidder),H=rkH(g.r);H.bt=bt;H.bid=g.high.v;H.took=rkTeamPts(g,bt);g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
 const rkOverNow=()=>{const g=rkG();return !!g&&g.phase==='done'&&rkOverAt()>=0};
@@ -5950,20 +5958,20 @@ function rkBotBid(g,pid,lv){const h=g.h[pid],all=rkAll(),X=RKX(),st=rkStrength(h
   cap=Math.min(cap,all);return need<=cap?need:'pass'}
 function rkBotNest(g,pid){const h=g.h[pid],tr=rkStrength(h.filter(c=>c!=='X')).s;
   const keep=c=>c==='X'||c[0]===tr?100+rkRank(c):rkRank(c)>=14?60:rkRank(c)+(h.filter(x=>x[0]===c[0]).length<=2?-6:0)-rkVal(c)*.3;
-  const disc=h.slice().sort((a,b)=>keep(a)-keep(b)).slice(0,5);return {disc,tr}}
+  const disc=rkLayable(h).slice().sort((a,b)=>keep(a)-keep(b)).slice(0,5);return {disc,tr}}
 function rkBotCard(g,pid,lv){const L=rkLegal(g,pid);if(L.length===1)return L[0];const tr=g.trump,me=rkTeamOf(pid);
   const lo=a=>a.slice().sort((x,y)=>(rkRank(x)+rkVal(x)*.6)-(rkRank(y)+rkVal(y)*.6))[0],hi=a=>a.slice().sort((x,y)=>rkRank(y)-rkRank(x))[0];
   if(lv==='easy')return Math.random()<.5?lo(L):L[Math.floor(Math.random()*L.length)];
-  const beats=(c,w)=>{if(w==='X')return false;if(c==='X')return true;const sc=rkSuitOf(c,tr),sw=rkSuitOf(w,tr);if(sc===sw)return rkRank(c)>rkRank(w);return sc===tr};
+  const beats=(c,w)=>{const sc=rkSuitOf(c,tr),sw=rkSuitOf(w,tr);if(sc===sw)return rkRank(c)>rkRank(w);return sc===tr};
   const seen=new Set([...(g.played||[]),...g.t.map(x=>x.c)]),mine=g.h[pid]||[];
-  const top=c=>{if(c==='X')return true;const s=rkSuitOf(c,tr),hs=[...[5,6,7,8,9,10,11,12,13,14,1].map(n=>s+n).filter(x=>rkRank(x)>rkRank(c)&&(RKX().ones||!x.endsWith('1')||x.endsWith('11'))),...(s===tr?['X']:[])];return hs.every(x=>seen.has(x)||mine.includes(x))};
+  const top=c=>{const s=rkSuitOf(c,tr),hs=[...(c==='X'?[]:[5,6,7,8,9,10,11,12,13,14,1].map(n=>s+n)),...(c==='X'?[5,6,7,8,9,10,11,12,13,14,1].map(n=>tr+n):[])].filter(x=>rkRank(x)>rkRank(c)&&(RKX().ones||!x.endsWith('1')||x.endsWith('11'))).concat(s===tr&&c!=='X'&&rkRank('X')>rkRank(c)?['X']:[]);return hs.every(x=>seen.has(x)||mine.includes(x))};
   if(!g.t.length){const sure=L.filter(c=>c!=='X'&&rkSuitOf(c,tr)!==tr&&(rkRank(c)>=14||lv==='hard'&&top(c)));if(sure.length)return hi(sure);
     if(rkTeamOf(g.bidder)===me){const tt=L.filter(c=>rkSuitOf(c,tr)===tr&&c!=='X');if(tt.length>=2)return hi(tt)}
     const plain=L.filter(c=>c!=='X'&&rkSuitOf(c,tr)!==tr&&!rkVal(c));return lo(plain.length?plain:L.filter(c=>c!=='X').length?L.filter(c=>c!=='X'):L)}
   const winX=g.t.reduce((a,x)=>beats(x.c,a.c)?x:a,g.t[0]),pts=g.t.reduce((a,x)=>a+rkVal(x.c),0),partner=rkTeamOf(winX.p)===me,last=g.t.length===act().length-1;
   const winners=L.filter(c=>beats(c,winX.c)),losers=L.filter(c=>!beats(c,winX.c));
-  if(partner&&(last||lv==='hard'&&top(winX.c)||winX.c==='X')){const give=losers.filter(c=>rkVal(c)&&c!=='X');if(give.length)return give.sort((a,b)=>rkVal(b)-rkVal(a))[0];return lo(losers.length?losers:L)}
-  if(winners.length&&(pts>=10||last||lv==='hard')){const cheap=winners.filter(c=>c!=='X');if(pts<20&&cheap.length)return last?lo(cheap):hi(cheap);return winners.includes('X')&&pts>=15?'X':lo(winners)}
+  if(partner&&(last||lv==='hard'&&top(winX.c)||winX.c==='X'&&RKX().rookRank==='high')){const give=losers.filter(c=>rkVal(c)&&c!=='X');if(give.length)return give.sort((a,b)=>rkVal(b)-rkVal(a))[0];return lo(losers.length?losers:L)}
+  if(winners.length&&(pts>=10||last||lv==='hard')){const cheap=winners.filter(c=>c!=='X');if(pts<20&&cheap.length)return last?lo(cheap):hi(cheap);return winners.includes('X')&&pts>=15&&RKX().rookRank==='high'?'X':lo(winners)}
   const dump=losers.filter(c=>!rkVal(c));return lo(dump.length?dump:losers.length?losers:L)}
 
 /* ---------------- who is looking at this phone ---------------- */
@@ -5997,20 +6005,20 @@ function rkPlay(){const X=RKX(),P=act(),g=rkG(),r=rkCur(),all=rkAll(),T=[P[0],P[
   let status='';
   if(g.phase==='bid')status=V&&g.bidTurn===V.id?`<b>Your bid${S.lk||rkHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.high?`High bid: ${g.high.v} by ${esc(nm(P.find(p=>p.id===g.high.p)))}.`:`Lowest bid is ${X.min}.`}`:`${bidTurnP&&bidTurnP.bot?'🤖 ':''}<b>${esc(nm(bidTurnP||{name:''}))}</b> is bidding…${g.high?` High bid: ${g.high.v}.`:''}`;
   else if(g.phase==='nest')status=V&&g.bidder===V.id?`<b>You won the bid at ${g.high.v}!</b> The nest is in your hand. Pick 5 cards to lay aside, then name trump.`:`${bidderP.bot?'🤖 ':''}<b>${esc(nm(bidderP))}</b> won the bid at ${g.high.v} and is looking at the nest…`;
-  else if(g.phase==='play'){if(!turnP)status='Collecting the trick…';else if(V&&turnP.id===V.id)status=`<b>Your turn${S.lk||rkHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.t.length?`Follow the color led if you can (${g.t[0].c==='X'||rkSuitOf(g.t[0].c,g.trump)===g.trump?'trump':RKCOL[g.t[0].c[0]][0].toLowerCase()}). The Rook can be played any time.`:'Lead any card.'}`;else status=`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is playing…`}
+  else if(g.phase==='play'){if(!turnP)status='Collecting the trick…';else if(V&&turnP.id===V.id)status=`<b>Your turn${S.lk||rkHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.t.length?`Follow the color led if you can (${g.t[0].c==='X'||rkSuitOf(g.t[0].c,g.trump)===g.trump?'trump':RKCOL[g.t[0].c[0]][0].toLowerCase()}).${RKX().rookAny?' The Rook can be played any time.':''}`:'Lead any card.'}`;else status=`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is playing…`}
   else if(g.phase==='done')status=`<b>Hand ${r+1} is over.</b>`;
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(nm(P.find(p=>p.id===g.dealer)||{name:''}))} dealt${g.high&&g.phase!=='bid'?` · ${esc(nm(bidderP))} bid ${g.high.v}`:''}${g.trump?` · <b style="color:${RKCOL[g.trump][1]}">${trName}</b> is trump`:''} · ${all} points a hand</span></div>`;
   if(g.phase==='play'){const showT=g.t.length?g.t:g.last?g.last.t:[],faded=!g.t.length&&!!g.last,lw=faded&&g.last?P.find(p=>p.id===g.last.w):null,lp=lw?g.last.t.reduce((a,x)=>a+rkVal(x.c),0):0;
     const bt=rkTeamOf(g.bidder),bp=rkTeamPts(g,bt);
     out+=ktTable({P,me:V?V.id:me?me.id:null,trick:showT,faded,turn:g.turn,won:lw&&lw.id,card:rkCardEl,label:q=>`${(g.h[q.id]||[]).length} cards${q.id===g.bidder?' · bidder':''}`,note:lw?`${esc(nm(lw))} took it${lp?` (+${lp})`:''}`:''});
-    out+=`<p class="hint" style="text-align:center;margin:4px 0 0">${team(bt)} need ${g.high.v}: they have ${bp} so far${(g.disc||[]).some(rkVal)?' · the last trick also takes the laid-aside cards':''}.</p>`}
+    out+=`<p class="hint" style="text-align:center;margin:4px 0 0">${team(bt)} need ${g.high.v}: they have ${bp} so far${(g.disc||[]).some(rkVal)&&RKX().nestTo!=='bidder'?' · the last trick also takes the laid-aside cards':''}.</p>`}
   else if(g.phase==='bid'||g.phase==='nest')out+=`<div class="rkbids">${P.map(q=>{const b=g.bids[q.id];return `<div class="htseat${g.bidTurn===q.id||g.bidder===q.id&&g.phase==='nest'?' now':''}" style="${pc(q.color)}"><div class="htsn">${q.bot?'🤖 ':''}${esc(nm(q))}</div><div class="htsx">${b===undefined?(g.phase==='bid'?'…':''):b==='pass'?'passed':`bid ${b}`}${g.bidder===q.id?' · won it':''}</div></div>`}).join('')}</div>`;
   if(g.phase==='done'){const bt=rkTeamOf(g.bidder),H=rkH(g.r);const rows=[0,1].map(i=>{const v=rkPts(P[i],g.r);return `<div class="srow" style="${pc(P[i].color)}"><span class="rlab"><i class="dot"></i> <b>${team(i)}</b><br><small>${i===bt?(rkMade(H)?`bid ${H.bid}, made it with ${H.took}`:`bid ${H.bid}, set with ${H.took}`):`took ${Math.max(0,all-H.took)}`}</small></span><span class="num"><b>${v>0?'+':''}${v}</b> · ${rkTot(P[i])}</span></div>`}).join('');
     const over=rkOverNow();out+=`<div class="panel htsum">${rows}</div><div class="actions"><div class="in">${over?(rkRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Game over! Waiting for the host to reveal…</span>`):rkRes()?`<button class="btn sm" data-a="finish">End game</button><button class="btn primary" data-a="rkdeal">Deal hand ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`;return out+rkModal()}
   if(V){const L=g.phase==='play'&&g.turn===V.id?rkLegal(g,V.id):[],nesting=g.phase==='nest'&&g.bidder===V.id;RKSEL=RKSEL.filter(c=>hand.includes(c));
     out+=`<div class="hthand" style="--n:${hand.length}" aria-label="Your cards">${hand.map(c=>rkCardEl(c,{btn:true,sel:nesting?RKSEL.includes(c):RKSEL[0]===c,dis:nesting?false:!L.includes(c),cls:g.phase==='play'?(L.includes(c)?'ok':'no'):''})).join('')}</div>`;
     if(g.phase==='bid'&&g.bidTurn===V.id){const lo=rkMinBid(g);out+=`<div class="panel sdbids"><div class="sdbidgrid">${Array.from({length:8},(_,i)=>lo+i*5).filter(v=>v<=all).map(v=>`<button class="btn" data-a="rkbid" data-k="${v}">${v}</button>`).join('')}</div><button class="btn" data-a="rkbid" data-k="pass" style="margin-top:8px;width:100%">Pass</button></div>`}
-    else if(nesting){out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>${RKSEL.length} of 5</b> picked to lay aside. ${RKSEL.some(rkVal)?'Counters you lay aside go to whoever takes the last trick.':''}</p>
+    else if(nesting){out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>${RKSEL.length} of 5</b> picked to lay aside. ${!X.layCounters?'Counters can’t be laid aside.':RKSEL.some(rkVal)?(X.nestTo==='bidder'?'Counters you lay aside count for your team.':'Counters you lay aside go to whoever takes the last trick.'):''}</p>
       <div class="rktr">${'RGYB'.split('').map(s=>`<button class="btn${RKTR===s?' primary':''}" data-a="rktrump" data-k="${s}" style="--rk:${RKCOL[s][1]}"><i></i>${RKCOL[s][0]}</button>`).join('')}</div>
       <button class="btn primary" data-a="rknest" style="margin-top:8px;width:100%" ${RKSEL.length===5&&RKTR?'':'disabled'}>${RKSEL.length!==5?`Pick ${5-RKSEL.length>0?5-RKSEL.length+' more':RKSEL.length-5+' fewer'}`:!RKTR?'Now name trump':`Lay aside 5 · ${RKCOL[RKTR][0]} is trump`}</button></div>`}
     else if(L.length)out+=`<p class="hint" style="text-align:center">${RKSEL.length?'Tap it again to play it.':'Tap a card to play it.'}</p>`}
@@ -6025,9 +6033,9 @@ function rkAct(a,b,k){const g=rkG();
   if(a==='rktrump'){RKTR=k;return}
   if(a==='rknest'){const V=rkViewer();if(g&&V&&rkSetNest(V.id,RKSEL,RKTR)){RKSEL=[];RKTR=null}return}
   if(a==='rkcard'){if(!g)return;const V=rkViewer();if(!V)return;const c=b.dataset.c;
-    if(g.phase==='nest'&&g.bidder===V.id){if(RKSEL.includes(c))RKSEL=RKSEL.filter(x=>x!==c);else if(RKSEL.length<5)RKSEL=RKSEL.concat([c]);else toast('Pick 5. Tap one to put it back.');return}
+    if(g.phase==='nest'&&g.bidder===V.id){if(RKSEL.includes(c))RKSEL=RKSEL.filter(x=>x!==c);else if(!rkLayable(g.h[V.id]).includes(c))toast('House rule: counters can’t be laid aside.');else if(RKSEL.length<5)RKSEL=RKSEL.concat([c]);else toast('Pick 5. Tap one to put it back.');return}
     if(g.phase!=='play'||g.turn!==V.id){toast(g.phase==='bid'?'Bidding first.':g.phase==='nest'?'Waiting for the nest.':g.turn?`It’s ${nm(act().find(p=>p.id===g.turn))}’s turn.`:'Hang on…');return}
-    if(!rkLegal(g,V.id).includes(c)){toast('Follow the color led if you can (or play the Rook).');return}
+    if(!rkLegal(g,V.id).includes(c)){toast(RKX().rookAny?'Follow the color led if you can (or play the Rook).':'Follow the color led if you can.');return}
     if(RKSEL[0]!==c){RKSEL=[c];return}RKSEL=[];rkPlayCard(V.id,c);return}
   if(a==='rkdeal'){if(!rkRes())return;S.hr=rkCur()+1;rkDeal(S.hr);window.scrollTo(0,0)}}
 
@@ -6057,7 +6065,7 @@ function rkGuide(){const X=RKX(),all=rkAll();
     ['Bidding',[['Bids',`The lowest bid is ${X.min}. Bids go up by 5. Pass and you’re out of the bidding for that hand.`],['The nest','The high bidder takes the nest, sets aside the same number of cards, and names trump.']]],
     ['Scoring',[['Made it',X.made==='bid'?'The bidding team scores its bid.':'The bidding team scores all the points it took.'],['Set','Fall short and the bidding team loses the whole bid.'],['The other team','Always scores the points it took.']]],
     ['Winning',[[`First to ${X.target}`,'If both teams pass it in the same hand, the higher total wins.']]],
-    X.play?['Playing on the phone',[['The deck',`2s, 3s and 4s out${X.ones?'; 1s in, above the 14':', and the 1s'}. 9 cards each${X.ones?' (10 with the 1s)':''}, 5 in the nest.`],['Bidding','The dealer bids first. Pass and you’re out for the hand.'],['The nest','The high bidder adds the nest, lays 5 cards aside (counters allowed) and names trump. The last trick takes the laid-aside cards.'],['The Rook','The highest trump, worth 20. It can be played to any trick, even when you could follow the color led.'],['Leading','The player left of the dealer leads the first trick.']]]:['Everything else',[['Dealing, trump and the Rook card','Check the rule card in the box.']]]])}
+    X.play?['Playing on the phone',[['The deck',`2s, 3s and 4s out${X.ones?'; 1s in, above the 14':', and the 1s'}. 9 cards each${X.ones?' (10 with the 1s)':''}, 5 in the nest.`],['Bidding',`${X.bidFirst==='left'?'The player left of the dealer':'The dealer'} bids first. Pass and you’re out for the hand.`],['The nest',`The high bidder adds the nest, lays 5 cards aside (${X.layCounters?'counters allowed':'no counters'}) and names trump. ${X.nestTo==='bidder'?'The laid-aside cards count for the bidder’s team.':'The last trick takes the laid-aside cards.'}`],['The Rook',`${X.rookRank==='high'?'The highest trump':X.rookRank==='ten'?'A trump between the 10 and the 11':'The lowest trump'}, worth 20.${X.rookAny?' It can be played to any trick, even when you could follow the color led.':' It follows suit like any other trump.'}`],['Leading','The player left of the dealer leads the first trick.']]]:['Everything else',[['Dealing, trump and the Rook card','Check the rule card in the box.']]]])}
 function rkHomeCard(){const st=gamePeek('rook');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/rook-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart rkart&quot; aria-hidden=&quot;true&quot;>🐦‍⬛</div>'"><div><h2>Rook</h2><div class="meta">Play on the phone, or score real cards · partners</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="rook">Resume game</button><button class="btn" data-a="gnew" data-k="rook">New game</button></div>`
@@ -9675,6 +9683,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='8e463b';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='324904';</script>
 </body>
 </html>
