@@ -149,7 +149,10 @@ async function scan(video,onText){const stream=await navigator.mediaDevices.getU
   requestAnimationFrame(tick);
   return ()=>{live=false;stream.getTracks().forEach(t=>t.stop());video.srcObject=null}}
 /* asking for the camera early also lets the phone share its real local address with the other phone */
-async function warmCamera(){try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});return()=>s.getTracks().forEach(t=>t.stop())}catch(e){return()=>{}}}
+/* briefly open the camera so the browser shares this phone's Wi-Fi address; never wait more than 3 seconds for it */
+async function warmCamera(){let s=null,late=false;const off=()=>{late=true;if(s)s.getTracks().forEach(t=>t.stop())};
+  try{await Promise.race([navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false}).then(x=>{s=x;if(late)off()}),new Promise(r=>setTimeout(r,3000))])}catch(e){}
+  return off}
 
 window.FTLAN={askLocal,lnaState,iceInfo,startHost,joinWith,stop,qrSvg,scan,warmCamera,pack,unpack,get hub(){return hub},id:myId,Store,hostFb};
 try{window.lanReady&&window.lanReady()}catch(e){}
