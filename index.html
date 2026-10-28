@@ -808,6 +808,7 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 /* Hearts on the phone: cards, table and hand */
 .htc{--cw:56px;position:relative;display:inline-block;width:var(--cw);height:calc(var(--cw)*1.4);border-radius:8px;background:#fffdf7;border:1.5px solid #c9c2b3;color:#1d2228;box-shadow:0 1px 2px rgba(0,0,0,.18);padding:0;font-family:var(--display);flex:none;vertical-align:top}
 .htc.red{color:#c8322b}
+.htc b.ten{letter-spacing:-.12em;font-size:calc(var(--cw)*.3);left:3px}
 .htc b{position:absolute;left:5px;top:3px;font-size:calc(var(--cw)*.36);font-weight:800;line-height:1;letter-spacing:-.02em}
 .htc i{position:absolute;left:5px;top:calc(var(--cw)*.4);font-style:normal;font-size:calc(var(--cw)*.3);line-height:1}
 .htc em{position:absolute;right:5px;bottom:4px;font-style:normal;font-size:calc(var(--cw)*.6);line-height:1}
@@ -829,6 +830,15 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .hthand .htc.no{filter:brightness(.72) saturate(.6)}
 .hthand .htc[aria-pressed="true"]{transform:translateY(-16px);border-color:var(--accent);box-shadow:0 0 0 2px var(--accent),0 4px 10px rgba(0,0,0,.25)}
 .hthand .htc.new{border-color:#e0a91e;border-width:2.5px}
+.kttable{position:relative;height:clamp(290px,62vw,380px);margin:10px 0 4px;border-radius:50%/42%;background:radial-gradient(ellipse at center,color-mix(in srgb,var(--accent) 14%,var(--surface)) 0%,var(--surface) 72%);border:1.5px solid var(--line)}
+.ktseat{position:absolute;transform:translate(-50%,-50%);display:grid;justify-items:center;gap:1px;width:max-content;max-width:36%;padding:5px 9px;border-radius:12px;background:var(--bg);border:1.5px solid var(--line);font-size:12.5px;line-height:1.2;text-align:center;z-index:20}
+.ktseat b{font-size:13px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ktseat b small{color:var(--muted);font-weight:600}.ktseat span{color:var(--muted);font-size:11.5px;white-space:nowrap}
+.ktseat.now{border-color:var(--pc,var(--accent));box-shadow:0 0 0 2px color-mix(in srgb,var(--pc,var(--accent)) 40%,transparent)}
+.ktseat.won{background:color-mix(in srgb,var(--accent) 22%,var(--bg))}
+.ktpile{position:absolute;inset:0;pointer-events:none}.ktcard{position:absolute}.ktcard .htc{--cw:54px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+@media (prefers-reduced-motion:no-preference){.ktcard.new{animation:ktin .22s ease-out}}@keyframes ktin{from{opacity:0;margin-top:14px}to{opacity:1;margin-top:0}}
+.kttable.faded .ktcard .htc{opacity:.6}
+.ktnote{position:absolute;left:50%;bottom:30%;transform:translate(-50%,0);font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap;z-index:30;background:var(--bg);padding:2px 8px;border-radius:10px}
 .sdbids{padding:12px;margin-top:8px}.sdbidgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}.sdbidgrid .btn{min-height:44px;padding:0}
 .htsum{padding:10px 14px;margin-top:10px}.htsum .srow{padding:6px 0}.htsum .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--pc)}
 
@@ -4383,6 +4393,14 @@ function htScore(){if(htPlayOn()&&S.started&&!S.demo)return htPlay();const X=HTX
     broken, tk:{pid:[cards taken]}, last:{t,w}, kitty:[], out:[removed], dir}
    Cards are strings like 'QS', 'TH', '2C'. The host phone (or this phone when not linked) deals, swaps passed cards,
    collects finished tricks, scores the hand and plays for the bots. Each person only plays cards from their own hand. */
+/* one table for trick games: you sit at the bottom, everyone else around it in play order (to your left first),
+   and each card lands in the middle, nudged toward whoever played it, like one shared pile */
+function ktTable(o){const P=o.P,n=P.length,v=Math.max(0,P.findIndex(p=>o.me&&p.id===o.me)),T=o.trick||[];
+  const pos=k=>{const rel=(k-v+n)%n,a=(90+rel*360/n)*Math.PI/180;return {x:Math.cos(a),y:Math.sin(a)}};
+  const seats=P.map((q,k)=>{const {x,y}=pos(k);return `<div class="ktseat${o.turn===q.id?' now':''}${o.won===q.id?' won':''}" style="left:${50+x*40}%;top:${50+y*41}%;${pc(q.color)}"><b>${q.bot?'🤖 ':''}${esc(nm(q))}${o.me&&q.id===o.me?' <small>(you)</small>':''}</b><span>${o.label(q)}</span></div>`}).join('');
+  const cards=T.map((t,i)=>{const k=P.findIndex(p=>p.id===t.p),{x,y}=pos(k),rot=((htRk(t.c)*7+k*13)%15)-7;
+    return `<div class="ktcard${i===T.length-1&&!o.faded?' new':''}" style="left:${50+x*15}%;top:${50+y*17}%;z-index:${i+1};transform:translate(-50%,-50%) rotate(${rot}deg)">${htCardEl(t.c)}</div>`}).join('');
+  return `<div class="kttable${o.faded?' faded':''}">${seats}<div class="ktpile">${cards}</div>${o.note?`<div class="ktnote">${o.note}</div>`:''}</div>`}
 const HTR='23456789TJQKA',HTSU={C:'♣',D:'♦',S:'♠',H:'♥'},HTSO='CDSH';
 const htRk=c=>HTR.indexOf(c[0]),htSu=c=>c[1],htLab=c=>(c[0]==='T'?'10':c[0])+HTSU[c[1]]+'︎';
 const htIsPt=c=>c[1]==='H'||c==='QS';
@@ -4491,7 +4509,7 @@ function htTick(){if(S.game!=='hearts'||!htPlayOn()||!S.started||S.finished||S.s
 
 /* ---------------- drawing ---------------- */
 function htCardEl(c,o={}){const red=c[1]==='H'||c[1]==='D';const lab=(c[0]==='T'?'10':c[0]);
-  return `<${o.btn?'button':'span'} class="htc${red?' red':''}${o.cls?' '+o.cls:''}"${o.btn?` data-a="htcard" data-c="${c}" ${o.dis?'aria-disabled="true"':''} aria-pressed="${!!o.sel}" aria-label="${htName(c)}${o.sel?', picked':''}"`:` aria-label="${htName(c)}"`}><b>${lab}</b><i>${HTSU[c[1]]}︎</i><em>${HTSU[c[1]]}︎</em></${o.btn?'button':'span'}>`}
+  return `<${o.btn?'button':'span'} class="htc${red?' red':''}${o.cls?' '+o.cls:''}"${o.btn?` data-a="htcard" data-c="${c}" ${o.dis?'aria-disabled="true"':''} aria-pressed="${!!o.sel}" aria-label="${htName(c)}${o.sel?', picked':''}"`:` aria-label="${htName(c)}"`}><b${c[0]==='T'?' class="ten"':''}>${lab}</b><i>${HTSU[c[1]]}︎</i><em>${HTSU[c[1]]}︎</em></${o.btn?'button':'span'}>`}
 const htName=c=>({A:'Ace',K:'King',Q:'Queen',J:'Jack',T:'10'}[c[0]]||c[0])+' of '+{C:'clubs',D:'diamonds',S:'spades',H:'hearts'}[c[1]];
 function htPlay(){const X=HTX(),P=act(),g=htG(),r=htCur(),sc=P.map(htTot),lo=Math.min(...sc),tied=sc.filter(v=>v===lo).length>1,lead=P[sc.indexOf(lo)];
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">♥︎${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
@@ -4507,10 +4525,9 @@ function htPlay(){const X=HTX(),P=act(),g=htG(),r=htCur(),sc=P.map(htTot),lo=Mat
   out+=`<div class="hfmin htstat"><span>${status}</span><span>Hand ${r+1} · ${g.dir==='hold'?'hold hand, no passing':`pass ${g.dir}`} · ${X.end==='points'?`game ends at ${X.target}`:X.end==='hands'?`${X.hands} hands`:'play until you stop'} · low score wins</span></div>`;
   /* the table: everyone's seat and the card they played */
   const showT=g.t.length?g.t:g.last&&g.phase==='play'&&!g.t.length?g.last.t:[],faded=!g.t.length&&!!g.last;
-  if(g.phase!=='done')out+=`<div class="httable${faded?' faded':''}${P.length>4?' many':''}">${P.map(q=>{const x=showT.find(y=>y.p===q.id),won=faded&&g.last&&g.last.w===q.id;
-    return `<div class="htseat${g.turn===q.id?' now':''}${won?' won':''}" style="${pc(q.color)}"><div class="htsn">${q.bot?'🤖 ':''}${esc(nm(q))}${me&&q.id===me.id?' <small>(you)</small>':''}</div>
-      <div class="htslot">${x?htCardEl(x.c):`<span class="htc empty"></span>`}</div><div class="htsx">${(g.h[q.id]||[]).length} cards${won?' · took it':''}</div></div>`}).join('')}</div>`;
-  if(faded&&g.phase==='play')out+=`<p class="hint" style="text-align:center;margin:4px 0 0">${esc(nm(P.find(p=>p.id===g.last.w)))} took the last trick${htTrickPts(g.last.t.map(x=>x.c))?` (+${htTrickPts(g.last.t.map(x=>x.c))})`:''}.</p>`;
+  if(g.phase!=='done'){const lw=faded&&g.last?P.find(p=>p.id===g.last.w):null,lp=lw?htTrickPts(g.last.t.map(x=>x.c)):0;
+    out+=ktTable({P,me:V?V.id:me?me.id:null,trick:showT,faded,turn:g.turn,won:lw&&lw.id,label:q=>`${(g.h[q.id]||[]).length} cards${htTakenLab(g,q.id)!=='·'?' · '+htTakenLab(g,q.id):''}`,
+      note:lw?`${esc(nm(lw))} took it${lp?` (+${lp})`:''}`:g.phase==='pass'?'Passing…':''})}
   /* hand-over summary */
   if(g.phase==='done'){const mb=htMoonBy(r);out+=`<div class="panel htsum">${mb?`<p>🌙 <b>${esc(nm(mb))} shot the moon!</b></p>`:''}${P.map(q=>{const v=htHand(q,r);return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b></span><span class="num"><b>${v>0?'+':''}${v}</b> · ${htTot(q)}</span></div>`}).join('')}</div>`;
     const over=htOver();out+=`<div class="actions"><div class="in">${over?(htRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Game over! Waiting for the host to reveal…</span>`):htRes()?`<button class="btn sm" data-a="finish">End game</button><button class="btn primary" data-a="htdeal">Deal hand ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`;return out+htModal()}
@@ -4763,9 +4780,9 @@ function sdPlay(){const X=SDX(),P=act(),g=sdG(),r=sdCur(),runs=P.map(p=>sdRun(p)
   const dealerN=nm(P.find(p=>p.id===g.dealer)||{name:''});
   out+=`<div class="hfmin htstat"><span>${status}</span><span>Hand ${r+1} · ${esc(dealerN)} dealt · ${X.end==='points'?`play to ${X.target}`:X.end==='hands'?`${X.hands} hands`:'play until you stop'}</span></div>`;
   const showT=g.t.length?g.t:g.last&&g.phase==='play'?g.last.t:[],faded=!g.t.length&&!!g.last;
-  if(g.phase!=='done')out+=`<div class="httable${faded?' faded':''}${P.length>4?' many':''}">${P.map(q=>{const x=showT.find(y=>y.p===q.id),won=faded&&g.last&&g.last.w===q.id,b=g.bids[q.id];
-    return `<div class="htseat${(g.turn===q.id||g.bidTurn===q.id)?' now':''}${won?' won':''}" style="${pc(q.color)}"><div class="htsn">${q.bot?'🤖 ':''}${esc(nm(q))}${me&&q.id===me.id?' <small>(you)</small>':''}</div>
-      <div class="htslot">${x?htCardEl(x.c):`<span class="htc empty"></span>`}</div><div class="htsx">${b===undefined?(g.phase==='bid'?'bidding…':''):`bid <b>${sdBidLab(b)}</b> · won ${g.won[q.id]||0}`}${won?' · took it':''}</div></div>`}).join('')}</div>`;
+  if(g.phase!=='done'){const lw=faded&&g.last?P.find(p=>p.id===g.last.w):null;
+    out+=ktTable({P,me:V?V.id:me?me.id:null,trick:showT,faded,turn:g.phase==='bid'?g.bidTurn:g.turn,won:lw&&lw.id,label:q=>{const b=g.bids[q.id];return b===undefined?(g.phase==='bid'?'bidding…':''):`bid ${sdBidLab(b)} · won ${g.won[q.id]||0}`},
+      note:lw?`${esc(nm(lw))} took it`:g.phase==='bid'?'Bidding…':''})}
   if(team&&g.phase==='play')out+=`<p class="hint" style="text-align:center;margin:4px 0 0">${[[P[0],P[2]],[P[1],P[3]]].map(([a,b])=>`${esc(nm(a))} & ${esc(nm(b))}: ${sdTeamWon(g,a.id)} of ${sdTeamBid(g,a.id)}`).join(' · ')}</p>`;
   if(g.phase==='done'){const rows=(team?[P[0],P[1]]:P).map(q=>{const v=sdHand(q,r),c=sdCalc(q,r);return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(team?nm(q)+' & '+nm(sdPartner(q.id)):nm(q))}</b><br><small>${esc((c&&c.parts.join(' · '))||'')}${c&&c.bags?` · ${c.bags} bag${c.bags===1?'':'s'}`:''}</small></span><span class="num"><b>${v>0?'+':''}${v}</b> · ${sdTot(q)}</span></div>`}).join('');
     const over=sdOverNow();out+=`<div class="panel htsum">${rows}</div><div class="actions"><div class="in">${over?(sdRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Game over! Waiting for the host to reveal…</span>`):sdRes()?`<button class="btn sm" data-a="finish">End game</button><button class="btn primary" data-a="sddeal">Deal hand ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`;return out+sdModal()}
@@ -9376,6 +9393,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='3753ae';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='8549c1';</script>
 </body>
 </html>
