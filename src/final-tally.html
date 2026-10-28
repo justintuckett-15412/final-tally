@@ -1161,6 +1161,20 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .fcoutp{padding:10px 12px;margin:8px 0}.fcgoout{border:2px solid #e0a91e;background:color-mix(in srgb,#e0a91e 12%,var(--bg));padding:10px 12px;margin:10px 0;text-align:center}.fcgoout .rlab{margin:4px 0 8px}
 .fcarr{margin:12px auto 0;max-width:420px}
 .kt-crowns .ktdeal,.kt-crowns .ktdeck{background:url(art/crowns-back.jpg) center/100% 100% no-repeat,#4b2c7a;border-color:#e7b423}
+
+/* reveal around a zero line */
+.rv-bar.rvdiv{display:flex;position:relative;overflow:visible;background:none;border-radius:0}
+.rvdiv .rvd{position:relative;height:100%;min-width:0}.rvdiv .rvd.l{flex:0 0 calc(var(--zf) * 100%)}.rvdiv .rvd.r{flex:1 1 0}
+.rvdiv.lo .rvd.l{--pc:#2e9e55}.rvdiv.lo .rvd.r{--pc:#d0453a}.rvdiv:not(.lo) .rvd.l{--pc:#d0453a}
+.rv-bar.rvdiv:not(.hfc){height:8px}.rv-bar.rvdiv:not(.hfc) .rvd{background:var(--soft)}.rv-bar.rvdiv:not(.hfc) .rvd.l{border-radius:4px 0 0 4px}.rv-bar.rvdiv:not(.hfc) .rvd.r{border-radius:0 4px 4px 0}
+.rv-bar.rvdiv:not(.hfc) .rvd i{position:absolute;top:0;bottom:0;display:block;background:var(--pc);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.rv-bar.rvdiv:not(.hfc) .rvd.r i{left:0;border-radius:0 4px 4px 0}.rv-bar.rvdiv:not(.hfc) .rvd.l i{right:0;left:auto;border-radius:4px 0 0 4px}
+.rvdiv.hfc .rvd.l i{left:auto;right:0;transform:scaleX(-1)}.rvdiv.hfc .rvd.l i .hctop em{display:inline-block;transform:scaleX(-1)}
+.rvdiv.hfc .rvd.r{padding-left:2px}.rvdiv.hfc .rvd.l{padding-right:2px}
+.rvdiv .rvd0{position:absolute;left:calc(var(--zf) * 100%);top:-4px;bottom:-2px;width:2px;margin-left:-1px;background:var(--ink);opacity:.55;border-radius:1px;z-index:3}
+.rvdiv .rvd0 small{position:absolute;top:100%;left:50%;transform:translateX(-50%);font:800 10px/1.2 var(--body);color:var(--muted)}
+.rvdiv.hfc .rvd0{top:2px}.rv-row:has(.rvdiv){padding-bottom:16px}
+.rvlow{display:inline-block;margin:0 8px 4px 0;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,#2e9e55 16%,var(--surface));color:#237a42;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
 </style>
 
 <div id="app"></div>
@@ -9511,7 +9525,7 @@ const artPx=(f,W)=>f<=0?0:Math.max(30,Math.round(f*W));
 const TILEP=26,HCP=11;
 function lookPx(f,W){const L=LOOK();if(f<=0)return 0;if(L==='trail'&&S.game==='munchkin'){const n=Math.max(1,Math.round(f*Math.max(1,...act().map(total))));return n*mkStepW()-1}if(L==='trail'){const P=trP(),n=Math.max(1,Math.round(f*(W-14)/P));return n*P-1}if(L==='cards'){const n=Math.max(1,Math.round(f*(W-34)/HCP));return n*HCP+20}if(L==='art')return artPx(f,W);if(L==='tiles'){const n=Math.max(1,Math.round(f*(W-14)/TILEP));return n*TILEP-2}return Math.max(26,Math.round(f*(W-10)))}
 function setBar(el,f){if(!el)return;const of=+el.dataset.f||0;el.dataset.f=f;if(f>of&&LOOK()==='cards'){const t=el.querySelector('.hctop');if(t){t.classList.remove('fl');void t.offsetWidth;t.classList.add('fl')}}el.classList.toggle('z',f<=0);if(PXLOOK()&&el.parentElement)el.style.width=lookPx(f,el.parentElement.clientWidth)+'px';else el.style.width=barW(f)}
-function snapBars(){document.querySelectorAll('.rv-bar.art [data-bar],.rv-bar.ctl [data-bar],.rv-bar.cwl [data-bar],.rv-bar.hfc [data-bar]').forEach(el=>{const t=el.style.transition;el.style.transition='none';setBar(el,+el.dataset.f||0);void el.offsetWidth;el.style.transition=t})}
+function snapBars(){document.querySelectorAll('.rv-bar.art [data-bar],.rv-bar.ctl [data-bar],.rv-bar.cwl [data-bar],.rv-bar.hfc [data-bar],.rvdiv [data-barn],.rvdiv [data-bar]').forEach(el=>{const t=el.style.transition;el.style.transition='none';setBar(el,+el.dataset.f||0);void el.offsetWidth;el.style.transition=t})}
 addEventListener('resize',()=>snapBars());
 const MGSHAPE_M='M20 3a6 6 0 0 1 6 6c0 1.8-.7 2.9-1.2 3.8l8.7 3c3.3 1.1 3 6.2-.6 6.2h-6.2l6 11.6c1.2 2.4-.3 4.4-2.6 4.4h-5.5L20 30.2 15.4 38H9.9c-2.3 0-3.8-2-2.6-4.4l6-11.6H7.1c-3.6 0-3.9-5.1-.6-6.2l8.7-3c-.5-.9-1.2-2-1.2-3.8a6 6 0 0 1 6-6z';
 const hashOf=p=>[...String(p.id||nm(p))].reduce((a,ch)=>(a*31+ch.charCodeAt(0))>>>0,7);
@@ -9623,6 +9637,18 @@ function revSteps(){if(S.game==='carc')return cRevSteps();if(HFE())return hfRevS
 function startReveal(){if(S.lk&&!LKMUTE&&window.FTLINK&&!S.demo){if(lkHost()){window.FTLINK.reveal();return}if(S.lk.me){lkReady(true);toast('Marked you done. The reveal starts when everyone is done or the host starts it.')}else toast('The host starts the reveal for everyone.');render();return}
   WARN=null;SHAREMSG='';REVPAUSE=false;clearTimeout(AUTOT);if(SET.sound)ac();S.finished=true;REV={steps:revSteps(),i:0,phase:'pending'};S.screen='reveal';window.scrollTo(0,0);if(S.game==='darts'||S.game==='pool')goFinal()}
 const upto=(n,p)=>REV.steps.slice(0,n).reduce((t,s)=>t+s.f(p),0);
+/* reveal bars around a zero line: below zero grows left, above zero grows right.
+   Low-score games: green cards on the left (good), red on the right. Other games only switch on when someone drops below zero (then the left is red). */
+function revDiv(){if(!REV)return null;if(REV.div!==undefined)return REV.div;const L=LOOK(),P=act(),n=REV.steps.length;let neg=0,pos=0;
+  if(L==='cards'||L==='bars')P.forEach(p=>{for(let k=0;k<=n;k++){const t=upto(k,p);if(t<neg)neg=t;if(t>pos)pos=t}});
+  const lo=LOW();REV.div=(L==='cards'||L==='bars')&&(lo||neg<0)?{neg:-neg,pos,lo,zf:neg<0&&pos>0?Math.min(.8,Math.max(.2,-neg/(pos-neg))):neg<0?1:0}:null;return REV.div}
+function revSetBars(row,t){const D=revDiv();if(!D){setBar(row.querySelector('[data-bar]'),Math.max(0,t)/Math.max(1,...act().map(total)));return}
+  setBar(row.querySelector('[data-bar]'),D.pos?Math.max(0,t)/D.pos:0);setBar(row.querySelector('[data-barn]'),D.neg?Math.max(0,-t)/D.neg:0)}
+const revBarHtml=(p,t)=>{const D=revDiv(),strip=LOOK()==='cards'?hfCardStrip(p):'';
+  if(!D){const scale=Math.max(1,...act().map(total));return null}
+  const fp=D.pos?Math.max(0,t)/D.pos:0,fn=D.neg?Math.max(0,-t)/D.neg:0;
+  return `<div class="rv-bar rvdiv ${BARCLS()}${D.lo?' lo':''}" style="--zf:${D.zf}"><span class="rvd l"><i data-barn class="${fn<=0?'z':''}" data-f="${fn}" style="width:${barW(fn)}">${strip}</i></span><span class="rvd r"><i data-bar class="${fp<=0?'z':''}" data-f="${fp}" style="width:${barW(fp)}">${strip}</i></span><b class="rvd0" aria-hidden="true"><small>0</small></b></div>`};
+
 const sgn=v=>v>0?'+'+v:v<0?'−'+Math.abs(v):'0';
 function revealScreen(){
   if(!REV)REV={steps:revSteps(),i:0,phase:'pending'};
@@ -9635,11 +9661,11 @@ function revealScreen(){
   const btn=shown?(i<n-1?`Next: ${esc(REV.steps[i+1].name)} ›`:'Reveal the winner'):'Adding up…';
   const auto=SET.reveal==='auto';
   return `<div class="bar"><button class="back" data-a="go" data-s="score">‹ Scoring</button><h1>The reveal</h1></div>
-  <div class="rv-head"><span id="rv-round">${S.game==='nerts'?'Hand':'Round'} ${i+1} of ${n}</span><h2 id="rv-name">${esc(s.name)}</h2><div id="rv-lead" class="rv-lead" aria-live="polite"></div></div>
+  <div class="rv-head">${LOW()?'<b class="rvlow">⬇ Lowest score wins</b>':''}<span id="rv-round">${S.game==='nerts'?'Hand':'Round'} ${i+1} of ${n}</span><h2 id="rv-name">${esc(s.name)}</h2><div id="rv-lead" class="rv-lead" aria-live="polite"></div></div>
   <div class="rv-list${SET.revFast?' fast':''}" id="rv-list">${order.map(p=>`<div class="rv-row" data-pid="${p.id}" style="${pc(p.color)}">
-    <span class="rv-name">${esc(nm(p))}<small class="rv-sub" data-sub>${s.sub&&shown?esc(s.sub(p)):''}</small></span><span class="rv-delta num ${shown&&s.f(p)<0?'neg':''}" data-delta>${shown?sgn(s.f(p)):''}</span>
+    <span class="rv-name">${esc(nm(p))}<small class="rv-sub" data-sub>${s.sub&&shown?esc(s.sub(p)):''}</small></span><span class="rv-delta num ${shown&&(LOW()?s.f(p)>0:s.f(p)<0)?'neg':''}" data-delta>${shown?sgn(s.f(p)):''}</span>
     <span class="rv-tot num" data-tot>${cur(p)}</span>
-    <div class="rv-bar ${BARCLS()}"><i data-bar class="${cur(p)<=0?'z':''}" data-f="${Math.max(0,cur(p))/scale}" style="width:${barW(Math.max(0,cur(p))/scale)}">${LOOK()==='art'?artCars(p):LOOK()==='trail'?trailStrip(p):LOOK()==='tiles'?cTileStrip(p):LOOK()==='wall'?cWallStrip(p):LOOK()==='cards'?hfCardStrip(p):''}</i></div></div>`).join('')}</div>
+    ${revBarHtml(p,cur(p))||`<div class="rv-bar ${BARCLS()}"><i data-bar class="${cur(p)<=0?'z':''}" data-f="${Math.max(0,cur(p))/scale}" style="width:${barW(Math.max(0,cur(p))/scale)}">${LOOK()==='art'?artCars(p):LOOK()==='trail'?trailStrip(p):LOOK()==='tiles'?cTileStrip(p):LOOK()==='wall'?cWallStrip(p):LOOK()==='cards'?hfCardStrip(p):''}</i></div>`}</div>`).join('')}</div>
   <div class="actions"><div class="in"><button class="btn sm" data-a="revskip" aria-label="Skip to the winner">Skip ⏭</button><button class="btn sm${SET.revFast?' primary':''}" data-a="revfast" aria-pressed="${!!SET.revFast}" aria-label="Twice as fast">⏩ 2×</button>${auto?`<button class="btn primary" data-a="revpause">${REVPAUSE?'▶ Play':'❚❚ Pause'}</button>`:`<button class="btn primary" id="rv-next" data-a="revnext" ${shown?'':'disabled'}>${btn}</button>`}</div></div>`;
 }
 const RM=()=>window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -9651,9 +9677,9 @@ function animateStep(){
   const ord=s.order||s.f,seq=[...P].sort((a,b)=>ord(a)-ord(b)),gap=fast?0:(s.sub?900:Math.min(650,2600/Math.max(1,P.length)))*RSP();
   seq.forEach((p,k)=>setTimeout(()=>{if(!REV||S.screen!=='reveal')return;
     const row=list.querySelector(`[data-pid="${p.id}"]`);if(!row)return;const v=s.f(p),d=row.querySelector('[data-delta]');
-    d.textContent=sgn(v);d.classList.toggle('neg',v<0);d.classList.add('pop');const sb=row.querySelector('[data-sub]');if(sb&&s.sub){sb.textContent=s.sub(p);sb.classList.add('pop')}
+    d.textContent=sgn(v);d.classList.toggle('neg',LOW()?v>0:v<0);d.classList.add('pop');const sb=row.querySelector('[data-sub]');if(sb&&s.sub){sb.textContent=s.sub(p);sb.classList.add('pop')}
     countTo(row.querySelector('[data-tot]'),upto(i,p),upto(i+1,p),fast?0:600*RSP());
-    setBar(row.querySelector('[data-bar]'),Math.max(0,upto(i+1,p))/scale);
+    revSetBars(row,upto(i+1,p));
   },gap*k+(fast?0:350*RSP())));
   setTimeout(()=>{if(!REV||REV.phase!=='pending'||S.screen!=='reveal'){REVBUSY=false;return}
     // slide rows into their new order
