@@ -93,7 +93,7 @@ export function makeLink(fb,o={}){
   const seatMap=all=>{const m={};all.forEach(d=>{if(d.data&&d.data.uid)m[d.id]={dev:d.data.uid,ready:!!d.data.ready,rd:d.data.rd||0}});return m};
   function lkStop(){if(lk){lk.un.forEach(u=>{try{u()}catch(e){}});lk=null}}
   function lkWatch(code){lkStop();const un=[],send=u=>{try{window.lkRecv&&window.lkRecv(u)}catch(e){console.error(e)}};
-    un.push(fb.watchDoc(gref(code),d=>{if(!d||d.ended){send({gone:true});return}lastRd=d.rd||0;send({mflat:flatM(d.m),order:d.order,rv:d.rv||null,rd:lastRd})},()=>{}));
+    un.push(fb.watchDoc(gref(code),d=>{if(!d||d.ended){send({gone:true});return}lastRd=d.rd||0;send({mflat:flatM(d.m),order:d.order,rv:d.rv||null,rd:lastRd,gen:d.gen||0,sw:!!d.sw})},()=>{}));
     un.push(fb.watch([...gref(code),'i'],ch=>{const items={};ch.forEach(c=>{if(c.local)return;items[c.id]=c.removed||!c.data?null:c.data.j});if(Object.keys(items).length)send({items})},()=>{}));
     un.push(fb.watch([...gref(code),'seats'],(ch,first,all)=>send({seats:seatMap(all)}),()=>{}));
     un.push(fb.watch([...gref(code),'p'],ch=>{const ps={};ch.forEach(c=>{if(!c.local&&c.data&&c.data.j)ps[c.id]=c.data.j});if(Object.keys(ps).length)send({ps})},()=>{}));
@@ -127,6 +127,12 @@ export function makeLink(fb,o={}){
       (await fb.list([...gref(c),'i'])).forEach(x=>{if(x.data&&x.data.j)items[x.id]=x.data.j});
       lastRd=d.rd||0;lkWatch(c);return {...d,mflat:flatM(d.m),players,seats,items}},
     resume(c){authed().then(()=>lkWatch(c),fail)},
+    /* the host starts a different game for the same linked phones: same code, fresh players, seats and scores */
+    async swap(x){if(!lk)throw new Error('Not linked');const c=lk.code,d=await withTimeout(fb.get(gref(c)),15000,'Couldn’t reach the other phones.')||{},gen=(d.gen||0)+1;
+      await fb.update(gref(c),{gen,sw:true,t:Date.now()});
+      for(const sub of ['p','i','seats']){const L=await fb.list([...gref(c),sub]);await Promise.all(L.map(y=>fb.del([...gref(c),sub,y.id]).catch(()=>{})))}
+      await Promise.all([...Object.entries(x.ps).map(([id,j])=>fb.set([...gref(c),'p',id],{j,t:Date.now(),expireAt:exp()})),...Object.entries(x.items||{}).map(([k,j])=>fb.set([...gref(c),'i',k],{j,t:Date.now(),expireAt:exp()}))]);
+      await fb.set(gref(c),{v:2,hostUid:d.hostUid||uid,created:d.created||Date.now(),m:nestM(x.m),order:x.order,rv:null,rd:0,ended:false,gen,sw:false,t:Date.now(),expireAt:exp()});lastRd=0;return gen},
     push(u){if(!lk)return;const c=lk.code,ops=(u.mops||[]).map(([segs,v])=>[['m',...segs],v]);if(u.order)ops.push([['order'],u.order]);
       ops.push([['t'],Date.now()],[['expireAt'],exp()]);fb.updatePaths(gref(c),ops).catch(fail);
       for(const k in (u.items||{}))(u.items[k]==null?fb.del([...gref(c),'i',k]):fb.set([...gref(c),'i',k],{j:u.items[k],t:Date.now(),expireAt:exp()})).catch(fail);
