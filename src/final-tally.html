@@ -530,6 +530,8 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .ctnums i{position:absolute;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--accent) 45%,transparent)}.ctnums b,.ctnums small{position:relative;font-size:15px}.ctnums small{font-size:11px;color:var(--muted);min-height:12px}
 .ctnums .hot b{color:#c0392b}.ctnums .r7{background:color-mix(in srgb,#26313b 18%,var(--soft))}.ctchart>*{height:90px}
 .mtstart{display:flex;align-items:center;gap:12px;margin:12px 0 4px;padding:10px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}.mtstart svg{flex:none}
+.botbtn{flex:none;width:66px;height:40px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);font-size:18px;display:grid;place-items:center;line-height:1;padding:0 6px;margin-right:6px}.botbtn small{font-size:10.5px;font-weight:700;color:var(--muted)}.botbtn.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,var(--surface))}
+.yzbd{position:relative;display:inline-block;line-height:0}.yzbd.held{transform:translateY(-4px)}.yzbd i{position:absolute;left:0;right:0;bottom:-12px;font-style:normal;font-size:10px;font-weight:800;text-align:center;line-height:1;color:var(--muted)}
 .yzhint{margin-top:8px;padding:8px 10px;border-radius:10px;background:color-mix(in srgb,var(--accent) 16%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));font-size:14px;display:flex;align-items:center;gap:8px;justify-content:space-between}
 .yzmeter{margin-top:12px;display:grid;gap:8px}.yzm{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px}.yzmh{display:flex;justify-content:space-between;font-size:14px}
 .yzmb{position:relative;height:10px;border-radius:5px;background:var(--soft);margin:6px 0 4px;overflow:visible}.yzmb i{display:block;height:100%;border-radius:5px;background:var(--pc,var(--accent));transition:width .4s}
@@ -3471,10 +3473,11 @@ function nxPlayers(){const m=M(),n=act().length,sl=S.players.slice(0,8);
   const rows=sl.map((p,i)=>`<div class="prow ${p.on?'':'off'}">
     <button class="swatch" style="background:var(--t-${p.color});${pc(p.color)}" data-a="colpick" data-i="${i}" aria-expanded="${COLPICK===i}" aria-label="Color ${CNAME[p.color]}, tap to choose a color"></button>
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="Player ${i+1}" aria-label="Player ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
+    ${S.game==='yahtzee'&&!S.lk&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`🤖<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button></div>${COLPICK===i?colPicker(p,i):''}`).join('');
   const fam=H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the seats.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="map">‹ House rules</button><h1>Players</h1><span class="sub num">${n}</span></div>${steps(2)}
-  ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${S.game==='hearts'?'3 to 7 players; 4 is the classic game.':S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?'1 to 8 players. Solo works too.':S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
+  ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${S.game==='hearts'?'3 to 7 players; 4 is the classic game.':S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
   ${S.game==='quacks'?firstPicker():''}
   <div class="actions"><div class="in"><button class="btn primary" data-a="start">${S.started?'Back to scoring':'Start scoring'}</button></div></div>`}
 
@@ -5503,13 +5506,13 @@ function yzKeepPlan(plan,d){const n=yzCnt(d),k=[false,false,false,false,false];
   if(plan.t==='face')return d.map(x=>x===plan.v);
   if(plan.t==='run'){const used=new Set();return d.map(x=>{if(plan.T.includes(x)&&!used.has(x)){used.add(x);return true}return false})}
   if(plan.t==='fh'){const c={};return d.map(x=>n[x]>=2&&(c[x]=(c[x]||0)+1)<=3?true:false)}return k}
-function yzPlanEV(p,d,plan,rolls){let tot=0;const N=260;for(let i=0;i<N;i++){let dd=d.slice();
+function yzPlanEV(p,d,plan,rolls,N=260){let tot=0;for(let i=0;i<N;i++){let dd=d.slice();
     for(let r=0;r<rolls;r++){const keep=yzKeepPlan(r===0?{...plan,first:true}:plan,dd);if(keep.every(Boolean))break;dd=dd.map((x,j)=>keep[j]?x:yzRnd())}
     tot+=yzBoxVal(p,dd).v}return tot/N}
 const yzBoxName=k=>YZB.find(x=>x[0]===k)[1];
-function yzHint(p,d,rollsLeft){if(d.length!==5)return null;const now=yzBoxVal(p,d);
+function yzHint(p,d,rollsLeft,N=260){if(d.length!==5)return null;const now=yzBoxVal(p,d);
   if(!rollsLeft||yzIsY(d))return {box:now,text:`Score it in ${yzBoxName(now.k)}${yzCols()>1?` ×${now.c+1}`:''} for ${now.sc}.${now.sc===0?' (a scratch: the least costly one)':''}`};
-  let best={plan:{t:'all'},ev:now.v};yzPlans(d).forEach(pl=>{if(pl.t==='all')return;const ev=yzPlanEV(p,d,pl,rollsLeft);if(ev>best.ev+0.4)best={plan:pl,ev}});
+  let best={plan:{t:'all'},ev:now.v};yzPlans(d).forEach(pl=>{if(pl.t==='all')return;const ev=yzPlanEV(p,d,pl,rollsLeft,N);if(ev>best.ev+0.4)best={plan:pl,ev}});
   if(best.plan.t==='all')return {box:now,text:`Good roll. Score it now in ${yzBoxName(now.k)} for ${now.sc}.`};
   const hold=yzKeepPlan({...best.plan,first:true},d),what=best.plan.t==='face'?`the ${best.plan.v}s`:best.plan.t==='run'?'the straight':best.plan.t==='fh'?'the pairs':'nothing';
   return {hold,text:best.plan.t==='none'||hold.every(x=>!x)?'Roll all five again.':`Hold ${what} and roll again.`}}
@@ -5521,8 +5524,25 @@ function yzMeter(p){const C=yzCols();return `<div class="yzmeter">${Array.from({
       <small>${ok?'Bonus locked in.':!left?'Missed it this time.':df>=0?`On pace${df>0?`, ${df} ahead`:''}. Keep getting three of each number.`:`${-df} behind pace. You’ll need four of a number to catch up.`}</small></div>`}).join('')}</div>`}
 const yzBest=p=>{const prev=H.games.filter(g=>g.game==='yahtzee'&&g.id!==S.gameId).map(g=>({g,q:g.players.find(q=>p.rid?q.rid===p.rid:q.name===nm(p))})).filter(x=>x.q);
   if(!prev.length)return null;const b=prev.reduce((a,x)=>x.q.total>a.q.total?x:a);return {v:b.q.total,date:b.g.date,n:prev.length}};
+
+/* ---------- computer players: they roll on this phone, hold dice and pick boxes on their own ---------- */
+const YZBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Dice Bot'],hard:['Hard','Yahtzee Bot']};
+const yzBot=q=>!!q&&!!q.bot&&!yzMe()&&!S.lk;
+const yzHumans=()=>act().filter(q=>!q.bot);
+let YZBOTT=null,YZBOTHELD=false;
+function yzBotReady(){if(S.game!=='yahtzee'||S.screen!=='score'||yzDone()||WARN||YZFIX||RULESHEET||document.querySelector('.sheet-bg'))return null;const q=yzTurnP();return yzBot(q)?q:null}
+function yzBotTick(){if(YZBOTT||!yzBotReady())return;YZBOTT=setTimeout(yzBotStep,yzRS().n===0&&!YZBOTHELD?1100:900)}
+function yzBotPick(c,k){const b=document.createElement('button');b.dataset.a='yzpick';b.dataset.c=c;b.dataset.k=k;b.dataset.hapt='1';b.hidden=true;document.getElementById('app').appendChild(b);b.click();b.remove()}
+function yzBotStep(){YZBOTT=null;const q=yzBotReady();if(!q)return;const R=yzRS(),d=S.yzd||[],lv=q.bot,left=3-R.n;
+  if(R.n===0||YZBOTHELD){YZBOTHELD=false;if(R.n===0)R.h=[false,false,false,false,false];yzRollDice();if(yzIsY(S.yzd))setTimeout(()=>yzCheer(q),450);render();return}
+  const pickBest=()=>{if(lv==='easy'){let best=null;for(let c=0;c<yzCols();c++){const o=yzOptions(q,c,d);for(const k in o){const v=o[k]*yzMul(c)+Math.random()*.5;if(!best||v>best.v)best={c,k,v}}}return best}const b=yzBoxVal(q,d);return b&&b.k?b:null};
+  if(left>0&&!yzIsY(d)){let hold=null;
+    if(lv==='easy'){const n=yzCnt(d),mx=Math.max(...n.slice(1)),faces=[1,2,3,4,5,6].filter(v=>n[v]===mx),f=faces[Math.floor(Math.random()*faces.length)];hold=d.map(x=>x===f)}
+    else{const h=yzHint(q,d,left,lv==='hard'?260:45);if(h&&h.hold)hold=h.hold}
+    if(hold){R.h=hold.slice();YZBOTHELD=true;render();return}}
+  const b=pickBest();if(b)yzBotPick(b.c,b.k)}
 let YZPASS=null,YZHINT=null;
-const yzPassOn=()=>YZX().pass&&!yzMe()&&act().length>1&&!S.demo;
+const yzPassOn=()=>YZX().pass&&!yzMe()&&yzHumans().length>1&&!S.demo;
 function yzPassSheet(q){return `<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="yzp-h" style="${pc(q.color)}">
   <svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="yzp-h">${esc(nm(q))}</h2>
   <p class="rlab">${yzFilled(q)} of ${yzNeed()} boxes filled · ${yzTot(q)} points</p><button class="btn primary wide" data-a="yzpassok">I’m ${esc(nm(q))}, start my turn</button></div></div>`}
@@ -5541,7 +5561,7 @@ function yzFixSheet(){const F=YZFIX,P=act(),q=P.find(x=>x.id===F.pid);if(!q)retu
     <h2 id="yzf-h">${esc(nm(q))}: ${lab}${yzCols()>1?` ×${F.c+1}`:''}</h2><p class="rlab">Scored ${v}. Clear it to score this box again: it becomes ${esc(nm(q))}’s turn, and you enter the dice for it.</p>
     <div class="srow" style="padding:6px 0"><span class="rlab"><b>Yahtzee bonuses</b>${yzCols()>1?` · column ×${F.c+1}`:''}</span><div class="step"><button data-a="yzfixb" data-d="-1" ${yb<=0?'disabled':''} aria-label="One fewer bonus">−</button><span class="n num">${yb}</span><button data-a="yzfixb" data-d="1" aria-label="One more bonus">+</button></div></div>
     <div class="sheet-btns"><button class="btn" data-a="yzfixx">Keep it</button><button class="btn warn" data-a="yzfixclr">Clear and re-score</button></div></div></div>`}
-function yzScore(){const X=YZX(),P=act(),C=yzCols(),done=yzDone(),cur=yzTurnP(),d=S.yzd||[],roll=yzRoller(),R=yzRS();
+function yzScore(){const X=YZX(),P=act(),C=yzCols(),done=yzDone(),cur=yzTurnP(),d=S.yzd||[],bot=yzBot(cur),roll=yzRoller()||bot,R=yzRS();
   const me=yzMe(),hid=q=>!!me&&q!==me,sc=P.map(yzTot),hi=Math.max(...sc),lead=!me&&sc.some(v=>v>0)&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
   const wide=!me&&window.innerWidth>=740&&C===1&&P.length>1&&P.length<=6;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Turn">${done?'Done':`${Math.min(yzNeed(),yzFilled(cur)+1)}/${yzNeed()}`}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo">↶<span class="undo-w"> Undo</span></button></div>
@@ -5550,7 +5570,10 @@ function yzScore(){const X=YZX(),P=act(),C=yzCols(),done=yzDone(),cur=yzTurnP(),
   if(P.length===1&&!S.demo&&cur){const B=yzBest(cur),t=yzTot(cur);out+=`<div class="banner ${B&&t>B.v?'pb':'rival'}"><span class="crown">Solo challenge</span><p>${B?(t>B.v?`<b>New best!</b> ${t} beats your old record of ${B.v}.`:`Beat your best: <b class="num">${B.v}</b> (${fmtD(B.date,{month:'short',day:'numeric'})}). You need <b class="num">${B.v-t+1}</b> more.`):'Your first solo game sets the record to beat.'}</p></div>`}
   const HK=JSON.stringify([d,R.n,cur&&cur.id]),HT=YZHINT&&YZHINT.key===HK?YZHINT:null;
   if(!done&&cur){const opts=Array.from({length:C},(_,c)=>yzOptions(cur,c,d)),best=Math.max(-1,...opts.flatMap(o=>Object.values(o)));
-    out+=`<div class="nxcard yzroll" style="${pc(cur.color)}"><div class="nxh"><b>${esc(nm(cur))}’s roll</b><div class="seg yzmode"><button data-a="yzmode" data-v="0" aria-pressed="${!roll}">Real dice</button><button data-a="yzmode" data-v="1" aria-pressed="${roll}">Roll here</button></div></div>`;
+    if(bot){out+=`<div class="nxcard yzroll yzbotcard" style="${pc(cur.color)}"><div class="nxh"><b>🤖 ${esc(nm(cur))}’s turn</b><span class="rlab">${YZBOTS[cur.bot][0]}</span></div>
+      <div class="yzdice${YZSHAKE?' shake':''}">${[0,1,2,3,4].map(i=>d[i]?`<span class="yzbd${R.h[i]?' held':''}">${yzDie(d[i],50,'',IMGC.includes(cur.color)?cur.color:'red')}${R.h[i]?'<i>HOLD</i>':''}</span>`:`<span class="yzslot big"></span>`).join('')}</div>
+      <p class="rlab" style="margin:6px 0 0">${R.n===0?'Picking up the dice…':YZBOTHELD?`Holding ${R.h.filter(Boolean).length?R.h.filter(Boolean).length+' and rolling again…':'nothing, rolling all five…'}`:R.n>=3?'Choosing a box…':`Roll ${R.n} of 3. Thinking…`}</p>${d.length===5&&yzIsY(d)?`<p class="yzyell">YAHTZEE!</p>`:''}</div>`}
+    else{out+=`<div class="nxcard yzroll" style="${pc(cur.color)}"><div class="nxh"><b>${esc(nm(cur))}’s roll</b><div class="seg yzmode"><button data-a="yzmode" data-v="0" aria-pressed="${!roll}">Real dice</button><button data-a="yzmode" data-v="1" aria-pressed="${roll}">Roll here</button></div></div>`;
     if(roll){out+=`<div class="yzdice${YZSHAKE?' shake':''}">${[0,1,2,3,4].map(i=>d[i]?`<button class="${R.h[i]?'held':HT&&HT.hold&&HT.hold[i]?'tip':''}" data-a="yzhold" data-i="${i}" ${R.n>=3||R.n===0?'disabled':''} aria-pressed="${!!R.h[i]}" aria-label="${R.h[i]?'Holding':'Hold'} ${d[i]}">${yzDie(d[i],50,'',IMGC.includes(cur.color)?cur.color:'red')}${R.h[i]?'<i>HOLD</i>':''}</button>`:`<span class="yzslot big"></span>`).join('')}</div>
       <button class="btn primary wide" data-a="yzroll" ${R.n>=3?'disabled':''}>${R.n===0?'Roll the dice':R.n>=3?'No rolls left: pick a box':`Roll again (${3-R.n} left)`}</button>
       <p class="rlab" style="margin:6px 0 0">${R.n===0?'Three rolls per turn.':R.n<3?'Tap dice to hold them, then roll again. Or pick a box now.':'Pick a box below.'}</p>`}
@@ -5559,8 +5582,8 @@ function yzScore(){const X=YZX(),P=act(),C=yzCols(),done=yzDone(),cur=yzTurnP(),
       ${d.length?`<div class="htbtns" style="margin-top:6px"><button data-a="yzclr">Clear dice</button></div>`:''}
       <p class="rlab" style="margin:6px 0 0">${d.length<5?'Tap the five dice you ended with.':'Now tap the box to score it in.'}</p>`;
     if(X.hints&&d.length===5&&!(roll&&R.n===0))out+=HT?`<div class="yzhint">💡 ${esc(HT.text)}${HT.hold&&HT.hold.some(Boolean)?` <button class="btn sm" data-a="yzhintdo">Hold them</button>`:''}</div>`:`<div class="htbtns" style="margin-top:6px"><button data-a="yzhint">💡 Hint</button></div>`;
-    out+=`${d.length===5&&yzIsY(d)?`<p class="yzyell">YAHTZEE!${opts.some((o,c)=>yzV(cur,c,'yz')===50)?` Bonus +${X.bonusV}`:''}</p>`:''}</div>`;
-    const cell=(q,c,k)=>{const v=yzV(q,c,k),mine=q===cur,o=mine?opts[c]:{};if(v!==null)return `<button class="yzc yzf num" data-a="yzfix" data-p="${q.id}" data-c="${c}" data-k="${k}" aria-label="Fix ${esc(nm(q))} ${k}">${v}</button>`;
+    out+=`${d.length===5&&yzIsY(d)?`<p class="yzyell">YAHTZEE!${opts.some((o,c)=>yzV(cur,c,'yz')===50)?` Bonus +${X.bonusV}`:''}</p>`:''}</div>`}
+    const cell=(q,c,k)=>{const v=yzV(q,c,k),mine=q===cur&&!bot,o=mine?opts[c]:{};if(v!==null)return `<button class="yzc yzf num" data-a="yzfix" data-p="${q.id}" data-c="${c}" data-k="${k}" aria-label="Fix ${esc(nm(q))} ${k}">${v}</button>`;
       if(!mine||!(k in o))return `<span class="yzc num">${mine&&d.length===5?'':'·'}</span>`;
       return `<button class="yzc yzo num${o[k]===best&&best>0?' best':''}${o[k]===0?' zero':''}${HT&&HT.box&&HT.box.k===k&&HT.box.c===c&&mine?' tip':''}" data-a="yzpick" data-c="${c}" data-k="${k}">${o[k]}</button>`};
     const cols=wide?P.map(q=>[q,0]):Array.from({length:C},(_,c)=>[cur,c]);
@@ -8016,7 +8039,7 @@ function render(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();navSync();
+  tourApply();navSync();if(S.game==='yahtzee')yzBotTick();
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -8360,6 +8383,8 @@ document.addEventListener('click',e=>{
     case 'mtdb':{const q=act()[+b.dataset.i],R=mtR(q,mtCur());snap();R.db=!R.db;break}
     case 'mthand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'mtnext':{S.hr=Math.min(mtN()-1,mtCur()+1);window.scrollTo(0,0);break}
+    case 'yzbot':{const q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).map(x=>x[1]);
+      if(!q.name||defs.includes(q.name))q.name=nx?YZBOTS[nx][1]:'';if(nx)q.bot=nx;else delete q.bot;delete q.rid;break}
     case 'yzdemo':yzDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'yzset':YZX()[k]=b.dataset.v;yzKeep();break;
     case 'yzst':{const X=YZX();X[k]=Math.max(0,Math.min(500,(+X[k]||0)+(+b.dataset.d)));yzKeep();break}
@@ -8381,7 +8406,7 @@ document.addEventListener('click',e=>{
     case 'yzpick':{const q=yzTurnP(),c=+b.dataset.c,d=S.yzd||[],o=yzOptions(q,c,d);if(!q||!(k in o))break;snap();const Y=yzP(q);
       if(yzIsY(d)&&yzV(q,c,'yz')===50&&YZX().bonusV>0)Y.yb[c]=(Y.yb[c]||0)+1;const ub0=yzUB(q,c);Y.c[c][k]=o[k];
       if(o[k]===0)yzSnd('scratch');else if(!ub0&&yzUB(q,c))setTimeout(()=>{yzSnd('bonus');toast(`${nm(q)} made the upper bonus! +35`)},250);else if(k==='ls')yzSnd('straight');
-      const P=act();S.yzd=[];S.yzr=null;if(yzMe()){toast(`${nm(q)}: ${YZB.find(x=>x[0]===k)[1]} ${o[k]}`);window.scrollTo(0,0);break}let n=1;while(n<=P.length&&yzFilled(P[(S.yzt+n)%P.length])>=yzNeed())n++;S.yzt=(S.yzt+(n>P.length?1:n))%P.length;{const nx=P[S.yzt];if(nx&&nx!==q&&yzFilled(nx)<yzNeed())YZPASS=nx.id}S.hr=Math.min(...P.map(yzFilled));
+      const P=act();S.yzd=[];S.yzr=null;if(yzMe()){toast(`${nm(q)}: ${YZB.find(x=>x[0]===k)[1]} ${o[k]}`);window.scrollTo(0,0);break}let n=1;while(n<=P.length&&yzFilled(P[(S.yzt+n)%P.length])>=yzNeed())n++;S.yzt=(S.yzt+(n>P.length?1:n))%P.length;{const nx=P[S.yzt];if(nx&&nx!==q&&!nx.bot&&yzFilled(nx)<yzNeed()){let pv=null;for(let j=1;j<=P.length;j++){const z=P[(S.yzt-j+P.length*2)%P.length];if(!z.bot){pv=z;break}}if(pv!==nx)YZPASS=nx.id}}S.hr=Math.min(...P.map(yzFilled));
       toast(`${nm(q)}: ${YZB.find(x=>x[0]===k)[1]} ${o[k]}${yzMul(c)>1?` ×${yzMul(c)}`:''}`);window.scrollTo(0,0);break}
     case 'rkdemo':rkDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'rkpre':{const p=RKPRE.find(x=>x[0]===k);if(p)Object.assign(RKX(),p[2]);rkKeep();break}
