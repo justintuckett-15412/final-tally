@@ -5688,7 +5688,7 @@ function sbDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    3x3 grid of cards per player each round. Low score wins.
    p.gn[r] = {g:[9 cells: number | 'M' | 'H' | null], v: typed total, s: sign(-1/1), out: went out}
    ===================================================================== */
-const GNDEF={play:0,rounds:9,end:'rounds',score:'points',entry:'grid',outRule:'both',outV:5,hazV:10,runs:false,mull1:false};
+const GNDEF={play:0,skipFlip:true,rounds:9,end:'rounds',score:'points',entry:'grid',outRule:'both',outV:5,hazV:10,runs:false,mull1:false};
 const GNX=()=>{if(!S.gnx)S.gnx={...GNDEF};const X=S.gnx;for(const k in GNDEF)if(X[k]===undefined)X[k]=GNDEF[k];return X};
 function gnSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.gnx'))}catch(e){}return Object.assign({...GNDEF},x||{})}
 function gnKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.gnx',JSON.stringify(GNX()))}catch(e){}}
@@ -5737,7 +5737,7 @@ function gnSetup(){const X=GNX();
   ${sec('Keeping score',seg('score',[['points','Total points'],['rounds','Rounds won']]),gnRW()?'The lowest score each round wins that round. Most rounds won takes the game.':'Lowest total wins. A tie goes to whoever had the lower last round.')}
   ${X.play?'':sec('Entering scores',seg('entry',[['grid','Fill in the grid'],['type','Type the total']]),X.entry==='grid'?'Tap each player’s 9 cards and the app finds sets, Mulligans and Hazards. You can switch to typing during the game.':'Each player adds up their own grid. You can switch to the grid during the game.')}
   ${sec('Going out first',seg('outRule',[['both','Bonus & penalty'],['bonus','Bonus only'],['off','Off']])+(X.outRule!=='off'?row('Bonus / penalty','',st('outV',X.outV,1,20,1,'points')):''),X.outRule==='both'?`−${X.outV} if whoever went out has the lowest round score; +${X.outV} if they’re tied or higher.`:X.outRule==='bonus'?`−${X.outV} if whoever went out has the lowest round score, no penalty otherwise.`:'')}
-  ${sec('Cards',row('Hazard left in your grid','',st('hazV',X.hazV,0,30,1,'points'))+tg('runs','Runs score too','3 in a row counting up or down (like 3-4-5) scores minus the middle card.')+tg('mull1','One-value Mulligans','A Mulligan must be the same number in its row and its column.'),'Sets of 3 matching positive cards score minus that number. Mulligans fill in for any positive card.')}
+  ${sec('Cards',(X.play?tg('skipFlip','Skip a card, then flip one','Don’t want the card you drew from the deck? Skip it and turn one of your face-down cards up. Off: skipping ends your turn, like the printed rules.'):'')+row('Hazard left in your grid','',st('hazV',X.hazV,0,30,1,'points'))+tg('runs','Runs score too','3 in a row counting up or down (like 3-4-5) scores minus the middle card.')+tg('mull1','One-value Mulligans','A Mulligan must be the same number in its row and its column.'),'Sets of 3 matching positive cards score minus that number. Mulligans fill in for any positive card.')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
 let GNSEL=null;
 function gnGridUI(p,i,r){const R=gnR(p,r),res=gnGrid(R.g),sel=GNSEL&&GNSEL.i===i&&GNSEL.r===r?GNSEL.c:-1;
@@ -5785,7 +5785,7 @@ function gnResults(){const rk=ranking();
   <div class="actions"><div class="in">${S.demo?'<button class="btn" data-a="revstart">Watch the reveal again</button><button class="btn primary" data-a="demoexit">Exit sample</button>':'<button class="btn primary" data-a="rematch">Rematch, same players</button>'}</div></div>`}
 function gnGuide(){const X=GNX();
   return guideSheet('Gnoming A Round',[
-    X.play?['On the phone',[['Your turn','Tap the deck or either discard pile to take a card. Tap one of your cards to swap it in, or tap Skip it.'],['Bouncing','When the card you replace was face down and it matches, the phone offers Bounce it: tap another of your cards to swap it in too.'],
+    X.play?['On the phone',[['Your turn','Tap the deck or either discard pile to take a card. Tap one of your cards to swap it in, or tap Skip it.'],X.skipFlip?['Skip and flip (house rule)','Skip a card you drew from the deck and you turn one of your face-down cards up.']:null,['Bouncing','When the card you replace was face down and it matches, the phone offers Bounce it: tap another of your cards to swap it in too.'],
       ['Discarding','Tap the discard pile for your leftover card. An empty pile has to be filled first.'],['Hazards','Skip or replace a Hazard and it leaves the round; everyone else gets a prompt to flip one face-down card.'],['Who starts','The player left of the dealer (the box says the youngest player).']]]:null,
     ['Setup',[['Cards','110 cards: positive 3 to 8, negative −1 to −4, plus 3 Hazards and 3 Mulligans.'],['The deal','Deal 9 cards face down to each player. Lay them out in a 3 by 3 grid and flip any 2 face up.'],
       ['Discard piles','Put the deck in the middle and flip 2 cards next to it to start two discard piles.']]],
@@ -8391,7 +8391,7 @@ function gpPlace(g,pid,i){if(gpGN(g))return gpnPlace(g,pid,i);const h=g.hold;if(
   const old=x.c,was=x.up;x.c=h.c;x.up=true;g.disc.push(old);g.hold=null;g.last={p:pid,i};g.n++;g.msg=`${nmid(pid)} swapped the ${gpName(g,h.c)} for ${was?'a '+gpName(g,old):'a face-down '+gpName(g,old)}.`;gpClear(g,pid);gpEndTurn(g,pid);return true}
 function gpToss(g,pid){if(gpGN(g))return gpnToss(g,pid);const h=g.hold;if(!h||h.p!==pid||h.from!=='deck')return false;g.disc.push(h.c);g.hold=null;g.n++;g.msg=`${nmid(pid)} discarded the ${gpName(g,h.c)}.`;
   const canFlip=g.h[pid].some(x=>!x.up&&!x.gone);if((gpSK(g)||GFX().flipDisc)&&canFlip){g.flip=pid;return true}gpEndTurn(g,pid);return true}
-function gpFlipOne(g,pid,i){if(g.flip!==pid)return false;const x=g.h[pid][i];if(!x||x.up||x.gone)return false;x.up=true;g.flip=null;g.last={p:pid,i};g.n++;g.msg+=` Flipped a ${gpName(g,x.c)}.`;gpClear(g,pid);gpEndTurn(g,pid);return true}
+function gpFlipOne(g,pid,i){if(g.flip!==pid)return false;const x=g.h[pid][i];if(!x||x.up||x.gone)return false;x.up=true;g.flip=null;g.last={p:pid,i};g.n++;g.msg+=` Flipped a ${gpName(g,x.c)}.`;if(gpGN(g)){const c=g.tossC;g.tossC=null;gpnLeft(g,pid,c);return true}gpClear(g,pid);gpEndTurn(g,pid);return true}
 function gpEndTurn(g,pid){if(g.ender){g.left=g.left.filter(x=>x!==pid);if(!g.left.length){gpScore(g);return}}
   else if(gpAllUp(g,pid)){g.ender=pid;g.left=act().map(p=>p.id).filter(x=>x!==pid);g.msg+=` ${nmid(pid)} has every card face up! Everyone else gets one more turn.`;if(!g.left.length){gpScore(g);return}}
   let nx=gpNext(g,pid);if(g.ender){let guard=0;while(!g.left.includes(nx)&&guard++<20)nx=gpNext(g,nx)}g.turn=nx}
@@ -8449,7 +8449,7 @@ function gpBotStep(g,q){if(gpGN(g)&&g.phase!=='flip')return gpnBotStep(g,q);cons
    Extra state: dps:[[ids],[ids]], bounce:{p,c,i}|null, left2:{p,c}|null (card waiting for a pile), hzf:{pid:1} (owes a Hazard flip) */
 const gpnPos=c=>+gpRank(c)>=3;
 const gpnMulls=(cells,skip)=>cells.filter((x,j)=>j!==skip&&gpRank(x.c)==='M'&&x.up).length;
-function gpnTake(g,pid,from){if(g.phase!=='play'||g.turn!==pid||g.hold||g.bounce||g.left2||g.hzf[pid])return false;let c;
+function gpnTake(g,pid,from){if(g.phase!=='play'||g.turn!==pid||g.hold||g.bounce||g.left2||g.flip||g.hzf[pid])return false;let c;
   if(from==='d0'||from==='d1'){const d=g.dps[+from[1]];if(!d.length)return false;c=d.pop()}else{c=gpPull(g);if(!c)return false}
   g.hold={p:pid,c,from};g.n++;g.msg=from==='deck'?`${nmid(pid)} drew a card.`:`${nmid(pid)} took the ${gpName(g,c)} from a discard pile.`;return true}
 function gpnPlace(g,pid,i){const h=g.hold;if(!h||h.p!==pid)return false;const cells=g.h[pid],x=cells[i];if(!x)return false;
@@ -8459,7 +8459,10 @@ function gpnPlace(g,pid,i){const h=g.hold;if(!h||h.p!==pid)return false;const ce
   g.msg=`${nmid(pid)} put the ${gpName(g,h.c)} in, replacing ${was?'a '+gpName(g,old):'a face-down '+gpName(g,old)}.`;
   if(!was&&gpnPos(old)&&(gpSame(g,old,h.c)||cells.some((y,j)=>j!==i&&y.up&&gpSame(g,y.c,old)))){g.bounce={p:pid,c:old,i};g.msg+=` It matches: ${nmid(pid)} can bounce it!`;return true}
   gpnLeft(g,pid,old);return true}
-function gpnToss(g,pid){const h=g.hold;if(!h||h.p!==pid||h.from==='bounce')return false;g.hold=null;g.n++;g.msg=`${nmid(pid)} skipped the ${gpName(g,h.c)}.`;gpnLeft(g,pid,h.c);return true}
+function gpnToss(g,pid){const h=g.hold;if(!h||h.p!==pid||h.from==='bounce')return false;g.hold=null;g.n++;g.msg=`${nmid(pid)} skipped the ${gpName(g,h.c)}.`;
+  /* house rule: skip a card drawn from the deck, then flip one of your face-down cards */
+  if(GNX().skipFlip&&h.from==='deck'&&gpRank(h.c)!=='H'&&g.h[pid].some(x=>!x.up)){g.flip=pid;g.tossC=h.c;return true}
+  gpnLeft(g,pid,h.c);return true}
 function gpnBounce(g,pid,yes){const b=g.bounce;if(!b||b.p!==pid)return false;g.bounce=null;g.n++;if(yes){g.hold={p:pid,c:b.c,from:'bounce',i:b.i};g.msg=`${nmid(pid)} bounces the ${gpName(g,b.c)}.`;return true}gpnLeft(g,pid,b.c);return true}
 function gpnLeft(g,pid,c){if(gpRank(c)==='H'){g.hzby=pid;g.msg+=` The Hazard is out of play: everyone else flips a card.`;act().forEach(p=>{if(p.id===pid)return;const downs=g.h[p.id].filter(x=>!x.up).length;if(downs<2)return;
     if(p.bot){const idx=g.h[p.id].map((x,j)=>j).filter(j=>!g.h[p.id][j].up);g.h[p.id][idx[Math.floor(Math.random()*idx.length)]].up=true}else g.hzf[p.id]=1});gpEndTurn(g,pid);return}
@@ -8467,15 +8470,17 @@ function gpnLeft(g,pid,c){if(gpRank(c)==='H'){g.hzby=pid;g.msg+=` The Hazard is 
 function gpnPile(g,pid,k,c0){const c=c0||(g.left2&&g.left2.p===pid?g.left2.c:null);if(!c||!(k===0||k===1))return false;const e=g.dps.map(d=>!d.length);if(!c0&&e[0]!==e[1]&&!e[k])return false;
   g.dps[k].push(c);g.left2=null;g.n++;g.msg+=` Discarded the ${gpName(g,c)}.`;gpEndTurn(g,pid);return true}
 function gpnHz(g,pid,i){if(!g.hzf[pid])return false;const x=g.h[pid][i];if(!x||x.up)return false;if(g.h[pid].filter(y=>!y.up).length<2){delete g.hzf[pid];return true}x.up=true;delete g.hzf[pid];g.n++;return true}
-function gpnBotStep(g,q){const pid=q.id,lv0=q.bot,lv=lv0==='hard'?'normal':lv0,cells=g.h[pid],noise=lv==='easy'?4:1,jit=()=>(Math.random()*2-1)*noise;
+function gpnBotStep(g,q){const pid=q.id,lv0=q.bot,lv=lv0==='hard'?'normal':lv0,cells=g.h[pid],noise=lv0==='easy'?9:lv0==='normal'?5:3.5,oops=lv0==='easy'?.3:lv0==='normal'?.15:.07,jit=()=>(Math.random()*2-1)*noise;
   if(g.turn!==pid)return;const now=gpEval(g,cells),others=act().filter(p=>p.id!==pid);
   const endOK=e=>lv==='easy'||!!g.ender||e<Math.min(...others.map(p=>gpEval(g,g.h[p.id])))-(lv==='hard'?1:0);
+  if(g.flip===pid){const downs=cells.map((x,i)=>i).filter(i=>!cells[i].up),opts=downs.length===1&&!endOK(now)?[]:downs,pool=opts.length?opts:downs;gpFlipOne(g,pid,pool[Math.floor(Math.random()*pool.length)]);return}
   const scoreOf=(i,c,skip)=>{if(skip===i)return Infinity;if(gpRank(c)==='M'&&gpnMulls(cells,i)>0)return Infinity;const nc=gpWith(cells,i,c),e=gpEval(g,nc);return gpWouldEnd(cells,i)&&!endOK(e)?e+30:e};
   const best=(c,skip)=>{let b=null;cells.forEach((x,i)=>{const e=scoreOf(i,c,skip)+jit();if(e<Infinity&&(!b||e<b.e))b={i,e}});return b};
   if(g.bounce&&g.bounce.p===pid){const b=best(g.bounce.c,g.bounce.i);gpnBounce(g,pid,!!b&&b.e<now-.5);return}
   if(g.left2&&g.left2.p===pid){let k=Math.random()<.5?0:1;if(lv0==='hard'){const nx=gpNext(g,pid),ng=g.h[nx],use=t=>{if(!t)return 0;const o=gpEval(g,ng);let m=0;ng.forEach((x,i)=>{const e=gpEval(g,gpWith(ng,i,t));if(o-e>m)m=o-e});return m};k=use(gpTopK(g,0))>=use(gpTopK(g,1))?0:1}gpnPile(g,pid,k);return}
   if(g.hold&&g.hold.p===pid){const c=g.hold.c,b=best(c,g.hold.from==='bounce'?g.hold.i:-1);
     if(g.hold.from==='bounce'){gpnPlace(g,pid,b?b.i:cells.findIndex((x,i)=>i!==g.hold.i));return}
+    if(gpRank(c)!=='H'&&Math.random()<oops){/* a human-sized slip: put it somewhere that isn't the best spot */const ok=cells.map((x,i)=>i).filter(i=>scoreOf(i,c,-1)<Infinity);if(ok.length){gpnPlace(g,pid,ok[Math.floor(Math.random()*ok.length)]);return}}
     if(gpRank(c)==='H'||!b||b.e>=now-(g.ender?0:.4)){gpnToss(g,pid);return}gpnPlace(g,pid,b.i);return}
   let pick='deck',pe=now-(lv==='hard'?1.6:1.2);for(const k of [0,1]){const t=gpTopK(g,k);if(!t)continue;const b=best(t);if(b&&b.e<pe-.2){pe=b.e;pick='d'+k}}
   gpnTake(g,pid,pick)}
@@ -8516,9 +8521,10 @@ function gpPlay(){const P=act(),g=gpG(),GN=S.game==='gnome',SK=S.game==='skyjo'|
   if(g.phase==='flip')status=V&&g.need[V.id]>0?`<b>${S.lk||gpHumans().length<2?'Flip':esc(nm(V))+', flip'} ${g.need[V.id]} card${g.need[V.id]===1?'':'s'} face up.</b> Tap ${g.need[V.id]===1?'one':'them'} in your grid.`:`Waiting for ${P.filter(p=>g.need[p.id]>0).map(p=>esc(nm(p))).join(', ')} to flip…`;
   else if(g.phase==='done')status=`<b>${W} ${r+1} is over.</b>`;
   else if(GN&&V&&g.hzf[V.id])status='<b>A Hazard was discarded.</b> Flip one of your face-down cards.';
+  else if(GN&&mine&&g.flip===V.id)status='<b>Flip one of your face-down cards.</b> You skipped the card you drew, so you get to turn one up.';
   else if(GN&&mine&&g.bounce)status=`<b>It matches!</b> Bounce the ${esc(gpName(g,g.bounce.c))} into another spot in your grid, or discard it.`;
   else if(GN&&mine&&g.left2)status=`<b>Pick a discard pile</b> for the ${esc(gpName(g,g.left2.c))}.`;
-  else if(GN&&mine&&hold)status=hold.from==='bounce'?`<b>Tap another of your cards</b> to swap the bounced ${esc(gpName(g,hold.c))} in.`:`<b>Tap one of your cards to swap the ${esc(gpName(g,hold.c))} in</b>, or skip it.${gpRank(hold.c)==='M'&&gpnMulls(g.h[V.id],-1)?' You already have a Mulligan: it can only replace that one.':''}${gpRank(hold.c)==='H'?' Skip a Hazard and everyone else flips a card.':''}`;
+  else if(GN&&mine&&hold)status=hold.from==='bounce'?`<b>Tap another of your cards</b> to swap the bounced ${esc(gpName(g,hold.c))} in.`:`<b>Tap one of your cards to swap the ${esc(gpName(g,hold.c))} in</b>, or skip it${GNX().skipFlip&&hold.from==='deck'&&gpRank(hold.c)!=='H'?' and flip one of yours':''}.${gpRank(hold.c)==='M'&&gpnMulls(g.h[V.id],-1)?' You already have a Mulligan: it can only replace that one.':''}${gpRank(hold.c)==='H'?' Skip a Hazard and everyone else flips a card.':''}`;
   else if(GN&&mine)status=`<b>Your turn${S.lk||gpHumans().length<2?'':', '+esc(nm(V))}.</b> Take a card from the deck or either discard pile.${g.ender?' Last turn!':''}`;
   else if(mine&&g.flip===V.id)status='<b>Flip one of your face-down cards.</b>';
   else if(mine&&hold)status=`<b>Tap one of your cards to swap it for the ${esc(gpName(g,hold.c))}.</b>${hold.from==='deck'?` Or tap the discard pile to toss it${gpSK(g)||GFX().flipDisc?' and flip a card':''}.`:''}`;
@@ -8529,7 +8535,7 @@ function gpPlay(){const P=act(),g=gpG(),GN=S.game==='gnome',SK=S.game==='skyjo'|
   const others=P.filter(p=>!V||p.id!==V.id);
   out+=`<div class="gpothers">${others.map(p=>`<div class="gpo${g.turn===p.id?' now':''}${g.ender===p.id?' ender':''}" style="${pc(p.color)}"><div class="gpon"><b>${p.bot?'🤖 ':''}${esc(nm(p))}</b><span class="num">${g.phase==='done'?gpPts(g,p.id):gpSeen(g,p.id)}</span></div>${gpGridEl(g,p.id,{mini:true,deal})}</div>`).join('')}</div>`;
   /* the deck and the discard pile */
-  if(GN&&g.phase!=='done'){const canTake=mine&&!hold&&!g.bounce&&!g.left2&&!g.hzf[V.id]&&g.phase==='play',canPile=mine&&!!g.left2,e=g.dps.map(d=>!d.length),okPile=k=>canPile&&(e[0]===e[1]||e[k]);
+  if(GN&&g.phase!=='done'){const canTake=mine&&!hold&&!g.bounce&&!g.left2&&!g.flip&&!g.hzf[V.id]&&g.phase==='play',canPile=mine&&!!g.left2,e=g.dps.map(d=>!d.length),okPile=k=>canPile&&(e[0]===e[1]||e[k]);
     out+=`<div class="gppiles"><button class="gppile" data-a="gpdeck" ${canTake?'':'aria-disabled="true"'} aria-label="Draw from the deck, ${g.deck.length} left">${gpCardEl(g,'x',{down:true})}<small>Deck · ${g.deck.length}</small></button>
       ${[0,1].map(k=>{const t=gpTopK(g,k),go=canTake&&t||okPile(k);return `<button class="gppile${go?' go':''}" data-a="gppile" data-k="${k}" ${go?'':'aria-disabled="true"'} aria-label="${canPile?'Discard onto pile '+(k+1):'Take the top of discard pile '+(k+1)}">${gpCardEl(g,t)}<small>${canPile?(okPile(k)?'Put it here':'—'):'Pile '+(k+1)}</small></button>`}).join('')}
       ${hold||g.left2||g.bounce?`<div class="gphold">${gpCardEl(g,(hold||g.left2||g.bounce).c,{cls:'held'})}<small>${(hold||g.left2||g.bounce).p===(V&&V.id)?'Your card':esc(nmid((hold||g.left2||g.bounce).p))+' has'}</small></div>`:''}</div>`;
@@ -11082,6 +11088,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='f6340c';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='c7245d';</script>
 </body>
 </html>
