@@ -60,10 +60,10 @@ const addrs=sdp=>[...new Set((sdp.match(/a=candidate:\S+ \d+ udp \d+ (\S+) \d+ t
 /* Chrome asks "allow this site to find and connect to devices on your local network?" before a web page can reach phones on the same Wi-Fi.
    A connection attempt alone doesn't show that question, so ask for it with a tiny local request while the person is tapping a button. */
 async function askLocal(){try{if(/^(localhost|127\.|10\.|192\.168\.|\[)/.test(location.hostname))return 'local page';
-    const st=await lnaState();if(!/prompt/.test(st))return st;
-    let perm=null;try{perm=await navigator.permissions.query({name:st.split(':')[0]})}catch(e){}
-    await new Promise(res=>{const t=setTimeout(res,30000);if(perm)perm.onchange=()=>{if(perm.state!=='prompt'){clearTimeout(t);res()}};
-      fetch('http://192.168.1.1/',{targetAddressSpace:'local',mode:'no-cors',cache:'no-store'}).then(()=>{clearTimeout(t);res()},()=>{setTimeout(()=>{clearTimeout(t);res()},perm&&perm.state==='prompt'?1500:0)})});
+    const st=await lnaState();const m=/(local-network-access|local-network):prompt/.exec(st);if(!m)return st;
+    let perm=null;try{perm=await navigator.permissions.query({name:m[1]})}catch(e){}
+    await new Promise(res=>{const t=setTimeout(res,perm?25000:5000);if(perm)perm.onchange=()=>{if(perm.state!=='prompt'){clearTimeout(t);res()}};
+      fetch('http://192.168.1.1/',{targetAddressSpace:'local',mode:'no-cors',cache:'no-store',signal:AbortSignal.timeout(perm?25000:4000)}).then(()=>{clearTimeout(t);res()},()=>{setTimeout(()=>{clearTimeout(t);res()},perm&&perm.state==='prompt'?1500:0)})});
     return await lnaState()}catch(e){return 'error'}}
 async function lnaState(){const out=[];for(const n of ['local-network-access','local-network','loopback-network']){try{const r=await navigator.permissions.query({name:n});out.push(n+':'+r.state)}catch(e){}}return out.join(' ')||'no LNA permission'}
 /* Chrome and Safari throw away their check counts once a try fails, so sample them while it is running and keep the busiest moment */
