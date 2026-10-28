@@ -77,8 +77,8 @@ function startHost(){if(hub&&hub.role==='host')return hub;stop();const st=Store(
     count:()=>[...peers].filter(p=>p.open).length,
     async offer(){const pc=new RTCPeerConnection({iceServers:[]}),dc=pc.createDataChannel('ft',{ordered:true}),peer={pc,dc,open:false,subs:new Map(),client:null};
       wirePeer(peer);await pc.setLocalDescription(await pc.createOffer());await gathered(pc,4000);
-      peer.code=await pack(pc.localDescription,'h');peer.noAddr=!hasAddress(pc.localDescription.sdp);peer.addrs=addrs(pc.localDescription.sdp);hub.pending=peer;return peer},
-    async accept(text){const peer=hub.pending;if(!peer)throw new Error('Show your code first.');const d=await unpack(text);if(d.type!=='answer')throw new Error('That’s the host’s code. Scan the code on the other phone.');peer.theirAddrs=addrs(d.sdp);
+      peer.tag=Math.random().toString(36).slice(2,8);peer.code=await pack(pc.localDescription,'h'+peer.tag);peer.noAddr=!hasAddress(pc.localDescription.sdp);peer.addrs=addrs(pc.localDescription.sdp);hub.pending=peer;return peer},
+    async accept(text){const peer=hub.pending;if(!peer)throw new Error('Show your code first.');const d=await unpack(text);if(d.type!=='answer')throw new Error('That’s the host’s code. Scan the code on the other phone.');peer.theirAddrs=addrs(d.sdp);if(d.tag&&d.tag.length>1&&d.tag.slice(1)!==peer.tag)throw new Error('That reply is from an earlier try. On the other phone, tap Cancel, then Join without internet again and scan the code showing on this phone now.');
       await peer.pc.setRemoteDescription({type:'answer',sdp:d.sdp});hub.pending=null;hub.last=peer;
       return new Promise((res,rej)=>{const t=setTimeout(async()=>{const e=new Error('The phones couldn’t reach each other. Make sure the other phone is on this phone’s hotspot (Wi-Fi on), then try again.');e.info=await iceInfo(peer.pc);rej(e)},25000);peer.onopen=()=>{clearTimeout(t);res()}})}};
   function wirePeer(peer){const {pc,dc}=peer;
@@ -116,7 +116,7 @@ async function joinWith(text){const d=await unpack(text);if(d.type!=='offer')thr
       dc.onclose=()=>{if(g.open){g.open=false;ping('lost')}}}});
   pc.onconnectionstatechange=()=>{if(['failed','disconnected','closed'].includes(pc.connectionState)&&g.open){g.open=false;ping('lost')}};
   await pc.setRemoteDescription({type:'offer',sdp:d.sdp});await pc.setLocalDescription(await pc.createAnswer());await gathered(pc,4000);
-  g.reply=await pack(pc.localDescription,'g');g.noAddr=!hasAddress(pc.localDescription.sdp);g.addrs=addrs(pc.localDescription.sdp);g.hostAddrs=addrs(d.sdp);return g}
+  g.reply=await pack(pc.localDescription,'g'+String(d.tag||'').slice(1));g.noAddr=!hasAddress(pc.localDescription.sdp);g.addrs=addrs(pc.localDescription.sdp);g.hostAddrs=addrs(d.sdp);return g}
 
 function stop(){if(!hub)return;try{if(hub.role==='host')hub.peers.forEach(p=>{try{p.pc.close()}catch(e){}});else hub.pc.close()}catch(e){}if(hub.pending)try{hub.pending.pc.close()}catch(e){}hub=null}
 const ping=why=>{try{window.lanPing&&window.lanPing(why)}catch(e){}};
