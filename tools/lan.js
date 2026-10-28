@@ -65,11 +65,15 @@ async function askLocal(){try{if(/^(localhost|127\.|10\.|192\.168\.|\[)/.test(lo
     await new Promise(res=>{const t=setTimeout(res,30000);if(perm)perm.onchange=()=>{if(perm.state!=='prompt'){clearTimeout(t);res()}};
       fetch('http://192.168.1.1/',{targetAddressSpace:'local',mode:'no-cors',cache:'no-store'}).then(()=>{clearTimeout(t);res()},()=>{setTimeout(()=>{clearTimeout(t);res()},perm&&perm.state==='prompt'?1500:0)})});
     return await lnaState()}catch(e){return 'error'}}
-async function lnaState(){for(const n of ['local-network-access','local-network','loopback-network']){try{const r=await navigator.permissions.query({name:n});return n+':'+r.state}catch(e){}}return 'no LNA permission'}
+async function lnaState(){const out=[];for(const n of ['local-network-access','local-network','loopback-network']){try{const r=await navigator.permissions.query({name:n});out.push(n+':'+r.state)}catch(e){}}return out.join(' ')||'no LNA permission'}
 async function iceInfo(pc){try{const st=await pc.getStats();let sent=0,back=0,heard=0,pairs=0,state=pc.iceConnectionState,loc=[],rem=[];
   st.forEach(r=>{if(r.type==='candidate-pair'){pairs++;sent+=r.requestsSent||0;back+=r.responsesReceived||0;heard+=r.requestsReceived||0}
     if(r.type==='local-candidate')loc.push((r.address||r.ip||'?')+':'+r.port+'/'+r.protocol);if(r.type==='remote-candidate')rem.push((r.address||r.ip||'?')+':'+r.port)});
-  return `checks ${state}/${pc.connectionState}: ${pairs} route${pairs===1?'':'s'}, sent ${sent}, answered ${back}, heard from them ${heard} · mine ${loc.join(' ')||'none'} · theirs ${rem.join(' ')||'none'} · ${await lnaState()} · ${(navigator.userAgent.match(/(Chrome|Firefox|Version)\/[\d.]+/)||[''])[0]}`}catch(e){return 'stats error '+e.message}}
+  return `checks ${state}/${pc.connectionState}: ${pairs} route${pairs===1?'':'s'}, sent ${sent}, answered ${back}, heard from them ${heard} · mine ${loc.join(' ')||'none'} · theirs ${rem.join(' ')||'none'} · code had ${(pc._ftc||{}).n??'?'} added ${(pc._ftc||{}).ok??'?'}${(pc._ftc||{}).err?' ('+pc._ftc.err+')':''} · ${await lnaState()} · ${(navigator.userAgent.match(/(Chrome|Firefox|Version)\/[\d.]+/)||[''])[0]}`}catch(e){return 'stats error '+e.message}}
+/* add each address from the other phone's code one by one too, in case the browser skipped them when reading the code */
+async function addCands(pc,sdp){const r={n:0,ok:0,err:''};const mid=(sdp.match(/a=mid:(\S+)/)||[])[1]||'0';
+  for(const l of sdp.split(/\r?\n/))if(l.startsWith('a=candidate:')){r.n++;try{await pc.addIceCandidate({candidate:l.slice(2),sdpMid:mid,sdpMLineIndex:0});r.ok++}catch(e){r.err=e.name+' '+e.message}}
+  pc._ftc=r;return r}
 /* ---------------- host side ---------------- */
 let hub=null;
 function startHost(){if(hub&&hub.role==='host')return hub;stop();const st=Store(),me=myId(),peers=new Set();
@@ -79,7 +83,7 @@ function startHost(){if(hub&&hub.role==='host')return hub;stop();const st=Store(
       wirePeer(peer);await pc.setLocalDescription(await pc.createOffer());await gathered(pc,4000);
       peer.tag=Math.random().toString(36).slice(2,8);peer.code=await pack(pc.localDescription,'h'+peer.tag);peer.noAddr=!hasAddress(pc.localDescription.sdp);peer.addrs=addrs(pc.localDescription.sdp);hub.pending=peer;return peer},
     async accept(text){const peer=hub.pending;if(!peer)throw new Error('Show your code first.');const d=await unpack(text);if(d.type!=='answer')throw new Error('That’s the host’s code. Scan the code on the other phone.');peer.theirAddrs=addrs(d.sdp);if(d.tag&&d.tag.length>1&&d.tag.slice(1)!==peer.tag)throw new Error('That reply is from an earlier try. On the other phone, tap Cancel, then Join without internet again and scan the code showing on this phone now.');
-      await peer.pc.setRemoteDescription({type:'answer',sdp:d.sdp});hub.pending=null;hub.last=peer;
+      await peer.pc.setRemoteDescription({type:'answer',sdp:d.sdp});await addCands(peer.pc,d.sdp);hub.pending=null;hub.last=peer;
       return new Promise((res,rej)=>{const t=setTimeout(async()=>{const e=new Error('The phones couldn’t reach each other. Make sure the other phone is on this phone’s hotspot (Wi-Fi on), then try again.');e.info=await iceInfo(peer.pc);rej(e)},25000);peer.onopen=()=>{clearTimeout(t);res()}})}};
   function wirePeer(peer){const {pc,dc}=peer;
     dc.onopen=()=>{peer.open=true;peers.add(peer);(peer.q||[]).forEach(j=>{try{dc.send(j)}catch(x){}});peer.q=[];peer.onopen&&peer.onopen();ping()};
@@ -115,7 +119,7 @@ async function joinWith(text){const d=await unpack(text);if(d.type!=='offer')thr
         if(m.t==='evd'){const cb=subs.get(m.sid);if(cb)cb(m.d,false)}};
       dc.onclose=()=>{if(g.open){g.open=false;ping('lost')}}}});
   pc.onconnectionstatechange=()=>{if(['failed','disconnected','closed'].includes(pc.connectionState)&&g.open){g.open=false;ping('lost')}};
-  await pc.setRemoteDescription({type:'offer',sdp:d.sdp});await pc.setLocalDescription(await pc.createAnswer());await gathered(pc,4000);
+  await pc.setRemoteDescription({type:'offer',sdp:d.sdp});await addCands(pc,d.sdp);await pc.setLocalDescription(await pc.createAnswer());await gathered(pc,4000);
   g.reply=await pack(pc.localDescription,'g'+String(d.tag||'').slice(1));g.noAddr=!hasAddress(pc.localDescription.sdp);g.addrs=addrs(pc.localDescription.sdp);g.hostAddrs=addrs(d.sdp);return g}
 
 function stop(){if(!hub)return;try{if(hub.role==='host')hub.peers.forEach(p=>{try{p.pc.close()}catch(e){}});else hub.pc.close()}catch(e){}if(hub.pending)try{hub.pending.pc.close()}catch(e){}hub=null}
