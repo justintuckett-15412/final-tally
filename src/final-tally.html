@@ -248,7 +248,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .rv-delta.neg{color:var(--bad)}
 .rv-tot{font-family:var(--display);font-weight:800;font-size:36px;line-height:1;min-width:60px;text-align:right}
 .rv-bar{grid-column:1/-1;height:6px;background:var(--soft);border-radius:3px;overflow:hidden}
-.rv-bar i{display:block;height:100%;background:var(--pc);border-radius:3px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.rv-bar i{display:block;height:100%;background:var(--pc);border-radius:3px;transition:width .6s cubic-bezier(.2,.8,.2,1)}.rv-list.fast .rv-bar i{transition-duration:.3s}
 @media (prefers-reduced-motion:no-preference){.pop{animation:pop2 .45s cubic-bezier(.2,1.6,.4,1)}@keyframes pop2{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}}
 .win-card{margin-top:14px;text-align:center;background:var(--surface);border-radius:18px;padding:22px 16px;border:2px solid var(--accent);position:relative;overflow:hidden}
 .win-card::before{content:"";position:absolute;inset:0 0 auto;height:8px;background:var(--pc)}
@@ -9272,8 +9272,8 @@ const TCOL=c=>IMGC.includes(c)?c:'red';
 function artCars(p){const c=TCOL(p.color),K=['box','tank','hopper','caboose'];let h=[...String(p.id||nm(p))].reduce((a,ch)=>(a*31+ch.charCodeAt(0))>>>0,11),prev=-1,out=[];
   for(let i=0;i<24;i++){h=(h*1103515245+12345)>>>0;let k=(h>>>16)%4;if(k===prev)k=(k+1)%4;prev=k;out.push(K[k])}
   return `<span class="tr-row">${out.map(k=>`<img src="train/${k}-${c}.png" alt="" width="132" height="90">`).join('')}<img class="tr-eng" src="train/engine-${c}.png" alt="" width="172" height="86"></span>`}
-let REV=null,REVBUSY=false,REVPAUSE=false,AUTOT=null;
-function goFinal(){REV.phase='roll';window.scrollTo(0,0);render();if(SET.sound)ac();const d=SET.sound?(SND.roll?3.5:2.6):1.6;if(SET.sound)playRoll(2.6);
+let REV=null,REVBUSY=false,REVPAUSE=false,AUTOT=null;const RSP=()=>SET.revFast?.5:1;
+function goFinal(){REV.phase='roll';window.scrollTo(0,0);render();if(SET.sound)ac();const d=(SET.sound?(SND.roll?3.5:2.6):1.6)*RSP();if(SET.sound)playRoll(2.6*RSP());
   setTimeout(()=>{if(REV&&REV.phase==='roll'&&S.screen==='reveal'){REV.phase='final';render()}},d*1000+(SET.sound?(SND.roll?30:150):0))}
 function revAdvance(){AUTOT=null;if(S.screen!=='reveal'||!REV||REVPAUSE||REV.phase!=='shown')return;if(REV.i<REV.steps.length-1)nextRound();else goFinal()}
 /* move to the next round without redrawing the screen, so the trains keep their pictures and nothing jumps */
@@ -9309,11 +9309,11 @@ function revealScreen(){
   const auto=SET.reveal==='auto';
   return `<div class="bar"><button class="back" data-a="go" data-s="score">‹ Scoring</button><h1>The reveal</h1></div>
   <div class="rv-head"><span id="rv-round">${S.game==='nerts'?'Hand':'Round'} ${i+1} of ${n}</span><h2 id="rv-name">${esc(s.name)}</h2><div id="rv-lead" class="rv-lead" aria-live="polite"></div></div>
-  <div class="rv-list" id="rv-list">${order.map(p=>`<div class="rv-row" data-pid="${p.id}" style="${pc(p.color)}">
+  <div class="rv-list${SET.revFast?' fast':''}" id="rv-list">${order.map(p=>`<div class="rv-row" data-pid="${p.id}" style="${pc(p.color)}">
     <span class="rv-name">${esc(nm(p))}<small class="rv-sub" data-sub>${s.sub&&shown?esc(s.sub(p)):''}</small></span><span class="rv-delta num ${shown&&s.f(p)<0?'neg':''}" data-delta>${shown?sgn(s.f(p)):''}</span>
     <span class="rv-tot num" data-tot>${cur(p)}</span>
     <div class="rv-bar ${BARCLS()}"><i data-bar class="${cur(p)<=0?'z':''}" data-f="${Math.max(0,cur(p))/scale}" style="width:${barW(Math.max(0,cur(p))/scale)}">${LOOK()==='art'?artCars(p):LOOK()==='trail'?trailStrip(p):LOOK()==='tiles'?cTileStrip(p):LOOK()==='wall'?cWallStrip(p):LOOK()==='cards'?hfCardStrip(p):''}</i></div></div>`).join('')}</div>
-  <div class="actions"><div class="in"><button class="btn sm" data-a="revskip" aria-label="Skip to the winner">Skip to winner ⏭</button>${auto?`<button class="btn primary" data-a="revpause">${REVPAUSE?'▶ Play':'❚❚ Pause'}</button>`:`<button class="btn primary" id="rv-next" data-a="revnext" ${shown?'':'disabled'}>${btn}</button>`}</div></div>`;
+  <div class="actions"><div class="in"><button class="btn sm" data-a="revskip" aria-label="Skip to the winner">Skip ⏭</button><button class="btn sm${SET.revFast?' primary':''}" data-a="revfast" aria-pressed="${!!SET.revFast}" aria-label="Twice as fast">⏩ 2×</button>${auto?`<button class="btn primary" data-a="revpause">${REVPAUSE?'▶ Play':'❚❚ Pause'}</button>`:`<button class="btn primary" id="rv-next" data-a="revnext" ${shown?'':'disabled'}>${btn}</button>`}</div></div>`;
 }
 const RM=()=>window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 function countTo(el,from,to,ms){if(RM()||from===to){el.textContent=to;return}const t0=performance.now();
@@ -9321,25 +9321,25 @@ function countTo(el,from,to,ms){if(RM()||from===to){el.textContent=to;return}con
 function animateStep(){
   const list=document.getElementById('rv-list');if(!list||REVBUSY)return;REVBUSY=true;
   const i=REV.i,s=REV.steps[i],P=act(),scale=Math.max(1,...P.map(total)),fast=RM();
-  const ord=s.order||s.f,seq=[...P].sort((a,b)=>ord(a)-ord(b)),gap=fast?0:(s.sub?900:Math.min(650,2600/Math.max(1,P.length)));
+  const ord=s.order||s.f,seq=[...P].sort((a,b)=>ord(a)-ord(b)),gap=fast?0:(s.sub?900:Math.min(650,2600/Math.max(1,P.length)))*RSP();
   seq.forEach((p,k)=>setTimeout(()=>{if(!REV||S.screen!=='reveal')return;
     const row=list.querySelector(`[data-pid="${p.id}"]`);if(!row)return;const v=s.f(p),d=row.querySelector('[data-delta]');
     d.textContent=sgn(v);d.classList.toggle('neg',v<0);d.classList.add('pop');const sb=row.querySelector('[data-sub]');if(sb&&s.sub){sb.textContent=s.sub(p);sb.classList.add('pop')}
-    countTo(row.querySelector('[data-tot]'),upto(i,p),upto(i+1,p),fast?0:600);
+    countTo(row.querySelector('[data-tot]'),upto(i,p),upto(i+1,p),fast?0:600*RSP());
     setBar(row.querySelector('[data-bar]'),Math.max(0,upto(i+1,p))/scale);
-  },gap*k+(fast?0:350)));
+  },gap*k+(fast?0:350*RSP())));
   setTimeout(()=>{if(!REV||REV.phase!=='pending'||S.screen!=='reveal'){REVBUSY=false;return}
     // slide rows into their new order
     const rows=[...list.children],first=new Map(rows.map(r=>[r,r.getBoundingClientRect().top]));
     rows.sort((a,b)=>{const pa=P.find(p=>p.id===a.dataset.pid),pb=P.find(p=>p.id===b.dataset.pid);return RU(i+1,pb)-RU(i+1,pa)}).forEach(r=>list.appendChild(r));
     if(!fast)rows.forEach(r=>{const dy=(first.get(r)-r.getBoundingClientRect().top)/(parseFloat(document.documentElement.style.zoom)||1);if(!dy)return;r.style.transition='none';r.style.transform=`translateY(${dy}px)`;
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{r.style.transition='transform .55s cubic-bezier(.2,.8,.2,1)';r.style.transform=''}))});
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{r.style.transition=`transform ${.55*RSP()}s cubic-bezier(.2,.8,.2,1)`;r.style.transform=''}))});
     if(!REV||REV.phase!=='pending'||S.screen!=='reveal'){REVBUSY=false;return}
     leadCallout(i);
     REV.phase='shown';REVBUSY=false;
-    if(SET.reveal==='auto'&&!REVPAUSE){clearTimeout(AUTOT);AUTOT=setTimeout(revAdvance,i<REV.steps.length-1?1700:2300)}
+    if(SET.reveal==='auto'&&!REVPAUSE){clearTimeout(AUTOT);AUTOT=setTimeout(revAdvance,(i<REV.steps.length-1?1700:2300)*RSP())}
     const b=document.getElementById('rv-next');if(b){b.disabled=false;b.textContent=i<REV.steps.length-1?`Next: ${REV.steps[i+1].name} ›`:'Reveal the winner'}
-  },gap*P.length+(fast?0:1000));
+  },gap*P.length+(fast?0:1000*RSP()));
 }
 /* Loser moments: one card for the most dramatic loss. Add more image urls to any list and they rotate per game. */
 /* Loser moments: every non-winner gets a card, each with a different image when possible.
@@ -10074,6 +10074,7 @@ document.addEventListener('click',e=>{
     case 'finish':{if(S.game==='crowns'&&!S.fctb&&!S.fcshare&&fcLast()>=10&&fcLowTie().length>1&&FCX().tie!=='share'){if(FCX().tie==='round'){S.fctb={ps:fcLowTie().map(p=>p.id)};S.hr=11;window.scrollTo(0,0);toast('Tie! The tied players play a 6-card round.')}else FCTIE=true;break}const w=checks();if(w.length){WARN=w;break}startReveal();break}
     case 'warnclose':WARN=null;break;
     case 'revstart':startReveal();break;
+    case 'revfast':{SET.revFast=!SET.revFast;saveSet();b.classList.toggle('primary',!!SET.revFast);b.setAttribute('aria-pressed',String(!!SET.revFast));const l=document.getElementById('rv-list');if(l)l.classList.toggle('fast',!!SET.revFast);toast(SET.revFast?'Reveal at double speed.':'Reveal at normal speed.');return}
     case 'revpause':REVPAUSE=!REVPAUSE;if(!REVPAUSE&&REV&&REV.phase==='shown'){clearTimeout(AUTOT);AUTOT=setTimeout(revAdvance,500)}if(REVPAUSE){clearTimeout(AUTOT);AUTOT=null}
       {const bt=b;bt.textContent=REVPAUSE?'▶ Play':'❚❚ Pause'}return;
     case 'opensettings':SETBACK=S.screen==='settings'?SETBACK:S.screen;S.screen='settings';window.scrollTo(0,0);break;
