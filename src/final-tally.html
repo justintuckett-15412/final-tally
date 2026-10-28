@@ -805,6 +805,12 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .ktnote{position:absolute;left:50%;bottom:30%;transform:translate(-50%,0);font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap;z-index:30;background:var(--bg);padding:2px 8px;border-radius:10px}
 .ohup{display:flex;align-items:center;gap:10px;margin:10px 0 0;font-size:13px}.ohup .htc{--cw:40px}.ohup small{color:var(--muted)}
 .hthand .htc.trump:not(.no){box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 70%,transparent),0 1px 2px rgba(0,0,0,.18)}
+.rkc{--rk:#1d2228;color:var(--rk)}.rkc i{font-family:var(--body,inherit);font-size:calc(var(--cw)*.2);font-weight:800;opacity:.85}.rkc em{font-family:var(--display);font-weight:800;font-size:calc(var(--cw)*.5)}.rkc::before{content:"";position:absolute;inset:auto 0 0 0;height:22%;background:var(--rk);border-radius:0 0 6px 6px;opacity:.9}.rkc em{bottom:24%}
+.rkc s{position:absolute;right:4px;top:3px;text-decoration:none;font-size:calc(var(--cw)*.2);font-weight:800;color:#fff;background:var(--rk);border-radius:6px;padding:0 3px;line-height:1.3}
+.rkc.rook{background:#2b2f36;color:#f4d35e;border-color:#111}.rkc.rook::before{display:none}.rkc.rook em{bottom:6px;font-size:calc(var(--cw)*.46)}
+.rkteams{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.rkteam{display:grid;padding:8px 12px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line);border-left:5px solid var(--pc)}.rkteam b{font-size:13px}.rkteam span{font-family:var(--display);font-weight:800;font-size:26px;line-height:1.1}.rkteam small{color:var(--muted);font-size:11.5px}
+.rkbids{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.rktr{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.rktr .btn{min-height:44px;padding:0 4px;font-size:13px;gap:4px}.rktr .btn i{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--rk)}
 .sdbids{padding:12px;margin-top:8px}.sdbidgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}.sdbidgrid .btn{min-height:44px;padding:0}
 .htsum{padding:10px 14px;margin-top:10px}.htsum .srow{padding:6px 0}.htsum .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--pc)}
 
@@ -1274,7 +1280,7 @@ const padSC=()=>Math.max(1,Math.round(Math.max(1,...act().map(p=>Math.abs(total(
 const LOW=()=>S.game==='phase10'||S.game==='mextrain'||S.game==='uno'&&UNX().mode==='low'||S.game==='golf'||S.game==='skyjo'||S.game==='gnome'&&!gnRW()||S.game==='hearts'||S.game==='crowns'||S.game==='pad'&&!!(S.px||{}).low,RS=p=>S.game==='darts'?dRankKey(p):S.game==='phase10'?ptKey(p):LOW()?-total(p):total(p),RU=(n,p)=>LOW()?-upto(n,p):upto(n,p);
 const total=p=>S.game==='carc'?cTot(p):HFE()?hfTot(p):S.game==='nerts'?nxTot(p):S.game==='pad'?pxTot(p):S.game==='darts'?dTot(p):S.game==='pool'?plTot(p):S.game==='hearts'?htTot(p):S.game==='spades'?sdTot(p):S.game==='rage'?rgTot(p):S.game==='ohell'?ohTot(p):S.game==='uno'?unTot(p):S.game==='munchkin'?mkTot(p):S.game==='crowns'?fcTot(p):S.game==='skipbo'?sbTot(p):S.game==='gnome'?gnTot(p):S.game==='skyjo'?skTot(p):S.game==='wingspan'?wsTot(p):S.game==='wyrmspan'?wyTot(p):S.game==='phase10'?ptTot(p):S.game==='rook'?rkTot(p):S.game==='yahtzee'?yzTot(p):S.game==='mextrain'?mtTot(p):S.game==='catan'?ctTot(p):S.game==='golf'?gfTot(p):S.game==='tripoley'?tpTot(p):S.game==='quacks'?qkTot(p):hsPts(p)+routePts(p)+tkNet(p)+extrasPts(p)+bonusPts(p);
 
-function resetScores(){delete S.htg;delete S.sdg;delete S.ohg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
+function resetScores(){delete S.htg;delete S.sdg;delete S.ohg;delete S.rkg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
 let UNDO=[],KP='',RULESHEET=false;
 if(S.hideTotals===undefined)S.hideTotals=true;
 function setMap(k){
@@ -1890,7 +1896,7 @@ function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK||LKSWAP)return;if(lkHost()&&L
 /* "Your turn!" on a linked phone: a strong buzz, plus a notification if the app is in the background (and notifications are allowed) */
 let LKTURN=null;
 function lkTurnOwner(){if(!S.started||S.finished)return null;const P=act();if(!P.length)return null;
-  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
+  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='rook')return rkPlayOn()&&S.rkg?(S.rkg.phase==='bid'?S.rkg.bidTurn:S.rkg.phase==='nest'?S.rkg.bidder:S.rkg.phase==='play'?S.rkg.turn:null)||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
   if(S.rules&&S.rules.live||S.game==='carc')return S.turnId||null;return null}
 function lkTurnCheck(){const o=lkTurnOwner(),was=LKTURN;LKTURN=o;if(!o||o===was||!S.lk||o!==S.lk.me||was===null)return;
   vibe([250,120,250,120,400]);toast('Your turn!');
@@ -3617,11 +3623,11 @@ function nxPlayers(){const m=M(),n=act().length,sl=S.players.slice(0,8);
   const rows=sl.map((p,i)=>`<div class="prow ${p.on?'':'off'}">
     <button class="swatch" style="background:var(--t-${p.color});${pc(p.color)}" data-a="colpick" data-i="${i}" aria-expanded="${COLPICK===i}" aria-label="Color ${CNAME[p.color]}, tap to choose a color"></button>
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="Player ${i+1}" aria-label="Player ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
-    ${(S.game==='yahtzee'&&yzRoller()||S.game==='hearts'&&htPlayOn()||S.game==='spades'&&sdPlayOn()||S.game==='ohell'&&ohPlayOn())&&(!S.lk||lkHost()&&!S.started)&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`🤖<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
+    ${(S.game==='yahtzee'&&yzRoller()||S.game==='hearts'&&htPlayOn()||S.game==='spades'&&sdPlayOn()||S.game==='ohell'&&ohPlayOn()||S.game==='rook'&&rkPlayOn())&&(!S.lk||lkHost()&&!S.started)&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`🤖<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button></div>${COLPICK===i?colPicker(p,i):''}`).join('');
   const fam=H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the seats.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="map">‹ House rules</button><h1>Players</h1><span class="sub num">${n}</span></div>${steps(2)}
-  ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${S.game==='ohell'&&ohPlayOn()?'2 to 7 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='hearts'?(htPlayOn()?(S.lk?'3 to 6 players.':'3 to 6 players; 4 is the classic game. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'3 to 7 players; 4 is the classic game.'):S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk||!yzRoller()?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':S.game==='spades'?(SDX().teams?'4 players: seats 1 & 3 are partners against seats 2 & 4.':'3 to 5 players, everyone alone.')+(S.lk?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
+  ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${S.game==='rook'&&rkPlayOn()?'4 players: seats 1 & 3 are partners against seats 2 & 4.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='ohell'&&ohPlayOn()?'2 to 7 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='hearts'?(htPlayOn()?(S.lk?'3 to 6 players.':'3 to 6 players; 4 is the classic game. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'3 to 7 players; 4 is the classic game.'):S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk||!yzRoller()?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':S.game==='spades'?(SDX().teams?'4 players: seats 1 & 3 are partners against seats 2 & 4.':'3 to 5 players, everyone alone.')+(S.lk?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
   ${S.game==='quacks'?firstPicker():''}
   <div class="actions"><div class="in"><button class="btn primary" data-a="start">${S.started?'Back to scoring':'Start scoring'}</button></div></div>`}
 
@@ -4379,8 +4385,8 @@ function htScore(){if(htPlayOn()&&S.started&&!S.demo)return htPlay();const X=HTX
 function ktTable(o){const P=o.P,n=P.length,v=Math.max(0,P.findIndex(p=>o.me&&p.id===o.me)),T=o.trick||[];
   const pos=k=>{const rel=(k-v+n)%n,a=(90+rel*360/n)*Math.PI/180;return {x:Math.cos(a),y:Math.sin(a)}};
   const seats=P.map((q,k)=>{const {x,y}=pos(k);return `<div class="ktseat${o.turn===q.id?' now':''}${o.won===q.id?' won':''}" style="left:${50+x*40}%;top:${50+y*41}%;${pc(q.color)}"><b>${q.bot?'🤖 ':''}${esc(nm(q))}${o.me&&q.id===o.me?' <small>(you)</small>':''}</b><span>${o.label(q)}</span></div>`}).join('');
-  const cards=T.map((t,i)=>{const k=P.findIndex(p=>p.id===t.p),{x,y}=pos(k),rot=((htRk(t.c)*7+k*13)%15)-7;
-    return `<div class="ktcard${i===T.length-1&&!o.faded?' new':''}" style="left:${50+x*15}%;top:${50+y*17}%;z-index:${i+1};transform:translate(-50%,-50%) rotate(${rot}deg)">${htCardEl(t.c)}</div>`}).join('');
+  const CE=o.card||htCardEl,cards=T.map((t,i)=>{const k=P.findIndex(p=>p.id===t.p),{x,y}=pos(k),rot=(([...t.c].reduce((a,ch)=>a+ch.charCodeAt(0),0)*7+k*13)%15)-7;
+    return `<div class="ktcard${i===T.length-1&&!o.faded?' new':''}" style="left:${50+x*15}%;top:${50+y*17}%;z-index:${i+1};transform:translate(-50%,-50%) rotate(${rot}deg)">${CE(t.c)}</div>`}).join('');
   return `<div class="kttable${o.faded?' faded':''}">${seats}<div class="ktpile">${cards}</div>${o.note?`<div class="ktnote">${o.note}</div>`:''}</div>`}
 const HTR='23456789TJQKA',HTSU={C:'♣',D:'♦',S:'♠',H:'♥'},HTSO='CDSH';
 const htRk=c=>HTR.indexOf(c[0]),htSu=c=>c[1],htLab=c=>(c[0]==='T'?'10':c[0])+HTSU[c[1]]+'︎';
@@ -5782,19 +5788,19 @@ function ptDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    points the bidding team took. The other team gets the rest.
    S.rk[r] = {bt: team index, bid, took}
    ===================================================================== */
-const RKDEF={ones:false,last:0,min:70,target:300,made:'taken'};
+const RKDEF={ones:false,last:0,min:70,target:300,made:'taken',play:false};
 const RKPRE=[['kd','Official (Kentucky Discard)',{ones:false,last:0,min:70,target:300}],['kr','Kentucky Rook (1s count)',{ones:true,last:0,min:100,target:500}],['k2','1s and last trick (200)',{ones:true,last:20,min:100,target:500}]];
 const RKX=()=>{if(!S.rkx)S.rkx={...RKDEF};const X=S.rkx;for(const k in RKDEF)if(X[k]===undefined)X[k]=RKDEF[k];return X};
 function rkSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.rkx'))}catch(e){}return Object.assign({...RKDEF},x||{})}
 function rkKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.rkx',JSON.stringify(RKX()))}catch(e){}}
 function rkFresh(){return {game:'rook',screen:'map',map:'rook',rules:{},started:false,active:0,picks:{},hr:0,rk:[],rkx:rkSaved(),players:CARC_COLORS.map((c,i)=>Object.assign(newPlayer('',c,i<2),{mem:['','']}))}}
-function RKM(){const X=RKX();return {name:'Rook',meta:`partners · to ${X.target} · ${rkAll()} points a hand`,min:2,max:2,teams:true,colors:CARC_COLORS,lengths:[],pieces:0,piece:'',own:[],defaults:[],tb:[]}}
+function RKM(){const X=RKX();return {name:'Rook',meta:`partners · to ${X.target} · ${rkAll()} points a hand`,min:X.play?4:2,max:X.play?4:2,teams:!X.play,colors:CARC_COLORS,lengths:[],pieces:0,piece:'',own:[],defaults:[],tb:[]}}
 const rkAll=(X0)=>{const X=X0||RKX();return 120+(X.ones?60:0)+(+X.last||0)};
 const rkPreset=()=>{const X=RKX();const p=RKPRE.find(([,,v])=>Object.keys(v).every(k=>X[k]===v[k]));return p?p[0]:null};
 const rkH=r=>{const a=S.rk||(S.rk=[]);return a[r]||(a[r]={bt:null,bid:null,took:null})};
 const rkHas=H=>!!H&&H.bt!==null&&H.bt!==undefined&&H.took!==null&&H.took!==undefined&&H.bid!==null&&H.bid!==undefined;
 const rkAny=H=>!!H&&(H.bt!==null&&H.bt!==undefined||H.took!==null&&H.took!==undefined);
-const rkTeam=p=>act().indexOf(p);
+const rkTeam=p=>RKX().play&&act().length===4?act().indexOf(p)%2:act().indexOf(p);
 /* one team's points for hand r */
 function rkPts(p,r){const H=(S.rk||[])[r];if(!rkHas(H))return 0;const X=RKX(),all=rkAll(),i=rkTeam(p);
   if(i===H.bt)return H.took>=H.bid?(X.made==='bid'?H.bid:H.took):-H.bid;return Math.max(0,all-H.took)}
@@ -5805,7 +5811,7 @@ const rkCur=()=>Math.max(0,S.hr||0);
 const rkTot=p=>{let t=0;for(let r=0;r<rkN();r++)t+=rkPts(p,r);return t};
 const rkUpto=(p,n)=>{let t=0;for(let r=0;r<=n;r++)t+=rkPts(p,r);return t};
 /* the hand the game ended on: someone reached the target with a clear lead */
-function rkOverAt(){const X=RKX(),P=act();for(let r=0;r<=rkLast();r++){if(!rkHas((S.rk||[])[r]))continue;const sc=P.map(p=>rkUpto(p,r)),top=Math.max(...sc);if(top>=X.target&&sc.filter(v=>v===top).length===1)return r}return -1}
+function rkOverAt(){const X=RKX(),P0=act(),P=X.play&&P0.length===4?[P0[0],P0[1]]:P0;for(let r=0;r<=rkLast();r++){if(!rkHas((S.rk||[])[r]))continue;const sc=P.map(p=>rkUpto(p,r)),top=Math.max(...sc);if(top>=X.target&&sc.filter(v=>v===top).length===1)return r}return -1}
 function rkSetup(){const X=RKX(),all=rkAll(),pre=rkPreset();
   const st=(k,v,min,max,step,label)=>`<div class="step"><button data-a="rkst" data-k="${k}" data-d="${-step}" ${v<=min?'disabled':''} aria-label="Less ${label}">−</button><span class="n num">${v}</span><button data-a="rkst" data-k="${k}" data-d="${step}" ${v>=max?'disabled':''} aria-label="More ${label}">+</button></div>`;
   const row=(label,sub,ctl)=>`<div class="srow"><span class="rlab"><b>${label}</b>${sub?` · ${sub}`:''}</span>${ctl}</div>`;
@@ -5813,12 +5819,15 @@ function rkSetup(){const X=RKX(),all=rkAll(),pre=rkPreset();
   const sec=(t,body,hint)=>`<div class="sec"><div class="sec-h"><h3>${t}</h3></div><div class="panel hfpanel">${body}</div>${hint?`<p class="hint">${hint}</p>`:''}</div>`;
   return `<div class="bar"><h1>Rook</h1></div><img class="hero hfhero" src="art/rook-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">Two teams of partners. Your house rules are remembered for next time. ${usualUI('rook')}</p>
+  ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([v,t])=>`<button data-a="rkplaymode" data-k="${v}" aria-pressed="${!!X.play===!!v}">${t}</button>`).join('')}</div>`,
+    S.started?'This is set for the whole game. Start a new game to change it.':X.play?'4 players, partners across from each other. The phone deals the Rook deck, you bid, take the nest, name trump and play on screen. Computer players, pass-and-play and linked phones all work.':'Play with real cards and enter the bid and points after each hand. Just score keeping.')}
   ${sec('Start from',`<div class="lr boxes">${RKPRE.map(([id,t,v])=>`<button data-a="rkpre" data-k="${id}" aria-pressed="${pre===id}">${t}<small>${120+(v.ones?60:0)+v.last} a hand · bids from ${v.min} · to ${v.target}</small></button>`).join('')}</div>`,'Pick the closest, then change anything below.')}
   ${sec('Points in a hand',row('5s','',`<span class="rlab">5 each</span>`)+row('10s and 14s','',`<span class="rlab">10 each</span>`)+row('The Rook','',`<span class="rlab">20</span>`)+tg('ones','1s count 15','Play with the 1s in the deck, worth 15 each.')+row('Last trick bonus','points',st('last',+X.last||0,0,50,5,'points')),`That’s ${all} points in every hand.`)}
   ${sec('Bidding',row('Lowest bid','',st('min',X.min,5,all,5,'points'))+`<div class="srow"><span class="rlab"><b>Making your bid</b></span></div><div class="seg">${[['taken','Score what you took'],['bid','Score just the bid']].map(([v,t])=>`<button data-a="rkset" data-k="made" data-v="${v}" aria-pressed="${X.made===v}">${t}</button>`).join('')}</div>`,`Bids go up by 5. Miss your bid and lose the whole bid. The other team always scores what they took.`)}
   ${sec('Winning',row('Play to','points',st('target',X.target,50,2000,50,'points')),`First team to ${X.target} wins. If both teams pass it in the same hand, the higher total wins.`)}
-  <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Teams ›</button></div></div>`}
-function rkScore(){const X=RKX(),P=act(),r=rkCur(),N=rkN(),all=rkAll(),H=rkH(r),over=rkOverAt(),done=over>=0&&r>=over;
+  ${X.play?sec('Playing the cards',`<p class="rlab" style="margin:0">Kentucky Discard, as in the official rules: the 2s, 3s and 4s are out${X.ones?' (1s are in, ranked above the 14)':' and so are the 1s'}. 9 cards each${X.ones?' (10 with the 1s)':''} and 5 in the nest. The dealer bids first. The high bidder takes the nest, lays 5 cards aside (counters allowed) and names trump. The Rook is the highest trump and can be played to any trick. The player left of the dealer leads. The last trick takes the laid-aside cards.</p>`,'Your family plays differently? Tell me and it can become a house rule.'):''}
+  <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: ${X.play?'Players':'Teams'} ›</button></div></div>`}
+function rkScore(){if(rkPlayOn()&&S.started&&!S.demo)return rkPlay();const X=RKX(),P=act(),r=rkCur(),N=rkN(),all=rkAll(),H=rkH(r),over=rkOverAt(),done=over>=0&&r>=over;
   const sc=P.map(rkTot),hi=Math.max(...sc),lead=rkLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
   const bt=H.bt,bp=bt===null||bt===undefined?null:P[bt],dp=bp?P[1-bt]:null,bid=H.bid===null||H.bid===undefined?X.min:H.bid;
   const st=(a,v,min,max,label)=>`<div class="step"><button data-a="${a}" data-d="-5" ${v<=min?'disabled':''} aria-label="Less ${label}">−</button><span class="n num">${v}</span><button data-a="${a}" data-d="5" ${v>=max?'disabled':''} aria-label="More ${label}">+</button></div>`;
@@ -5846,6 +5855,146 @@ function rkRefresh(){const r=rkCur(),H=rkH(r),P=act(),all=rkAll(),q=x=>document.
   if(rkHas(H)){const v=rkPts(bp,r);set('[data-rkp="b"]',(v>0?'+':'')+v);set('[data-rkp="d"]','+'+rkPts(dp,r));set('[data-rkl="b"]',rkMade(H)?`Made it with ${H.took}.`:`Set! ${H.took} is short of ${H.bid}, so they lose ${H.bid}.`);set('[data-rkl="d"]',`Took the other ${Math.max(0,all-H.took)} of ${all}.`)}
   else{set('[data-rkp="b"]','·');set('[data-rkp="d"]','·')}
   const w=q('[data-rkw]');if(w){const bad=rkHas(H)&&(H.took%5||H.took>all);w.classList.toggle('hfwarn',!!bad);if(bad)w.textContent=`⚠ Points come in 5s, up to ${all}. Check the count.`}}
+/* ================= Rook on the phone (official Kentucky Discard by default) =================
+   Deck: four colors (R G Y B), 5 to 14, plus 1s when "1s count 15" is on (1s rank above 14), plus the Rook bird ('X').
+   4 players, partners across (seats 1 & 3 vs 2 & 4). 9 cards each (10 with the 1s) and 5 in the nest.
+   Bidding: dealer bids first, the lowest bid from setup, up by 5, pass and you're out. The high bidder takes the nest,
+   lays 5 cards aside (counters allowed), names trump. The Rook is the highest trump, can be played to any trick, and
+   must be played when trump is led and it's your last trump. The player left of the dealer leads first.
+   The winner of the last trick takes the laid-aside cards (and any last-trick bonus).
+   S.rkg = {r, phase:'bid'|'nest'|'play'|'done', dealer, h, nest, bids:{pid:n|'pass'}, high:{p,v}|null, bidTurn, bidder, trump, disc,
+            t:[{p,c}], turn, n, won:{pid:[cards]}, last:{t,w}, played, lastW} */
+const RKBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Card Bot'],hard:['Hard','Rook Bot']};
+const RKCOL={R:['Red','#c8322b'],G:['Green','#2e8b45'],Y:['Yellow','#c79a00'],B:['Black','#1d2228']};
+const rkPlayOn=()=>!!RKX().play;
+const rkG=()=>S.rkg||null;
+const rkRes=()=>!S.lk||S.demo||lkHost();
+const rkNum=c=>c==='X'?0:+c.slice(1),rkCo=c=>c==='X'?'X':c[0];
+const rkRank=c=>c==='X'?99:rkNum(c)===1?15:rkNum(c);
+const rkVal=c=>c==='X'?20:rkNum(c)===5?5:rkNum(c)===10||rkNum(c)===14?10:rkNum(c)===1?(RKX().ones?15:0):0;
+const rkTeamOf=pid=>act().findIndex(p=>p.id===pid)%2;
+const rkNext=pid=>{const P=act(),i=P.findIndex(p=>p.id===pid);return P[(i+1)%P.length].id};
+const rkSuitOf=(c,tr)=>c==='X'?tr||'X':c[0];
+function rkSort(h,tr){const o='RGYB'.split('').filter(s=>s!==tr).concat(tr?[tr]:[]);return h.slice().sort((a,b)=>{const sa=rkSuitOf(a,tr),sb=rkSuitOf(b,tr);return (o.indexOf(sa)-o.indexOf(sb))||(rkRank(a)-rkRank(b))})}
+function rkDeal(r){const P=act(),X=RKX();let deck=['X'];for(const s of 'RGYB'){for(let n=5;n<=14;n++)deck.push(s+n);if(X.ones)deck.push(s+'1')}htShuffle(deck);
+  const per=Math.floor((deck.length-5)/P.length),h={},dealer=P[r%P.length].id;P.forEach((p,i)=>h[p.id]=rkSort(deck.slice(i*per,(i+1)*per)));
+  const g={r,phase:'bid',dealer,h,nest:deck.slice(per*P.length),bids:{},high:null,bidTurn:dealer,bidder:null,trump:null,disc:[],t:[],turn:null,n:0,won:{},last:null,played:[],per};
+  P.forEach(p=>g.won[p.id]=[]);S.rkg=g;RKSEL=[];RKVIEW=null}
+const rkMinBid=g=>g.high?g.high.v+5:RKX().min;
+function rkBid(pid,v){const g=rkG();if(!g||g.phase!=='bid'||g.bidTurn!==pid)return false;const all=rkAll();
+  if(v!=='pass'){v=+v;if(v<rkMinBid(g)||v>all||v%5)return false;g.high={p:pid,v};g.bids[pid]=v}else g.bids[pid]='pass';
+  const P=act(),live=P.filter(p=>g.bids[p.id]!=='pass');
+  if(live.length===0){g.high={p:g.dealer,v:RKX().min};rkWonBid(g);return true}
+  if(live.length===1&&g.high&&g.high.p===live[0].id){rkWonBid(g);return true}
+  if(g.high&&g.high.v>=all){rkWonBid(g);return true}
+  let n=rkNext(pid);for(let i=0;i<P.length&&g.bids[n]==='pass';i++)n=rkNext(n);g.bidTurn=n;return true}
+function rkWonBid(g){g.bidder=g.high.p;g.bidTurn=null;g.phase='nest';g.h[g.bidder]=rkSort(g.h[g.bidder].concat(g.nest));g.nest=[]}
+function rkSetNest(pid,disc,tr){const g=rkG();if(!g||g.phase!=='nest'||g.bidder!==pid||disc.length!==5||!'RGYB'.includes(tr))return false;
+  g.h[pid]=rkSort(g.h[pid].filter(c=>!disc.includes(c)),tr);for(const id in g.h)if(id!==pid)g.h[id]=rkSort(g.h[id],tr);
+  g.disc=disc.slice();g.trump=tr;g.phase='play';g.turn=rkNext(g.dealer);return true}
+function rkLegal(g,pid){const h=g.h[pid]||[];if(!g.t.length)return h;const tr=g.trump,led=rkSuitOf(g.t[0].c,tr);
+  const f=h.filter(c=>rkSuitOf(c,tr)===led);if(!f.length)return h;
+  if(led===tr)return f;/* trump led: any trump, the Rook included (and it's forced when it's the last trump) */
+  return h.includes('X')?f.concat(['X']):f}
+function rkWinner(g,t){const tr=g.trump;if(t.some(x=>x.c==='X'))return t.find(x=>x.c==='X').p;
+  const tp=t.filter(x=>rkSuitOf(x.c,tr)===tr),pool=tp.length?tp:t.filter(x=>rkSuitOf(x.c,tr)===rkSuitOf(t[0].c,tr));return pool.reduce((a,x)=>rkRank(x.c)>rkRank(a.c)?x:a,pool[0]).p}
+function rkPlayCard(pid,c){const g=rkG();if(!g||g.phase!=='play'||g.turn!==pid||!rkLegal(g,pid).includes(c))return false;
+  g.h[pid]=g.h[pid].filter(x=>x!==c);g.t=g.t.concat([{p:pid,c}]);g.turn=g.t.length>=act().length?null:rkNext(pid);playCard();return true}
+function rkCollect(g){const w=rkWinner(g,g.t);g.won[w]=(g.won[w]||[]).concat(g.t.map(x=>x.c));g.played=(g.played||[]).concat(g.t.map(x=>x.c));g.last={t:g.t,w};g.t=[];g.n++;g.turn=w;
+  if(!Object.values(g.h).some(h=>h.length)){g.lastW=w;g.won[w]=g.won[w].concat(g.disc);rkEndHand(g)}}
+const rkTeamPts=(g,team)=>{let v=0;act().forEach((p,i)=>{if(i%2===team)(g.won[p.id]||[]).forEach(c=>v+=rkVal(c))});if(g.lastW&&rkTeamOf(g.lastW)===team)v+=+RKX().last||0;return v};
+function rkEndHand(g){const bt=rkTeamOf(g.bidder),H=rkH(g.r);H.bt=bt;H.bid=g.high.v;H.took=rkTeamPts(g,bt);g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
+const rkOverNow=()=>{const g=rkG();return !!g&&g.phase==='done'&&rkOverAt()>=0};
+
+/* ---------------- bots ---------------- */
+function rkStrength(h){let best=null;for(const s of 'RGYB'){const mine=h.filter(c=>c[0]===s),hi=mine.filter(c=>rkRank(c)>=12).length;const v=mine.length*2+hi*1.5+mine.reduce((a,c)=>a+rkRank(c)/14,0);if(!best||v>best.v)best={s,v}}
+  const aces=h.filter(c=>c!=='X'&&rkRank(c)>=14).length,rook=h.includes('X');return {s:best.s,score:best.v*4.2+aces*7+(rook?16:0)}}
+function rkBotBid(g,pid,lv){const h=g.h[pid],all=rkAll(),X=RKX(),st=rkStrength(h),need=rkMinBid(g);let cap=Math.round((34+st.score*(9/h.length))/5)*5;
+  if(lv==='easy')cap+=Math.round((Math.random()*20-10)/5)*5;if(lv==='hard'&&g.high&&rkTeamOf(g.high.p)===rkTeamOf(pid))cap=Math.min(cap,g.high.v);
+  cap=Math.min(cap,all);return need<=cap?need:'pass'}
+function rkBotNest(g,pid){const h=g.h[pid],tr=rkStrength(h.filter(c=>c!=='X')).s;
+  const keep=c=>c==='X'||c[0]===tr?100+rkRank(c):rkRank(c)>=14?60:rkRank(c)+(h.filter(x=>x[0]===c[0]).length<=2?-6:0)-rkVal(c)*.3;
+  const disc=h.slice().sort((a,b)=>keep(a)-keep(b)).slice(0,5);return {disc,tr}}
+function rkBotCard(g,pid,lv){const L=rkLegal(g,pid);if(L.length===1)return L[0];const tr=g.trump,me=rkTeamOf(pid);
+  const lo=a=>a.slice().sort((x,y)=>(rkRank(x)+rkVal(x)*.6)-(rkRank(y)+rkVal(y)*.6))[0],hi=a=>a.slice().sort((x,y)=>rkRank(y)-rkRank(x))[0];
+  if(lv==='easy')return Math.random()<.5?lo(L):L[Math.floor(Math.random()*L.length)];
+  const beats=(c,w)=>{if(w==='X')return false;if(c==='X')return true;const sc=rkSuitOf(c,tr),sw=rkSuitOf(w,tr);if(sc===sw)return rkRank(c)>rkRank(w);return sc===tr};
+  const seen=new Set([...(g.played||[]),...g.t.map(x=>x.c)]),mine=g.h[pid]||[];
+  const top=c=>{if(c==='X')return true;const s=rkSuitOf(c,tr),hs=[...[5,6,7,8,9,10,11,12,13,14,1].map(n=>s+n).filter(x=>rkRank(x)>rkRank(c)&&(RKX().ones||!x.endsWith('1')||x.endsWith('11'))),...(s===tr?['X']:[])];return hs.every(x=>seen.has(x)||mine.includes(x))};
+  if(!g.t.length){const sure=L.filter(c=>c!=='X'&&rkSuitOf(c,tr)!==tr&&(rkRank(c)>=14||lv==='hard'&&top(c)));if(sure.length)return hi(sure);
+    if(rkTeamOf(g.bidder)===me){const tt=L.filter(c=>rkSuitOf(c,tr)===tr&&c!=='X');if(tt.length>=2)return hi(tt)}
+    const plain=L.filter(c=>c!=='X'&&rkSuitOf(c,tr)!==tr&&!rkVal(c));return lo(plain.length?plain:L.filter(c=>c!=='X').length?L.filter(c=>c!=='X'):L)}
+  const winX=g.t.reduce((a,x)=>beats(x.c,a.c)?x:a,g.t[0]),pts=g.t.reduce((a,x)=>a+rkVal(x.c),0),partner=rkTeamOf(winX.p)===me,last=g.t.length===act().length-1;
+  const winners=L.filter(c=>beats(c,winX.c)),losers=L.filter(c=>!beats(c,winX.c));
+  if(partner&&(last||lv==='hard'&&top(winX.c)||winX.c==='X')){const give=losers.filter(c=>rkVal(c)&&c!=='X');if(give.length)return give.sort((a,b)=>rkVal(b)-rkVal(a))[0];return lo(losers.length?losers:L)}
+  if(winners.length&&(pts>=10||last||lv==='hard')){const cheap=winners.filter(c=>c!=='X');if(pts<20&&cheap.length)return last?lo(cheap):hi(cheap);return winners.includes('X')&&pts>=15?'X':lo(winners)}
+  const dump=losers.filter(c=>!rkVal(c));return lo(dump.length?dump:losers.length?losers:L)}
+
+/* ---------------- who is looking at this phone ---------------- */
+let RKSEL=[],RKVIEW=null,RKBOTT=null,RKCOLT=null,RKTR=null;
+const rkHumans=()=>act().filter(p=>!p.bot);
+const rkMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
+function rkActive(){const g=rkG();if(!g)return null;const id=g.phase==='bid'?g.bidTurn:g.phase==='nest'?g.bidder:g.phase==='play'?g.turn:null;const q=act().find(p=>p.id===id);return q&&!q.bot?q:null}
+function rkViewer(){const g=rkG();if(!g)return null;if(S.lk&&!S.demo)return rkMe();const H=rkHumans();if(H.length===1)return H[0];if(!H.length)return null;const a=rkActive();return a&&RKVIEW===a.id?a:null}
+const rkNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(rkHumans().length<2)return null;const a=rkActive();return a&&RKVIEW!==a.id?a:null};
+
+function rkTick(){if(S.game!=='rook'||!rkPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!rkRes())return;
+  const g=rkG();if(!g||g.r!==rkCur()&&g.phase!=='done'){rkDeal(rkCur());save();render();return}
+  const later=(ms,f)=>{if(!RKBOTT)RKBOTT=setTimeout(()=>{RKBOTT=null;f();save();render()},ms*htSpd())};
+  if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot)later(800,()=>{const g2=rkG();if(g2&&g2.phase==='bid'&&g2.bidTurn===q.id)rkBid(q.id,rkBotBid(g2,q.id,q.bot))});return}
+  if(g.phase==='nest'){const q=act().find(p=>p.id===g.bidder);if(q&&q.bot)later(1200,()=>{const g2=rkG();if(g2&&g2.phase==='nest'){const x=rkBotNest(g2,q.id);rkSetNest(q.id,x.disc,x.tr)}});return}
+  if(g.phase!=='play')return;
+  if(g.t.length>=act().length){if(!RKCOLT)RKCOLT=setTimeout(()=>{RKCOLT=null;const g2=rkG();if(g2&&g2.t.length>=act().length){rkCollect(g2);save();render()}},1300*htSpd());return}
+  const q=act().find(p=>p.id===g.turn);if(q&&q.bot&&!document.querySelector('.sheet-bg'))later(g.t.length?750:1000,()=>{const g2=rkG();if(g2&&g2.phase==='play'&&g2.turn===q.id)rkPlayCard(q.id,rkBotCard(g2,q.id,q.bot))})}
+
+/* ---------------- drawing ---------------- */
+function rkCardEl(c,o={}){const tag=o.btn?'button':'span',attr=o.btn?` data-a="rkcard" data-c="${c}" aria-pressed="${!!o.sel}"${o.dis?' aria-disabled="true"':''}`:'';
+  if(c==='X')return `<${tag} class="htc rkc rook${o.cls?' '+o.cls:''}"${attr} aria-label="The Rook${o.sel?', picked':''}"><b>R</b><i>20</i><em>🐦‍⬛</em></${tag}>`;
+  const [nmC,col]=RKCOL[c[0]],n=rkNum(c);
+  return `<${tag} class="htc rkc${o.cls?' '+o.cls:''}" style="--rk:${col}"${attr} aria-label="${nmC} ${n}${rkVal(c)?`, ${rkVal(c)} points`:''}${o.sel?', picked':''}"><b${n>=10?' class="ten"':''}>${n}</b><i>${nmC[0]}</i><em>${n}</em>${rkVal(c)?`<s>${rkVal(c)}</s>`:''}</${tag}>`}
+function rkPlay(){const X=RKX(),P=act(),g=rkG(),r=rkCur(),all=rkAll(),T=[P[0],P[1]].map(q=>rkTot(q)),team=(i)=>`${esc(nm(P[i]))} & ${esc(nm(P[i+2]))}`;
+  let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">🐦‍⬛${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
+  <div class="rkteams">${[0,1].map(i=>`<div class="rkteam" style="${pc(P[i].color)}"><b>${team(i)}</b><span class="num">${T[i]}</span><small>${T[i]>=X.target?'reached '+X.target:`${X.target-T[i]} to go`}</small></div>`).join('')}</div>`;
+  if(!g)return out+`<div class="panel" style="padding:16px">${waitLoader(rkRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
+  const V=rkViewer(),hand=V?g.h[V.id]||[]:[],me=rkMe(),bidTurnP=P.find(p=>p.id===g.bidTurn),turnP=P.find(p=>p.id===g.turn),bidderP=P.find(p=>p.id===g.bidder);
+  const trName=g.trump?RKCOL[g.trump][0]:'';
+  let status='';
+  if(g.phase==='bid')status=V&&g.bidTurn===V.id?`<b>Your bid${S.lk||rkHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.high?`High bid: ${g.high.v} by ${esc(nm(P.find(p=>p.id===g.high.p)))}.`:`Lowest bid is ${X.min}.`}`:`${bidTurnP&&bidTurnP.bot?'🤖 ':''}<b>${esc(nm(bidTurnP||{name:''}))}</b> is bidding…${g.high?` High bid: ${g.high.v}.`:''}`;
+  else if(g.phase==='nest')status=V&&g.bidder===V.id?`<b>You won the bid at ${g.high.v}!</b> The nest is in your hand. Pick 5 cards to lay aside, then name trump.`:`${bidderP.bot?'🤖 ':''}<b>${esc(nm(bidderP))}</b> won the bid at ${g.high.v} and is looking at the nest…`;
+  else if(g.phase==='play'){if(!turnP)status='Collecting the trick…';else if(V&&turnP.id===V.id)status=`<b>Your turn${S.lk||rkHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.t.length?`Follow the color led if you can (${g.t[0].c==='X'||rkSuitOf(g.t[0].c,g.trump)===g.trump?'trump':RKCOL[g.t[0].c[0]][0].toLowerCase()}). The Rook can be played any time.`:'Lead any card.'}`;else status=`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is playing…`}
+  else if(g.phase==='done')status=`<b>Hand ${r+1} is over.</b>`;
+  out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(nm(P.find(p=>p.id===g.dealer)||{name:''}))} dealt${g.high&&g.phase!=='bid'?` · ${esc(nm(bidderP))} bid ${g.high.v}`:''}${g.trump?` · <b style="color:${RKCOL[g.trump][1]}">${trName}</b> is trump`:''} · ${all} points a hand</span></div>`;
+  if(g.phase==='play'){const showT=g.t.length?g.t:g.last?g.last.t:[],faded=!g.t.length&&!!g.last,lw=faded&&g.last?P.find(p=>p.id===g.last.w):null,lp=lw?g.last.t.reduce((a,x)=>a+rkVal(x.c),0):0;
+    const bt=rkTeamOf(g.bidder),bp=rkTeamPts(g,bt);
+    out+=ktTable({P,me:V?V.id:me?me.id:null,trick:showT,faded,turn:g.turn,won:lw&&lw.id,card:rkCardEl,label:q=>`${(g.h[q.id]||[]).length} cards${q.id===g.bidder?' · bidder':''}`,note:lw?`${esc(nm(lw))} took it${lp?` (+${lp})`:''}`:''});
+    out+=`<p class="hint" style="text-align:center;margin:4px 0 0">${team(bt)} need ${g.high.v}: they have ${bp} so far${(g.disc||[]).some(rkVal)?' · the last trick also takes the laid-aside cards':''}.</p>`}
+  else if(g.phase==='bid'||g.phase==='nest')out+=`<div class="rkbids">${P.map(q=>{const b=g.bids[q.id];return `<div class="htseat${g.bidTurn===q.id||g.bidder===q.id&&g.phase==='nest'?' now':''}" style="${pc(q.color)}"><div class="htsn">${q.bot?'🤖 ':''}${esc(nm(q))}</div><div class="htsx">${b===undefined?(g.phase==='bid'?'…':''):b==='pass'?'passed':`bid ${b}`}${g.bidder===q.id?' · won it':''}</div></div>`}).join('')}</div>`;
+  if(g.phase==='done'){const bt=rkTeamOf(g.bidder),H=rkH(g.r);const rows=[0,1].map(i=>{const v=rkPts(P[i],g.r);return `<div class="srow" style="${pc(P[i].color)}"><span class="rlab"><i class="dot"></i> <b>${team(i)}</b><br><small>${i===bt?(rkMade(H)?`bid ${H.bid}, made it with ${H.took}`:`bid ${H.bid}, set with ${H.took}`):`took ${Math.max(0,all-H.took)}`}</small></span><span class="num"><b>${v>0?'+':''}${v}</b> · ${rkTot(P[i])}</span></div>`}).join('');
+    const over=rkOverNow();out+=`<div class="panel htsum">${rows}</div><div class="actions"><div class="in">${over?(rkRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Game over! Waiting for the host to reveal…</span>`):rkRes()?`<button class="btn sm" data-a="finish">End game</button><button class="btn primary" data-a="rkdeal">Deal hand ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`;return out+rkModal()}
+  if(V){const L=g.phase==='play'&&g.turn===V.id?rkLegal(g,V.id):[],nesting=g.phase==='nest'&&g.bidder===V.id;RKSEL=RKSEL.filter(c=>hand.includes(c));
+    out+=`<div class="hthand" style="--n:${hand.length}" aria-label="Your cards">${hand.map(c=>rkCardEl(c,{btn:true,sel:nesting?RKSEL.includes(c):RKSEL[0]===c,dis:nesting?false:!L.includes(c),cls:g.phase==='play'?(L.includes(c)?'ok':'no'):''})).join('')}</div>`;
+    if(g.phase==='bid'&&g.bidTurn===V.id){const lo=rkMinBid(g);out+=`<div class="panel sdbids"><div class="sdbidgrid">${Array.from({length:8},(_,i)=>lo+i*5).filter(v=>v<=all).map(v=>`<button class="btn" data-a="rkbid" data-k="${v}">${v}</button>`).join('')}</div><button class="btn" data-a="rkbid" data-k="pass" style="margin-top:8px;width:100%">Pass</button></div>`}
+    else if(nesting){out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>${RKSEL.length} of 5</b> picked to lay aside. ${RKSEL.some(rkVal)?'Counters you lay aside go to whoever takes the last trick.':''}</p>
+      <div class="rktr">${'RGYB'.split('').map(s=>`<button class="btn${RKTR===s?' primary':''}" data-a="rktrump" data-k="${s}" style="--rk:${RKCOL[s][1]}"><i></i>${RKCOL[s][0]}</button>`).join('')}</div>
+      <button class="btn primary" data-a="rknest" style="margin-top:8px;width:100%" ${RKSEL.length===5&&RKTR?'':'disabled'}>${RKSEL.length!==5?`Pick ${5-RKSEL.length>0?5-RKSEL.length+' more':RKSEL.length-5+' fewer'}`:!RKTR?'Now name trump':`Lay aside 5 · ${RKCOL[RKTR][0]} is trump`}</button></div>`}
+    else if(L.length)out+=`<p class="hint" style="text-align:center">${RKSEL.length?'Tap it again to play it.':'Tap a card to play it.'}</p>`}
+  else if(!S.lk&&rkHumans().length>1)out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
+  return out+rkModal()}
+function rkModal(){const a=rkNeedHandoff();if(!a)return '';const g=rkG();return `<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="rkp-h" style="${pc(a.color)}">
+  <svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="rkp-h">${esc(nm(a))}</h2>
+  <p class="rlab">${g.phase==='bid'?'Time to bid.':g.phase==='nest'?'You won the bid: time for the nest.':'It’s your turn to play a card.'} Everyone else, look away.</p><button class="btn primary wide" data-a="rkshow" data-k="${a.id}">I’m ${esc(nm(a))}, show my cards</button></div></div>`}
+function rkAct(a,b,k){const g=rkG();
+  if(a==='rkshow'){RKVIEW=k;RKSEL=[];RKTR=null;return}
+  if(a==='rkbid'){const V=rkViewer();if(g&&V&&!rkBid(V.id,k==='pass'?'pass':+k))toast('You can’t bid that.');return}
+  if(a==='rktrump'){RKTR=k;return}
+  if(a==='rknest'){const V=rkViewer();if(g&&V&&rkSetNest(V.id,RKSEL,RKTR)){RKSEL=[];RKTR=null}return}
+  if(a==='rkcard'){if(!g)return;const V=rkViewer();if(!V)return;const c=b.dataset.c;
+    if(g.phase==='nest'&&g.bidder===V.id){if(RKSEL.includes(c))RKSEL=RKSEL.filter(x=>x!==c);else if(RKSEL.length<5)RKSEL=RKSEL.concat([c]);else toast('Pick 5. Tap one to put it back.');return}
+    if(g.phase!=='play'||g.turn!==V.id){toast(g.phase==='bid'?'Bidding first.':g.phase==='nest'?'Waiting for the nest.':g.turn?`It’s ${nm(act().find(p=>p.id===g.turn))}’s turn.`:'Hang on…');return}
+    if(!rkLegal(g,V.id).includes(c)){toast('Follow the color led if you can (or play the Rook).');return}
+    if(RKSEL[0]!==c){RKSEL=[c];return}RKSEL=[];rkPlayCard(V.id,c);return}
+  if(a==='rkdeal'){if(!rkRes())return;S.hr=rkCur()+1;rkDeal(S.hr);window.scrollTo(0,0)}}
+
 function rkRows(p){const rows=[];let tot=0;const i=rkTeam(p);for(let r=0;r<rkN();r++){const H=(S.rk||[])[r];if(!rkHas(H))continue;const v=rkPts(p,r);tot+=v;rows.push({r,v,tot,bid:H.bt===i,amt:H.bid,took:H.bt===i?H.took:rkAll()-H.took,made:rkMade(H)})}return rows}
 const rkWords=x=>x.bid?(x.made?`bid ${x.amt}, made it`:`bid ${x.amt}, set`):(x.made?`took ${x.took}`:`took ${x.took}, set them`);
 function rkHistory(pid){const p=act().find(q=>q.id===pid);if(!p)return '';const rows=rkRows(p).reverse();
@@ -5872,11 +6021,11 @@ function rkGuide(){const X=RKX(),all=rkAll();
     ['Bidding',[['Bids',`The lowest bid is ${X.min}. Bids go up by 5. Pass and you’re out of the bidding for that hand.`],['The nest','The high bidder takes the nest, sets aside the same number of cards, and names trump.']]],
     ['Scoring',[['Made it',X.made==='bid'?'The bidding team scores its bid.':'The bidding team scores all the points it took.'],['Set','Fall short and the bidding team loses the whole bid.'],['The other team','Always scores the points it took.']]],
     ['Winning',[[`First to ${X.target}`,'If both teams pass it in the same hand, the higher total wins.']]],
-    ['Everything else',[['Dealing, trump and the Rook card','Check the rule card in the box.']]]])}
+    X.play?['Playing on the phone',[['The deck',`2s, 3s and 4s out${X.ones?'; 1s in, above the 14':', and the 1s'}. 9 cards each${X.ones?' (10 with the 1s)':''}, 5 in the nest.`],['Bidding','The dealer bids first. Pass and you’re out for the hand.'],['The nest','The high bidder adds the nest, lays 5 cards aside (counters allowed) and names trump. The last trick takes the laid-aside cards.'],['The Rook','The highest trump, worth 20. It can be played to any trick, even when you could follow the color led.'],['Leading','The player left of the dealer leads the first trick.']]]:['Everything else',[['Dealing, trump and the Rook card','Check the rule card in the box.']]]])}
 function rkHomeCard(){const st=gamePeek('rook');
-  return `<div class="game"><div class="gtop"><img class="gart" src="art/rook-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart rkart&quot; aria-hidden=&quot;true&quot;>🐦‍⬛</div>'"><div><h2>Rook</h2><div class="meta">Card game · partners · bids</div></div></div>
+  return `<div class="game"><div class="gtop"><img class="gart" src="art/rook-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart rkart&quot; aria-hidden=&quot;true&quot;>🐦‍⬛</div>'"><div><h2>Rook</h2><div class="meta">Play on the phone, or score real cards · partners</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="rook">Resume game</button><button class="btn" data-a="gnew" data-k="rook">New game</button></div>`
-      :`<button class="btn primary wide" data-a="gnew" data-k="rook">Score a game</button>`}</div>`}
+      :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="rkstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="rkstart" data-k="0">Score a game</button></div>`}</div>`}
 const RKDEMOS=[{id:'rkfam',title:'Family night · Rook',tip:'Both teams pass 300 in the last hand, so the higher total wins. Press and hold a team for their history.',blurb:'Mom & Dad against Ben & Lily, official rules. Mom & Dad get set on a bid of 90; in the last hand both teams pass 300 and the higher total takes it.'}];
 function rkDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=rkFresh();S.rkx={...RKDEF};S.demo=id;const P=S.players.slice(0,2);P[0].mem=['Mom','Dad'];P[1].mem=['Ben','Lily'];
   S.rk=[[0,80,85],[1,75,80],[0,90,70],[1,85,90],[0,75,85],[1,100,85],[0,95,100],[1,80,95]].map(([bt,bid,took])=>({bt,bid,took}));
@@ -8589,7 +8738,7 @@ const HOMEBTN='<button class="homebtn" data-a="go" data-s="home" aria-label="Hom
 function render(){
   const CG=S.game==='carc';
   const HG2=HFE(),NG2=S.game==='nerts',PG2=S.game==='pad',DG2=S.game==='darts',LG2=S.game==='pool',TG2=S.game==='hearts',SG2=S.game==='spades',RG2=S.game==='rage',OH2=S.game==='ohell',UN2=S.game==='uno',MK2=S.game==='munchkin',FC2=S.game==='crowns',SB2=S.game==='skipbo',GN2=S.game==='gnome',SK2=S.game==='skyjo',WS2=S.game==='wingspan',WY2=S.game==='wyrmspan',PT2=S.game==='phase10',RK2=S.game==='rook',YZ2=S.game==='yahtzee',MT2=S.game==='mextrain',CT2=S.game==='catan',GF2=S.game==='golf',TP2=S.game==='tripoley',QK2=S.game==='quacks';
-  const v={home,lkwho:lkWhoScreen,lkwait:lkWaitScreen,map:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:CT2?ctSetup:MT2?mtSetup:YZ2?yzSetup:RK2?rkSetup:PT2?ptSetup:WY2?wySetup:WS2?wsSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:MK2?mkSetup:UN2?unSetup:OH2?ohSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:mapScreen,rules:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:CT2?ctSetup:MT2?mtSetup:YZ2?yzSetup:RK2?rkSetup:PT2?ptSetup:WY2?wySetup:WS2?wsSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:MK2?mkSetup:UN2?unSetup:OH2?ohSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:rulesScreen,players:QK2?nxPlayers:TP2?nxPlayers:GF2?nxPlayers:CT2?nxPlayers:MT2?nxPlayers:YZ2?nxPlayers:RK2?sdPlayers:PT2?nxPlayers:WY2?nxPlayers:WS2?nxPlayers:SK2?nxPlayers:GN2?nxPlayers:SB2?sdPlayers:FC2?nxPlayers:MK2?nxPlayers:UN2?nxPlayers:OH2?nxPlayers:RG2?nxPlayers:SG2?(sdPlayOn()?nxPlayers:sdPlayers):TG2?nxPlayers:LG2?plPlayers:DG2?dtPlayers:PG2?pxPlayers:NG2?nxPlayers:HG2?hfPlayers:playersScreen,score:QK2?qkScore:TP2?tpScore:GF2?gfScore:CT2?ctScore:MT2?mtScore:YZ2?yzScore:RK2?rkScore:PT2?ptScore:WY2?wyScore:WS2?wsScore:SK2?skScore:GN2?gnScore:SB2?sbScore:FC2?fcScore:MK2?mkScore:UN2?unScore:OH2?ohScore:RG2?rgScore:SG2?sdScore:TG2?htScore:LG2?plPlay:DG2?dtPlay:PG2?pxScore:NG2?nxScore:HG2?hfScore:CG?cFinal:scoring,results,reveal:revealScreen,stats:statsScreen,profile:profileScreen,event:eventScreen,recap:recapScreen,settings:settingsScreen,live:CG?cLive:liveScreen,lobby:lobbyScreen,samples:samplesScreen,tsetup:tSetup}[S.screen]||home;
+  const v={home,lkwho:lkWhoScreen,lkwait:lkWaitScreen,map:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:CT2?ctSetup:MT2?mtSetup:YZ2?yzSetup:RK2?rkSetup:PT2?ptSetup:WY2?wySetup:WS2?wsSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:MK2?mkSetup:UN2?unSetup:OH2?ohSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:mapScreen,rules:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:CT2?ctSetup:MT2?mtSetup:YZ2?yzSetup:RK2?rkSetup:PT2?ptSetup:WY2?wySetup:WS2?wsSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:MK2?mkSetup:UN2?unSetup:OH2?ohSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:rulesScreen,players:QK2?nxPlayers:TP2?nxPlayers:GF2?nxPlayers:CT2?nxPlayers:MT2?nxPlayers:YZ2?nxPlayers:RK2?(rkPlayOn()?nxPlayers:sdPlayers):PT2?nxPlayers:WY2?nxPlayers:WS2?nxPlayers:SK2?nxPlayers:GN2?nxPlayers:SB2?sdPlayers:FC2?nxPlayers:MK2?nxPlayers:UN2?nxPlayers:OH2?nxPlayers:RG2?nxPlayers:SG2?(sdPlayOn()?nxPlayers:sdPlayers):TG2?nxPlayers:LG2?plPlayers:DG2?dtPlayers:PG2?pxPlayers:NG2?nxPlayers:HG2?hfPlayers:playersScreen,score:QK2?qkScore:TP2?tpScore:GF2?gfScore:CT2?ctScore:MT2?mtScore:YZ2?yzScore:RK2?rkScore:PT2?ptScore:WY2?wyScore:WS2?wsScore:SK2?skScore:GN2?gnScore:SB2?sbScore:FC2?fcScore:MK2?mkScore:UN2?unScore:OH2?ohScore:RG2?rgScore:SG2?sdScore:TG2?htScore:LG2?plPlay:DG2?dtPlay:PG2?pxScore:NG2?nxScore:HG2?hfScore:CG?cFinal:scoring,results,reveal:revealScreen,stats:statsScreen,profile:profileScreen,event:eventScreen,recap:recapScreen,settings:settingsScreen,live:CG?cLive:liveScreen,lobby:lobbyScreen,samples:samplesScreen,tsetup:tSetup}[S.screen]||home;
   if(S.active>=act().length)S.active=0;
   if(S.started&&!S.finished&&!S.demo&&['live','score'].includes(S.screen)){const now=Date.now();if(S.lastTick)S.playMs=(S.playMs||0)+Math.min(Math.max(0,now-S.lastTick),10*60e3);S.lastTick=now}
   applyTheme();applyScale();document.documentElement.classList.toggle('big',!!SET.big);document.documentElement.classList.toggle('cb',!!SET.cb);wake(needWake());
@@ -8617,7 +8766,7 @@ function render(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();navSync();if(S.game==='yahtzee')yzBotTick();if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();
+  tourApply();navSync();if(S.game==='yahtzee')yzBotTick();if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -8818,6 +8967,7 @@ document.addEventListener('click',e=>{
   if(/^ht(card|pass|deal|msel|show)$/.test(a)&&S.game==='hearts'){htAct(a,b,k);render();return}
   if(/^sd(card|bid|deal|show|look)$/.test(a)&&S.game==='spades'){sdAct(a,b,k);render();return}
   if(/^oh(card|bid|deal|show)$/.test(a)&&S.game==='ohell'&&ohPlayOn()&&S.started){ohAct(a,b,k);render();return}
+  if(/^rk(card|bid|deal|show|trump|nest)$/.test(a)&&S.game==='rook'&&rkPlayOn()&&S.started){rkAct(a,b,k);render();return}
   switch(a){
     case 'kpadd':kpAdd(b.dataset.v==='1');return;
     case 'pkadd':p.tickets.push({v:+b.dataset.v,done:b.dataset.d==='1',name:k});TKQ='';render();{const si=document.getElementById('tk-search');if(si)si.focus({preventScroll:true})}return;
@@ -8964,7 +9114,7 @@ document.addEventListener('click',e=>{
     case 'mtdb':{const q=act()[+b.dataset.i],R=mtR(q,mtCur());snap();R.db=!R.db;break}
     case 'mthand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'mtnext':{S.hr=Math.min(mtN()-1,mtCur()+1);window.scrollTo(0,0);break}
-    case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
+    case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:S.game==='rook'?RKBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS),Object.values(RKBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
       if(!q.name||defs.includes(base(q.name))){let nmv=nx?BT[nx][1]:'';if(nmv){let j=1;while(S.players.some(o=>o!==q&&o.on&&o.name===(j>1?nmv+' '+j:nmv)))j++;if(j>1)nmv+=' '+j}q.name=nmv}if(nx)q.bot=nx;else delete q.bot;delete q.rid;break}
     case 'htstart':{switchGame('hearts');resetScores();S.started=false;S.screen='map';HTX().play=k==='1';htKeep();window.scrollTo(0,0);break}
     case 'htplaymode':{if(S.started)break;HTX().play=k==='1';if(HTX().play&&act().length>6)toast('Playing on the phone works for 3 to 6 players.');htKeep();break}
@@ -8998,6 +9148,8 @@ document.addEventListener('click',e=>{
     case 'rkst':{const X=RKX(),lim={last:[0,50],min:[5,rkAll()],target:[50,2000]}[k]||[0,9999];X[k]=Math.max(lim[0],Math.min(lim[1],(+X[k]||0)+(+b.dataset.d)));if(X.min>rkAll())X.min=rkAll();rkKeep();break}
     case 'rktg':{const X=RKX();X[k]=!X[k];if(X.min>rkAll())X.min=rkAll();rkKeep();break}
     case 'rkset':RKX()[k]=b.dataset.v;rkKeep();break;
+    case 'rkstart':{switchGame('rook');resetScores();S.started=false;S.screen='map';RKX().play=k==='1';while(S.players.length<4)S.players.push(Object.assign(newPlayer('',CARC_COLORS[S.players.length]||'purple',false),{mem:['','']}));S.players.forEach((p,i)=>p.on=i<(RKX().play?4:2));rkKeep();window.scrollTo(0,0);break}
+    case 'rkplaymode':{if(S.started)break;RKX().play=k==='1';S.players.forEach((p,i)=>p.on=i<(RKX().play?4:2));rkKeep();break}
     case 'rkbt':{const H=rkH(rkCur());snap();H.bt=+b.dataset.v;if(H.bid===null||H.bid===undefined)H.bid=RKX().min;break}
     case 'rkbid':{const H=rkH(rkCur()),X=RKX();snap();H.bid=Math.max(X.min,Math.min(rkAll(),(H.bid??X.min)+(+b.dataset.d)));break}
     case 'rkhand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
