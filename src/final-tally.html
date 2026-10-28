@@ -1175,6 +1175,7 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .rvdiv .rvd0 small{position:absolute;top:100%;left:50%;transform:translateX(-50%);font:800 10px/1.2 var(--body);color:var(--muted)}
 .rvdiv.hfc .rvd0{top:2px}.rv-row:has(.rvdiv){padding-bottom:16px}
 .rvlow{display:inline-block;margin:0 8px 4px 0;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,#2e9e55 16%,var(--surface));color:#237a42;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.actions .btn.homeend{flex:0 0 52px;min-width:52px;padding:0;display:inline-grid;place-items:center}.actions .btn.homeend svg{display:block}
 </style>
 
 <div id="app"></div>
@@ -10039,7 +10040,7 @@ function revealFinal(){
   ${S.demo==='link'?`<div class="sec"><div class="sec-h"><h3>On every phone right now</h3></div><div class="panel">${act().filter(p=>seatOf(p).phone!=='none').map(p=>`<div class="seat" style="${pc(p.color)}"><i class="dot"></i><div class="seat-m"><b>${esc(nm(p))}'s phone</b></div><span class="st ${win.some(x=>x.p===p)?'ok':''}">${win.some(x=>x.p===p)?'Fanfare &amp; cheering':'Sad trombone'}</span></div>`).join('')}</div></div>`:''}
   <p class="hint">${S.demo?'This is a sample game, so it isn\'t saved.':H.mode==='db'?`Saved to your ${esc(GN())} history.`:`Saved to your ${esc(GN())} history on this device.`}</p>
   ${SHAREMSG?`<p class="hint" aria-live="polite">${esc(SHAREMSG)}</p>`:''}
-  <div class="actions"><div class="in">${S.demo?'<button class="btn" data-a="revstart">Watch again</button>':''}<button class="btn" data-a="share">Share</button>${!S.demo&&!S.editing?`<button class="btn" data-a="rematch">Rematch</button>`:''}<button class="btn primary" data-a="go" data-s="results">Breakdown</button></div></div>`;
+  <div class="actions"><div class="in">${S.demo?'<button class="btn" data-a="revstart">Watch again</button>':`<button class="btn homeend" data-a="go" data-s="home" aria-label="Home"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg></button>`}<button class="btn" data-a="share">Share</button>${!S.demo&&!S.editing?`<button class="btn" data-a="rematch">Rematch</button>`:''}<button class="btn primary" data-a="go" data-s="results">Breakdown</button></div></div>`;
 }
 function confetti(color){
   if(RM())return;const cv=document.createElement('canvas');cv.className='confetti';document.body.appendChild(cv);
