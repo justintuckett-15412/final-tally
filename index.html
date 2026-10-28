@@ -839,6 +839,8 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 @media (prefers-reduced-motion:no-preference){.ktcard.new{animation:ktin .22s ease-out}}@keyframes ktin{from{opacity:0;margin-top:14px}to{opacity:1;margin-top:0}}
 .kttable.faded .ktcard .htc{opacity:.6}
 .ktnote{position:absolute;left:50%;bottom:30%;transform:translate(-50%,0);font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap;z-index:30;background:var(--bg);padding:2px 8px;border-radius:10px}
+.ohup{display:flex;align-items:center;gap:10px;margin:10px 0 0;font-size:13px}.ohup .htc{--cw:40px}.ohup small{color:var(--muted)}
+.hthand .htc.trump:not(.no){box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 70%,transparent),0 1px 2px rgba(0,0,0,.18)}
 .sdbids{padding:12px;margin-top:8px}.sdbidgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}.sdbidgrid .btn{min-height:44px;padding:0}
 .htsum{padding:10px 14px;margin-top:10px}.htsum .srow{padding:6px 0}.htsum .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--pc)}
 
@@ -1308,7 +1310,7 @@ const padSC=()=>Math.max(1,Math.round(Math.max(1,...act().map(p=>Math.abs(total(
 const LOW=()=>S.game==='phase10'||S.game==='mextrain'||S.game==='uno'&&UNX().mode==='low'||S.game==='golf'||S.game==='skyjo'||S.game==='gnome'&&!gnRW()||S.game==='hearts'||S.game==='crowns'||S.game==='pad'&&!!(S.px||{}).low,RS=p=>S.game==='darts'?dRankKey(p):S.game==='phase10'?ptKey(p):LOW()?-total(p):total(p),RU=(n,p)=>LOW()?-upto(n,p):upto(n,p);
 const total=p=>S.game==='carc'?cTot(p):HFE()?hfTot(p):S.game==='nerts'?nxTot(p):S.game==='pad'?pxTot(p):S.game==='darts'?dTot(p):S.game==='pool'?plTot(p):S.game==='hearts'?htTot(p):S.game==='spades'?sdTot(p):S.game==='rage'?rgTot(p):S.game==='ohell'?ohTot(p):S.game==='uno'?unTot(p):S.game==='munchkin'?mkTot(p):S.game==='crowns'?fcTot(p):S.game==='skipbo'?sbTot(p):S.game==='gnome'?gnTot(p):S.game==='skyjo'?skTot(p):S.game==='wingspan'?wsTot(p):S.game==='wyrmspan'?wyTot(p):S.game==='phase10'?ptTot(p):S.game==='rook'?rkTot(p):S.game==='yahtzee'?yzTot(p):S.game==='mextrain'?mtTot(p):S.game==='catan'?ctTot(p):S.game==='golf'?gfTot(p):S.game==='tripoley'?tpTot(p):S.game==='quacks'?qkTot(p):hsPts(p)+routePts(p)+tkNet(p)+extrasPts(p)+bonusPts(p);
 
-function resetScores(){delete S.htg;delete S.sdg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
+function resetScores(){delete S.htg;delete S.sdg;delete S.ohg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
 let UNDO=[],KP='',RULESHEET=false;
 if(S.hideTotals===undefined)S.hideTotals=true;
 function setMap(k){
@@ -1924,7 +1926,7 @@ function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK||LKSWAP)return;if(lkHost()&&L
 /* "Your turn!" on a linked phone: a strong buzz, plus a notification if the app is in the background (and notifications are allowed) */
 let LKTURN=null;
 function lkTurnOwner(){if(!S.started||S.finished)return null;const P=act();if(!P.length)return null;
-  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
+  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
   if(S.rules&&S.rules.live||S.game==='carc')return S.turnId||null;return null}
 function lkTurnCheck(){const o=lkTurnOwner(),was=LKTURN;LKTURN=o;if(!o||o===was||!S.lk||o!==S.lk.me||was===null)return;
   vibe([250,120,250,120,400]);toast('Your turn!');
@@ -3651,11 +3653,11 @@ function nxPlayers(){const m=M(),n=act().length,sl=S.players.slice(0,8);
   const rows=sl.map((p,i)=>`<div class="prow ${p.on?'':'off'}">
     <button class="swatch" style="background:var(--t-${p.color});${pc(p.color)}" data-a="colpick" data-i="${i}" aria-expanded="${COLPICK===i}" aria-label="Color ${CNAME[p.color]}, tap to choose a color"></button>
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="Player ${i+1}" aria-label="Player ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
-    ${(S.game==='yahtzee'&&yzRoller()||S.game==='hearts'&&htPlayOn()||S.game==='spades'&&sdPlayOn())&&(!S.lk||lkHost()&&!S.started)&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`🤖<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
+    ${(S.game==='yahtzee'&&yzRoller()||S.game==='hearts'&&htPlayOn()||S.game==='spades'&&sdPlayOn()||S.game==='ohell'&&ohPlayOn())&&(!S.lk||lkHost()&&!S.started)&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`🤖<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button></div>${COLPICK===i?colPicker(p,i):''}`).join('');
   const fam=H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the seats.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="map">‹ House rules</button><h1>Players</h1><span class="sub num">${n}</span></div>${steps(2)}
-  ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${S.game==='hearts'?(htPlayOn()?(S.lk?'3 to 6 players.':'3 to 6 players; 4 is the classic game. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'3 to 7 players; 4 is the classic game.'):S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk||!yzRoller()?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':S.game==='spades'?(SDX().teams?'4 players: seats 1 & 3 are partners against seats 2 & 4.':'3 to 5 players, everyone alone.')+(S.lk?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
+  ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${S.game==='ohell'&&ohPlayOn()?'2 to 7 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='hearts'?(htPlayOn()?(S.lk?'3 to 6 players.':'3 to 6 players; 4 is the classic game. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'3 to 7 players; 4 is the classic game.'):S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk||!yzRoller()?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':S.game==='spades'?(SDX().teams?'4 players: seats 1 & 3 are partners against seats 2 & 4.':'3 to 5 players, everyone alone.')+(S.lk?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
   ${S.game==='quacks'?firstPicker():''}
   <div class="actions"><div class="in"><button class="btn primary" data-a="start">${S.started?'Back to scoring':'Start scoring'}</button></div></div>`}
 
@@ -6964,7 +6966,7 @@ function qkDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    Everyone bids at once. Make your bid exactly: 10 + bid. Bid zero and make it: 5 + cards dealt that round. Miss: 0.
    p.oh[r] = {b: bid, t: tricks won}; S.ohtr[r] = trump suit for the round
    ===================================================================== */
-const OHDEF={top:13,order:'up',bidV:10,perBid:1,zero:'cards',zeroV:5,miss:'zero',missV:1,hook:false,trump:true};
+const OHDEF={top:13,order:'up',bidV:10,perBid:1,zero:'cards',zeroV:5,miss:'zero',missV:1,hook:false,trump:true,play:false};
 const OHX=()=>{if(!S.ohx)S.ohx={...OHDEF};const X=S.ohx;for(const k in OHDEF)if(X[k]===undefined)X[k]=OHDEF[k];return X};
 function ohSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.ohx'))}catch(e){}return Object.assign({...OHDEF},x||{})}
 function ohKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.ohx',JSON.stringify(OHX()))}catch(e){}}
@@ -7007,6 +7009,8 @@ function ohSetup(){const X=OHX();
   const t=ohTop(),capped=t<X.top;
   return `<div class="bar"><h1>Oh Hell</h1></div><img class="hero hfhero" src="art/ohell-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">Set up like the rule sheet. Change anything you like; it’s remembered for next time. ${usualUI('ohell')}</p>
+  ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([v,t])=>`<button data-a="ohplaymode" data-k="${v}" aria-pressed="${!!X.play===!!v}">${t}</button>`).join('')}</div>`,
+    S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals, turns up trump, and you bid and play on screen. Computer players, pass-and-play and linked phones all work.':'Play with real cards and enter bids and tricks each round. Just score keeping.')}
   ${sec('Rounds',seg('order',[['up','1 up to the top'],['updown','Up, then back down'],['down','Top down to 1'],['downup','Down, then back up']])+row('Biggest hand','cards each',st('top',X.top,1,26,1,'cards')),
     `${ohN()} rounds: ${OHM().meta.split(' · ')[1]}.${capped?` With ${act().length} players the deck only deals ${t} each, so the biggest hand is ${t}.`:''}`)}
   ${sec('Scoring',row('Making your bid','plus your bid',st('bidV',X.bidV,0,50,1,'points'))+row('Plus, per trick bid','',st('perBid',X.perBid,0,10,1,'points'))
@@ -7015,9 +7019,9 @@ function ohSetup(){const X=OHX();
     +`<div class="rlab" style="margin-top:8px"><b>Missing your bid</b></div>`+seg('miss',[['zero','Score 0'],['diff','Lose per trick off'],['flat','Lose a set amount']],'three')
     +(X.miss!=='zero'?row(X.miss==='diff'?'Per trick off':'Points lost','taken off',st('missV',X.missV,1,50,1,'points')):''),
     `Make your bid: ${X.bidV}${X.perBid?` + ${X.perBid===1?'your bid':X.perBid+' × your bid'}`:''}. Bid zero and make it: ${X.zero==='cards'?`${X.zeroV} + the cards dealt that round`:X.zero==='flat'?X.zeroV:X.bidV}. Miss: ${X.miss==='zero'?'0':X.miss==='diff'?`−${X.missV} for each trick off`:`−${X.missV}`}.`)}
-  ${sec('House rules',tg('hook','Hook rule (dealer can’t make it even)','Bid around the table instead of all at once. The dealer bids last and can’t pick the number that makes the bids add up to the cards dealt, so someone always misses.')+tg('trump','Track trump','Tap the trump suit each round so everyone can check it on the score sheet.'))}
+  ${sec('House rules',tg('hook','Hook rule (dealer can’t make it even)','Bid around the table instead of all at once. The dealer bids last and can’t pick the number that makes the bids add up to the cards dealt, so someone always misses.')+(X.play?'':tg('trump','Track trump','Tap the trump suit each round so everyone can check it on the score sheet.')),X.play?(X.hook?'Bids go around the table, starting left of the dealer.':'Everyone bids at once, like the bidding wheels. Bids show when everyone is in.'):'')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
-function ohScore(){const X=OHX(),P=act(),r=ohCur(),N=ohN(),n=ohCards(r),ph=ohPhase(r),chk=ohDone(r)?ohCheck(r):'',bn=ohBidNote(r),tr=ohTrump(r);
+function ohScore(){if(ohPlayOn()&&S.started&&!S.demo)return ohPlay();const X=OHX(),P=act(),r=ohCur(),N=ohN(),n=ohCards(r),ph=ohPhase(r),chk=ohDone(r)?ohCheck(r):'',bn=ohBidNote(r),tr=ohTrump(r);
   const sc=P.map(ohTot),hi=Math.max(...sc),lead=ohLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null,last=r>=N-1;
   const trumpRow=X.trump?`<div class="ohtrump"><span class="rlab"><b>Trump</b></span>${OHSUITS.map(([k,sym,name])=>`<button data-a="ohtr" data-k="${k}" aria-pressed="${tr===k}" aria-label="${name}" class="${k==='h'||k==='d'?'red':''}${k==='n'?' nt':''}">${sym}</button>`).join('')}</div>`:'';
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1>Round ${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="House rules">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo">↶<span class="undo-w"> Undo</span></button></div>
@@ -7037,6 +7041,114 @@ function ohScore(){const X=OHX(),P=act(),r=ohCur(),N=ohN(),n=ohCards(r),ph=ohPha
   if(WARN)out+=`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
     <div class="sheet-btns"><button class="btn" data-a="warnclose">Go back and check</button><button class="btn primary" data-a="revstart">Reveal anyway</button></div></div></div>`;
   return out}
+/* ================= Oh Hell on the phone: deal, turn up trump, bid (all at once, or around the table with the hook rule), tricks, bots =================
+   S.ohg holds the round being played: {r, phase:'bid'|'play'|'done', dealer, h:{pid:[cards]}, up (turned-up card or null), tr ('S','H','D','C' or 'N'),
+   bids:{pid:n}, bidTurn (hook rule only), t:[{p,c}], turn, n, won:{pid:count}, last:{t,w}, played:[cards]} */
+const OHBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Card Bot'],hard:['Hard','Oh Hell Bot']};
+const ohPlayOn=()=>!!OHX().play;
+const ohG=()=>S.ohg||null;
+const ohRes=()=>!S.lk||S.demo||lkHost();
+const ohNext=pid=>{const P=act(),i=P.findIndex(p=>p.id===pid);return P[(i+1)%P.length].id};
+const ohSortT=(h,tr)=>{const o='CDHS'.split('').filter(s=>s!==tr).concat(tr&&tr!=='N'?[tr]:[]);return h.slice().sort((a,b)=>o.indexOf(a[1])-o.indexOf(b[1])||htRk(a)-htRk(b))};
+function ohDeal(r){const P=act(),n=ohCards(r);let deck=[];for(const s of 'CDHS')for(const k of HTR)deck.push(k+s);htShuffle(deck);
+  const dealer=P[r%P.length].id,h={},start=P.findIndex(p=>p.id===dealer)+1;P.forEach((p,i)=>h[P[(start+i)%P.length].id]=deck.slice(i*n,(i+1)*n));
+  const rest=deck.slice(n*P.length),up=rest.length?rest[0]:null,tr=up?up[1]:'N';for(const id in h)h[id]=ohSortT(h[id],tr);
+  const g={r,phase:'bid',dealer,h,up,tr,bids:{},bidTurn:OHX().hook?ohNext(dealer):null,t:[],turn:null,n:0,won:{},last:null,played:[]};P.forEach(p=>g.won[p.id]=0);
+  if(!OHX().hook)P.forEach(p=>{if(p.bot)g.bids[p.id]=ohBotBid(g,p.id,p.bot)});
+  S.ohg=g;S.ohtr=S.ohtr||[];S.ohtr[r]=tr.toLowerCase();OHSEL=null;OHVIEW=null}
+/* the hook rule: the dealer bids last and can't make the bids add up to the cards dealt */
+const ohBanned=(g,pid)=>{if(!OHX().hook||pid!==g.dealer)return null;const s=Object.values(g.bids).reduce((a,b)=>a+b,0),v=ohCards(g.r)-s;return v>=0?v:null};
+function ohBid(pid,v){const g=ohG();if(!g||g.phase!=='bid'||g.bids[pid]!==undefined)return false;if(OHX().hook&&g.bidTurn!==pid)return false;if(ohBanned(g,pid)===v)return false;
+  g.bids[pid]=v;if(OHX().hook)g.bidTurn=act().every(p=>g.bids[p.id]!==undefined)?null:ohNext(pid);
+  if(act().every(p=>g.bids[p.id]!==undefined)){g.phase='play';g.turn=ohNext(g.dealer)}return true}
+function ohLegal(g,pid){const h=g.h[pid]||[];if(!g.t.length)return h;const f=h.filter(c=>c[1]===g.t[0].c[1]);return f.length?f:h}
+function ohWinner(g,t){const tp=t.filter(x=>x.c[1]===g.tr),pool=tp.length?tp:t.filter(x=>x.c[1]===t[0].c[1]);return pool.reduce((a,x)=>htRk(x.c)>htRk(a.c)?x:a,pool[0]).p}
+function ohPlayCard(pid,c){const g=ohG();if(!g||g.phase!=='play'||g.turn!==pid||!ohLegal(g,pid).includes(c))return false;
+  g.h[pid]=g.h[pid].filter(x=>x!==c);g.t=g.t.concat([{p:pid,c}]);g.turn=g.t.length>=act().length?null:ohNext(pid);playCard();return true}
+function ohCollect(g){const w=ohWinner(g,g.t);g.won[w]=(g.won[w]||0)+1;g.played=(g.played||[]).concat(g.t.map(x=>x.c));g.last={t:g.t,w};g.t=[];g.n++;g.turn=w;
+  if(!Object.values(g.h).some(h=>h.length))ohEndRound(g)}
+function ohEndRound(g){act().forEach(p=>{const R=ohR(p,g.r);R.b=g.bids[p.id];R.t=g.won[p.id]||0});g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
+const ohOverNow=()=>{const g=ohG();return !!g&&g.phase==='done'&&g.r>=ohN()-1};
+
+/* ---------------- bots ---------------- */
+function ohEstimate(g,h){const np=act().length,tr=g.tr;let e=0;
+  for(const c of h){const r=htRk(c),L=h.filter(x=>x[1]===c[1]).length;
+    if(c[1]===tr)e+=r>=12?.95:r>=11?.8:r>=10?.6:r>=7?.4:.25;
+    else e+=(r>=12?.8:r>=11&&L>=2?.45:r>=10&&L>=3?.15:0)*(L>=5?.6:1)}
+  return e*({2:3,3:2.03,4:1.53,5:1.22,6:1.03,7:.82}[np]||1)*.95}
+function ohBotBid(g,pid,lv){const h=g.h[pid],n=h.length;let b=Math.round(ohEstimate(g,h)+(lv==='easy'?(Math.random()*2-1):0));b=Math.max(0,Math.min(n,b));
+  const ban=ohBanned(g,pid);if(ban===b)b=b>0&&(lv==='easy'||ohEstimate(g,h)<b)?b-1:b+1<=n?b+1:b-1;return Math.max(0,Math.min(n,b))}
+function ohBotCard(g,pid,lv){const L=ohLegal(g,pid);if(L.length===1)return L[0];const tr=g.tr;
+  const lo=a=>a.slice().sort((x,y)=>htRk(x)-htRk(y))[0],hi=a=>a.slice().sort((x,y)=>htRk(y)-htRk(x))[0];
+  if(lv==='easy')return Math.random()<.5?lo(L):L[Math.floor(Math.random()*L.length)];
+  const need=(g.won[pid]||0)<g.bids[pid],seen=new Set([...(g.played||[]),...g.t.map(x=>x.c),...(g.up?[g.up]:[])]),mine=g.h[pid]||[];
+  const top=c=>{for(let r=htRk(c)+1;r<13;r++){const x=HTR[r]+c[1];if(!seen.has(x)&&!mine.includes(x))return false}return true};
+  const beats=(c,w)=>c[1]===w[1]?htRk(c)>htRk(w):c[1]===tr;
+  if(!g.t.length){if(need){const sure=L.filter(c=>c[1]!==tr&&(c[0]==='A'||lv==='hard'&&top(c)));if(sure.length)return sure[0];const tt=L.filter(c=>c[1]===tr);if(tt.length&&lv==='hard')return hi(tt);return hi(L)}
+    const safe=L.filter(c=>c[1]!==tr);return lo(safe.length?safe:L)}
+  const win=g.t.reduce((a,x)=>beats(x.c,a.c)?x:a,g.t[0]).c,winners=L.filter(c=>beats(c,win)),losers=L.filter(c=>!beats(c,win)),last=g.t.length===act().length-1;
+  if(need){if(winners.length){if(last)return lo(winners);const ws=winners.filter(c=>c[1]!==tr);if(ws.length&&(lv!=='hard'||ws.some(top)))return hi(ws);return lo(winners)}return lo(L)}
+  if(losers.length)return hi(losers);return lo(L)}
+
+/* ---------------- who is looking at this phone ---------------- */
+let OHSEL=null,OHVIEW=null,OHBOTT=null,OHCOLT=null;
+const ohHumans=()=>act().filter(p=>!p.bot);
+const ohMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
+function ohActive(){const g=ohG();if(!g)return null;const P=act();
+  if(g.phase==='bid')return OHX().hook?(P.find(p=>p.id===g.bidTurn&&!p.bot)||null):P.find(p=>!p.bot&&g.bids[p.id]===undefined)||null;
+  if(g.phase==='play'){const q=P.find(p=>p.id===g.turn);return q&&!q.bot?q:null}return null}
+function ohViewer(){const g=ohG();if(!g)return null;if(S.lk&&!S.demo)return ohMe();const H=ohHumans();if(H.length===1)return H[0];if(!H.length)return null;const a=ohActive();return a&&OHVIEW===a.id?a:null}
+const ohNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(ohHumans().length<2)return null;const a=ohActive();return a&&OHVIEW!==a.id?a:null};
+
+function ohTick(){if(S.game!=='ohell'||!ohPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!ohRes())return;
+  const g=ohG();if(!g||g.r!==ohCur()&&g.phase!=='done'){ohDeal(ohCur());save();render();return}
+  if(g.phase==='bid'&&act().every(p=>g.bids[p.id]!==undefined)){g.phase='play';g.bidTurn=null;g.turn=ohNext(g.dealer);save();render();return}
+  if(g.phase==='bid'){if(OHX().hook){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot&&!OHBOTT)OHBOTT=setTimeout(()=>{OHBOTT=null;const g2=ohG();if(!g2||g2.phase!=='bid'||g2.bidTurn!==q.id)return;ohBid(q.id,ohBotBid(g2,q.id,q.bot));save();render()},700*htSpd())}return}
+  if(g.phase!=='play')return;
+  if(g.t.length>=act().length){if(!OHCOLT)OHCOLT=setTimeout(()=>{OHCOLT=null;const g2=ohG();if(g2&&g2.t.length>=act().length){ohCollect(g2);save();render()}},1300*htSpd());return}
+  const q=act().find(p=>p.id===g.turn);if(q&&q.bot&&!OHBOTT&&!document.querySelector('.sheet-bg'))OHBOTT=setTimeout(()=>{OHBOTT=null;const g2=ohG();if(!g2||g2.phase!=='play'||g2.turn!==q.id)return;
+    ohPlayCard(q.id,ohBotCard(g2,q.id,q.bot));save();render()},(g.t.length?750:1000)*htSpd())}
+
+/* ---------------- drawing ---------------- */
+function ohPlay(){const X=OHX(),P=act(),g=ohG(),r=ohCur(),N=ohN(),sc=P.map(ohTot),hi=Math.max(...sc),lead=ohLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
+  let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Round ${r+1} of ${N}">${r+1}/${N}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
+  <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&(g.turn===q.id||g.bidTurn===q.id)}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${ohHits(q)} made</div></button>`).join('')}</div>`;
+  if(!g)return out+`<div class="panel" style="padding:16px">${waitLoader(ohRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
+  const V=ohViewer(),hand=V?g.h[V.id]||[]:[],me=ohMe(),n=ohCards(g.r),allIn=P.every(p=>g.bids[p.id]!==undefined),showBids=allIn||X.hook;
+  const trName=g.tr==='N'?'No trump':{S:'Spades',H:'Hearts',D:'Diamonds',C:'Clubs'}[g.tr]+' are trump';
+  const sum=P.reduce((a,p)=>a+(g.bids[p.id]||0),0);
+  let status='';const bidTurnP=P.find(p=>p.id===g.bidTurn),turnP=P.find(p=>p.id===g.turn);
+  if(g.phase==='bid'){if(V&&g.bids[V.id]===undefined&&(!X.hook||g.bidTurn===V.id))status=`<b>Your bid${S.lk||ohHumans().length<2?'':', '+esc(nm(V))}.</b> How many tricks will you win, exactly?`;
+    else if(X.hook&&bidTurnP)status=`${bidTurnP.bot?'🤖 ':''}<b>${esc(nm(bidTurnP))}</b> is bidding…`;else status=`Waiting for everyone to bid (${P.filter(p=>g.bids[p.id]!==undefined).length} of ${P.length} in).`}
+  else if(g.phase==='play'){if(!turnP)status='Collecting the trick…';else if(V&&turnP.id===V.id)status=`<b>Your turn${S.lk||ohHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.t.length?`Follow suit if you can (${HTSU[g.t[0].c[1]]}︎).`:'Lead any card.'} You bid ${g.bids[V.id]} and have won ${g.won[V.id]||0}.`;else status=`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is playing…`}
+  else if(g.phase==='done')status=`<b>Round ${r+1} is over.</b>`;
+  out+=`<div class="hfmin htstat"><span>${status}</span><span>${n} card${n===1?'':'s'} each · ${esc(nm(P.find(p=>p.id===g.dealer)||{name:''}))} dealt · ${trName}${showBids&&g.phase!=='done'?` · bids total ${sum} for ${n}`:''}</span></div>`;
+  if(g.phase!=='done'){const showT=g.t.length?g.t:g.last&&g.phase==='play'?g.last.t:[],faded=!g.t.length&&!!g.last,lw=faded&&g.last?P.find(p=>p.id===g.last.w):null;
+    out+=`<div class="ohup">${g.up?`${htCardEl(g.up)}<span><b>Trump: ${trName.replace(' are trump','')}</b><br><small>the turned-up card</small></span>`:`<span><b>No trump this round</b><br><small>every card was dealt</small></span>`}</div>`;
+    out+=ktTable({P,me:V?V.id:me?me.id:null,trick:showT,faded,turn:g.phase==='bid'?g.bidTurn:g.turn,won:lw&&lw.id,label:q=>{const b=g.bids[q.id];return b===undefined?(g.phase==='bid'?'bidding…':''):showBids||(V&&q.id===V.id)?`bid ${b} · won ${g.won[q.id]||0}`:'bid in ✓'},
+      note:lw?`${esc(nm(lw))} took it`:g.phase==='bid'?'Bidding…':''})}
+  if(g.phase==='done'){const rows=P.map(q=>{const c=ohCalc(q,g.r);return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${c?esc(ohWords(c)):''}</small></span><span class="num"><b>${c&&c.v>0?'+':''}${c?c.v:0}</b> · ${ohTot(q)}</span></div>`}).join('');
+    const over=ohOverNow();out+=`<div class="panel htsum">${rows}</div><div class="actions"><div class="in">${over?(ohRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Game over! Waiting for the host to reveal…</span>`):ohRes()?`<button class="btn sm" data-a="finish">End game</button><button class="btn primary" data-a="ohdeal">Deal round ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`;return out+ohModal()}
+  if(V){const L=g.phase==='play'&&g.turn===V.id?ohLegal(g,V.id):[];
+    out+=`<div class="hthand" style="--n:${hand.length}" aria-label="Your cards">${hand.map(c=>htCardEl(c,{btn:true,sel:OHSEL===c,dis:!L.includes(c),cls:[g.phase==='play'?(L.includes(c)?'ok':'no'):'',c[1]===g.tr?'trump':''].join(' ').trim()})).join('').replace(/data-a="htcard"/g,'data-a="ohcard"')}</div>`;
+    if(g.phase==='bid'&&g.bids[V.id]===undefined&&(!X.hook||g.bidTurn===V.id)){const ban=ohBanned(g,V.id);
+      out+=`<div class="panel sdbids"><div class="sdbidgrid">${Array.from({length:n+1},(_,i)=>i).map(v=>`<button class="btn" data-a="ohbid" data-k="${v}" ${ban===v?'disabled':''}>${v}</button>`).join('')}</div>${ban!==null?`<p class="hint" style="margin:6px 0 0">Hook rule: as dealer you can’t bid ${ban}.</p>`:''}</div>`}
+    else if(g.phase==='bid')out+=`<p class="hint" style="text-align:center">You bid <b>${g.bids[V.id]}</b>.${X.hook?'':' Bids show when everyone is in.'}</p>`;
+    else if(L.length)out+=`<p class="hint" style="text-align:center">${OHSEL?'Tap it again to play it.':'Tap a card to play it.'}</p>`}
+  else if(!S.lk&&ohHumans().length>1)out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
+  return out+ohModal()}
+function ohModal(){const a=ohNeedHandoff();if(!a)return '';return `<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="ohp-h" style="${pc(a.color)}">
+  <svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="ohp-h">${esc(nm(a))}</h2>
+  <p class="rlab">${ohG().phase==='bid'?'Time to bid.':'It’s your turn to play a card.'} Everyone else, look away.</p><button class="btn primary wide" data-a="ohshow" data-k="${a.id}">I’m ${esc(nm(a))}, show my cards</button></div></div>`}
+function ohAct(a,b,k){const g=ohG();
+  if(a==='ohshow'){OHVIEW=k;OHSEL=null;return}
+  if(a==='ohbid'){const V=ohViewer();if(!g||!V)return;if(!ohBid(V.id,+k))toast('You can’t bid that.');return}
+  if(a==='ohcard'){if(!g)return;const V=ohViewer();if(!V)return;const c=b.dataset.c;
+    if(g.phase!=='play'||g.turn!==V.id){toast(g.phase==='bid'?'Bidding first.':g.turn?`It’s ${nm(act().find(p=>p.id===g.turn))}’s turn.`:'Hang on…');return}
+    if(!ohLegal(g,V.id).includes(c)){toast('Follow suit: play a '+{C:'club',D:'diamond',S:'spade',H:'heart'}[g.t[0].c[1]]+' if you have one.');return}
+    if(OHSEL!==c){OHSEL=c;return}OHSEL=null;ohPlayCard(V.id,c);return}
+  if(a==='ohdeal'){if(!ohRes())return;S.hr=ohCur()+1;ohDeal(S.hr);window.scrollTo(0,0)}}
+
 function ohRows(p){const rows=[];let tot=0;for(let r=0;r<ohN();r++){const c=ohCalc(p,r);if(!c)continue;tot+=c.v;rows.push({r,c,v:c.v,tot})}return rows}
 const ohWords=c=>c.b===null?'no bid':c.hit?`bid ${c.b} ✓`:`bid ${c.b}, took ${c.t}`;
 function ohHistory(pid){const p=act().find(q=>q.id===pid);if(!p)return '';const rows=ohRows(p).reverse();
@@ -7067,9 +7179,9 @@ function ohGuide(){const X=OHX(),n=act().length,N=ohN();
     ['Scoring',[['Make your bid',`${X.bidV}${X.perBid?` + ${X.perBid===1?'your bid':X.perBid+' per trick bid'}`:''}`],['Make a zero bid',X.zero==='cards'?`${X.zeroV} + the cards dealt that round (zero in round 2 = ${X.zeroV+2})`:X.zero==='flat'?`${X.zeroV}`:`${X.bidV}`],['Miss',X.miss==='zero'?'No points for the round.':X.miss==='diff'?`−${X.missV} for each trick you were off.`:`−${X.missV}.`]]],
     ['Winning',[['After the last round','Highest score wins.']]]])}
 function ohHomeCard(){const st=gamePeek('ohell');
-  return `<div class="game"><div class="gtop"><img class="gart" src="art/ohell-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart ohart&quot; aria-hidden=&quot;true&quot;>♠</div>'"><div><h2>Oh Hell</h2><div class="meta">Card game · bid exactly</div></div></div>
+  return `<div class="game"><div class="gtop"><img class="gart" src="art/ohell-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart ohart&quot; aria-hidden=&quot;true&quot;>♠</div>'"><div><h2>Oh Hell</h2><div class="meta">Play on the phone, or score real cards · bid exactly</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="ohell">Resume game</button><button class="btn" data-a="gnew" data-k="ohell">New game</button></div>`
-      :`<button class="btn primary wide" data-a="gnew" data-k="ohell">Score a game</button>`}</div>`}
+      :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="ohstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="ohstart" data-k="0">Score a game</button></div>`}</div>`}
 const OHDEMOS=[{id:'ohfam',title:'Family night · Oh Hell',tip:'Set bids, then tricks won. Tap the trump suit each round. Press and hold a name for their round-by-round history.',blurb:'Four players, 13 rounds from 1 card up to 13. Mom nails her zero bids, Ben keeps overbidding.'}];
 function ohDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=ohFresh();S.ohx={...OHDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
   // [bid,tricks] per player for rounds 1-13 (tricks add up to the cards dealt)
@@ -8541,7 +8653,7 @@ function render(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();navSync();if(S.game==='yahtzee')yzBotTick();if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();
+  tourApply();navSync();if(S.game==='yahtzee')yzBotTick();if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -8741,6 +8853,7 @@ document.addEventListener('click',e=>{
   if(MUT.has(a))snap();
   if(/^ht(card|pass|deal|msel|show)$/.test(a)&&S.game==='hearts'){htAct(a,b,k);render();return}
   if(/^sd(card|bid|deal|show|look)$/.test(a)&&S.game==='spades'){sdAct(a,b,k);render();return}
+  if(/^oh(card|bid|deal|show)$/.test(a)&&S.game==='ohell'&&ohPlayOn()&&S.started){ohAct(a,b,k);render();return}
   switch(a){
     case 'kpadd':kpAdd(b.dataset.v==='1');return;
     case 'pkadd':p.tickets.push({v:+b.dataset.v,done:b.dataset.d==='1',name:k});TKQ='';render();{const si=document.getElementById('tk-search');if(si)si.focus({preventScroll:true})}return;
@@ -8887,7 +9000,7 @@ document.addEventListener('click',e=>{
     case 'mtdb':{const q=act()[+b.dataset.i],R=mtR(q,mtCur());snap();R.db=!R.db;break}
     case 'mthand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'mtnext':{S.hr=Math.min(mtN()-1,mtCur()+1);window.scrollTo(0,0);break}
-    case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
+    case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
       if(!q.name||defs.includes(base(q.name))){let nmv=nx?BT[nx][1]:'';if(nmv){let j=1;while(S.players.some(o=>o!==q&&o.on&&o.name===(j>1?nmv+' '+j:nmv)))j++;if(j>1)nmv+=' '+j}q.name=nmv}if(nx)q.bot=nx;else delete q.bot;delete q.rid;break}
     case 'htstart':{switchGame('hearts');resetScores();S.started=false;S.screen='map';HTX().play=k==='1';htKeep();window.scrollTo(0,0);break}
     case 'htplaymode':{if(S.started)break;HTX().play=k==='1';if(HTX().play&&act().length>6)toast('Playing on the phone works for 3 to 6 players.');htKeep();break}
@@ -9104,6 +9217,8 @@ document.addEventListener('click',e=>{
     case 'ohdemo':ohDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'ohst':{const X=OHX();X[k]=Math.max(0,X[k]+(+b.dataset.d));ohKeep();break}
     case 'ohset':OHX()[k]=b.dataset.v;ohKeep();break;
+    case 'ohstart':{switchGame('ohell');resetScores();S.started=false;S.screen='map';OHX().play=k==='1';ohKeep();window.scrollTo(0,0);break}
+    case 'ohplaymode':{if(S.started)break;OHX().play=k==='1';ohKeep();break}
     case 'ohtg':{const X=OHX();X[k]=!X[k];ohKeep();break}
     case 'ohreset':S.ohx={...OHDEF};ohKeep();break;
     case 'ohtr':{const r=ohCur();snap();S.ohtr=S.ohtr||[];S.ohtr[r]=S.ohtr[r]===k?null:k;break}
@@ -9408,6 +9523,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='426b8e';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='2c1f9e';</script>
 </body>
 </html>
