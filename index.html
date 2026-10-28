@@ -873,6 +873,18 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .rxpop small{font-weight:800;font-size:13px;background:var(--pc);color:#fff;border-radius:999px;padding:2px 10px;text-shadow:0 1px 1px rgba(0,0,0,.3)}
 @keyframes rxpop{0%{opacity:0;transform:translate(-50%,30px) scale(.4)}12%{opacity:1;transform:translate(-50%,0) scale(1.15)}22%{transform:translate(-50%,0) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-50px) scale(.9)}}
 @media (prefers-reduced-motion:reduce){.rxpop{animation:rxfade 2.6s linear forwards}@keyframes rxfade{0%,75%{opacity:1}100%{opacity:0}}}
+.sbc{position:relative;display:grid;place-items:center;width:52px;aspect-ratio:.72;border-radius:8px;border:2px solid rgba(0,0,0,.2);background:#fff;color:#1d2228;font-family:var(--display);font-weight:900;padding:0;flex:none}
+.sbc b{font-size:24px;line-height:1}.sbc i{position:absolute;bottom:4px;left:0;right:0;text-align:center;font-style:normal;font-size:8.5px;letter-spacing:.06em;font-weight:800}.sbc small{position:absolute;top:2px;right:4px;font-size:10px;font-weight:800;opacity:.75}
+.sb-b{background:#dbe8fb;color:#2257b8;border-color:#2b63c4}.sb-g{background:#dcf2e1;color:#1f7a3a;border-color:#2e8b45}.sb-r{background:#fbe0dc;color:#b3271b;border-color:#d23a2f}.sb-w{background:linear-gradient(135deg,#f6c445,#ef8a3c);color:#3a1e00;border-color:#c56a14}
+.sbempty{border-style:dashed;background:none;color:var(--muted)}.sbempty b{opacity:.5}
+.sbc.sel,.sbdpb.sel .sbc{outline:3px solid var(--accent);outline-offset:2px;transform:translateY(-6px)}
+.sbothers{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin:10px 0}.sbo,.sbme{border:2px solid var(--line);border-left:5px solid var(--pc);border-radius:12px;padding:6px 8px;background:var(--bg)}.sbo.now{border-color:var(--pc)}
+.sbrow{display:flex;gap:6px;align-items:flex-end}.sbrow.mini .sbc{width:26px;border-radius:5px;border-width:1.5px}.sbrow.mini .sbc b{font-size:12px}.sbrow.mini .sbc i{display:none}.sbrow.mini .sbstock .sbc{box-shadow:0 0 0 2px var(--pc)}
+.sbbuild{display:flex;justify-content:center;align-items:flex-end;gap:8px;margin:12px 0;flex-wrap:wrap}.sbbp{background:none;border:0;padding:0;display:grid;justify-items:center;gap:3px}.sbbp small,.sbdp small,.sbstock small,.sbdeck small{font-size:11px;color:var(--muted);font-weight:700}
+.sbbp.go .sbc{outline:3px solid var(--accent);outline-offset:2px}.sbbp.new .sbc{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 60%,transparent)}.sbdeck{display:grid;justify-items:center;gap:3px;width:44px}.sbdeck .gpc{width:40px}
+.sbme{max-width:440px;margin:10px auto 0}.sbme .sbrow{justify-content:center;margin:4px 0 8px}.sbstock.big{display:grid;justify-items:center;gap:3px;margin-right:6px}.sbstock.big .sbc{box-shadow:0 0 0 3px var(--pc)}
+.sbdp{display:grid;justify-items:center;gap:3px}.sbdpb{background:none;border:0;padding:0}.sbdpb.go .sbc{outline:2px dashed var(--accent);outline-offset:2px}
+.sbhand{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;padding:8px 0 2px}.sbhand .sbc{width:56px}
 .unorow{display:flex;justify-content:center;margin:8px 0 0}.unobtn{font-size:22px;font-weight:900;letter-spacing:.04em;padding:10px 26px;background:#d23a2f;color:#fff;border-color:#a12a21}
 .uncatchbtn{background:#d23a2f!important;border-color:#a12a21!important;color:#fff!important}
 .ktseat.uncatch{border-color:#d23a2f!important;box-shadow:0 0 0 3px rgba(210,58,47,.35)}
@@ -1401,7 +1413,7 @@ const padSC=()=>Math.max(1,Math.round(Math.max(1,...act().map(p=>Math.abs(total(
 const LOW=()=>S.game==='phase10'||S.game==='mextrain'||S.game==='uno'&&UNX().mode==='low'||S.game==='golf'||S.game==='skyjo'||S.game==='gnome'&&!gnRW()||S.game==='hearts'||S.game==='crowns'||S.game==='pad'&&!!(S.px||{}).low,RS=p=>S.game==='darts'?dRankKey(p):S.game==='phase10'?ptKey(p):LOW()?-total(p):total(p),RU=(n,p)=>LOW()?-upto(n,p):upto(n,p);
 const total=p=>S.game==='carc'?cTot(p):HFE()?hfTot(p):S.game==='nerts'?nxTot(p):S.game==='pad'?pxTot(p):S.game==='darts'?dTot(p):S.game==='pool'?plTot(p):S.game==='hearts'?htTot(p):S.game==='spades'?sdTot(p):S.game==='rage'?rgTot(p):S.game==='ohell'?ohTot(p):S.game==='uno'?unTot(p):S.game==='munchkin'?mkTot(p):S.game==='crowns'?fcTot(p):S.game==='skipbo'?sbTot(p):S.game==='gnome'?gnTot(p):S.game==='skyjo'?skTot(p):S.game==='wingspan'?wsTot(p):S.game==='wyrmspan'?wyTot(p):S.game==='phase10'?ptTot(p):S.game==='rook'?rkTot(p):S.game==='yahtzee'?yzTot(p):S.game==='mextrain'?mtTot(p):S.game==='catan'?ctTot(p):S.game==='golf'?gfTot(p):S.game==='tripoley'?tpTot(p):S.game==='quacks'?qkTot(p):hsPts(p)+routePts(p)+tkNet(p)+extrasPts(p)+bonusPts(p);
 
-function resetScores(){delete S.lkvote;delete S.ung;delete S.pst;delete S.lkq;delete S.lkqa;delete S.gpg;delete S.gpprev;delete S.rgrage;delete S.htg;delete S.sdg;delete S.ohg;delete S.rkg;delete S.rgg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
+function resetScores(){delete S.lkvote;delete S.ung;delete S.sbg;delete S.pst;delete S.lkq;delete S.lkqa;delete S.gpg;delete S.gpprev;delete S.rgrage;delete S.htg;delete S.sdg;delete S.ohg;delete S.rkg;delete S.rgg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
 let UNDO=[],KP='',RULESHEET=false;
 if(S.hideTotals===undefined)S.hideTotals=true;
 function setMap(k){
@@ -2021,7 +2033,7 @@ function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK||LKSWAP)return;if(lkHost()&&L
 /* "Your turn!" on a linked phone: a strong buzz, plus a notification if the app is in the background (and notifications are allowed) */
 let LKTURN=null;
 function lkTurnOwner(){if(!S.started||S.finished)return null;const P=act();if(!P.length)return null;
-  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='rage')return rgPlayOn()&&S.rgg?(S.rgg.phase==='bid'?(RGX().bidAll?null:S.rgg.bidTurn):S.rgg.phase==='play'?S.rgg.turn:null)||null:null;if(S.game==='golf'||S.game==='skyjo')return gpOn()&&S.gpg&&S.gpg.phase==='play'?S.gpg.turn||null:null;if(S.game==='uno')return unPlayOn()&&S.ung&&S.ung.phase==='play'?(S.ung.ask?S.ung.ask.p:S.ung.drawn?S.ung.drawn.p:S.ung.turn)||null:null;if(S.game==='rook')return rkPlayOn()&&S.rkg?(S.rkg.phase==='bid'?S.rkg.bidTurn:S.rkg.phase==='nest'?S.rkg.bidder:S.rkg.phase==='play'?S.rkg.turn:null)||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
+  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='rage')return rgPlayOn()&&S.rgg?(S.rgg.phase==='bid'?(RGX().bidAll?null:S.rgg.bidTurn):S.rgg.phase==='play'?S.rgg.turn:null)||null:null;if(S.game==='skipbo')return sbOn()&&S.sbg&&S.sbg.phase==='play'?S.sbg.turn||null:null;if(S.game==='golf'||S.game==='skyjo')return gpOn()&&S.gpg&&S.gpg.phase==='play'?S.gpg.turn||null:null;if(S.game==='uno')return unPlayOn()&&S.ung&&S.ung.phase==='play'?(S.ung.ask?S.ung.ask.p:S.ung.drawn?S.ung.drawn.p:S.ung.turn)||null:null;if(S.game==='rook')return rkPlayOn()&&S.rkg?(S.rkg.phase==='bid'?S.rkg.bidTurn:S.rkg.phase==='nest'?S.rkg.bidder:S.rkg.phase==='play'?S.rkg.turn:null)||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
   if(S.rules&&S.rules.live||S.game==='carc')return S.turnId||null;return null}
 function lkTurnCheck(){const o=lkTurnOwner(),was=LKTURN;LKTURN=o;if(!o||o===was||!S.lk||o!==S.lk.me||was===null)return;
   vibe([250,120,250,120,400]);toast('Your turn!');
@@ -3767,11 +3779,11 @@ function nxPlayers(){const m=M(),n=act().length,sl=S.players.slice(0,8);
   const rows=sl.map((p,i)=>`<div class="prow ${p.on?'':'off'}">
     <button class="swatch" style="background:var(--t-${p.color});${pc(p.color)}" data-a="colpick" data-i="${i}" aria-expanded="${COLPICK===i}" aria-label="Color ${CNAME[p.color]}, tap to choose a color"></button>
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="Player ${i+1}" aria-label="Player ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
-    ${(S.game==='yahtzee'&&yzRoller()||S.game==='hearts'&&htPlayOn()||S.game==='spades'&&sdPlayOn()||S.game==='ohell'&&ohPlayOn()||S.game==='rook'&&rkPlayOn()||S.game==='rage'&&rgPlayOn()||S.game==='uno'&&unPlayOn()||(S.game==='golf'||S.game==='skyjo')&&gpOn())&&(!S.lk||lkHost()&&!S.started)&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`🤖<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
+    ${(S.game==='yahtzee'&&yzRoller()||S.game==='hearts'&&htPlayOn()||S.game==='spades'&&sdPlayOn()||S.game==='ohell'&&ohPlayOn()||S.game==='rook'&&rkPlayOn()||S.game==='rage'&&rgPlayOn()||S.game==='uno'&&unPlayOn()||(S.game==='golf'||S.game==='skyjo')&&gpOn()||S.game==='skipbo'&&sbOn())&&(!S.lk||lkHost()&&!S.started)&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`🤖<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button></div>${COLPICK===i?colPicker(p,i):''}`).join('');
   const fam=H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the seats.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="map">‹ House rules</button><h1>Players</h1><span class="sub num">${n}</span></div>${steps(2)}
-  ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${(S.game==='golf'||S.game==='skyjo')&&gpOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='uno'&&unPlayOn()?'2 to 10 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rage'&&rgPlayOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rook'&&rkPlayOn()?'4 players: seats 1 & 3 are partners against seats 2 & 4.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='ohell'&&ohPlayOn()?'2 to 7 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='hearts'?(htPlayOn()?(S.lk?'3 to 6 players.':'3 to 6 players; 4 is the classic game. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'3 to 7 players; 4 is the classic game.'):S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk||!yzRoller()?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':S.game==='spades'?(SDX().teams?'4 players: seats 1 & 3 are partners against seats 2 & 4.':'3 to 5 players, everyone alone.')+(S.lk?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
+  ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${S.game==='skipbo'&&sbOn()?'2 to 6 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):(S.game==='golf'||S.game==='skyjo')&&gpOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='uno'&&unPlayOn()?'2 to 10 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rage'&&rgPlayOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rook'&&rkPlayOn()?'4 players: seats 1 & 3 are partners against seats 2 & 4.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='ohell'&&ohPlayOn()?'2 to 7 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='hearts'?(htPlayOn()?(S.lk?'3 to 6 players.':'3 to 6 players; 4 is the classic game. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'3 to 7 players; 4 is the classic game.'):S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk||!yzRoller()?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':S.game==='spades'?(SDX().teams?'4 players: seats 1 & 3 are partners against seats 2 & 4.':'3 to 5 players, everyone alone.')+(S.lk?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
   ${S.game==='quacks'?firstPicker():''}
   <div class="actions"><div class="in"><button class="btn primary" data-a="start">${S.started?'Back to scoring':'Start scoring'}</button></div></div>`}
 
@@ -5526,7 +5538,7 @@ function fcDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    Each hand: pick who emptied their stock pile, enter cards left in
    everyone else's stock. p.sb[r] = {won:bool, left:number|null}
    ===================================================================== */
-const SBDEF={mode:'points',end:'points',target:500,winsT:3,hands:5,winB:25,perCard:5,stock:'auto',stockN:30,teams:false};
+const SBDEF={play:0,mode:'points',end:'points',target:500,winsT:3,hands:5,winB:25,perCard:5,stock:'auto',stockN:30,teams:false};
 const SBX=()=>{if(!S.sbx)S.sbx={...SBDEF};const X=S.sbx;for(const k in SBDEF)if(X[k]===undefined)X[k]=SBDEF[k];return X};
 function sbSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.sbx'))}catch(e){}return Object.assign({...SBDEF},x||{})}
 function sbKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.sbx',JSON.stringify(SBX()))}catch(e){}}
@@ -5557,12 +5569,13 @@ function sbSetup(){const X=SBX();
   const W=X.mode==='wins';
   return `<div class="bar"><h1>Skip-Bo</h1></div><img class="hero hfhero" src="art/skipbo-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">Your house rules, remembered for next time. ${usualUI('skipbo')}</p>
-  ${sec('Who plays',seg('teams',[['false','Everyone alone'],['true','Partners']]),X.teams?'Partners play from both stock piles; a team wins when both are empty.':'2 to 6 players.')}
+  ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([vv,t])=>`<button data-a="sbplaymode" data-k="${vv}" aria-pressed="${!!X.play===!!vv}">${t}</button>`).join('')}</div>`,S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals the stock piles and runs every turn: building piles, discard piles and Skip-Bo wilds. Computer players, pass-and-play and linked phones all work. Everyone plays alone.':'Play with real cards and enter who went out and the cards left. Just score keeping.')}
+  ${X.play?'':sec('Who plays',seg('teams',[['false','Everyone alone'],['true','Partners']]),X.teams?'Partners play from both stock piles; a team wins when both are empty.':'2 to 6 players.')}
   ${sec('Stock pile',seg('stock',[['auto','By players'],['set','Set it']])+(X.stock==='set'?row('Cards in each stock pile','',st('stockN',X.stockN,5,50,5,'cards')):''),X.stock==='auto'?`30 cards for 2 to 4 players, 20 for 5 or more. Right now: ${sbStock()}.`:'The printed short game uses 10.')}
   ${sec('Scoring',seg('mode',[['points','Points'],['wins','Count wins']])+(W?'':row('Winning a hand','',st('winB',X.winB,0,100,5,'points'))+row('Each card left','in other stock piles',st('perCard',X.perCard,0,25,1,'points'))),W?'Each hand’s winner gets 1 win.':`The hand’s winner scores ${X.winB} plus ${X.perCard} for every card left in the other ${X.teams?'teams’':'players’'} stock piles.`)}
   ${sec('How the game ends',seg('end',[['points',W?'First to wins':'To a score'],['hands','Set hands'],['open','Until we stop']])+(X.end==='points'?(W?row('Wins needed','',st('winsT',X.winsT,1,20,1,'wins')):row('Play to','points',st('target',X.target,50,2000,50,'points'))):X.end==='hands'?row('Number of hands','',st('hands',X.hands,1,30,1,'hands')):''),'')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: ${X.teams?'Teams':'Players'} ›</button></div></div>`}
-function sbScore(){const X=SBX(),P=act(),r=sbCur(),N=sbN(),W=X.mode==='wins',over=sbOver(),w=sbWinner(r),mx=sbMaxLeft();
+function sbScore(){if(sbOn()&&S.started&&!S.demo)return sbPlayUI();const X=SBX(),P=act(),r=sbCur(),N=sbN(),W=X.mode==='wins',over=sbOver(),w=sbWinner(r),mx=sbMaxLeft();
   const sc=P.map(sbTot),hi=Math.max(...sc),lead=sbLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
   const last=X.end==='hands'?r>=X.hands-1:over;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1>Hand ${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo">↶<span class="undo-w"> Undo</span></button></div>
@@ -5589,7 +5602,8 @@ function sbChecks(){const X=SBX(),w=[];if(X.end==='points'&&!sbOver())w.push(`No
 function sbAwards(){const P=act(),out=[],add=(title,f,min,why)=>{const vals=P.map(f),best=Math.max(...vals);if(best<min)return;const ps=P.filter((p,i)=>vals[i]===best);if(ps.length<P.length)out.push({title,ps,why:why(best)})};
   add('Hand winner',sbWins,2,v=>`won ${v} hands`);
   add('So close',p=>sbRows(p).filter(x=>!x.won&&x.left>0&&x.left<=2).length,1,v=>`had 2 or fewer cards left ${v===1?'once':v+' times'}`);
-  if(SBX().mode!=='wins')add('Big payday',p=>Math.max(0,...sbRows(p).map(x=>x.v)),100,v=>`scored ${v} in one hand`);return out}
+  if(SBX().mode!=='wins')add('Big payday',p=>Math.max(0,...sbRows(p).map(x=>x.v)),100,v=>`scored ${v} in one hand`);
+  if(SBX().play)add('Pile finisher',p=>pstv('sbdone',p),3,v=>`finished ${v} building piles`);return out}
 function sbRevSteps(){return Array.from({length:sbPlayed()},(_,r)=>({name:`Hand ${r+1}`,f:p=>sbHand(p,r)}))}
 function sbResults(){const rk=ranking();
   return `<div class="bar"><button class="back" data-a="go" data-s="score">‹ Score sheet</button><h1>Results</h1></div>
@@ -5599,6 +5613,7 @@ function sbResults(){const rk=ranking();
   <div class="actions"><div class="in">${S.demo?'<button class="btn" data-a="revstart">Watch the reveal again</button><button class="btn primary" data-a="demoexit">Exit sample</button>':`<button class="btn primary" data-a="rematch">Rematch, same ${SBX().teams?'teams':'players'}</button>`}</div></div>`}
 function sbGuide(){const X=SBX(),n=sbPeople(),W=X.mode==='wins';
   return guideSheet('Skip-Bo',[
+    X.play?['On the phone',[['Playing a card','Tap a card in your hand, your stock pile or the top of a discard pile, then tap a building pile.'],['Ending your turn','Tap a hand card, then one of your 4 discard piles.'],['Wild cards','A Skip-Bo card plays as whatever number the pile needs.'],['Out of cards?','If the draw pile and finished piles ever run out, the building piles are shuffled into a new draw pile.'],['Computer players','Easy, Normal and Hard. Everyone plays alone on the phone.']]]:null,
     ['Setup',[['Cards','162 cards: twelve each of 1 through 12, plus 18 wild Skip-Bo cards. Take out any blank cards.'],
       ['Stock pile',`Deal ${sbStock()} cards face down to each player${X.stock==='auto'?` (30 for 2 to 4 players, 20 for 5 or more)`:''}. Flip the top card face up.`],
       ['Draw pile','The rest of the deck goes face down in the middle.'],X.teams?['Partners','Sit across from each other. You can play from your partner’s stock and discard piles too, but no talking about moves.']:null]],
@@ -5611,7 +5626,7 @@ function sbGuide(){const X=SBX(),n=sbPeople(),W=X.mode==='wins';
 function sbHomeCard(){const st=gamePeek('skipbo');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/skipbo-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart sbart&quot; aria-hidden=&quot;true&quot;>12</div>'"><div><h2>Skip-Bo</h2><div class="meta">Card game · empty your stock pile</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="skipbo">Resume game</button><button class="btn" data-a="gnew" data-k="skipbo">New game</button></div>`
-      :`<button class="btn primary wide" data-a="gnew" data-k="skipbo">Score a game</button>`}</div>`}
+      :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="sbstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="sbstart" data-k="0">Score a game</button></div>`}</div>`}
 const SBDEMOS=[{id:'sbfam',title:'Family night · Skip-Bo',tip:'Tap who emptied their stock pile, then type everyone else’s cards left. Press and hold a name for their history.',blurb:'Three players racing to 500. Lily wins the first two hands, then Dad catches a monster hand with 41 cards left on the table.'}];
 function sbDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=sbFresh();S.sbx={...SBDEF};S.demo=id;S.players.forEach((p,i)=>p.on=i<3);const P=S.players.slice(0,3);['Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
   const D=[[2,[9,0,null]],[2,[14,6,null]],[0,[null,18,23]],[1,[3,null,12]],[0,[null,7,4]],[2,[11,5,null]],[0,[null,15,20]]];
@@ -8138,7 +8153,7 @@ function unModal(){const a=unNeedHandoff();if(!a)return '';const g=ung();return 
    The guest tries the move on a throwaway copy first, so it can say right away if the move isn't allowed. */
 let LKQN=0;
 const lkqOn=()=>lkGuest()&&!S.demo;
-const lkqKey=()=>{const g={uno:S.ung,golf:S.gpg,skyjo:S.gpg,hearts:S.htg,spades:S.sdg,ohell:S.ohg,rook:S.rkg,rage:S.rgg}[S.game];return S.game+':'+(g?g.r:'-')};
+const lkqKey=()=>{const g={uno:S.ung,golf:S.gpg,skyjo:S.gpg,hearts:S.htg,spades:S.sdg,ohell:S.ohg,rook:S.rkg,rage:S.rgg,skipbo:S.sbg}[S.game];return S.game+':'+(g?g.r:'-')};
 const LKQF={
   unPlay:(pid,c,o)=>{const g=ung();if(!g)return false;if((g.h[pid]||[]).length===2&&!unCallOn())g.uno[pid]=1;const r=unPlayCard(pid,c,o);unAfter(g);return r},
   unDraw:pid=>{const g=ung();if(!g)return false;const r=unDrawAct(g,pid);unAfter(g);return r},
@@ -8170,7 +8185,9 @@ const LKQF={
   rkNest:(pid,cs,tr)=>rkSetNest(pid,cs,tr)!==false,
   rkPlay:(pid,c)=>rkPlayCard(pid,c)!==false,
   rgBid:(pid,v)=>rgBid(pid,v)!==false,
-  rgPlay:(pid,c,col,num)=>rgPlayCard(pid,c,col,num)!==false};
+  rgPlay:(pid,c,col,num)=>rgPlayCard(pid,c,col,num)!==false,
+  sbPlay:(pid,src,bi)=>{const g=sbG();return !!g&&sbPlay(g,pid,src,bi)},
+  sbDiscard:(pid,c,i)=>{const g=sbG();return !!g&&sbDiscard(g,pid,c,i)}};
 function lkq(fn,...args){if(!lkqOn())return LKQF[fn](...args);const snap=JSON.stringify(S);let r;try{r=LKQF[fn](...args)}catch(e){r=false}S=JSON.parse(snap);
   if(r===true){const me=S.lk.me;if(!me)return r;const q=(S.lkq=S.lkq||{}),done=(S.lkqa||{})[me]||0,mine=(q[me]||[]).filter(e=>e.id>done);mine.push({id:Date.now()*1000+(LKQN++%1000),k:lkqKey(),f:fn,a:args});q[me]=mine}
   return r}
@@ -8415,6 +8432,116 @@ function gpAct(a,b,k){const g=gpG();if(!g)return;const V=gpViewer();
     toast(g.turn===V.id?'Take the discard or draw from the deck first.':`It’s ${nmid(g.turn)}’s turn.`);return}
   if(a==='gpdeck'){if(!lkq('gpTake',V.id,'deck'))toast(g.turn!==V.id?`It’s ${nmid(g.turn)}’s turn.`:'Finish this move first.');return}
   if(a==='gpdisc'){if(g.hold&&g.hold.p===V.id){if(!lkq('gpToss',V.id))toast('You took this card from the discard pile, so it has to go in your grid.');return}if(!lkq('gpTake',V.id,'disc'))toast(g.turn!==V.id?`It’s ${nmid(g.turn)}’s turn.`:'Finish this move first.');return}}
+
+
+/* ================= Skip-Bo on the phone =================
+   Everyone has a stock pile (top card face up), a hand of 5 and 4 discard piles. In the middle are 4 building piles that go 1 up to 12.
+   On your turn draw up to 5, play onto the building piles from your hand, your stock top or your discard tops (Skip-Bo cards are wild),
+   and end by discarding a hand card onto one of your discard piles. Empty your hand mid-turn and you draw 5 more. Empty your stock pile to win.
+   S.sbg = {_atom, r, h:{pid:[ids]}, st:{pid:[ids, last = top]}, dp:{pid:[[ids]x4]}, bp:[[ids]x4], deck, done, turn, dealer, phase, msg, n, win, last} */
+const SBBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Card Bot'],hard:['Hard','Stack Bot']};
+const sbOn=()=>!!SBX().play;
+const sbG=()=>S.sbg||null;
+const sbRes=()=>!S.lk||S.demo||lkHost();
+const sbVal=c=>{const k=String(c).split('#')[0];return k==='W'?0:+k};
+const sbWild=c=>String(c)[0]==='W';
+const sbNeed=pile=>pile.length+1;
+const sbFits=(c,pile)=>pile.length<12&&(sbWild(c)||sbVal(c)===pile.length+1);
+const sbTop=a=>a&&a.length?a[a.length-1]:null;
+function sbPull(g){if(!g.deck.length&&g.done.length){g.deck=htShuffle(g.done);g.done=[];g.msg+=' The finished piles are shuffled into a new draw pile.'}
+  if(!g.deck.length&&g.bp.some(x=>x.length)){g.deck=htShuffle(g.bp.flat());g.bp=[[],[],[],[]];g.msg+=' The draw pile ran out, so the building piles are shuffled into a new one.'}return g.deck.pop()||null}
+function sbFill(g,pid){const h=g.h[pid];while(h.length<5){const c=sbPull(g);if(!c)break;h.push(c)}}
+function sbDeal(r){const P=act(),dealer=P[r%P.length].id,L=[];for(let s=0;s<12;s++)for(let v=1;v<=12;v++)L.push(v);for(let i=0;i<18;i++)L.push('W');
+  const g={_atom:1,r,h:{},st:{},dp:{},bp:[[],[],[],[]],deck:htShuffle(L.map((v,i)=>v+'#'+i)),done:[],turn:null,dealer,phase:'play',msg:'',n:0,win:null,last:null};
+  const n=sbStock();P.forEach(p=>{g.st[p.id]=[];g.dp[p.id]=[[],[],[],[]];g.h[p.id]=[]});for(let i=0;i<n;i++)P.forEach(p=>g.st[p.id].push(g.deck.pop()));
+  g.turn=P[(P.findIndex(p=>p.id===dealer)+1)%P.length].id;sbFill(g,g.turn);g.msg=`${nmid(dealer)} dealt ${n} cards to every stock pile. ${nmid(g.turn)} goes first.`;S.sbg=g;SBSEL=null;SBVIEW=null}
+const sbNext=(g,pid)=>{const P=act(),i=P.findIndex(p=>p.id===pid);return P[(i+1)%P.length].id};
+/* src: {f:'hand',c} | {f:'stock'} | {f:'disc',i} */
+function sbCard(g,pid,src){if(!src)return null;if(src.f==='hand')return (g.h[pid]||[]).includes(src.c)?src.c:null;if(src.f==='stock')return sbTop(g.st[pid]);if(src.f==='disc')return sbTop((g.dp[pid]||[])[src.i]);return null}
+function sbPlay(g,pid,src,bi){if(!g||g.phase!=='play'||g.turn!==pid)return false;const c=sbCard(g,pid,src),pile=g.bp[bi];if(!c||!pile||!sbFits(c,pile))return false;
+  if(src.f==='hand')g.h[pid].splice(g.h[pid].indexOf(c),1);else if(src.f==='stock')g.st[pid].pop();else g.dp[pid][src.i].pop();
+  const v=sbNeed(pile);pile.push(c);g.n++;g.last={bi,p:pid};g.msg=`${nmid(pid)} played ${sbWild(c)?`a Skip-Bo card as ${v}`:'a '+v}${src.f==='stock'?' from the stock pile':src.f==='disc'?' from a discard pile':''}.`;
+  if(src.f==='stock')pst('sbstock',pid);
+  if(pile.length===12){g.done.push(...pile);g.bp[bi]=[];g.msg+=' That pile is complete!';pst('sbdone',pid)}
+  if(!g.st[pid].length){sbEnd(g,pid);return true}
+  if(!g.h[pid].length){sbFill(g,pid);g.msg+=` Hand empty: ${nmid(pid)} draws 5 more.`}
+  return true}
+function sbDiscard(g,pid,c,i){if(!g||g.phase!=='play'||g.turn!==pid||!(g.h[pid]||[]).includes(c)||!(i>=0&&i<4))return false;g.h[pid].splice(g.h[pid].indexOf(c),1);g.dp[pid][i].push(c);g.n++;
+  g.msg=`${nmid(pid)} discarded ${sbWild(c)?'a Skip-Bo card':'a '+sbVal(c)} and ended the turn.`;const nx=sbNext(g,pid);g.turn=nx;sbFill(g,nx);g.last=null;return true}
+function sbEnd(g,w){act().forEach(p=>{const R=sbR(p,g.r);R.won=p.id===w;R.left=p.id===w?0:g.st[p.id].length});g.phase='done';g.win=w;g.turn=null;S.hr=Math.max(S.hr||0,g.r);g.msg+=` ${nmid(w)} played the last stock card and wins the hand!`}
+
+/* ---------------- computer players ---------------- */
+function sbSources(g,pid){const out=[];(g.h[pid]||[]).forEach(c=>out.push({f:'hand',c}));(g.dp[pid]||[]).forEach((d,i)=>{if(d.length)out.push({f:'disc',i})});return out}
+/* can the stock top be reached on pile bi using cards we hold? returns the first move of that chain */
+function sbChain(g,pid,bi){const s=sbTop(g.st[pid]);if(!s)return null;const pile=g.bp[bi];if(sbFits(s,pile))return {src:{f:'stock'},bi};if(sbWild(s))return null;
+  const need=sbVal(s)-pile.length-1;if(need<1||need>6)return null;const hand=(g.h[pid]||[]).slice(),tops=(g.dp[pid]||[]).map(sbTop);let wilds=hand.filter(sbWild).length;let first=null;
+  for(let v=pile.length+1;v<sbVal(s);v++){const hi=hand.findIndex(c=>!sbWild(c)&&sbVal(c)===v);if(hi>=0){if(!first)first={src:{f:'hand',c:hand[hi]},bi};hand.splice(hi,1);continue}
+    const di=tops.findIndex(c=>c&&!sbWild(c)&&sbVal(c)===v);if(di>=0){if(!first)first={src:{f:'disc',i:di},bi};tops[di]=null;continue}
+    if(wilds>0){wilds--;const wc=hand.find(sbWild);if(!first)first={src:{f:'hand',c:wc},bi};hand.splice(hand.indexOf(wc),1);continue}return null}
+  return first}
+function sbBotStep(g,q){const pid=q.id,lv0=q.bot,lv=lv0==='easy'&&Math.random()<.55?'normal':lv0;if(g.turn!==pid||g.phase!=='play')return;const P=act(),nx=sbNext(g,pid),ns=sbTop(g.st[nx]);
+  const helps=(c,bi)=>{/* would this play leave a pile the next player's stock card fits? */if(!ns||lv!=='hard')return false;const after=g.bp[bi].length+1;return after<12&&(sbWild(ns)||sbVal(ns)===after+1)};
+  /* 1-2: the stock pile first, directly or by building toward it */
+  if(lv!=='easy'){for(let bi=0;bi<4;bi++){const m=sbChain(g,pid,bi);if(m&&m.src.f==='stock'){sbPlay(g,pid,m.src,bi);return}}
+    let best=null;for(let bi=0;bi<4;bi++){const m=sbChain(g,pid,bi);if(m){const c=sbCard(g,pid,m.src);if(!best||!sbWild(c))best=m}}if(best){sbPlay(g,pid,best.src,best.bi);return}}
+  /* 3-4: clear discard tops, then hand cards (no wilds), as long as it doesn't set up the next player */
+  const moves=[];sbSources(g,pid).forEach(src=>{const c=sbCard(g,pid,src);if(!c)return;if(src.f==='stock')return;for(let bi=0;bi<4;bi++)if(sbFits(c,g.bp[bi]))moves.push({src,bi,c})});
+  if(lv==='easy'){const st=sbTop(g.st[pid]);for(let bi=0;bi<4;bi++)if(st&&sbFits(st,g.bp[bi])){sbPlay(g,pid,{f:'stock'},bi);return}
+    const ok=moves.filter(m=>!sbWild(m.c));if(ok.length&&Math.random()<.7){const m=ok[Math.floor(Math.random()*ok.length)];sbPlay(g,pid,m.src,m.bi);return}}
+  else{const good=moves.filter(m=>!sbWild(m.c)&&!helps(m.c,m.bi)).sort((a,b)=>(a.src.f==='disc'?-1:0)-(b.src.f==='disc'?-1:0));if(good.length){sbPlay(g,pid,good[0].src,good[0].bi);return}}
+  /* 5: discard to end the turn: keep wilds, stack downward, keep a pile free */
+  const h=g.h[pid];if(!h.length){const nx2=sbNext(g,pid);g.turn=nx2;sbFill(g,nx2);return}
+  const pool=h.filter(c=>!sbWild(c)).length?h.filter(c=>!sbWild(c)):h;let best=null;
+  pool.forEach(c=>g.dp[pid].forEach((d,i)=>{const t=sbTop(d);let s=0;if(!t)s=d===g.dp[pid].find(x=>!x.length)?3:-9;else if(!sbWild(t)&&sbVal(t)===sbVal(c)+1)s=8;else if(!sbWild(t)&&sbVal(t)===sbVal(c))s=6;else if(!sbWild(t)&&sbVal(t)>sbVal(c))s=4-(sbVal(t)-sbVal(c))*.3;else s=-(sbVal(c)-sbVal(t||0))*.5;
+    s+=sbVal(c)/12;if(lv==='easy')s=Math.random();if(!best||s>best.s)best={s,c,i}}));
+  sbDiscard(g,pid,best.c,best.i)}
+
+/* ---------------- who is looking at this phone ---------------- */
+let SBSEL=null,SBVIEW=null,SBBOTT=null;
+const sbMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
+const sbHumans=()=>act().filter(p=>!p.bot);
+function sbViewer(){const g=sbG();if(!g)return null;if(S.lk&&!S.demo)return sbMe();const H=sbHumans();if(H.length===1)return H[0];if(!H.length)return null;const t=act().find(p=>p.id===g.turn);return t&&!t.bot&&SBVIEW===t.id?t:null}
+const sbNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=sbG();if(!g||g.phase!=='play'||sbHumans().length<2)return null;const t=act().find(p=>p.id===g.turn);return t&&!t.bot&&SBVIEW!==t.id?t:null};
+function sbTick(){if(S.game!=='skipbo'||!sbOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!sbRes())return;if(lkqRun()){save();render();return}
+  const g=sbG(),cur=sbCur();if(!g||g.r!==cur&&g.phase!=='done'){sbDeal(cur);save();render();return}
+  if(g.phase!=='play')return;const q=act().find(p=>p.id===g.turn);
+  if(q&&q.bot&&!SBBOTT&&!document.querySelector('.sheet-bg'))SBBOTT=setTimeout(()=>{SBBOTT=null;const g2=sbG();if(g2&&g2.phase==='play'&&g2.turn===q.id){sbBotStep(g2,q);save()}render()},700*htSpd())}
+
+/* ---------------- drawing ---------------- */
+function sbCardEl(c,o={}){const tag=o.btn?'button':'span';if(!c)return `<${tag} class="sbc sbempty${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="${o.lab||'Empty'}">${o.inner||''}</${tag}>`;
+  const w=sbWild(c),v=sbVal(c),k=w?'w':v<=4?'b':v<=8?'g':'r';
+  return `<${tag} class="sbc sb-${k}${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="${w?(o.as?'Skip-Bo card, as '+o.as:'Skip-Bo wild card'):v}${o.lab?', '+o.lab:''}"><b>${w?(o.as||'★'):v}</b>${w?'<i>WILD</i>':''}${o.cnt?`<small>${o.cnt}</small>`:''}</${tag}>`}
+function sbPlayUI(){const X=SBX(),P=act(),g=sbG(),r=sbCur(),sc=P.map(sbTot),hi=Math.max(...sc),lead=sbLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
+  let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">#${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
+  <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&g.turn===q.id}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${g&&g.st[q.id]?g.st[q.id].length+' in stock':''}</div></button>`).join('')}</div>`;
+  if(!g)return out+`<div class="panel" style="padding:16px">${waitLoader(sbRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
+  const V=sbViewer(),turnP=P.find(p=>p.id===g.turn),mine=V&&g.turn===V.id,sel=mine?SBSEL:null,selC=sel?sbCard(g,V.id,sel):null;
+  let status=g.phase==='done'?`<b>Hand ${r+1} is over.</b>`:mine?(selC?`<b>Tap a building pile</b> to play the ${sbWild(selC)?'Skip-Bo card':sbVal(selC)}${sel.f==='hand'?', or one of your discard piles to discard it and end your turn':''}.`:`<b>Your turn${S.lk||sbHumans().length<2?'':', '+esc(nm(V))}.</b> Tap a card from your hand, stock pile or discard piles.`):turnP?`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is playing…`:'';
+  out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
+  out+=`<div class="sbothers">${P.filter(p=>!V||p.id!==V.id).map(p=>`<div class="sbo${g.turn===p.id?' now':''}" style="${pc(p.color)}"><div class="gpon"><b>${p.bot?'🤖 ':''}${esc(nm(p))}</b><span class="num">${g.st[p.id].length} left · ${g.h[p.id].length} in hand</span></div>
+    <div class="sbrow mini"><span class="sbstock">${sbCardEl(sbTop(g.st[p.id]),{lab:'stock top'})}</span>${g.dp[p.id].map(d=>sbCardEl(sbTop(d),{cnt:d.length>1?d.length:'',lab:'discard pile'})).join('')}</div></div>`).join('')}</div>`;
+  /* building piles */
+  out+=`<div class="sbbuild">${g.bp.map((pile,i)=>{const t=sbTop(pile),can=mine&&selC&&sbFits(selC,pile);return `<button class="sbbp${can?' go':''}${g.last&&g.last.bi===i?' new':''}" data-a="sbpbuild" data-i="${i}" ${mine&&selC?'':'aria-disabled="true"'} aria-label="Building pile ${i+1}, ${pile.length?'up to '+pile.length:'empty'}">${t?sbCardEl(t,{as:sbWild(t)?String(pile.length):''}):sbCardEl(null,{inner:'<b>1</b>',lab:'needs a 1'})}<small>${pile.length?`next: ${pile.length+1}`:'start: 1'}</small></button>`}).join('')}
+    <span class="sbdeck"><span class="gpc gpback"></span><small>${g.deck.length} left</small></span></div>`;
+  if(V&&g.phase==='play'){const h=g.h[V.id]||[];const st=g.st[V.id];
+    out+=`<div class="sbme" style="${pc(V.color)}"><div class="gpon"><b>${S.lk||sbHumans().length<2?'You':esc(nm(V))}</b><span class="num">${st.length} card${st.length===1?'':'s'} in your stock</span></div>
+      <div class="sbrow"><div class="sbstock big">${sbCardEl(sbTop(st),{btn:mine&&!!st.length,attr:' data-a="sbpsrc" data-f="stock"',cls:sel&&sel.f==='stock'?'sel':'',lab:'your stock pile',cnt:st.length})}<small>Stock</small></div>
+      ${g.dp[V.id].map((d,i)=>`<div class="sbdp"><button class="sbdpb${sel&&sel.f==='disc'&&sel.i===i?' sel':''}${mine&&selC&&sel.f==='hand'?' go':''}" data-a="sbpdisc" data-i="${i}" ${mine?'':'aria-disabled="true"'} aria-label="Discard pile ${i+1}${d.length?', '+d.length+' cards':' empty'}">${sbCardEl(sbTop(d),{cnt:d.length>1?d.length:''})}</button><small>Discard</small></div>`).join('')}</div>
+      <div class="sbhand">${h.map(c=>sbCardEl(c,{btn:mine,attr:` data-a="sbpsrc" data-f="hand" data-c="${c}"`,cls:sel&&sel.f==='hand'&&sel.c===c?'sel':''})).join('')||'<span class="rlab">No cards in hand</span>'}</div></div>`}
+  else if(!S.lk&&sbHumans().length>1&&g.phase==='play')out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
+  if(g.phase==='done'){const over=X.end==='hands'?r>=X.hands-1:sbOver();
+    out+=`<div class="panel htsum">${P.map(q=>`<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${g.win===q.id?'emptied the stock pile':`${g.st[q.id].length} left in stock`}</small></span><span class="num"><b>${sbHand(q,r)?'+'+sbHand(q,r):0}</b> · ${sbTot(q)}</span></div>`).join('')}</div>
+    <div class="actions"><div class="in">${over?(sbRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Game over! Waiting for the host…</span>`):sbRes()?`<button class="btn sm" data-a="finish">End game</button><button class="btn primary" data-a="sbpdeal">Deal hand ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`}
+  const a=sbNeedHandoff();if(a)out+=`<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="sbp-h" style="${pc(a.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="sbp-h">${esc(nm(a))}</h2><p class="rlab">It’s your turn. Everyone else, look away.</p><button class="btn primary wide" data-a="sbpshow" data-k="${a.id}">I’m ${esc(nm(a))}, show my cards</button></div></div>`;
+  return out}
+function sbAct(a,b,k){const g=sbG();if(!g)return;
+  if(a==='sbpshow'){SBVIEW=k;SBSEL=null;return}
+  if(a==='sbpdeal'){if(!sbRes()||g.phase!=='done')return;S.hr=sbCur()+1;sbDeal(S.hr);window.scrollTo(0,0);return}
+  const V=sbViewer();if(!V)return;if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}
+  if(a==='sbpsrc'){const f=b.dataset.f,src=f==='hand'?{f,c:b.dataset.c}:{f};SBSEL=SBSEL&&SBSEL.f===src.f&&SBSEL.c===src.c?null:src;return}
+  if(a==='sbpdisc'){const i=+b.dataset.i;if(SBSEL&&SBSEL.f==='hand'){const c=SBSEL.c;SBSEL=null;if(lkq('sbDiscard',V.id,c,i)){vibe(15);if(!S.lk)SBVIEW=null}return}
+    if(!(g.dp[V.id][i]||[]).length){toast('Pick a card from your hand to discard here.');return}SBSEL=SBSEL&&SBSEL.f==='disc'&&SBSEL.i===i?null:{f:'disc',i};return}
+  if(a==='sbpbuild'){if(!SBSEL){toast('Pick a card first.');return}const i=+b.dataset.i,c=sbCard(g,V.id,SBSEL);if(!c||!sbFits(c,g.bp[i])){toast(`That pile needs a ${g.bp[i].length+1}.`);return}const src=SBSEL;SBSEL=null;if(lkq('sbPlay',V.id,src,i))vibe(15);return}}
 
 /* =====================================================================
    MUNCHKIN (Original and Deluxe): a table companion
@@ -9698,7 +9825,7 @@ const HOMEBTN='<button class="homebtn" data-a="go" data-s="home" aria-label="Hom
 function render(){
   const CG=S.game==='carc';
   const HG2=HFE(),NG2=S.game==='nerts',PG2=S.game==='pad',DG2=S.game==='darts',LG2=S.game==='pool',TG2=S.game==='hearts',SG2=S.game==='spades',RG2=S.game==='rage',OH2=S.game==='ohell',UN2=S.game==='uno',MK2=S.game==='munchkin',FC2=S.game==='crowns',SB2=S.game==='skipbo',GN2=S.game==='gnome',SK2=S.game==='skyjo',WS2=S.game==='wingspan',WY2=S.game==='wyrmspan',PT2=S.game==='phase10',RK2=S.game==='rook',YZ2=S.game==='yahtzee',MT2=S.game==='mextrain',CT2=S.game==='catan',GF2=S.game==='golf',TP2=S.game==='tripoley',QK2=S.game==='quacks';
-  const v={home,lkwho:lkWhoScreen,lkwait:lkWaitScreen,map:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:CT2?ctSetup:MT2?mtSetup:YZ2?yzSetup:RK2?rkSetup:PT2?ptSetup:WY2?wySetup:WS2?wsSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:MK2?mkSetup:UN2?unSetup:OH2?ohSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:mapScreen,rules:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:CT2?ctSetup:MT2?mtSetup:YZ2?yzSetup:RK2?rkSetup:PT2?ptSetup:WY2?wySetup:WS2?wsSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:MK2?mkSetup:UN2?unSetup:OH2?ohSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:rulesScreen,players:QK2?nxPlayers:TP2?nxPlayers:GF2?nxPlayers:CT2?nxPlayers:MT2?nxPlayers:YZ2?nxPlayers:RK2?(rkPlayOn()?nxPlayers:sdPlayers):PT2?nxPlayers:WY2?nxPlayers:WS2?nxPlayers:SK2?nxPlayers:GN2?nxPlayers:SB2?sdPlayers:FC2?nxPlayers:MK2?nxPlayers:UN2?nxPlayers:OH2?nxPlayers:RG2?nxPlayers:SG2?(sdPlayOn()?nxPlayers:sdPlayers):TG2?nxPlayers:LG2?plPlayers:DG2?dtPlayers:PG2?pxPlayers:NG2?nxPlayers:HG2?hfPlayers:playersScreen,score:QK2?qkScore:TP2?tpScore:GF2?gfScore:CT2?ctScore:MT2?mtScore:YZ2?yzScore:RK2?rkScore:PT2?ptScore:WY2?wyScore:WS2?wsScore:SK2?skScore:GN2?gnScore:SB2?sbScore:FC2?fcScore:MK2?mkScore:UN2?unScore:OH2?ohScore:RG2?rgScore:SG2?sdScore:TG2?htScore:LG2?plPlay:DG2?dtPlay:PG2?pxScore:NG2?nxScore:HG2?hfScore:CG?cFinal:scoring,results,reveal:revealScreen,stats:statsScreen,profile:profileScreen,event:eventScreen,recap:recapScreen,settings:settingsScreen,live:CG?cLive:liveScreen,lobby:lobbyScreen,samples:samplesScreen,tsetup:tSetup}[S.screen]||home;
+  const v={home,lkwho:lkWhoScreen,lkwait:lkWaitScreen,map:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:CT2?ctSetup:MT2?mtSetup:YZ2?yzSetup:RK2?rkSetup:PT2?ptSetup:WY2?wySetup:WS2?wsSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:MK2?mkSetup:UN2?unSetup:OH2?ohSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:mapScreen,rules:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:CT2?ctSetup:MT2?mtSetup:YZ2?yzSetup:RK2?rkSetup:PT2?ptSetup:WY2?wySetup:WS2?wsSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:MK2?mkSetup:UN2?unSetup:OH2?ohSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:rulesScreen,players:QK2?nxPlayers:TP2?nxPlayers:GF2?nxPlayers:CT2?nxPlayers:MT2?nxPlayers:YZ2?nxPlayers:RK2?(rkPlayOn()?nxPlayers:sdPlayers):PT2?nxPlayers:WY2?nxPlayers:WS2?nxPlayers:SK2?nxPlayers:GN2?nxPlayers:SB2?(sbOn()?nxPlayers:sdPlayers):FC2?nxPlayers:MK2?nxPlayers:UN2?nxPlayers:OH2?nxPlayers:RG2?nxPlayers:SG2?(sdPlayOn()?nxPlayers:sdPlayers):TG2?nxPlayers:LG2?plPlayers:DG2?dtPlayers:PG2?pxPlayers:NG2?nxPlayers:HG2?hfPlayers:playersScreen,score:QK2?qkScore:TP2?tpScore:GF2?gfScore:CT2?ctScore:MT2?mtScore:YZ2?yzScore:RK2?rkScore:PT2?ptScore:WY2?wyScore:WS2?wsScore:SK2?skScore:GN2?gnScore:SB2?sbScore:FC2?fcScore:MK2?mkScore:UN2?unScore:OH2?ohScore:RG2?rgScore:SG2?sdScore:TG2?htScore:LG2?plPlay:DG2?dtPlay:PG2?pxScore:NG2?nxScore:HG2?hfScore:CG?cFinal:scoring,results,reveal:revealScreen,stats:statsScreen,profile:profileScreen,event:eventScreen,recap:recapScreen,settings:settingsScreen,live:CG?cLive:liveScreen,lobby:lobbyScreen,samples:samplesScreen,tsetup:tSetup}[S.screen]||home;
   if(S.active>=act().length)S.active=0;
   if(S.started&&!S.finished&&!S.demo&&['live','score'].includes(S.screen)){const now=Date.now();if(S.lastTick)S.playMs=(S.playMs||0)+Math.min(Math.max(0,now-S.lastTick),10*60e3);S.lastTick=now}
   applyTheme();applyScale();document.documentElement.classList.toggle('big',!!SET.big);document.documentElement.classList.toggle('cb',!!SET.cb);wake(needWake());
@@ -9728,7 +9855,7 @@ function render(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();navSync();if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo')gpTick();}
+  tourApply();navSync();if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo')gpTick();if(S.game==='skipbo')sbTick();}
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -9929,12 +10056,13 @@ document.addEventListener('click',e=>{
   if(BIDACTS.includes(a)){const key=a+'|'+k;if(BIDSEL!==key){BIDSEL=key;render();return}BIDSEL=null}else if(a!=='cardplay')BIDSEL=null;
   if(/^(ht|sd|oh|rk|rg)card$/.test(a)&&cardDrag()&&!DRAGPLAY&&b.classList.contains('ok')&&curSel()===b.dataset.c){toast('Drag it onto the table to play it.');return}
   if(a==='cardplay'){SET.cardPlay=SET.cardPlay==='drag'?'tap':'drag';saveSet();toast(SET.cardPlay==='drag'?'Drag cards onto the table to play them.':'Tap a card, then tap it again to play it.');render();return}
-  if(lkqWaiting()&&/^(unp(card|draw|keep|col|chal|swap|roul|aim|row|end)|gp(cell|deck|disc)|ht(card|pass|msel)|sd(card|bid|look)|oh(card|bid)|rk(card|bid|nest)|rg(card|bid|color|num|fore))$/.test(a))return;
+  if(lkqWaiting()&&/^(unp(card|draw|keep|col|chal|swap|roul|aim|row|end)|gp(cell|deck|disc)|ht(card|pass|msel)|sd(card|bid|look)|oh(card|bid)|rk(card|bid|nest)|rg(card|bid|color|num|fore)|sbp(disc|build))$/.test(a))return;
   if(/^ht(card|pass|deal|msel|show)$/.test(a)&&S.game==='hearts'){htAct(a,b,k);render();return}
   if(/^sd(card|bid|deal|show|look)$/.test(a)&&S.game==='spades'){sdAct(a,b,k);render();return}
   if(/^oh(card|bid|deal|show)$/.test(a)&&S.game==='ohell'&&ohPlayOn()&&S.started){ohAct(a,b,k);render();return}
   if(/^rk(card|bid|deal|show|trump|nest)$/.test(a)&&S.game==='rook'&&rkPlayOn()&&S.started){rkAct(a,b,k);render();return}
   if(/^rg(card|bid|deal|show|color|num|fore|rage)$/.test(a)&&S.game==='rage'&&rgPlayOn()&&S.started){rgAct(a,b,k);render();return}
+  if(/^sbp(src|disc|build|show|deal)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
   if(/^gp(cell|deck|disc|deal)$/.test(a)&&(S.game==='golf'||S.game==='skyjo')&&gpOn()&&S.started){gpAct(a,b,k);save();render();return}
   if(/^unp(card|draw|keep|col|uno|catch|chal|swap|roul|show|deal|aim|row|end)$/.test(a)&&S.game==='uno'&&unPlayOn()&&S.started){unAct(a,b,k);save();render();return}
   switch(a){
@@ -10083,7 +10211,7 @@ document.addEventListener('click',e=>{
     case 'mtdb':{const q=act()[+b.dataset.i],R=mtR(q,mtCur());snap();R.db=!R.db;break}
     case 'mthand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'mtnext':{S.hr=Math.min(mtN()-1,mtCur()+1);window.scrollTo(0,0);break}
-    case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:S.game==='rook'?RKBOTS:S.game==='rage'?RGBOTS:S.game==='uno'?UNBOTS:S.game==='golf'||S.game==='skyjo'?GPBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS),Object.values(RKBOTS),Object.values(RGBOTS),Object.values(UNBOTS),Object.values(GPBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
+    case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:S.game==='rook'?RKBOTS:S.game==='rage'?RGBOTS:S.game==='uno'?UNBOTS:S.game==='golf'||S.game==='skyjo'?GPBOTS:S.game==='skipbo'?SBBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS),Object.values(RKBOTS),Object.values(RGBOTS),Object.values(UNBOTS),Object.values(GPBOTS),Object.values(SBBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
       if(!q.name||defs.includes(base(q.name))){let nmv=nx?BT[nx][1]:'';if(nmv){let j=1;while(S.players.some(o=>o!==q&&o.on&&o.name===(j>1?nmv+' '+j:nmv)))j++;if(j>1)nmv+=' '+j}q.name=nmv}if(nx)q.bot=nx;else delete q.bot;delete q.rid;break}
     case 'htstart':{switchGame('hearts');resetScores();S.started=false;S.screen='map';HTX().play=k==='1';htKeep();window.scrollTo(0,0);break}
     case 'htplaymode':{if(S.started)break;HTX().play=k==='1';if(HTX().play&&act().length>6)toast('Playing on the phone works for 3 to 6 players.');htKeep();break}
@@ -10323,6 +10451,8 @@ document.addEventListener('click',e=>{
     case 'shareclose':SHAREQR=null;break;
     case 'sharecopy':{try{navigator.clipboard.writeText(APPURL).then(()=>toast('Link copied.'),()=>toast(APPURL))}catch(e){toast(APPURL)}return}
     case 'sharesend':{try{navigator.share({title:'Final Tally',text:'Our game-night score keeper',url:APPURL}).catch(()=>{})}catch(e){}return}
+    case 'sbstart':{switchGame('skipbo');resetScores();S.started=false;S.screen='map';const X=SBX();X.play=k==='1'?1:0;if(X.play&&X.teams){X.teams=false;S.players.forEach((p,i)=>p.on=i<3)}sbKeep();window.scrollTo(0,0);break}
+    case 'sbplaymode':{if(S.started)break;const X=SBX();X.play=k==='1'?1:0;if(X.play&&X.teams){X.teams=false;S.players.forEach((p,i)=>p.on=i<3)}sbKeep();break}
     case 'gpstart':{const G=b.dataset.g;switchGame(G);resetScores();S.started=false;S.screen='map';const X=G==='golf'?GFX():SKX();X.play=k==='1'?1:0;G==='golf'?gfKeep():skKeep();window.scrollTo(0,0);break}
     case 'gpplaymode':{if(S.started)break;const X=S.game==='golf'?GFX():SKX();X.play=k==='1'?1:0;S.game==='golf'?gfKeep():skKeep();break}
     case 'unstart':{switchGame('uno');resetScores();S.started=false;S.screen='map';const X=UNX();X.play=k==='1'?1:0;if(X.play&&!UNPV.includes(X.ver))X.ver='classic';unKeep();window.scrollTo(0,0);break}
@@ -10624,6 +10754,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='5e3702';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='eac199';</script>
 </body>
 </html>
