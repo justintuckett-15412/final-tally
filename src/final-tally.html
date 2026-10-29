@@ -9616,7 +9616,7 @@ function hpEnd(g,w){const X=HX();g.out=w;g.phase='done';g.turn=null;const sides=
   S.hr=Math.max(S.hr||0,g.r);g.msg+=w?' The round is over.':'';if(w){const sd=g.tm[w];gLog(g,`${nmid(w)} went out${g.cc&&X.concealed?' concealed':''}`,'🚪',1);gAnn(g,`${nmid(w)} went out!`,`${g.cc&&X.concealed?'Concealed! ':''}The hand is over.`,'🚪')}}
 /* ---------------- computer players ---------------- */
 function hpBotStep(g,q){const pid=q.id,lv=q.bot,side=hpSide(g,pid);if(g.turn!==pid||g.phase!=='play')return;let h=g.h[pid];
-  if(!g.drew){const t=hpTop(g);const take=hpTakeOk(g,pid)&&(lv!=='easy'||Math.random()<.5)&&(g.disc.length>=2||lv==='hard');if(take){hpTake(g,pid);return}hpDraw(g,pid);return}
+  if(!g.drew){const take=hpTakeOk(g,pid)&&(lv==='easy'?Math.random()<.5&&g.disc.length>=2:hpPileWorth(g,pid,lv)>=(lv==='hard'?1.5:1));if(take){hpTake(g,pid);return}hpDraw(g,pid);return}
   /* lay down what we can, keeping at least one card (two if more are coming from the foot) */
   const plan=hpBotPlan(g,pid,lv);if(plan&&(plan.news.length||plan.adds.length)){if(hpPlay(g,pid,plan.news,plan.adds))return}
   h=g.h[pid];if(HX().b3meld&&g.inF[pid]&&!g.need){const b3=h.filter(c=>hp3(c)&&!hpRed(c));if(b3.length>=3&&h.length-b3.length===1&&hpCanGoOut(g,side)&&hpPlay(g,pid,[b3],[]))return}
@@ -9629,6 +9629,14 @@ function hpBotStep(g,q){const pid=q.id,lv=q.bot,side=hpSide(g,pid);if(g.turn!==p
   if(best&&hpDiscard(g,pid,best.c))return;
   /* stuck holding one card it can't go out with: keep it and discard something else is impossible, so just pass the turn */
   g.drew=0;g.turn=hpNext(g,pid)}
+/* is the discard pile worth taking? black 3s and cards we can't use only make the hand bigger (and keep us out of the foot) */
+function hpPileWorth(g,pid,lv){const side=hpSide(g,pid),h=g.h[pid],M=g.melds[side]||[],CA=HPCA(),cnt={};h.forEach(c=>{if(!hpWild(c)&&!hp3(c))cnt[hpRk(c)]=(cnt[hpRk(c)]||0)+1});
+  const open=new Set(M.filter(m=>!m.b3).map(m=>hpMeldRank(m.c)));let v=0;const seen={};
+  g.disc.forEach(c=>{if(hp3(c)){v+=hpRed(c)?(CA?1:.5):-2;return}if(hpWild(c)){v+=1.5;return}const r=hpRk(c);seen[r]=(seen[r]||0)+1;v+=open.has(r)||(cnt[r]||0)+seen[r]>=3?1:(cnt[r]||0)+seen[r]===2?.3:-.4});
+  /* in the foot, a pile full of junk keeps us from going out */
+  if(g.inF[pid]&&!CA)v-=Math.max(0,g.disc.length-4)*.25;
+  /* Canasta: the pile is the main source of cards: almost always worth it */
+  if(CA)v+=1;return v}
 function hpBotPlan(g,pid,lv){const side=hpSide(g,pid),h=g.h[pid].slice(),M=g.melds[side]||[],down=!!g.down[side];const keep=g.inF[pid]&&!hpCanGoOut(g,side)?2:1;
   const by={};h.filter(c=>!hpWild(c)&&!hp3(c)).forEach(c=>(by[hpRk(c)]=by[hpRk(c)]||[]).push(c));let wild=h.filter(hpWild);const news=[],adds=[];let left=h.length;
   const take=n=>{left-=n;return left>=keep};
