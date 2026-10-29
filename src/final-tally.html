@@ -5703,7 +5703,7 @@ function nxGuide(){const X=NX(),n=act().length;
       ['Work piles','Build down in alternating colors, like solitaire. Move piles between them freely.'],['Nerts!','Empty your Nerts pile and call “Nerts!” to end the hand. If everyone is stuck, end it anyway.']]],
     ['Scoring',[['Center cards',`+${X.center} for each of your cards in the middle (sort by card backs).`],['Nerts pile',`−${X.pen} for each card left in it.`],X.bonus?['Calling Nerts',`+${X.bonus}.`]:null]],
     ['Winning',[[X.end==='points'?`First to ${X.target}`:X.end==='hands'?`${X.hands} hands`:'Until you stop',X.end==='points'?'Highest score once someone reaches it at the end of a hand. A tie at the top plays another hand.':'Highest score wins.']]],
-    X.play?['On the phone',[['One person per phone','Race the computer players, or link phones to race each other.'],['Playing a card','Tap a card. If it fits the center, it goes straight there. Otherwise it lifts up: tap a work pile to move it there, with any cards on top of it.'],['Your stock','Tap it to flip 3. When it runs out, tap ↻ to turn the flipped cards over. If you went all the way through without playing, the top card moves to the bottom so you see new cards.'],['Stuck?','Tap I’m stuck. When everyone is stuck, the hand ends.'],['Nerts!','Empty your Nerts pile and the hand ends right away.']]]:null].filter(Boolean))}
+    X.play?['On the phone',[['One person per phone','Race the computer players, or link phones to race each other.'],['Playing a card','Tap a card to pick it up. Then tap a glowing center pile (or tap the card again) to play it there, or tap a work pile to move it there with any cards on top of it.'],['Your stock','Tap it to flip 3. When it runs out, tap ↻ to turn the flipped cards over. If you went all the way through without playing, the top card moves to the bottom so you see new cards.'],['Stuck?','Tap I’m stuck. When everyone is stuck, the hand ends.'],['Nerts!','Empty your Nerts pile and the hand ends right away.']]]:null].filter(Boolean))}
 
 function htGuide(){const X=HTX(),n=act().length,D=gdSplit52(n),cyc=(n===4?['left','right','across']:['left','right']).concat(X.hold?['hold (no pass)']:[]);
   return guideSheet('Hearts',[
@@ -9700,8 +9700,8 @@ function nrBotStep(g,q){const pid=q.id,lv=q.bot,m=g.me[pid];if(!m||g.phase!=='pl
   for(let i=0;i<4;i++){const t=nrTop(m.w[i]);if(t&&nrCenterSpot(g,t)!==null&&tryM({t:'w',i,k:m.w[i].length-1},{t:'c',i:-2}))return}
   /* 2. Nerts pile onto a work pile (an empty one if there is one) */
   if(nt){const e=m.w.findIndex(p=>!p.length);if(e>=0&&tryM({t:'n'},{t:'w',i:e}))return;for(let i=0;i<4;i++)if(m.w[i].length&&nrFitsWork(m.w[i],nt)&&tryM({t:'n'},{t:'w',i}))return}
-  /* 3. hard: move a whole work pile onto another to free a spot */
-  if(lv!=='easy')for(let i=0;i<4;i++){const p=m.w[i];if(!p.length)continue;for(let j=0;j<4;j++)if(j!==i&&m.w[j].length&&nrFitsWork(m.w[j],p[0])&&tryM({t:'w',i,k:0},{t:'w',i:j}))return}
+  /* 3. move a whole work pile onto another to free a spot for the Nerts card (only then, so piles don't bounce back and forth) */
+  if(lv!=='easy'&&nt)for(let i=0;i<4;i++){const p=m.w[i];if(!p.length)continue;for(let j=0;j<4;j++)if(j!==i&&m.w[j].length&&nrFitsWork(m.w[j],p[0])&&tryM({t:'w',i,k:0},{t:'w',i:j}))return}
   /* 4. waste onto a work pile */
   if(dt)for(let i=0;i<4;i++)if(m.w[i].length&&nrFitsWork(m.w[i],dt)&&tryM({t:'d'},{t:'w',i}))return;
   if(!nrFlip(g,pid)){m.rc=(m.rc||0)+1}nrCheckStuck(g)}
@@ -9730,7 +9730,7 @@ function nrPlayUI(){const X=NX(),P=act(),gReal=nrG(),r=nxCur();
   <div class="tabs hftabs nxtabs" role="list">${P.map(q=>{const m=gReal&&gReal.me&&gReal.me[q.id];return `<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}</div><div class="ts num">${nxTot(q)}</div><div class="tr num">${m?`Nerts ${m.n.length}`:''}</div></button>`}).join('')}</div>`;
   if(!gReal||nrStale(gReal)||gReal.r!==r)return out+`<div class="panel" style="padding:16px">${waitLoader(nrRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
   const g=nrView(),V=nrMe(),mine=V&&g.me[V.id],cd=g.phase==='play'?Math.ceil(((g.t0||0)+2600-Date.now())/1000):0;
-  out+=`<div class="hfmin htstat"><span>${g.phase==='done'?`<b>Hand ${r+1} is over.</b>`:cd>0?`<b>Get ready… ${cd}</b>`:'<b>Go! Everyone plays at once.</b> Tap a card that fits the center and it goes there.'}</span><span>${esc(g.msg||'')}</span></div>`;
+  out+=`<div class="hfmin htstat"><span>${g.phase==='done'?`<b>Hand ${r+1} is over.</b>`:cd>0?`<b>Get ready… ${cd}</b>`:'<b>Go! Everyone plays at once.</b> Tap a card to pick it up, then tap where it goes.'}</span><span>${esc(g.msg||'')}</span></div>`;
   /* the others */
   out+=`<div class="nrothers">${P.filter(q=>!V||q.id!==V.id).map(q=>{const m=g.me[q.id];return `<div class="nro" style="${pc(q.color)}"><b>${botHead(q)}${esc(nm(q))}</b><span>${m.n.length} in Nerts${g.stuck[q.id]?' · stuck':''}</span></div>`}).join('')}</div>`;
   /* the center */
@@ -9750,7 +9750,7 @@ function nrPlayUI(){const X=NX(),P=act(),gReal=nrG(),r=nxCur();
       </div>
       <div class="nrwork">${m.w.map((p,i)=>{const fit=sel.length&&!(NRSEL.t==='w'&&NRSEL.i===i)&&nrFitsWork(p,sel[0]);return `<div class="nrcol${fit?' go':''}" data-nr="w" data-i="${i}">${p.length?p.map((c,k)=>nrCardEl(c,{cls:isSel('w',i,k)?'sel':'',attr:` data-nr="wc" data-i="${i}" data-k="${k}"`})).join(''):nrCardEl(null,{attr:` data-nr="w" data-i="${i}"`})}</div>`}).join('')}</div>
       <div class="nrbtns"><button class="btn sm${g.stuck[V.id]?' primary':''}" data-a="nrpstuck">${g.stuck[V.id]?'Not stuck after all':'I’m stuck'}</button></div>
-      <p class="hint" style="text-align:center;margin:6px 0 0">Tap a card: if it fits the center it goes there. Otherwise it lifts up; tap a work pile to move it (and any cards on top of it).${g.stuck[V.id]?' Waiting for everyone else to get stuck too…':''}</p></div>`}
+      <p class="hint" style="text-align:center;margin:6px 0 0">Tap a card to pick it up. Then tap a glowing center pile (or the card again) to play it there, or tap a work pile to move it, with any cards on top of it.${g.stuck[V.id]?' Waiting for everyone else to get stuck too…':''}</p></div>`}
   else out+=`<p class="hint" style="text-align:center">Watching the race.</p>`;
   if(WARN)out+=`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
     <div class="sheet-btns"><button class="btn" data-a="warnclose">Go back and check</button><button class="btn primary" data-a="revstart">Reveal anyway</button></div></div></div>`;
@@ -9758,8 +9758,9 @@ function nrPlayUI(){const X=NX(),P=act(),gReal=nrG(),r=nxCur();
 /* taps on the table: handled on pointerdown so a bot move redrawing the screen can't swallow them */
 function nrTap(el){const g=nrView(),V=nrMe();if(!g||g.phase!=='play'||!V||!g.me[V.id])return;if(Date.now()<(g.t0||0)+2600&&!window.__htfast)return;const m=g.me[V.id],k=el.dataset.nr,i=+el.dataset.i;
   const send=(from,to)=>{if(nrq('nrMove',V.id,from,to)){NRSEL=null;vibe(8);return true}return false};
-  const pick=from=>{const cs=nrTake(m,from);if(!cs.length)return;if(cs.length===1&&nrCenterSpot(g,cs[0])!==null&&send(from,{t:'c',i:-2}))return;
-    if(NRSEL&&NRSEL.t===from.t&&NRSEL.i===from.i&&NRSEL.k===from.k){NRSEL=null;return}NRSEL=from};
+  /* two taps: the first picks a card up, the second plays it (tap it again to send it to the center, or tap a glowing pile) */
+  const pick=from=>{const cs=nrTake(m,from);if(!cs.length)return;
+    if(NRSEL&&NRSEL.t===from.t&&NRSEL.i===from.i&&NRSEL.k===from.k){if(cs.length===1&&nrCenterSpot(g,cs[0])!==null&&send(from,{t:'c',i:-2}))return;NRSEL=null;return}NRSEL=from;vibe(4)};
   if(k==='s'){NRSEL=null;if(nrq('nrFlip',V.id))vibe(5);return}
   if(k==='n')return pick({t:'n'});
   if(k==='d')return pick({t:'d'});
