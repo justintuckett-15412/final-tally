@@ -1678,7 +1678,7 @@ function playersScreen(){
     ${H.roster.some(r=>!isFamily(r))?`<div class="rlab" style="margin:10px 0 6px"><b>Guests</b></div><div class="lr guests">${H.roster.filter(r=>!isFamily(r)).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div>`:''}
     <p class="hint">Tap names to fill the seats with their usual colors. New names start as guests and join the ${esc(GN())} list after ${GUEST_GAMES} games.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="rules">‹ Rules</button><h1>${m.teams?'Teams':'Players'}</h1><span class="sub num">${n}</span></div>${steps(3)}
-  ${fam}<div class="sec"><div class="panel">${pairRows(sl,rows)}</div>
+  ${fam}<div class="sec"><div class="panel">${rows.join('')}</div>
     ${S.rules.handicap?`<div class="prow"><button class="btn wide" data-a="suggesths">Suggest fair head starts</button></div>${HSMSG?`<p class="hint">${HSMSG}</p>`:''}`:''}
     <p class="hint">${m.name} plays ${m.min}–${m.max}${m.teams?' teams':''}. Switch ${m.teams?'teams':'players'} on or off. Names you use are saved for next time after a finished game.</p>
     <p class="hint">${S.game==='carc'?'Tap a color to pick a new one. Colors other players already have are grayed out.':''}${S.game==='carc'?'</p><p class="hint" hidden>':''}Colors start with this map's train set. Tap a color to pick a different one, for example if you're borrowing trains from another box. Colors other players already have are grayed out.</p></div>
@@ -9505,14 +9505,25 @@ function hpBotPlan(g,pid,lv){const side=hpSide(g,pid),h=g.h[pid].slice(),M=g.mel
   const take=n=>{left-=n;return left>=keep};
   if(!down){/* build melds by value until we reach the minimum; include the picked-up card's rank first */
     const order=Object.keys(by).sort((a,b)=>(g.need&&hpRk(g.need)===a?-1:0)-(g.need&&hpRk(g.need)===b?-1:0)||by[b].length-by[a].length||hpMeldVal(by[b])-hpMeldVal(by[a]));
-    for(const r of order){const n=by[r];if(n.length>=3){if(!take(n.length))break;news.push(n.slice())}else if(n.length===2&&wild.length&&lv!=='easy'){const cs=n.concat(wild[0]);if(hpMeldOk(cs)&&take(3)){news.push(cs);wild=wild.slice(1)}}}
+    /* natural melds first (they can still become clean books); only use wilds if we need them to reach the minimum */
+    for(const r of order){const n=by[r];if(n.length>=3){if(!take(n.length))break;news.push(n.slice())}}
+    if(lv!=='easy')for(const r of order){if(news.reduce((s,cs)=>s+hpMeldVal(cs),0)>=hpMin(g,pid))break;const n=by[r];if(n.length===2&&wild.length){const cs=n.concat(wild[0]);if(hpMeldOk(cs)&&take(3)){news.push(cs);wild=wild.slice(1)}}}
     const v=news.reduce((s,cs)=>s+hpMeldVal(cs),0);if(v<hpMin(g,pid))return null;return {news,adds}}
   /* already down: add naturals to our melds, start new ones from 3+ naturals, and use wilds to finish books */
   for(const r of Object.keys(by)){const n=by[r],oi=hpOpenOf(g,side,r),bi=oi>=0?oi:M.findIndex(m=>hpMeldRank(m.c)===r&&hpCanAdd(m,[n[0]]));
     if(bi>=0){const m={c:M[bi].c.concat(adds.filter(a=>a.m===bi).flatMap(a=>a.cs))};if(hpCanAdd(m,n)&&take(n.length))adds.push({m:bi,cs:n.slice()})}
     else if(n.length>=3&&take(n.length))news.push(n.slice());
     else if(n.length===2&&wild.length&&lv==='hard'&&HX().wildRule!=='fewer'){const cs=n.concat(wild[0]);if(hpMeldOk(cs)&&take(3)){news.push(cs);wild=wild.slice(1)}}}
-  if(lv!=='easy')for(let i=0;i<M.length&&wild.length;i++){const m={c:M[i].c.concat(adds.filter(a=>a.m===i).flatMap(a=>a.cs))};if(hpBook(m))continue;const need=7-m.c.length;if(need<=wild.length||lv==='hard'&&hpNat(m.c).length>=4){const ws=wild.slice(0,Math.max(1,Math.min(need,wild.length)));if(hpCanAdd(m,ws)&&take(ws.length)){adds.push({m:i,cs:ws});wild=wild.slice(ws.length)}}}
+  /* wild cards: keep the clean melds we need for clean books clean. Wilds go onto melds that are already dirty first,
+     and onto a clean one only when it finishes a book and we don't still need clean books from it */
+  if(lv!=='easy'&&wild.length){const X=HX(),cur=i=>({c:M[i].c.concat(adds.filter(a=>a.m===i).flatMap(a=>a.cs))}),
+      cleanHave=M.filter(m=>hpKind(m)==='clean').length,dirtyHave=M.filter(m=>hpKind(m)==='dirty').length,cleanShort=Math.max(0,(X.needC||0)-cleanHave),dirtyShort=Math.max(0,(X.needD||0)-dirtyHave);
+    const open=M.map((m,i)=>i).filter(i=>!hpBook(cur(i))),cleanOpen=open.filter(i=>hpClean(cur(i))).sort((a,b)=>cur(b).c.length-cur(a).c.length);
+    const keep=new Set(cleanOpen.slice(0,cleanShort?cleanShort+1:0));
+    const order=open.filter(i=>!keep.has(i)).sort((a,b)=>(hpClean(cur(a))?1:0)-(hpClean(cur(b))?1:0)||cur(b).c.length-cur(a).c.length);
+    for(const i of order){if(!wild.length)break;const m=cur(i),need=7-m.c.length,clean=hpClean(m);
+      const go=clean?need<=wild.length&&(cleanShort===0||dirtyShort>0&&cleanOpen.length>keep.size):(need<=wild.length||lv==='hard'&&hpNat(m.c).length>=4);
+      if(!go)continue;const ws=wild.slice(0,Math.max(1,Math.min(need,wild.length)));if(hpCanAdd(m,ws)&&take(ws.length)){adds.push({m:i,cs:ws});wild=wild.slice(ws.length)}}}
   return {news,adds}}
 /* ---------------- who is looking at this phone ---------------- */
 let HPSEL=[],HPVIEW=null,HPBOTT=null,HPSTAGE={},HPMV=null;
@@ -11856,6 +11867,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='0d0fb5';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='f566fe';</script>
 </body>
 </html>
