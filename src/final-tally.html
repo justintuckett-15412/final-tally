@@ -540,7 +540,10 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .mttrains{display:grid;gap:6px}.mtrow{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:6px 8px;border-radius:12px;border:2px solid var(--line);background:var(--surface);border-left:6px solid var(--pc,#8a6d3b);color:inherit;font:inherit;min-height:52px}
 .mtrow.mx{--pc:#2e8b45}.mtrow.now{box-shadow:0 0 0 2px var(--pc,#e3a21a)}.mtrow.go{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,var(--surface));animation:mtgo 1s ease-in-out infinite alternate}.mtrow.new .mtrt>.mtd:last-of-type{filter:drop-shadow(0 0 4px var(--accent))}
 @keyframes mtgo{to{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 60%,transparent)}}
-.mtrl{display:grid;gap:2px;min-width:0;flex:0 0 34%;font-size:13.5px}.mtrl b{overflow-wrap:anywhere;line-height:1.2}.mttag{font-size:11.5px;font-weight:700;color:var(--muted)}.mttag.open{color:#c8322b}.mttag.need{color:#b36b00}.mttag.blk{color:#555}
+.mtrow{flex-wrap:wrap;row-gap:4px}.mtrl{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;min-width:0;flex:1 1 100%;font-size:13.5px}.mtrl b{overflow-wrap:anywhere;line-height:1.2}.mtrow{overflow:hidden;max-width:100%}.mtrt{flex:1 1 100%;min-height:36px;width:100%;max-width:100%;overflow:hidden}.mtrt .mtd svg{width:68px;height:34px}.mtrt .mtd.dbl svg{width:30px;height:60px}.mtrt .mtend{min-width:32px;height:32px;font-size:15px}.cfnode .mtrt .mtd svg{width:34px;height:68px}.cfrow{flex-wrap:nowrap}.cfrow .mtrl{flex:0 1 auto;display:grid;gap:2px}.cfrow .mtrt{flex:1 1 0;width:auto;min-width:0}
+.cfslots{font-size:18px;letter-spacing:2px;color:var(--muted)}
+.mthand .mtd svg{width:80px;height:40px}.mthand .mtd.dbl svg{width:40px;height:80px}
+.mttag{font-size:11.5px;font-weight:700;color:var(--muted)}.mttag.open{color:#c8322b}.mttag.need{color:#b36b00}.mttag.blk{color:#555}
 .mtrt{display:flex;align-items:center;gap:3px;flex:1;min-width:0;justify-content:flex-end;overflow:hidden}.mtrt small{flex:none}.mtd{display:inline-flex;flex:none;line-height:0;background:none;border:0;padding:0}.mtend{flex:none;min-width:24px;height:24px;border-radius:50%;background:var(--pc,#2e8b45);color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center;margin-left:4px}
 .dmhand .dmd{touch-action:none;-webkit-user-select:none;user-select:none}.dmhand .dmd.dropb{box-shadow:-5px 0 0 0 var(--accent)}.dmhand .dmd.dropa{box-shadow:5px 0 0 0 var(--accent)}.mtrow.hoover{background:color-mix(in srgb,var(--accent) 35%,var(--surface))}.dmghost{position:fixed;left:0;top:0;z-index:90;pointer-events:none;line-height:0}.dmbar{margin-top:8px}
 .mtme{margin-top:12px;padding:10px;border-radius:14px;border:2px solid var(--pc);background:var(--surface)}.mthand{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
@@ -7316,10 +7319,10 @@ function dmHand(g,V,mine,playable,selT,act){const h=dmOrder(g,V.id,g.h[V.id]||[]
 function mtTileEl(t,o={}){let [a,b]=Array.isArray(t)?t:mtAB(t);if(o.flip)[a,b]=[b,a];const D=a===b,h=o.h||24,tag=o.btn?'button':'span';
   return `<${tag} class="mtd${D?' dbl':''}${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="${a}|${b}${o.lab?', '+o.lab:''}">${mtTile(a,b,h,D&&o.vd)}</${tag}>`}
 function mtTrainEl(g,k,V,selT){const T=g.tr[k],P=act(),p=P.find(x=>x.id===k),mine=V&&k===V.id,can=selT&&V&&mtTargets(g,V.id,selT).includes(k),need=g.need.includes(k)&&!T.blk;
-  const show=T.t.slice(-6),more=T.t.length-show.length,name=k==='mx'?'Mexican train':`${p?botHead(p):''}${esc(p?nm(p):'?')}${mine?' (you)':''}`;
+  const show=T.t.slice(-14),more=0,name=k==='mx'?'Mexican train':`${p?botHead(p):''}${esc(p?nm(p):'?')}${mine?' (you)':''}`;
   const tags=[T.open&&k!=='mx'?'<span class="mttag open" title="Open: anyone can play here">🚩 open</span>':'',T.blk?'<span class="mttag blk">⛔ blocked</span>':'',need?`<span class="mttag need">cover the ${T.end}|${T.end}</span>`:''].join('');
   return `<button class="mtrow${can?' go':''}${g.last&&g.last.k===k?' new':''}${g.turn===k?' now':''}${k==='mx'?' mx':''}" style="${p?pc(p.color):''}" data-a="mtptrain" data-k="${k}" ${can?'':'aria-disabled="true"'} aria-label="${esc(k==='mx'?'Mexican train':(p?nm(p):'')+'’s train')}, ends on ${T.end}${T.open&&k!=='mx'?', open':''}${T.blk?', blocked':''}">
-    <span class="mtrl"><b>${name}</b>${tags}</span><span class="mtrt">${more?`<small class="num">+${more}</small>`:''}${T.t.length?show.map(x=>mtTileEl(x,{h:20,vd:true})).join(''):`<small class="rlab">${k==='mx'?'not started':'empty'}</small>`}<span class="mtend num" aria-hidden="true">${T.end}</span></span></button>`}
+    <span class="mtrl"><b>${name}</b>${T.t.length?`<span class="mttag">${T.t.length} domino${T.t.length===1?'':'es'}</span>`:''}${tags}</span><span class="mtrt">${more?`<small class="num">+${more}</small>`:''}${T.t.length?show.map(x=>mtTileEl(x,{h:20,vd:true})).join(''):`<small class="rlab">${k==='mx'?'not started':'empty'}</small>`}<span class="mtend num" aria-hidden="true">${T.end}</span></span></button>`}
 function mtPlayUI(){const X=MTX(),P=act(),g=mtG(),r=mtCur(),N=mtN(),sc=P.map(mtTot),lo=Math.min(...sc),lead=mtLast()>=0&&sc.filter(v=>v===lo).length===1?P[sc.indexOf(lo)]:null;
   if(!mtRes()&&g&&g.r!==S.hr)S.hr=g.r;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="Round ${r+1}">${mtDbl(r)}|${mtDbl(r)}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
@@ -7519,10 +7522,10 @@ function cfTick(){if(S.game!=='chicken'||!cfOn()||!S.started||S.finished||S.scre
 
 /* ---------------- drawing ---------------- */
 function cfRowEl(g,s,V,selT){const can=selT&&V&&cfSpots(g,V.id,selT).includes(s),isN=s[0]==='n',i=+s.slice(1);
-  if(isN){const N=g.nodes[i],left=N.need-N.ln.length;return `<button class="mtrow cfnode${can?' go':''}" data-a="cfpspot" data-k="${s}" ${can?'':'aria-disabled="true"'} aria-label="${i?'Chicken foot on':'The middle,'} the ${N.v}|${N.v}: ${left} more to go">
+  if(isN){const N=g.nodes[i],left=N.need-N.ln.length;return `<button class="mtrow cfrow cfnode${can?' go':''}" data-a="cfpspot" data-k="${s}" ${can?'':'aria-disabled="true"'} aria-label="${i?'Chicken foot on':'The middle,'} the ${N.v}|${N.v}: ${left} more to go">
     <span class="mtrl"><b>${i?'🐔 Chicken foot':'⭐ The middle'}</b><span class="mttag need">${N.ln.length} of ${N.need}${i&&N.by?` · ${esc(nmid(N.by))}’s double`:''}</span></span><span class="mtrt">${mtTileEl([N.v,N.v],{h:22,vd:true})}<span class="cfslots">${'◦'.repeat(Math.max(0,left))}</span><span class="mtend num" aria-hidden="true">${N.v}</span></span></button>`}
-  const L=g.lines[i],N=g.nodes[L.node],show=L.t.slice(-6),more=L.t.length-show.length;
-  return `<button class="mtrow${can?' go':''}${g.last&&g.last.s===s?' new':''}" data-a="cfpspot" data-k="${s}" ${can?'':'aria-disabled="true"'} aria-label="A line from the ${N.v}|${N.v}, ends on ${L.end}">
+  const L=g.lines[i],N=g.nodes[L.node],show=L.t.slice(-14),more=0;
+  return `<button class="mtrow cfrow${can?' go':''}${g.last&&g.last.s===s?' new':''}" data-a="cfpspot" data-k="${s}" ${can?'':'aria-disabled="true"'} aria-label="A line from the ${N.v}|${N.v}, ends on ${L.end}">
     <span class="mtrl"><b>From the ${N.v}|${N.v}</b>${L.node?'<span class="mttag">a toe</span>':''}</span><span class="mtrt">${more?`<small class="num">+${more}</small>`:''}${show.map(x=>mtTileEl(x,{h:20,vd:true})).join('')}<span class="mtend num" aria-hidden="true">${L.end}</span></span></button>`}
 function cfPlayUI(){const P=act(),g=cfG(),r=cfCur(),N=cfN(),sc=P.map(cfTot),lo=Math.min(...sc),lead=cfLast()>=0&&sc.filter(v=>v===lo).length===1?P[sc.indexOf(lo)]:null;
   if(!cfRes()&&g&&g.r!==S.hr)S.hr=g.r;
