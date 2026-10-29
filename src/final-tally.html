@@ -1649,7 +1649,12 @@ function glTick(){if(!glOn()||lkGuest())return;const g=GLG();if(!g||g.r==null)re
 const GLPO={};document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('glpast'))GLPO[+d.dataset.i]=d.open},true);
 /* who scores together: teams share one pill */
 function glTeams(g){const P=act();try{if(S.game==='spades'&&sdTeamOn())return [[P[0],P[2]],[P[1],P[3]]];if(S.game==='rook'&&P.length%2===0)return [P.filter((p,i)=>i%2===0),P.filter((p,i)=>i%2===1)];if(HFE()&&g&&g.tm){const m={};P.forEach(p=>{const k=g.tm[p.id]??p.id;(m[k]=m[k]||[]).push(p)});return Object.values(m)}}catch(e){}return P.map(p=>[p])}
-function glLines(L){return `<ul class="gllog">${L.map(x=>`<li>${x.ic?`<span class="glic" aria-hidden="true">${x.ic}</span>`:''}<span>${esc(x.t)}</span></li>`).join('')}</ul>`}
+function glLines(L){return `<ul class="gllog">${L.map(x=>`<li>${x.ic?`<span class="glic" aria-hidden="true">${x.ic}</span>`:''}<span>${glRuby(esc(x.t))}</span></li>`).join('')}</ul>`}
+/* Quacks rubies are red: swap the blue gem emoji for the red ruby picture */
+const glRuby=h=>S.game==='quacks'&&typeof QPRB!=='undefined'?h.replace(/💎/g,QPRB):h;
+/* everywhere else on a Quacks screen (scoring, dashboard): swap gem emoji in the text for the red ruby */
+function glRubyDom(root){if(S.game!=='quacks'||!root||typeof QPRB==='undefined')return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.nodeValue.includes('💎')?1:3}),L=[];while(w.nextNode())L.push(w.currentNode);
+  L.forEach(n=>{const sp=document.createElement('span');sp.innerHTML=n.nodeValue.split('💎').map(t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))).join(QPRB);n.replaceWith(...sp.childNodes)})}
 function glPanels(){const app=document.getElementById('app');if(!app)return;app.querySelectorAll('.glwrap,.glann').forEach(x=>x.remove());if(!glOn())return;const g=GLG();if(!g||g.r==null)return;
   const W=glWord(),P=act(),L=g.lg||[],done=g.phase==='done';let out=`<div class="panel tqsum glsum"><b class="rlab">${W} ${g.r+1}${done?'':' so far'}</b>${L.length?glLines(L):`<p class="rlab glnone">Nothing big yet. Big moments show up here as they happen.</p>`}</div>`;
   const H=(S.hlg&&S.hlg.g===S.game&&S.hlg.h)||{},items=[];
@@ -1659,7 +1664,7 @@ function glPanels(){const app=document.getElementById('app');if(!app)return;app.
   if(items.length)out+=`<div class="panel tqsum tqpastw"><b class="rlab">Earlier ${W.toLowerCase()}s</b>${items.join('')}</div>`;
   const w=document.createElement('div');w.className='glwrap';w.innerHTML=out;const ac=[...app.querySelectorAll('.actions')].pop();if(ac)ac.before(w);else app.appendChild(w);
   const A=g.ann;if(A&&Date.now()-A.at<20000&&!app.querySelector('.sheet-bg')){const k=S.game+':'+g.r+':'+A.k+':'+A.at;if(!GLSEEN[k])GLSEEN[k]=Date.now();const el=Date.now()-GLSEEN[k],ms=(A.ms||GLMS)*(window.__htfast?.3:1);
-    if(el<ms){app.insertAdjacentHTML('beforeend',`<div class="glann" role="status" aria-live="polite"><div class="sheet tqann" style="--o:${-el}ms">${A.ic?`<span class="tqannic" aria-hidden="true">${A.ic}</span>`:''}<h2>${esc(A.t)}</h2>${A.sub?`<p class="rlab">${esc(A.sub)}</p>`:''}</div></div>`);
+    if(el<ms){app.insertAdjacentHTML('beforeend',`<div class="glann" role="status" aria-live="polite"><div class="sheet tqann" style="--o:${-el}ms">${A.ic?`<span class="tqannic" aria-hidden="true">${A.ic}</span>`:''}<h2>${glRuby(esc(A.t))}</h2>${A.sub?`<p class="rlab">${glRuby(esc(A.sub))}</p>`:''}</div></div>`);
       clearTimeout(GLT);GLT=setTimeout(()=>{GLT=null;const x=document.querySelector('.glann');if(x)x.remove()},ms-el+30)}}}
 const pairOn=()=>{try{return HFE()&&hpOn()&&!!HX().teams||S.game==='rook'&&rkPlayOn()||S.game==='spades'&&sdPlayOn()&&!!SDX().teams}catch(e){return false}};
 /* players screen: show who is partnered with whom (seats are split in half: 1 & 3, 2 & 4, or 1 & 4, 2 & 5, 3 & 6) */
@@ -8443,7 +8448,7 @@ function qpPotEl(L,o={}){const cells=[],by={};L.pot.forEach(x=>by[x.at]=x.c);con
   return `<div class="qppot${o.mini?' mini':''}">${cells.join('')}</div>`}
 function qpBagSum(L){const n={};L.bag.forEach(c=>{const k=qpK(c);n[k]=(n[k]||0)+1});return Object.keys(QPCOL).filter(k=>n[k]).map(k=>`<span class="qpbs" style="--qi:url(art/trail/qk-${QPIMG[k]}.png)" aria-label="${n[k]} ${QPCOL[k][0].toLowerCase()}"><i>${n[k]}</i></span>`).join('')}
 function qpPlayUI(){const X=QKX(),P=act(),g=qpG(),sc=P.map(qkTot),hi=Math.max(...sc),lead=qkLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
-  const r=g?g.r:0;let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Round ${r+1} of 9">${r+1}/9</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button><button class="btn sm undo" data-a="qpinfo" aria-label="What each ingredient does">📖</button></div>
+  const r=g?g.r:0;let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" style="flex:none;overflow:visible" aria-label="Round ${r+1} of 9">${r+1}/9</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button><button class="btn sm undo" data-a="qpinfo" aria-label="What each ingredient does">📖</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>{const L=g&&g.pl[q.id];return `<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${L?(L.ex?'💥':'')+`${QPRB}${qpRubies(q,g.phase==='eval'||g.phase==='done'?r:r-1)}`:''}</div></button>`}).join('')}</div>`;
   if(!g||cgStale2(g))return out+`<div class="panel" style="padding:16px">${waitLoader(qpRes()?'Filling the bags…':'Waiting for the host phone…')}</div>`;
   const V=qpViewer(),me=V&&g.pl[V.id];
@@ -12187,6 +12192,7 @@ function render(){
   if(S.screen==='results'&&S.lk&&!S.demo&&S.finished){const app=document.getElementById('app'),ac=app.querySelector('.actions');if(ac){ac.querySelectorAll('[data-a="rematch"]').forEach(x=>x.remove());ac.insertAdjacentHTML('beforebegin',lkVoteHtml());if(!ac.querySelector('button'))ac.remove()}else app.insertAdjacentHTML('beforeend',lkVoteHtml())}
   bidMark();
   try{glPanels()}catch(e){console.warn(e)}
+  try{glRubyDom(document.getElementById('app'))}catch(e){}
   rcHydrate(document.getElementById('app'));
   if(S.game==='canasta'&&S.screen!=='home'&&S.screen!=='stats')caWords(document.getElementById('app'));
   {const hr=document.querySelector('.hfrounds [aria-pressed=true]');if(hr){const c=hr.parentElement;c.scrollLeft=hr.offsetLeft-c.offsetLeft-c.clientWidth/2+hr.offsetWidth/2}}
