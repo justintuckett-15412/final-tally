@@ -1190,6 +1190,11 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .htc.pzc.mini{--cw:30px;border-radius:5px}.htc.pzc.mini b,.htc.pzc.mini i{display:none}.htc.pzc.mini em{font-size:calc(var(--cw)*.5)}
 .pzlaid{padding:8px 10px;margin:8px 0}.pzrow{margin-top:6px}.pzrow>small{font-size:12px;font-weight:700;color:var(--muted)}
 .fcgrp.pzgo{cursor:pointer;box-shadow:0 0 0 3px var(--accent);animation:turnglow 1.4s ease-in-out infinite;--tg:color-mix(in srgb,var(--accent) 70%,transparent)}
+
+.fcsort{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;margin:10px 0 0}.fcsort small{width:100%;text-align:center;font-size:11.5px}
+.fchand .fcdrag{touch-action:none;cursor:grab}.fchand .fcdrag.dragging{position:relative;z-index:50;cursor:grabbing;box-shadow:0 8px 18px rgba(0,0,0,.35);transition:none}
+.fchand .fcdrag.dropb{box-shadow:-4px 0 0 0 var(--accent)}.fchand .fcdrag.dropa{box-shadow:4px 0 0 0 var(--accent)}
+.fclast h2{margin:0 0 6px}.fclast .rlab{margin:0 0 8px}
 </style>
 
 <div id="app"></div>
@@ -5468,7 +5473,7 @@ function rgGuide(){const X=RGX(),n=act().length,N=rgBase();
    11 rounds, 3 cards up to 13 (the dealt count is wild). Low score wins.
    p.fc[r] = {v: typed total, c: {rank: count} when tapping cards, out: went out}
    ===================================================================== */
-const FCDEF={play:0,arr:'auto',order:'up',entry:'type',outB:false,outV:10,wildV:20,jokerV:50,tie:'ask'};
+const FCDEF={play:0,arr:'auto',help:false,order:'up',entry:'type',outB:false,outV:10,wildV:20,jokerV:50,tie:'ask'};
 const FCX=()=>{if(!S.fcx)S.fcx={...FCDEF};const X=S.fcx;for(const k in FCDEF)if(X[k]===undefined)X[k]=FCDEF[k];return X};
 function fcSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.fcx'))}catch(e){}return Object.assign({...FCDEF},x||{})}
 function fcKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.fcx',JSON.stringify(FCX()))}catch(e){}}
@@ -5503,6 +5508,7 @@ function fcSetup(){const X=FCX();
   return `<div class="bar"><h1>Five Crowns</h1></div><img class="hero hfhero" src="art/crowns-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">Lowest score wins. Your house rules are remembered for next time. ${usualUI('crowns')}</p>
   ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([vv,t])=>`<button data-a="fcplaymode" data-k="${vv}" aria-pressed="${!!X.play===!!vv}">${t}</button>`).join('')}</div>`,S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals every round, rotates the wild cards and runs every turn. It can sort your hand into books and runs for you, or you can arrange them yourself. Computer players, pass-and-play and linked phones all work.':'Play with real cards and enter what everyone had left. Just score keeping.')}
+  ${X.play?sec('Help on the phone',tg('help','Sort my hand into groups','Adds a 🪄 switch that keeps your hand sorted into the best books and runs and tells you when you can go out. Off: you group your cards yourself.'),''):''}
   ${sec('Rounds',seg('order',[['up','3 up to 13'],['down','13 down to 3']]),'11 rounds. The number of cards dealt is wild each round.')}
   ${X.play?'':sec('Entering scores',seg('entry',[['type','Type the total'],['tap','Tap the cards']]),X.entry==='tap'?'Tap each card left in someone’s hand and the app adds it up. You can switch any round to typing.':'Each player adds up their leftover cards and you type the total. You can switch to tapping cards during the game.')}
   ${sec('Card values',row('3 to 10','',`<span class="rlab">face value</span>`)+row('Jack · Queen · King','',`<span class="rlab">11 · 12 · 13</span>`)+row('Wild card','that round’s number',st('wildV',X.wildV,0,100,5,'points'))+row('Joker','',st('jokerV',X.jokerV,0,100,5,'points')),'')}
@@ -8759,7 +8765,7 @@ function fcDeal(r){const P=fcPP(r),ids=P.map(p=>p.id),L=[];for(let d=0;d<2;d++)f
   const k=fcCards(r),dealer=ids[r%ids.length];
   const g={_atom:1,r,k,ps:ids,h:{},deck:htShuffle(L.map((c,i)=>c+'#'+i)),disc:[],turn:null,dealer,phase:'play',drew:0,got:null,from:null,out:null,left:[],lay:{},msg:'',n:0};
   ids.forEach(id=>g.h[id]=[]);for(let i=0;i<k;i++)ids.forEach(id=>g.h[id].push(g.deck.pop()));g.disc.push(g.deck.pop());
-  g.turn=fcNextP(g,dealer);g.msg=`${nmid(dealer)} dealt ${k} cards each. ${fcWildName(r)} are wild. ${nmid(g.turn)} goes first.`;S.fcg=g;FCSEL=[];FCVIEW=null}
+  g.turn=fcNextP(g,dealer);g.msg=`${nmid(dealer)} dealt ${k} cards each. ${fcWildName(r)} are wild. ${nmid(g.turn)} goes first.`;S.fcg=g;FCSEL=[];FCVIEW=null;FCORD={}}
 function fcPull(g){if(!g.deck.length){if(g.disc.length<2)return null;const top=g.disc.pop();g.deck=htShuffle(g.disc);g.disc=[top];g.msg+=' The draw pile ran out, so the discards were shuffled into a new one.'}return g.deck.pop()||null}
 function fcDraw(g,pid,from){if(!g||g.phase!=='play'||g.turn!==pid||g.drew)return false;let c;
   if(from==='disc'){c=g.disc.pop();if(!c)return false}else{g.msg='';c=fcPull(g);if(!c)return false}
@@ -8792,7 +8798,10 @@ function fcBotStep(g,q){const pid=q.id,lv=q.bot,k=g.k,h=g.h[pid];if(g.turn!==pid
   fcDiscard(g,pid,best?best.d:h[0],false)}
 
 /* ---------------- who is looking at this phone ---------------- */
-let FCSEL=[],FCVIEW=null,FCBOTT=null;const FCARR={};
+let FCSEL=[],FCVIEW=null,FCBOTT=null,FCORD={},FCDRAGGED=false;const FCARR={},FCLASTOK={};
+/* my own order for loose cards: keep what I arranged, new cards go on the end */
+function fcOrd(pid,cards){const o=(FCORD[pid]||[]).filter(c=>cards.includes(c));cards.forEach(c=>{if(!o.includes(c))o.push(c)});FCORD[pid]=o;return o.slice()}
+function fcSortN(h,k){return h.slice().sort((a,b)=>{const wa=fcWild(a,k),wb=fcWild(b,k);if(wa!==wb)return wa?1:-1;if(wa)return fcJk(a)-fcJk(b);return fcRk(a)-fcRk(b)||FCSU.indexOf(fcSu(a))-FCSU.indexOf(fcSu(b))})}
 const fcMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
 const fcHumans=()=>{const g=fcG();return act().filter(p=>!p.bot&&(!g||g.ps.includes(p.id)))};
 function fcViewer(){const g=fcG();if(!g)return null;if(S.lk&&!S.demo){const m=fcMe();return m&&g.ps.includes(m.id)?m:null}const H=fcHumans();if(H.length===1)return H[0];if(!H.length)return null;const t=act().find(p=>p.id===g.turn);return t&&!t.bot&&FCVIEW===t.id?t:null}
@@ -8809,7 +8818,7 @@ function fcCardEl(c,o={}){const tag=o.btn?'button':'span',k=o.k,attr=o.btn?` dat
   const s=fcSu(c),n=fcRk(c),lab=n<=10?String(n):fcRkName(c)[0],w=k&&n===k;
   return `<${tag} class="${cls}${w?' fcw':''}" style="--fs:${FCCOL[s]}"${attr} aria-label="${fcName(c)}${w?', wild':''}${o.sel?', picked':''}"><b${lab.length>1?' class="ten"':''}>${lab}</b><i>${FCSYM[s]}</i><em>${FCSYM[s]}</em>${w?'<small>WILD</small>':''}</${tag}>`}
 const fcBackEl=(o={})=>`<span class="htc fcc fcback${o.mini?' mini':''}" aria-hidden="true"><em>♛</em></span>`;
-const fcGroupHtml=(cs,k,o={})=>`<div class="fcgrp${o.cls?' '+o.cls:''}">${o.lab?`<small class="fcgl">${o.lab}</small>`:''}<div class="fcgc">${cs.map(c=>fcCardEl(c,{k,mini:o.mini,btn:o.btn,sel:o.sel&&o.sel.includes(c),cls:o.got===c?'new':''})).join('')}</div>${o.x!==undefined?`<button class="fcgx" data-a="fcpungroup" data-i="${o.x}" aria-label="Break up this group">✕</button>`:''}</div>`;
+const fcGroupHtml=(cs,k,o={})=>`<div class="fcgrp${o.cls?' '+o.cls:''}">${o.lab?`<small class="fcgl">${o.lab}</small>`:''}<div class="fcgc">${cs.map(c=>fcCardEl(c,{k,mini:o.mini,btn:o.btn,sel:o.sel&&o.sel.includes(c),cls:(o.got===c?'new':'')+(o.drag?' fcdrag':'')})).join('')}</div>${o.x!==undefined?`<button class="fcgx" data-a="fcpungroup" data-i="${o.x}" aria-label="Break up this group">✕</button>`:''}</div>`;
 const fcLayHtml=(b,k)=>`<div class="fclay">${b.groups.map(gr=>fcGroupHtml(gr,k,{mini:true})).join('')}${b.left.length?fcGroupHtml(b.left,k,{mini:true,cls:'loose',lab:`${b.pen} left`}):''}</div>`;
 /* the groups I made myself (Arrange myself), cleaned up against my current hand */
 function fcMine(g,pid){const h=g.h[pid]||[],used={};const gs=(FCARR[pid]||[]).map(gr=>gr.filter(c=>h.includes(c)&&!used[c]&&(used[c]=1))).filter(gr=>gr.length>=3&&fcIsMeld(gr,g.k));FCARR[pid]=gs;return {groups:gs,loose:fcSort(h.filter(c=>!used[c]),g.k)}}
@@ -8835,23 +8844,25 @@ function fcPlayUI(){if(!fcRes()&&S.fcg&&S.fcg.r!==S.hr)S.hr=S.fcg.r;const X=FCX(
     out+=`<div class="panel htsum">${PP.map(q=>{const b=g.lay[q.id]||{pen:0,groups:[],left:[]},v=fcHand(q,r);return `<div class="fcsum" style="${pc(q.color)}"><div class="srow"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${g.out===q.id?'went out':b.pen?`${b.left.length} card${b.left.length===1?'':'s'} left over`:'laid everything down'}</small></span><span class="num"><b>${v>0?'+'+v:v}</b> · ${fcTot(q)}</span></div>${fcLayHtml(b,k)}</div>`}).join('')}</div>`;
     const lastR=r>=fcN()-1;
     out+=`<div class="actions"><div class="in">${lastR?(fcRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Game over! Waiting for the host to reveal…</span>`):fcRes()?`<button class="btn sm" data-a="finish">End game</button><button class="btn primary" data-a="fcpdeal">Deal round ${r+2}: ${fcCards(r+1)} cards ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`}
-  else if(V){const h=g.h[V.id]||[],self=X.arr==='self',sel=FCSEL.filter(c=>h.includes(c));FCSEL=sel;
-    out+=`<div class="seg fcarr"><button data-a="fcparr" data-v="auto" aria-pressed="${!self}">🪄 Sort into groups</button><button data-a="fcparr" data-v="self" aria-pressed="${self}">✋ Arrange myself</button></div>`;
-    let groups,loose;if(self){const m=fcMine(g,V.id);groups=m.groups;loose=m.loose}else{const b=fcBest(h,k);groups=b.groups;loose=fcSort(b.left,k)}
-    out+=`<div class="fchand" aria-label="Your cards">${groups.map((gr,i)=>fcGroupHtml(gr,k,{btn:true,sel,got:g.got,cls:'ok',lab:fcIsBook(gr,k)?'Book':'Run',x:self?i:undefined})).join('')}${loose.length?fcGroupHtml(loose,k,{btn:true,sel,got:g.got,cls:'loose',lab:groups.length?'Not in a group':''}):''}</div>`;
+  else if(V){const h=g.h[V.id]||[],help=!!X.help,self=!help||X.arr==='self',sel=FCSEL.filter(c=>h.includes(c));FCSEL=sel;
+    if(help)out+=`<div class="seg fcarr"><button data-a="fcparr" data-v="auto" aria-pressed="${!self}">🪄 Sort into groups</button><button data-a="fcparr" data-v="self" aria-pressed="${self}">✋ Arrange myself</button></div>`;
+    let groups,loose;if(self){const m=fcMine(g,V.id);groups=m.groups;loose=fcOrd(V.id,m.loose)}else{const b=fcBest(h,k);groups=b.groups;loose=fcSort(b.left,k)}
+    if(self)out+=`<div class="fcsort"><span class="rlab">Sort:</span><button class="btn sm" data-a="fcpsort" data-v="n">By number</button><button class="btn sm" data-a="fcpsort" data-v="s">By suit</button><small class="rlab">or drag cards to move them</small></div>`;
+    out+=`<div class="fchand" aria-label="Your cards">${groups.map((gr,i)=>fcGroupHtml(gr,k,{btn:true,sel,got:g.got,cls:'ok',lab:fcIsBook(gr,k)?'Book':'Run',x:self?i:undefined})).join('')}${loose.length?fcGroupHtml(loose,k,{btn:true,sel,got:g.got,cls:'loose',drag:self,lab:groups.length?'Not in a group':''}):''}</div>`;
     /* what can I do right now? */
     const btns=[];let tip='';
     if(mine&&g.drew){
-      let outC=null;if(!g.out){if(sel.length===1&&fcBest(h.filter(c=>c!==sel[0]),k).pen===0)outC=sel[0];else if(self){if(loose.length===1)outC=loose[0]}else outC=fcCanOut(h,k)}
+      let outC=null;if(!g.out){if(help&&sel.length===1&&fcBest(h.filter(c=>c!==sel[0]),k).pen===0)outC=sel[0];else if(self){if(loose.length===1&&groups.length)outC=loose[0]}else outC=fcCanOut(h,k)}
       if(outC&&!g.out)out+=`<div class="panel fcgoout"><b>👑 You can go out!</b><p class="rlab">Discard the ${esc(fcName(outC))} and lay everything else down. Everyone else gets one more turn.</p><button class="btn primary wide" data-a="fcpout" data-c="${outC}">Go out</button></div>`;
       if(sel.length===1)btns.push(`<button class="btn${outC?'':' primary'}" data-a="fcpdisc" data-c="${sel[0]}">${last?'Discard it and lay down':`Discard the ${esc(fcName(sel[0]))}`}</button>`);
       else tip=self?'Tap one card to discard it, or tap 3 or more and make a group.':'Tap a card to pick it, then discard it.';
-      if(self&&!outC&&!g.out&&fcCanOut(h,k))tip='<b>You can go out this turn!</b> Group your cards so only one is left over, or switch to 🪄 to see how. '+tip}
-    else if(!mine&&g.phase==='play')tip=self?'Tap 3 or more cards that make a book or a run, then make a group.':'The app keeps your cards sorted into the best books and runs it can find.';
+      if(help&&self&&!outC&&!g.out&&fcCanOut(h,k))tip='<b>You can go out this turn!</b> Group your cards so only one is left over, or switch to 🪄 to see how. '+tip}
+    else if(!mine&&g.phase==='play')tip=self?'Tap 3 or more cards that make a book or a run, then make a group. When only one card is left over, you can go out.':'The app keeps your cards sorted into the best books and runs it can find.';
     if(self&&sel.length>=2){const okM=sel.length>=3&&fcIsMeld(sel,k);btns.push(`<button class="btn" data-a="fcpgroup" ${okM?'':'disabled'}>${okM?'Make a group':sel.length<3?'Pick 3 or more':'Not a book or run'}</button>`)}
     if(btns.length)out+=`<div class="actions"><div class="in">${btns.join('')}</div></div>`;
     if(tip)out+=`<p class="hint" style="text-align:center">${tip} Book: 3+ of a kind. Run: 3+ in a row, one suit.</p>`}
   else if(!S.lk&&fcHumans().length>1&&g.phase==='play')out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
+  if(g.phase==='play'&&mine&&last&&!FCLASTOK[g.r+':'+V.id])out+=`<div class="sheet-bg" data-a="fcplastok"><div class="sheet fclast" role="dialog" aria-modal="true" aria-labelledby="fcl-h" data-stop="1"><h2 id="fcl-h">⏰ Last turn!</h2><p class="rlab">${esc(nmid(g.out))} went out. This is your last turn: draw a card, then discard one.</p><p class="rlab">After that, the app lays down your best books and runs, and whatever’s left counts against you.</p><button class="btn primary wide" data-a="fcplastok">Got it</button></div></div>`;
   if(FCTIE)out+=`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="tie-h"><h2 id="tie-h">It’s a tie</h2><p class="rlab">${esc(fcLowTie().map(nm).join(' and '))} are tied for the lowest score with ${lo}.</p>
     <div class="sheet-btns"><button class="btn" data-a="fctie" data-v="share">Share the win</button><button class="btn primary" data-a="fctie" data-v="round">Play a 6-card tie-breaker</button></div></div></div>`;
   if(WARN)out+=`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
@@ -8860,6 +8871,9 @@ function fcPlayUI(){if(!fcRes()&&S.fcg&&S.fcg.r!==S.hr)S.hr=S.fcg.r;const X=FCX(
   return out}
 const fcIsBook=(gr,k)=>{const N=gr.filter(c=>!fcWild(c,k));return !N.length||N.every(c=>fcRk(c)===fcRk(N[0]))};
 function fcAct(a,b,k){const g=fcG();if(!g)return;
+  if(a==='fcpcard'&&FCDRAGGED){FCDRAGGED=false;return}
+  if(a==='fcplastok'){const V=fcViewer();if(V)FCLASTOK[g.r+':'+V.id]=1;return}
+  if(a==='fcpsort'){const V=fcViewer();if(!V)return;FCORD[V.id]=(b.dataset.v==='n'?fcSortN:fcSort)(g.h[V.id]||[],g.k);vibe(8);return}
   if(a==='fcpshow'){FCVIEW=k;FCSEL=[];return}
   if(a==='fcparr'){FCX().arr=b.dataset.v;fcKeep();FCSEL=[];return}
   if(a==='fcpdeal'){if(!fcRes()||g.phase!=='done')return;S.hr=fcCur()+1;fcDeal(S.hr);window.scrollTo(0,0);return}
@@ -8870,6 +8884,19 @@ function fcAct(a,b,k){const g=fcG();if(!g)return;
   if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}
   if(a==='fcpdeck'||a==='fcptake'){if(g.drew){toast('Now pick a card to discard.');return}FCSEL=[];if(lkq('fcDraw',V.id,a==='fcptake'?'disc':'deck'))vibe(12);return}
   if(a==='fcpdisc'||a==='fcpout'){if(!g.drew){toast('Draw a card first.');return}const c=b.dataset.c;FCSEL=[];if(lkq('fcDisc',V.id,c,a==='fcpout'?1:0)){vibe(a==='fcpout'?[20,40,20]:15);if(!S.lk&&fcHumans().length>1)FCVIEW=null}return}}
+/* Five Crowns: drag your loose cards to put your hand in your own order */
+(function(){let D=null;
+  const under=(x,y,el)=>{el.style.pointerEvents='none';const t=document.elementFromPoint(x,y);el.style.pointerEvents='';return t&&t.closest('.fchand .fcdrag')};
+  const clear=()=>document.querySelectorAll('.fchand .dropb,.fchand .dropa').forEach(x=>x.classList.remove('dropb','dropa'));
+  document.addEventListener('pointerdown',e=>{const el=e.target.closest&&e.target.closest('.fchand .fcdrag');if(!el)return;D={el,x:e.clientX,y:e.clientY,on:false,id:e.pointerId}},true);
+  document.addEventListener('pointermove',e=>{if(!D||e.pointerId!==D.id)return;const dx=e.clientX-D.x,dy=e.clientY-D.y;
+    if(!D.on){if(Math.hypot(dx,dy)<8)return;D.on=true;D.el.classList.add('dragging');try{D.el.setPointerCapture(e.pointerId)}catch(_){}}
+    D.el.style.transform=`translate(${dx}px,${dy}px)`;clear();const t=under(e.clientX,e.clientY,D.el);if(t&&t!==D.el){const r=t.getBoundingClientRect();t.classList.add(e.clientX<r.left+r.width/2?'dropb':'dropa')}e.preventDefault()},{passive:false});
+  const end=e=>{if(!D||e.pointerId!==D.id)return;const d=D;D=null;if(!d.on)return;FCDRAGGED=true;setTimeout(()=>{FCDRAGGED=false},400);clear();
+    const t=e.type==='pointerup'?under(e.clientX,e.clientY,d.el):null;d.el.style.transform='';d.el.classList.remove('dragging');
+    const g=fcG(),V=fcViewer();if(t&&t!==d.el&&g&&V){const r=t.getBoundingClientRect(),after=e.clientX>=r.left+r.width/2,c=d.el.dataset.c,tc=t.dataset.c,o=(FCORD[V.id]||[]).filter(x=>x!==c);let i=o.indexOf(tc);if(i>=0){if(after)i++;o.splice(i,0,c);FCORD[V.id]=o;vibe(8)}}
+    render()};
+  document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',end,true)})();
 
 /* ================= Phase 10 on the phone =================
    110-card deck: 1-12 twice in red, blue, green and yellow, 8 Wilds, 4 Skips. Deal 10 each, turn one up.
@@ -10596,7 +10623,7 @@ document.addEventListener('click',e=>{
   if(/^rk(card|bid|deal|show|trump|nest)$/.test(a)&&S.game==='rook'&&rkPlayOn()&&S.started){rkAct(a,b,k);render();return}
   if(/^rg(card|bid|deal|show|color|num|fore|rage)$/.test(a)&&S.game==='rage'&&rgPlayOn()&&S.started){rgAct(a,b,k);render();return}
   if(/^pzp[a-z]+$/.test(a)&&S.game==='phase10'&&pzOn()&&S.started){pzAct(a,b,k);save();render();return}
-  if(/^fcp(deck|take|card|disc|out|group|ungroup|arr|show|deal)$/.test(a)&&S.game==='crowns'&&fcOn()&&S.started){fcAct(a,b,k);save();render();return}
+  if(/^fcp(deck|take|card|disc|out|group|ungroup|arr|show|deal|lastok|sort)$/.test(a)&&S.game==='crowns'&&fcOn()&&S.started){fcAct(a,b,k);save();render();return}
   if(/^sbp(src|disc|build|show|deal)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
   if(/^gp(cell|deck|disc|deal|pile|skip|bounce)$/.test(a)&&(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')&&gpOn()&&S.started){gpAct(a,b,k);save();render();return}
   if(/^unp(card|draw|keep|col|uno|catch|chal|swap|roul|show|deal|aim|row|end)$/.test(a)&&S.game==='uno'&&unPlayOn()&&S.started){unAct(a,b,k);save();render();return}
