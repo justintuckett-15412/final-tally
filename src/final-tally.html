@@ -5655,7 +5655,7 @@ const UG={hf:{get:()=>S.hx,set:v=>S.hx=v,def:()=>HFDEF,keep:()=>hfKeep()},canast
   nerts:{get:()=>S.nx,set:v=>S.nx=v,def:()=>NXDEF,keep:()=>nxKeep()},hearts:{get:()=>S.htx,set:v=>S.htx=v,def:()=>HTDEF,keep:()=>htKeep()},
   spades:{get:()=>S.sdx,set:v=>{const tm=SDX().teams;S.sdx=v;if(v.teams!==tm)S.players.forEach((p,i)=>p.on=i<(v.teams?2:4))},def:()=>SDDEF,keep:()=>sdKeep()},
   rage:{get:()=>S.rgx,set:v=>S.rgx=v,def:()=>RGDEF,keep:()=>rgKeep()},ohell:{get:()=>S.ohx,set:v=>S.ohx=v,def:()=>OHDEF,keep:()=>ohKeep()},munchkin:{get:()=>S.mkx,set:v=>S.mkx=v,def:()=>mkDefs(),keep:()=>mkKeep()},uno:{get:()=>S.unx,set:v=>S.unx=v,def:()=>JSON.parse(JSON.stringify(UNDEF)),keep:()=>unKeep()},crowns:{get:()=>S.fcx,set:v=>S.fcx=v,def:()=>FCDEF,keep:()=>fcKeep()},quacks:{get:()=>S.qkx,set:v=>S.qkx=v,def:()=>QKDEF,keep:()=>qkKeep()},tripoley:{get:()=>S.tpx,set:v=>S.tpx=v,def:()=>TPDEF,keep:()=>tpKeep()},golf:{get:()=>S.gfx,set:v=>S.gfx=v,def:()=>GFDEF,keep:()=>gfKeep()},skyjo:{get:()=>S.skx,set:v=>S.skx=v,def:()=>SKDEF,keep:()=>skKeep()},catan:{get:()=>S.ctx,set:v=>S.ctx=v,def:()=>CTDEF,keep:()=>ctKeep()},mextrain:{get:()=>S.mtx,set:v=>S.mtx=v,def:()=>MTDEF,keep:()=>mtKeep()},yahtzee:{get:()=>S.yzx,set:v=>S.yzx=v,def:()=>YZDEF,keep:()=>yzKeep()},rook:{get:()=>S.rkx,set:v=>S.rkx=v,def:()=>RKDEF,keep:()=>rkKeep()},phase10:{get:()=>S.ptx,set:v=>S.ptx=v,def:()=>JSON.parse(JSON.stringify(PTDEF)),keep:()=>ptKeep()},wingspan:{get:()=>S.wsx,set:v=>S.wsx=v,def:()=>WSDEF,keep:()=>wsKeep()},gnome:{get:()=>S.gnx,set:v=>S.gnx=v,def:()=>GNDEF,keep:()=>gnKeep()},skipbo:{get:()=>S.sbx,set:v=>{const tm=SBX().teams;S.sbx=v;if(v.teams!==tm)S.players.forEach((p,i)=>p.on=i<(v.teams?2:3))},def:()=>SBDEF,keep:()=>sbKeep()}};
-function usualGet(g){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.usual.'+g))}catch(e){}return x}
+function usualGet(g){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.usual.'+g))}catch(e){}if(x&&g==='tripoley'&&(x.av||0)<2){x.aces=true;x.av=2}return x}
 function usualBase(g){const d=UG[g].def(),u=usualGet(g);return JSON.parse(JSON.stringify(Object.assign({},d,u||{})))}
 const usualSame=(a,b,d)=>Object.keys(d).every(k=>JSON.stringify(a[k])===JSON.stringify(b[k]));
 function usualUI(g){if(S.demo)return '';const G=UG[g],d=G.def(),cur=G.get()||{},base=usualBase(g),own=!!usualGet(g),ch=!usualSame(cur,base,d),std=!usualSame(cur,d,d);
@@ -7455,9 +7455,9 @@ function gfDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    poker pot and the Michigan run-out move chips around. Unclaimed pens
    carry over. S.tph[r] = {pens:{A:pid,..,T89:[pids]}, bets:{pid:n}, pw:[pids], out:pid, left:{pid:n}}
    ===================================================================== */
-const TPDEF={start:50,ante:1,poker:true,perCard:1,end:'open',hands:10,dead:false,wait:5,payPlay:true,aces:false};
+const TPDEF={start:50,ante:1,poker:true,perCard:1,end:'open',hands:10,dead:false,wait:5,payPlay:true,aces:true,av:2};
 const TPX=()=>{if(!S.tpx)S.tpx={...TPDEF};const X=S.tpx;for(const k in TPDEF)if(X[k]===undefined)X[k]=TPDEF[k];return X};
-function tpSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.tpx'))}catch(e){}return Object.assign({...TPDEF},x||{})}
+function tpSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.tpx'))}catch(e){}if(x&&(x.av||0)<2){x.aces=true;x.av=2}/* ace bets became on by default */return Object.assign({...TPDEF},x||{})}
 function tpKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.tpx',JSON.stringify(TPX()))}catch(e){}}
 function tpFresh(){return {game:'tripoley',screen:'map',map:'tripoley',rules:{},started:false,active:0,picks:{},hr:0,tph:[],tpx:tpSaved(),players:CARC_COLORS.map((c,i)=>newPlayer('',c,i<5))}}
 function TPM(){const X=TPX();return {name:'Tripoley',meta:`${X.start} chips each · ante ${X.ante} a pen · ${X.end==='hands'?X.hands+' hands':'until you stop'}`,min:2,max:8,teams:false,colors:CARC_COLORS,lengths:[],pieces:0,piece:'',own:[],defaults:[],tb:[]}}
