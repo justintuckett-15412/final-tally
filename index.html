@@ -1563,24 +1563,25 @@ const pc=c=>`--pc:var(--t-${c});--pl:'${CBL[c]||''}'`;
 
 function blank(p){p.routes={};p.tickets=[];p.x={};delete p.stations;delete p.passengers;delete p.harbors;delete p.bullet;delete p.districts;return p}
 function newPlayer(name,color,on=true){return blank({id:uid(),name,color,on})}
+function luFresh(){return {...fresh(),game:'linkup',players:[]}}
 function fresh(){return{screen:'home',map:'usa',rules:defaultRules('usa'),started:false,active:0,picks:{},players:BASE.map((c,i)=>newPlayer('',c,i<4))}}
 const HFE=()=>S.game==='hf'||S.game==='canasta',HFD=()=>S.game==='canasta'?CADEF:HFDEF,BIGG=g=>g==='hf'||g==='canasta';
-const GKEY=g=>g==='carc'?KEY+'.carc':g==='hf'?KEY+'.hf':g==='canasta'?KEY+'.canasta':g==='nerts'?KEY+'.nerts':g==='pad'?KEY+'.pad':g==='darts'?KEY+'.darts':g==='pool'?KEY+'.pool':g==='hearts'?KEY+'.hearts':g==='spades'?KEY+'.spades':g==='rage'?KEY+'.rage':g==='ohell'?KEY+'.ohell':g==='uno'?KEY+'.uno':g==='munchkin'?KEY+'.munchkin':g==='crowns'?KEY+'.crowns':g==='skipbo'?KEY+'.skipbo':g==='gnome'?KEY+'.gnome':g==='skyjo'?KEY+'.skyjo':g==='wingspan'?KEY+'.wingspan':g==='wyrmspan'?KEY+'.wyrmspan':g==='phase10'?KEY+'.phase10':g==='rook'?KEY+'.rook':g==='yahtzee'?KEY+'.yahtzee':g==='mextrain'?KEY+'.mextrain':g==='chicken'?KEY+'.chicken':g==='catan'?KEY+'.catan':g==='golf'?KEY+'.golf':g==='tripoley'?KEY+'.tripoley':g==='quacks'?KEY+'.quacks':KEY;
+const GKEY=g=>g==='linkup'?KEY+'.linkup':g==='carc'?KEY+'.carc':g==='hf'?KEY+'.hf':g==='canasta'?KEY+'.canasta':g==='nerts'?KEY+'.nerts':g==='pad'?KEY+'.pad':g==='darts'?KEY+'.darts':g==='pool'?KEY+'.pool':g==='hearts'?KEY+'.hearts':g==='spades'?KEY+'.spades':g==='rage'?KEY+'.rage':g==='ohell'?KEY+'.ohell':g==='uno'?KEY+'.uno':g==='munchkin'?KEY+'.munchkin':g==='crowns'?KEY+'.crowns':g==='skipbo'?KEY+'.skipbo':g==='gnome'?KEY+'.gnome':g==='skyjo'?KEY+'.skyjo':g==='wingspan'?KEY+'.wingspan':g==='wyrmspan'?KEY+'.wyrmspan':g==='phase10'?KEY+'.phase10':g==='rook'?KEY+'.rook':g==='yahtzee'?KEY+'.yahtzee':g==='mextrain'?KEY+'.mextrain':g==='chicken'?KEY+'.chicken':g==='catan'?KEY+'.catan':g==='golf'?KEY+'.golf':g==='tripoley'?KEY+'.tripoley':g==='quacks'?KEY+'.quacks':KEY;
 let CURG='ttr';try{CURG=localStorage.getItem('finaltally.cur')||'ttr'}catch(e){}
 function load(){try{const s=JSON.parse(localStorage.getItem(GKEY(CURG)));return s&&s.players?s:null}catch(e){return null}}
 function gamePeek(g){if((S.game||'ttr')===g&&!S.demo&&!S.editing)return S;try{return JSON.parse(localStorage.getItem(GKEY(g)))}catch(e){return null}}
 function switchGame(g){if(S.lk&&S.lk.role==='guest'&&!S.demo&&(S.game||'ttr')!==g){toast('The host picks the next game. Your phone follows along.');throw new Error('linked')}if((S.game||'ttr')===g&&!S.demo&&!S.editing)return;if(S.demo||S.editing){exitDemo()}if((S.game||'ttr')===g)return;
-  const carry=S.lk&&S.lk.role==='host'&&!S.demo&&window.FTLINK&&window.FTLINK.swap?S.lk:null;if(carry){const me=S.lk.me&&act().find(p=>p.id===S.lk.me);LKPREV=me?nm(me):LKPREV;delete S.lk}save();
+  const carry=S.lk&&S.lk.role==='host'&&!S.demo&&window.FTLINK&&window.FTLINK.swap?S.lk:null;let lkp=null,lkinv=false;if(carry){const me=S.lk.me&&act().find(p=>p.id===S.lk.me);LKPREV=me?nm(me):LKPREV;lkp=luPeople();lkinv=!(S.lkvote&&S.lkvote._d==='new');delete S.lk}save();
   CURG=g;try{localStorage.setItem('finaltally.cur',g)}catch(e){}let n=null;try{n=JSON.parse(localStorage.getItem(GKEY(g)))}catch(e){}
-  S=n&&n.players?n:(g==='carc'?cFresh():g==='hf'?hfFresh():g==='canasta'?hfFresh('canasta'):g==='nerts'?nxFresh():g==='pad'?pxFresh():g==='darts'?dtFresh():g==='pool'?plFresh():g==='hearts'?htFresh():g==='spades'?sdFresh():g==='rage'?rgFresh():g==='ohell'?ohFresh():g==='uno'?unFresh():g==='munchkin'?mkFresh():g==='crowns'?fcFresh():g==='skipbo'?sbFresh():g==='gnome'?gnFresh():g==='skyjo'?skFresh():g==='wingspan'?wsFresh():g==='wyrmspan'?wyFresh():g==='phase10'?ptFresh():g==='rook'?rkFresh():g==='yahtzee'?yzFresh():g==='mextrain'?mtFresh():g==='chicken'?cfFresh():g==='catan'?ctFresh():g==='golf'?gfFresh():g==='tripoley'?tpFresh():g==='quacks'?qkFresh():fresh());UNDO=[];KP='';WARN=null;REV=null;CALC=null;
-  if(carry){S.lk={code:carry.code,role:'host',me:undefined,at:Date.now(),...(carry.lan?{lan:true}:{})};S.started=false;lkSwap()}}
+  S=n&&n.players?n:(g==='carc'?cFresh():g==='hf'?hfFresh():g==='canasta'?hfFresh('canasta'):g==='nerts'?nxFresh():g==='pad'?pxFresh():g==='darts'?dtFresh():g==='pool'?plFresh():g==='hearts'?htFresh():g==='spades'?sdFresh():g==='rage'?rgFresh():g==='ohell'?ohFresh():g==='uno'?unFresh():g==='munchkin'?mkFresh():g==='crowns'?fcFresh():g==='skipbo'?sbFresh():g==='gnome'?gnFresh():g==='skyjo'?skFresh():g==='wingspan'?wsFresh():g==='wyrmspan'?wyFresh():g==='phase10'?ptFresh():g==='rook'?rkFresh():g==='yahtzee'?yzFresh():g==='mextrain'?mtFresh():g==='chicken'?cfFresh():g==='catan'?ctFresh():g==='golf'?gfFresh():g==='tripoley'?tpFresh():g==='quacks'?qkFresh():g==='linkup'?luFresh():fresh());UNDO=[];KP='';WARN=null;REV=null;CALC=null;
+  if(carry){S.lk={code:carry.code,role:'host',me:undefined,at:Date.now(),...(carry.lan?{lan:true}:{})};const wasLive=S.started&&!S.finished;S.started=false;if(g!=='linkup'&&lkp&&lkp.length&&!wasLive)luFill(lkp);S.lkby=LKPREV||'';if(lkinv)S.lkinv=Date.now();else delete S.lkinv;delete S.lksit;LKOPEN=false;lkSwap()}}
 function save(){try{if(S.lk&&S.lk.role==='guest'&&!S.demo){if(lkLockBlock())return;localStorage.setItem(KEY+'.linked',JSON.stringify(S));lkPush();return}if(S.demo||S.editing){localStorage.setItem(KEY+'.tmp',JSON.stringify(S));return}if(S.started&&!S.finished&&!S.demo){const j=JSON.stringify({p:S.players,x:S.picks,l:S.log});if(j!==S._sig){S._sig=j;S.touched=Date.now()}}localStorage.setItem(GKEY(S.game||'ttr'),JSON.stringify(S));if(S.lk)lkPush()}catch(e){}}
 function defaultRules(k){const m=MAPS[k],r={};(m.presets?m.presets[0].on:[]).concat(m.defaults).forEach(id=>r[id]=true);return r}
 let S=load()||(CURG==='carc'?cFresh():CURG==='hf'?hfFresh():CURG==='canasta'?hfFresh('canasta'):CURG==='nerts'?nxFresh():CURG==='pad'?pxFresh():CURG==='darts'?dtFresh():CURG==='pool'?plFresh():CURG==='hearts'?htFresh():CURG==='spades'?sdFresh():CURG==='rage'?rgFresh():CURG==='ohell'?ohFresh():CURG==='uno'?unFresh():CURG==='munchkin'?mkFresh():CURG==='crowns'?fcFresh():CURG==='skipbo'?sbFresh():CURG==='gnome'?gnFresh():CURG==='skyjo'?skFresh():CURG==='wingspan'?wsFresh():CURG==='wyrmspan'?wyFresh():CURG==='phase10'?ptFresh():CURG==='rook'?rkFresh():CURG==='yahtzee'?yzFresh():CURG==='mextrain'?mtFresh():CURG==='chicken'?cfFresh():CURG==='catan'?ctFresh():CURG==='golf'?gfFresh():CURG==='tripoley'?tpFresh():CURG==='quacks'?qkFresh():fresh());
 try{if(localStorage.getItem(KEY+'.lkon')){const g=JSON.parse(localStorage.getItem(KEY+'.linked'));if(g&&g.players&&g.lk)S=g}}catch(e){}
 let WELCOME=!!(S.started&&!S.finished&&!S.demo&&!S.editing&&S.screen!=='home');
 if(S.game!=='carc'&&!HFE()&&S.game!=='nerts'&&S.game!=='pad'&&S.game!=='darts'&&S.game!=='pool'&&S.game!=='hearts'&&S.game!=='spades'&&S.game!=='rage'&&S.game!=='ohell'&&S.game!=='uno'&&S.game!=='munchkin'&&S.game!=='crowns'&&S.game!=='skipbo'&&S.game!=='gnome'&&S.game!=='skyjo'&&S.game!=='wingspan'&&S.game!=='wyrmspan'&&S.game!=='phase10'&&S.game!=='rook'&&S.game!=='yahtzee'&&S.game!=='mextrain'&&S.game!=='chicken'&&S.game!=='catan'&&S.game!=='golf'&&S.game!=='tripoley'&&S.game!=='quacks'&&!MAPS[S.map])S.map='usa';
-const M=()=>S.game==='carc'?CM():HFE()?HM():S.game==='nerts'?NM():S.game==='pad'?PM():S.game==='darts'?DM():S.game==='pool'?PLM():S.game==='hearts'?HTM():S.game==='spades'?SDM():S.game==='rage'?RGM():S.game==='ohell'?OHM():S.game==='uno'?UNM():S.game==='munchkin'?MKM():S.game==='crowns'?FCM():S.game==='skipbo'?SBM():S.game==='gnome'?GNM():S.game==='skyjo'?SKM():S.game==='wingspan'?WSM():S.game==='wyrmspan'?WYM():S.game==='phase10'?PTM():S.game==='rook'?RKM():S.game==='yahtzee'?YZM():S.game==='mextrain'?MTM():S.game==='chicken'?CFM():S.game==='catan'?CTM():S.game==='golf'?GFM():S.game==='tripoley'?TPM():S.game==='quacks'?QKM():MAPS[S.map];
+const M=()=>S.game==='linkup'?{...MAPS.usa,name:'Linked phones'}:S.game==='carc'?CM():HFE()?HM():S.game==='nerts'?NM():S.game==='pad'?PM():S.game==='darts'?DM():S.game==='pool'?PLM():S.game==='hearts'?HTM():S.game==='spades'?SDM():S.game==='rage'?RGM():S.game==='ohell'?OHM():S.game==='uno'?UNM():S.game==='munchkin'?MKM():S.game==='crowns'?FCM():S.game==='skipbo'?SBM():S.game==='gnome'?GNM():S.game==='skyjo'?SKM():S.game==='wingspan'?WSM():S.game==='wyrmspan'?WYM():S.game==='phase10'?PTM():S.game==='rook'?RKM():S.game==='yahtzee'?YZM():S.game==='mextrain'?MTM():S.game==='chicken'?CFM():S.game==='catan'?CTM():S.game==='golf'?GFM():S.game==='tripoley'?TPM():S.game==='quacks'?QKM():MAPS[S.map];
 // bring older saves up to date
 if(!HFE()&&S.game!=='nerts'&&S.game!=='pad'&&S.game!=='darts'&&S.game!=='pool'&&S.game!=='hearts'&&S.game!=='spades'&&S.game!=='rage'&&S.game!=='ohell'&&S.game!=='uno'&&S.game!=='munchkin'&&S.game!=='crowns'&&S.game!=='skipbo'&&S.game!=='gnome'&&S.game!=='skyjo'&&S.game!=='wingspan'&&S.game!=='wyrmspan'&&S.game!=='phase10'&&S.game!=='rook'&&S.game!=='yahtzee'&&S.game!=='mextrain'&&S.game!=='chicken'&&S.game!=='catan'&&S.game!=='golf'&&S.game!=='tripoley'&&S.game!=='quacks'&&(!S.rules||!Object.keys(S.rules).length))S.rules=defaultRules(S.map);
 S.picks=S.picks||{};if(S.screen==='setup')S.screen='players';
@@ -2331,6 +2332,33 @@ function lkSplit(){const main={},items={},arrs=[];for(const k in S){if(k==='play
   if(arrs.length)main._lkarr=arrs;
   return {m:lkFlat(main,'',0,{}),order:S.players.map(p=>p.id),ps:Object.fromEntries(S.players.map(p=>[p.id,stable(p)])),items}}
 function lkItemsTo(st,items){const want=st._lkarr||[];delete st._lkarr;LKITEMS.forEach(f=>{const arr=[];for(const key in items)if(key.startsWith(f+'~')&&items[key])arr.push(JSON.parse(items[key]));if(arr.length||Array.isArray(st[f])||want.includes(f))st[f]=lkSort(arr)})}
+
+/* ---------- linking phones first, on the home screen ('linkup'), then inviting them into a game ---------- */
+let LKINVG=-1,LKSITG=-1;
+const LUCOLS=['red','blue','green','yellow','purple','pink','white','gray','black'];
+const luName=()=>{try{return localStorage.getItem('ft.lkname')||''}catch(e){return ''}};
+const luSetName=n=>{try{localStorage.setItem('ft.lkname',n)}catch(e){}};
+/* everyone on a linked phone in this game (plus anyone carried in from before), by name */
+function luPeople(){const out=[],seen=new Set(),add=(name,color)=>{const k=String(name||'').trim().toLowerCase();if(!k||seen.has(k))return;seen.add(k);out.push({name:String(name).trim(),color})};
+  act().forEach(p=>{if(!p.bot&&p.name.trim()&&LKSEATS[p.id]&&LKSEATS[p.id].dev)add(p.name,p.color)});(S.lkppl||[]).forEach(x=>add(x.name,x.color));return out}
+/* a new linked game starts with just the linked people (nobody remembered from last time) */
+function luFill(ppl){S.lkppl=ppl;S.players.forEach(p=>{p.on=false;p.name='';p.rid=null;delete p.bot;if(Array.isArray(p.mem))p.mem=p.mem.map(()=>'')});
+  ppl.forEach(x=>{let q=S.players.find(p=>!p.on&&p.color===x.color)||S.players.find(p=>!p.on);if(!q){q=newPlayer(x.name,x.color);S.players.push(q)}q.name=x.name;q.on=true});
+  const mn=(M()||{}).min||1;while(act().length<mn){const q=S.players.find(p=>!p.on);if(!q)break;q.on=true}}
+const luInvite=()=>lkGuest()&&!S.demo&&S.game!=='linkup'&&!!S.lkinv&&!S.lk.me&&LKINVG!==LKGEN&&LKSITG!==LKGEN;
+const luSitting=()=>lkGuest()&&LKSITG===LKGEN&&!S.lk.me&&S.game!=='linkup';
+const luHost=()=>S.lkby||((S.players[0]||{}).name)||'The host';
+function luChips(){return `<div class="lr">${act().filter(p=>!p.bot&&p.name.trim()&&LKSEATS[p.id]&&LKSEATS[p.id].dev).map(p=>`<button style="${pc(p.color)}" aria-pressed="true" tabindex="-1"><i></i>${esc(p.name)}</button>`).join('')}</div>`}
+function luInviteSheet(){return `<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="lui-h"><h2 id="lui-h">${esc(M().name)}?</h2><p class="rlab">${esc(luHost())} is setting up <b>${esc(M().name)}</b>${LKPREV?` and invited <b>${esc(LKPREV)}</b>`:''}. Want to play?</p>
+  <div class="sheet-btns"><button class="btn" data-a="luinv" data-k="sit">Sit this one out</button><button class="btn primary" data-a="luinv" data-k="join">Join</button></div></div></div>`}
+/* the linked people as tap-to-add names on the host's setup screens */
+function luStrip(){const L=S.lkppl||[];if(!L.length)return '';return `<div class="sec lustrip"><div class="sec-h"><h3>📱 Linked phones</h3></div><div class="lr">${L.map(x=>{const on=S.players.some(p=>p.on&&p.name.trim().toLowerCase()===x.name.toLowerCase());return `<button style="${pc(x.color)}" data-a="luadd" data-k="${esc(x.name)}" aria-pressed="${on}"><i></i>${esc(x.name)}</button>`}).join('')}</div><p class="hint">Tap a name to add or remove them. Their phones get an invite to join.</p></div>`}
+function luToggle(name){const k=name.trim().toLowerCase(),m=M(),q=S.players.find(p=>p.name.trim().toLowerCase()===k),x=(S.lkppl||[]).find(y=>y.name.toLowerCase()===k)||{};
+  if(q&&q.on){if(act().length<=(m.min||1)){toast(`${M().name} needs at least ${m.min} players.`);return}q.on=false;return}
+  if(act().length>=(m.max||99)){toast(`${M().name} is full.`);return}
+  if(q){q.on=true;delete q.bot;return}
+  let seat=act().find(p=>!p.bot&&!p.name.trim());if(!seat){seat=S.players.find(p=>!p.on&&p.color===x.color)||S.players.find(p=>!p.on&&!p.name.trim())||S.players.find(p=>!p.on);if(!seat){seat=newPlayer('',x.color||'red');S.players.push(seat)}seat.on=true}
+  seat.name=x.name||name;delete seat.bot}
 const lkGuest=()=>!!(S.lk&&S.lk.role==='guest');
 /* locked scoring: a guest phone may only change its own player's score (or a shared score that includes its player) */
 function lkBase(){const st={...lkUnflat(LKLAST.m||{}),players:(LKLAST.order||[]).map(id=>LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):null).filter(Boolean)};LKITEMS.forEach(f=>{if(Array.isArray(S[f]))st[f]=[]});lkItemsTo(st,LKLAST.items||{});return st}
@@ -2359,7 +2387,7 @@ function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK||LKSWAP)return;if(lkHost()&&L
   if(sets.length||dels.length){u.mops=[...sets.map(p=>[p.split(LKSEP),x.m[p]]),...dels.map(p=>[p.split(LKSEP),null])];LKLAST.m=x.m}
   const it={},oi=LKLAST.items||{};for(const k in x.items)if(x.items[k]!==oi[k])it[k]=x.items[k];for(const k in oi)if(!(k in x.items))it[k]=null;
   if(Object.keys(it).length){u.items=it;LKLAST.items=x.items}
-  if(stable(x.order)!==stable(LKLAST.order)){u.order=x.order;LKLAST.order=x.order}
+  if(stable(x.order)!==stable(LKLAST.order)&&!(lkGuest()&&S.game==='linkup')){u.order=x.order;LKLAST.order=x.order}
   const ps={};for(const id in x.ps)if(x.ps[id]!==LKLAST.ps[id]){ps[id]=x.ps[id];LKLAST.ps[id]=x.ps[id]}
   if(Object.keys(ps).length)u.ps=ps;if(Object.keys(u).length){lkTouch();window.FTLINK.push(u)}},250)}
 
@@ -2377,7 +2405,7 @@ const lkOk=s=>!!(s&&s.ready&&(s.rd||0)===LKRD);
 const lkReadyN=()=>lkSeated().filter(([,s])=>lkOk(s)).length;
 const lkMine=()=>S.lk&&S.lk.me?LKSEATS[S.lk.me]:null;
 function lkScreen(){return S.finished?'results':S.rules&&S.rules.live?'live':S.game==='carc'?'live':'score'}
-function lkGo(){if(lkGuest()&&!S.started){S.screen='lkwait';return}if(S.lk&&S.lk.me===undefined){S.screen='lkwho';return}if(['lkwait','lkwho','home'].includes(S.screen)||lkGuest()&&['map','rules','players'].includes(S.screen))S.screen=lkScreen()}
+function lkGo(){if(lkGuest()&&(!S.started||luInvite()||luSitting())){S.screen='lkwait';return}if(S.lk&&S.lk.me===undefined){S.screen='lkwho';return}if(['lkwait','lkwho','home'].includes(S.screen)||lkGuest()&&['map','rules','players'].includes(S.screen))S.screen=lkScreen()}
 /* sync.js hands every change from the other phones to this */
 /* staying linked from one game to the next: the host's new game replaces the old one on every phone, and each
    phone takes back the player with the same name it had before (bots are never claimed) */
@@ -2402,10 +2430,10 @@ let LKGEN=0,LKSW=false,LKSWAP=false,LKPREV='',LKAUTO=-1;
 async function lkSwap(){if(!S.lk||!lkHost()||!window.FTLINK||!window.FTLINK.swap)return;LKSWAP=true;const x=lkSplit();LKSEATS={};LKRV=null;
   try{LKGEN=await window.FTLINK.swap(x);LKLAST={m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}};LKSWAP=false;LKAUTO=-1;lkPush();lkAutoSeat();toast('The linked phones are following you to '+M().name+'.')}
   catch(e){LKSWAP=false;toast('Couldn’t move the linked phones to this game. Link them again from here.');delete S.lk;save()}render()}
-function lkAutoSeat(){if(!S.lk||S.lk.me||!LKPREV||LKAUTO===LKGEN||LKBUSY)return;const dev=window.FTLINK&&window.FTLINK.dev();
+function lkAutoSeat(){if(!S.lk||S.lk.me||!LKPREV||LKAUTO===LKGEN||LKBUSY)return;if(lkGuest()&&S.lkinv&&LKINVG!==LKGEN)return;const dev=window.FTLINK&&window.FTLINK.dev();
   const q=act().find(p=>!p.bot&&nm(p).trim().toLowerCase()===LKPREV.trim().toLowerCase()&&!(LKSEATS[p.id]&&LKSEATS[p.id].dev&&LKSEATS[p.id].dev!==dev));if(!q)return;LKAUTO=LKGEN;lkPick(q.id)}
 async function lkRejoin(){const me=S.lk&&S.lk.me&&act().find(p=>p.id===S.lk.me);if(me)LKPREV=nm(me);const c=S.lk&&S.lk.code,lan=S.lk&&S.lk.lan;if(!c)return;
-  await lkJoin(c);if(S.lk){if(lan)S.lk.lan=true;LKAUTO=-1;save();lkAutoSeat();toast('The host started '+M().name+'.')}}
+  await lkJoin(c);if(S.lk){if(lan)S.lk.lan=true;LKAUTO=-1;save();lkAutoSeat();if(!luInvite())toast('The host started '+M().name+'.')}}
 window.lkRecv=function(u){if(!S.lk)return;
   if(lkGuest()&&typeof u.gen==='number'&&u.gen>LKGEN){if(u.sw){if(!LKSW){LKSW=true;S.screen='lkwait';render()}return}LKGEN=u.gen;LKSW=false;lkRejoin();return}
   if(LKSW&&lkGuest())return;
@@ -2426,7 +2454,9 @@ window.lkRecv=function(u){if(!S.lk)return;
   if(Array.isArray(u.order)&&stable(u.order)!==stable(LKLAST.order)){LKLAST.order=u.order;changed=true}
   const keepP={};if(u.ps)for(const id in u.ps)if(u.ps[id]&&LKLAST.ps[id]!==u.ps[id]){if(cur.ps[id]&&cur.ps[id]!==LKLAST.ps[id])keepP[id]=cur.ps[id];LKLAST.ps[id]=u.ps[id];changed=true}
   if(changed&&LKLAST.order){const old=S.players,unsent=id=>cur&&cur.ps[id]&&!(u.ps&&id in u.ps)&&cur.ps[id]!==LKLAST.ps[id];S.players=LKLAST.order.map(id=>keepP[id]?JSON.parse(keepP[id]):unsent(id)?JSON.parse(cur.ps[id]):LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):old.find(p=>p.id===id)).filter(Boolean)}
-  if(changed){lkTouch();UNDO.length=0;if(!S.finished&&S.screen==='reveal'){S.screen=lkScreen();REV=null}LKMUTE=true;save();LKMUTE=false}
+  let fix=false;if(changed&&S.game==='linkup'){const have=new Set(S.players.map(p=>p.id));if(lkHost())Object.keys(LKLAST.ps).forEach(id=>{if(!have.has(id)){S.players.push(JSON.parse(LKLAST.ps[id]));fix=true}});else{const me=S.lk.me;if(me&&!have.has(me)&&cur&&cur.ps[me])S.players.push(JSON.parse(cur.ps[me]))}}
+  if(lkHost()&&!S.started&&S.lksit){Object.keys(S.lksit).forEach(n=>{const q=S.players.find(p=>p.on&&!p.bot&&p.name.trim().toLowerCase()===n);if(q&&act().length>(M().min||1)){q.on=false;fix=true}});delete S.lksit;fix=true}
+  if(changed||fix){lkTouch();UNDO.length=0;if(!S.finished&&S.screen==='reveal'){S.screen=lkScreen();REV=null}LKMUTE=!(fix&&lkHost());save();LKMUTE=false}
   if(lkGuest()&&!S.finished&&S.screen==='results'){S.screen=lkScreen();window.scrollTo(0,0)}
   if(lkHost()&&S.finished)lkVoteCheck();
   if(u.rv!==undefined&&u.rv!==LKRV){LKRV=u.rv;if(u.rv&&S.lk.rv!==u.rv){S.lk.rv=u.rv;vibe([30,40,30]);LKMUTE=true;startReveal();save();LKMUTE=false;render();return}}
@@ -2442,7 +2472,7 @@ function lkClear(msg){const was=lkGuest();clearTimeout(LKT);LKT=null;try{window.
 async function lkHostStart(g){if(!window.FTLINK)return;LKBUSY=true;LKMSG='';render();
   try{if(g&&(S.game||'ttr')!==g)switchGame(g);const x=lkSplit();const code=await window.FTLINK.host(x);
     S.lk={code,role:'host',me:undefined,at:Date.now()};LKLAST={m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}};LKSEATS={};LKRV=null;LKOPEN=true;save();
-    S.screen=S.started?lkScreen():S.screen==='home'?'map':S.screen;if(S.started)S.screen='lkwho';window.scrollTo(0,0)}
+    S.screen=S.game==='linkup'?'home':S.started?lkScreen():S.screen==='home'?'map':S.screen;if(S.started)S.screen='lkwho';if(S.game==='linkup'&&act()[0]){LKBUSY=false;await lkPick(act()[0].id)}window.scrollTo(0,0)}
   catch(e){LKMSG=(e&&e.message)||'Couldn’t start a linked game. Check your internet connection.'}LKBUSY=false;render()}
 async function lkJoin(code){if(!window.FTLINK)return;const c=String(code||'').replace(/\D/g,'');if(c.length!==6){LKMSG='A game code has 6 numbers.';render();return}
   LKBUSY=true;LKMSG='';render();
@@ -2462,7 +2492,7 @@ async function lkPick(id){if(!S.lk||LKBUSY)return;const mine=window.FTLINK.dev()
     try{await window.FTLINK.seat(id,s);LKSEATS[id]=s}catch(e){LKBUSY=false;toast('Someone just took that player on another phone.');render();return}LKBUSY=false}
   if(prev&&prev!==id){window.FTLINK.seat(prev,null).catch(()=>{});delete LKSEATS[prev]}
   if(id)lkAskNotify();S.lk.me=id||null;S.lk.claimed=!!id;LKTURN=lkTurnOwner();if(id){const ix=act().findIndex(p=>p.id===id);if(ix>=0)S.active=ix}
-  LKMUTE=true;save();LKMUTE=false;S.screen=lkGuest()&&!S.started?'lkwait':lkScreen();window.scrollTo(0,0);render()}
+  LKMUTE=true;save();LKMUTE=false;S.screen=S.game==='linkup'?(lkGuest()?'lkwait':'home'):lkGuest()&&!S.started?'lkwait':!S.started?'map':lkScreen();window.scrollTo(0,0);render()}
 function lkFree(id){if(!lkHost())return;if(LKFREE!==id){LKFREE=id;render();return}LKFREE=null;window.FTLINK.seat(id,null).catch(()=>toast('Couldn\u2019t free that spot.'));delete LKSEATS[id];render()}
 function lkReady(on){const id=S.lk&&S.lk.me;if(!id)return;const s={...(LKSEATS[id]||{dev:window.FTLINK.dev()}),ready:!!on,rd:LKRD};LKSEATS[id]=s;window.FTLINK.seat(id,s).catch(()=>toast('Couldn\u2019t update. Check your connection.'));
   if(lkHost())window.lkRecv({});}
@@ -2507,8 +2537,12 @@ function wlPieces(g){const A=k=>`<img src="art/trail/${k}.png" alt="">`,D=()=>`<
   return [[D(),D(),D(),D(),D()],'Shaking the dice…']}
 function waitLoader(msg){const [set,def]=wlPieces(S.game),dice=set.every(x=>x.includes('class="wdf"')),m=msg===undefined||msg==='*'?def:msg;
   return `<div class="wloader${dice?' wdice':''}" role="status" aria-label="${esc(m||'Waiting')}">${set.map((x,i)=>`<span style="--i:${i}">${x}</span>`).join('')}</div>${m?`<p class="rlab" style="text-align:center;margin:2px 0 0">${esc(m)}</p>`:''}`}
-function lkWaitScreen(){return `<div class="bar"><h1>Linked game</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>${LKSW?'Next game coming up':'Waiting for the host'}</h2><p>${LKSW?'The host is setting up the next game. This phone joins it by itself, no scanning needed.':S.lk&&S.lk.me?`You’re <b>${esc(nm(act().find(p=>p.id===S.lk.me)||{name:''}))}</b>. The host is still choosing the game and rules. Play opens here as soon as they start.`:'The host is still choosing the game and rules. Play opens here as soon as they start.'}</p>${waitLoader('*')}</div>`}
-function lkBar(){if(!S.lk||S.demo||['lkwho','home'].includes(S.screen))return '';const seat=lkSeated(),n=lkReadyN(),mine=lkMine(),me=S.lk.me&&act().find(p=>p.id===S.lk.me);
+function lkWaitScreen(){if(S.game==='linkup'){const me=S.lk&&S.lk.me&&act().find(p=>p.id===S.lk.me);
+    if(!me)return `<div class="bar"><h1>Linked phones</h1></div><div class="sec"><div class="panel" style="padding:14px;display:grid;gap:10px"><div class="rlab"><b>What’s your name?</b> This phone joins every game as you.</div><div class="prow" style="padding:0"><input id="lu-gname" class="search" maxlength="20" autocomplete="off" enterkeyhint="go" value="${esc(luName())}" placeholder="Your name" style="flex:1"><button class="btn primary" data-a="luname" ${LKBUSY?'disabled':''}>OK</button></div></div></div>`;
+    return `<div class="bar"><h1>Linked phones</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>You’re linked</h2><p>You’re <b>${esc(nm(me))}</b>. When ${esc(luHost())} picks a game, you’ll get an invite here.</p>${luChips()}${waitLoader('*')}<button class="btn" style="margin-top:14px" data-a="lkleave">Leave</button></div>`}
+  if(luSitting())return `<div class="bar"><h1>Linked phones</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>Sitting this one out</h2><p>The others are playing ${esc(M().name)}. This phone stays linked and gets an invite to the next game.</p><button class="btn" style="margin-top:14px" data-a="lkleave">Leave</button></div>`;
+  return `<div class="bar"><h1>Linked game</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>${LKSW?'Next game coming up':'Waiting for the host'}</h2><p>${LKSW?'The host is setting up the next game. This phone joins it by itself, no scanning needed.':S.lk&&S.lk.me?`You’re <b>${esc(nm(act().find(p=>p.id===S.lk.me)||{name:''}))}</b>. The host is still choosing the game and rules. Play opens here as soon as they start.`:'The host is still choosing the game and rules. Play opens here as soon as they start.'}</p>${waitLoader('*')}</div>`}
+function lkBar(){if(!S.lk||S.demo||S.game==='linkup'||luSitting()||luInvite()||['lkwho','home'].includes(S.screen))return '';const seat=lkSeated(),n=lkReadyN(),mine=lkMine(),me=S.lk.me&&act().find(p=>p.id===S.lk.me);
   const head=`<div class="lkbar${LKOPEN?' open':''}"><button class="lkb-main" data-a="lkopen" aria-expanded="${LKOPEN}"><span class="lkb-code">📱 <b class="num">${fmtCode(S.lk.code)}</b></span><span class="lkb-st">${lanOn()?(lkHost()?`✈️ ${lanN()} phone${lanN()===1?'':'s'} · `:LANLOST?'⚠️ Lost the host · ':'✈️ '):''}${S.lklock?'🔒 ':''}${S.finished?'Revealed':seat.length?`${n}/${seat.length} done`:'No phones joined yet'}${me?' · '+esc(nm(me)):lkHost()?' · Host':''}</span><span class="chev">${LKOPEN?'▴':'▾'}</span></button>
     ${me&&!me.bot&&vcOk()?`<button class="btn sm lkvoice${vcOn()?(vcMuted()?' muted':' on'):''}" data-a="${vcOn()?'vcmute':'vcjoin'}" aria-label="${vcOn()?(vcMuted()?'Unmute your microphone':'Mute your microphone'):'Join voice chat'}">${vcOn()?(vcMuted()?'🔇':'🎙️'):'🎧'}</button>`:''}${me&&!me.bot?`<button class="btn sm lkreact" data-a="rxopen" aria-expanded="${RXOPEN}" aria-label="Send a reaction">${RXOPEN?'✕':'😀'}</button>`:''}${me&&S.started&&!S.finished?`<button class="btn sm${lkOk(mine)?'':' primary'}" data-a="lkready" data-k="${lkOk(mine)?'0':'1'}">${lkOk(mine)?'Not done':'I’m done'}</button>`:''}</div>${RXOPEN&&me?`<div class="rxpick" role="group" aria-label="Reactions">${RXE.map(e=>`<button data-a="rxsend" data-k="${e}" aria-label="Send ${e}">${e}</button>`).join('')}</div>`:''}${rxLayer()}`;
   const dmine=(me&&dashOn()?dashStrip(me):'')+vcStrip();
@@ -2529,6 +2563,10 @@ function lkHomeCard(){if(!window.FTLINK&&!window.FTLAN)return '';
   if(lkGuest())return `<div class="sec lkhome"><div class="sec-h"><h3>Linked game</h3></div><div class="panel" style="padding:12px;display:grid;gap:10px"><div class="rlab">You’re in game <b class="num">${fmtCode(S.lk.code)}</b>${S.started?' · '+esc(M().name):''}.</div><div class="prow"><button class="btn primary" style="flex:1" data-a="lkback">Back to the game</button><button class="btn" style="flex:1" data-a="lkleave">Leave it</button></div></div></div>`;
   const live=['ttr','carc','quacks','hf','canasta','nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','phase10','rook','yahtzee','mextrain','chicken','catan','golf','tripoley','pad','darts','pool'].filter(g=>{const x=gamePeek(g);return x&&x.started&&!x.finished});
   const name=g=>({ttr:'Ticket to Ride',carc:'Carcassonne',quacks:'Quacks',hf:'Hand and Foot',canasta:'Canasta',nerts:'Nerts',hearts:'Hearts',spades:'Spades',rage:'Rage',ohell:'Oh Hell',uno:'UNO',munchkin:'Munchkin',crowns:'Five Crowns',skipbo:'Skip-Bo',gnome:'Gnoming A Round',skyjo:'Skyjo',wingspan:'Wingspan',wyrmspan:'Wyrmspan',phase10:'Phase 10',rook:'Rook',yahtzee:'Yahtzee',mextrain:'Mexican Train',catan:'Catan',golf:'Golf',tripoley:'Tripoley',pad:'Score pad',darts:'Darts',pool:'Pool'})[g]||g;
+  if(S.lk&&lkHost()&&S.game==='linkup'){const n=act().filter(p=>LKSEATS[p.id]&&LKSEATS[p.id].dev).length;return `<div class="sec lkhome"><div class="sec-h"><h3>📱 Linked phones</h3></div><div class="panel" style="padding:12px;display:grid;gap:10px">
+    <div class="rlab">${S.lk.lan?'Others join this phone’s Wi-Fi and scan its code.':`Others tap <b>📱 Join</b> and type <b class="num" style="font-size:1.3em">${fmtCode(S.lk.code)}</b>`}</div>${luChips()}
+    <div class="rlab">${n>1?'<b>Pick a game below.</b> Everyone linked is added as a player and gets an invite.':'Waiting for phones to join…'}</div>
+    <div class="prow" style="padding:0">${S.lk.lan?'<button class="btn" style="flex:1" data-a="lanadd">✈️ Add a phone</button>':''}<button class="btn" style="flex:1" data-a="lustop">${LKSTOP==='stop'?'Tap again to stop':'Stop linking'}</button></div></div></div>`}
   if(S.lk&&lkHost())return `<div class="sec lkhome"><div class="panel lkrow"><span>📱 Hosting <b class="num">${fmtCode(S.lk.code)}</b> · ${esc(M().name)}</span><button class="btn sm primary" data-a="lkback">Back to the game</button></div></div>`;
   const msg=LKMSG?`<p class="hint" style="margin:0"><b>${esc(LKMSG)}</b></p>`:'';
   if(LKUI==='join')return `<div class="sec lkhome"><div class="panel" style="padding:12px;display:grid;gap:10px">
@@ -2544,7 +2582,12 @@ function lkHomeCard(){if(!window.FTLINK&&!window.FTLAN)return '';
     ${live.length?`<div class="rlab"><b>Host:</b> pick the game to share.</div><div class="lr">${live.map(g=>`<button data-a="lanhost" data-k="${g}" ${LKBUSY?'disabled':''}>✈️ ${esc(name(g))}</button>`).join('')}</div>`:'<div class="rlab"><b>Host:</b> start a game first, then come back here.</div>'}
     <div class="rlab"><b>Everyone else:</b></div><button class="btn primary" data-a="lanjoin">✈️ Join without internet</button>
     <button class="link-btn" data-a="lkui" data-k="">Cancel</button>${msg}</div></div>`;
-  return `<div class="sec lkhome"><div class="lkbtns"><button class="btn" data-a="lkui" data-k="join" ${window.FTLINK?'':'disabled'}>📱 Join a game</button><button class="btn" data-a="lkui" data-k="host" ${window.FTLINK?'':'disabled'}>📱 Host a game</button></div>${LANREADY?`<button class="link-btn lanlink" data-a="lkui" data-k="lan">✈️ No internet? Link phones over a hotspot</button>`:''}</div>`}
+  if(LKUI==='linkup')return `<div class="sec lkhome"><div class="panel" style="padding:12px;display:grid;gap:10px">
+    <div class="rlab"><b>Link phones first.</b> Everyone links now, then you pick a game and invite them all.</div>
+    <input id="lu-name" class="search" maxlength="20" autocomplete="off" placeholder="Your name" value="${esc(luName())}">
+    <div class="prow" style="padding:0"><button class="btn primary" style="flex:1" data-a="lustart" data-k="net" ${window.FTLINK&&navigator.onLine&&!LKBUSY?'':'disabled'}>📶 With internet</button><button class="btn" style="flex:1" data-a="lustart" data-k="lan" ${window.FTLAN&&!LKBUSY?'':'disabled'}>✈️ Without internet</button></div>
+    <button class="link-btn" data-a="lkui" data-k="">Cancel</button>${msg}</div></div>`;
+  return `<div class="sec lkhome"><div class="lkbtns"><button class="btn primary" data-a="lkui" data-k="linkup" ${window.FTLINK||window.FTLAN?'':'disabled'}>📱 Link phones</button><button class="btn" data-a="lkui" data-k="join" ${window.FTLINK?'':'disabled'}>📱 Join</button></div><button class="link-btn" data-a="lkui" data-k="host" ${window.FTLINK?'':'disabled'}>📱 Link a game in progress</button>${LANREADY?`<button class="link-btn lanlink" data-a="lkui" data-k="lan">✈️ No internet? Link phones over a hotspot</button>`:''}</div>`}
 window.lkBoot=function(){if(lanBootCheck()){render();return}if(S.lk&&S.lk.lan){render();return}if(S.lk&&window.FTLINK&&!lkIdleCheck()){LKLAST=(()=>{const x=lkSplit();return {m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}}})();window.FTLINK.resume(S.lk.code,S.lk.role)}render()};
 
 /* ---------- offline linked games: phones on the host's hotspot, paired by scanning QR codes (window.FTLAN comes from lan.js) ---------- */
@@ -12312,7 +12355,8 @@ function render(){
   KEEPSC.forEach((q,i)=>{const el=document.querySelector(q);if(el&&keepSc[i])el.scrollTop=keepSc[i]});
   if(S.screen==='reveal'&&!RCWARMED){RCWARMED=true;setTimeout(()=>{try{const w=winMoment();rcWarm([w.src,...(w.layers||[]),...Object.values(loserMoments()).map(m=>m.img.u),...(LOOK()==='art'?act().flatMap(p=>['box','tank','hopper','caboose','engine'].map(k=>`train/${k}-${TCOL(p.color)}.png`)):[])])}catch(e){}},50)}else if(S.screen!=='reveal')RCWARMED=false;
   if(REMATCH)document.getElementById('app').insertAdjacentHTML('beforeend',rematchSheet());
-  if(LANUI)document.getElementById('app').insertAdjacentHTML('beforeend',lanSheet());else if(LKCHOOSE)document.getElementById('app').insertAdjacentHTML('beforeend',lkChooseSheet());
+  if(LANUI)document.getElementById('app').insertAdjacentHTML('beforeend',lanSheet());else if(LKCHOOSE)document.getElementById('app').insertAdjacentHTML('beforeend',lkChooseSheet());else if(luInvite())document.getElementById('app').insertAdjacentHTML('beforeend',luInviteSheet());
+  if(S.lk&&lkHost()&&!S.started&&!S.demo&&['map','players'].includes(S.screen)){const bar=document.querySelector('#app .bar');if(bar&&!document.querySelector('.lustrip'))bar.insertAdjacentHTML('afterend',luStrip())}
   if(WARN&&!document.getElementById('warn-h'))document.getElementById('app').insertAdjacentHTML('beforeend',`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
     <div class="sheet-btns"><button class="btn" data-a="warnclose">Go back and check</button><button class="btn primary" data-a="revstart">Reveal anyway</button></div></div></div>`);
   sheetLock(!!document.querySelector('#app .sheet-bg'));
@@ -13185,7 +13229,16 @@ document.addEventListener('click',e=>{
     case 'lkvotehome':S.screen='home';window.scrollTo(0,0);toast('Pick the next game. The linked phones follow.');break;
     case 'lkleave':if(S.lk&&S.lk.me)window.FTLINK.seat(S.lk.me,null);lkClear('You left the linked game.');return;
     case 'lkback':lkGo();if(S.screen==='home')S.screen=lkScreen();window.scrollTo(0,0);break;
-    case 'lkjoin':{const v=(document.getElementById('lk-code')||{}).value||'';LKCODE=v.replace(/\D/g,'');lkJoin(v);return}
+    case 'lkjoin':{const v=(document.getElementById('lk-code')||{}).value||'';LKCODE=v.replace(/\D/g,'');lkJoin(v).then(()=>{LKINVG=LKGEN;if(S.lk&&!S.lk.me&&S.game==='linkup')S.screen='lkwait';render()});return}
+    case 'lustart':{const n=((document.getElementById('lu-name')||{}).value||'').trim();if(!n){toast('Type your name first.');break}luSetName(n);LKPREV=n;
+      try{if(S.game!=='linkup')localStorage.setItem('ft.luprev',S.game||'ttr')}catch(e){}switchGame('linkup');S.players=[newPlayer(n,'red')];S.lkby=n;delete S.lkppl;S.screen='home';save();LKUI='';
+      if(k==='lan'){lanHost('linkup');return}lkHostStart('linkup');return}
+    case 'luname':{const n=((document.getElementById('lu-gname')||{}).value||'').trim();if(!n){toast('Type your name first.');break}if(S.players.some(p=>p.name.trim().toLowerCase()===n.toLowerCase()&&LKSEATS[p.id]&&LKSEATS[p.id].dev&&LKSEATS[p.id].dev!==window.FTLINK.dev())){toast('Someone else is using that name. Add an initial.');break}
+      luSetName(n);LKPREV=n;let q=S.players.find(p=>p.name.trim().toLowerCase()===n.toLowerCase());if(!q){const used=S.players.map(p=>p.color);q=newPlayer(n,LUCOLS.find(c=>!used.includes(c))||'red');S.players.push(q);save()}lkPick(q.id);return}
+    case 'luinv':{if(!luInvite())break;if(k==='sit'){LKSITG=LKGEN;if(!S.started&&LKPREV){S.lksit={...(S.lksit||{}),[LKPREV.trim().toLowerCase()]:1};save()}S.screen='lkwait';break}
+      LKINVG=LKGEN;LKAUTO=-1;if(!LKPREV)LKPREV=luName();const q=act().find(p=>!p.bot&&nm(p).trim().toLowerCase()===String(LKPREV).trim().toLowerCase());if(q&&!(LKSEATS[q.id]&&LKSEATS[q.id].dev)){lkPick(q.id);return}S.screen='lkwho';break}
+    case 'luadd':luToggle(k);break;
+    case 'lustop':if(LKSTOP!=='stop'){LKSTOP='stop';break}LKSTOP=false;window.FTLINK.end();lkClear('Linking ended.');{let pv='ttr';try{pv=localStorage.getItem('ft.luprev')||'ttr'}catch(e){}if(S.game==='linkup'){switchGame(pv);S.screen='home'}}break;
     case 'lkchoose':LKCHOOSE=true;LKMSG='';break;
     case 'lkchoosex':LKCHOOSE=false;LKMSG='';break;
     case 'lkchoosego':{const g=S.game||'ttr';if(k==='lan'){LKCHOOSE=false;lanHost(g);return}
@@ -13282,6 +13335,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='506951';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='d646ee';</script>
 </body>
 </html>
