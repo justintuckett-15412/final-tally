@@ -1209,6 +1209,7 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .hozoom{position:fixed;inset:0;z-index:90;display:grid;place-items:center;background:rgba(0,0,0,.35);pointer-events:none;animation:hozin .15s ease-out}
 .hozoom .htc{box-shadow:0 14px 40px rgba(0,0,0,.45)}@keyframes hozin{from{opacity:0}}
 .hosort .btn{padding:0 10px;font-size:14px;min-height:34px}.hosort{gap:5px}
+.pzbuild{padding:10px 12px;margin:10px 0}.pzparts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.pzpart{display:inline-flex;align-items:center;padding:6px 12px;border-radius:10px;background:color-mix(in srgb,#3d9a5a 14%,var(--surface));color:#237a42;font-weight:800;font-size:14px}
 </style>
 
 <div id="app"></div>
@@ -8976,7 +8977,7 @@ function fcAct(a,b,k){const g=fcG();if(!g)return;
   if(a==='fcparr'){FCX().arr=b.dataset.v;fcKeep();FCSEL=[];return}
   if(a==='fcpdeal'){if(!fcRes()||g.phase!=='done')return;S.hr=fcCur()+1;fcDeal(S.hr);window.scrollTo(0,0);return}
   const V=fcViewer();if(!V)return;
-  if(a==='fcpcard'){const c=b.dataset.c,self=FCX().arr==='self';if(FCSEL.includes(c))FCSEL=FCSEL.filter(x=>x!==c);else FCSEL=self?FCSEL.concat(c):[c];return}
+  if(a==='fcpcard'){const c=b.dataset.c,self=!FCX().help||FCX().arr==='self';if(FCSEL.includes(c))FCSEL=FCSEL.filter(x=>x!==c);else FCSEL=self?FCSEL.concat(c):[c];return}
   if(a==='fcpgroup'){if(FCSEL.length>=3&&fcIsMeld(FCSEL,g.k)){const gs=(FCARR[V.id]||[]).map(gr=>gr.filter(c=>!FCSEL.includes(c)));FCARR[V.id]=gs.concat([FCSEL.slice()]);FCSEL=[];vibe(10)}return}
   if(a==='fcpungroup'){const gs=FCARR[V.id]||[];gs.splice(+b.dataset.i,1);return}
   if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}
@@ -9148,15 +9149,15 @@ function pzPlayUI(){if(!pzRes()&&S.pzg&&S.pzg.r!==S.hr)S.hr=S.pzg.r;const X=PTX(
     let groups=[],loose=pzSort(h),auto=null;
     if(!made&&!self){auto=pzSolve(h,spec);if(auto){groups=auto.map(gr=>gr.c);const u=groups.flat();loose=pzSort(h.filter(c=>!u.includes(c)))}}
     if(!made&&self){groups=st.map((gr,i)=>gr&&gr.length?gr:null);loose=pzSort(h.filter(c=>!staged.includes(c)))}
+    if(!made&&self&&g.phase==='play'){const allSet=spec.every((s,i)=>st[i]&&pzFit(s[0],s[1],st[i]));
+      out+=`<div class="panel pzbuild"><b>Lay down ${ptLab(g.on[V.id])}</b> <span class="rlab">· ${esc(ptDesc(g.on[V.id]))}</span><div class="pzparts">${spec.map((s2,i)=>{if(st[i]&&st[i].length)return `<span class="pzpart">✓ ${pzGL(s2)}</span>`;const ok=sel.length>0&&!!pzFit(s2[0],s2[1],sel);return `<button class="btn${ok?' primary':''}" data-a="pzpstage" data-i="${i}" ${ok?'':'disabled'}>${ok?'Make the ':''}${pzGL(s2)}${sel.length&&!ok?` · ${sel.length} picked`:''}</button>`}).join('')}</div>
+        ${allSet?(mine&&g.drew?`<button class="btn primary wide" data-a="pzplay">🎉 Lay it down</button>`:`<p class="hint" style="margin:6px 0 0">Ready! ${mine?'Draw a card first, then lay it down.':'Lay it down on your turn, after you draw.'}</p>`):`<p class="hint" style="margin:6px 0 0">Tap the cards in your hand for one part (they lift up), then tap that part above. Wilds count. Tap ✕ to take a part back.</p>`}</div>`}
     const piles=hoPiles(V.id,loose);out+=hoBar({piles:true});
     out+=`<div class="fchand" aria-label="Your cards">${!made?groups.map((gr,i)=>gr?pzGrpHtml(gr,{btn:true,sel,got:g.got,cls:'ok',lab:pzGL(spec[i]),x:self?i:undefined}):'').join(''):''}${piles.map((pl,i)=>pzGrpHtml(pl,{btn:true,sel,got:g.got,cls:'loose',drag:true,pile:i,lab:i===0?(!made&&groups.some(Boolean)?'Not in your phase':piles.length>1?'Your hand':''):`Pile ${i+1}`})).join('')}<div class="honew">＋ New pile</div></div>`;
     const btns=[];let tip='';
     if(mine&&PZPEND){out+=`<div class="panel sdbids"><div class="lr sbwho">${pzSkipOk(g,V.id).map(id=>{const p=P.find(x=>x.id===id);return `<button style="${pc(p.color)}" data-a="pzpskipwho" data-k="${id}"><i></i>${esc(nm(p))}</button>`}).join('')}</div></div>`;btns.push(`<button class="btn" data-a="pzpskipcancel">Never mind</button>`)}
     else if(mine&&g.drew){
       if(!made&&!self&&auto)out+=`<div class="panel fcgoout"><b>🎉 You have ${ptLab(g.on[V.id])}!</b><p class="rlab">${esc(ptDesc(g.on[V.id]))}</p><button class="btn primary wide" data-a="pzplay">Lay it down</button></div>`;
-      if(!made&&self){const allSet=spec.every((s,i)=>st[i]&&pzFit(s[0],s[1],st[i]));
-        if(allSet)out+=`<div class="panel fcgoout"><b>🎉 Ready to lay down ${ptLab(g.on[V.id])}</b><button class="btn primary wide" data-a="pzplay">Lay it down</button></div>`;
-        else if(sel.length>=2)spec.forEach((s,i)=>{if(st[i]&&st[i].length)return;const ok=!!pzFit(s[0],s[1],sel);btns.push(`<button class="btn" data-a="pzpstage" data-i="${i}" ${ok?'':'disabled'}>${ok?'Make ':''}${pzGL(s)}</button>`)})}
       if(made&&!self){const hits=[];h.forEach(c=>{g.ps.forEach(o=>(g.lay[o]||[]).forEach((gr,i)=>{if(!hits.find(x=>x.c===c)&&pzHitOk(gr,c))hits.push({c,o,i})}))});
         if(hits.length&&!sel.length)out+=`<div class="panel fcgoout"><b>${hits.length} card${hits.length===1?' fits':'s fit'} on the table</b><p class="rlab">${hits.map(x=>esc(pzName(x.c))).join(', ')}</p><button class="btn primary wide" data-a="pzpallhits">Add ${hits.length===1?'it':'them'}</button></div>`}
       if(sel.length===1)btns.push(`<button class="btn${pzS(sel[0])?' primary':''}" data-a="pzpdisc" data-c="${sel[0]}">${pzS(sel[0])?'Play the Skip':`Discard the ${esc(pzName(sel[0]))}`}</button>`);
@@ -9173,14 +9174,14 @@ function pzAct(a,b,k){const g=pzG();if(!g)return;
   if(a==='pzparr'){PTX().arr=b.dataset.v;ptKeep();PZSEL=[];return}
   if(a==='pzpdeal'){if(!pzRes()||g.phase!=='done')return;S.hr=ptCur()+1;pzDeal(S.hr);window.scrollTo(0,0);return}
   const V=pzViewer();if(!V)return;
-  if(a==='pzpcard'){const c=b.dataset.c,multi=PTX().arr==='self'&&!g.made[V.id];if(PZSEL.includes(c))PZSEL=PZSEL.filter(x=>x!==c);else PZSEL=multi?PZSEL.concat(c):[c];return}
+  if(a==='pzpcard'){const c=b.dataset.c,multi=(!PTX().help||PTX().arr==='self')&&!g.made[V.id];if(PZSEL.includes(c))PZSEL=PZSEL.filter(x=>x!==c);else PZSEL=multi?PZSEL.concat(c):[c];return}
   if(a==='pzpstage'){const i=+b.dataset.i,spec=pzSpec(g.on[V.id]);if(!pzFit(spec[i][0],spec[i][1],PZSEL))return;const st=PZSTAGE[V.id]||(PZSTAGE[V.id]=[]);st[i]=PZSEL.slice();PZSEL=[];vibe(10);return}
   if(a==='pzpunstage'){const st=PZSTAGE[V.id]||[];st[+b.dataset.i]=null;return}
   if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}
   if(a==='pzpskipcancel'){PZPEND=null;return}
   if(a==='pzpdeck'||a==='pzptake'){if(g.drew){toast('You already drew. Now play or discard.');return}if(a==='pzptake'&&pzS(pzTop(g)||'')){toast('A Skip can’t be picked up.');return}PZSEL=[];if(lkq('pzDraw',V.id,a==='pzptake'?'disc':'deck'))vibe(12);return}
   if(!g.drew){toast('Draw a card first.');return}
-  if(a==='pzplay'){const spec=pzSpec(g.on[V.id]),h=g.h[V.id];let groups;if(PTX().arr==='self')groups=(PZSTAGE[V.id]||[]).slice(0,spec.length);else{const s=pzSolve(h,spec);groups=s&&s.map(x=>x.c)}
+  if(a==='pzplay'){const spec=pzSpec(g.on[V.id]),h=g.h[V.id];let groups;if(!PTX().help||PTX().arr==='self')groups=(PZSTAGE[V.id]||[]).slice(0,spec.length);else{const s=pzSolve(h,spec);groups=s&&s.map(x=>x.c)}
     if(!groups||groups.length!==spec.length||groups.some(x=>!x)){toast('Your phase isn’t complete yet.');return}PZSEL=[];if(lkq('pzLay',V.id,groups)){PZSTAGE[V.id]=[];vibe([20,40,20])}else toast('That doesn’t make your phase.');return}
   if(a==='pzphit'){const c=PZSEL[0];if(!c)return;PZSEL=[];if(lkq('pzHit',V.id,c,k,+b.dataset.i))vibe(12);return}
   if(a==='pzpallhits'){/* one at a time through the host queue, so each is checked */const h=g.h[V.id].slice();let n=0;
