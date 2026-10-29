@@ -1260,6 +1260,10 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .tmtab{min-width:140px}.tmn{display:grid;gap:1px}.tmm{display:flex;align-items:center;gap:5px;font-weight:700;font-size:13.5px;line-height:1.2;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tmm i{width:8px;height:8px;border-radius:50%;background:var(--pc);flex:none}.tmm small{font-weight:600;font-size:11px;opacity:.8;margin-left:2px}.tmm.now{color:var(--ink)}.tmm.now::after{content:"◀";font-size:9px;color:var(--pc)}
 .tmtab .ts{margin-top:2px}
+.tabs.moreR{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent)}
+.tabs.moreL{-webkit-mask-image:linear-gradient(90deg,transparent,#000 36px);mask-image:linear-gradient(90deg,transparent,#000 36px)}
+.tabs.moreL.moreR{-webkit-mask-image:linear-gradient(90deg,transparent,#000 36px,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(90deg,transparent,#000 36px,#000 calc(100% - 36px),transparent)}
+@media (pointer:fine){.tabs.moreL,.tabs.moreR{cursor:grab}.tabs.tabdrag{cursor:grabbing;user-select:none}.tabs.tabdrag *{pointer-events:none}}
 </style>
 
 <div id="app"></div>
@@ -1539,8 +1543,8 @@ function setMap(k){
 const slots=()=>{if(S.game==='carc'||S.game==='nerts'||S.game==='pad'||S.game==='darts'||S.game==='pool'||S.game==='hearts'||S.game==='spades'||S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='skipbo'||S.game==='gnome'||S.game==='skyjo'||S.game==='wingspan'||S.game==='wyrmspan'||S.game==='phase10'||S.game==='rook'||S.game==='yahtzee'||S.game==='mextrain'||S.game==='catan'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks')while(S.players.length<8)S.players.push(newPlayer('',CARC_COLORS.find(c=>!S.players.some(p=>p.color===c))||'gray',false));return S.players.slice(0,Math.max(5,M().max))};
 
 /* ---------- screens ---------- */
-const playingOn=()=>{try{const g=S.game;return g==='hearts'&&htPlayOn()||g==='spades'&&sdPlayOn()||g==='ohell'&&ohPlayOn()||g==='rook'&&rkPlayOn()||g==='rage'&&rgPlayOn()||g==='uno'&&unPlayOn()||(g==='golf'||g==='skyjo'||g==='gnome')&&gpOn()||g==='skipbo'&&sbOn()||g==='crowns'&&fcOn()||g==='phase10'&&pzOn()||g==='hf'&&hpOn()||g==='yahtzee'&&yzRoller()}catch(e){return false}};
-const pairOn=()=>{try{return S.game==='hf'&&hpOn()&&!!HX().teams||S.game==='rook'&&rkPlayOn()||S.game==='spades'&&sdPlayOn()&&!!SDX().teams}catch(e){return false}};
+const playingOn=()=>{try{const g=S.game;return g==='hearts'&&htPlayOn()||g==='spades'&&sdPlayOn()||g==='ohell'&&ohPlayOn()||g==='rook'&&rkPlayOn()||g==='rage'&&rgPlayOn()||g==='uno'&&unPlayOn()||(g==='golf'||g==='skyjo'||g==='gnome')&&gpOn()||g==='skipbo'&&sbOn()||g==='crowns'&&fcOn()||g==='phase10'&&pzOn()||(g==='hf'||g==='canasta')&&hpOn()||g==='yahtzee'&&yzRoller()}catch(e){return false}};
+const pairOn=()=>{try{return HFE()&&hpOn()&&!!HX().teams||S.game==='rook'&&rkPlayOn()||S.game==='spades'&&sdPlayOn()&&!!SDX().teams}catch(e){return false}};
 /* players screen: show who is partnered with whom (seats are split in half: 1 & 3, 2 & 4, or 1 & 4, 2 & 5, 3 & 6) */
 function pairRows(sl,arr){if(!Array.isArray(arr))return arr;const A=sl.map((p,i)=>i).filter(i=>sl[i].on),n=A.length;
   if(!pairOn()||n<4)return arr.join('');if(n%2)return `<p class="hint pairwarn">Teams need an even number of players. Turn one more on or off.</p>`+arr.join('');
@@ -1560,6 +1564,15 @@ document.addEventListener('pointermove',e=>{if(HPLP&&Math.hypot(e.clientX-HPLP.x
 ['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,()=>{if(HPLP){clearTimeout(HPLP.t);HPLP=null}}));
 /* score tabs for partner games: one tab per team, partners' names stacked, one shared score */
 function teamTabs(groups,o){return `<div class="tabs hftabs nxtabs tmtabs" role="list">${groups.map((G,i)=>{const on=G.some(p=>o.on&&o.on(p));return `<button class="tab tmtab" role="listitem" style="${pc(G[0].color)}" data-lp="ph:${G[0].id}" aria-pressed="${on}" aria-label="${G.map(p=>esc(nm(p))).join(' and ')}, ${o.score(G[0],i)}"><div class="tmn">${G.map(p=>`<span class="tmm${o.on&&o.on(p)?' now':''}" style="${pc(p.color)}"><i></i>${botHead(p)}${esc(nm(p))}${o.sub?`<small>${o.sub(p)}</small>`:''}</span>`).join('')}</div><div class="ts num">${o.score(G[0],i)}${o.crown&&o.crown(i)?' 👑':''}</div>${o.extra?`<div class="tr num">${o.extra(G[0],i)}</div>`:''}</button>`}).join('')}</div>`}
+/* score tabs on a laptop: drag them sideways with the mouse, or use the scroll wheel, to see everyone */
+let TABDRAG=null,TABSUP=0;
+document.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0||!e.target.closest)return;const t=e.target.closest('.tabs');if(!t||t.scrollWidth<=t.clientWidth+2)return;TABDRAG={t,x:e.clientX,sl:t.scrollLeft,moved:false}});
+document.addEventListener('pointermove',e=>{if(!TABDRAG)return;const dx=e.clientX-TABDRAG.x;if(!TABDRAG.moved&&Math.abs(dx)>5){TABDRAG.moved=true;TABDRAG.t.classList.add('tabdrag')}if(TABDRAG.moved){TABDRAG.t.scrollLeft=TABDRAG.sl-dx;tabEdges(TABDRAG.t)}});
+['pointerup','pointercancel'].forEach(k=>document.addEventListener(k,()=>{if(TABDRAG&&TABDRAG.moved){TABSUP=Date.now()+250;TABDRAG.t.classList.remove('tabdrag')}TABDRAG=null}));
+document.addEventListener('click',e=>{if(Date.now()<TABSUP&&e.target.closest&&e.target.closest('.tabs')){TABSUP=0;e.stopImmediatePropagation();e.preventDefault()}},true);
+document.addEventListener('wheel',e=>{const t=e.target.closest&&e.target.closest('.tabs');if(!t||t.scrollWidth<=t.clientWidth+2||Math.abs(e.deltaX)>Math.abs(e.deltaY))return;const max=t.scrollWidth-t.clientWidth;if(e.deltaY<0&&t.scrollLeft<=0||e.deltaY>0&&t.scrollLeft>=max-1)return;t.scrollLeft+=e.deltaY;tabEdges(t);e.preventDefault()},{passive:false});
+function tabEdges(t){const max=t.scrollWidth-t.clientWidth;t.classList.toggle('moreL',t.scrollLeft>2);t.classList.toggle('moreR',t.scrollLeft<max-2)}
+document.addEventListener('scroll',e=>{if(e.target&&e.target.classList&&e.target.classList.contains('tabs'))tabEdges(e.target)},true);
 const startLbl=()=>playingOn()?(S.started?'Back to the game':'Start playing'):(S.started?'Back to scoring':'Start scoring');
 function steps(n){const L=S.game==='rook'?['House rules','Teams']:S.game==='yahtzee'||S.game==='mextrain'?['House rules','Players']:S.game==='carc'?['Edition','Expansions','Players']:HFE()?['House rules',HX().teams?'Teams':'Players']:S.game==='nerts'||S.game==='hearts'||S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='skyjo'||S.game==='wingspan'||S.game==='wyrmspan'||S.game==='phase10'||S.game==='rook'||S.game==='yahtzee'||S.game==='mextrain'||S.game==='catan'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?['House rules','Players']:S.game==='spades'?['House rules',SDX().teams?'Teams':'Players']:S.game==='skipbo'?['House rules',SBX().teams?'Teams':'Players']:S.game==='pad'||S.game==='darts'?['Game','Players']:S.game==='pool'?['Game',PLM().teams?'Teams':'Players']:['Map','Rules','Players'];return `<div class="steps" aria-label="Step ${n} of ${L.length}">${L.map((t,i)=>`<span class="${i+1===n?'cur':i+1<n?'done':''}">${t}</span>`).join('')}</div>`}
 function ttrHomeCard(TS,TM){return `<div class="game">
@@ -2167,7 +2180,7 @@ function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK||LKSWAP)return;if(lkHost()&&L
 /* "Your turn!" on a linked phone: a strong buzz, plus a notification if the app is in the background (and notifications are allowed) */
 let LKTURN=null;
 function lkTurnOwner(){if(!S.started||S.finished)return null;const P=act();if(!P.length)return null;
-  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='rage')return rgPlayOn()&&S.rgg?(S.rgg.phase==='bid'?(RGX().bidAll?null:S.rgg.bidTurn):S.rgg.phase==='play'?S.rgg.turn:null)||null:null;if(S.game==='skipbo')return sbOn()&&S.sbg&&S.sbg.phase==='play'?S.sbg.turn||null:null;if(S.game==='crowns')return fcOn()&&S.fcg&&S.fcg.phase==='play'?S.fcg.turn||null:null;if(S.game==='phase10')return pzOn()&&S.pzg&&S.pzg.phase==='play'?S.pzg.turn||null:null;if(S.game==='hf')return hpOn()&&S.hpg&&S.hpg.phase==='play'?S.hpg.turn||null:null;if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')return gpOn()&&S.gpg&&S.gpg.phase==='play'?S.gpg.turn||null:null;if(S.game==='uno')return unPlayOn()&&S.ung&&S.ung.phase==='play'?(S.ung.ask?S.ung.ask.p:S.ung.drawn?S.ung.drawn.p:S.ung.turn)||null:null;if(S.game==='rook')return rkPlayOn()&&S.rkg?(S.rkg.phase==='bid'?S.rkg.bidTurn:S.rkg.phase==='nest'?S.rkg.bidder:S.rkg.phase==='play'?S.rkg.turn:null)||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
+  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='rage')return rgPlayOn()&&S.rgg?(S.rgg.phase==='bid'?(RGX().bidAll?null:S.rgg.bidTurn):S.rgg.phase==='play'?S.rgg.turn:null)||null:null;if(S.game==='skipbo')return sbOn()&&S.sbg&&S.sbg.phase==='play'?S.sbg.turn||null:null;if(S.game==='crowns')return fcOn()&&S.fcg&&S.fcg.phase==='play'?S.fcg.turn||null:null;if(S.game==='phase10')return pzOn()&&S.pzg&&S.pzg.phase==='play'?S.pzg.turn||null:null;if(HFE())return hpOn()&&S.hpg&&S.hpg.phase==='play'?S.hpg.turn||null:null;if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')return gpOn()&&S.gpg&&S.gpg.phase==='play'?S.gpg.turn||null:null;if(S.game==='uno')return unPlayOn()&&S.ung&&S.ung.phase==='play'?(S.ung.ask?S.ung.ask.p:S.ung.drawn?S.ung.drawn.p:S.ung.turn)||null:null;if(S.game==='rook')return rkPlayOn()&&S.rkg?(S.rkg.phase==='bid'?S.rkg.bidTurn:S.rkg.phase==='nest'?S.rkg.bidder:S.rkg.phase==='play'?S.rkg.turn:null)||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
   if(S.rules&&S.rules.live||S.game==='carc')return S.turnId||null;return null}
 function lkTurnCheck(){const o=lkTurnOwner(),was=LKTURN;LKTURN=o;if(!o||o===was||!S.lk||o!==S.lk.me||was===null)return;
   vibe([250,120,250,120,400]);toast('Your turn!');
@@ -2294,7 +2307,7 @@ function wlPieces(g){const A=k=>`<img src="art/trail/${k}.png" alt="">`,D=()=>`<
   if(g==='carc')return [['cross','city','road','mon','bigcity'].map(k=>wlSvg(26,26,cTileArt(1,k,24),32,32)),'Placing tiles…'];
   if(g==='hearts')return [[wlCard('♥',R),wlCard('♥',R),wlCard('♠',K),wlCard('♥',R),wlCard('♥',R)],'Passing three cards…'];
   if(g==='spades')return [[wlCard('♠',K),wlCard('♠',K),wlCard('♥',R),wlCard('♠',K),wlCard('♠',K)],'Counting bids…'];
-  if(g==='hf'&&HX().play)return [[wlCard('♥',R),wlCard('♠',K),wlCard('♦',R),wlCard('♣',K),wlCard('★','#e3b71f')],'Dealing hands and feet…'];
+  if((g==='hf'||g==='canasta')&&HX().play)return [[wlCard('♥',R),wlCard('♠',K),wlCard('♦',R),wlCard('♣',K),wlCard('★','#e3b71f')],'Dealing hands and feet…'];
   if(g==='crowns')return [[wlCard('★','#e3b71f'),wlCard('♥',R),wlCard('♠',K),wlCard('♦',R),wlCard('♣',K)],'Shuffling the deck…'];
   if(['uno','rage','skipbo','skyjo','phase10','rook'].includes(g))return [[wlNum(1,C[0]),wlNum(5,C[1]),wlNum(7,C[2]),wlNum(9,C[3]),g==='rook'?wlBack():wlNum(10,C[0])],'Shuffling the deck…'];
   if(g==='catan')return [['forest','wheat','mountain','clay','pasture'].map(t=>`<img src="art/trail/ct-${t}.png" width="30" height="34" alt="">`),'Building roads…'];
@@ -3649,8 +3662,8 @@ function hfSaved(g){g=g||S.game;let x=null;try{x=JSON.parse(localStorage.getItem
 function hfKeep(){if(S.demo)return;try{localStorage.setItem(KEY+(S.game==='canasta'?'.cax':'.hfx'),JSON.stringify(HX()))}catch(e){}}
 function hfFresh(g){g=g||'hf';const s={game:g,screen:'map',map:g,rules:{},started:false,active:0,picks:{},hr:0,hx:hfSaved(g),
   players:['red','blue','green','yellow','purple','black'].map((c,i)=>Object.assign(newPlayer('',c,i<2),{mem:['','']}))};return s}
-const hfTeamUI=()=>{const X=HX();return X.teams&&!(S.game==='hf'&&X.play)};
-function HM(){const X=HX(),PL=S.game==='hf'&&!!X.play;return {name:S.game==='canasta'?'Canasta':'Hand and Foot',meta:`${X.end==='points'?'first to '+X.target.toLocaleString():X.rounds+' round'+(X.rounds===1?'':'s')} · ${X.teams?'teams of 2':'everyone plays alone'}${PL?' · on the phone':''}`,min:PL&&X.teams?4:2,max:6,teams:hfTeamUI(),colors:ALLC,lengths:[],pieces:0,piece:'Cards',own:[],defaults:[],tb:[]}}
+const hfTeamUI=()=>{const X=HX();return X.teams&&!X.play};
+function HM(){const X=HX(),PL=!!X.play;return {name:S.game==='canasta'?'Canasta':'Hand and Foot',meta:`${X.end==='points'?'first to '+X.target.toLocaleString():X.rounds+' round'+(X.rounds===1?'':'s')} · ${X.teams?'teams of 2':'everyone plays alone'}${PL?' · on the phone':''}`,min:PL&&X.teams?4:2,max:PL&&S.game==='canasta'&&!X.teams?4:6,teams:hfTeamUI(),colors:ALLC,lengths:[],pieces:0,piece:'Cards',own:[],defaults:[],tb:[]}}
 /* card groups: [key, label, value] */
 function hfGroups(X0){const X=X0||HX(),lo=X.hiFrom-1;return [...(X.jokers?[['j','Jokers',X.v.j]]:[]),['t','2s',X.v.t],['a','Aces',X.v.a],['h',`${X.hiFrom===10?'10':X.hiFrom} to King`,X.v.h],['l',`4 to ${lo}`,X.v.l]]}
 const hfWildTxt=()=>{const X=HX(),w=['2s',X.acesWild?'aces':'',X.jokers?'jokers':''].filter(Boolean);return w.length>1?w.slice(0,-1).join(', ')+' and '+w[w.length-1]:w[0]};
@@ -3696,9 +3709,9 @@ function hfSetup(){const X=HX();
   const changed=Object.keys(HFD()).some(k=>JSON.stringify(X[k])!==JSON.stringify(HFD()[k]));
   return `<div class="bar"><h1>Hand and Foot</h1></div><img class="hero hfhero" src="art/${S.game==='canasta'?'canasta':'hf'}-banner.jpg" alt="" width="1200" height="560">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">Families play Hand and Foot many ways. These are your house rules; change anything and it’s remembered for next time. ${usualUI(S.game)}</p>
-  ${S.game==='hf'?sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([v,t])=>`<button data-a="hfplaymode" data-k="${v}" aria-pressed="${!!X.play===!!v}">${t}</button>`).join('')}</div>`,
-    S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals a hand and a foot to everyone, and you draw, meld and discard on screen with these house rules. Computer players, pass-and-play and linked phones all work.':'Play with real cards and enter each round’s books and cards. Just score keeping.'):''}
-  ${sec('Who plays',seg('teams',[['true','Teams of 2'],['false','Everyone alone']]),X.teams?(S.game==='hf'&&X.play?'4 or 6 players in teams of 2. Partners sit across from each other and share books and one score.':'Partners share books and one score.'):'Each player keeps their own books and score.')}
+  ${HFE()?sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([v,t])=>`<button data-a="hfplaymode" data-k="${v}" aria-pressed="${!!X.play===!!v}">${t}</button>`).join('')}</div>`,
+    S.started?'This is set for the whole game. Start a new game to change it.':X.play?(S.game==='canasta'?'The phone deals, and you draw, meld and discard on screen with these house rules.':'The phone deals a hand and a foot to everyone, and you draw, meld and discard on screen with these house rules.')+' Computer players, pass-and-play and linked phones all work.':'Play with real cards and enter each round’s books and cards. Just score keeping.'):''}
+  ${sec('Who plays',seg('teams',[['true','Teams of 2'],['false','Everyone alone']]),X.teams?(X.play?'4 or 6 players in teams of 2. Partners sit across from each other and share books and one score.':'Partners share books and one score.'):'Each player keeps their own books and score.')}
   ${sec('How the game ends',seg('end',[['points','First to a score'],['rounds','Set rounds']]),X.end==='points'?'Play rounds until a '+(X.teams?'team':'player')+' reaches the target, then the highest score wins.':'Play a set number of rounds, each with its own meld minimum.')}
   ${X.end==='points'?sec('Target and meld minimums',row('Play to','',st('target',X.target,500,50000,500,'points'))+(X.tthr?'':row('Meld minimum goes up every','points',st('tstep',X.tstep,100,5000,100,'points')))+row('Levels','',st('tcount',X.tmins.length,2,8,1,'levels'))
     +(X.tthr?(X.negMin!=null?row('Below zero','first meld at least',st('negMin',X.negMin,0,500,5,'meld minimum')):'')+X.tmins.map((m,i)=>(i>0?row(`Level ${i+1} starts at`,'points',st('tthr.'+i,X.tthr[i],hfThr(i-1)+100,50000,100,'points')):'')+row(i===X.tmins.length-1?`${fmtN(hfThr(i))} and up`:`${fmtN(hfThr(i))} to ${fmtN(hfThr(i+1)-5)}`,'first meld at least',st('tmins.'+i,m,0,500,5,'meld minimum'))).join(''):X.tmins.map((m,i)=>row(i===0?`Under ${fmtN(X.tstep)}`:i===X.tmins.length-1?`${fmtN(i*X.tstep)} and up`:`${fmtN(i*X.tstep)} to ${fmtN((i+1)*X.tstep-1)}`,'first meld at least',st('tmins.'+i,m,0,500,10,'meld minimum'))).join(''))+row('Cards in each hand and foot','',st('hand',X.hand,5,25,1,'cards')),
@@ -3821,7 +3834,7 @@ function hfRulesSheet(){const X=HX(),G=hfGroups();
 function caHomeCard(){const st=gamePeek('canasta');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/canasta-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart caart&quot; aria-hidden=&quot;true&quot;>C</div>'"><div><h2>Canasta</h2><div class="meta">Card game · teams · house rules</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="canasta">Resume game</button><button class="btn" data-a="gnew" data-k="canasta">New game</button><button class="btn" data-a="gabandon" data-k="canasta" aria-label="Abandon this game">${ABANDON==='canasta'?'Tap again to abandon':'🗑'}</button></div>`
-      :`<button class="btn primary wide" data-a="gnew" data-k="canasta">Score a game</button>`}</div>`}
+      :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="hfstart" data-g="canasta" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="hfstart" data-g="canasta" data-k="0">Score a game</button></div>`}</div>`}
 const CADEMOS=[{id:'cafam',title:'Family night · Canasta',tip:'Each team\u2019s meld minimum follows its own score: below zero, 50, 90 or 120. Tap Finish to watch the reveal.',blurb:'Mom & Dad vs. Grandma & Grandpa, playing to 5,000. A round with no melds turns Grandpa\u2019s red 3s into minus points, and all four red 3s pay 800 later on.'}];
 function caDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}
   S=hfFresh('canasta');S.hx=JSON.parse(JSON.stringify(CADEF));S.demo=id;const [a,b]=S.players;a.mem=['Mom','Dad'];b.mem=['Grandma','Grandpa'];a.color='blue';b.color='red';
@@ -4714,15 +4727,15 @@ const cardPlayHint=()=>`${cardDrag()?'Drag a card onto the table to play it.':(c
    The order lives only on this phone (localStorage), keyed by game, hand and player.
    ===================================================================== */
 let HO=null,HOSAVE=null,HOPEND=null,HOZSUP=0;
-const hoG=()=>({hearts:S.htg,spades:S.sdg,ohell:S.ohg,rook:S.rkg,rage:S.rgg,uno:S.ung,crowns:S.fcg,phase10:S.pzg,hf:S.hpg})[S.game]||null;
-const hoViewer=()=>{try{const f={hearts:htViewer,spades:sdViewer,ohell:ohViewer,rook:rkViewer,rage:rgViewer,uno:unViewer,crowns:fcViewer,phase10:pzViewer,hf:hpViewer}[S.game];return f?f():null}catch(e){return null}};
+const hoG=()=>({hearts:S.htg,spades:S.sdg,ohell:S.ohg,rook:S.rkg,rage:S.rgg,uno:S.ung,crowns:S.fcg,phase10:S.pzg,hf:S.hpg,canasta:S.hpg})[S.game]||null;
+const hoViewer=()=>{try{const f={hearts:htViewer,spades:sdViewer,ohell:ohViewer,rook:rkViewer,rage:rgViewer,uno:unViewer,crowns:fcViewer,phase10:pzViewer,hf:hpViewer,canasta:hpViewer}[S.game];return f?f():null}catch(e){return null}};
 function hoSorts(){const g=hoG()||{},G=S.game;
   if(G==='hearts'||G==='spades'||G==='ohell')return [['s','Suit',h=>htSort(h)],['n','Number',h=>h.slice().sort((a,b)=>htRk(a)-htRk(b)||HTSO.indexOf(a[1])-HTSO.indexOf(b[1]))]];
   if(G==='rook')return [['s','Color',h=>rkSort(h,g.trump)],['n','Number',h=>h.slice().sort((a,b)=>rkRank(a)-rkRank(b)||String(a).localeCompare(String(b)))]];
   if(G==='rage')return [['s','Color',h=>rgSort(h,g.tr)],['n','Number',h=>h.slice().sort((a,b)=>{const ia=rgIsAct(a),ib=rgIsAct(b);if(ia!==ib)return ia?1:-1;if(ia)return a.localeCompare(b);return rgNum(a)-rgNum(b)||a.localeCompare(b)})]];
   if(G==='uno')return [['s','Color',h=>unSort(g,h)],['n','Number',h=>{const base=unSort(g,h);return base.slice().sort((a,b)=>{const fa=unFace(g,a),fb=unFace(g,b),na=unIsNum(fa.k),nb=unIsNum(fb.k);if(na!==nb)return na?-1:1;if(na&&+fa.k!==+fb.k)return +fa.k-+fb.k;return base.indexOf(a)-base.indexOf(b)})}]];
   if(G==='crowns')return [['n','Number',h=>fcSortN(h,g.k)],['s','Suit',h=>fcSort(h,g.k)]];
-  if(G==='hf')return [['n','Number',h=>hpSort(h)],['s','Suit',h=>h.slice().sort((a,b)=>{const wa=hpWild(a),wb=hpWild(b);if(wa!==wb)return wa?1:-1;return 'SHDC'.indexOf(hpSu(a))-'SHDC'.indexOf(hpSu(b))||hpRV(hpRk(a))-hpRV(hpRk(b))})]];
+  if(G==='hf'||G==='canasta')return [['n','Number',h=>hpSort(h)],['s','Suit',h=>h.slice().sort((a,b)=>{const wa=hpWild(a),wb=hpWild(b);if(wa!==wb)return wa?1:-1;return 'SHDC'.indexOf(hpSu(a))-'SHDC'.indexOf(hpSu(b))||hpRV(hpRk(a))-hpRV(hpRk(b))})]];
   if(G==='phase10')return [['n','Number',h=>pzSort(h)],['s','Color',h=>h.slice().sort((a,b)=>{const ka=pzW(a)?9:pzS(a)?10:'rbgy'.indexOf(pzC(a)),kb=pzW(b)?9:pzS(b)?10:'rbgy'.indexOf(pzC(b));return ka-kb||pzV(a)-pzV(b)})]];
   return []}
 function hoLoad(){if(HO)return HO;try{HO=JSON.parse(localStorage.getItem(KEY+'.ho'))||{}}catch(e){HO={}}return HO}
@@ -4773,7 +4786,7 @@ function hoAfter(){const app=document.getElementById('app');if(!app||S.screen!==
   const end=e=>{if(!D||e.pointerId!==D.id)return;const d=D;D=null;if(!d.on)return;DRAGSUP=Date.now()+400;clear();
     const z=e.type==='pointerup'?zoneAt(e.clientX,e.clientY,d.g):null;document.body.classList.remove('hodragging');if(d.g)d.g.remove();d.el.style.opacity='';const V=hoViewer();if(!z||!V){render();return}
     const to=z.pile!==undefined?{pile:z.pile}:(()=>{const r=z.el.getBoundingClientRect();return {c:z.el.dataset.c,after:e.clientX>=r.left+r.width/2}})();
-    if(z.disc){if(d.pile){render();return}/* dropped on the discard pile: discard it */const c=d.el.dataset.c;if(S.game==='phase10'){PZSEL=[c];pzAct('pzpdiscpile',{dataset:{}})}else if(S.game==='hf'){HPSEL=[c];hpAct('hppdiscpile',{dataset:{}})}else if(S.game==='crowns'){FCSEL=[c];fcAct('fcpdiscpile',{dataset:{}})}save();render();return}
+    if(z.disc){if(d.pile){render();return}/* dropped on the discard pile: discard it */const c=d.el.dataset.c;if(S.game==='phase10'){PZSEL=[c];pzAct('pzpdiscpile',{dataset:{}})}else if(HFE()){HPSEL=[c];hpAct('hppdiscpile',{dataset:{}})}else if(S.game==='crowns'){FCSEL=[c];fcAct('fcpdiscpile',{dataset:{}})}save();render();return}
     if(d.pile){/* drag a draw into a spot: remember where, then draw */HOPEND={pid:V.id,to,at:Date.now()};DRAGPLAY=true;d.el.click();DRAGPLAY=false;return}
     if(z.el===d.el){render();return}hoMove(V.id,d.el.dataset.c,to);vibe(8);render()};
   document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',end,true)})();
@@ -4818,7 +4831,7 @@ function rxLayer(){const R=S.react||{},out=[];for(const pid in R){const x=R[pid]
     if(sn.at&&el<RXMS){const p=act().find(q=>q.id===pid);if(p)out.push(`<div class="rxpop" style="${pc(p.color)};animation-delay:-${el}ms;left:${18+(out.length*27)%64}%"><b>${esc(x.e)}</b><small>${esc(nm(p))}</small></div>`)}}
   return out.length?`<div class="rxlayer" aria-live="polite">${out.join('')}</div>`:''}
 /* reactions also work in a game on one device; computer players sometimes react to big moments */
-const RXGAME={hearts:()=>htPlayOn()&&S.htg,spades:()=>sdPlayOn()&&S.sdg,ohell:()=>ohPlayOn()&&S.ohg,rook:()=>rkPlayOn()&&S.rkg,rage:()=>rgPlayOn()&&S.rgg,uno:()=>unPlayOn()&&S.ung,golf:()=>gpOn()&&S.gpg,skyjo:()=>gpOn()&&S.gpg,gnome:()=>gpOn()&&S.gpg,skipbo:()=>sbOn()&&S.sbg,crowns:()=>fcOn()&&S.fcg,phase10:()=>pzOn()&&S.pzg,hf:()=>hpOn()&&S.hpg};
+const RXGAME={hearts:()=>htPlayOn()&&S.htg,spades:()=>sdPlayOn()&&S.sdg,ohell:()=>ohPlayOn()&&S.ohg,rook:()=>rkPlayOn()&&S.rkg,rage:()=>rgPlayOn()&&S.rgg,uno:()=>unPlayOn()&&S.ung,golf:()=>gpOn()&&S.gpg,skyjo:()=>gpOn()&&S.gpg,gnome:()=>gpOn()&&S.gpg,skipbo:()=>sbOn()&&S.sbg,crowns:()=>fcOn()&&S.fcg,phase10:()=>pzOn()&&S.pzg,hf:()=>hpOn()&&S.hpg,canasta:()=>hpOn()&&S.hpg};
 const rxG=()=>{const f=RXGAME[S.game];try{return f?f()||null:null}catch(e){return null}};
 const rxLocalOn=()=>!S.lk&&!S.demo&&S.screen==='score'&&S.started&&!S.finished&&!!rxG();
 const rxMe=()=>S.lk?S.lk.me:((hoViewer()||act().find(p=>!p.bot)||{}).id||null);
@@ -4852,7 +4865,7 @@ function ktTable(o){const P=o.P,n=P.length,v=Math.max(0,P.findIndex(p=>o.me&&p.i
   let sweep=null;if(o.faded&&T.length){const key=ktKey(T);if(KTSW[key]===undefined){KTSW[key]=Date.now();setTimeout(render,KTMS+40)}const el=Date.now()-KTSW[key];if(el<KTMS&&o.won){const wk=P.findIndex(p=>p.id===o.won),w=pos(wk);sweep={el,wl:50+w.x*(n>6?28:31),wt:50+w.y*33}}else T=[]}
   const CE=o.card||htCardEl,cards=T.map((t,i)=>{const k=P.findIndex(p=>p.id===t.p),{x,y}=pos(k),rot=(([...t.c].reduce((a,ch)=>a+ch.charCodeAt(0),0)*7+k*13)%15)-7;
     return `<div class="ktcard${i===T.length-1&&!o.faded?' new':''}${sweep?' sweep':''}" style="left:${50+x*15}%;top:${50+y*17}%;z-index:${i+1};transform:translate(-50%,-50%) rotate(${rot}deg)${sweep?`;--wl:${sweep.wl}%;--wt:${sweep.wt}%;animation-delay:-${sweep.el}ms`:''}">${CE(t.c)}</div>`}).join('');
-  let deal='';if(o.dg&&o.dealTag){const g=o.dg,fresh=o.dealTag==='uno'||o.dealTag==='crowns'||o.dealTag==='phase10'||o.dealTag==='hf'?!g.n:!(g.t&&g.t.length)&&!g.last,el=dealAnim(o.dealTag,g,fresh);
+  let deal='';if(o.dg&&o.dealTag){const g=o.dg,fresh=o.dealTag==='uno'||o.dealTag==='crowns'||o.dealTag==='phase10'||o.dealTag==='hf'||o.dealTag==='canasta'?!g.n:!(g.t&&g.t.length)&&!g.last,el=dealAnim(o.dealTag,g,fresh);
     if(el!==null){const per=Math.max(1,Math.min(7,...P.map(q=>((g.h||{})[q.id]||[]).length||1))),step=(DLMS-520)/(per*n);
       for(let i=0;i<per;i++)P.forEach((q,k)=>{const {x,y}=pos(k);deal+=`<i class="ktdeal" style="--x:${50+x*(n>6?36:40)}%;--y:${50+y*41}%;--r:${(k*47+i*23)%40-20}deg;animation-delay:${Math.round((i*n+k)*step-el)}ms;${cbVars(q.id)}"></i>`});
       deal=`<i class="ktdeck" style="animation-delay:-${el}ms"></i>`+deal}}
@@ -5615,7 +5628,7 @@ function botHead(q,big){if(!q||!q.bot)return '';const lv=BOTLV[q.bot]?q.bot:'nor
   return `<svg class="bothead${big?' big':''}" viewBox="0 0 32 32" role="img" aria-label="Computer, ${lab}"><title>Computer, ${lab}</title><line x1="16" y1="3.5" x2="16" y2="8" stroke="${col}" stroke-width="2"/><circle cx="16" cy="3.4" r="2.2" fill="${col}"/><rect x="5" y="8" width="22" height="18" rx="6" fill="${col}" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/><rect x="2.2" y="14" width="3" height="6" rx="1.4" fill="${col}"/><rect x="26.8" y="14" width="3" height="6" rx="1.4" fill="${col}"/>${face}</svg>${big?'':' '}`}
 /* ---------- card backs: each phone picks its own; the games with art have their own default ---------- */
 const CBACKS={moto:['Motorcycle','art/card-back.jpg','#2b3a55','#f0b43a'],crown:['Crown','art/crowns-back.jpg','#4b2c7a','#e7b423'],gnome:['Golfing gnome','art/gnome-back.jpg','#2f5a35','#f0b43a'],witch:['Fortune teller','art/witch-back.jpg','#3b1f6e','#e7b423'],stripes:['Plain stripes','','#2b3a55','#f0b43a']};
-const CBG=['uno','hearts','spades','ohell','rook','rage','golf','skyjo','gnome','skipbo','crowns','phase10','hf'];
+const CBG=['uno','hearts','spades','ohell','rook','rage','golf','skyjo','gnome','skipbo','crowns','phase10','hf','canasta'];
 const CBDEF={gnome:'gnome',crowns:'crown'};
 let CBOPEN=false;
 const cbFor=g=>{const c=SET.cbk||{},k=c[g]||c['*']||CBDEF[g]||'moto';return CBACKS[k]?k:'moto'};
@@ -5661,6 +5674,7 @@ function hfGuide(){const X=HX(),CA=S.game==='canasta',ppl=gdPeople(),G=hfGroups(
       ['Going out',`Needs ${hfNeedTxt()}${X.teams?', and ask your partner first':''}. Bonus +${X.out}.`],
       ['Each round',`Book bonuses + cards on the table + going out − cards left in ${CA?'hand':'hands and feet'}${X.r3||X.b3?' − stuck 3s':''}.`]]],
     ['Winning',[[X.end==='points'?`First to ${fmtN(X.target)}`:`${X.rounds} rounds`,X.end==='points'?`The game ends when a ${T} reaches ${fmtN(X.target)} at the end of a round. Highest score wins.`:'Highest total after the last round wins.']]],
+    CA&&X.play?['On the phone',[['Your turn','Tap the stock to draw 1. Or take the whole discard pile when you can meld its top card right away; you must meld that card before you discard.'],['Frozen pile','Until your side has melded, or when there’s a wild card or red 3 in the pile, you need two natural cards that match the top card to take it.'],['Laying down','Tap 3 or more cards of a kind (at most 3 wilds), then Make a meld. Your side’s first melds each round must add up to the minimum. Each rank goes in one meld for your side.'],['Going out',`Once your side has ${hfNeedTxt()}, meld all your cards or discard your last one. No need to ask your partner.`],['Red 3s','The app lays them face up for you and draws a replacement.'],['Scoring','The app fills in each round for you.']]]:null,
     !CA&&X.play?['On the phone',[['Your turn','Tap the stock to draw 2. Or take the whole discard pile when you can meld its top card right away; you must meld that card before you discard.'],['Laying down','Tap 3 or more cards of a kind, then Make a meld. Your side’s first melds each round must add up to the minimum. Once you’re down, tap cards and then a glowing meld to add to it.'],['Your foot','You can’t meld your last card: your hand ends on a discard, then you pick up your foot and play it from your next turn.'],['Going out',`Discard your last foot card once your side has ${hfNeedTxt()}. No need to ask your partner.`],['Scoring','The app fills in each round’s books, cards and penalties for you.'],...(X.r3play?[['Red 3s','The app lays your red 3s face up as soon as you get them and draws you a replacement (not for red 3s that come with the discard pile).']]:[]),...(X.b3meld?[['Black 3s','Only when you’re going out: meld 3 or more black 3s with one card left to discard.']]:[]),...(X.concealed?[['Going out concealed','Your side lays everything down and goes out in the same turn it first gets down.']]:[]),['Perfect grab','That’s for real cards only; it doesn’t apply on the phone.']]]:null].filter(Boolean))}
 
 function nxGuide(){const X=NX(),n=act().length;
@@ -8449,7 +8463,7 @@ function unModal(){const a=unNeedHandoff();if(!a)return '';const g=ung();return 
    The guest tries the move on a throwaway copy first, so it can say right away if the move isn't allowed. */
 let LKQN=0;
 const lkqOn=()=>lkGuest()&&!S.demo;
-const lkqKey=()=>{const g={uno:S.ung,golf:S.gpg,skyjo:S.gpg,gnome:S.gpg,hearts:S.htg,spades:S.sdg,ohell:S.ohg,rook:S.rkg,rage:S.rgg,skipbo:S.sbg,crowns:S.fcg,phase10:S.pzg,hf:S.hpg}[S.game];return S.game+':'+(g?g.r:'-')};
+const lkqKey=()=>{const g={uno:S.ung,golf:S.gpg,skyjo:S.gpg,gnome:S.gpg,hearts:S.htg,spades:S.sdg,ohell:S.ohg,rook:S.rkg,rage:S.rgg,skipbo:S.sbg,crowns:S.fcg,phase10:S.pzg,hf:S.hpg,canasta:S.hpg}[S.game];return S.game+':'+(g?g.r:'-')};
 const LKQF={
   hpDraw:pid=>{const g=hpG();return !!g&&hpDraw(g,pid)},
   hpTake:pid=>{const g=hpG();return !!g&&hpTake(g,pid)},
@@ -9371,7 +9385,10 @@ function pzAct(a,b,k){const g=pzG();if(!g)return;
    The house rules (wild cards, wild limits, book bonuses, card values, 3s, minimums) all come from the Hand and Foot setup.
    S.hpg = {_atom, r, ps, tm:{pid:side}, h:{pid:[ids]}, ft:{pid:[ids]}, inF:{pid:1}, deck, disc, turn, dealer, phase, drew, need, melds:{side:[{c:[ids]}]}, down:{side:1}, out, msg, n} */
 const HPBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Card Bot'],hard:['Hard','Book Bot']};
-const hpOn=()=>S.game==='hf'&&!!HX().play;
+const HPCA=()=>S.game==='canasta';
+const hpOn=()=>HFE()&&!!HX().play;
+/* words that differ between Hand and Foot and Canasta */
+const hpW=()=>HPCA()?{book:'canasta',books:'canastas',clean:'natural',dirty:'mixed'}:{book:'book',books:'books',clean:'clean',dirty:'dirty'};
 const hpG=()=>S.hpg||null;
 const hpRes=()=>!S.lk||S.demo||lkHost();
 const hpRk=c=>c[0],hpSu=c=>c[1];
@@ -9405,7 +9422,7 @@ const hpKind=m=>!hpBook(m)?'':hpNat(m.c).length===0?'wild':hpClean(m)?'clean':'d
 function hpCanAdd(m,cs){const X=HX();if(!cs.length)return false;if(hpBook(m)){if(X.addOn==='none')return false;if(X.addOn==='dirty'&&hpClean(m))return false}
   const all=m.c.concat(cs);if(!hpMeldOk(all))return false;return hpMeldRank(all)===hpMeldRank(m.c)}
 /* an open meld of this rank for a side (one not yet a book), so a second one can't be started */
-const hpOpenOf=(g,side,rank)=>(g.melds[side]||[]).findIndex(m=>!m.b3&&hpMeldRank(m.c)===rank&&!hpBook(m));
+const hpOpenOf=(g,side,rank)=>(g.melds[side]||[]).findIndex(m=>!m.b3&&hpMeldRank(m.c)===rank&&(HPCA()||!hpBook(m)));/* Canasta: one meld per rank, ever */
 /* red 3s are laid face up as soon as you get them (house rule); a replacement comes off the stock */
 function hpRed3(g,pid,replace){if(!HX().r3play)return 0;const side=hpSide(g,pid);let n=0,guard=0;g.r3=g.r3||{};
   while(guard++<20){const c=g.h[pid].find(x=>hp3(x)&&hpRed(x));if(!c)break;g.h[pid]=g.h[pid].filter(x=>x!==c);(g.r3[side]=g.r3[side]||[]).push(c);n++;if(replace&&g.deck.length)g.h[pid].push(g.deck.pop())}
@@ -9418,44 +9435,48 @@ function hpCanGoOut(g,side){const X=HX(),M=g.melds[side]||[],cl=M.filter(m=>hpKi
   return cl>=(X.needC||0)&&dt>=(X.needD||0)&&(!X.wildBook||wb>=(X.needW||0))&&all>=(X.needAny||0)}
 const hpNeedTxt=()=>hfNeedTxt();
 /* ---------------- the game ---------------- */
-function hpDeal(r){const P=act(),X=HX(),ids=P.map(p=>p.id),L=[];const nd=P.length+1;
+function hpDeal(r){const P=act(),X=HX(),ids=P.map(p=>p.id),L=[],CA=HPCA();const nd=CA?(P.length>=6?3:2):P.length+1,HS=CA?(P.length===2?15:P.length===3||P.length>=6?13:11):X.hand;
   for(let d=0;d<nd;d++){for(const s of 'SHDC')for(const k of 'A23456789TJQK')L.push(k+s);if(X.jokers){L.push('XR');L.push('XB')}}
-  const dealer=ids[r%ids.length],g={_atom:1,r,ps:ids,tm:{},h:{},ft:{},inF:{},deck:htShuffle(L.map((c,i)=>c+'#'+i)),disc:[],turn:null,dealer,phase:'play',drew:0,need:null,melds:{},down:{},out:null,msg:'',n:0};
+  const dealer=ids[r%ids.length],g={_atom:1,r,ps:ids,tm:{},h:{},ft:{},inF:{},nc:L.length,deck:htShuffle(L.map((c,i)=>c+'#'+i)),disc:[],turn:null,dealer,phase:'play',drew:0,need:null,melds:{},down:{},out:null,msg:'',n:0};
   ids.forEach((id,i)=>{g.tm[id]=X.teams&&ids.length>=4&&ids.length%2===0?'T'+(i%(ids.length/2)):id;g.h[id]=[];g.ft[id]=[]});
-  for(let i=0;i<X.hand;i++)ids.forEach(id=>{g.h[id].push(g.deck.pop());g.ft[id].push(g.deck.pop())});
-  g.disc.push(g.deck.pop());g.turn=hpNext(g,dealer);g.tc=0;g.dn={};g.r3={};g.msg=`${nmid(dealer)} dealt a hand and a foot of ${X.hand} cards to everyone. ${nmid(g.turn)} goes first.`;ids.forEach(id=>hpRed3(g,id,true));S.hpg=g;HPSEL=[];HPVIEW=null;HPSTAGE={}}
+  for(let i=0;i<HS;i++)ids.forEach(id=>{g.h[id].push(g.deck.pop());if(!CA)g.ft[id].push(g.deck.pop())});if(CA)ids.forEach(id=>g.inF[id]=1);
+  g.disc.push(g.deck.pop());g.frozen=CA&&(hpWild(hpTop(g))||hp3(hpTop(g))&&hpRed(hpTop(g)));g.turn=hpNext(g,dealer);g.tc=0;g.dn={};g.r3={};g.msg=CA?`${nmid(dealer)} dealt ${HS} cards to everyone.${g.frozen?' The pile starts frozen.':''} ${nmid(g.turn)} goes first.`:`${nmid(dealer)} dealt a hand and a foot of ${X.hand} cards to everyone. ${nmid(g.turn)} goes first.`;ids.forEach(id=>hpRed3(g,id,true));S.hpg=g;HPSEL=[];HPVIEW=null;HPSTAGE={}}
 function hpDraw(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||g.drew)return false;if(!g.deck.length){hpEnd(g,null);g.msg='The stock ran out, so the round is over.';return true}
-  const n=Math.min(2,g.deck.length);for(let i=0;i<n;i++)g.h[pid].push(g.deck.pop());g.drew=1;g.n++;g.msg=`${nmid(pid)} drew ${n} card${n===1?'':'s'}.`;hpRed3(g,pid,true);return true}
+  const n=Math.min(HPCA()?1:2,g.deck.length);for(let i=0;i<n;i++)g.h[pid].push(g.deck.pop());g.drew=1;g.n++;g.msg=`${nmid(pid)} drew ${n} card${n===1?'':'s'}.`;hpRed3(g,pid,true);return true}
 /* can this player take the pile right now? */
 function hpTakeOk(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||g.drew)return false;const t=hpTop(g);if(!t||hpWild(t)||hp3(t))return false;const side=hpSide(g,pid),h=g.h[pid],r=hpRk(t);
   const nat=h.filter(c=>!hpWild(c)&&hpRk(c)===r);
-  if(g.down[side]){if((g.melds[side]||[]).some(m=>hpCanAdd(m,[t])))return true;return hpOpenOf(g,side,r)<0&&nat.length>=2&&h.length>=3}
+  if(g.down[side]){if(HPCA()&&g.frozen)return hpOpenOf(g,side,r)<0&&nat.length>=2&&h.length>=3;/* frozen pile: a natural pair only */
+    if((g.melds[side]||[]).some(m=>hpCanAdd(m,[t])))return true;if(hpOpenOf(g,side,r)>=0)return false;if(nat.length>=2&&h.length>=3)return true;
+    return HPCA()&&nat.length>=1&&h.some(hpWild)&&h.length>=3}
   if(nat.length<2||h.length<3)return false;
   /* first meld: the top card with 2 naturals, plus what else the hand can lay down, has to reach the minimum */
   const rest=h.concat(g.disc.slice(0,-1)).filter(c=>c!==nat[0]&&c!==nat[1]);return hpVal(t)+hpVal(nat[0])+hpVal(nat[1])+hpBestExtra(rest,[r])>=hpMin(g,pid)}
 /* a rough best value of melds the rest of a hand could lay down (for the first-meld check) */
 function hpBestExtra(h,skip){const by={};let w=h.filter(hpWild);h.filter(c=>!hpWild(c)&&!hp3(c)).forEach(c=>(by[hpRk(c)]=by[hpRk(c)]||[]).push(c));let v=0;
   Object.keys(by).filter(r=>!skip.includes(r)).sort((a,b)=>by[b].length-by[a].length).forEach(r=>{const n=by[r];if(n.length>=3)v+=hpMeldVal(n);else if(n.length===2&&w.length){if(hpMeldOk(n.concat(w[0]))){v+=hpMeldVal(n.concat(w[0]));w=w.slice(1)}}});return v}
-function hpTake(g,pid){if(!hpTakeOk(g,pid))return false;const t=hpTop(g),n=g.disc.length;g.took=g.disc.slice();g.h[pid].push(...g.disc);g.disc=[];g.drew=1;g.need=t;g.n++;pst('hptake',pid);
+function hpTake(g,pid){if(!hpTakeOk(g,pid))return false;const t=hpTop(g),n=g.disc.length;g.took=g.disc.slice();g.h[pid].push(...g.disc);g.disc=[];g.drew=1;g.need=t;g.n++;g.frozen=false;pst('hptake',pid);
   g.msg=`${nmid(pid)} took the discard pile (${n} card${n===1?'':'s'}) and has to meld the ${hpName(t)}.`;if(hpRed3(g,pid,false))g.took=null;return true}
 /* lay down: news = [[ids]] new melds, adds = [{m:index,cs:[ids]}] onto the side's melds */
 /* changed your mind right after taking the pile (nothing melded yet): put it back and draw instead */
-function hpUntake(g,pid){if(!g||g.turn!==pid||!g.took||!g.need||!g.h[pid].includes(g.need))return false;const T=g.took;if(!T.every(c=>g.h[pid].includes(c)))return false;g.h[pid]=g.h[pid].filter(c=>!T.includes(c));g.disc=T;g.took=null;g.need=null;g.drew=0;g.n++;g.msg=`${nmid(pid)} put the discard pile back.`;return true}
+function hpUntake(g,pid){if(!g||g.turn!==pid||!g.took||!g.need||!g.h[pid].includes(g.need))return false;const T=g.took;if(!T.every(c=>g.h[pid].includes(c)))return false;g.h[pid]=g.h[pid].filter(c=>!T.includes(c));g.disc=T;g.frozen=HPCA()&&T.some(x=>hpWild(x)||hp3(x)&&hpRed(x));g.took=null;g.need=null;g.drew=0;g.n++;g.msg=`${nmid(pid)} put the discard pile back.`;return true}
 function hpPlay(g,pid,news,adds){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew)return false;news=news||[];adds=adds||[];const side=hpSide(g,pid),h=g.h[pid],M=(g.melds[side]||[]).map(m=>m.b3?{c:m.c.slice(),b3:1}:{c:m.c.slice()});
   const used=news.flat().concat(adds.flatMap(a=>a.cs||[]));if(!used.length||new Set(used).size!==used.length||!used.every(c=>h.includes(c)))return false;
-  if(h.length-used.length<1)return false;/* the last card always goes on the discard pile */
+  const allOut=h.length-used.length<1;if(allOut&&!HPCA())return false;/* Hand and Foot: the last card always goes on the discard pile. Canasta can go out by melding everything */
   if(!g.down[side]&&adds.length)return false;
-  const X3=HX(),b3s=news.filter(hpB3);if(b3s.length){if(!X3.b3meld||!g.inF[pid]||h.length-used.length!==1)return false;const T=M.concat(news.filter(cs=>!hpB3(cs)).map(cs=>({c:cs})));adds.forEach(a=>{});if(!hpCanGoOut({melds:{x:T}},'x'))return false}
+  const X3=HX(),b3s=news.filter(hpB3);if(b3s.length){if(!X3.b3meld||!g.inF[pid]||h.length-used.length>1)return false;const T=M.concat(news.filter(cs=>!hpB3(cs)).map(cs=>({c:cs})));adds.forEach(a=>{});if(!hpCanGoOut({melds:{x:T}},'x'))return false}
   const ranks=[];for(const cs of news){if(hpB3(cs))continue;if(!hpMeldOk(cs))return false;const r=hpMeldRank(cs);if(r!=='W'&&(ranks.includes(r)||hpOpenOf({melds:{x:M}},'x',r)>=0))return false;ranks.push(r)}
   for(const a of adds){const m=M[a.m];if(!m||!hpCanAdd(m,a.cs))return false;m.c.push(...a.cs)}
   if(!g.down[side]){const v=news.filter(cs=>!hpB3(cs)).reduce((s,cs)=>s+hpMeldVal(cs),0),need=hpMin(g,pid);if(v<need)return false}
   /* in the foot without the books to go out yet, keep 2 cards so there is still one to discard next turn */
   if(g.inF[pid]&&h.length-used.length<2){const T=M.concat(news.map(cs=>({c:cs})));if(!hpCanGoOut({melds:{x:T}},'x'))return false}
+  if(allOut&&g.need&&!used.includes(g.need))return false;
   news.forEach(cs=>M.push(hpB3(cs)?{c:cs.slice(),b3:1}:{c:cs.slice()}));g.melds[side]=M;g.took=null;const wasDown=g.down[side];if(!wasDown){g.dn=g.dn||{};g.dn[side]=g.tc||0}g.down[side]=1;g.h[pid]=h.filter(c=>!used.includes(c));if(g.need&&used.includes(g.need))g.need=null;g.n++;
-  const books=M.filter(hpBook).length;g.msg=`${nmid(pid)} ${wasDown?'played':'laid down'} ${used.length} card${used.length===1?'':'s'}${wasDown?'':` (${news.reduce((s,cs)=>s+hpMeldVal(cs),0)} points)`}.${books?` ${books} book${books===1?'':'s'} on the table.`:''}`;pst('hpmeld',pid);return true}
+  const books=M.filter(hpBook).length;g.msg=`${nmid(pid)} ${wasDown?'played':'laid down'} ${used.length} card${used.length===1?'':'s'}${wasDown?'':` (${news.reduce((s,cs)=>s+hpMeldVal(cs),0)} points)`}.${books?` ${books} ${books===1?hpW().book:hpW().books} on the table.`:''}`;pst('hpmeld',pid);
+  if(allOut){g.cc=!!(g.dn&&g.dn[side]===(g.tc||0));g.msg+=` ${nmid(pid)} melded every card and went out!`;hpEnd(g,pid)}return true}
 function hpDiscard(g,pid,c){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew)return false;const h=g.h[pid];if(!h.includes(c))return false;if(g.need&&h.includes(g.need)&&c!==g.need)return false;if(g.need===c)return false;
   const side=hpSide(g,pid);if(h.length===1&&g.inF[pid]&&!hpCanGoOut(g,side))return false;
-  g.h[pid]=h.filter(x=>x!==c);g.disc.push(c);g.drew=0;g.need=null;g.took=null;g.n++;g.msg=`${nmid(pid)} discarded the ${hpName(c)}.`;const thisTurn=g.tc||0;g.tc=thisTurn+1;
+  g.h[pid]=h.filter(x=>x!==c);g.disc.push(c);if(HPCA()&&hpWild(c))g.frozen=true;g.drew=0;g.need=null;g.took=null;g.n++;g.msg=`${nmid(pid)} discarded the ${hpName(c)}.`;const thisTurn=g.tc||0;g.tc=thisTurn+1;
   if(!g.h[pid].length){if(!g.inF[pid]){g.inF[pid]=1;g.h[pid]=g.ft[pid];g.ft[pid]=[];g.msg+=` ${nmid(pid)} picks up their foot.`;hpRed3(g,pid,true);pst('hpfoot',pid)}else{g.cc=!!(g.dn&&g.dn[side]===thisTurn);g.msg+=` ${nmid(pid)} went out${g.cc&&HX().concealed?' concealed':''}!`;hpEnd(g,pid);return true}}
   g.turn=hpNext(g,pid);return true}
 function hpEnd(g,w){const X=HX();g.out=w;g.phase='done';g.turn=null;const sides=[...new Set(g.ps.map(id=>g.tm[id]))];
@@ -9511,7 +9532,7 @@ const hpMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
 const hpHumans=()=>act().filter(p=>!p.bot);
 function hpViewer(){const g=hpG();if(!g)return null;if(S.lk&&!S.demo)return hpMe();const H=hpHumans();if(H.length===1)return H[0];if(!H.length)return null;const t=act().find(p=>p.id===g.turn);return t&&!t.bot&&HPVIEW===t.id?t:null}
 const hpNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=hpG();if(!g||g.phase!=='play'||hpHumans().length<2)return null;const t=act().find(p=>p.id===g.turn);return t&&!t.bot&&HPVIEW!==t.id?t:null};
-function hpTick(){if(S.game!=='hf'||!hpOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!hpRes())return;if(lkqRun()){save();render();return}
+function hpTick(){if(!HFE()||!hpOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!hpRes())return;if(lkqRun()){save();render();return}
   const g=hpG(),cur=hfCur();if(!g||hpStale(g)||g.r!==cur){hpDeal(cur);save();render();return}
   if(g.phase!=='play')return;const q=act().find(p=>p.id===g.turn);
   if(q&&q.bot&&!HPBOTT&&!document.querySelector('.sheet-bg'))HPBOTT=setTimeout(()=>{HPBOTT=null;const g2=hpG();if(g2&&g2.phase==='play'&&g2.turn===q.id){hpBotStep(g2,q);save()}render()},(g.drew?600:750)*htSpd())}
@@ -9525,24 +9546,24 @@ const hpGrpHtml=(cs,o={})=>`<div class="fcgrp${o.cls?' '+o.cls:''}"${o.attr||''}
 /* the card on top of a meld is never a wild: a clean book is topped with a red card, a dirty book with a black one */
 const hpTopCard=m=>{const N=hpNat(m.c),k=hpKind(m);if(!N.length)return m.c[m.c.length-1];const want=k==='clean'?N.filter(hpRed):k==='dirty'?N.filter(c=>!hpRed(c)):[];return want.length?want[want.length-1]:N[N.length-1]};
 const hpMeldShow=m=>{const t=hpTopCard(m),N=hpNat(m.c).filter(c=>c!==t),W=m.c.filter(c=>hpWild(c)&&c!==t);return W.concat(N,[t])};
-function hpPlayUI(){if(!hpRes()&&S.hpg&&S.hpg.r!==S.hr)S.hr=S.hpg.r;const X=HX(),P=act(),g=hpG(),r=hfCur(),sc=P.map(hfTot);
+function hpPlayUI(){const CA=HPCA(),W=hpW();if(!hpRes()&&S.hpg&&S.hpg.r!==S.hr)S.hr=S.hpg.r;const X=HX(),P=act(),g=hpG(),r=hfCur(),sc=P.map(hfTot);
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Round ${r+1}">#${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
-  ${(()=>{const X0=HX(),k=P.length/2;if(X0.teams&&P.length>=4&&P.length%2===0){const G=[];for(let i=0;i<k;i++)G.push([P[i],P[i+k]]);return teamTabs(G,{on:q=>!!g&&g.phase==='play'&&g.turn===q.id,score:q=>fmtN(hfTot(q)),sub:q=>g&&g.inF?(g.inF[q.id]?'foot':'hand'):''})}
-    return `<div class="tabs hftabs nxtabs" role="list">${P.map((q,i)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&g.phase==='play'&&g.turn===q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}</div><div class="ts num">${fmtN(sc[i])}</div><div class="tr num">${g&&g.inF?(g.inF[q.id]?'in foot':'in hand'):''}</div></button>`).join('')}</div>`})()}`;
+  ${(()=>{const X0=HX(),k=P.length/2;if(X0.teams&&P.length>=4&&P.length%2===0){const G=[];for(let i=0;i<k;i++)G.push([P[i],P[i+k]]);return teamTabs(G,{on:q=>!!g&&g.phase==='play'&&g.turn===q.id,score:q=>fmtN(hfTot(q)),sub:q=>!CA&&g&&g.inF?(g.inF[q.id]?'foot':'hand'):''})}
+    return `<div class="tabs hftabs nxtabs" role="list">${P.map((q,i)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&g.phase==='play'&&g.turn===q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}</div><div class="ts num">${fmtN(sc[i])}</div><div class="tr num">${!CA&&g&&g.inF?(g.inF[q.id]?'in foot':'in hand'):''}</div></button>`).join('')}</div>`})()}`;
   if(!g||hpStale(g)||g.r!==r)return out+`<div class="panel" style="padding:16px">${waitLoader(hpRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
   const V=hpViewer(),me=hpMe(),mine=V&&g.phase==='play'&&g.turn===V.id,turnP=P.find(p=>p.id===g.turn),top=hpTop(g),side=V?hpSide(g,V.id):null,down=side&&g.down[side];
   let status='';
   if(g.phase==='done')status=`<b>Round ${r+1} is over.</b>`;
-  else if(mine&&!g.drew)status=`<b>Your turn${S.lk||hpHumans().length<2?'':', '+esc(nm(V))}.</b> Draw 2 from the stock${hpTakeOk(g,V.id)?`, or take the pile (${g.disc.length} cards) and meld the ${esc(hpName(top))}`:''}.`;
+  else if(mine&&!g.drew)status=`<b>Your turn${S.lk||hpHumans().length<2?'':', '+esc(nm(V))}.</b> Draw ${CA?'1':'2'} from the stock${hpTakeOk(g,V.id)?`, or take the pile (${g.disc.length} cards) and meld the ${esc(hpName(top))}`:''}.`;
   else if(mine&&g.need&&g.h[V.id].includes(g.need))status=`<b>Meld the ${esc(hpName(g.need))} you picked up</b>, then discard.`;
   else if(mine)status=down?'<b>Lay down or add to your side’s melds, then discard.</b>':`<b>Lay down at least ${hpMin(g,V.id)} points to get down, or just discard.</b>`;
   else if(turnP)status=`${botHead(turnP)}<b>${esc(nm(turnP))}</b> is playing…`;
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
-  if(V)out+=`<div class="ohup"><span><b>${down?'Your side is down':`First meld: ${hpMin(g,V.id)} points`} · ${g.inF[V.id]?'playing your foot':`foot: ${g.ft[V.id].length} cards waiting`}</b><br><small>To go out: ${esc(hpNeedTxt())} · ${g.deck.length} in the stock</small></span></div>`;
+  if(V)out+=`<div class="ohup"><span><b>${down?'Your side is down':`First meld: ${hpMin(g,V.id)} points`} ${CA?(g.frozen?' · the pile is frozen':''):` · ${g.inF[V.id]?'playing your foot':`foot: ${g.ft[V.id].length} cards waiting`}`}</b><br><small>To go out: ${esc(hpNeedTxt())} · ${g.deck.length} in the stock</small></span></div>`;
   const canDraw=mine&&!g.drew,canTake=V&&hpTakeOk(g,V.id),dm=mine&&g.drew&&HPSEL.length===1;
-  const center=`<div class="fcpiles"><button class="fcpile${canDraw?' go':''}" data-a="hppdeck" ${canDraw?'':'aria-disabled="true"'} aria-label="Draw 2 from the stock">${hpBackEl()}<small>Stock · ${g.deck.length}</small></button>${dm?`<button class="fcpile go dropme" data-a="hppdiscpile" ${pileMess(g.disc.length)} data-hodisc="1" aria-label="Discard here">${hpCardEl(top)}<small>Discard here</small></button>`:`<button class="fcpile${canTake?' go':''}" data-a="hpptake" ${pileMess(g.disc.length)} ${mine&&g.drew?'data-hodisc="1"':''} ${canTake?'':'aria-disabled="true"'} aria-label="Take the discard pile">${hpCardEl(top)}<small>${canTake?`Take ${g.disc.length}`:`Pile · ${g.disc.length}`}</small></button>`}</div>`;
-  out+=ktTable({dealTag:'hf',dg:g,P,me:V?V.id:me?me.id:null,trick:[],faded:false,turn:g.phase==='play'?g.turn:null,won:g.out,dealer:!g.n?g.dealer:null,
-    label:q=>{const n=(g.h[q.id]||[]).length;return g.out===q.id?'went out 🎉':`${g.inF[q.id]?'🦶 ':''}${n} card${n===1?'':'s'}`},center});
+  const center=`<div class="fcpiles"><button class="fcpile${canDraw?' go':''}" data-a="hppdeck" ${canDraw?'':'aria-disabled="true"'} aria-label="Draw ${CA?1:2} from the stock">${hpBackEl()}<small>Stock · ${g.deck.length}</small></button>${dm?`<button class="fcpile go dropme" data-a="hppdiscpile" ${pileMess(g.disc.length)} data-hodisc="1" aria-label="Discard here">${hpCardEl(top)}<small>Discard here</small></button>`:`<button class="fcpile${canTake?' go':''}" data-a="hpptake" ${pileMess(g.disc.length)} ${mine&&g.drew?'data-hodisc="1"':''} ${canTake?'':'aria-disabled="true"'} aria-label="Take the discard pile">${hpCardEl(top)}<small>${canTake?`Take ${g.disc.length}`:`${g.frozen?'Frozen':'Pile'} · ${g.disc.length}`}</small></button>`}</div>`;
+  out+=ktTable({dealTag:S.game,dg:g,P,me:V?V.id:me?me.id:null,trick:[],faded:false,turn:g.phase==='play'?g.turn:null,won:g.out,dealer:!g.n?g.dealer:null,
+    label:q=>{const n=(g.h[q.id]||[]).length;return g.out===q.id?'went out 🎉':`${!CA&&g.inF[q.id]?'🦶 ':''}${n} card${n===1?'':'s'}`},center});
   /* the melds on the table, by side */
   const sides=[...new Set(g.ps.map(id=>g.tm[id]))],sel1=mine&&g.drew&&down?HPSEL:[];
   const sideName=sd=>{const ms=hpMates(g,sd);return ms.map(nmid).join(' & ')};
@@ -9550,8 +9571,8 @@ function hpPlayUI(){if(!hpRes()&&S.hpg&&S.hpg.r!==S.hr)S.hr=S.hpg.r;const X=HX()
   const meldP=sd=>{const M=g.melds[sd]||[],ours=sd===side;return `<div class="panel pzlaid${ours?' hpours':''}" data-hpside="${esc(sd)}"><div class="hpsh"><b class="rlab">${ours?'Your side':esc(sideName(sd))}${g.down[sd]?'':' · not down yet'}</b>${M.length?`<button class="btn sm hpview" data-a="hppview" data-k="${esc(sd)}" aria-label="See all of ${ours?'your side’s':esc(sideName(sd))+'’s'} melds">🔍 See all</button>`:''}</div>${M.length||R3(sd).length?`<div class="hpmelds">${R3(sd).length?`<div class="hpm hpr3"><div class="hpfan">${R3(sd).map(c=>hpCardEl(c,{mini:true})).join('')}</div><small>Red 3s · ${R3(sd).length}</small></div>`:''}${M.map((m,i)=>[m,i]).sort((a,b)=>{const ra=hpMeldRank(a[0].c),rb=hpMeldRank(b[0].c),va=ra==='W'?99:hpRV(ra),vb=rb==='W'?99:hpRV(rb);return va-vb||(hpBook(a[0])?1:0)-(hpBook(b[0])?1:0)}).map(([m,i])=>{const ok=ours&&sel1.length&&hpCanAdd(m,sel1),k=hpKind(m),N=hpNat(m.c),rk=hpMeldRank(m.c)==='W'?'Wild':hpLab(N[0]),wn=m.c.length-N.length;
     const attr=ok?` data-a="hppadd" data-i="${i}" role="button" tabindex="0" aria-label="Add the picked cards to the ${esc(rk)}s"`:'';
     if(m.b3)return `<div class="hpm"><div class="hpfan">${m.c.map(c=>hpCardEl(c,{mini:true})).join('')}</div><small>Black 3s · going out</small></div>`;
-    if(k)return `<div class="hpm hpbk hp-${k}${ok?' pzgo':''}"${attr}>${hpCardEl(hpTopCard(m),{mini:true})}<span><b>${esc(rk)}s ×${m.c.length}</b><small>${k} book</small></span></div>`;
-    return `<div class="hpm${ok?' pzgo':''}"${attr}><div class="hpfan">${hpMeldShow(m).map(c=>hpCardEl(c,{mini:true})).join('')}</div><small>${esc(rk)}s · ${m.c.length}${wn?` (${wn} wild)`:''}${7-m.c.length>0?` · ${7-m.c.length} to a book`:''}</small></div>`}).join('')}</div>`:'<p class="hint" style="margin:4px 0 0">No melds yet.</p>'}</div>`};
+    if(k)return `<div class="hpm hpbk hp-${k}${ok?' pzgo':''}"${attr}>${hpCardEl(hpTopCard(m),{mini:true})}<span><b>${esc(rk)}s ×${m.c.length}</b><small>${W[k]||k} ${W.book}</small></span></div>`;
+    return `<div class="hpm${ok?' pzgo':''}"${attr}><div class="hpfan">${hpMeldShow(m).map(c=>hpCardEl(c,{mini:true})).join('')}</div><small>${esc(rk)}s · ${m.c.length}${wn?` (${wn} wild)`:''}${7-m.c.length>0?` · ${7-m.c.length} to a ${W.book}`:''}</small></div>`}).join('')}</div>`:'<p class="hint" style="margin:4px 0 0">No melds yet.</p>'}</div>`};
   const otherSides=sides.filter(sd=>sd!==side);out+=sides.filter(sd=>sd===side).map(meldP).join('');const others=otherSides.map(meldP).join('');
   if(g.phase==='done'){
     out+=`<div class="panel htsum">${P.filter(q=>hpMates(g,g.tm[q.id])[0]===q.id).map(q=>{const c=hfCalc(q,r)||{total:0};return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${hpMates(g,g.tm[q.id]).map(nmid).map(esc).join(' &amp; ')}</b><br><small>${g.out&&g.tm[g.out]===g.tm[q.id]?'went out · ':''}books ${fmtN(c.books||0)} · cards ${fmtN(c.cards||0)} · left −${fmtN((c.left||0)+(c.threes||0))}</small></span><span class="num"><b>${c.total>0?'+':''}${fmtN(c.total)}</b> · ${fmtN(hfTot(q))}</span></div>`}).join('')}</div>`;
@@ -9566,12 +9587,12 @@ function hpPlayUI(){if(!hpRes()&&S.hpg&&S.hpg.r!==S.hr)S.hr=S.hpg.r;const X=HX()
       out+=`<div class="panel pzbuild"><b>${down?'New melds':`Get down: ${need} points`}</b>${st.length?` <span class="rlab">· ${stV} points ready</span>`:''}
         <div class="fclay">${st.map((cs,i)=>hpGrpHtml(cs,{mini:true,cls:hpStageOk(cs)?'ok':'loose',lab:hpB3(cs)&&hpStageOk(cs)?'black 3s · going out':hpMeldOk(cs)?`${hpMeldVal(cs)} pts`:'not a meld',x:i})).join('')}</div>
         <div class="pzparts"><button class="btn${selOk?' primary':''}" data-a="hppstage" ${selOk?'':'disabled'}>${sel.length?`Make a meld (${sel.length} picked)`:'Pick 3+ cards for a meld'}</button>
-        ${st.length?`<button class="btn${allOk&&stV>=need&&mine&&g.drew&&keepOne?' primary':''}" data-a="hpplay" ${allOk&&stV>=need&&mine&&g.drew&&keepOne?'':'disabled'}>${!mine||!g.drew?'Lay down (on your turn, after drawing)':!keepOne?(keepN>1?'Keep 2 cards (no books to go out yet)':'Keep a card to discard'):stV<need?`Need ${need-stV} more points`:'Lay them down'}</button>`:''}</div>
-        <p class="hint" style="margin:6px 0 0">${down?'Tap cards, then Make a meld, or tap a glowing meld above to add the picked cards to it.':'Tap 3 or more cards of a kind (wilds count), then Make a meld. Your first melds must add up to the minimum.'} Your last card always goes on the discard pile.</p></div>`}
+        ${st.length?`<button class="btn${allOk&&stV>=need&&mine&&g.drew&&keepOne?' primary':''}" data-a="hpplay" ${allOk&&stV>=need&&mine&&g.drew&&keepOne?'':'disabled'}>${!mine||!g.drew?'Lay down (on your turn, after drawing)':!keepOne?(keepN>1?`Keep 2 cards (no ${W.books} to go out yet)`:'Keep a card to discard'):stV<need?`Need ${need-stV} more points`:'Lay them down'}</button>`:''}</div>
+        <p class="hint" style="margin:6px 0 0">${down?'Tap cards, then Make a meld, or tap a glowing meld above to add the picked cards to it.':'Tap 3 or more cards of a kind (wilds count), then Make a meld. Your first melds must add up to the minimum.'}${CA?' Once your side has what it needs to go out, you can meld every card.':' Your last card always goes on the discard pile.'}</p></div>`}
     out+=hoBar({piles:true});
     out+=`<div class="fchand" aria-label="Your cards">${piles.map((pl,i)=>hpGrpHtml(pl,{btn:true,sel,got:g.need?[g.need]:[],cls:'loose',drag:true,pile:i,lab:i===0?(piles.length>1?'Your hand':''):`Pile ${i+1}`})).join('')}<div class="honew">＋ New pile</div></div>`;
     const btns=[];let tip='';
-    if(mine&&g.drew&&sel.length===1){const c=sel[0],last=h.length===1,blocked=g.need&&h.includes(g.need)||last&&g.inF[V.id]&&!hpCanGoOut(g,side);btns.push(`<button class="btn${blocked?'':' primary'}" data-a="hppdisc" data-c="${c}" ${blocked?'disabled':''}>${blocked?(g.need&&h.includes(g.need)?'Meld the picked-up card first':'Your side needs its books first'):last?(g.inF[V.id]?'Discard and go out':'Discard and pick up your foot'):`Discard the ${esc(hpName(c))}`}</button>`)}
+    if(mine&&g.drew&&sel.length===1){const c=sel[0],last=h.length===1,blocked=g.need&&h.includes(g.need)||last&&g.inF[V.id]&&!hpCanGoOut(g,side);btns.push(`<button class="btn${blocked?'':' primary'}" data-a="hppdisc" data-c="${c}" ${blocked?'disabled':''}>${blocked?(g.need&&h.includes(g.need)?'Meld the picked-up card first':`Your side needs its ${W.books} first`):last?(g.inF[V.id]?'Discard and go out':'Discard and pick up your foot'):`Discard the ${esc(hpName(c))}`}</button>`)}
     else if(mine&&g.drew)tip='Tap one card to discard it, or several to make a meld.';
     if(mine&&g.took&&g.need&&h.includes(g.need))btns.push(`<button class="btn" data-a="hppuntake">Put the pile back</button>`);
     if(btns.length)out+=`<div class="actions"><div class="in">${btns.join('')}</div></div>`;
@@ -9580,8 +9601,8 @@ function hpPlayUI(){if(!hpRes()&&S.hpg&&S.hpg.r!==S.hr)S.hr=S.hpg.r;const X=HX()
   out+=others;
   if(HPMV&&g.melds[HPMV]){const sd=HPMV,M=g.melds[sd].map((m,i)=>m).sort((a,b)=>{const ra=hpMeldRank(a.c),rb=hpMeldRank(b.c),va=ra==='W'?99:hpRV(ra),vb=rb==='W'?99:hpRV(rb);return va-vb||(hpBook(a)?1:0)-(hpBook(b)?1:0)}),ours=sd===side;
     const cl=M.filter(m=>hpKind(m)==='clean').length,dt=M.filter(m=>hpKind(m)==='dirty').length;
-    out+=`<div class="sheet-bg"><div class="sheet hpmv" role="dialog" aria-modal="true" aria-labelledby="hpmv-h"><h2 id="hpmv-h">${ours?'Your side':esc(sideName(sd))}</h2><p class="rlab">${cl} clean book${cl===1?'':'s'} · ${dt} dirty book${dt===1?'':'s'} · ${M.length-cl-dt} unfinished · ${M.reduce((a,m)=>a+m.c.length,0)} cards on the table</p>
-      <div class="hpmvl">${M.map(m=>{const k=hpKind(m),N=hpNat(m.c),rk=hpMeldRank(m.c)==='W'?'Wild':hpLab(N[0]),wn=m.c.length-N.length;return `<div class="hpmvr${k?' hpbk hp-'+k:''}"><div class="hpmvt"><b>${esc(rk)}s</b><small>${m.c.length} cards${wn?` · ${wn} wild`:''} · ${k?k+' book':`${7-m.c.length} to a book`} · ${hpMeldVal(m.c)} pts</small></div><div class="hpmvc">${hpMeldShow(m).map(c=>hpCardEl(c)).join('')}</div></div>`}).join('')}</div>
+    out+=`<div class="sheet-bg"><div class="sheet hpmv" role="dialog" aria-modal="true" aria-labelledby="hpmv-h"><h2 id="hpmv-h">${ours?'Your side':esc(sideName(sd))}</h2><p class="rlab">${cl} ${W.clean} ${cl===1?W.book:W.books} · ${dt} ${W.dirty} ${dt===1?W.book:W.books} · ${M.length-cl-dt} unfinished · ${M.reduce((a,m)=>a+m.c.length,0)} cards on the table</p>
+      <div class="hpmvl">${M.map(m=>{const k=hpKind(m),N=hpNat(m.c),rk=hpMeldRank(m.c)==='W'?'Wild':hpLab(N[0]),wn=m.c.length-N.length;return `<div class="hpmvr${k?' hpbk hp-'+k:''}"><div class="hpmvt"><b>${esc(rk)}s</b><small>${m.c.length} cards${wn?` · ${wn} wild`:''} · ${k?(W[k]||k)+' '+W.book:`${7-m.c.length} to a ${W.book}`} · ${hpMeldVal(m.c)} pts</small></div><div class="hpmvc">${hpMeldShow(m).map(c=>hpCardEl(c)).join('')}</div></div>`}).join('')}</div>
       <div class="sheet-btns"><button class="btn primary" data-a="hppviewx">Close</button></div></div></div>`}
   if(WARN)out+=`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
     <div class="sheet-btns"><button class="btn" data-a="warnclose">Go back and check</button><button class="btn primary" data-a="revstart">Reveal anyway</button></div></div></div>`;
@@ -9593,11 +9614,11 @@ function hpAct(a,b,k){const g=hpG();if(!g)return;
   if(a==='hppdeal'){if(!hpRes()||g.phase!=='done')return;S.hr=hfCur()+1;hpDeal(S.hr);window.scrollTo(0,0);return}
   const V=hpViewer();if(!V)return;
   if(a==='hppcard'){const c=b.dataset.c;if(HPSEL.includes(c))HPSEL=HPSEL.filter(x=>x!==c);else HPSEL=HPSEL.concat(c);return}
-  if(a==='hppstage'){const side=hpSide(g,V.id),rk=hpMeldRank(HPSEL);if(hpB3(HPSEL)&&HX().b3meld){(HPSTAGE[V.id]=HPSTAGE[V.id]||[]).push(HPSEL.slice());HPSEL=[];toast('Black 3s go down only when you go out: one card left to discard, and your side has its books.');return}if(rk!=='W'&&(hpOpenOf(g,side,rk)>=0||(HPSTAGE[V.id]||[]).some(cs=>hpMeldRank(cs)===rk))){toast(`Your side already has an unfinished meld of ${hpLab(HPSEL.find(c=>!hpWild(c)))}s. Add to it instead.`);return}if(HPSEL.length>=3&&hpMeldOk(HPSEL)){(HPSTAGE[V.id]=HPSTAGE[V.id]||[]).push(HPSEL.slice());HPSEL=[];vibe(10)}return}
+  if(a==='hppstage'){const side=hpSide(g,V.id),rk=hpMeldRank(HPSEL);if(hpB3(HPSEL)&&HX().b3meld){(HPSTAGE[V.id]=HPSTAGE[V.id]||[]).push(HPSEL.slice());HPSEL=[];toast('Black 3s go down only when you go out: one card left to discard, and your side has its books.');return}if(rk!=='W'&&(hpOpenOf(g,side,rk)>=0||(HPSTAGE[V.id]||[]).some(cs=>hpMeldRank(cs)===rk))){toast(HPCA()?`Your side already has a meld of ${hpLab(HPSEL.find(c=>!hpWild(c)))}s. Add to it instead.`:`Your side already has an unfinished meld of ${hpLab(HPSEL.find(c=>!hpWild(c)))}s. Add to it instead.`);return}if(HPSEL.length>=3&&hpMeldOk(HPSEL)){(HPSTAGE[V.id]=HPSTAGE[V.id]||[]).push(HPSEL.slice());HPSEL=[];vibe(10)}return}
   if(a==='hppunstage'){const st=HPSTAGE[V.id]||[];st.splice(+b.dataset.i,1);return}
   if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}
   if(a==='hppdeck'){if(g.drew){toast('You already drew.');return}HPSEL=[];if(lkq('hpDraw',V.id))vibe(12);return}
-  if(a==='hpptake'){if(g.drew){toast('You already drew.');return}if(!hpTakeOk(g,V.id)){toast('You can take the pile only when you can meld its top card right away.');return}HPSEL=[];if(lkq('hpTake',V.id))vibe([12,20,12]);return}
+  if(a==='hpptake'){if(g.drew){toast('You already drew.');return}if(!hpTakeOk(g,V.id)){toast(HPCA()&&(g.frozen||!g.down[hpSide(g,V.id)])?'The pile is frozen: you need two natural cards that match the top card.':'You can take the pile only when you can meld its top card right away.');return}HPSEL=[];if(lkq('hpTake',V.id))vibe([12,20,12]);return}
   if(!g.drew){toast('Draw first.');return}
   if(a==='hpplay'){const st=HPSTAGE[V.id]||[];if(lkq('hpPlay',V.id,st,[])){HPSTAGE[V.id]=[];HPSEL=[];vibe([20,40,20])}else toast('Those melds can’t go down yet.');return}
   if(a==='hppadd'){const i=+b.dataset.i;if(lkq('hpPlay',V.id,[],[{m:i,cs:HPSEL.slice()}])){HPSEL=[];vibe(12)}else toast('Those cards don’t fit there.');return}
@@ -10930,7 +10951,7 @@ function render(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();navSync();try{hoAfter()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();}
+  tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();}
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -11138,7 +11159,7 @@ document.addEventListener('click',e=>{
   if(/^rk(card|bid|deal|show|trump|nest)$/.test(a)&&S.game==='rook'&&rkPlayOn()&&S.started){rkAct(a,b,k);render();return}
   if(/^rg(card|bid|deal|show|color|num|fore|rage)$/.test(a)&&S.game==='rage'&&rgPlayOn()&&S.started){rgAct(a,b,k);render();return}
   if(/^pzp[a-z]+$/.test(a)&&S.game==='phase10'&&pzOn()&&S.started){pzAct(a,b,k);save();render();return}
-  if(/^hpp[a-z]+$/.test(a)&&S.game==='hf'&&hpOn()&&S.started){hpAct(a,b,k);save();render();return}
+  if(/^hpp[a-z]+$/.test(a)&&HFE()&&hpOn()&&S.started){hpAct(a,b,k);save();render();return}
   if(/^fcp(deck|take|card|disc|out|group|ungroup|arr|show|deal|lastok|sort|discpile)$/.test(a)&&S.game==='crowns'&&fcOn()&&S.started){fcAct(a,b,k);save();render();return}
   if(/^sbp(src|disc|build|show|deal)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
   if(a==='gplastok'){const V=gpViewer(),g=gpG();if(V&&g)GPLASTOK[(S.gameId||'')+':'+g.r+':'+V.id]=1;render();return}
@@ -11292,7 +11313,7 @@ document.addEventListener('click',e=>{
     case 'mtdb':{const q=act()[+b.dataset.i],R=mtR(q,mtCur());snap();R.db=!R.db;break}
     case 'mthand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'mtnext':{S.hr=Math.min(mtN()-1,mtCur()+1);window.scrollTo(0,0);break}
-    case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:S.game==='rook'?RKBOTS:S.game==='rage'?RGBOTS:S.game==='uno'?UNBOTS:S.game==='golf'||S.game==='skyjo'||S.game==='gnome'?GPBOTS:S.game==='skipbo'?SBBOTS:S.game==='crowns'?FCBOTS:S.game==='phase10'?PZBOTS:S.game==='hf'?HPBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS),Object.values(RKBOTS),Object.values(RGBOTS),Object.values(UNBOTS),Object.values(GPBOTS),Object.values(SBBOTS),Object.values(FCBOTS),Object.values(PZBOTS),Object.values(HPBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
+    case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:S.game==='rook'?RKBOTS:S.game==='rage'?RGBOTS:S.game==='uno'?UNBOTS:S.game==='golf'||S.game==='skyjo'||S.game==='gnome'?GPBOTS:S.game==='skipbo'?SBBOTS:S.game==='crowns'?FCBOTS:S.game==='phase10'?PZBOTS:HFE()?HPBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS),Object.values(RKBOTS),Object.values(RGBOTS),Object.values(UNBOTS),Object.values(GPBOTS),Object.values(SBBOTS),Object.values(FCBOTS),Object.values(PZBOTS),Object.values(HPBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
       if(!q.name||defs.includes(base(q.name))||BOTPOOL.all().includes(base(q.name))){let nmv='';if(nx){const pool=[BT[nx][1]].concat(BOTPOOL[nx].filter(x=>x!==BT[nx][1])),taken=n=>S.players.some(o=>o!==q&&o.on&&o.name===n);nmv=pool.find(n=>!taken(n))||'';if(!nmv){nmv=BT[nx][1];let j=2;while(taken(nmv+' '+j))j++;nmv+=' '+j}}q.name=nmv}if(nx)q.bot=nx;else delete q.bot;delete q.rid;break}
     case 'htstart':{switchGame('hearts');resetScores();S.started=false;S.screen='map';HTX().play=k==='1';htKeep();window.scrollTo(0,0);break}
     case 'htplaymode':{if(S.started)break;HTX().play=k==='1';if(HTX().play&&act().length>6)toast('Playing on the phone works for 3 to 6 players.');htKeep();break}
@@ -11656,7 +11677,7 @@ document.addEventListener('click',e=>{
       hfKeep();break}
     case 'hftg':{const X=HX();X[k]=!X[k];hfKeep();break}
     case 'hfplaymode':{if(S.started)break;const X=HX();X.play=k==='1'?1:0;const mx=HM().max;while(act().length>mx){const l=[...act()].pop();l.on=false}if(X.play&&X.teams){S.players.forEach(q=>{q.name=q.name||''});let n=act().length;for(const q of S.players){if(n>=4)break;if(!q.on){q.on=true;n++}}}hfKeep();break}
-    case 'hfstart':{switchGame('hf');resetScores();S.started=false;S.screen='map';HX().play=k==='1'?1:0;const mx=HM().max;while(act().length>mx){const l=[...act()].pop();l.on=false}if(HX().play&&HX().teams){let n=act().length;for(const q of S.players){if(n>=4)break;if(!q.on){q.on=true;n++}}}hfKeep();window.scrollTo(0,0);break}
+    case 'hfstart':{switchGame(b.dataset.g||'hf');resetScores();S.started=false;S.screen='map';HX().play=k==='1'?1:0;const mx=HM().max;while(act().length>mx){const l=[...act()].pop();l.on=false}if(HX().play&&HX().teams){let n=act().length;for(const q of S.players){if(n>=4)break;if(!q.on){q.on=true;n++}}}hfKeep();window.scrollTo(0,0);break}
     case 'hfset':{const X=HX(),v=b.dataset.v;X[k]=v==='true'?true:v==='false'?false:/^\d+$/.test(v)?+v:v;if(k==='teams'){S.players.forEach(q=>q.mem=q.mem||['','']);const mx=HM().max;while(act().length>mx){const l=[...act()].pop();l.on=false}if(hpOn()&&X.teams){let n=act().length;for(const q of S.players){if(n>=4)break;if(!q.on){q.on=true;n++}}}}hfKeep();break}
     case 'hfreset':S.hx=JSON.parse(JSON.stringify(HFD()));hfKeep();break;
     case 'hfpick':{const ro=H.roster.find(x=>x.id===k);if(!ro)break;const X={...HX(),teams:hfTeamUI()},low=ro.name.toLowerCase();
