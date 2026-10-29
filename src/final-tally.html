@@ -1248,11 +1248,15 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .fcpile[data-mess] .htc::before,.fcpile[data-mess="2"] .htc::after{content:"";position:absolute;inset:-1.5px;border-radius:8px;background:#fffdf7;border:1.5px solid #c9c2b3;box-shadow:0 1px 3px rgba(0,0,0,.22);z-index:-1;transform:translate(var(--mx1),var(--my1)) rotate(var(--ma1));pointer-events:none}
 .fcpile[data-mess="2"] .htc::after{z-index:-2;transform:translate(var(--mx2),var(--my2)) rotate(var(--ma2))}
 .hpsh{display:flex;align-items:center;justify-content:space-between;gap:8px}.hpview{min-height:30px;padding:0 10px;font-size:13px}
-.pzlaid[data-hpside]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.pzlaid[data-pzall],.pzlaid[data-hpside]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .hpmv{max-height:88vh;overflow:auto}.hpmvl{display:grid;gap:10px;margin:8px 0}
 .hpmvr{border:1px solid var(--line);border-radius:12px;padding:8px;display:grid;gap:6px;background:var(--surface)}
 .hpmvr.hpbk{display:grid}.hpmvt{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.hpmvt b{font-size:16px}.hpmvt small{color:var(--muted);font-size:12.5px;text-transform:none}
 .hpmvc{display:flex;flex-wrap:wrap;gap:4px}.hpmvc .htc{--cw:44px}
+.gppile[data-mess] .gpc::before,.gppile[data-mess="2"] .gpc::after{content:"";position:absolute;inset:-2px;border-radius:8px;background:var(--surface);border:2px solid var(--line);box-shadow:0 1px 3px rgba(0,0,0,.22);z-index:-1;transform:translate(var(--mx1),var(--my1)) rotate(var(--ma1));pointer-events:none}
+.gppile[data-mess="2"] .gpc::after{z-index:-2;transform:translate(var(--mx2),var(--my2)) rotate(var(--ma2))}.gppile[data-mess]{isolation:isolate}
+.fcpile[data-mess]{isolation:isolate}
+@media (min-width:700px){.gppile,.gphold{width:clamp(72px,11vw,104px)}.gppile .gpc b,.gphold .gpc b{font-size:clamp(16px,6vw,30px)}.sbbuild .sbc,.sbdeck .sbc{width:clamp(52px,8vw,72px)}.sbbuild .sbc b,.sbdeck .sbc b{font-size:clamp(24px,3.4vw,32px)}}
 </style>
 
 <div id="app"></div>
@@ -1547,8 +1551,8 @@ function pileMess(n){if(!(n>1))return '';const r=k=>{const x=Math.sin(n*12.9898+
   return `data-mess="${n>2?2:1}" style="--ma1:${a1.toFixed(1)}deg;--ma2:${a2.toFixed(1)}deg;--mx1:${x1.toFixed(1)}px;--my1:${y1.toFixed(1)}px;--mx2:${x2.toFixed(1)}px;--my2:${y2.toFixed(1)}px"`}
 /* Hand and Foot: press and hold a side's melds to see them all, big */
 let HPMVAT=0,HPLP=null;
-document.addEventListener('pointerdown',e=>{if(!e.target.closest)return;const p=e.target.closest('.pzlaid[data-hpside]');if(!p||e.target.closest('[data-a="hppadd"],button'))return;const x=e.clientX,y=e.clientY;clearTimeout(HPLP&&HPLP.t);
-  HPLP={x,y,t:setTimeout(()=>{HPLP=null;HPMV=p.dataset.hpside;HPMVAT=Date.now();vibe(15);render()},480)}},{passive:true});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest)return;const p=e.target.closest('.pzlaid[data-hpside],.pzlaid[data-pzall]');if(!p||e.target.closest('[data-a="hppadd"],[data-a="pzphit"],button'))return;const x=e.clientX,y=e.clientY;clearTimeout(HPLP&&HPLP.t);
+  HPLP={x,y,t:setTimeout(()=>{HPLP=null;if(p.dataset.pzall)PZMV=1;else HPMV=p.dataset.hpside;HPMVAT=Date.now();vibe(15);render()},480)}},{passive:true});
 document.addEventListener('pointermove',e=>{if(HPLP&&Math.hypot(e.clientX-HPLP.x,e.clientY-HPLP.y)>10){clearTimeout(HPLP.t);HPLP=null}},{passive:true});
 ['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,()=>{if(HPLP){clearTimeout(HPLP.t);HPLP=null}}));
 const startLbl=()=>playingOn()?(S.started?'Back to the game':'Start playing'):(S.started?'Back to scoring':'Start scoring');
@@ -8730,7 +8734,7 @@ function gpnBotStep(g,q){const pid=q.id,lv0=q.bot,lv=lv0==='hard'?'normal':lv0,c
   gpnTake(g,pid,pick)}
 
 /* ---------------- who is looking at this phone ---------------- */
-let GPVIEW=null,GPBOTT=null;
+let GPVIEW=null,GPBOTT=null;const GPLASTOK={};
 const gpMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
 const gpHumans=()=>act().filter(p=>!p.bot);
 function gpViewer(){const g=gpG();if(!g)return null;if(S.lk&&!S.demo)return gpMe();const H=gpHumans();if(!H.length)return null;if(H.length===1)return H[0];
@@ -8781,7 +8785,7 @@ function gpPlay(){const P=act(),g=gpG(),GN=S.game==='gnome',SK=S.game==='skyjo'|
   /* the deck and the discard pile */
   if(GN&&g.phase!=='done'){const canTake=mine&&!hold&&!g.bounce&&!g.left2&&!g.flip&&!g.hzf[V.id]&&g.phase==='play',canPile=mine&&!!g.left2,e=g.dps.map(d=>!d.length),okPile=k=>canPile&&(e[0]===e[1]||e[k]);
     out+=`<div class="gppiles"><button class="gppile" data-a="gpdeck" ${canTake?'':'aria-disabled="true"'} aria-label="Draw from the deck, ${g.deck.length} left">${gpCardEl(g,'x',{down:true})}<small>Deck · ${g.deck.length}</small></button>
-      ${[0,1].map(k=>{const t=gpTopK(g,k),go=canTake&&t||okPile(k);return `<button class="gppile${go?' go':''}" data-a="gppile" data-k="${k}" ${go?'':'aria-disabled="true"'} aria-label="${canPile?'Discard onto pile '+(k+1):'Take the top of discard pile '+(k+1)}">${gpCardEl(g,t)}<small>${canPile?(okPile(k)?'Put it here':'—'):'Pile '+(k+1)}</small></button>`}).join('')}
+      ${[0,1].map(k=>{const t=gpTopK(g,k),go=canTake&&t||okPile(k);return `<button class="gppile${go?' go':''}" data-a="gppile" data-k="${k}" ${pileMess(((g.dps||[])[k]||[]).length)} ${go?'':'aria-disabled="true"'} aria-label="${canPile?'Discard onto pile '+(k+1):'Take the top of discard pile '+(k+1)}">${gpCardEl(g,t)}<small>${canPile?(okPile(k)?'Put it here':'—'):'Pile '+(k+1)}</small></button>`}).join('')}
       ${hold||g.left2||g.bounce?`<div class="gphold">${gpCardEl(g,(hold||g.left2||g.bounce).c,{cls:'held'})}<small>${(hold||g.left2||g.bounce).p===(V&&V.id)?'Your card':esc(nmid((hold||g.left2||g.bounce).p))+' has'}</small></div>`:'<div class="gphold gpslot" aria-hidden="true"></div>'}</div>`;
     if(mine&&hold&&hold.from!=='bounce'&&gpRank(hold.c)==='H')out+=`<div class="panel gnhz"><b>⚠ You drew a Hazard!</b><p class="rlab">A Hazard left in your grid costs +${GNX().hazV} at the end of the round. Skip it and it leaves the round, and everyone else has to flip one of their face-down cards.</p><button class="btn primary wide" data-a="gpskip">Skip the Hazard</button><p class="hint" style="margin:6px 0 0">Or tap one of your cards to keep it (not usually a good idea).</p></div>`;
     else if(mine&&hold&&hold.from!=='bounce')out+=`<div class="gpbtns"><button class="btn" data-a="gpskip">Skip it</button></div>`;
@@ -8789,8 +8793,9 @@ function gpPlay(){const P=act(),g=gpG(),GN=S.game==='gnome',SK=S.game==='skyjo'|
     if(mine&&g.bounce)out+=`<div class="gpbtns"><button class="btn primary" data-a="gpbounce" data-k="1">Bounce it</button><button class="btn" data-a="gpbounce" data-k="0">Discard it</button></div>`}
   if(!GN&&g.phase!=='done'){const top=gpTop(g),canTake=mine&&!hold&&!g.flip&&g.phase==='play',canToss=mine&&hold&&hold.from==='deck';
     out+=`<div class="gppiles"><button class="gppile" data-a="gpdeck" ${canTake?'':'aria-disabled="true"'} aria-label="Draw from the deck, ${g.deck.length} left">${gpCardEl(g,'x',{down:true})}<small>Deck · ${g.deck.length}</small></button>
-      <button class="gppile${canTake||canToss?' go':''}" data-a="gpdisc" ${canTake&&top||canToss?'':'aria-disabled="true"'} aria-label="${canToss?'Discard your card':'Take the top discard'}">${gpCardEl(g,top)}<small>${canToss?'Toss it here':'Discard'}</small></button>
+      <button class="gppile${canTake||canToss?' go':''}" data-a="gpdisc" ${pileMess(g.disc.length)} ${canTake&&top||canToss?'':'aria-disabled="true"'} aria-label="${canToss?'Discard your card':'Take the top discard'}">${gpCardEl(g,top)}<small>${canToss?'Toss it here':'Discard'}</small></button>
       ${hold?`<div class="gphold" aria-label="${hold.p===(V&&V.id)?'Your':esc(nmid(hold.p))+'’s'} card">${gpCardEl(g,hold.c,{cls:'held'})}<small>${hold.p===(V&&V.id)?'Your card':esc(nmid(hold.p))+' has'}</small></div>`:'<div class="gphold gpslot" aria-hidden="true"></div>'}</div>`}
+  if(g.phase==='play'&&mine&&g.ender&&g.ender!==V.id&&!GPLASTOK[(S.gameId||'')+':'+g.r+':'+V.id])out+=`<div class="sheet-bg"><div class="sheet fclast" role="dialog" aria-modal="true" aria-labelledby="gpl-h"><h2 id="gpl-h">⏰ Last turn!</h2><p class="rlab">${esc(nmid(g.ender))} has every card face up. This is your last turn.</p><p class="rlab">${GN?'After it, all your cards flip face up and the round is scored.':'After it, all your cards flip face up and the round is scored.'}</p><button class="btn primary wide" data-a="gplastok">Got it</button></div></div>`;
   /* my grid, big */
   if(V){const flipPick=g.phase==='flip'&&g.need[V.id]>0||g.flip===V.id||GN&&!!g.hzf&&!!g.hzf[V.id],swap=mine&&hold;
     out+=`<div class="gpme${g.turn===V.id?' now':''}" style="${pc(V.color)}"><div class="gpon"><b>${S.lk||gpHumans().length<2?'You':esc(nm(V))}</b><span class="num">${g.phase==='done'?gpPts(g,V.id)+' this '+W.toLowerCase():'showing '+gpSeen(g,V.id)}</span></div>${gpGridEl(g,V.id,{mine:!deal&&(flipPick||swap),pick:(x)=>!deal&&(flipPick?!x.up:swap),deal})}</div>`}
@@ -9251,7 +9256,7 @@ function pzBotStep(g,q){const pid=q.id,lv=q.bot,h=g.h[pid],spec=pzSpec(g.on[pid]
     s-=pzPts(d)/10;s+=(Math.random()*2-1)*noise*3;if(pzS(d))s-=4;if(!best||s<best.s)best={s,d}});
   const d=best?best.d:h[0];pzDiscard(g,pid,d,pzS(d)&&opp.length?opp[0]:null)}
 /* ---------------- who is looking at this phone ---------------- */
-let PZSEL=[],PZVIEW=null,PZBOTT=null,PZSTAGE={},PZPEND=null;
+let PZSEL=[],PZVIEW=null,PZBOTT=null,PZSTAGE={},PZPEND=null,PZMV=0;
 const pzMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
 const pzHumans=()=>act().filter(p=>!p.bot);
 function pzViewer(){const g=pzG();if(!g)return null;if(S.lk&&!S.demo)return pzMe();const H=pzHumans();if(H.length===1)return H[0];if(!H.length)return null;const t=act().find(p=>p.id===g.turn);return t&&!t.bot&&PZVIEW===t.id?t:null}
@@ -9290,7 +9295,10 @@ function pzPlayUI(){if(!pzRes()&&S.pzg&&S.pzg.r!==S.hr)S.hr=S.pzg.r;const X=PTX(
   /* everything laid down, as hit targets */
   const hitSel=mine&&g.drew&&g.made[V.id]&&PZSEL.length===1&&!pzS(PZSEL[0])?PZSEL[0]:null;
   const laid=g.ps.filter(id=>(g.lay[id]||[]).length);
-  if(laid.length)out+=`<div class="panel pzlaid"><b class="rlab">On the table</b>${laid.map(id=>`<div class="pzrow"><small>${esc(nmid(id))} · ${ptLab(g.on[id])}</small><div class="fclay">${g.lay[id].map((gr,i)=>{const ok=hitSel&&pzHitOk(gr,hitSel);return pzGrpHtml(pzShow(gr),{mini:true,cls:'ok'+(ok?' pzgo':''),attr:ok?` data-a="pzphit" data-k="${id}" data-i="${i}" role="button" tabindex="0" aria-label="Add the ${esc(pzName(hitSel))} here"`:''})}).join('')}</div></div>`).join('')}${hitSel&&!laid.some(id=>g.lay[id].some(gr=>pzHitOk(gr,hitSel)))?'<p class="hint" style="margin:4px 0 0">That card doesn’t fit anywhere.</p>':hitSel?'<p class="hint" style="margin:4px 0 0">Tap a glowing group to add your card.</p>':''}</div>`;
+  if(laid.length)out+=`<div class="panel pzlaid" data-pzall="1"><div class="hpsh"><b class="rlab">On the table</b><button class="btn sm hpview" data-a="pzpview" aria-label="See everything on the table">🔍 See all</button></div>${laid.map(id=>`<div class="pzrow"><small>${esc(nmid(id))} · ${ptLab(g.on[id])}</small><div class="fclay">${g.lay[id].map((gr,i)=>{const ok=hitSel&&pzHitOk(gr,hitSel);return pzGrpHtml(pzShow(gr),{mini:true,cls:'ok'+(ok?' pzgo':''),attr:ok?` data-a="pzphit" data-k="${id}" data-i="${i}" role="button" tabindex="0" aria-label="Add the ${esc(pzName(hitSel))} here"`:''})}).join('')}</div></div>`).join('')}${hitSel&&!laid.some(id=>g.lay[id].some(gr=>pzHitOk(gr,hitSel)))?'<p class="hint" style="margin:4px 0 0">That card doesn’t fit anywhere.</p>':hitSel?'<p class="hint" style="margin:4px 0 0">Tap a glowing group to add your card.</p>':''}</div>`;
+  if(PZMV&&laid.length){const V0=pzViewer(),ord=laid.slice().sort((a,b)=>(b===(V0&&V0.id))-(a===(V0&&V0.id)));
+    out+=`<div class="sheet-bg"><div class="sheet hpmv" role="dialog" aria-modal="true" aria-labelledby="pzmv-h"><h2 id="pzmv-h">On the table</h2><div class="hpmvl">${ord.map(id=>{const q=P.find(x=>x.id===id);return `<div class="hpmvr" style="${pc(q.color)};border-left:4px solid var(--pc)"><div class="hpmvt"><b>${esc(nm(q))}${V0&&V0.id===id?' (you)':''}</b><small>${ptLab(g.on[id])} · ${esc(ptDesc(g.on[id]))}</small></div>${g.lay[id].map(gr=>`<div class="hpmvc">${pzShow(gr).map(c=>pzCardEl(c)).join('')}</div>`).join('')}</div>`}).join('')}</div>
+      <div class="sheet-btns"><button class="btn primary" data-a="pzpviewx">Close</button></div></div></div>`}
   if(g.phase==='done'){
     out+=`<div class="panel htsum">${P.map(q=>{const R=(q.pt||[])[r]||{},v=ptPts(q,r);return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${R.out?'went out':R.made?`made ${ptLab(g.on[q.id])}`:`missed ${ptLab(g.on[q.id])}`} · ${(g.h[q.id]||[]).length} left</small></span><span class="num"><b>${v?'+'+v:0}</b> · ${ptTot(q)}</span></div>`}).join('')}</div>`;
     const over=ptOverAt()>=0;
@@ -9325,6 +9333,7 @@ function pzPlayUI(){if(!pzRes()&&S.pzg&&S.pzg.r!==S.hr)S.hr=S.pzg.r;const X=PTX(
   return out}
 function pzAct(a,b,k){const g=pzG();if(!g)return;
   if(a==='pzpdiscpile'){const c=PZSEL[0];if(!c)return;return pzAct('pzpdisc',{dataset:{c}},k)}
+  if(a==='pzpview'){PZMV=1;return}if(a==='pzpviewx'){if(Date.now()-HPMVAT<700)return;PZMV=0;return}
   if(a==='pzpshow'){PZVIEW=k;PZSEL=[];return}
   if(a==='pzparr'){PTX().arr=b.dataset.v;ptKeep();PZSEL=[];return}
   if(a==='pzpdeal'){if(!pzRes()||g.phase!=='done')return;S.hr=ptCur()+1;pzDeal(S.hr);window.scrollTo(0,0);return}
@@ -11102,6 +11111,7 @@ document.addEventListener('click',e=>{
   if(/^hpp[a-z]+$/.test(a)&&S.game==='hf'&&hpOn()&&S.started){hpAct(a,b,k);save();render();return}
   if(/^fcp(deck|take|card|disc|out|group|ungroup|arr|show|deal|lastok|sort|discpile)$/.test(a)&&S.game==='crowns'&&fcOn()&&S.started){fcAct(a,b,k);save();render();return}
   if(/^sbp(src|disc|build|show|deal)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
+  if(a==='gplastok'){const V=gpViewer(),g=gpG();if(V&&g)GPLASTOK[(S.gameId||'')+':'+g.r+':'+V.id]=1;render();return}
   if(/^gp(cell|deck|disc|deal|pile|skip|bounce)$/.test(a)&&(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')&&gpOn()&&S.started){gpAct(a,b,k);save();render();return}
   if(/^unp(card|draw|keep|col|uno|catch|chal|swap|roul|show|deal|aim|row|end)$/.test(a)&&S.game==='uno'&&unPlayOn()&&S.started){unAct(a,b,k);save();render();return}
   switch(a){
