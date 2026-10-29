@@ -1246,6 +1246,7 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .hozoom .htc{box-shadow:0 14px 40px rgba(0,0,0,.45)}@keyframes hozin{from{opacity:0}}
 .hosort .btn{padding:0 10px;font-size:14px;min-height:34px}.hosort{gap:5px}
 .pzbuild{padding:10px 12px;margin:10px 0}.pzparts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.pzpart{display:inline-flex;align-items:center;padding:6px 12px;border-radius:10px;background:color-mix(in srgb,#3d9a5a 14%,var(--surface));color:#237a42;font-weight:800;font-size:14px}
+.fcpile.hoover .htc{box-shadow:0 0 0 4px var(--accent),0 4px 12px rgba(0,0,0,.3)!important;transform:scale(1.06)}.fcpile.dropme .htc{box-shadow:0 0 0 3px var(--accent)}
 </style>
 
 <div id="app"></div>
@@ -4716,18 +4717,19 @@ function hoAfter(){const app=document.getElementById('app');if(!app||S.screen!==
 /* ---------- dragging cards in the Five Crowns and Phase 10 hands (and drawing by dragging from a pile) ---------- */
 (function(){let D=null;
   const zoneAt=(x,y,ghost)=>{if(ghost)ghost.style.visibility='hidden';const t=document.elementFromPoint(x,y);if(ghost)ghost.style.visibility='';if(!t)return null;
-    const c=t.closest('.fchand .hodrag');if(c)return {el:c};const n=t.closest('.fchand .honew');if(n)return {pile:'new',el:n};const p=t.closest('.fchand [data-pile]');if(p)return {pile:p.dataset.pile,el:p};return null};
+    const dp=t.closest('[data-hodisc]');if(dp)return {disc:true,el:dp};const c=t.closest('.fchand .hodrag');if(c)return {el:c};const n=t.closest('.fchand .honew');if(n)return {pile:'new',el:n};const p=t.closest('.fchand [data-pile]');if(p)return {pile:p.dataset.pile,el:p};return null};
   const clear=()=>document.querySelectorAll('.dropb,.dropa,.hoover').forEach(x=>x.classList.remove('dropb','dropa','hoover'));
-  document.addEventListener('pointerdown',e=>{if(!e.target.closest)return;const el=e.target.closest('.fchand .hodrag'),pile=!el&&e.target.closest('.fcpile.go');if(!el&&!pile)return;
+  document.addEventListener('pointerdown',e=>{if(!e.target.closest)return;const el=e.target.closest('.fchand .hodrag'),pile=!el&&e.target.closest('.fcpile.go:not(.dropme)');if(!el&&!pile)return;
     D={el:el||pile,pile:!!pile,x:e.clientX,y:e.clientY,on:false,id:e.pointerId}},true);
   document.addEventListener('pointermove',e=>{if(!D||e.pointerId!==D.id)return;const dx=e.clientX-D.x,dy=e.clientY-D.y;
     if(!D.on){if(Math.hypot(dx,dy)<9)return;D.on=true;clearTimeout(HOZT);hoZoomOff();const src=D.pile?D.el.querySelector('.htc'):D.el;if(!src){D=null;return}const r=src.getBoundingClientRect(),g=src.cloneNode(true);
       g.classList.add('dragcard');g.style.width=r.width+'px';g.style.height=r.height+'px';g.style.setProperty('--cw',r.width+'px');D.ox=D.x-r.left;D.oy=D.y-r.top;document.body.appendChild(g);D.g=g;if(!D.pile)D.el.style.opacity='.35';document.body.classList.add('hodragging')}
     D.g.style.transform=`translate(${e.clientX-D.ox}px,${e.clientY-D.oy}px)`;clear();const z=zoneAt(e.clientX,e.clientY,D.g);
-    if(z&&z.el!==D.el){if(z.pile!==undefined)z.el.classList.add('hoover');else{const r=z.el.getBoundingClientRect();z.el.classList.add(e.clientX<r.left+r.width/2?'dropb':'dropa')}}e.preventDefault()},{passive:false});
+    if(z&&z.el!==D.el){if(z.disc&&!D.pile)z.el.classList.add('hoover');else if(z.disc){}else if(z.pile!==undefined)z.el.classList.add('hoover');else{const r=z.el.getBoundingClientRect();z.el.classList.add(e.clientX<r.left+r.width/2?'dropb':'dropa')}}e.preventDefault()},{passive:false});
   const end=e=>{if(!D||e.pointerId!==D.id)return;const d=D;D=null;if(!d.on)return;DRAGSUP=Date.now()+400;clear();
     const z=e.type==='pointerup'?zoneAt(e.clientX,e.clientY,d.g):null;document.body.classList.remove('hodragging');if(d.g)d.g.remove();d.el.style.opacity='';const V=hoViewer();if(!z||!V){render();return}
     const to=z.pile!==undefined?{pile:z.pile}:(()=>{const r=z.el.getBoundingClientRect();return {c:z.el.dataset.c,after:e.clientX>=r.left+r.width/2}})();
+    if(z.disc){if(d.pile){render();return}/* dropped on the discard pile: discard it */const c=d.el.dataset.c;if(S.game==='phase10'){PZSEL=[c];pzAct('pzpdiscpile',{dataset:{}})}else if(S.game==='crowns'){FCSEL=[c];fcAct('fcpdiscpile',{dataset:{}})}save();render();return}
     if(d.pile){/* drag a draw into a spot: remember where, then draw */HOPEND={pid:V.id,to,at:Date.now()};DRAGPLAY=true;d.el.click();DRAGPLAY=false;return}
     if(z.el===d.el){render();return}hoMove(V.id,d.el.dataset.c,to);vibe(8);render()};
   document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',end,true)})();
@@ -8970,7 +8972,7 @@ function fcPlayUI(){if(!fcRes()&&S.fcg&&S.fcg.r!==S.hr)S.hr=S.fcg.r;const X=FCX(
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
   out+=`<div class="ohup"><span><b>${k} cards · ${fcWildName(r)} are wild</b><br><small>Jokers are always wild · ${g.deck.length} in the draw pile</small></span></div>`;
   const canDraw=mine&&!g.drew;
-  const center=`<div class="fcpiles"><button class="fcpile${canDraw?' go':''}" data-a="fcpdeck" ${canDraw?'':'aria-disabled="true"'} aria-label="Draw from the deck, ${g.deck.length} left">${fcBackEl()}<small>Deck</small></button><button class="fcpile${canDraw&&top?' go':''}" data-a="fcptake" ${canDraw&&top?'':'aria-disabled="true"'} aria-label="Take the ${esc(fcName(top))} from the discard pile">${fcCardEl(top,{k})}<small>Discard</small></button></div>`;
+  const center=`<div class="fcpiles"><button class="fcpile${canDraw?' go':''}" data-a="fcpdeck" ${canDraw?'':'aria-disabled="true"'} aria-label="Draw from the deck, ${g.deck.length} left">${fcBackEl()}<small>Deck</small></button>${(()=>{const dm=mine&&g.drew&&FCSEL.length===1;return dm?`<button class="fcpile go dropme" data-a="fcpdiscpile" data-hodisc="1" aria-label="Discard the ${esc(fcName(FCSEL[0]))} here">${fcCardEl(top,{k})}<small>Discard here</small></button>`:`<button class="fcpile${canDraw&&top?' go':''}" data-a="fcptake" ${mine&&g.drew?'data-hodisc="1"':''} ${canDraw&&top?'':'aria-disabled="true"'} aria-label="Take the ${esc(fcName(top))} from the discard pile">${fcCardEl(top,{k})}<small>Discard</small></button>`})()}</div>`;
   out+=ktTable({dealTag:'crowns',dg:g,P:PP,me:V?V.id:me?me.id:null,trick:[],faded:false,turn:g.phase==='play'?g.turn:null,won:g.out,dealer:!g.n?g.dealer:null,
     label:q=>{const n=(g.h[q.id]||[]).length;return g.out===q.id?'went out 👑':g.phase==='done'?`${(g.lay[q.id]||{}).pen||0} left`:`${n} card${n===1?'':'s'}${g.out&&g.left.includes(q.id)?' · last turn':g.out?' · done':''}`},center});
   /* who went out, laid down for everyone to see */
@@ -9006,6 +9008,7 @@ function fcPlayUI(){if(!fcRes()&&S.fcg&&S.fcg.r!==S.hr)S.hr=S.fcg.r;const X=FCX(
   return out}
 const fcIsBook=(gr,k)=>{const N=gr.filter(c=>!fcWild(c,k));return !N.length||N.every(c=>fcRk(c)===fcRk(N[0]))};
 function fcAct(a,b,k){const g=fcG();if(!g)return;
+  if(a==='fcpdiscpile'){const V=fcViewer(),c=FCSEL[0];if(!V||!c)return;const help=!!FCX().help,self=!help||FCX().arr==='self';let out=false;if(!g.out){if(self){const m=fcMine(g,V.id);out=m.groups.length>0&&m.loose.length===1&&m.loose[0]===c}else out=fcBest(g.h[V.id].filter(x=>x!==c),g.k).pen===0}return fcAct(out?'fcpout':'fcpdisc',{dataset:{c}},k)}
   if(a==='fcpcard'&&FCDRAGGED){FCDRAGGED=false;return}
   if(a==='fcplastok'){const V=fcViewer();if(V)FCLASTOK[g.r+':'+V.id]=1;return}
   if(a==='fcpsort'){const V=fcViewer();if(!V)return;FCORD[V.id]=(b.dataset.v==='n'?fcSortN:fcSort)(g.h[V.id]||[],g.k);vibe(8);return}
@@ -9167,7 +9170,7 @@ function pzPlayUI(){if(!pzRes()&&S.pzg&&S.pzg.r!==S.hr)S.hr=S.pzg.r;const X=PTX(
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
   if(V)out+=`<div class="ohup"><span><b>You’re on ${ptLab(g.on[V.id])}${g.made[V.id]?' ✓':''}</b><br><small>${esc(ptDesc(g.on[V.id]))} · ${g.deck.length} in the draw pile</small></span></div>`;
   const canDraw=mine&&!g.drew&&!PZPEND;
-  const center=`<div class="fcpiles"><button class="fcpile${canDraw?' go':''}" data-a="pzpdeck" ${canDraw?'':'aria-disabled="true"'} aria-label="Draw from the deck">${pzBackEl()}<small>Deck</small></button><button class="fcpile${canDraw&&top&&!pzS(top)?' go':''}" data-a="pzptake" ${canDraw&&top&&!pzS(top)?'':'aria-disabled="true"'} aria-label="Take the ${esc(pzName(top))}">${pzCardEl(top)}<small>Discard</small></button></div>`;
+  const center=`<div class="fcpiles"><button class="fcpile${canDraw?' go':''}" data-a="pzpdeck" ${canDraw?'':'aria-disabled="true"'} aria-label="Draw from the deck">${pzBackEl()}<small>Deck</small></button>${(()=>{const dm=mine&&g.drew&&!PZPEND&&PZSEL.length===1;return dm?`<button class="fcpile go dropme" data-a="pzpdiscpile" data-hodisc="1" aria-label="Discard the ${esc(pzName(PZSEL[0]))} here">${pzCardEl(top)}<small>${pzS(PZSEL[0])?'Play Skip here':'Discard here'}</small></button>`:`<button class="fcpile${canDraw&&top&&!pzS(top)?' go':''}" data-a="pzptake" ${mine&&g.drew?'data-hodisc="1"':''} ${canDraw&&top&&!pzS(top)?'':'aria-disabled="true"'} aria-label="Take the ${esc(pzName(top))}">${pzCardEl(top)}<small>Discard</small></button>`})()}</div>`;
   out+=ktTable({dealTag:'phase10',dg:g,P,me:V?V.id:me?me.id:null,trick:[],faded:false,turn:g.phase==='play'?g.turn:null,won:g.out,dealer:!g.n?g.dealer:null,
     label:q=>{const n=(g.h[q.id]||[]).length;return g.out===q.id?'went out 🎉':`${ptLab(g.on[q.id])}${g.made[q.id]?' ✓':''} · ${n} card${n===1?'':'s'}${g.sk[q.id]===1?' · ⊘':''}`},center});
   /* everything laid down, as hit targets */
@@ -9206,6 +9209,7 @@ function pzPlayUI(){if(!pzRes()&&S.pzg&&S.pzg.r!==S.hr)S.hr=S.pzg.r;const X=PTX(
   const a=pzNeedHandoff();if(a)out+=`<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="pzp-h" style="${pc(a.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="pzp-h">${esc(nm(a))}</h2><p class="rlab">It’s your turn. Everyone else, look away.</p><button class="btn primary wide" data-a="pzpshow" data-k="${a.id}">I’m ${esc(nm(a))}, show my cards</button></div></div>`;
   return out}
 function pzAct(a,b,k){const g=pzG();if(!g)return;
+  if(a==='pzpdiscpile'){const c=PZSEL[0];if(!c)return;return pzAct('pzpdisc',{dataset:{c}},k)}
   if(a==='pzpshow'){PZVIEW=k;PZSEL=[];return}
   if(a==='pzparr'){PTX().arr=b.dataset.v;ptKeep();PZSEL=[];return}
   if(a==='pzpdeal'){if(!pzRes()||g.phase!=='done')return;S.hr=ptCur()+1;pzDeal(S.hr);window.scrollTo(0,0);return}
@@ -10759,7 +10763,7 @@ document.addEventListener('click',e=>{
   if(/^rk(card|bid|deal|show|trump|nest)$/.test(a)&&S.game==='rook'&&rkPlayOn()&&S.started){rkAct(a,b,k);render();return}
   if(/^rg(card|bid|deal|show|color|num|fore|rage)$/.test(a)&&S.game==='rage'&&rgPlayOn()&&S.started){rgAct(a,b,k);render();return}
   if(/^pzp[a-z]+$/.test(a)&&S.game==='phase10'&&pzOn()&&S.started){pzAct(a,b,k);save();render();return}
-  if(/^fcp(deck|take|card|disc|out|group|ungroup|arr|show|deal|lastok|sort)$/.test(a)&&S.game==='crowns'&&fcOn()&&S.started){fcAct(a,b,k);save();render();return}
+  if(/^fcp(deck|take|card|disc|out|group|ungroup|arr|show|deal|lastok|sort|discpile)$/.test(a)&&S.game==='crowns'&&fcOn()&&S.started){fcAct(a,b,k);save();render();return}
   if(/^sbp(src|disc|build|show|deal)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
   if(/^gp(cell|deck|disc|deal|pile|skip|bounce)$/.test(a)&&(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')&&gpOn()&&S.started){gpAct(a,b,k);save();render();return}
   if(/^unp(card|draw|keep|col|uno|catch|chal|swap|roul|show|deal|aim|row|end)$/.test(a)&&S.game==='uno'&&unPlayOn()&&S.started){unAct(a,b,k);save();render();return}
@@ -11461,6 +11465,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='642b34';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='57308d';</script>
 </body>
 </html>
