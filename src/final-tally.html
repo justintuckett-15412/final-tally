@@ -542,6 +542,7 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 @keyframes mtgo{to{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 60%,transparent)}}
 .mtrl{display:grid;gap:2px;min-width:0;flex:0 0 34%;font-size:13.5px}.mtrl b{overflow-wrap:anywhere;line-height:1.2}.mttag{font-size:11.5px;font-weight:700;color:var(--muted)}.mttag.open{color:#c8322b}.mttag.need{color:#b36b00}.mttag.blk{color:#555}
 .mtrt{display:flex;align-items:center;gap:3px;flex:1;min-width:0;justify-content:flex-end;overflow:hidden}.mtrt small{flex:none}.mtd{display:inline-flex;flex:none;line-height:0;background:none;border:0;padding:0}.mtend{flex:none;min-width:24px;height:24px;border-radius:50%;background:var(--pc,#2e8b45);color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center;margin-left:4px}
+.dmhand .dmd{touch-action:none;-webkit-user-select:none;user-select:none}.dmhand .dmd.dropb{box-shadow:-5px 0 0 0 var(--accent)}.dmhand .dmd.dropa{box-shadow:5px 0 0 0 var(--accent)}.mtrow.hoover{background:color-mix(in srgb,var(--accent) 35%,var(--surface))}.dmghost{position:fixed;left:0;top:0;z-index:90;pointer-events:none;line-height:0}.dmbar{margin-top:8px}
 .mtme{margin-top:12px;padding:10px;border-radius:14px;border:2px solid var(--pc);background:var(--surface)}.mthand{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .mthand .mtd{border-radius:7px;cursor:pointer;transition:transform .12s}.mthand .mtd.sel{transform:translateY(-8px);filter:drop-shadow(0 4px 6px rgba(0,0,0,.3)) drop-shadow(0 0 3px var(--accent))}.mthand .mtd.no{opacity:.55}
 .mtstart{display:flex;align-items:center;gap:12px;margin:12px 0 4px;padding:10px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}.mtstart svg{flex:none}
@@ -4817,7 +4818,7 @@ function dragEnd(e){if(!DRAG)return;const d=DRAG;DRAG=null;const t=document.quer
   const click=()=>{const x=[...document.querySelectorAll(`.hthand [data-a="${d.a}"]`)].find(q=>q.dataset.c===d.c);if(x){DRAGPLAY=true;x.click();DRAGPLAY=false}};
   if(curSel()!==d.c)click();click()}
 document.addEventListener('pointerup',dragEnd);document.addEventListener('pointercancel',()=>{if(DRAG&&DRAG.el){DRAG.el.remove();DRAG.b.style.visibility=''}const t=document.querySelector('.kttable');if(t)t.classList.remove('dropzone','dropover');DRAG=null});
-document.addEventListener('click',e=>{if(Date.now()<DRAGSUP&&!DRAGPLAY&&e.target.closest&&e.target.closest('.hthand .htc,.fchand .htc,.fcpile,.sbme button,.gppile,.gphold,.gpme .gpc,[data-a="sbpbuild"],[data-a="gpdisc"]')){e.stopImmediatePropagation();e.preventDefault()}},true);
+document.addEventListener('click',e=>{if(Date.now()<DRAGSUP&&!DRAGPLAY&&e.target.closest&&e.target.closest('.mthand .mtd,.mtrow,.hthand .htc,.fchand .htc,.fcpile,.sbme button,.gppile,.gphold,.gpme .gpc,[data-a="sbpbuild"],[data-a="gpdisc"]')){e.stopImmediatePropagation();e.preventDefault()}},true);
 const cardPlayHint=()=>`${cardDrag()?'Drag a card onto the table to play it.':(curSel()?'Tap it again (or drag it to the table) to play it.':'Tap a card, or drag it onto the table, to play it.')} <button class="link-btn" data-a="cardplay">${cardDrag()?'Tap to play instead':'Drag to play instead'}</button>`;
 
 /* =====================================================================
@@ -7284,7 +7285,35 @@ function mtTick(){if(S.game!=='mextrain'||!mtOn()||!S.started||S.finished||S.scr
   if(q&&q.bot&&!MTBOTT&&!document.querySelector('.sheet-bg'))MTBOTT=setTimeout(()=>{MTBOTT=null;const g2=mtG();if(g2&&g2.phase==='play'&&g2.turn===q.id){mtBotStep(g2,q);save()}render()},(g.bt?550:800)*htSpd())}
 
 /* ---------------- drawing ---------------- */
-function mtTileEl(t,o={}){const [a,b]=Array.isArray(t)?t:mtAB(t),D=a===b,h=o.h||24,tag=o.btn?'button':'span';
+/* ---------- your dominoes, your way (Mexican Train, Chicken Foot): order and which way round each one faces live only on this phone ---------- */
+let DMO=null;
+const dmKey=(g,pid)=>(S.gameId||'g')+':'+S.game+':'+g.r+':'+pid;
+function dmLoad(){if(DMO)return DMO;try{DMO=JSON.parse(localStorage.getItem(KEY+'.dmo'))||{}}catch(e){DMO={}}return DMO}
+function dmSave(){try{const ks=Object.keys(DMO);if(ks.length>12)ks.sort((a,b)=>(DMO[a].t||0)-(DMO[b].t||0)).slice(0,ks.length-12).forEach(k=>delete DMO[k]);localStorage.setItem(KEY+'.dmo',JSON.stringify(DMO))}catch(e){}}
+function dmRec(g,pid,h){const D=dmLoad(),k=dmKey(g,pid);let r=D[k];if(!r||!Array.isArray(r.o)){r=D[k]={o:h.slice(),f:{},t:Date.now()};dmSave()}
+  const set=new Set(h),o=r.o.filter(t=>set.has(t)),fresh=h.filter(t=>!o.includes(t));if(fresh.length||o.length!==r.o.length){r.o=o.concat(fresh);r.t=Date.now();dmSave()}return r}
+const dmOrder=(g,pid,h)=>dmRec(g,pid,h).o.slice();
+function dmFlip(g,pid,t){const r=dmRec(g,pid,g.h[pid]||[]);if(r.f[t])delete r.f[t];else r.f[t]=1;r.t=Date.now();dmSave()}
+function dmMove(g,pid,t,to,after){const r=dmRec(g,pid,g.h[pid]||[]);r.o=r.o.filter(x=>x!==t);const i=r.o.indexOf(to);if(i<0)r.o.push(t);else r.o.splice(i+(after?1:0),0,t);r.t=Date.now();dmSave()}
+function dmSortNow(g,pid,how){const r=dmRec(g,pid,g.h[pid]||[]);r.o=how==='dots'?r.o.slice().sort((x,y)=>mtPip(y)-mtPip(x)):mtSort(r.o);r.f={};r.t=Date.now();dmSave()}
+function dmHand(g,V,mine,playable,selT,act){const h=dmOrder(g,V.id,g.h[V.id]||[]),f=dmRec(g,V.id,g.h[V.id]||[]).f;
+  return `<div class="mthand dmhand">${h.map(t=>mtTileEl(t,{btn:true,h:30,vd:true,flip:!!f[t],attr:` data-a="dmflip" data-t="${t}" data-pa="${act}"`,cls:'dmd'+(t===selT?' sel':'')+(mine&&playable.has(t)?' ok':mine?' no':''),lab:(mine&&!playable.has(t)?'no place to play it. ':'')+'Tap to turn it around, drag to move it'})).join('')||'<span class="rlab">No dominoes left</span>'}</div>
+  <div class="hosort dmbar"><span class="rlab">Sort:</span><button class="btn sm" data-a="dmsort" data-v="num">Number</button><button class="btn sm" data-a="dmsort" data-v="dots">Most dots</button><small class="rlab">Tap to turn · drag to move${mine?` · drag onto a ${act==='cf'?'glowing spot':'train'} to play`:''}</small></div>`}
+/* dragging a domino: onto another one to reorder, or onto a glowing train to play it */
+(function(){let D=null;const clear=()=>document.querySelectorAll('.dmhand .dropb,.dmhand .dropa,.mtrow.hoover').forEach(x=>x.classList.remove('dropb','dropa','hoover'));
+  const at=(x,y,Q)=>{Q.g.style.visibility='hidden';const t=document.elementFromPoint(x,y);Q.g.style.visibility='';if(!t)return null;const d=t.closest('.dmhand .dmd');if(d&&d!==Q.el)return {d};const r=t.closest('.mtrow');if(r&&r.classList.contains('dmok'))return {r};return null};
+  document.addEventListener('pointerdown',e=>{if(!e.target.closest||!['mextrain','chicken'].includes(S.game))return;const el=e.target.closest('.dmhand .dmd');if(!el)return;D={el,t:el.dataset.t,x:e.clientX,y:e.clientY,on:false,id:e.pointerId}},true);
+  document.addEventListener('pointermove',e=>{if(!D||e.pointerId!==D.id)return;
+    if(!D.on){if(Math.hypot(e.clientX-D.x,e.clientY-D.y)<9)return;D.on=true;const r=D.el.getBoundingClientRect(),g=D.el.cloneNode(true);g.classList.add('dragcard','dmghost');g.style.width=r.width+'px';g.style.height=r.height+'px';D.ox=D.x-r.left;D.oy=D.y-r.top;document.body.appendChild(g);D.g=g;D.el.style.opacity='.35';document.body.classList.add('hodragging');
+      /* trains this domino fits glow while you drag */const G=S.game==='chicken'?cfG():mtG(),V=S.game==='chicken'?cfViewer():mtViewer();D.ks=G&&V&&G.turn===V.id?(S.game==='chicken'?cfSpots(G,V.id,D.t):mtTargets(G,V.id,D.t)):[]}
+    /* the screen may redraw mid-drag: keep the right trains glowing */document.querySelectorAll('.mtrow').forEach(x=>{if(D.ks.includes(x.dataset.k))x.classList.add('go','dmok')});
+    D.g.style.transform=`translate(${e.clientX-D.ox}px,${e.clientY-D.oy}px)`;if(e.clientY<50)window.scrollBy(0,-12);else if(e.clientY>innerHeight-40)window.scrollBy(0,12);clear();const z=at(e.clientX,e.clientY,D);if(z&&z.d){const r=z.d.getBoundingClientRect();z.d.classList.add(e.clientX<r.left+r.width/2?'dropb':'dropa')}else if(z&&z.r)z.r.classList.add('hoover');e.preventDefault()},{passive:false});
+  const end=e=>{if(!D||e.pointerId!==D.id)return;const d=D;D=null;if(!d.on)return;DRAGSUP=Date.now()+400;const z=e.type==='pointerup'?at(e.clientX,e.clientY,d):null;clear();d.g.remove();d.el.style.opacity='';document.body.classList.remove('hodragging');
+    const CF=S.game==='chicken',G=CF?cfG():mtG(),V=CF?cfViewer():mtViewer();if(!G||!V||!z){render();return}
+    if(z.d){const r=z.d.getBoundingClientRect();dmMove(G,V.id,d.t,z.d.dataset.t,e.clientX>=r.left+r.width/2);vibe(8);render();return}
+    if(CF){CFSEL=d.t;cfAct('cfpspot',z.r,z.r.dataset.k)}else{MTSEL=d.t;mtAct('mtptrain',z.r,z.r.dataset.k)}save();render()};
+  document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',end,true)})();
+function mtTileEl(t,o={}){let [a,b]=Array.isArray(t)?t:mtAB(t);if(o.flip)[a,b]=[b,a];const D=a===b,h=o.h||24,tag=o.btn?'button':'span';
   return `<${tag} class="mtd${D?' dbl':''}${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="${a}|${b}${o.lab?', '+o.lab:''}">${mtTile(a,b,h,D&&o.vd)}</${tag}>`}
 function mtTrainEl(g,k,V,selT){const T=g.tr[k],P=act(),p=P.find(x=>x.id===k),mine=V&&k===V.id,can=selT&&V&&mtTargets(g,V.id,selT).includes(k),need=g.need.includes(k)&&!T.blk;
   const show=T.t.slice(-6),more=T.t.length-show.length,name=k==='mx'?'Mexican train':`${p?botHead(p):''}${esc(p?nm(p):'?')}${mine?' (you)':''}`;
@@ -7298,11 +7327,11 @@ function mtPlayUI(){const X=MTX(),P=act(),g=mtG(),r=mtCur(),N=mtN(),sc=P.map(mtT
   if(!g||cgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(mtRes()?'Shuffling the dominoes…':'Waiting for the host phone to deal…')}</div>`;
   const V=mtViewer(),turnP=P.find(p=>p.id===g.turn),mine=V&&g.turn===V.id,selT=mine&&MTSEL&&(g.h[V.id]||[]).includes(MTSEL)?MTSEL:null,moves=mine?mtMoves(g,V.id):[];
   const needK=g.need.length&&!g.bonus?g.need[0]:null,needE=needK?g.tr[needK].end:null;
-  let status=g.phase==='done'?`<b>Round ${r+1} is over.</b>`:mine?(g.bt?`<b>Build your train${S.lk||mtHumans().length<2?'':', '+esc(nm(V))}.</b> Lay as many as you like on your own train, then tap Done.`
+  let status=g.phase==='done'?`<b>Round ${r+1} is over.</b>`:mine?(g.bt?`<b>Build your train${S.lk||mtHumans().length<2?'':', '+esc(nm(V))}.</b> Drag as many as you like onto your own train, then tap Done.`
       :selT?`<b>Tap a glowing train</b> to play the ${mtNm(selT)}.`
       :g.bonus?`<b>You played a double: play again.</b> Anywhere you can; you don’t have to cover it.`
       :needK?(moves.length?`<b>Cover the ${needE}|${needE}</b> on ${needK===V.id?'your train':esc(mtTrNm(g,needK))} first.`:g.drew||!g.yard.length?`<b>You can’t cover the ${needE}|${needE}.</b> Tap Pass to put a marker on your train.`:`<b>You can’t cover the ${needE}|${needE}.</b> Draw from the boneyard.`)
-      :moves.length?`<b>Your turn${S.lk||mtHumans().length<2?'':', '+esc(nm(V))}.</b> Tap a domino, then the train to play it on.`:g.drew||!g.yard.length?`<b>Nothing fits.</b> Tap Pass: a marker goes on your train.`:`<b>Nothing fits.</b> Draw from the boneyard.`)
+      :moves.length?`<b>Your turn${S.lk||mtHumans().length<2?'':', '+esc(nm(V))}.</b> Drag a domino onto a glowing train to play it.`:g.drew||!g.yard.length?`<b>Nothing fits.</b> Tap Pass: a marker goes on your train.`:`<b>Nothing fits.</b> Draw from the boneyard.`)
     :turnP?`${botHead(turnP)}<b>${esc(nm(turnP))}</b> ${g.bt?'is building their train…':'is playing…'}`:'';
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
   out+=`<div class="mtstation"><span class="mthub">${mtTile(g.dbl,g.dbl,26,true)}</span><span class="rlab">The station · <b class="num">${g.yard.length}</b> in the boneyard</span></div>`;
@@ -7310,7 +7339,7 @@ function mtPlayUI(){const X=MTX(),P=act(),g=mtG(),r=mtCur(),N=mtN(),sc=P.map(mtT
   out+=`<div class="mttrains">${order.map(k=>mtTrainEl(g,k,V,selT)).join('')}</div>`;
   if(V&&g.phase==='play'){const h=g.h[V.id]||[],playable=new Set(moves.map(m=>m.t));
     out+=`<div class="mtme" style="${pc(V.color)}"><div class="gpon"><b>${S.lk||mtHumans().length<2?'Your dominoes':esc(nm(V))+'’s dominoes'}</b><span class="num">${h.length} · ${h.reduce((s,t)=>s+mtPip(t),0)} dots</span></div>
-      <div class="mthand">${h.map(t=>mtTileEl(t,{btn:mine,h:30,vd:true,attr:` data-a="mtptile" data-t="${t}"${mine?'':' aria-disabled="true"'}`,cls:(t===selT?'sel':'')+(mine&&playable.has(t)?' ok':mine?' no':''),lab:mine&&!playable.has(t)?'no place to play it':''})).join('')||'<span class="rlab">No dominoes left</span>'}</div></div>`;
+      ${dmHand(g,V,mine,playable,selT,'mt')}</div>`;
     if(mine)out+=`<div class="actions"><div class="in">${g.bt?`${!g.tr[V.id].t.length&&!moves.length&&!g.drew&&g.yard.length&&X.drawBuild?`<button class="btn primary" data-a="mtpdraw">Draw from the boneyard</button>`:''}<button class="btn${moves.length?'':' primary'}" data-a="mtpdone">Done building</button>`
       :!moves.length?(!g.drew&&g.yard.length?`<button class="btn primary" data-a="mtpdraw">Draw from the boneyard</button>`:`<button class="btn primary" data-a="mtppass">Pass${g.tr[V.id].open?'':' · marker on my train'}</button>`):''}</div></div>`.replace('<div class="actions"><div class="in"></div></div>','')}
   else if(!S.lk&&mtHumans().length>1&&g.phase==='play')out+=`<p class="hint" style="text-align:center">Dominoes are hidden until the right person has the phone.</p>`;
@@ -7355,7 +7384,7 @@ function cfSetup(){const X=CFX();
   const row=(label,sub,ctl)=>`<div class="srow"><span class="rlab"><b>${label}</b>${sub?` · ${sub}`:''}</span>${ctl}</div>`;
   const tg=(k,label,sub)=>`<div class="prow"><div class="rtext"><b>${label}</b><div class="rlab">${sub}</div></div><button class="sw" role="switch" aria-checked="${!!X[k]}" data-a="cftg" data-k="${k}" aria-label="${label}"><i></i></button></div>`;
   const sec=(t,body,hint)=>`<div class="sec"><div class="sec-h"><h3>${t}</h3></div><div class="panel hfpanel">${body}</div>${hint?`<p class="hint">${hint}</p>`:''}</div>`;
-  return `<div class="bar"><h1>Chicken Foot</h1></div>${steps(1)}
+  return `<div class="bar"><h1>Chicken Foot</h1></div><img class="hero hfhero" src="art/chicken-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">Lowest total wins. Your house rules are remembered for next time. ${usualUI('chicken')}</p>
   ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🁫 Playing on the phone':'Scoring real dominoes'}</b></div>`:`<div class="seg">${[[1,'🁫 Play on the phone'],[0,'Score real dominoes']].map(([vv,t])=>`<button data-a="cfplaymode" data-k="${vv}" aria-pressed="${!!X.play===!!vv}">${t}</button>`).join('')}</div>`,S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone shuffles and deals, keeps every train and plays for the computer players. Pass-and-play and linked phones work too.':'Play with your own dominoes and type in the dots left each round. Just score keeping.')}
   ${sec('Domino set',`<div class="seg mtsets">${[6,9,12,15,18].map(v=>`<button data-a="cfset" data-v="${v}" aria-pressed="${X.set===v}" aria-label="Double-${v}">${v}|${v}</button>`).join('')}</div>`,`Double-${X.set}: ${(X.set+1)*(X.set+2)/2} dominoes, ${cfN()} rounds, starting with the ${X.set}|${X.set} and counting down to the 0|0.`)}
@@ -7413,7 +7442,7 @@ function cfGuide(){const X=CFX(),n=act().length;
     ['Winning',[['Lowest total','After the last round, the lowest total wins. A tie is a shared win.']]],
   ])}
 function cfHomeCard(){const st=gamePeek('chicken');
-  return `<div class="game"><div class="gtop"><div class="gart nxart mtart cfart" aria-hidden="true">🐔</div><div><h2>Chicken Foot</h2><div class="meta">Dominoes · low score wins</div></div></div>
+  return `<div class="game"><div class="gtop"><img class="gart" src="art/chicken-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart mtart&quot; aria-hidden=&quot;true&quot;>🐔</div>'"><div><h2>Chicken Foot</h2><div class="meta">Dominoes · low score wins</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="chicken">Resume game</button><button class="btn" data-a="gnew" data-k="chicken">New game</button><button class="btn" data-a="gabandon" data-k="chicken" aria-label="Abandon this game">${ABANDON==='chicken'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="cfstart" data-k="1">🁫 Play</button><button class="btn" style="flex:1" data-a="cfstart" data-k="0">Score a game</button></div>`}</div>`}
 
@@ -7503,7 +7532,7 @@ function cfPlayUI(){const P=act(),g=cfG(),r=cfCur(),N=cfN(),sc=P.map(cfTot),lo=M
   const V=cfViewer(),turnP=P.find(p=>p.id===g.turn),mine=V&&g.turn===V.id,selT=mine&&CFSEL&&(g.h[V.id]||[]).includes(CFSEL)?CFSEL:null,moves=mine?cfMoves(g,V.id):[],pend=cfPend(g),pv=pend>=0?g.nodes[pend].v:null;
   let status=g.phase==='done'?`<b>Round ${r+1} is over.</b>`:mine?(selT?`<b>Tap a glowing spot</b> to play the ${mtNm(selT)}.`
       :pend>=0?(moves.length?`<b>${g.bonus?'You played a double: play a toe.':pend?`Play a toe on the ${pv}|${pv}.`:`Play around the ${pv}|${pv} in the middle.`}</b> Nothing else can be played until it has ${g.nodes[pend].need}.`:g.drew||!g.yard.length?`<b>Nothing fits the ${pv}|${pv}.</b> Tap Pass.`:`<b>Nothing fits the ${pv}|${pv}.</b> Draw from the boneyard.`)
-      :moves.length?`<b>Your turn${S.lk||cfHumans().length<2?'':', '+esc(nm(V))}.</b> Tap a domino, then where it goes.`:g.drew||!g.yard.length?`<b>Nothing fits.</b> Tap Pass.`:`<b>Nothing fits.</b> Draw from the boneyard.`)
+      :moves.length?`<b>Your turn${S.lk||cfHumans().length<2?'':', '+esc(nm(V))}.</b> Drag a domino onto a glowing spot to play it.`:g.drew||!g.yard.length?`<b>Nothing fits.</b> Tap Pass.`:`<b>Nothing fits.</b> Draw from the boneyard.`)
     :turnP?`${botHead(turnP)}<b>${esc(nm(turnP))}</b> is playing…`:'';
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
   const closed=g.lines.filter(L=>L.closed).length;
@@ -7512,7 +7541,7 @@ function cfPlayUI(){const P=act(),g=cfG(),r=cfCur(),N=cfN(),sc=P.map(cfTot),lo=M
   out+=`<div class="mttrains">${spots.map(s=>cfRowEl(g,s,V,selT)).join('')||'<p class="rlab">No open ends.</p>'}</div>`;
   if(V&&g.phase==='play'){const h=g.h[V.id]||[],playable=new Set(moves.map(m=>m.t));
     out+=`<div class="mtme" style="${pc(V.color)}"><div class="gpon"><b>${S.lk||cfHumans().length<2?'Your dominoes':esc(nm(V))+'’s dominoes'}</b><span class="num">${h.length} · ${h.reduce((s,t)=>s+mtPip(t),0)} dots</span></div>
-      <div class="mthand">${h.map(t=>mtTileEl(t,{btn:mine,h:30,vd:true,attr:` data-a="cfptile" data-t="${t}"${mine?'':' aria-disabled="true"'}`,cls:(t===selT?'sel':'')+(mine&&playable.has(t)?' ok':mine?' no':''),lab:mine&&!playable.has(t)?'no place to play it':''})).join('')||'<span class="rlab">No dominoes left</span>'}</div></div>`;
+      ${dmHand(g,V,mine,playable,selT,'cf')}</div>`;
     if(mine&&!moves.length)out+=`<div class="actions"><div class="in">${!g.drew&&g.yard.length?`<button class="btn primary" data-a="cfpdraw">Draw from the boneyard</button>`:`<button class="btn primary" data-a="cfppass">Pass</button>`}</div></div>`}
   else if(!S.lk&&cfHumans().length>1&&g.phase==='play')out+=`<p class="hint" style="text-align:center">Dominoes are hidden until the right person has the phone.</p>`;
   if(g.phase==='done'){const last=r>=N-1;
@@ -12087,6 +12116,7 @@ document.addEventListener('click',e=>{
   if(/^fcp(deck|take|card|disc|out|group|ungroup|arr|show|deal|lastok|sort|discpile)$/.test(a)&&S.game==='crowns'&&fcOn()&&S.started){fcAct(a,b,k);save();render();return}
   if(/^sbp(src|disc|build|show|deal)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
   if(/^mtp(tile|train|draw|pass|done|show|deal)$/.test(a)&&S.game==='mextrain'&&mtOn()&&S.started){mtAct(a,b,k);save();render();return}
+  if((a==='dmflip'||a==='dmsort')&&(S.game==='mextrain'&&mtOn()||S.game==='chicken'&&cfOn())&&S.started){const CF=S.game==='chicken',G=CF?cfG():mtG(),V=CF?cfViewer():mtViewer();if(G&&V){if(a==='dmflip')dmFlip(G,V.id,b.dataset.t);else dmSortNow(G,V.id,b.dataset.v);vibe(6)}render();return}
   if(/^cfp(tile|spot|draw|pass|show|deal)$/.test(a)&&S.game==='chicken'&&cfOn()&&S.started){cfAct(a,b,k);save();render();return}
   if(a==='gplastok'){const V=gpViewer(),g=gpG();if(V&&g)GPLASTOK[(S.gameId||'')+':'+g.r+':'+V.id]=1;render();return}
   if(/^gp(cell|deck|disc|deal|pile|skip|bounce)$/.test(a)&&(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')&&gpOn()&&S.started){gpAct(a,b,k);save();render();return}
