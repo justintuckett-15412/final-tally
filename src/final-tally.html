@@ -1287,6 +1287,9 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .vcstrip{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 0;padding:6px 8px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}.vcl{font-size:12.5px;font-weight:800;color:var(--muted)}
 .vcp{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;padding:3px 9px;border-radius:999px;border:1.5px solid var(--line)}.vcp i{width:8px;height:8px;border-radius:50%;background:var(--pc)}
 .vcp.talk{border-color:var(--pc);box-shadow:0 0 0 3px color-mix(in srgb,var(--pc) 35%,transparent)}.vcp.mute{opacity:.6}.vcstrip .btn{margin-left:auto;min-height:30px}
+.tqtimer{width:100%;height:6px;border-radius:3px;background:color-mix(in srgb,var(--accent) 20%,transparent);overflow:hidden;margin:0 0 6px}.tqtimer i{display:block;height:100%;background:var(--accent);transform-origin:left;animation:tqt var(--d) linear var(--o) both}
+@keyframes tqt{from{transform:scaleX(1)}to{transform:scaleX(0)}}.ktcenter:has(.tqtimer){flex-direction:column}
+.tqhand.tqrunning button.htc{cursor:pointer}
 </style>
 
 <div id="app"></div>
@@ -7447,7 +7450,7 @@ function gfDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    poker pot and the Michigan run-out move chips around. Unclaimed pens
    carry over. S.tph[r] = {pens:{A:pid,..,T89:[pids]}, bets:{pid:n}, pw:[pids], out:pid, left:{pid:n}}
    ===================================================================== */
-const TPDEF={start:50,ante:1,poker:true,perCard:1,end:'open',hands:10,dead:false};
+const TPDEF={start:50,ante:1,poker:true,perCard:1,end:'open',hands:10,dead:false,wait:5};
 const TPX=()=>{if(!S.tpx)S.tpx={...TPDEF};const X=S.tpx;for(const k in TPDEF)if(X[k]===undefined)X[k]=TPDEF[k];return X};
 function tpSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.tpx'))}catch(e){}return Object.assign({...TPDEF},x||{})}
 function tpKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.tpx',JSON.stringify(TPX()))}catch(e){}}
@@ -7491,7 +7494,7 @@ function tpSetup(){const X=TPX();
   ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([v,t])=>`<button data-a="tqplaymode" data-k="${v}" aria-pressed="${!!X.play===!!v}">${t}</button>`).join('')}</div>`,
     S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals, pays the pens, runs the poker round and plays out the cards. Computer players, pass-and-play and linked phones all work.':'Play with real cards and tap who won each pen. The app is the bank.')}
   ${sec('Chips',row('Everyone starts with','chips',st('start',X.start,0,1000,10,'chips'))+row('Ante','per pen',st('ante',X.ante,1,10,1,'chips')),`Each hand costs ${X.ante*9} chips to play (${X.ante} on each of the 9 pens).`)}
-  ${sec('Each hand',tg('poker','Poker round','Bet on your best 5 cards; the winner takes the Pot.')+tg('dead','Buying the dead hand','The dealer can swap for the dead hand first, then the others can bid for it (the dealer gets the chips). Anyone holding the A, K, Q, J or 10 of hearts can’t take it. Pay cards in it count for the new owner.')+row('Paying the winner','chips per card left',st('perCard',X.perCard,0,10,1,'chips')),'Pens nobody claims (like a card in the dead hand) carry over to the next hand.')}
+  ${sec('Each hand',tg('poker','Poker round','Bet on your best 5 cards; the winner takes the Pot.')+(X.play?row('Time to play the next card','seconds',st('wait',X.wait,2,20,1,'seconds')):'')+tg('dead','Buying the dead hand','The dealer can swap for the dead hand first, then the others can bid for it (the dealer gets the chips). Anyone holding the A, K, Q, J or 10 of hearts can’t take it. Pay cards in it count for the new owner.')+row('Paying the winner','chips per card left',st('perCard',X.perCard,0,10,1,'chips')),'Pens nobody claims (like a card in the dead hand) carry over to the next hand.')}
   ${sec('How the game ends',seg('end',[['open','Until we stop'],['hands','Set hands']])+(X.end==='hands'?row('Hands','',st('hands',X.hands,1,40,1,'hands')):''),'Most chips wins.')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
 function tpScore(){if(tqOn()&&S.started&&!S.demo)return tqPlayUI();const X=TPX(),P=act(),r=tpCur(),N=tpN(),H=tpH(r),ST=tpState(),h=ST.hands[r]||{pens:{}},last=X.end==='hands'&&r>=X.hands-1;
@@ -7546,7 +7549,7 @@ function tpGuide(){const X=TPX(),n=act().length;
       ['Stops','When the next card is in the dead hand (or the Ace is played), the last player switches to the lowest card of another suit.'],
       ['Going out',`First to play all their cards takes the Kitty${X.perCard?` and ${X.perCard} chip${X.perCard===1?'':'s'} for every card left in each other hand`:''}.`]]],
     ['Winning',[[X.end==='hands'?`After ${X.hands} hands`:'When you stop','Most chips wins. Chips left in pens stay there; the rulebook suggests a final hand of showdown poker to clear them.']]],
-    X.play?['On the phone',[...(X.dead?[['Dead hand','First the dealer can swap for it, then the others bid. Holding a pay heart, you can’t take it.']]:[]),['Pay cards','The app finds who holds each pay card and pays those pens.'],X.poker?['Poker',`One betting round from the dealer’s left: check or bet ${X.ante}, ${2*X.ante} or ${5*X.ante}. Once someone bets: call, raise once, or fold. Your best 5 cards light up.`]:null,['Playing it out','When it’s your lead, the lowest card of each suit lights up: tap one. The next cards up play themselves.']].filter(Boolean)]:null].filter(Boolean))}
+    X.play?['On the phone',[...(X.dead?[['Dead hand','First the dealer can swap for it, then the others bid. Holding a pay heart, you can’t take it.']]:[]),['Pay cards','The app finds who holds each pay card and pays those pens.'],X.poker?['Poker',`One betting round from the dealer’s left: check or bet ${X.ante}, ${2*X.ante} or ${5*X.ante}. Once someone bets: call, raise once, or fold. Your best 5 cards light up.`]:null,['Playing it out',`When it’s your lead, the lowest card of each suit lights up: tap one. After that, watch for the next card up in that suit: if you have it, tap it within ${X.wait} seconds. Nobody is told who has it, so you can miss it! When time runs out, the last player leads another suit.`]].filter(Boolean)]:null].filter(Boolean))}
 function tpHomeCard(){const st=gamePeek('tripoley');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/tripoley-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart tpart&quot; aria-hidden=&quot;true&quot;>♥&#xFE0E;</div>'"><div><h2>Tripoley</h2><div class="meta">Card game · chips · the app is the bank</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="tripoley">Resume game</button><button class="btn" data-a="gnew" data-k="tripoley">New game</button><button class="btn" data-a="gabandon" data-k="tripoley" aria-label="Abandon this game">${ABANDON==='tripoley'?'Tap again to abandon':'🗑'}</button></div>`
@@ -8512,6 +8515,7 @@ const lkqKey=()=>{const g={uno:S.ung,golf:S.gpg,skyjo:S.gpg,gnome:S.gpg,hearts:S
 const LKQF={
   tqBet:(pid,a,n)=>{const g=tqG();return !!g&&tqBet(g,pid,a,n)},
   tqDead:(pid,a,n)=>{const g=tqG();return !!g&&tqDead(g,pid,a,n)},
+  tqNextCard:(pid,c)=>{const g=tqG();return !!g&&tqNextCard(g,pid,c)},
   tqLead:(pid,c)=>{const g=tqG();return !!g&&tqLead(g,pid,c)},
   nrMove:(pid,f,t)=>{const g=nrG();return !!g&&nrMove(g,pid,f,t)},
   nrFlip:pid=>{const g=nrG();return !!g&&nrFlip(g,pid)},
@@ -9902,10 +9906,13 @@ function tqPlayCard(g,pid,c){g.h[pid]=g.h[pid].filter(x=>x!==c);g.run.push(c);if
   if(!g.h[pid].length){tqEnd(g,pid);return}
   /* who has the next card up? */
   const r=tqRv(c);if(r===14){g.stop=tqSu(c);g.lead=pid;g.msg=`${nmid(pid)} played the Ace. ${nmid(pid)} leads again.`;return}
-  const nxt=TQR[r-1]+tqSu(c);if(g.dead.includes(nxt)){g.stop=tqSu(c);g.lead=pid;g.msg=`The ${tqName(nxt)} is in the dead hand. ${nmid(pid)} leads another suit.`;return}
+  /* nobody is told who has the next card (or that it's in the dead hand): whoever has it has to notice and play it before time runs out */
+  g.need=TQR[r-1]+tqSu(c);g.wt=Date.now();g.wd=(TPX().wait||5)*1000;g.miss=null;
   g.msg=`${nmid(pid)} played the ${tqName(c)}.`}
-/* the next card up plays itself (the host does this on a timer, so everyone sees it go round) */
-function tqAuto(g){if(g.phase!=='play'||g.lead||!g.run.length)return false;const c=nrTop(g.run),nxt=TQR[tqRv(c)-1]+tqSu(c);const who=g.ps.find(id=>g.h[id].includes(nxt));if(!who){g.lead=g.last;g.stop=tqSu(c);return true}tqPlayCard(g,who,nxt);return true}
+function tqNextCard(g,pid,c){if(!g||g.phase!=='play'||g.lead||!g.need||c!==g.need||!(g.h[pid]||[]).includes(c))return false;g.need=null;tqPlayCard(g,pid,c);return true}
+/* time's up: the run stops and the last player leads another suit */
+function tqTimeUp(g){if(g.phase!=='play'||g.lead||!g.need)return false;const c=nrTop(g.run);g.need=null;g.stop=tqSu(c);g.lead=g.last;g.n++;g.at=Date.now();g.msg=`Nobody played the next ${TQSN[tqSu(c)].replace(/s$/,'')}. ${nmid(g.last)} leads another suit.`;return true}
+
 function tqEnd(g,w){const H=tpH(g.r);H.out=w;H.left={};g.ps.forEach(id=>{if(id!==w)H.left[id]=g.h[id].length});g.phase='done';g.lead=null;g.msg=`${nmid(w)} is out of cards and takes the Kitty!`;pst('tqout',w);S.hr=Math.max(S.hr||0,g.r)}
 /* ---------------- computer players ---------------- */
 function tqBotPoker(g,q){const pid=q.id,k=g.pk,v=tqEval(g.h[pid]),cat=v[0],lv=q.bot,toCall=k.bet-(k.in[pid]||0),bal=tqBal(pid),A=TPX().ante;
@@ -9919,7 +9926,7 @@ function tqBotLead(g,q){const L=tqLeads(g,q.id),h=g.h[q.id];if(q.bot==='easy')re
   /* lead the suit where I hold the longest run of cards in a row from the bottom, so I keep playing */
   let best=null;L.forEach(c=>{let run=0,r=tqRv(c);while(h.includes(TQR[r-2]+tqSu(c))){run++;r++}const sc=run*10+h.filter(x=>tqSu(x)===tqSu(c)).length;if(!best||sc>best.sc)best={c,sc}});return tqLead(g,q.id,best.c)}
 /* ---------------- this phone ---------------- */
-let TQSEL=null,TQVIEW=null,TQBOTT=null;
+let TQSEL=null,TQVIEW=null,TQBOTT=null,TQBOTK='';
 const tqMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
 const tqHumans=()=>act().filter(p=>!p.bot);
 function tqViewer(){const g=tqG();if(!g)return null;if(S.lk&&!S.demo)return tqMe();const H=tqHumans();if(H.length===1)return H[0];if(!H.length)return null;const t=act().find(p=>p.id===tqActor(g));return t&&!t.bot&&TQVIEW===t.id?t:null}
@@ -9927,13 +9934,17 @@ const tqActor=g=>g.phase==='dead'?g.dh.turn:g.phase==='poker'?g.pk.turn:g.phase=
 const tqNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=tqG();if(!g||tqHumans().length<2)return null;const t=act().find(p=>p.id===tqActor(g));return t&&!t.bot&&TQVIEW!==t.id?t:null};
 function tqTick(){if(S.game!=='tripoley'||!tqOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!tqRes())return;if(lkqRun()){save();render();return}
   const g=tqG(),cur=tpCur();if(!g||tqStale(g)||g.r!==cur){tqDeal(cur);save();render();return}
+  if(TQBOTT&&TQBOTK!==g.n+':'+g.phase){clearTimeout(TQBOTT);TQBOTT=null}/* something changed: plan again */
   if(TQBOTT||document.querySelector('.sheet-bg'))return;const sp=window.__htfast?.15:1;
-  const later=(ms,f)=>{TQBOTT=setTimeout(()=>{TQBOTT=null;const g2=tqG();if(!g2||g2.r!==g.r||S.game!=='tripoley')return;if(f(g2)!==false){save()}render()},ms*sp)};
+  const later=(ms,f)=>{TQBOTK=g.n+':'+g.phase;TQBOTT=setTimeout(()=>{TQBOTT=null;const g2=tqG();if(!g2||g2.r!==g.r||S.game!=='tripoley')return;if(f(g2)!==false){save()}render()},ms*sp)};
   if(g.phase==='dead'){const q=act().find(p=>p.id===g.dh.turn);if(q&&q.bot)later(1000,g2=>{if(g2.phase!=='dead'||g2.dh.turn!==q.id)return false;tqBotDead(g2,q)});return}
   if(g.phase==='pay')return later(3200,g2=>{if(g2.phase!=='pay')return false;tqStartPoker(g2)});
   if(g.phase==='pokerdone')return later(3200,g2=>{if(g2.phase!=='pokerdone')return false;tqStartPlay(g2)});
   if(g.phase==='poker'){const q=act().find(p=>p.id===g.pk.turn);if(q&&q.bot)later(900,g2=>{if(g2.phase!=='poker'||g2.pk.turn!==q.id)return false;tqBotPoker(g2,q)});return}
-  if(g.phase==='play'){if(!g.lead)return later(650,g2=>tqAuto(g2));const q=act().find(p=>p.id===g.lead);if(q&&q.bot)later(900,g2=>{if(g2.lead!==q.id)return false;tqBotLead(g2,q)})}}
+  if(g.phase==='play'){if(!g.lead){if(!g.need)return;const left=Math.max(0,g.wt+g.wd-Date.now()),holder=act().find(p=>(g.h[p.id]||[]).includes(g.need));
+      /* computer players react after a moment, and easy ones sometimes miss it too */
+      if(holder&&holder.bot&&g.miss!==g.n){const lv=holder.bot,miss=Math.random()<(lv==='easy'?.18:lv==='normal'?.05:0);if(miss)g.miss=g.n;else{const ms=(lv==='hard'?600:lv==='normal'?1100:1700)+Math.random()*700;if(ms<left)return later(ms/((window.__htfast)?.15:1),g2=>{if(g2.need!==g.need)return false;tqNextCard(g2,holder.id,g2.need)})}}
+      return later((left+60)/(window.__htfast?.15:1),g2=>{if(!g2.need||Date.now()<g2.wt+g2.wd-50)return false;tqTimeUp(g2)})}const q=act().find(p=>p.id===g.lead);if(q&&q.bot)later(900,g2=>{if(g2.lead!==q.id)return false;tqBotLead(g2,q)})}}
 function tqCardEl(c,o={}){const tag=o.btn?'button':'span',attr=o.btn?` data-a="tqpcard" data-c="${c}"`:'';const r=c[0];
   return `<${tag} class="htc${o.mini?' mini':''}${tqRed(c)?' red':''}${o.cls?' '+o.cls:''}"${attr} aria-label="${tqName(c)}"><b${r==='T'?' class="ten"':''}>${r==='T'?'10':r}</b><i>${HTSU[c[1]]||c[1]}</i><em>${HTSU[c[1]]||c[1]}</em></${tag}>`}
 function tqPlayUI(){if(!tqRes()&&S.tqg&&S.tqg.r!==S.hr)S.hr=S.tqg.r;/* hr isn't synced: guests follow the host's hand */const X=TPX(),P=act(),g=tqG(),r=tpCur(),ST=tpState(),h=ST.hands[r]||{pens:{}};
@@ -9946,9 +9957,10 @@ function tqPlayUI(){if(!tqRes()&&S.tqg&&S.tqg.r!==S.hr)S.hr=S.tqg.r;/* hr isn't 
   let status='';const ph=g.phase;
   if(ph==='dead')status=mine?(g.dh.stage==='dealer'?'<b>Dead hand: you’re the dealer.</b> Swap your hand for the dead hand, or keep yours.':`<b>Dead hand: your bid.</b> ${g.dh.high?`High bid ${g.dh.high} by ${esc(nmid(g.dh.by))}.`:'No bids yet.'}`):`<b>Dead hand:</b> ${botHead(act_)}${esc(nm(act_))} is deciding…`;
   else if(ph==='pay')status='<b>1 · Pay cards</b>';else if(ph==='poker')status=mine?'<b>2 · Poker: your bet.</b>':`<b>2 · Poker:</b> ${botHead(act_)}${esc(nm(act_))} is betting…`;else if(ph==='pokerdone')status='<b>2 · Poker: showdown</b>';
-  else if(ph==='play')status=g.lead?(mine?'<b>3 · Your lead.</b> Tap the lowest card of a suit.':`<b>3 · Play it out:</b> ${botHead(act_)}${esc(nm(act_))} is leading…`):'<b>3 · Play it out</b>';else status=`<b>Hand ${r+1} is over.</b>`;
+  else if(ph==='play')status=g.lead?(mine?'<b>3 · Your lead.</b> Tap the lowest card of a suit.':`<b>3 · Play it out:</b> ${botHead(act_)}${esc(nm(act_))} is leading…`):`<b>3 · Next card up!</b> Have the next ${esc(TQSN[tqSu(nrTop(g.run))].replace(/s$/,''))}? Tap it before time runs out.`;else status=`<b>Hand ${r+1} is over.</b>`;
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
-  const center=g.run.length?`<div class="tqrun">${g.run.slice(-5).map((c,i,a)=>tqCardEl(c,{cls:i===a.length-1?'new':''})).join('')}</div>`:`<small class="rlab">${ph==='play'?'Waiting for the lead…':'Dead hand · '+g.dead.length+' cards'}</small>`;
+  const tw=ph==='play'&&!g.lead&&g.need?Math.max(0,g.wt+g.wd-Date.now()):0;
+  const center=g.run.length?`${tw?`<div class="tqtimer" style="--d:${g.wd}ms;--o:${-(g.wd-tw)}ms"><i></i></div>`:''}<div class="tqrun">${g.run.slice(-5).map((c,i,a)=>tqCardEl(c,{cls:i===a.length-1?'new':''})).join('')}</div>`:`<small class="rlab">${ph==='play'?'Waiting for the lead…':'Dead hand · '+g.dead.length+' cards'}</small>`;
   out+=ktTable({dealTag:'tripoley',dg:{...g,n:g.n},P,me:V?V.id:null,trick:[],faded:false,turn:tqActor(g),won:ph==='done'?tpH(r).out:null,dealer:g.dealer,
     label:q=>{const n=(g.h[q.id]||[]).length;const sh=g.show&&g.show[q.id]!==undefined&&(ph==='pokerdone')?` · ${TQCAT[g.show[q.id]]}`:'';return ph==='poker'&&g.pk.fold[q.id]?'folded':ph==='poker'&&g.pk.in[q.id]?`bet ${g.pk.in[q.id]}`:`${n} card${n===1?'':'s'}${sh}`},center});
   if(ph==='done'){const H=tpH(r);
@@ -9957,7 +9969,8 @@ function tqPlayUI(){if(!tqRes()&&S.tqg&&S.tqg.r!==S.hr)S.hr=S.tqg.r;/* hr isn't 
     out+=`<div class="actions"><div class="in">${over?(tqRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal</button>`:`<span class="rlab">Game over! Waiting for the host…</span>`):tqRes()?`<button class="btn sm" data-a="finish">Finish</button><button class="btn primary" data-a="tqpdeal">Deal hand ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`}
   if(V&&ph!=='done'){const hand=tqSort(g.h[V.id]||[]),five=ph==='poker'||ph==='pokerdone'?tqFive(hand):[],leads=ph==='play'&&g.lead===V.id?tqLeads(g,V.id):[],ev=tqEval(hand);
     if(ph==='poker'||ph==='pokerdone')out+=`<p class="rlab tqbest">Your best poker hand: <b>${TQCAT[ev[0]]}</b></p>`;
-    out+=`<div class="hthand tqhand" aria-label="Your cards">${hand.map(c=>tqCardEl(c,{btn:leads.includes(c),cls:(leads.includes(c)?'ok':'')+(five.includes(c)?' tq5':'')})).join('')}</div>`;
+    const running=ph==='play'&&!g.lead&&!!g.need;
+    out+=`<div class="hthand tqhand${running?' tqrunning':''}" aria-label="Your cards">${hand.map(c=>tqCardEl(c,{btn:leads.includes(c)||running,cls:(leads.includes(c)?'ok':'')+(five.includes(c)?' tq5':'')})).join('')}</div>`;
     if(ph==='dead'&&V){const D=g.dh,ok=tqDeadOk(g,V.id);if(mine){const A=X.ante;out+=`<div class="actions"><div class="in tqbets">${D.stage==='dealer'?`<button class="btn" data-a="tqpdead" data-k="pass">Keep my hand</button><button class="btn primary" data-a="tqpdead" data-k="swap">Swap for the dead hand</button>`:`<button class="btn" data-a="tqpdead" data-k="pass">Pass</button>${[1,2,5].map(n=>`<button class="btn${n===1?' primary':''}" data-a="tqpdead" data-k="bid" data-v="${n}">Bid ${D.high+n*A}</button>`).join('')}`}</div></div>`}
       else if(!ok)out+=`<p class="hint" style="text-align:center">You hold a pay heart, so you can’t take the dead hand.</p>`}
     if(ph==='poker'&&mine){const k=g.pk,toCall=k.bet-(k.in[V.id]||0),A=X.ante,b=[];
@@ -9975,6 +9988,7 @@ function tqAct(a,b,k){const g=tqG();if(!g)return;
   const V=tqViewer();if(!V)return;
   if(a==='tqpdead'){if(lkq('tqDead',V.id,k,+b.dataset.v||0)){vibe(10);if(!S.lk&&tqHumans().length>1)TQVIEW=null}return}
   if(a==='tqpbet'){if(lkq('tqBet',V.id,k,+b.dataset.v||0)){vibe(10);if(!S.lk&&tqHumans().length>1)TQVIEW=null}return}
+  if(a==='tqpcard'&&g.phase==='play'&&!g.lead){if(lkq('tqNextCard',V.id,b.dataset.c))vibe(10);else{toast('That’s not the next card.');vibe([30,40,30])}return}
   if(a==='tqpcard'){if(lkq('tqLead',V.id,b.dataset.c)){vibe(10);if(!S.lk&&tqHumans().length>1)TQVIEW=null}return}}
 
 /* =====================================================================
