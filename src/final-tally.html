@@ -1290,6 +1290,9 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .tqtimer{width:100%;height:6px;border-radius:3px;background:color-mix(in srgb,var(--accent) 20%,transparent);overflow:hidden;margin:0 0 6px}.tqtimer i{display:block;height:100%;background:var(--accent);transform-origin:left;animation:tqt var(--d) linear var(--o) both}
 @keyframes tqt{from{transform:scaleX(1)}to{transform:scaleX(0)}}.ktcenter:has(.tqtimer){flex-direction:column}
 .tqhand.tqrunning button.htc{cursor:pointer}
+.tqpaybn{position:fixed;left:50%;top:22%;transform:translateX(-50%);z-index:60;display:grid;justify-items:center;gap:2px;padding:12px 18px;border-radius:16px;background:var(--surface);border:3px solid var(--pc,var(--accent));box-shadow:0 10px 30px rgba(0,0,0,.3);text-align:center;max-width:min(92vw,420px);animation:tqpay 3.2s ease both var(--o);pointer-events:none}
+.tqpaybn b{font-size:19px;line-height:1.25}.tqpaybn span{font-size:15px;font-weight:800;color:#2e9d57}
+@keyframes tqpay{0%{opacity:0;transform:translateX(-50%) scale(.6)}10%{opacity:1;transform:translateX(-50%) scale(1.06)}16%{transform:translateX(-50%) scale(1)}85%{opacity:1}100%{opacity:0}}
 </style>
 
 <div id="app"></div>
@@ -7450,7 +7453,7 @@ function gfDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    poker pot and the Michigan run-out move chips around. Unclaimed pens
    carry over. S.tph[r] = {pens:{A:pid,..,T89:[pids]}, bets:{pid:n}, pw:[pids], out:pid, left:{pid:n}}
    ===================================================================== */
-const TPDEF={start:50,ante:1,poker:true,perCard:1,end:'open',hands:10,dead:false,wait:5};
+const TPDEF={start:50,ante:1,poker:true,perCard:1,end:'open',hands:10,dead:false,wait:5,payPlay:true};
 const TPX=()=>{if(!S.tpx)S.tpx={...TPDEF};const X=S.tpx;for(const k in TPDEF)if(X[k]===undefined)X[k]=TPDEF[k];return X};
 function tpSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.tpx'))}catch(e){}return Object.assign({...TPDEF},x||{})}
 function tpKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.tpx',JSON.stringify(TPX()))}catch(e){}}
@@ -7494,7 +7497,7 @@ function tpSetup(){const X=TPX();
   ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([v,t])=>`<button data-a="tqplaymode" data-k="${v}" aria-pressed="${!!X.play===!!v}">${t}</button>`).join('')}</div>`,
     S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals, pays the pens, runs the poker round and plays out the cards. Computer players, pass-and-play and linked phones all work.':'Play with real cards and tap who won each pen. The app is the bank.')}
   ${sec('Chips',row('Everyone starts with','chips',st('start',X.start,0,1000,10,'chips'))+row('Ante','per pen',st('ante',X.ante,1,10,1,'chips')),`Each hand costs ${X.ante*9} chips to play (${X.ante} on each of the 9 pens).`)}
-  ${sec('Each hand',tg('poker','Poker round','Bet on your best 5 cards; the winner takes the Pot.')+(X.play?row('Time to play the next card','seconds',st('wait',X.wait,2,20,1,'seconds')):'')+tg('dead','Buying the dead hand','The dealer can swap for the dead hand first, then the others can bid for it (the dealer gets the chips). Anyone holding the A, K, Q, J or 10 of hearts can’t take it. Pay cards in it count for the new owner.')+row('Paying the winner','chips per card left',st('perCard',X.perCard,0,10,1,'chips')),'Pens nobody claims (like a card in the dead hand) carry over to the next hand.')}
+  ${sec('Each hand',tg('poker','Poker round','Bet on your best 5 cards; the winner takes the Pot.')+(X.play?row('Time to play the next card','seconds',st('wait',X.wait,2,20,1,'seconds')):'')+tg('payPlay','Pay cards pay when played','Pay cards collect their pens when they’re played in the rummy round. A pay card that never gets played doesn’t collect, and that pen carries over.')+tg('dead','Buying the dead hand','The dealer can swap for the dead hand first, then the others can bid for it (the dealer gets the chips). Anyone holding the A, K, Q, J or 10 of hearts can’t take it. Pay cards in it count for the new owner.')+row('Paying the winner','chips per card left',st('perCard',X.perCard,0,10,1,'chips')),'Pens nobody claims (like a card in the dead hand) carry over to the next hand.')}
   ${sec('How the game ends',seg('end',[['open','Until we stop'],['hands','Set hands']])+(X.end==='hands'?row('Hands','',st('hands',X.hands,1,40,1,'hands')):''),'Most chips wins.')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
 function tpScore(){if(tqOn()&&S.started&&!S.demo)return tqPlayUI();const X=TPX(),P=act(),r=tpCur(),N=tpN(),H=tpH(r),ST=tpState(),h=ST.hands[r]||{pens:{}},last=X.end==='hands'&&r>=X.hands-1;
@@ -7543,13 +7546,13 @@ function tpGuide(){const X=TPX(),n=act().length;
   return guideSheet('Tripoley',[
     ['Setup',[['Cards','One standard 52-card deck, no jokers.'],['Chips',`Everyone starts with ${X.start}. The app keeps the bank.`],['Ante',`Each hand, everyone puts ${X.ante} on each of the 9 pens: Ace, King, Queen, Jack and 10 of hearts, King-Queen of hearts, 8-9-10, the Kitty and the Pot.`],
       ['The deal',`Deal the whole deck one at a time to the ${n} players plus one extra “dead” hand that nobody looks at.`]]],
-    ['1 · Pay cards',[['Hearts','Holding the A, K, Q, J or 10 of hearts collects that pen.'],['King-Queen','Holding both the King and Queen of hearts also collects the King-Queen pen.'],['8-9-10','Holding 8-9-10 of any one suit collects it. Two players split it.'],['Dead hand',X.dead?'House rule: before the pay cards are paid, the dealer may swap their hand for the dead hand, or the others bid for it and the dealer keeps the chips. You can’t take it while holding the A, K, Q, J or 10 of hearts. Pay cards in it pay its new owner; your old hand becomes the dead hand.':'A pay card in the dead hand means nobody claims that pen; the chips stay for next hand.']]],
+    ['1 · Pay cards',[['Hearts','Holding the A, K, Q, J or 10 of hearts collects that pen.'],['King-Queen','Holding both the King and Queen of hearts also collects the King-Queen pen.'],['8-9-10','Holding 8-9-10 of any one suit collects it. Two players split it.'],['Dead hand',X.dead?'House rule: before the poker round, the dealer may swap their hand for the dead hand, or the others bid for it and the dealer keeps the chips. You can’t take it while holding the A, K, Q, J or 10 of hearts. Pay cards in it pay its new owner; your old hand becomes the dead hand.':'A pay card in the dead hand means nobody claims that pen; the chips stay for next hand.']]],
     X.poker?['2 · Poker',[['Best 5 cards','Using 5 of your cards, bet like poker starting with the dealer. Best hand takes the Pot.']]]:null,
     [`${X.poker?3:2} · Play it out`,[['Start low','The dealer plays their lowest card in any suit. Whoever has the next card up in that suit plays it, and so on up to the Ace.'],
       ['Stops','When the next card is in the dead hand (or the Ace is played), the last player switches to the lowest card of another suit.'],
       ['Going out',`First to play all their cards takes the Kitty${X.perCard?` and ${X.perCard} chip${X.perCard===1?'':'s'} for every card left in each other hand`:''}.`]]],
     ['Winning',[[X.end==='hands'?`After ${X.hands} hands`:'When you stop','Most chips wins. Chips left in pens stay there; the rulebook suggests a final hand of showdown poker to clear them.']]],
-    X.play?['On the phone',[...(X.dead?[['Dead hand','First the dealer can swap for it, then the others bid. Holding a pay heart, you can’t take it.']]:[]),['Pay cards','The app finds who holds each pay card and pays those pens.'],X.poker?['Poker',`One betting round from the dealer’s left: check or bet ${X.ante}, ${2*X.ante} or ${5*X.ante}. Once someone bets: call, raise once, or fold. Your best 5 cards light up.`]:null,['Playing it out',`When it’s your lead, the lowest card of each suit lights up: tap one. After that, watch for the next card up in that suit: if you have it, tap it within ${X.wait} seconds. Nobody is told who has it, so you can miss it! When time runs out, the last player leads another suit.`]].filter(Boolean)]:null].filter(Boolean))}
+    X.play?['On the phone',[...(X.dead?[['Dead hand','First the dealer can swap for it, then the others bid. Holding a pay heart, you can’t take it.']]:[]),X.payPlay?['Pay cards','Each pay card collects its pen when you play it in the rummy round (the King-Queen when you’ve played both; the 8-9-10 when you’ve played all three). Never played? No pay, and the pen carries over.']:['Pay cards','The app finds who holds each pay card and pays those pens.'],X.poker?['Poker',`One betting round from the dealer’s left: check or bet ${X.ante}, ${2*X.ante} or ${5*X.ante}. Once someone bets: call, raise once, or fold. Your best 5 cards light up.`]:null,['Playing it out',`When it’s your lead, the lowest card of each suit lights up: tap one. After that, watch for the next card up in that suit: if you have it, tap it within ${X.wait} seconds. Nobody is told who has it, so you can miss it! When time runs out, the last player leads another suit.`]].filter(Boolean)]:null].filter(Boolean))}
 function tpHomeCard(){const st=gamePeek('tripoley');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/tripoley-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart tpart&quot; aria-hidden=&quot;true&quot;>♥&#xFE0E;</div>'"><div><h2>Tripoley</h2><div class="meta">Card game · chips · the app is the bank</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="tripoley">Resume game</button><button class="btn" data-a="gnew" data-k="tripoley">New game</button><button class="btn" data-a="gabandon" data-k="tripoley" aria-label="Abandon this game">${ABANDON==='tripoley'?'Tap again to abandon':'🗑'}</button></div>`
@@ -9873,7 +9876,10 @@ function tqDead(g,pid,a,n){if(!g||g.phase!=='dead'||g.dh.turn!==pid)return false
   /* next bidder: the next one round the table who hasn't passed (the high bidder waits) */
   const k=D.order.indexOf(pid);for(let s2=1;s2<=D.order.length;s2++){const id=D.order[(k+s2)%D.order.length];if(cand.includes(id)){D.turn=id;break}}return true}
 function tqDeadEnd(g){g.dh=null;g.n++;const m=g.msg;tqPay(g);g.msg=m+' '+g.msg;g.at=Date.now()}
-function tqPay(g){const ids=g.ps,H=tpH(g.r);g.phase='pay';g.at=Date.now();H.pens={};const who=c=>ids.find(id=>g.h[id].includes(c))||null;
+function tqPay(g){const ids=g.ps,H=tpH(g.r);H.pens={};
+  /* house rule: pay cards pay out when they're played in the rummy round, not at the start */
+  if(TPX().payPlay){g.played={};g.msg=(g.msg?g.msg+' ':'')+'Pay cards pay out when they’re played in the rummy round.';tqStartPoker(g);return}
+  g.phase='pay';g.at=Date.now();const who=c=>ids.find(id=>g.h[id].includes(c))||null;
   [['A','AH'],['K','KH'],['Q','QH'],['J','JH'],['T','TH']].forEach(([k,c])=>{const w=who(c);if(w)H.pens[k]=w});
   const kq=who('KH');if(kq&&kq===who('QH'))H.pens.KQ=kq;
   const t=ids.filter(id=>'SHDC'.split('').some(s=>['8','9','T'].every(k=>g.h[id].includes(k+s))));if(t.length)H.pens.T89=t;
@@ -9902,7 +9908,15 @@ function tqStartPlay(g){g.phase='play';g.lead=g.dealer;g.stop=null;g.run=[];g.la
 function tqLeads(g,pid){const h=g.h[pid]||[],out=[];for(const s of 'SHDC'){const cs=h.filter(c=>tqSu(c)===s);if(cs.length)out.push(cs.reduce((a,b)=>tqRv(b)<tqRv(a)?b:a))}
   const other=out.filter(c=>tqSu(c)!==g.stop);return other.length?other:out}
 function tqLead(g,pid,c){if(!g||g.phase!=='play'||g.lead!==pid||!tqLeads(g,pid).includes(c))return false;tqPlayCard(g,pid,c);return true}
-function tqPlayCard(g,pid,c){g.h[pid]=g.h[pid].filter(x=>x!==c);g.run.push(c);if(g.run.length>8)g.run=g.run.slice(-8);g.last=pid;g.lead=null;g.n++;g.at=Date.now();
+const TQPAYK={AH:'A',KH:'K',QH:'Q',JH:'J',TH:'T'};
+function tqPayOnPlay(g,pid,c){if(!TPX().payPlay)return;g.played=g.played||{};const P=(g.played[pid]=g.played[pid]||[]);P.push(c);const H=tpH(g.r),got=[];
+  const pen=k=>{try{return tpState().hands[g.r].pens[k]}catch(e){return 0}};
+  if(TQPAYK[c]&&!H.pens[TQPAYK[c]]){H.pens[TQPAYK[c]]=pid;got.push([TQPAYK[c]])}
+  if((c==='KH'||c==='QH')&&P.includes('KH')&&P.includes('QH')&&!H.pens.KQ){H.pens.KQ=pid;got.push(['KQ'])}
+  if('89T'.includes(c[0])&&['8','9','T'].every(k=>P.includes(k+c[1]))){const t=H.pens.T89||[];if(!t.includes(pid)){H.pens.T89=t.concat(pid);got.push(['T89'])}}
+  if(got.length){const L=got.map(([k])=>({A:'the Ace ♥',K:'the King ♥',Q:'the Queen ♥',J:'the Jack ♥',T:'the 10 ♥',KQ:'the King-Queen ♥',T89:'the 8-9-10'}[k]));
+    const tot=got.reduce((a,[k])=>a+(+pen(k)||0),0);g.pay={pid,txt:`${nmid(pid)} got ${L.length>1?L.slice(0,-1).join(', ')+' and '+L[L.length-1]:L[0]}!`,v:tot,at:Date.now(),n:g.n+1};pst('tqpay',pid,got.length)}}
+function tqPlayCard(g,pid,c){g.h[pid]=g.h[pid].filter(x=>x!==c);g.run.push(c);if(g.run.length>8)g.run=g.run.slice(-8);g.last=pid;g.lead=null;g.n++;g.at=Date.now();tqPayOnPlay(g,pid,c);
   if(!g.h[pid].length){tqEnd(g,pid);return}
   /* who has the next card up? */
   const r=tqRv(c);if(r===14){g.stop=tqSu(c);g.lead=pid;g.msg=`${nmid(pid)} played the Ace. ${nmid(pid)} leads again.`;return}
@@ -9926,7 +9940,7 @@ function tqBotLead(g,q){const L=tqLeads(g,q.id),h=g.h[q.id];if(q.bot==='easy')re
   /* lead the suit where I hold the longest run of cards in a row from the bottom, so I keep playing */
   let best=null;L.forEach(c=>{let run=0,r=tqRv(c);while(h.includes(TQR[r-2]+tqSu(c))){run++;r++}const sc=run*10+h.filter(x=>tqSu(x)===tqSu(c)).length;if(!best||sc>best.sc)best={c,sc}});return tqLead(g,q.id,best.c)}
 /* ---------------- this phone ---------------- */
-let TQSEL=null,TQVIEW=null,TQBOTT=null,TQBOTK='';
+let TQSEL=null,TQVIEW=null,TQBOTT=null,TQBOTK='',TQPAYT=null;
 const tqMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
 const tqHumans=()=>act().filter(p=>!p.bot);
 function tqViewer(){const g=tqG();if(!g)return null;if(S.lk&&!S.demo)return tqMe();const H=tqHumans();if(H.length===1)return H[0];if(!H.length)return null;const t=act().find(p=>p.id===tqActor(g));return t&&!t.bot&&TQVIEW===t.id?t:null}
@@ -9978,6 +9992,7 @@ function tqPlayUI(){if(!tqRes()&&S.tqg&&S.tqg.r!==S.hr)S.hr=S.tqg.r;/* hr isn't 
       else{b.push(`<button class="btn" data-a="tqpbet" data-k="fold">Fold</button>`,`<button class="btn primary" data-a="tqpbet" data-k="call">Call ${toCall}</button>`);if(!k.raised[V.id])[1,2,5].forEach(n=>b.push(`<button class="btn" data-a="tqpbet" data-k="raise" data-v="${n}">Raise ${n*A}</button>`))}
       out+=`<div class="actions"><div class="in tqbets">${b.join('')}</div></div>`}}
   else if(!S.lk&&tqHumans().length>1&&ph!=='done')out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
+  if(g.pay&&Date.now()-g.pay.at<3200){const p=P.find(q=>q.id===g.pay.pid);out+=`<div class="tqpaybn" style="${p?pc(p.color):''};--o:${-(Date.now()-g.pay.at)}ms" role="status" aria-live="polite"><b>💰 ${esc(g.pay.txt)}</b>${g.pay.v?`<span class="num">+${g.pay.v} chips</span>`:''}</div>`;if(!TQPAYT)TQPAYT=setTimeout(()=>{TQPAYT=null;render()},3300-(Date.now()-g.pay.at))}
   if(WARN)out+=`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
     <div class="sheet-btns"><button class="btn" data-a="warnclose">Go back and check</button><button class="btn primary" data-a="revstart">Reveal anyway</button></div></div></div>`;
   const a=tqNeedHandoff();if(a)out+=`<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="tqp-h" style="${pc(a.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="tqp-h">${esc(nm(a))}</h2><p class="rlab">It’s your turn. Everyone else, look away.</p><button class="btn primary wide" data-a="tqpshow" data-k="${a.id}">I’m ${esc(nm(a))}, show my cards</button></div></div>`;
