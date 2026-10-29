@@ -1215,6 +1215,12 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .hosort .btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .hofan .htc{touch-action:none;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
 .fchand .htc{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}.fchand .hodrag{touch-action:none;cursor:grab}
+.htpfx{position:fixed;inset:0;z-index:70;pointer-events:none;display:grid;place-items:center}.htpfx .gpc{width:46px;height:66px;border-radius:7px;border:2px solid #f0b43a;box-shadow:0 4px 10px rgba(0,0,0,.3);display:inline-block;margin:0 -10px}
+.htpout,.htpin{position:absolute;bottom:22%;display:flex}.htpout{animation:htpo .8s ease-in forwards}.htpin{opacity:0;animation:htpi .8s ease-out .75s forwards}
+.htpout.o-l{--tx:-120vw;--ty:0}.htpout.o-r{--tx:120vw;--ty:0}.htpout.o-u{--tx:0;--ty:-80vh}.htpin.i-l{--tx:-120vw;--ty:0}.htpin.i-r{--tx:120vw;--ty:0}.htpin.i-u{--tx:0;--ty:-80vh}
+@keyframes htpo{from{transform:none}to{transform:translate(var(--tx),var(--ty)) rotate(-12deg)}}@keyframes htpi{from{opacity:1;transform:translate(var(--tx),var(--ty)) rotate(12deg)}to{opacity:1;transform:none}}
+.htplab{position:absolute;top:38%;font-size:22px;background:var(--surface);padding:6px 14px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.2);animation:tqann 1.6s ease both}
+.htc.htnew{box-shadow:0 0 0 3px #f0b43a,0 0 14px 2px rgba(240,180,58,.8)!important;z-index:2}
 .hofan .htc.dropb,.fchand .hodrag.dropb{box-shadow:-5px 0 0 0 var(--accent)!important}.hofan .htc.dropa,.fchand .hodrag.dropa{box-shadow:5px 0 0 0 var(--accent)!important}
 .fchand .hoover{outline:3px dashed var(--accent);outline-offset:2px}
 .fchand .honew{display:none;align-items:center;justify-content:center;min-width:90px;min-height:70px;border:2px dashed var(--line);border-radius:12px;color:var(--muted);font-size:12px;font-weight:700;padding:6px;text-align:center}
@@ -4867,6 +4873,16 @@ const ho2=()=>SET.ho2==='on'?true:SET.ho2==='off'?false:innerWidth<600;
 function hoBar(o={}){const L=hoSorts();if(!L.length)return '';const p=hoPref()||L[0][0];
   return `<div class="hosort"><span class="rlab">Sort:</span>${L.map(([v,l])=>`<button class="btn sm" data-a="hosort" data-v="${v}" aria-pressed="${p===v}">${l}</button>`).join('')}${o.rows?`<button class="btn sm" data-a="ho2row" aria-pressed="${ho2()}" aria-label="Two rows">▤ 2 rows</button>`:''}<small class="rlab">Drag to move${o.piles?' or make a pile':''} · hold to zoom</small></div>`}
 /* after each render: the Sort bar and two rows for the fanned hands of the card-table games and UNO */
+/* Hearts: after the pass, three face-down cards slide out and three slide in; the cards you got stay lit up until your next tap */
+const HTPFX={},HTNEWOK={};let HTNEWT=null;
+function htPassFx(){const app=document.getElementById('app');if(!app||S.game!=='hearts'||S.screen!=='score'||!htPlayOn())return;const g=htG();if(!g||g.phase==='pass'||g.dir==='hold')return;
+  const V=htViewer();if(!V)return;const got=(g.got||{})[V.id]||[];if(!got.length||g.n>0)return;const key=(S.gameId||'')+':'+g.r+':'+V.id;if(HTNEWOK[key])return;
+  const mark=()=>app.querySelectorAll('.htc[data-c]').forEach(el=>{if(got.includes(el.dataset.c))el.classList.add('htnew')});mark();
+  if(!HTPFX[key]){HTPFX[key]=Date.now();const d=g.dir,out=d==='left'?'l':d==='right'?'r':'u',from=d==='left'?'r':d==='right'?'l':'u';
+    document.body.insertAdjacentHTML('beforeend',`<div class="htpfx" aria-hidden="true"><div class="htpout o-${out}">${'<span class="gpc gpback"></span>'.repeat(3)}</div><div class="htpin i-${from}">${'<span class="gpc gpback"></span>'.repeat(3)}</div><b class="htplab">Passing ${d==='across'?'across':d}…</b></div>`);
+    setTimeout(()=>{const x=document.querySelector('.htpfx');if(x)x.remove()},1700)}
+  else if(Date.now()-HTPFX[key]<1700&&!app.querySelector('.htpfx')){/* redrawn mid-animation: leave it be */}
+  if(!HTNEWT){HTNEWT=1;setTimeout(()=>{const off=e=>{if(e.target.closest&&e.target.closest('.htpfx'))return;HTNEWOK[key]=1;document.querySelectorAll('.htnew').forEach(x=>x.classList.remove('htnew'));document.removeEventListener('pointerdown',off,true);HTNEWT=null};document.addEventListener('pointerdown',off,true)},1200)}}
 function hoAfter(){const app=document.getElementById('app');if(!app||S.screen!=='score')return;
   const G=S.game;if(!['hearts','spades','ohell','rook','rage','uno'].includes(G))return;
   let el=app.querySelector('.unhands[aria-label="Your cards"]')||app.querySelector('.hthand[aria-label="Your cards"]');if(!el||el.dataset.ho)return;
@@ -11904,7 +11920,7 @@ function render(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){try{glTick()}catch(e){}if(S.game==='hearts')htTick();if(S.game==='mextrain')mtTick();if(S.game==='chicken')cfTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
+  tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}try{htPassFx()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){try{glTick()}catch(e){}if(S.game==='hearts')htTick();if(S.game==='mextrain')mtTick();if(S.game==='chicken')cfTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
