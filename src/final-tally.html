@@ -1649,7 +1649,7 @@ const glWord=()=>S.game==='golf'?'Hole':['quacks','mextrain','chicken','crowns',
 function gLog(g,t,ic,key){if(!g)return;const L=(g.lg=g.lg||[]);if(L.length&&L[L.length-1].t===t)return;L.push({t,ic:ic||'',k:key?1:0});if(L.length>80)L.splice(0,L.length-80)}
 function gAnn(g,t,sub,ic,ms){if(!g)return;g.ann={t,sub:sub||'',ic:ic||'',at:Date.now(),k:(g.ann?g.ann.k:0)+1,ms:ms||0}}
 /* several cards in a row: the host moves to the next when one has had its time */
-function gAnnQ(g,list,ms){if(!g||!list.length)return;const [a,...rest]=list;gAnn(g,a[0],a[1],a[2],ms);g.annq=rest.map(x=>[x[0],x[1],x[2],ms])}
+function gAnnQ(g,list,ms){if(!g||!list.length)return;const [a,...rest]=list;gAnn(g,a[0],a[1],a[2],a[3]||ms);g.annq=rest.map(x=>[x[0],x[1],x[2],x[3]||ms])}
 const gAnnBusy=g=>!!g&&(!!(g.annq&&g.annq.length)||!!g.ann&&Date.now()-g.ann.at<(g.ann.ms||GLMS)*(window.__htfast?.3:1));let GLQT=null;
 const cdTxt=c=>{if(!c)return '';c=String(c).split('#')[0];const r=c.slice(0,-1),u=c.slice(-1);return ({T:'10'}[r]||r)+({S:'♠',H:'♥',D:'♦',C:'♣'}[u]||u)};
 const glGpStart=g=>{const W=glWord();gAnn(g,`${W} ${g.r+1}`,S.game==='golf'&&!GFX().startFlip?'Here we go!':'Everyone flips cards to start.',S.game==='golf'?'⛳':S.game==='gnome'?'🍄':'🃏');gLog(g,`${nmid(g.dealer)} dealt`,'🃏')};
@@ -8316,7 +8316,9 @@ function qpRoundSetup(g){const r=g.r;
 function qpBrewStart(g){const id=qkCid(g.r),rats=qkRats(g.r)||[];g.ps.forEach(pid=>{const L=g.pl[pid],p=act().find(q=>q.id===pid),x=p&&rats.find(y=>y.p===p);L.rat=x?x.n:0;L.start=Math.min(QKSPOON-2,L.drop+L.rat);if(L.rat)gLog(g,`${nmid(pid)} gets ${L.rat} rat tail${L.rat===1?'':'s'}`,'🐀');if(id==='luxury')L.lim=9;if(id==='filling'){L.drop++;L.start=Math.min(QKSPOON-2,L.start+1)}});g.phase='brew';
   const rt=g.ps.map(pid=>[pid,g.pl[pid].rat]).filter(x=>x[1]);
   g.ps.forEach(pid=>{const p=act().find(q=>q.id===pid);g.pl[pid].sf=!p||!!p.bot;g.pl[pid].sr=true});
-  gAnnQ(g,[['Rat tails',rt.length?rt.map(([pid,n])=>`${nmid(pid)} ${n} 🐀`).join(' · ')+'. They start that far ahead.':'Nobody is far enough behind for rat tails.','🐀'],['Start brewing!','Draw chips one at a time. Stop before the white chips go over the limit!','⚗️']],2200);g.cardAnn=null}
+  g.brewAnn=[['Rat tails',rt.length?rt.map(([pid,n])=>`${nmid(pid)} ${n} 🐀`).join(' · ')+'. They start that far ahead.':'Nobody is far enough behind for rat tails.','🐀',rt.length?5500:3500],['Start brewing!','Draw chips one at a time. Stop before the white chips go over the limit!','⚗️']];qpBrewAnn(g);g.cardAnn=null}
+/* the rat tails and start cards wait until every phone has tapped away its fortune card */
+function qpBrewAnn(g){if(!g.brewAnn||!g.ps.every(id=>(g.pl[id]||{}).sf!==false))return;const q=g.brewAnn;g.brewAnn=null;gAnnQ(g,q,2200)}
 function qpSetCard(g,id){if(!g||g.phase!=='card')return false;S.qkfc=S.qkfc||[];S.qkfc[g.r]=id||null;const c=qkCard(g.r);if(c){gLog(g,`Fortune: ${c[1]}`,'🔮');gAnn(g,c[1],c[2],'🔮')}qpBrewStart(g);return true}
 const qpLast=L=>L.pot.length?L.pot[L.pot.length-1]:null;
 const qpPos=L=>L.pot.length?L.pot[L.pot.length-1].at:L.start;
@@ -8346,7 +8348,7 @@ function qpAnswer(g,pid,v){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||!L.ask)
 /* the flask: put the white chip you just drew back in the bag */
 function qpFlask(g,pid){const L=g&&g.pl[pid],x=L&&qpLast(L);if(!L||g.phase!=='brew'||L.stop||L.ask||!L.flask||!x||qpK(x.c)!=='w')return false;L.pot.pop();L.ws-=qpV(x.c);L.bag.push(x.c);L.flask=false;g.n++;gLog(g,`${nmid(pid)} used their flask`,'🧪');return true}
 /* this player tapped away their fortune card ('sf') or their pot results card ('sr') */
-function qpSeen(g,pid,f){const L=g&&g.pl[pid];if(!L||!['sf','sr','sq'].includes(f))return false;if(f==='sq')L.sq=(L.sq||0)+1;else L[f]=true;g.n++;return true}
+function qpSeen(g,pid,f){const L=g&&g.pl[pid];if(!L||!['sf','sr','sq'].includes(f))return false;if(f==='sq')L.sq=(L.sq||0)+1;else L[f]=true;if(f==='sf')qpBrewAnn(g);g.n++;return true}
 function qpStop(g,pid){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||L.stop)return false;if(L.ask)qpAnswer(g,pid,'no');L.stop=true;L.ask=null;g.n++;return true}
 /* everyone done brewing: work out the scoring space and the book counts, roll the bonus die */
 /* the space a pot scores: the space after the last chip, plus the green book 3 push (whites exactly 7) */
