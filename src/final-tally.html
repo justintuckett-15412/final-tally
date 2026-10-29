@@ -1247,6 +1247,12 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .fcpile[data-mess] .htc{position:relative}
 .fcpile[data-mess] .htc::before,.fcpile[data-mess="2"] .htc::after{content:"";position:absolute;inset:-1.5px;border-radius:8px;background:#fffdf7;border:1.5px solid #c9c2b3;box-shadow:0 1px 3px rgba(0,0,0,.22);z-index:-1;transform:translate(var(--mx1),var(--my1)) rotate(var(--ma1));pointer-events:none}
 .fcpile[data-mess="2"] .htc::after{z-index:-2;transform:translate(var(--mx2),var(--my2)) rotate(var(--ma2))}
+.hpsh{display:flex;align-items:center;justify-content:space-between;gap:8px}.hpview{min-height:30px;padding:0 10px;font-size:13px}
+.pzlaid[data-hpside]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.hpmv{max-height:88vh;overflow:auto}.hpmvl{display:grid;gap:10px;margin:8px 0}
+.hpmvr{border:1px solid var(--line);border-radius:12px;padding:8px;display:grid;gap:6px;background:var(--surface)}
+.hpmvr.hpbk{display:grid}.hpmvt{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.hpmvt b{font-size:16px}.hpmvt small{color:var(--muted);font-size:12.5px;text-transform:none}
+.hpmvc{display:flex;flex-wrap:wrap;gap:4px}.hpmvc .htc{--cw:44px}
 </style>
 
 <div id="app"></div>
@@ -1539,6 +1545,12 @@ function pairRows(sl,arr){if(!Array.isArray(arr))return arr;const A=sl.map((p,i)
 function pileMess(n){if(!(n>1))return '';const r=k=>{const x=Math.sin(n*12.9898+k*78.233)*43758.5453;return x-Math.floor(x)},sg=k=>r(k)<.5?-1:1;
   const a1=sg(1)*(4+r(2)*6),a2=sg(3)*(3+r(4)*7),x1=sg(5)*(2+r(6)*4),y1=sg(7)*(1+r(8)*3),x2=sg(9)*(2+r(10)*5),y2=sg(11)*(1+r(12)*3);
   return `data-mess="${n>2?2:1}" style="--ma1:${a1.toFixed(1)}deg;--ma2:${a2.toFixed(1)}deg;--mx1:${x1.toFixed(1)}px;--my1:${y1.toFixed(1)}px;--mx2:${x2.toFixed(1)}px;--my2:${y2.toFixed(1)}px"`}
+/* Hand and Foot: press and hold a side's melds to see them all, big */
+let HPMVAT=0,HPLP=null;
+document.addEventListener('pointerdown',e=>{if(!e.target.closest)return;const p=e.target.closest('.pzlaid[data-hpside]');if(!p||e.target.closest('[data-a="hppadd"],button'))return;const x=e.clientX,y=e.clientY;clearTimeout(HPLP&&HPLP.t);
+  HPLP={x,y,t:setTimeout(()=>{HPLP=null;HPMV=p.dataset.hpside;HPMVAT=Date.now();vibe(15);render()},480)}},{passive:true});
+document.addEventListener('pointermove',e=>{if(HPLP&&Math.hypot(e.clientX-HPLP.x,e.clientY-HPLP.y)>10){clearTimeout(HPLP.t);HPLP=null}},{passive:true});
+['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,()=>{if(HPLP){clearTimeout(HPLP.t);HPLP=null}}));
 const startLbl=()=>playingOn()?(S.started?'Back to the game':'Start playing'):(S.started?'Back to scoring':'Start scoring');
 function steps(n){const L=S.game==='rook'?['House rules','Teams']:S.game==='yahtzee'||S.game==='mextrain'?['House rules','Players']:S.game==='carc'?['Edition','Expansions','Players']:HFE()?['House rules',HX().teams?'Teams':'Players']:S.game==='nerts'||S.game==='hearts'||S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='skyjo'||S.game==='wingspan'||S.game==='wyrmspan'||S.game==='phase10'||S.game==='rook'||S.game==='yahtzee'||S.game==='mextrain'||S.game==='catan'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?['House rules','Players']:S.game==='spades'?['House rules',SDX().teams?'Teams':'Players']:S.game==='skipbo'?['House rules',SBX().teams?'Teams':'Players']:S.game==='pad'||S.game==='darts'?['Game','Players']:S.game==='pool'?['Game',PLM().teams?'Teams':'Players']:['Map','Rules','Players'];return `<div class="steps" aria-label="Step ${n} of ${L.length}">${L.map((t,i)=>`<span class="${i+1===n?'cur':i+1<n?'done':''}">${t}</span>`).join('')}</div>`}
 function ttrHomeCard(TS,TM){return `<div class="game">
@@ -9458,7 +9470,7 @@ function hpBotPlan(g,pid,lv){const side=hpSide(g,pid),h=g.h[pid].slice(),M=g.mel
   if(lv!=='easy')for(let i=0;i<M.length&&wild.length;i++){const m={c:M[i].c.concat(adds.filter(a=>a.m===i).flatMap(a=>a.cs))};if(hpBook(m))continue;const need=7-m.c.length;if(need<=wild.length||lv==='hard'&&hpNat(m.c).length>=4){const ws=wild.slice(0,Math.max(1,Math.min(need,wild.length)));if(hpCanAdd(m,ws)&&take(ws.length)){adds.push({m:i,cs:ws});wild=wild.slice(ws.length)}}}
   return {news,adds}}
 /* ---------------- who is looking at this phone ---------------- */
-let HPSEL=[],HPVIEW=null,HPBOTT=null,HPSTAGE={};
+let HPSEL=[],HPVIEW=null,HPBOTT=null,HPSTAGE={},HPMV=null;
 const hpMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
 const hpHumans=()=>act().filter(p=>!p.bot);
 function hpViewer(){const g=hpG();if(!g)return null;if(S.lk&&!S.demo)return hpMe();const H=hpHumans();if(H.length===1)return H[0];if(!H.length)return null;const t=act().find(p=>p.id===g.turn);return t&&!t.bot&&HPVIEW===t.id?t:null}
@@ -9474,7 +9486,9 @@ function hpCardEl(c,o={}){const tag=o.btn?'button':'span',attr=o.btn?` data-a="h
   return `<${tag} class="${cls}${hpRed(c)?' red':''}${w?' hpw':''}${hp3(c)?' hp3':''}"${attr} aria-label="${hpName(c)}${w?', wild':''}${o.sel?', picked':''}"><b${r==='T'?' class="ten"':''}>${hpLab(c)}</b><i>${HPSU[hpSu(c)]}</i><em>${HPSU[hpSu(c)]}</em>${w?'<small>WILD</small>':''}</${tag}>`}
 const hpBackEl=()=>`<span class="htc pzc pzback" aria-hidden="true"></span>`;
 const hpGrpHtml=(cs,o={})=>`<div class="fcgrp${o.cls?' '+o.cls:''}"${o.attr||''}${o.pile!==undefined?` data-pile="${o.pile}"`:''}>${o.lab?`<small class="fcgl">${o.lab}</small>`:''}<div class="fcgc">${cs.map(c=>hpCardEl(c,{mini:o.mini,btn:o.btn,sel:o.sel&&o.sel.includes(c),cls:(o.got&&o.got.includes(c)?'new':'')+(o.drag?' hodrag':'')})).join('')}</div>${o.x!==undefined?`<button class="fcgx" data-a="hppunstage" data-i="${o.x}" aria-label="Take these cards back">✕</button>`:''}</div>`;
-const hpMeldShow=m=>{const N=hpNat(m.c),W=m.c.filter(hpWild);return N.concat(W)};
+/* the card on top of a meld is never a wild: a clean book is topped with a red card, a dirty book with a black one */
+const hpTopCard=m=>{const N=hpNat(m.c),k=hpKind(m);if(!N.length)return m.c[m.c.length-1];const want=k==='clean'?N.filter(hpRed):k==='dirty'?N.filter(c=>!hpRed(c)):[];return want.length?want[want.length-1]:N[N.length-1]};
+const hpMeldShow=m=>{const t=hpTopCard(m),N=hpNat(m.c).filter(c=>c!==t),W=m.c.filter(c=>hpWild(c)&&c!==t);return W.concat(N,[t])};
 function hpPlayUI(){if(!hpRes()&&S.hpg&&S.hpg.r!==S.hr)S.hr=S.hpg.r;const X=HX(),P=act(),g=hpG(),r=hfCur(),sc=P.map(hfTot);
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Round ${r+1}">#${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,i)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&g.phase==='play'&&g.turn===q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}</div><div class="ts num">${fmtN(sc[i])}</div><div class="tr num">${g&&g.inF?(g.inF[q.id]?'in foot':'in hand'):''}</div></button>`).join('')}</div>`;
@@ -9495,9 +9509,9 @@ function hpPlayUI(){if(!hpRes()&&S.hpg&&S.hpg.r!==S.hr)S.hr=S.hpg.r;const X=HX()
   /* the melds on the table, by side */
   const sides=[...new Set(g.ps.map(id=>g.tm[id]))],sel1=mine&&g.drew&&down?HPSEL:[];
   const sideName=sd=>{const ms=hpMates(g,sd);return ms.map(nmid).join(' & ')};
-  const meldP=sd=>{const M=g.melds[sd]||[],ours=sd===side;return `<div class="panel pzlaid${ours?' hpours':''}"><b class="rlab">${ours?'Your side':esc(sideName(sd))}${g.down[sd]?'':' · not down yet'}</b>${M.length?`<div class="hpmelds">${M.map((m,i)=>[m,i]).sort((a,b)=>{const ra=hpMeldRank(a[0].c),rb=hpMeldRank(b[0].c),va=ra==='W'?99:hpRV(ra),vb=rb==='W'?99:hpRV(rb);return va-vb||(hpBook(a[0])?1:0)-(hpBook(b[0])?1:0)}).map(([m,i])=>{const ok=ours&&sel1.length&&hpCanAdd(m,sel1),k=hpKind(m),N=hpNat(m.c),rk=hpMeldRank(m.c)==='W'?'Wild':hpLab(N[0]),wn=m.c.length-N.length;
+  const meldP=sd=>{const M=g.melds[sd]||[],ours=sd===side;return `<div class="panel pzlaid${ours?' hpours':''}" data-hpside="${esc(sd)}"><div class="hpsh"><b class="rlab">${ours?'Your side':esc(sideName(sd))}${g.down[sd]?'':' · not down yet'}</b>${M.length?`<button class="btn sm hpview" data-a="hppview" data-k="${esc(sd)}" aria-label="See all of ${ours?'your side’s':esc(sideName(sd))+'’s'} melds">🔍 See all</button>`:''}</div>${M.length?`<div class="hpmelds">${M.map((m,i)=>[m,i]).sort((a,b)=>{const ra=hpMeldRank(a[0].c),rb=hpMeldRank(b[0].c),va=ra==='W'?99:hpRV(ra),vb=rb==='W'?99:hpRV(rb);return va-vb||(hpBook(a[0])?1:0)-(hpBook(b[0])?1:0)}).map(([m,i])=>{const ok=ours&&sel1.length&&hpCanAdd(m,sel1),k=hpKind(m),N=hpNat(m.c),rk=hpMeldRank(m.c)==='W'?'Wild':hpLab(N[0]),wn=m.c.length-N.length;
     const attr=ok?` data-a="hppadd" data-i="${i}" role="button" tabindex="0" aria-label="Add the picked cards to the ${esc(rk)}s"`:'';
-    if(k)return `<div class="hpm hpbk hp-${k}${ok?' pzgo':''}"${attr}>${hpCardEl(N[0]||m.c[0],{mini:true})}<span><b>${esc(rk)}s ×${m.c.length}</b><small>${k} book</small></span></div>`;
+    if(k)return `<div class="hpm hpbk hp-${k}${ok?' pzgo':''}"${attr}>${hpCardEl(hpTopCard(m),{mini:true})}<span><b>${esc(rk)}s ×${m.c.length}</b><small>${k} book</small></span></div>`;
     return `<div class="hpm${ok?' pzgo':''}"${attr}><div class="hpfan">${hpMeldShow(m).map(c=>hpCardEl(c,{mini:true})).join('')}</div><small>${esc(rk)}s · ${m.c.length}${wn?` (${wn} wild)`:''}${7-m.c.length>0?` · ${7-m.c.length} to a book`:''}</small></div>`}).join('')}</div>`:'<p class="hint" style="margin:4px 0 0">No melds yet.</p>'}</div>`};
   const otherSides=sides.filter(sd=>sd!==side);out+=sides.filter(sd=>sd===side).map(meldP).join('');const others=otherSides.map(meldP).join('');
   if(g.phase==='done'){
@@ -9525,11 +9539,17 @@ function hpPlayUI(){if(!hpRes()&&S.hpg&&S.hpg.r!==S.hr)S.hr=S.hpg.r;const X=HX()
     if(tip)out+=`<p class="hint" style="text-align:center">${tip}</p>`}
   else if(!S.lk&&hpHumans().length>1&&g.phase==='play')out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
   out+=others;
+  if(HPMV&&g.melds[HPMV]){const sd=HPMV,M=g.melds[sd].map((m,i)=>m).sort((a,b)=>{const ra=hpMeldRank(a.c),rb=hpMeldRank(b.c),va=ra==='W'?99:hpRV(ra),vb=rb==='W'?99:hpRV(rb);return va-vb||(hpBook(a)?1:0)-(hpBook(b)?1:0)}),ours=sd===side;
+    const cl=M.filter(m=>hpKind(m)==='clean').length,dt=M.filter(m=>hpKind(m)==='dirty').length;
+    out+=`<div class="sheet-bg"><div class="sheet hpmv" role="dialog" aria-modal="true" aria-labelledby="hpmv-h"><h2 id="hpmv-h">${ours?'Your side':esc(sideName(sd))}</h2><p class="rlab">${cl} clean book${cl===1?'':'s'} · ${dt} dirty book${dt===1?'':'s'} · ${M.length-cl-dt} unfinished · ${M.reduce((a,m)=>a+m.c.length,0)} cards on the table</p>
+      <div class="hpmvl">${M.map(m=>{const k=hpKind(m),N=hpNat(m.c),rk=hpMeldRank(m.c)==='W'?'Wild':hpLab(N[0]),wn=m.c.length-N.length;return `<div class="hpmvr${k?' hpbk hp-'+k:''}"><div class="hpmvt"><b>${esc(rk)}s</b><small>${m.c.length} cards${wn?` · ${wn} wild`:''} · ${k?k+' book':`${7-m.c.length} to a book`} · ${hpMeldVal(m.c)} pts</small></div><div class="hpmvc">${hpMeldShow(m).map(c=>hpCardEl(c)).join('')}</div></div>`}).join('')}</div>
+      <div class="sheet-btns"><button class="btn primary" data-a="hppviewx">Close</button></div></div></div>`}
   if(WARN)out+=`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
     <div class="sheet-btns"><button class="btn" data-a="warnclose">Go back and check</button><button class="btn primary" data-a="revstart">Reveal anyway</button></div></div></div>`;
   const a=hpNeedHandoff();if(a)out+=`<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="hpp-h" style="${pc(a.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="hpp-h">${esc(nm(a))}</h2><p class="rlab">It’s your turn. Everyone else, look away.</p><button class="btn primary wide" data-a="hppshow" data-k="${a.id}">I’m ${esc(nm(a))}, show my cards</button></div></div>`;
   return out}
 function hpAct(a,b,k){const g=hpG();if(!g)return;
+  if(a==='hppview'){HPMV=k;return}if(a==='hppviewx'){if(Date.now()-HPMVAT<700)return;HPMV=null;return}
   if(a==='hppshow'){HPVIEW=k;HPSEL=[];return}
   if(a==='hppdeal'){if(!hpRes()||g.phase!=='done')return;S.hr=hfCur()+1;hpDeal(S.hr);window.scrollTo(0,0);return}
   const V=hpViewer();if(!V)return;
