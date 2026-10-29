@@ -1340,6 +1340,7 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .tqpkbar{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:8px 0 0}.tqpkbar .tqbest{margin:0}.tqhand .htc.sel{box-shadow:0 0 0 3px var(--accent);transform:translateY(-8px)}
 .tqhands{max-height:88vh;overflow:auto}.tqhrow{display:grid;gap:2px;padding:6px 0;border-top:1px solid var(--line)}.tqhrow small{color:var(--muted)}.tqhc{display:flex;gap:3px}.tqhc .htc{--cw:34px}
 .tqmine{pointer-events:auto}.tqpaid{text-align:center;border-top:6px solid var(--pc,var(--accent));border-radius:20px;margin:16px;display:grid;gap:6px;justify-items:center}.tqpaid h2{margin:0;font-size:24px}.tqpaid p{margin:0}.tqpaidnet{font-weight:800;font-size:16px}.tqpaidnet.up{color:#2e9d57}.tqpaidnet.down{color:#c8322b}
+.tqpast{border-top:1px solid var(--line);padding:6px 0}.tqpast summary{cursor:pointer;font-size:14px}.tqpast ul{margin:6px 0 4px;padding-left:18px;font-size:13.5px;display:grid;gap:3px}.tqnets{display:flex;flex-wrap:wrap;gap:6px}.tqnet{font-size:12.5px;font-weight:800;padding:2px 8px;border-radius:999px;border:1.5px solid var(--pc)}.tqnet.up{color:#2e9d57}.tqnet.down{color:#c8322b}
 </style>
 
 <div id="app"></div>
@@ -9989,6 +9990,7 @@ function tqShowdown(g){const k=g.pk,live=tqLive(g),H=tpH(g.r);H.bets={};g.ps.for
   else g.msg=`${nmid(w[0])} takes the pot; everyone else folded.`;
   H.pw=w.slice();w.forEach(id=>pst('tqpot',id));
   let pot=0;try{const ST=tpState(g.r),base=(ST.carry.pot||0)+TPX().ante*g.ps.length;pot=base+Object.values(k.in).reduce((a,b)=>a+b,0)}catch(e){}
+  H.pkcat=live.length>1?tqEval(F(w[0]))[0]:-1;
   g.pkres={w:w.slice(),cat:live.length>1?tqEval(F(w[0]))[0]:null,five:live.length>1?F(w[0]):[],pot,fold:live.length<=1};g.phase='pokerdone';g.at=Date.now();g.n++}
 function tqStartPlay(g){g.phase='play';g.lead=g.dealer;g.stop=null;g.run=[];g.last=null;g.msg=`${nmid(g.dealer)} leads: the lowest card of any suit.`;g.at=Date.now();tqAnnStep(g,'Rummy round',`${nmid(g.dealer)} leads. Watch for your next card!`,'🔢')}
 /* cards a leader may play: the lowest card they hold in each suit (another suit than the one that just stopped, if they can) */
@@ -10097,7 +10099,7 @@ function tqPlayUI(){if(!tqRes()&&S.tqg&&S.tqg.r!==S.hr)S.hr=S.tqg.r;/* hr isn't 
       b.push(`<small class="rlab tqav">You have ${av} chip${av===1?'':'s'} to bet</small>`)
       out+=`<div class="actions"><div class="in tqbets">${b.join('')}</div></div>`}}
   else if(!S.lk&&tqHumans().length>1&&ph!=='done')out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
-  out+=tqSummary(g,r,ST,h);
+  out+=tqSummary(g,r,ST,h)+tqPast(r,ST);
   if(TQHANDS){const ex=[['Straight flush','9S TS JS QS KS','5 in a row, all one suit'],['Four of a kind','7C 7D 7H 7S 2D','4 of the same rank'],['Full house','QH QS QC 4D 4S','3 of a kind plus a pair'],['Flush','2H 6H 9H JH KH','5 of one suit'],['Straight','5C 6D 7S 8H 9C','5 in a row, any suits (A-2-3-4-5 counts)'],['Three of a kind','8S 8H 8D KC 3S','3 of the same rank'],['Two pair','JC JD 5H 5S AC','two different pairs'],['One pair','TH TC 9S 6D 2C','2 of the same rank'],['High card','AS JD 8C 6H 3S','nothing else: highest card wins']];
     out+=`<div class="sheet-bg" data-a="tqphands"><div class="sheet tqhands" role="dialog" aria-modal="true" aria-labelledby="tqh-h" data-stop="1"><h2 id="tqh-h">Poker hands</h2><p class="rlab">Best at the top. Ties go to the higher cards.</p>${ex.map(([n,cs,d],i)=>`<div class="tqhrow"><b>${i+1}. ${n}</b><small>${d}</small><div class="tqhc">${cs.split(' ').map(c=>tqCardEl(c,{mini:true})).join('')}</div></div>`).join('')}<div class="sheet-btns"><button class="btn primary" data-a="tqphands">Close</button></div></div></div>`}
   /* each phone: what you paid (or won) when the hand ended, before the next hand is dealt */
@@ -10111,6 +10113,19 @@ function tqPlayUI(){if(!tqRes()&&S.tqg&&S.tqg.r!==S.hr)S.hr=S.tqg.r;/* hr isn't 
     <div class="sheet-btns"><button class="btn" data-a="warnclose">Go back and check</button><button class="btn primary" data-a="revstart">Reveal anyway</button></div></div></div>`;
   const a=tqNeedHandoff();if(a)out+=`<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="tqp-h" style="${pc(a.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="tqp-h">${esc(nm(a))}</h2><p class="rlab">It’s your turn. Everyone else, look away.</p><button class="btn primary wide" data-a="tqpshow" data-k="${a.id}">I’m ${esc(nm(a))}, show my cards</button></div></div>`;
   return out}
+/* earlier hands, newest first (the last one open); remember which ones you opened or closed */
+const TQPASTO={};document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('tqpast'))TQPASTO[+d.dataset.i]=d.open},true);
+function tqPast(r,ST){if(r<1)return '';const X=TPX(),P=act(),N=id=>esc(nmid(id)),items=[];
+  for(let i=r-1;i>=0;i--){const H=(S.tph||[])[i],h=ST.hands[i];if(!H||!h||h.skip)continue;const L=[],pen=k=>(h.pens||{})[k]||0;
+    if(H.out)L.push(`<b>${N(H.out)}</b> went out first: Kitty +${pen('kitty')}${X.perCard&&h.paid?`, plus ${Object.values(h.paid).reduce((a,b)=>a+b,0)} from cards left`:''}`);
+    if((H.pw||[]).length)L.push(`Poker: <b>${H.pw.map(N).join(' & ')}</b>${H.pkcat>=0&&H.pkcat!==undefined?' with '+esc(TQCAT[H.pkcat].toLowerCase()):H.pkcat===-1?' (everyone else folded)':''} +${h.pot||0}`);
+    const pays=[['A','A♥'],['K','K♥'],['Q','Q♥'],['J','J♥'],['T','10♥'],['KQ','K-Q♥']].filter(([k])=>H.pens&&H.pens[k]).map(([k,l])=>`${l} ${N(H.pens[k])}`);if((H.pens&&H.pens.T89||[]).length)pays.push(`8-9-10 ${H.pens.T89.map(N).join(' & ')}`);
+    L.push(pays.length?`Pays: ${pays.join(' · ')}`:'Pays: none collected');
+    if(H.ace&&H.ace.open&&Object.keys(H.ace.open).length)L.push('Ace bets: '+Object.keys(H.ace.open).map(x=>{const w=(H.ace.won||{})[x];return `A${TQSUIT[x]} ${w?N(w)+(h.apot&&h.apot[x]!==undefined?' +'+h.apot[x]:''):'carried over'}`}).join(' · '));
+    if(H.dh&&H.dh.b)L.push(`Dead hand: ${N(H.dh.b)} bought it for ${H.dh.n}`);else if(H.dsw)L.push(`Dead hand: ${N(H.dsw)} (dealer) swapped`);
+    const nets=P.filter(p=>!H.ps||H.ps.includes(p.id)).map(p=>{const v=(h.net||{})[p.id]||0;return `<span style="${pc(p.color)}" class="tqnet ${v>=0?'up':'down'}">${esc(nm(p))} ${v>0?'+':''}${v}</span>`}).join('');
+    const op=TQPASTO[i]!==undefined?TQPASTO[i]:i===r-1;items.push(`<details class="tqpast" data-i="${i}"${op?' open':''}><summary><b>Hand ${i+1}</b>${H.out?` · ${N(H.out)} went out`:''}</summary><ul>${L.map(x=>`<li>${x}</li>`).join('')}</ul><div class="tqnets">${nets}</div></details>`)}
+  return items.length?`<div class="panel tqsum tqpastw"><b class="rlab">Earlier hands</b>${items.join('')}</div>`:''}
 /* this hand so far: fills in as things happen */
 function tqSummary(g,r,ST,h){const H=tpH(r),X=TPX(),pen=k=>(h.pens||{})[k]||0,rows=[];const N=id=>esc(nmid(id));
   if(H.dh&&H.dh.b)rows.push(['Dead hand',`${N(H.dh.b)} bought it from ${N(H.dh.s)} for ${H.dh.n}`]);else if(H.dsw)rows.push(['Dead hand',`${N(H.dsw)} (the dealer) swapped for it`]);
@@ -12398,6 +12413,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='7d6dd7';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='a024a3';</script>
 </body>
 </html>
