@@ -7482,7 +7482,7 @@ function tpState(upto){const X=TPX(),P=act(),bal={},carry={},acarry={S:0,H:0,D:0
   const n=upto===undefined?tpN():upto;
   for(let r=0;r<n;r++){const H=(S.tph||[])[r];const inP=H&&Array.isArray(H.ps)?P.filter(p=>H.ps.includes(p.id)):P;/* players knocked out don't ante */const pens={};TPPENS.forEach(([k])=>pens[k]=carry[k]+X.ante*inP.length);
     if(!tpHas(H)){hands.push({r,pens,pot:pens.pot,net:{},skip:true});continue}
-    const net={};P.forEach(p=>net[p.id]=0);inP.forEach(p=>{net[p.id]=-X.ante*TPPENS.length;bal[p.id]-=X.ante*TPPENS.length});
+    const net={},paid={};P.forEach(p=>net[p.id]=0);inP.forEach(p=>{net[p.id]=-X.ante*TPPENS.length;bal[p.id]-=X.ante*TPPENS.length});
     const give=(pid,v)=>{if(!pid||!(pid in bal))return;bal[pid]+=v;net[pid]+=v};
     /* house rule: someone bought the dead hand; the seller (the dealer) gets the chips */
     if(H.dh&&H.dh.b&&H.dh.s&&H.dh.b!==H.dh.s&&+H.dh.n>0){give(H.dh.b,-(+H.dh.n));give(H.dh.s,+H.dh.n)}
@@ -7494,8 +7494,8 @@ function tpState(upto){const X=TPX(),P=act(),bal={},carry={},acarry={S:0,H:0,D:0
     const t=(H.pens.T89||[]).filter(id=>id in bal);if(t.length){const each=Math.floor(pens.T89/t.length);t.forEach(id=>give(id,each));after.T89=pens.T89-each*t.length}
     let pot=pens.pot;if(X.poker){P.forEach(p=>{const b=Math.max(0,+(H.bets||{})[p.id]||0);bal[p.id]-=b;net[p.id]-=b;pot+=b});const w=(H.pw||[]).filter(id=>id in bal);if(w.length){const each=Math.floor(pot/w.length);w.forEach(id=>give(id,each));after.pot=pot-each*w.length}else after.pot=pot}
     else after.pot=pens.pot;
-    if(H.out&&H.out in bal){give(H.out,pens.kitty);after.kitty=0;P.forEach(p=>{if(p.id===H.out)return;const c=Math.min(Math.max(0,+(H.left||{})[p.id]||0)*X.perCard,H.ps?Math.max(0,bal[p.id]):Infinity);/* playing on the phone: you can't pay more than you have */bal[p.id]-=c;net[p.id]-=c;give(H.out,c)})}
-    hands.push({r,pens,pot,after,net,apot});TPPENS.forEach(([k])=>carry[k]=after[k])}
+    if(H.out&&H.out in bal){give(H.out,pens.kitty);after.kitty=0;P.forEach(p=>{if(p.id===H.out)return;const c=Math.min(Math.max(0,+(H.left||{})[p.id]||0)*X.perCard,H.ps?Math.max(0,bal[p.id]):Infinity);/* playing on the phone: you can't pay more than you have */paid[p.id]=c;bal[p.id]-=c;net[p.id]-=c;give(H.out,c)})}
+    hands.push({r,pens,pot,after,net,apot,paid});TPPENS.forEach(([k])=>carry[k]=after[k])}
   return {bal,carry,hands,acarry}}
 const tpTot=p=>tpState().bal[p.id]??TPX().start;
 const tpNet=(p,r)=>((tpState().hands[r]||{}).net||{})[p.id]||0;
@@ -9981,7 +9981,10 @@ function tqNextCard(g,pid,c){if(!g||g.phase!=='play'||g.lead||!g.need||c!==g.nee
 /* time's up: the run stops and the last player leads another suit */
 function tqTimeUp(g){if(g.phase!=='play'||g.lead||!g.need)return false;const c=nrTop(g.run);g.need=null;g.stop=tqSu(c);g.lead=g.last;g.n++;g.at=Date.now();g.msg=`Nobody played the next ${TQSN[tqSu(c)].replace(/s$/,'')}. ${nmid(g.last)} leads another suit.`;return true}
 
-function tqEnd(g,w){const H=tpH(g.r);H.out=w;H.left={};g.ps.forEach(id=>{if(id!==w)H.left[id]=g.h[id].length});g.phase='done';g.lead=null;g.msg=`${nmid(w)} is out of cards and takes the Kitty!`;pst('tqout',w);S.hr=Math.max(S.hr||0,g.r)}
+function tqEnd(g,w){const H=tpH(g.r);H.out=w;H.left={};g.ps.forEach(id=>{if(id!==w)H.left[id]=g.h[id].length});g.phase='done';g.lead=null;g.msg=`${nmid(w)} is out of cards and takes the Kitty!`;
+  try{const h=tpState().hands[g.r]||{},paid=h.paid||{},X=TPX(),tot=Object.values(paid).reduce((a,b)=>a+b,0),kit=(h.pens||{}).kitty||0;
+    const who=g.ps.filter(id=>id!==w&&H.left[id]).map(id=>`${nmid(id)} ${paid[id]??H.left[id]*X.perCard}`).join(', ');
+    tqAnn(g,`${nmid(w)} went out!`,`Takes the Kitty (${kit})${X.perCard&&who?` and ${X.perCard} chip${X.perCard===1?'':'s'} per card left: ${who}`:''}. +${kit+tot} in all.`,'🎉')}catch(e){}pst('tqout',w);S.hr=Math.max(S.hr||0,g.r)}
 /* ---------------- computer players ---------------- */
 function tqBotPoker(g,q){const pid=q.id,k=g.pk,F5=tqFive(g.h[pid]),bet=(g,p,a,n)=>tqBet(g,p,a,n,F5)||tqBet(g,p,(g.pk.bet-(g.pk.in[p]||0))>0?'fold':'check',0,F5),v=tqEval(g.h[pid]),cat=v[0],lv=q.bot,toCall=k.bet-(k.in[pid]||0),bal=tqBal(pid),A=TPX().ante;
   let s=cat+(cat===1?(v[1]-8)/8:0)+(lv==='easy'?Math.random()*3-1:lv==='normal'?Math.random()-.5:0);
@@ -10079,7 +10082,8 @@ function tqSummary(g,r,ST,h){const H=tpH(r),X=TPX(),pen=k=>(h.pens||{})[k]||0,ro
   if(g.phase!=='done'&&(wait.length||!(H.pens.T89||[]).length))rows.push(['Still to collect',[...wait.map(x=>x[1]),...((H.pens.T89||[]).length?[]:['8-9-10'])].join(', ')]);
   else if(g.phase==='done'){const nc=[...wait.map(x=>x[1]),...((H.pens.T89||[]).length?[]:['8-9-10'])];if(nc.length)rows.push(['Not collected',`${nc.join(', ')} · carry over`])}
   if(X.poker){const R=g.pkres;rows.push(['Poker',R?`<b>${R.w.map(N).join(' & ')}</b> ${R.fold?'(everyone else folded)':'with '+esc(TQCAT[R.cat].toLowerCase())} +${R.w.length>1?Math.floor(R.pot/R.w.length)+' each':R.pot}`:g.phase==='poker'?'betting now…':'not yet'])}
-  rows.push(['Kitty',H.out?`<b>${N(H.out)}</b> went out first +${pen('kitty')}${X.perCard?' plus '+X.perCard+' a card left':''}`:'first out of cards takes it']);
+  rows.push(['Kitty',H.out?`<b>${N(H.out)}</b> went out first +${pen('kitty')}`:'first out of cards takes it']);
+  if(H.out&&X.perCard){const paid=h.paid||{};g.ps.filter(id=>id!==H.out).forEach(id=>{const n=(H.left||{})[id]||0;rows.push([`${N(id)} pays`,n?`${n} card${n===1?'':'s'} left → <b>${paid[id]??n*X.perCard}</b> to ${N(H.out)}${paid[id]!==undefined&&paid[id]<n*X.perCard?' (all they had)':''}`:'no cards left'])})}
   return `<div class="panel tqsum"><b class="rlab">Hand ${r+1}${g.phase==='done'?'':' so far'}</b>${rows.map(([a,b])=>`<div class="srow"><span class="rlab">${a}</span><span>${b}</span></div>`).join('')}</div>`}
 function tqAct(a,b,k){const g=tqG();if(!g)return;
   if(a==='tqphands'){TQHANDS=!TQHANDS;return}
