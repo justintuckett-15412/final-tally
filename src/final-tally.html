@@ -1280,6 +1280,9 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .nrcol{display:flex;flex-direction:column;align-items:center;border-radius:10px;padding:2px 0 6px;min-height:calc(clamp(50px,15vw,76px)*1.4)}.nrcol .htc+.htc{margin-top:calc(var(--cw)*-1.05)}
 .nrcol.go{background:color-mix(in srgb,var(--accent) 22%,transparent);box-shadow:0 0 0 2px var(--accent)}
 .nrbtns{display:flex;justify-content:center;margin-top:6px}
+.tqrun{display:flex}.tqrun .htc{--cw:clamp(40px,min(20cqh,11cqw),70px)}.tqrun .htc+.htc{margin-left:calc(var(--cw)*-.55)}.tqrun .htc.new{box-shadow:0 0 0 3px var(--accent)}
+.tqhand{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:8px 0}.tqhand .htc{--cw:clamp(40px,11vw,58px)}.tqhand .htc.ok{box-shadow:0 0 0 3px var(--accent);cursor:pointer;transform:translateY(-4px)}
+.tqhand .htc.tq5{box-shadow:0 0 0 3px #e3b71f;transform:translateY(-4px)}.tqbest{text-align:center;margin:8px 0 0}.tqbets{flex-wrap:wrap;gap:6px}
 </style>
 
 <div id="app"></div>
@@ -1543,7 +1546,7 @@ const padSC=()=>Math.max(1,Math.round(Math.max(1,...act().map(p=>Math.abs(total(
 const LOW=()=>S.game==='phase10'||S.game==='mextrain'||S.game==='uno'&&UNX().mode==='low'||S.game==='golf'||S.game==='skyjo'||S.game==='gnome'&&!gnRW()||S.game==='hearts'||S.game==='crowns'||S.game==='pad'&&!!(S.px||{}).low,RS=p=>S.game==='darts'?dRankKey(p):S.game==='phase10'?ptKey(p):LOW()?-total(p):total(p),RU=(n,p)=>LOW()?-upto(n,p):upto(n,p);
 const total=p=>S.game==='carc'?cTot(p):HFE()?hfTot(p):S.game==='nerts'?nxTot(p):S.game==='pad'?pxTot(p):S.game==='darts'?dTot(p):S.game==='pool'?plTot(p):S.game==='hearts'?htTot(p):S.game==='spades'?sdTot(p):S.game==='rage'?rgTot(p):S.game==='ohell'?ohTot(p):S.game==='uno'?unTot(p):S.game==='munchkin'?mkTot(p):S.game==='crowns'?fcTot(p):S.game==='skipbo'?sbTot(p):S.game==='gnome'?gnTot(p):S.game==='skyjo'?skTot(p):S.game==='wingspan'?wsTot(p):S.game==='wyrmspan'?wyTot(p):S.game==='phase10'?ptTot(p):S.game==='rook'?rkTot(p):S.game==='yahtzee'?yzTot(p):S.game==='mextrain'?mtTot(p):S.game==='catan'?ctTot(p):S.game==='golf'?gfTot(p):S.game==='tripoley'?tpTot(p):S.game==='quacks'?qkTot(p):hsPts(p)+routePts(p)+tkNet(p)+extrasPts(p)+bonusPts(p);
 
-function resetScores(){delete S.lkvote;delete S.pzg;delete S.hpg;delete S.nrg;delete S.ung;delete S.sbg;delete S.fcg;delete S.pst;delete S.lkq;delete S.lkqa;delete S.gpg;delete S.gpprev;delete S.rgrage;delete S.htg;delete S.sdg;delete S.ohg;delete S.rkg;delete S.rgg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
+function resetScores(){delete S.lkvote;delete S.pzg;delete S.hpg;delete S.nrg;delete S.tqg;delete S.ung;delete S.sbg;delete S.fcg;delete S.pst;delete S.lkq;delete S.lkqa;delete S.gpg;delete S.gpprev;delete S.rgrage;delete S.htg;delete S.sdg;delete S.ohg;delete S.rkg;delete S.rgg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
 let UNDO=[],KP='',RULESHEET=false;
 if(S.hideTotals===undefined)S.hideTotals=true;
 function setMap(k){
@@ -1559,7 +1562,7 @@ function setMap(k){
 const slots=()=>{if(S.game==='carc'||S.game==='nerts'||S.game==='pad'||S.game==='darts'||S.game==='pool'||S.game==='hearts'||S.game==='spades'||S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='skipbo'||S.game==='gnome'||S.game==='skyjo'||S.game==='wingspan'||S.game==='wyrmspan'||S.game==='phase10'||S.game==='rook'||S.game==='yahtzee'||S.game==='mextrain'||S.game==='catan'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks')while(S.players.length<8)S.players.push(newPlayer('',CARC_COLORS.find(c=>!S.players.some(p=>p.color===c))||'gray',false));return S.players.slice(0,Math.max(5,M().max))};
 
 /* ---------- screens ---------- */
-const playingOn=()=>{try{const g=S.game;return g==='hearts'&&htPlayOn()||g==='spades'&&sdPlayOn()||g==='ohell'&&ohPlayOn()||g==='rook'&&rkPlayOn()||g==='rage'&&rgPlayOn()||g==='uno'&&unPlayOn()||(g==='golf'||g==='skyjo'||g==='gnome')&&gpOn()||g==='skipbo'&&sbOn()||g==='crowns'&&fcOn()||g==='phase10'&&pzOn()||(g==='hf'||g==='canasta')&&hpOn()||g==='nerts'&&nrOn()||g==='yahtzee'&&yzRoller()}catch(e){return false}};
+const playingOn=()=>{try{const g=S.game;return g==='hearts'&&htPlayOn()||g==='spades'&&sdPlayOn()||g==='ohell'&&ohPlayOn()||g==='rook'&&rkPlayOn()||g==='rage'&&rgPlayOn()||g==='uno'&&unPlayOn()||(g==='golf'||g==='skyjo'||g==='gnome')&&gpOn()||g==='skipbo'&&sbOn()||g==='crowns'&&fcOn()||g==='phase10'&&pzOn()||(g==='hf'||g==='canasta')&&hpOn()||g==='nerts'&&nrOn()||g==='tripoley'&&tqOn()||g==='yahtzee'&&yzRoller()}catch(e){return false}};
 const pairOn=()=>{try{return HFE()&&hpOn()&&!!HX().teams||S.game==='rook'&&rkPlayOn()||S.game==='spades'&&sdPlayOn()&&!!SDX().teams}catch(e){return false}};
 /* players screen: show who is partnered with whom (seats are split in half: 1 & 3, 2 & 4, or 1 & 4, 2 & 5, 3 & 6) */
 function pairRows(sl,arr){if(!Array.isArray(arr))return arr;const A=sl.map((p,i)=>i).filter(i=>sl[i].on),n=A.length;
@@ -2196,7 +2199,7 @@ function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK||LKSWAP)return;if(lkHost()&&L
 /* "Your turn!" on a linked phone: a strong buzz, plus a notification if the app is in the background (and notifications are allowed) */
 let LKTURN=null;
 function lkTurnOwner(){if(!S.started||S.finished)return null;const P=act();if(!P.length)return null;
-  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='rage')return rgPlayOn()&&S.rgg?(S.rgg.phase==='bid'?(RGX().bidAll?null:S.rgg.bidTurn):S.rgg.phase==='play'?S.rgg.turn:null)||null:null;if(S.game==='skipbo')return sbOn()&&S.sbg&&S.sbg.phase==='play'?S.sbg.turn||null:null;if(S.game==='crowns')return fcOn()&&S.fcg&&S.fcg.phase==='play'?S.fcg.turn||null:null;if(S.game==='phase10')return pzOn()&&S.pzg&&S.pzg.phase==='play'?S.pzg.turn||null:null;if(HFE())return hpOn()&&S.hpg&&S.hpg.phase==='play'?S.hpg.turn||null:null;if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')return gpOn()&&S.gpg&&S.gpg.phase==='play'?S.gpg.turn||null:null;if(S.game==='uno')return unPlayOn()&&S.ung&&S.ung.phase==='play'?(S.ung.ask?S.ung.ask.p:S.ung.drawn?S.ung.drawn.p:S.ung.turn)||null:null;if(S.game==='rook')return rkPlayOn()&&S.rkg?(S.rkg.phase==='bid'?S.rkg.bidTurn:S.rkg.phase==='nest'?S.rkg.bidder:S.rkg.phase==='play'?S.rkg.turn:null)||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
+  if(S.game==='munchkin')return (mkTurnP()||{}).id||null;if(S.game==='hearts')return htPlayOn()&&S.htg&&S.htg.phase==='play'?S.htg.turn||null:null;if(S.game==='rage')return rgPlayOn()&&S.rgg?(S.rgg.phase==='bid'?(RGX().bidAll?null:S.rgg.bidTurn):S.rgg.phase==='play'?S.rgg.turn:null)||null:null;if(S.game==='skipbo')return sbOn()&&S.sbg&&S.sbg.phase==='play'?S.sbg.turn||null:null;if(S.game==='crowns')return fcOn()&&S.fcg&&S.fcg.phase==='play'?S.fcg.turn||null:null;if(S.game==='phase10')return pzOn()&&S.pzg&&S.pzg.phase==='play'?S.pzg.turn||null:null;if(S.game==='tripoley')return tqOn()&&S.tqg?tqActor(S.tqg)||null:null;if(HFE())return hpOn()&&S.hpg&&S.hpg.phase==='play'?S.hpg.turn||null:null;if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')return gpOn()&&S.gpg&&S.gpg.phase==='play'?S.gpg.turn||null:null;if(S.game==='uno')return unPlayOn()&&S.ung&&S.ung.phase==='play'?(S.ung.ask?S.ung.ask.p:S.ung.drawn?S.ung.drawn.p:S.ung.turn)||null:null;if(S.game==='rook')return rkPlayOn()&&S.rkg?(S.rkg.phase==='bid'?S.rkg.bidTurn:S.rkg.phase==='nest'?S.rkg.bidder:S.rkg.phase==='play'?S.rkg.turn:null)||null:null;if(S.game==='ohell')return ohPlayOn()&&S.ohg?(S.ohg.phase==='bid'?S.ohg.bidTurn:S.ohg.phase==='play'?S.ohg.turn:null)||null:null;if(S.game==='spades')return sdPlayOn()&&S.sdg?(S.sdg.phase==='bid'?S.sdg.bidTurn:S.sdg.phase==='play'?S.sdg.turn:null)||null:null;if(S.game==='yahtzee')return yzShared()&&!yzDone()?(yzTurnP()||{}).id||null:null;if(S.game==='catan')return (P[(S.cta||0)%P.length]||{}).id||null;
   if(S.rules&&S.rules.live||S.game==='carc')return S.turnId||null;return null}
 function lkTurnCheck(){const o=lkTurnOwner(),was=LKTURN;LKTURN=o;if(!o||o===was||!S.lk||o!==S.lk.me||was===null)return;
   vibe([250,120,250,120,400]);toast('Your turn!');
@@ -3950,11 +3953,11 @@ function nxPlayers(){const m=M(),n=act().length,sl=S.players.slice(0,8);
   const rows=sl.map((p,i)=>`<div class="prow ${p.on?'':'off'}">
     <button class="swatch" style="background:var(--t-${p.color});${pc(p.color)}" data-a="colpick" data-i="${i}" aria-expanded="${COLPICK===i}" aria-label="Color ${CNAME[p.color]}, tap to choose a color"></button>
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="Player ${i+1}" aria-label="Player ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
-    ${(S.game==='yahtzee'&&yzRoller()||S.game==='hearts'&&htPlayOn()||S.game==='spades'&&sdPlayOn()||S.game==='ohell'&&ohPlayOn()||S.game==='rook'&&rkPlayOn()||S.game==='rage'&&rgPlayOn()||S.game==='uno'&&unPlayOn()||(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')&&gpOn()||S.game==='skipbo'&&sbOn()||S.game==='crowns'&&fcOn()||S.game==='phase10'&&pzOn()||S.game==='nerts'&&nrOn())&&(!S.lk||lkHost()&&!S.started)&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`${botHead(p,1)}<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
+    ${(S.game==='yahtzee'&&yzRoller()||S.game==='hearts'&&htPlayOn()||S.game==='spades'&&sdPlayOn()||S.game==='ohell'&&ohPlayOn()||S.game==='rook'&&rkPlayOn()||S.game==='rage'&&rgPlayOn()||S.game==='uno'&&unPlayOn()||(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')&&gpOn()||S.game==='skipbo'&&sbOn()||S.game==='crowns'&&fcOn()||S.game==='phase10'&&pzOn()||S.game==='nerts'&&nrOn()||S.game==='tripoley'&&tqOn())&&(!S.lk||lkHost()&&!S.started)&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`${botHead(p,1)}<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button></div>${COLPICK===i?colPicker(p,i):''}`);
   const fam=H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the seats.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="map">‹ House rules</button><h1>Players</h1><span class="sub num">${n}</span></div>${steps(2)}
-  ${fam}<div class="sec"><div class="panel">${pairRows(sl,rows)}</div><p class="hint">${S.game==='nerts'&&nrOn()?'2 to 8 players. One person per phone: make the others computer players, or link phones to race each other.'+(S.lk&&!lkHost()?'':' Tap 👤 to switch a seat between a person and a computer player: Easy, Normal or Hard.'):S.game==='gnome'&&gpOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='phase10'&&pzOn()?'2 to 6 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='crowns'&&fcOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='skipbo'&&sbOn()?'2 to 6 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):(S.game==='golf'||S.game==='skyjo')&&gpOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='uno'&&unPlayOn()?'2 to 10 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rage'&&rgPlayOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rook'&&rkPlayOn()?'4 or 6 players in teams of 2.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='ohell'&&ohPlayOn()?'2 to 7 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='hearts'?(htPlayOn()?(S.lk?'3 to 6 players.':'3 to 6 players; 4 is the classic game. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'3 to 7 players; 4 is the classic game.'):S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk||!yzRoller()?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':S.game==='spades'?(SDX().teams?'4 or 6 players in teams of 2.':'3 to 5 players, everyone alone.')+(S.lk?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
+  ${fam}<div class="sec"><div class="panel">${pairRows(sl,rows)}</div><p class="hint">${S.game==='tripoley'&&tqOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='nerts'&&nrOn()?'2 to 8 players. One person per phone: make the others computer players, or link phones to race each other.'+(S.lk&&!lkHost()?'':' Tap 👤 to switch a seat between a person and a computer player: Easy, Normal or Hard.'):S.game==='gnome'&&gpOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='phase10'&&pzOn()?'2 to 6 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='crowns'&&fcOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='skipbo'&&sbOn()?'2 to 6 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):(S.game==='golf'||S.game==='skyjo')&&gpOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='uno'&&unPlayOn()?'2 to 10 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rage'&&rgPlayOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rook'&&rkPlayOn()?'4 or 6 players in teams of 2.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='ohell'&&ohPlayOn()?'2 to 7 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='hearts'?(htPlayOn()?(S.lk?'3 to 6 players.':'3 to 6 players; 4 is the classic game. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'3 to 7 players; 4 is the classic game.'):S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk||!yzRoller()?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'?'2 to 8 players.':S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':S.game==='spades'?(SDX().teams?'4 or 6 players in teams of 2.':'3 to 5 players, everyone alone.')+(S.lk?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
   ${S.game==='quacks'?firstPicker():''}
   <div class="actions"><div class="in"><button class="btn primary" data-a="start">${startLbl()}</button></div></div>`}
 
@@ -4849,7 +4852,7 @@ function rxLayer(){const R=S.react||{},out=[];for(const pid in R){const x=R[pid]
     if(sn.at&&el<RXMS){const p=act().find(q=>q.id===pid);if(p)out.push(`<div class="rxpop" style="${pc(p.color)};animation-delay:-${el}ms;left:${18+(out.length*27)%64}%"><b>${esc(x.e)}</b><small>${esc(nm(p))}</small></div>`)}}
   return out.length?`<div class="rxlayer" aria-live="polite">${out.join('')}</div>`:''}
 /* reactions also work in a game on one device; computer players sometimes react to big moments */
-const RXGAME={hearts:()=>htPlayOn()&&S.htg,spades:()=>sdPlayOn()&&S.sdg,ohell:()=>ohPlayOn()&&S.ohg,rook:()=>rkPlayOn()&&S.rkg,rage:()=>rgPlayOn()&&S.rgg,uno:()=>unPlayOn()&&S.ung,golf:()=>gpOn()&&S.gpg,skyjo:()=>gpOn()&&S.gpg,gnome:()=>gpOn()&&S.gpg,skipbo:()=>sbOn()&&S.sbg,crowns:()=>fcOn()&&S.fcg,phase10:()=>pzOn()&&S.pzg,hf:()=>hpOn()&&S.hpg,canasta:()=>hpOn()&&S.hpg,nerts:()=>nrOn()&&S.nrg};
+const RXGAME={hearts:()=>htPlayOn()&&S.htg,spades:()=>sdPlayOn()&&S.sdg,ohell:()=>ohPlayOn()&&S.ohg,rook:()=>rkPlayOn()&&S.rkg,rage:()=>rgPlayOn()&&S.rgg,uno:()=>unPlayOn()&&S.ung,golf:()=>gpOn()&&S.gpg,skyjo:()=>gpOn()&&S.gpg,gnome:()=>gpOn()&&S.gpg,skipbo:()=>sbOn()&&S.sbg,crowns:()=>fcOn()&&S.fcg,phase10:()=>pzOn()&&S.pzg,hf:()=>hpOn()&&S.hpg,canasta:()=>hpOn()&&S.hpg,nerts:()=>nrOn()&&S.nrg,tripoley:()=>tqOn()&&S.tqg};
 const rxG=()=>{const f=RXGAME[S.game];try{return f?f()||null:null}catch(e){return null}};
 const rxLocalOn=()=>!S.lk&&!S.demo&&S.screen==='score'&&S.started&&!S.finished&&!!rxG();
 const rxMe=()=>S.lk?S.lk.me:((hoViewer()||act().find(p=>!p.bot)||{}).id||null);
@@ -5646,7 +5649,7 @@ function botHead(q,big){if(!q||!q.bot)return '';const lv=BOTLV[q.bot]?q.bot:'nor
   return `<svg class="bothead${big?' big':''}" viewBox="0 0 32 32" role="img" aria-label="Computer, ${lab}"><title>Computer, ${lab}</title><line x1="16" y1="3.5" x2="16" y2="8" stroke="${col}" stroke-width="2"/><circle cx="16" cy="3.4" r="2.2" fill="${col}"/><rect x="5" y="8" width="22" height="18" rx="6" fill="${col}" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/><rect x="2.2" y="14" width="3" height="6" rx="1.4" fill="${col}"/><rect x="26.8" y="14" width="3" height="6" rx="1.4" fill="${col}"/>${face}</svg>${big?'':' '}`}
 /* ---------- card backs: each phone picks its own; the games with art have their own default ---------- */
 const CBACKS={moto:['Motorcycle','art/card-back.jpg','#2b3a55','#f0b43a'],crown:['Crown','art/crowns-back.jpg','#4b2c7a','#e7b423'],gnome:['Golfing gnome','art/gnome-back.jpg','#2f5a35','#f0b43a'],witch:['Fortune teller','art/witch-back.jpg','#3b1f6e','#e7b423'],stripes:['Plain stripes','','#2b3a55','#f0b43a']};
-const CBG=['uno','hearts','spades','ohell','rook','rage','golf','skyjo','gnome','skipbo','crowns','phase10','hf','canasta'];
+const CBG=['uno','hearts','spades','ohell','rook','rage','golf','skyjo','gnome','skipbo','crowns','phase10','hf','canasta','tripoley'];
 const CBDEF={gnome:'gnome',crowns:'crown'};
 let CBOPEN=false;
 const cbFor=g=>{const c=SET.cbk||{},k=c[g]||c['*']||CBDEF[g]||'moto';return CBACKS[k]?k:'moto'};
@@ -7466,11 +7469,13 @@ function tpSetup(){const X=TPX();
   const sec=(t,body,hint)=>`<div class="sec"><div class="sec-h"><h3>${t}</h3></div><div class="panel hfpanel">${body}</div>${hint?`<p class="hint">${hint}</p>`:''}</div>`;
   return `<div class="bar"><h1>Tripoley</h1></div><img class="hero hfhero" src="art/tripoley-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">The app is the bank: no chips needed. Your house rules are remembered for next time. ${usualUI('tripoley')}</p>
+  ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([v,t])=>`<button data-a="tqplaymode" data-k="${v}" aria-pressed="${!!X.play===!!v}">${t}</button>`).join('')}</div>`,
+    S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals, pays the pens, runs the poker round and plays out the cards. Computer players, pass-and-play and linked phones all work.':'Play with real cards and tap who won each pen. The app is the bank.')}
   ${sec('Chips',row('Everyone starts with','chips',st('start',X.start,0,1000,10,'chips'))+row('Ante','per pen',st('ante',X.ante,1,10,1,'chips')),`Each hand costs ${X.ante*9} chips to play (${X.ante} on each of the 9 pens).`)}
   ${sec('Each hand',tg('poker','Poker round','Bet on your best 5 cards; the winner takes the Pot.')+row('Paying the winner','chips per card left',st('perCard',X.perCard,0,10,1,'chips')),'Pens nobody claims (like a card in the dead hand) carry over to the next hand.')}
   ${sec('How the game ends',seg('end',[['open','Until we stop'],['hands','Set hands']])+(X.end==='hands'?row('Hands','',st('hands',X.hands,1,40,1,'hands')):''),'Most chips wins.')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
-function tpScore(){const X=TPX(),P=act(),r=tpCur(),N=tpN(),H=tpH(r),ST=tpState(),h=ST.hands[r]||{pens:{}},last=X.end==='hands'&&r>=X.hands-1;
+function tpScore(){if(tqOn()&&S.started&&!S.demo)return tqPlayUI();const X=TPX(),P=act(),r=tpCur(),N=tpN(),H=tpH(r),ST=tpState(),h=ST.hands[r]||{pens:{}},last=X.end==='hands'&&r>=X.hands-1;
   const bal=P.map(p=>ST.bal[p.id]),hi=Math.max(...bal),lead=tpLast()>=0&&bal.filter(v=>v===hi).length===1?P[bal.indexOf(hi)]:null;
   const who=(a,k,sel,multi,none)=>`<div class="lr tpwho">${P.map(q=>`<button style="${pc(q.color)}" data-a="${a}" data-k="${k}" data-v="${q.id}" aria-pressed="${multi?(sel||[]).includes(q.id):sel===q.id}"><i></i>${esc(nm(q))}</button>`).join('')}${none?`<button data-a="${a}" data-k="${k}" data-v="" aria-pressed="${multi?!(sel||[]).length:!sel}" class="tpnone">${none}</button>`:''}</div>`;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1>Hand ${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button><button class="btn sm undo" data-a="undo" ${UNDO.length?'':'disabled'} aria-label="Undo">↶<span class="undo-w"> Undo</span></button></div>
@@ -7520,11 +7525,12 @@ function tpGuide(){const X=TPX(),n=act().length;
     [`${X.poker?3:2} · Play it out`,[['Start low','The dealer plays their lowest card in any suit. Whoever has the next card up in that suit plays it, and so on up to the Ace.'],
       ['Stops','When the next card is in the dead hand (or the Ace is played), the last player switches to the lowest card of another suit.'],
       ['Going out',`First to play all their cards takes the Kitty${X.perCard?` and ${X.perCard} chip${X.perCard===1?'':'s'} for every card left in each other hand`:''}.`]]],
-    ['Winning',[[X.end==='hands'?`After ${X.hands} hands`:'When you stop','Most chips wins. Chips left in pens stay there; the rulebook suggests a final hand of showdown poker to clear them.']]]])}
+    ['Winning',[[X.end==='hands'?`After ${X.hands} hands`:'When you stop','Most chips wins. Chips left in pens stay there; the rulebook suggests a final hand of showdown poker to clear them.']]],
+    X.play?['On the phone',[['Pay cards','The app finds who holds each pay card and pays those pens.'],X.poker?['Poker',`One betting round from the dealer’s left: check or bet ${X.ante}, ${2*X.ante} or ${5*X.ante}. Once someone bets: call, raise once, or fold. Your best 5 cards light up.`]:null,['Playing it out','When it’s your lead, the lowest card of each suit lights up: tap one. The next cards up play themselves.']].filter(Boolean)]:null].filter(Boolean))}
 function tpHomeCard(){const st=gamePeek('tripoley');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/tripoley-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart tpart&quot; aria-hidden=&quot;true&quot;>♥&#xFE0E;</div>'"><div><h2>Tripoley</h2><div class="meta">Card game · chips · the app is the bank</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="tripoley">Resume game</button><button class="btn" data-a="gnew" data-k="tripoley">New game</button><button class="btn" data-a="gabandon" data-k="tripoley" aria-label="Abandon this game">${ABANDON==='tripoley'?'Tap again to abandon':'🗑'}</button></div>`
-      :`<button class="btn primary wide" data-a="gnew" data-k="tripoley">Score a game</button>`}</div>`}
+      :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="tqstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="tqstart" data-k="0">Score a game</button></div>`}</div>`}
 const TPDEMOS=[{id:'tpfam',title:'Family night · Tripoley',tip:'Tap who claimed each pen, the poker bets and winner, then who went out first. The app moves the chips.',blurb:'Five players with 50 chips each. The King-Queen pen sits in the dead hand for three hands and grows, until Grandma finally collects it.'}];
 function tpDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=tpFresh();S.tpx={...TPDEF};S.demo=id;const P=S.players.slice(0,5);['Mom','Dad','Ben','Lily','Grandma'].forEach((n,i)=>P[i].name=n);const id_=i=>P[i].id;
   const mk=(pens,bets,pw,out,left)=>({pens:Object.fromEntries(Object.entries(pens).map(([k,v])=>[k,k==='T89'?v.map(id_):id_(v)])),bets:Object.fromEntries(bets.map((b,i)=>[id_(i),b])),pw:pw.map(id_),out:id_(out),left:Object.fromEntries(left.map((c,i)=>[id_(i),c]))});
@@ -8482,8 +8488,10 @@ function unModal(){const a=unNeedHandoff();if(!a)return '';const g=ung();return 
    The guest tries the move on a throwaway copy first, so it can say right away if the move isn't allowed. */
 let LKQN=0;
 const lkqOn=()=>lkGuest()&&!S.demo;
-const lkqKey=()=>{const g={uno:S.ung,golf:S.gpg,skyjo:S.gpg,gnome:S.gpg,hearts:S.htg,spades:S.sdg,ohell:S.ohg,rook:S.rkg,rage:S.rgg,skipbo:S.sbg,crowns:S.fcg,phase10:S.pzg,hf:S.hpg,canasta:S.hpg,nerts:S.nrg}[S.game];return S.game+':'+(g?g.r:'-')};
+const lkqKey=()=>{const g={uno:S.ung,golf:S.gpg,skyjo:S.gpg,gnome:S.gpg,hearts:S.htg,spades:S.sdg,ohell:S.ohg,rook:S.rkg,rage:S.rgg,skipbo:S.sbg,crowns:S.fcg,phase10:S.pzg,hf:S.hpg,canasta:S.hpg,nerts:S.nrg,tripoley:S.tqg}[S.game];return S.game+':'+(g?g.r:'-')};
 const LKQF={
+  tqBet:(pid,a,n)=>{const g=tqG();return !!g&&tqBet(g,pid,a,n)},
+  tqLead:(pid,c)=>{const g=tqG();return !!g&&tqLead(g,pid,c)},
   nrMove:(pid,f,t)=>{const g=nrG();return !!g&&nrMove(g,pid,f,t)},
   nrFlip:pid=>{const g=nrG();return !!g&&nrFlip(g,pid)},
   nrStuck:(pid,on)=>{const g=nrG();return !!g&&nrStuck(g,pid,on)},
@@ -9725,7 +9733,7 @@ function nrTick(){if(S.game!=='nerts'||!nrOn()||!S.started||S.finished||S.screen
 function nrCardEl(c,o={}){if(!c)return `<span class="htc nrc empty${o.cls?' '+o.cls:''}"${o.attr||''}></span>`;const r=c[0],own=act().find(p=>p.id===nrOwn(c));
   return `<span class="htc nrc${nrRed(c)?' red':''}${o.cls?' '+o.cls:''}" style="${own?pc(own.color):''}"${o.attr||''} aria-label="${nrName(c)}"><b${r==='T'?' class="ten"':''}>${r==='T'?'10':r}</b><i>${NRSU[c[1]]}</i><em>${NRSU[c[1]]}</em>${o.own?'<u class="nrown"></u>':''}</span>`}
 const nrBack=(pid,o={})=>{const own=act().find(p=>p.id===pid);return `<span class="htc nrc nrback${o.cls?' '+o.cls:''}" style="${own?pc(own.color):''}"${o.attr||''}></span>`};
-function nrPlayUI(){const X=NX(),P=act(),gReal=nrG(),r=nxCur();
+function nrPlayUI(){if(!nrRes()&&S.nrg&&S.nrg.r!==S.hr)S.hr=S.nrg.r;const X=NX(),P=act(),gReal=nrG(),r=nxCur();
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">#${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map(q=>{const m=gReal&&gReal.me&&gReal.me[q.id];return `<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}</div><div class="ts num">${nxTot(q)}</div><div class="tr num">${m?`Nerts ${m.n.length}`:''}</div></button>`}).join('')}</div>`;
   if(!gReal||nrStale(gReal)||gReal.r!==r)return out+`<div class="panel" style="padding:16px">${waitLoader(nrRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
@@ -9774,6 +9782,153 @@ function nrAct(a,b,k){const g=nrG();if(!g)return;
   if(a==='nrpdeal'){if(!nrRes()||g.phase!=='done')return;S.hr=nxCur()+1;NRSEL=null;window.scrollTo(0,0);return}
   const V=nrMe();if(!V)return;
   if(a==='nrpstuck'){const v=nrView();nrq('nrStuck',V.id,!v.stuck[V.id]);return}}
+
+
+/* ================= Tripoley on the phone =================
+   The deck goes out one card at a time to everyone plus a dead hand. Then:
+   1 · Pay cards: the app finds who holds the A, K, Q, J, 10 of hearts, the K-Q of hearts and any 8-9-10 of one suit, and pays those pens.
+   2 · Poker (house rule): one betting round from the dealer's left: check or bet 1/2/5 antes; call, raise once, or fold. Best 5 cards takes the Pot.
+   3 · Play it out: the dealer leads the lowest card they hold in a suit; whoever has the next card up plays it automatically,
+       until the next card is in the dead hand or the Ace is played. Then the last player leads the lowest card of another suit.
+       First out of cards takes the Kitty and a chip per card from everyone else.
+   The results go into the same hand record as scoring real cards (S.tph), so the bank works exactly the same.
+   S.tqg = {_atom, r, ps, dealer, h:{pid:[ids]}, dead:[ids], phase:'pay'|'poker'|'play'|'done', at, pk:{turn,bet,in,fold,acted,raised}, lead, stop, run:[ids], last, msg, n} */
+const TQBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Card Bot'],hard:['Hard','Poker Bot']};
+const tqOn=()=>S.game==='tripoley'&&!!TPX().play;
+const tqG=()=>S.tqg||null;
+const tqRes=()=>!S.lk||S.demo||lkHost();
+const TQR='23456789TJQKA',tqRv=c=>TQR.indexOf(c[0])+2,tqSu=c=>c[1],tqRed=c=>c[1]==='H'||c[1]==='D';
+const TQSN={S:'spades',H:'hearts',D:'diamonds',C:'clubs'};
+const tqName=c=>`${{A:'Ace',K:'King',Q:'Queen',J:'Jack',T:'10'}[c[0]]||c[0]} of ${TQSN[c[1]]}`;
+const tqSort=h=>h.slice().sort((a,b)=>'SHCD'.indexOf(tqSu(a))-'SHCD'.indexOf(tqSu(b))||tqRv(a)-tqRv(b));
+function tqStale(g){if(!g||!g.h)return false;const ids=act().map(p=>p.id),ks=Object.keys(g.h);return ids.some(id=>!g.h[id])||ks.some(id=>!ids.includes(id))}
+const tqNext=(g,pid)=>{const i=g.ps.indexOf(pid);return g.ps[(i+1)%g.ps.length]};
+/* ---------------- poker hands ---------------- */
+const TQCAT=['High card','One pair','Two pair','Three of a kind','Straight','Flush','Full house','Four of a kind','Straight flush'];
+function tqHigh(rs){const u=[...new Set(rs)].sort((a,b)=>b-a);if(u.includes(14))u.push(1);for(let i=0;i+4<u.length;i++)if(u[i]-u[i+4]===4&&u.slice(i,i+5).every((v,k)=>v===u[i]-k))return u[i];return 0}
+function tqEval(cards){const rs=cards.map(tqRv),bys={};cards.forEach(c=>(bys[tqSu(c)]=bys[tqSu(c)]||[]).push(tqRv(c)));
+  let best=null;const better=v=>{if(!best)return true;for(let i=0;i<Math.max(v.length,best.length);i++){if((v[i]||0)!==(best[i]||0))return (v[i]||0)>(best[i]||0)}return false};const take=v=>{if(better(v))best=v};
+  for(const s in bys)if(bys[s].length>=5){const h=tqHigh(bys[s]);if(h)take([8,h]);take([5,...bys[s].slice().sort((a,b)=>b-a).slice(0,5)])}
+  const cnt={};rs.forEach(r=>cnt[r]=(cnt[r]||0)+1);const by=n=>Object.keys(cnt).map(Number).filter(r=>cnt[r]>=n).sort((a,b)=>b-a);
+  const kick=(ex,n)=>[...new Set(rs)].filter(r=>!ex.includes(r)).sort((a,b)=>b-a).slice(0,n);
+  const q=by(4);if(q.length)take([7,q[0],...kick([q[0]],1)]);
+  const t=by(3);if(t.length){const p=Object.keys(cnt).map(Number).filter(r=>r!==t[0]&&cnt[r]>=2).sort((a,b)=>b-a);if(p.length)take([6,t[0],p[0]])}
+  const st=tqHigh(rs);if(st)take([4,st]);
+  if(t.length)take([3,t[0],...kick([t[0]],2)]);
+  const p=by(2);if(p.length>=2)take([2,p[0],p[1],...kick([p[0],p[1]],1)]);if(p.length)take([1,p[0],...kick([p[0]],3)]);
+  take([0,...kick([],5)]);return best}
+const tqCmp=(a,b)=>{for(let i=0;i<Math.max(a.length,b.length);i++){if((a[i]||0)!==(b[i]||0))return (a[i]||0)-(b[i]||0)}return 0};
+/* the 5 cards that make the hand, to light them up */
+function tqFive(cards){const v=tqEval(cards),cat=v[0];const pick=[];const has=c=>pick.includes(c);const addR=(r,n)=>{cards.filter(c=>tqRv(c)===r&&!has(c)).slice(0,n).forEach(c=>pick.push(c))};
+  if(cat===8||cat===5){const s=Object.keys(TQSN).find(s=>{const x=cards.filter(c=>tqSu(c)===s).map(tqRv);return cat===8?tqHigh(x)===v[1]:x.length>=5&&x.slice().sort((a,b)=>b-a).slice(0,5).every((r,i)=>r===v[i+1])});const sc=cards.filter(c=>tqSu(c)===s);
+    if(cat===5)v.slice(1).forEach(r=>{const c=sc.find(c=>tqRv(c)===r&&!has(c));if(c)pick.push(c)});else for(let r=v[1];r>v[1]-5;r--){const c=sc.find(c=>tqRv(c)===(r===1?14:r));if(c)pick.push(c)}return pick}
+  if(cat===4){for(let r=v[1];r>v[1]-5;r--)addR(r===1?14:r,1);return pick}
+  if(cat===7){addR(v[1],4);addR(v[2],1)}else if(cat===6){addR(v[1],3);addR(v[2],2)}else if(cat===3){addR(v[1],3);v.slice(2).forEach(r=>addR(r,1))}
+  else if(cat===2){addR(v[1],2);addR(v[2],2);addR(v[3],1)}else if(cat===1){addR(v[1],2);v.slice(2).forEach(r=>addR(r,1))}else v.slice(1).forEach(r=>addR(r,1));return pick}
+/* ---------------- the hand ---------------- */
+function tqDeal(r){const P=act(),ids=P.map(p=>p.id),X=TPX(),L=[];for(const s of 'SHDC')for(const k of TQR)L.push(k+s);const d=htShuffle(L);
+  const dealer=ids[r%ids.length],g={_atom:1,r,ps:ids,dealer,h:{},dead:[],phase:'pay',at:Date.now(),pk:null,lead:null,stop:null,run:[],last:null,msg:'',n:0};ids.forEach(id=>g.h[id]=[]);
+  const seats=[...ids.slice(ids.indexOf(dealer)+1),...ids.slice(0,ids.indexOf(dealer)+1),'dead'];let i=0;while(d.length){const s=seats[i++%seats.length];(s==='dead'?g.dead:g.h[s]).push(d.pop())}
+  /* pay cards: claimed by holding them */
+  const H=tpH(r);H.pens={};H.bets={};H.pw=[];H.out=null;H.left={};const who=c=>ids.find(id=>g.h[id].includes(c))||null;
+  [['A','AH'],['K','KH'],['Q','QH'],['J','JH'],['T','TH']].forEach(([k,c])=>{const w=who(c);if(w)H.pens[k]=w});
+  const kq=who('KH');if(kq&&kq===who('QH'))H.pens.KQ=kq;
+  const t=ids.filter(id=>'SHDC'.split('').some(s=>['8','9','T'].every(k=>g.h[id].includes(k+s))));if(t.length)H.pens.T89=t;
+  const got=Object.entries(H.pens).map(([k,v])=>`${TPPENS.find(x=>x[0]===k)[1]}: ${(Array.isArray(v)?v:[v]).map(nmid).join(' & ')}`);
+  g.msg=got.length?`Pay cards! ${got.join(' · ')}.`:'No pay cards came out this hand; those pens carry over.';S.tqg=g;TQSEL=null}
+function tqStartPoker(g){if(!TPX().poker){tqStartPlay(g);return}const first=tqNext(g,g.dealer);g.phase='poker';g.pk={turn:first,bet:0,in:{},fold:{},acted:{},raised:{}};g.msg=`Poker: ${nmid(first)} opens the betting.`;g.at=Date.now()}
+const tqLive=g=>g.ps.filter(id=>!g.pk.fold[id]);
+const tqBal=pid=>{try{return tpState(S.tqg?S.tqg.r:undefined).bal[pid]??TPX().start}catch(e){return TPX().start}};
+function tqBet(g,pid,act_,amt){if(!g||g.phase!=='poker'||g.pk.turn!==pid)return false;const k=g.pk,mine=k.in[pid]||0,A=TPX().ante;
+  if(act_==='check'){if(mine!==k.bet)return false;g.msg=`${nmid(pid)} checks.`}
+  else if(act_==='bet'){if(k.bet>0||![1,2,5].includes(amt))return false;k.bet=amt*A;k.in[pid]=k.bet;k.acted={};k.raised[pid]=1;g.msg=`${nmid(pid)} bets ${k.bet}.`}
+  else if(act_==='call'){if(k.bet<=mine)return false;k.in[pid]=k.bet;g.msg=`${nmid(pid)} calls ${k.bet}.`}
+  else if(act_==='raise'){if(!k.bet||k.raised[pid]||![1,2,5].includes(amt))return false;k.bet+=amt*A;k.in[pid]=k.bet;k.acted={};k.raised[pid]=1;g.msg=`${nmid(pid)} raises to ${k.bet}.`}
+  else if(act_==='fold'){k.fold[pid]=1;g.msg=`${nmid(pid)} folds.`}
+  else return false;
+  k.acted[pid]=1;g.n++;const live=tqLive(g);
+  if(live.length<=1||live.every(id=>k.acted[id]&&(k.in[id]||0)===k.bet)){tqShowdown(g);return true}
+  let nx=tqNext(g,pid),guard=0;while((k.fold[nx])&&guard++<20)nx=tqNext(g,nx);k.turn=nx;return true}
+function tqShowdown(g){const k=g.pk,live=tqLive(g),H=tpH(g.r);H.bets={};g.ps.forEach(id=>{if(k.in[id])H.bets[id]=k.in[id]});
+  let w=live;if(live.length>1){const ev=live.map(id=>({id,v:tqEval(g.h[id])}));const top=ev.reduce((a,b)=>tqCmp(b.v,a.v)>0?b:a);w=ev.filter(x=>tqCmp(x.v,top.v)===0).map(x=>x.id);
+    g.show=Object.fromEntries(ev.map(x=>[x.id,x.v[0]]));g.msg=`${w.map(nmid).join(' & ')} ${w.length>1?'split':'takes'} the pot with ${TQCAT[top.v[0]].toLowerCase()}.`}
+  else g.msg=`${nmid(w[0])} takes the pot; everyone else folded.`;
+  H.pw=w.slice();w.forEach(id=>pst('tqpot',id));g.phase='pokerdone';g.at=Date.now();g.n++}
+function tqStartPlay(g){g.phase='play';g.lead=g.dealer;g.stop=null;g.run=[];g.last=null;g.msg=`${nmid(g.dealer)} leads: the lowest card of any suit.`;g.at=Date.now()}
+/* cards a leader may play: the lowest card they hold in each suit (another suit than the one that just stopped, if they can) */
+function tqLeads(g,pid){const h=g.h[pid]||[],out=[];for(const s of 'SHDC'){const cs=h.filter(c=>tqSu(c)===s);if(cs.length)out.push(cs.reduce((a,b)=>tqRv(b)<tqRv(a)?b:a))}
+  const other=out.filter(c=>tqSu(c)!==g.stop);return other.length?other:out}
+function tqLead(g,pid,c){if(!g||g.phase!=='play'||g.lead!==pid||!tqLeads(g,pid).includes(c))return false;tqPlayCard(g,pid,c);return true}
+function tqPlayCard(g,pid,c){g.h[pid]=g.h[pid].filter(x=>x!==c);g.run.push(c);if(g.run.length>8)g.run=g.run.slice(-8);g.last=pid;g.lead=null;g.n++;g.at=Date.now();
+  if(!g.h[pid].length){tqEnd(g,pid);return}
+  /* who has the next card up? */
+  const r=tqRv(c);if(r===14){g.stop=tqSu(c);g.lead=pid;g.msg=`${nmid(pid)} played the Ace. ${nmid(pid)} leads again.`;return}
+  const nxt=TQR[r-1]+tqSu(c);if(g.dead.includes(nxt)){g.stop=tqSu(c);g.lead=pid;g.msg=`The ${tqName(nxt)} is in the dead hand. ${nmid(pid)} leads another suit.`;return}
+  g.msg=`${nmid(pid)} played the ${tqName(c)}.`}
+/* the next card up plays itself (the host does this on a timer, so everyone sees it go round) */
+function tqAuto(g){if(g.phase!=='play'||g.lead||!g.run.length)return false;const c=nrTop(g.run),nxt=TQR[tqRv(c)-1]+tqSu(c);const who=g.ps.find(id=>g.h[id].includes(nxt));if(!who){g.lead=g.last;g.stop=tqSu(c);return true}tqPlayCard(g,who,nxt);return true}
+function tqEnd(g,w){const H=tpH(g.r);H.out=w;H.left={};g.ps.forEach(id=>{if(id!==w)H.left[id]=g.h[id].length});g.phase='done';g.lead=null;g.msg=`${nmid(w)} is out of cards and takes the Kitty!`;pst('tqout',w);S.hr=Math.max(S.hr||0,g.r)}
+/* ---------------- computer players ---------------- */
+function tqBotPoker(g,q){const pid=q.id,k=g.pk,v=tqEval(g.h[pid]),cat=v[0],lv=q.bot,toCall=k.bet-(k.in[pid]||0),bal=tqBal(pid),A=TPX().ante;
+  let s=cat+(cat===1?(v[1]-8)/8:0)+(lv==='easy'?Math.random()*3-1:lv==='normal'?Math.random()-.5:0);
+  if(toCall<=0){if(s>=3&&bal>5*A)return tqBet(g,pid,'bet',s>=5?5:2);if(s>=2&&Math.random()<.5&&bal>A)return tqBet(g,pid,'bet',1);return tqBet(g,pid,'check')}
+  if(s>=5&&!k.raised[pid]&&bal>k.bet+5*A)return tqBet(g,pid,'raise',2);if(s>=1.5||toCall<=A&&s>=1||bal<0&&s>=3)return tqBet(g,pid,'call');return tqBet(g,pid,'fold')}
+function tqBotLead(g,q){const L=tqLeads(g,q.id),h=g.h[q.id];if(q.bot==='easy')return tqLead(g,q.id,L[Math.floor(Math.random()*L.length)]);
+  /* lead the suit where I hold the longest run of cards in a row from the bottom, so I keep playing */
+  let best=null;L.forEach(c=>{let run=0,r=tqRv(c);while(h.includes(TQR[r-2]+tqSu(c))){run++;r++}const sc=run*10+h.filter(x=>tqSu(x)===tqSu(c)).length;if(!best||sc>best.sc)best={c,sc}});return tqLead(g,q.id,best.c)}
+/* ---------------- this phone ---------------- */
+let TQSEL=null,TQVIEW=null,TQBOTT=null;
+const tqMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
+const tqHumans=()=>act().filter(p=>!p.bot);
+function tqViewer(){const g=tqG();if(!g)return null;if(S.lk&&!S.demo)return tqMe();const H=tqHumans();if(H.length===1)return H[0];if(!H.length)return null;const t=act().find(p=>p.id===tqActor(g));return t&&!t.bot&&TQVIEW===t.id?t:null}
+const tqActor=g=>g.phase==='poker'?g.pk.turn:g.phase==='play'?g.lead:null;
+const tqNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=tqG();if(!g||tqHumans().length<2)return null;const t=act().find(p=>p.id===tqActor(g));return t&&!t.bot&&TQVIEW!==t.id?t:null};
+function tqTick(){if(S.game!=='tripoley'||!tqOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!tqRes())return;if(lkqRun()){save();render();return}
+  const g=tqG(),cur=tpCur();if(!g||tqStale(g)||g.r!==cur){tqDeal(cur);save();render();return}
+  if(TQBOTT||document.querySelector('.sheet-bg'))return;const sp=window.__htfast?.15:1;
+  const later=(ms,f)=>{TQBOTT=setTimeout(()=>{TQBOTT=null;const g2=tqG();if(!g2||g2.r!==g.r||S.game!=='tripoley')return;if(f(g2)!==false){save()}render()},ms*sp)};
+  if(g.phase==='pay')return later(3200,g2=>{if(g2.phase!=='pay')return false;tqStartPoker(g2)});
+  if(g.phase==='pokerdone')return later(3200,g2=>{if(g2.phase!=='pokerdone')return false;tqStartPlay(g2)});
+  if(g.phase==='poker'){const q=act().find(p=>p.id===g.pk.turn);if(q&&q.bot)later(900,g2=>{if(g2.phase!=='poker'||g2.pk.turn!==q.id)return false;tqBotPoker(g2,q)});return}
+  if(g.phase==='play'){if(!g.lead)return later(650,g2=>tqAuto(g2));const q=act().find(p=>p.id===g.lead);if(q&&q.bot)later(900,g2=>{if(g2.lead!==q.id)return false;tqBotLead(g2,q)})}}
+function tqCardEl(c,o={}){const tag=o.btn?'button':'span',attr=o.btn?` data-a="tqpcard" data-c="${c}"`:'';const r=c[0];
+  return `<${tag} class="htc${o.mini?' mini':''}${tqRed(c)?' red':''}${o.cls?' '+o.cls:''}"${attr} aria-label="${tqName(c)}"><b${r==='T'?' class="ten"':''}>${r==='T'?'10':r}</b><i>${HTSU[c[1]]||c[1]}</i><em>${HTSU[c[1]]||c[1]}</em></${tag}>`}
+function tqPlayUI(){if(!tqRes()&&S.tqg&&S.tqg.r!==S.hr)S.hr=S.tqg.r;/* hr isn't synced: guests follow the host's hand */const X=TPX(),P=act(),g=tqG(),r=tpCur(),ST=tpState(),h=ST.hands[r]||{pens:{}};
+  let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">#${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
+  <div class="tabs hftabs nxtabs" role="list">${P.map(q=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&tqActor(g)===q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}</div><div class="ts num">${ST.bal[q.id]}</div><div class="tr num">chips</div></button>`).join('')}</div>`;
+  if(!g||tqStale(g)||g.r!==r)return out+`<div class="panel" style="padding:16px">${waitLoader(tqRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
+  const V=tqViewer(),act_=act().find(p=>p.id===tqActor(g)),mine=V&&act_&&act_.id===V.id;
+  const potNow=(h.pens.pot||0)+(g.pk?Object.values(g.pk.in).reduce((a,b)=>a+b,0):0);
+  out+=`<div class="tppens">${TPPENS.map(([k,l])=>{const H=tpH(r),won=k==='pot'?(g.phase==='pokerdone'||g.phase==='play'||g.phase==='done')&&(H.pw||[]).length:k==='kitty'?!!H.out:!!H.pens[k]&&(!Array.isArray(H.pens[k])||H.pens[k].length);return `<div class="tppen${won?' won':''}"><small>${l}</small><b class="num">${k==='pot'&&X.poker?potNow:h.pens[k]}</b></div>`}).join('')}</div>`;
+  let status='';const ph=g.phase;
+  if(ph==='pay')status='<b>1 · Pay cards</b>';else if(ph==='poker')status=mine?'<b>2 · Poker: your bet.</b>':`<b>2 · Poker:</b> ${botHead(act_)}${esc(nm(act_))} is betting…`;else if(ph==='pokerdone')status='<b>2 · Poker: showdown</b>';
+  else if(ph==='play')status=g.lead?(mine?'<b>3 · Your lead.</b> Tap the lowest card of a suit.':`<b>3 · Play it out:</b> ${botHead(act_)}${esc(nm(act_))} is leading…`):'<b>3 · Play it out</b>';else status=`<b>Hand ${r+1} is over.</b>`;
+  out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
+  const center=g.run.length?`<div class="tqrun">${g.run.slice(-5).map((c,i,a)=>tqCardEl(c,{cls:i===a.length-1?'new':''})).join('')}</div>`:`<small class="rlab">${ph==='play'?'Waiting for the lead…':'Dead hand · '+g.dead.length+' cards'}</small>`;
+  out+=ktTable({dealTag:'tripoley',dg:{...g,n:g.n},P,me:V?V.id:null,trick:[],faded:false,turn:tqActor(g),won:ph==='done'?tpH(r).out:null,dealer:g.dealer,
+    label:q=>{const n=(g.h[q.id]||[]).length;const sh=g.show&&g.show[q.id]!==undefined&&(ph==='pokerdone')?` · ${TQCAT[g.show[q.id]]}`:'';return ph==='poker'&&g.pk.fold[q.id]?'folded':ph==='poker'&&g.pk.in[q.id]?`bet ${g.pk.in[q.id]}`:`${n} card${n===1?'':'s'}${sh}`},center});
+  if(ph==='done'){const H=tpH(r);
+    out+=`<div class="panel htsum">${P.map(q=>{const v=(h.net||{})[q.id]||0;return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${H.out===q.id?'out first · ':''}${H.out===q.id?'took the Kitty':`${(H.left||{})[q.id]||0} card${((H.left||{})[q.id]||0)===1?'':'s'} left`}</small></span><span class="num"><b>${v>0?'+':''}${v}</b> · ${ST.bal[q.id]}</span></div>`}).join('')}</div>`;
+    const over=X.end==='hands'&&r>=X.hands-1;
+    out+=`<div class="actions"><div class="in">${over?(tqRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal</button>`:`<span class="rlab">Game over! Waiting for the host…</span>`):tqRes()?`<button class="btn sm" data-a="finish">Finish</button><button class="btn primary" data-a="tqpdeal">Deal hand ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`}
+  if(V&&ph!=='done'){const hand=tqSort(g.h[V.id]||[]),five=ph==='poker'||ph==='pokerdone'?tqFive(hand):[],leads=ph==='play'&&g.lead===V.id?tqLeads(g,V.id):[],ev=tqEval(hand);
+    if(ph==='poker'||ph==='pokerdone')out+=`<p class="rlab tqbest">Your best poker hand: <b>${TQCAT[ev[0]]}</b></p>`;
+    out+=`<div class="hthand tqhand" aria-label="Your cards">${hand.map(c=>tqCardEl(c,{btn:leads.includes(c),cls:(leads.includes(c)?'ok':'')+(five.includes(c)?' tq5':'')})).join('')}</div>`;
+    if(ph==='poker'&&mine){const k=g.pk,toCall=k.bet-(k.in[V.id]||0),A=X.ante,b=[];
+      if(toCall<=0){b.push(`<button class="btn" data-a="tqpbet" data-k="check">Check</button>`);[1,2,5].forEach(n=>b.push(`<button class="btn${n===1?' primary':''}" data-a="tqpbet" data-k="bet" data-v="${n}">Bet ${n*A}</button>`))}
+      else{b.push(`<button class="btn" data-a="tqpbet" data-k="fold">Fold</button>`,`<button class="btn primary" data-a="tqpbet" data-k="call">Call ${toCall}</button>`);if(!k.raised[V.id])[1,2,5].forEach(n=>b.push(`<button class="btn" data-a="tqpbet" data-k="raise" data-v="${n}">Raise ${n*A}</button>`))}
+      out+=`<div class="actions"><div class="in tqbets">${b.join('')}</div></div>`}}
+  else if(!S.lk&&tqHumans().length>1&&ph!=='done')out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
+  if(WARN)out+=`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
+    <div class="sheet-btns"><button class="btn" data-a="warnclose">Go back and check</button><button class="btn primary" data-a="revstart">Reveal anyway</button></div></div></div>`;
+  const a=tqNeedHandoff();if(a)out+=`<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="tqp-h" style="${pc(a.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="tqp-h">${esc(nm(a))}</h2><p class="rlab">It’s your turn. Everyone else, look away.</p><button class="btn primary wide" data-a="tqpshow" data-k="${a.id}">I’m ${esc(nm(a))}, show my cards</button></div></div>`;
+  return out}
+function tqAct(a,b,k){const g=tqG();if(!g)return;
+  if(a==='tqpshow'){TQVIEW=k;return}
+  if(a==='tqpdeal'){if(!tqRes()||g.phase!=='done')return;S.hr=tpCur()+1;window.scrollTo(0,0);return}
+  const V=tqViewer();if(!V)return;
+  if(a==='tqpbet'){if(lkq('tqBet',V.id,k,+b.dataset.v||0)){vibe(10);if(!S.lk&&tqHumans().length>1)TQVIEW=null}return}
+  if(a==='tqpcard'){if(lkq('tqLead',V.id,b.dataset.c)){vibe(10);if(!S.lk&&tqHumans().length>1)TQVIEW=null}return}}
 
 /* =====================================================================
    MUNCHKIN (Original and Deluxe): a table companion
@@ -11100,7 +11255,7 @@ function render(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();}
+  tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -11308,6 +11463,7 @@ document.addEventListener('click',e=>{
   if(/^rk(card|bid|deal|show|trump|nest)$/.test(a)&&S.game==='rook'&&rkPlayOn()&&S.started){rkAct(a,b,k);render();return}
   if(/^rg(card|bid|deal|show|color|num|fore|rage)$/.test(a)&&S.game==='rage'&&rgPlayOn()&&S.started){rgAct(a,b,k);render();return}
   if(/^pzp[a-z]+$/.test(a)&&S.game==='phase10'&&pzOn()&&S.started){pzAct(a,b,k);save();render();return}
+  if(/^tqp[a-z]+$/.test(a)&&S.game==='tripoley'&&tqOn()&&S.started){tqAct(a,b,k);save();render();return}
   if(/^nrp[a-z]+$/.test(a)&&S.game==='nerts'&&nrOn()&&S.started){nrAct(a,b,k);save();render();return}
   if(/^hpp[a-z]+$/.test(a)&&HFE()&&hpOn()&&S.started){hpAct(a,b,k);save();render();return}
   if(/^fcp(deck|take|card|disc|out|group|ungroup|arr|show|deal|lastok|sort|discpile)$/.test(a)&&S.game==='crowns'&&fcOn()&&S.started){fcAct(a,b,k);save();render();return}
@@ -11406,6 +11562,8 @@ document.addEventListener('click',e=>{
     case 'tpst':{const X=TPX();X[k]=Math.max(0,X[k]+(+b.dataset.d));tpKeep();break}
     case 'tpset':TPX()[k]=b.dataset.v;tpKeep();break;
     case 'tptg':{const X=TPX();X[k]=!X[k];tpKeep();break}
+    case 'tqplaymode':{if(S.started)break;TPX().play=k==='1'?1:0;tpKeep();break}
+    case 'tqstart':{switchGame('tripoley');resetScores();S.started=false;S.screen='map';TPX().play=k==='1'?1:0;tpKeep();window.scrollTo(0,0);break}
     case 'tppen':{const H=tpH(tpCur()),v=b.dataset.v;snap();if(k==='T89'){const a=H.pens.T89||[];H.pens.T89=v===''?[]:a.includes(v)?a.filter(x=>x!==v):[...a,v];if(!H.pens.T89.length)delete H.pens.T89}else{if(v===''||H.pens[k]===v)delete H.pens[k];else{H.pens[k]=v;if(k==='KQ'){H.pens.K=v;H.pens.Q=v}}}break}
     case 'tppw':{const H=tpH(tpCur()),v=b.dataset.v;snap();H.pw=v===''?[]:(H.pw||[]).includes(v)?H.pw.filter(x=>x!==v):[...(H.pw||[]),v];break}
     case 'tpout':{const H=tpH(tpCur()),v=b.dataset.v;snap();H.out=v===''||H.out===v?null:v;break}
@@ -11463,7 +11621,7 @@ document.addEventListener('click',e=>{
     case 'mtdb':{const q=act()[+b.dataset.i],R=mtR(q,mtCur());snap();R.db=!R.db;break}
     case 'mthand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'mtnext':{S.hr=Math.min(mtN()-1,mtCur()+1);window.scrollTo(0,0);break}
-    case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:S.game==='rook'?RKBOTS:S.game==='rage'?RGBOTS:S.game==='uno'?UNBOTS:S.game==='golf'||S.game==='skyjo'||S.game==='gnome'?GPBOTS:S.game==='skipbo'?SBBOTS:S.game==='crowns'?FCBOTS:S.game==='phase10'?PZBOTS:HFE()?HPBOTS:S.game==='nerts'?NRBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS),Object.values(RKBOTS),Object.values(RGBOTS),Object.values(UNBOTS),Object.values(GPBOTS),Object.values(SBBOTS),Object.values(FCBOTS),Object.values(PZBOTS),Object.values(HPBOTS),Object.values(NRBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
+    case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:S.game==='rook'?RKBOTS:S.game==='rage'?RGBOTS:S.game==='uno'?UNBOTS:S.game==='golf'||S.game==='skyjo'||S.game==='gnome'?GPBOTS:S.game==='skipbo'?SBBOTS:S.game==='crowns'?FCBOTS:S.game==='phase10'?PZBOTS:HFE()?HPBOTS:S.game==='nerts'?NRBOTS:S.game==='tripoley'?TQBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS),Object.values(RKBOTS),Object.values(RGBOTS),Object.values(UNBOTS),Object.values(GPBOTS),Object.values(SBBOTS),Object.values(FCBOTS),Object.values(PZBOTS),Object.values(HPBOTS),Object.values(NRBOTS),Object.values(TQBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
       if(!q.name||defs.includes(base(q.name))||BOTPOOL.all().includes(base(q.name))){let nmv='';if(nx){const pool=[BT[nx][1]].concat(BOTPOOL[nx].filter(x=>x!==BT[nx][1])),taken=n=>S.players.some(o=>o!==q&&o.on&&o.name===n);nmv=pool.find(n=>!taken(n))||'';if(!nmv){nmv=BT[nx][1];let j=2;while(taken(nmv+' '+j))j++;nmv+=' '+j}}q.name=nmv}if(nx)q.bot=nx;else delete q.bot;delete q.rid;break}
     case 'htstart':{switchGame('hearts');resetScores();S.started=false;S.screen='map';HTX().play=k==='1';htKeep();window.scrollTo(0,0);break}
     case 'htplaymode':{if(S.started)break;HTX().play=k==='1';if(HTX().play&&act().length>6)toast('Playing on the phone works for 3 to 6 players.');htKeep();break}
