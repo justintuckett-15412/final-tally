@@ -1334,6 +1334,7 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .tqpkbg{align-items:center;pointer-events:none}.tqpkres{text-align:center;border-top:6px solid var(--pc,var(--accent));border-radius:20px;margin:16px;display:grid;gap:6px;justify-items:center;animation:tqpk 5.2s ease both}
 @keyframes tqpk{0%{opacity:0;transform:scale(.7)}8%{opacity:1;transform:scale(1.04)}13%{transform:scale(1)}88%{opacity:1}100%{opacity:0}}
 .tqpkres h2{margin:0;font-size:24px}.tqpkcat{margin:0;font-size:18px;font-weight:800}.tqpk5{display:flex;gap:4px;justify-content:center}.tqpk5 .htc{--cw:clamp(44px,13vw,60px)}.tqpkv{font-size:18px;color:#2e9d57}
+.glann{position:fixed;inset:0;z-index:60;display:grid;place-items:center;pointer-events:none}.glann .tqann{max-width:340px;box-shadow:0 12px 40px rgba(0,0,0,.28)}.gllog{margin:4px 0 2px;padding:0;list-style:none;display:grid;gap:4px;font-size:14px}.gllog li{display:flex;gap:8px;align-items:baseline;border-top:1px solid var(--line);padding-top:4px}.gllog li:first-child{border-top:0}.glic{width:1.4em;text-align:center;flex:none}.glsum .gllog{max-height:260px;overflow:auto}.glnone{margin:4px 0}.glpast .gllog{font-size:13.5px}
 .tqsum{margin-top:10px;padding:8px 12px}.tqsum .srow{padding:5px 0;border-top:1px solid var(--line);gap:10px}.tqsum .srow:first-of-type{border-top:0}.tqsum .srow>span:last-child{text-align:right}
 .tqann{text-align:center;border-radius:20px;margin:16px;display:grid;gap:6px;justify-items:center;border-top:6px solid var(--accent);animation:tqann 2.6s ease both var(--o)}.tqann h2{margin:0;font-size:26px}.tqann p{margin:0;font-size:16px}.tqannic{font-size:40px;line-height:1}
 @keyframes tqann{0%{opacity:0;transform:translateY(16px) scale(.9)}10%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}
@@ -1604,7 +1605,7 @@ const padSC=()=>Math.max(1,Math.round(Math.max(1,...act().map(p=>Math.abs(total(
 const LOW=()=>S.game==='phase10'||S.game==='mextrain'||S.game==='uno'&&UNX().mode==='low'||S.game==='golf'||S.game==='skyjo'||S.game==='gnome'&&!gnRW()||S.game==='hearts'||S.game==='crowns'||S.game==='pad'&&!!(S.px||{}).low,RS=p=>S.game==='darts'?dRankKey(p):S.game==='phase10'?ptKey(p):LOW()?-total(p):total(p),RU=(n,p)=>LOW()?-upto(n,p):upto(n,p);
 const total=p=>S.game==='carc'?cTot(p):HFE()?hfTot(p):S.game==='nerts'?nxTot(p):S.game==='pad'?pxTot(p):S.game==='darts'?dTot(p):S.game==='pool'?plTot(p):S.game==='hearts'?htTot(p):S.game==='spades'?sdTot(p):S.game==='rage'?rgTot(p):S.game==='ohell'?ohTot(p):S.game==='uno'?unTot(p):S.game==='munchkin'?mkTot(p):S.game==='crowns'?fcTot(p):S.game==='skipbo'?sbTot(p):S.game==='gnome'?gnTot(p):S.game==='skyjo'?skTot(p):S.game==='wingspan'?wsTot(p):S.game==='wyrmspan'?wyTot(p):S.game==='phase10'?ptTot(p):S.game==='rook'?rkTot(p):S.game==='yahtzee'?yzTot(p):S.game==='mextrain'?mtTot(p):S.game==='catan'?ctTot(p):S.game==='golf'?gfTot(p):S.game==='tripoley'?tpTot(p):S.game==='quacks'?qkTot(p):hsPts(p)+routePts(p)+tkNet(p)+extrasPts(p)+bonusPts(p);
 
-function resetScores(){delete S.lkvote;delete S.pzg;delete S.hpg;delete S.nrg;delete S.tqg;delete S.ung;delete S.sbg;delete S.fcg;delete S.pst;delete S.lkq;delete S.lkqa;delete S.gpg;delete S.gpprev;delete S.rgrage;delete S.htg;delete S.sdg;delete S.ohg;delete S.rkg;delete S.rgg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
+function resetScores(){delete S.lkvote;delete S.hlg;delete S.pzg;delete S.hpg;delete S.nrg;delete S.tqg;delete S.ung;delete S.sbg;delete S.fcg;delete S.pst;delete S.lkq;delete S.lkqa;delete S.gpg;delete S.gpprev;delete S.rgrage;delete S.htg;delete S.sdg;delete S.ohg;delete S.rkg;delete S.rgg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
 let UNDO=[],KP='',RULESHEET=false;
 if(S.hideTotals===undefined)S.hideTotals=true;
 function setMap(k){
@@ -1621,6 +1622,38 @@ const slots=()=>{if(S.game==='carc'||S.game==='nerts'||S.game==='pad'||S.game===
 
 /* ---------- screens ---------- */
 const playingOn=()=>{try{const g=S.game;return g==='hearts'&&htPlayOn()||g==='spades'&&sdPlayOn()||g==='ohell'&&ohPlayOn()||g==='rook'&&rkPlayOn()||g==='rage'&&rgPlayOn()||g==='uno'&&unPlayOn()||(g==='golf'||g==='skyjo'||g==='gnome')&&gpOn()||g==='skipbo'&&sbOn()||g==='crowns'&&fcOn()||g==='phase10'&&pzOn()||(g==='hf'||g==='canasta')&&hpOn()||g==='nerts'&&nrOn()||g==='tripoley'&&tqOn()||g==='yahtzee'&&yzRoller()}catch(e){return false}};
+/* shared play-mode polish (every played game but Tripoley, which has its own):
+   gAnn: a big card everyone sees for a moment; gLog: a line in "Hand so far"; hands are archived in S.hlg for "Earlier hands" */
+const GLG=()=>({uno:S.ung,golf:S.gpg,skyjo:S.gpg,gnome:S.gpg,hearts:S.htg,spades:S.sdg,ohell:S.ohg,rook:S.rkg,rage:S.rgg,skipbo:S.sbg,crowns:S.fcg,phase10:S.pzg,hf:S.hpg,canasta:S.hpg,nerts:S.nrg})[S.game]||null;
+const glOn=()=>{try{return !!(S.started&&!S.demo&&!S.finished&&['score','live'].includes(S.screen)&&S.game!=='tripoley'&&playingOn()&&GLG())}catch(e){return false}};
+const glWord=()=>S.game==='golf'?'Hole':['crowns','skyjo','gnome','rage','ohell','hf','canasta'].includes(S.game)?'Round':'Hand';
+function gLog(g,t,ic,key){if(!g)return;const L=(g.lg=g.lg||[]);if(L.length&&L[L.length-1].t===t)return;L.push({t,ic:ic||'',k:key?1:0});if(L.length>80)L.splice(0,L.length-80)}
+function gAnn(g,t,sub,ic){if(!g)return;g.ann={t,sub:sub||'',ic:ic||'',at:Date.now(),k:(g.ann?g.ann.k:0)+1}}
+const cdTxt=c=>{if(!c)return '';c=String(c).split('#')[0];const r=c.slice(0,-1),u=c.slice(-1);return ({T:'10'}[r]||r)+({S:'♠',H:'♥',D:'♦',C:'♣'}[u]||u)};
+const glGpStart=g=>{const W=glWord();gAnn(g,`${W} ${g.r+1}`,S.game==='golf'&&!GFX().startFlip?'Here we go!':'Everyone flips cards to start.',S.game==='golf'?'⛳':S.game==='gnome'?'🍄':'🃏');gLog(g,`${nmid(g.dealer)} dealt`,'🃏')};
+const GLSTART={golf:glGpStart,skyjo:glGpStart,gnome:glGpStart,uno:g=>{const f=act().find(p=>p.id===g.turn);gAnn(g,`Hand ${g.r+1}`,`${nmid(g.dealer)} deals${f?`. ${nm(f)} goes first`:''}.`,'🃏');gLog(g,`${nmid(g.dealer)} dealt`,'🃏')}};
+const GLMS=2600,GLSEEN={};let GLT=null;
+/* host (or the only phone) files each hand away: totals at the start, the log and totals at the end */
+function glTick(){if(!glOn()||lkGuest())return;const g=GLG();if(!g||g.r==null)return;
+  if(!S.hlg||S.hlg.g!==S.game)S.hlg={g:S.game,h:{}};const H=S.hlg.h,tot=()=>{const o={};act().forEach(p=>{try{o[p.id]=total(p)}catch(e){}});return o};
+  let ch=false;if(!H[g.r]){const st=GLSTART[S.game];if(st&&!(g.lg||[]).length)try{st(g)}catch(e){}H[g.r]={t0:tot()};const pv=H[g.r-1];if(pv&&pv.done)pv.t1=H[g.r].t0;ch=true}const h=H[g.r];
+  if(g.phase==='done'&&!h.done){h.done=1;h.t1=tot();h.lg=(g.lg||[]).slice();ch=true}else if(h.done&&g.phase==='done'&&(g.lg||[]).length!==(h.lg||[]).length){h.lg=(g.lg||[]).slice();h.t1=tot();ch=true}
+  if(ch)save()}
+const GLPO={};document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('glpast'))GLPO[+d.dataset.i]=d.open},true);
+/* who scores together: teams share one pill */
+function glTeams(g){const P=act();try{if(S.game==='spades'&&sdTeamOn())return [[P[0],P[2]],[P[1],P[3]]];if(S.game==='rook'&&P.length%2===0)return [P.filter((p,i)=>i%2===0),P.filter((p,i)=>i%2===1)];if(HFE()&&g&&g.tm){const m={};P.forEach(p=>{const k=g.tm[p.id]??p.id;(m[k]=m[k]||[]).push(p)});return Object.values(m)}}catch(e){}return P.map(p=>[p])}
+function glLines(L){return `<ul class="gllog">${L.map(x=>`<li>${x.ic?`<span class="glic" aria-hidden="true">${x.ic}</span>`:''}<span>${esc(x.t)}</span></li>`).join('')}</ul>`}
+function glPanels(){const app=document.getElementById('app');if(!app)return;app.querySelectorAll('.glwrap,.glann').forEach(x=>x.remove());if(!glOn())return;const g=GLG();if(!g||g.r==null)return;
+  const W=glWord(),P=act(),L=g.lg||[],done=g.phase==='done';let out=`<div class="panel tqsum glsum"><b class="rlab">${W} ${g.r+1}${done?'':' so far'}</b>${L.length?glLines(L):`<p class="rlab glnone">Nothing big yet. Big moments show up here as they happen.</p>`}</div>`;
+  const H=(S.hlg&&S.hlg.g===S.game&&S.hlg.h)||{},items=[];
+  for(let i=g.r-1;i>=0;i--){const h=H[i];if(!h||!h.done)continue;const key=(h.lg||[]).filter(x=>x.k).pop();
+    const nets=glTeams(g).map(T=>{const p=T[0],a=(h.t0||{})[p.id],b=(h.t1||{})[p.id];if(typeof b!=='number')return '';const d=typeof a==='number'?b-a:null;return `<span style="${pc(p.color)}" class="tqnet">${esc(T.map(nm).join(' & '))} ${d===null?b:(d>0?'+':'')+d}</span>`}).join('');
+    const op=GLPO[i]!==undefined?GLPO[i]:i===g.r-1;items.push(`<details class="tqpast glpast" data-i="${i}"${op?' open':''}><summary><b>${W} ${i+1}</b>${key?` · ${esc(key.t)}`:''}</summary>${(h.lg||[]).length?glLines(h.lg):''}<div class="tqnets">${nets}</div></details>`)}
+  if(items.length)out+=`<div class="panel tqsum tqpastw"><b class="rlab">Earlier ${W.toLowerCase()}s</b>${items.join('')}</div>`;
+  const w=document.createElement('div');w.className='glwrap';w.innerHTML=out;const ac=[...app.querySelectorAll('.actions')].pop();if(ac)ac.before(w);else app.appendChild(w);
+  const A=g.ann;if(A&&Date.now()-A.at<20000&&!app.querySelector('.sheet-bg')){const k=S.game+':'+g.r+':'+A.k+':'+A.at;if(!GLSEEN[k])GLSEEN[k]=Date.now();const el=Date.now()-GLSEEN[k],ms=GLMS*(window.__htfast?.3:1);
+    if(el<ms){app.insertAdjacentHTML('beforeend',`<div class="glann" role="status" aria-live="polite"><div class="sheet tqann" style="--o:${-el}ms">${A.ic?`<span class="tqannic" aria-hidden="true">${A.ic}</span>`:''}<h2>${esc(A.t)}</h2>${A.sub?`<p class="rlab">${esc(A.sub)}</p>`:''}</div></div>`);
+      clearTimeout(GLT);GLT=setTimeout(()=>{GLT=null;const x=document.querySelector('.glann');if(x)x.remove()},ms-el+30)}}}
 const pairOn=()=>{try{return HFE()&&hpOn()&&!!HX().teams||S.game==='rook'&&rkPlayOn()||S.game==='spades'&&sdPlayOn()&&!!SDX().teams}catch(e){return false}};
 /* players screen: show who is partnered with whom (seats are split in half: 1 & 3, 2 & 4, or 1 & 4, 2 & 5, 3 & 6) */
 function pairRows(sl,arr){if(!Array.isArray(arr))return arr;const A=sl.map((p,i)=>i).filter(i=>sl[i].on),n=A.length;
@@ -4982,6 +5015,7 @@ function htDeal(r){const P=act(),n=P.length,X=HTX();let deck=[];for(const s of H
   const g={r,phase:dir==='hold'?'play':'pass',h,sel:{},got:{},t:[],turn:null,lead:null,n:0,broken:false,tk:{},last:null,kitty,out,dir,per};
   P.forEach(p=>g.tk[p.id]=[]);
   if(g.phase==='play')htStartPlay(g);else P.forEach(p=>{if(p.bot)g.sel[p.id]=htBotPass(g.h[p.id],p.bot)});
+  {const d={left:'to the left',right:'to the right',across:'across'}[dir];gAnn(g,`Hand ${r+1}`,d?`Pass 3 cards ${d}.`:'No passing this hand. Keep your cards.','🂠');gLog(g,d?`Passing ${d}`:'No pass this hand','🔁')}
   g._atom=1;S.htg=g;HTSEL=[];HTVIEW=null}
 function htLowClub(g){let best=null;for(const pid in g.h)for(const c of g.h[pid])if(c[1]==='C'&&(!best||htRk(c)<htRk(best.c)))best={pid,c};return best}
 function htStartPlay(g){g.phase='play';const lc=htLowClub(g)||{pid:act()[0].id,c:null};g.lead=lc.c;g.turn=lc.pid;g.t=[]}
@@ -4999,17 +5033,18 @@ function htWinner(t){const led=t[0].c[1];let w=t[0];for(const x of t)if(x.c[1]==
 const htTrickPts=cs=>cs.filter(c=>c[1]==='H').length+(cs.includes('QS')?HTX().qv:0);
 /* a person (or bot) plays one card */
 function htPlayCard(pid,c){const g=htG();if(!g||g.phase!=='play'||g.turn!==pid)return false;if(!htLegal(g,pid).includes(c))return false;
-  g.h[pid]=g.h[pid].filter(x=>x!==c);g.t=g.t.concat([{p:pid,c}]);if(c[1]==='H'||(HTX().qBreak&&c==='QS'))g.broken=true;
+  g.h[pid]=g.h[pid].filter(x=>x!==c);g.t=g.t.concat([{p:pid,c}]);if((c[1]==='H'||(HTX().qBreak&&c==='QS'))&&!g.broken){g.broken=true;gLog(g,`${nmid(pid)} broke hearts with the ${cdTxt(c)}`,'💔');gAnn(g,'Hearts are broken!',`${nmid(pid)} played the ${cdTxt(c)}.`,'💔')}
   if(g.t.length>=act().length)g.turn=null;else{const P=act(),i=P.findIndex(p=>p.id===pid);g.turn=P[(i+1)%P.length].id}
   playCard();return true}
 function playCard(){try{vibe(12)}catch(e){}}
 /* the table: collect a finished trick, score a finished hand */
-function htCollect(g){const w=htWinner(g.t),cs=g.t.map(x=>x.c);g.tk[w]=(g.tk[w]||[]).concat(cs);if(g.n===0&&g.kitty&&g.kitty.length)g.tk[w]=g.tk[w].concat(g.kitty);
+function htCollect(g){const w=htWinner(g.t),cs=g.t.map(x=>x.c);if(cs.includes('QS')){gLog(g,`${nmid(w)} took the Queen of spades (+${HTX().qv})`,'♠️');gAnn(g,'Queen of spades!',`${nmid(w)} takes ${HTX().qv} points.`,'♠️')}if(HTX().jack&&cs.includes('JD'))gLog(g,`${nmid(w)} took the Jack of diamonds (−${HTX().jv})`,'♦️');g.tk[w]=(g.tk[w]||[]).concat(cs);if(g.n===0&&g.kitty&&g.kitty.length)g.tk[w]=g.tk[w].concat(g.kitty);
   g.last={t:g.t,w};g.t=[];g.n++;g.turn=w;const left=Object.values(g.h).reduce((a,h)=>a+h.length,0);if(!left)htEndHand(g)}
 function htEndHand(g){const P=act(),X=HTX();const pts=pid=>{const cs=g.tk[pid]||[];return {h:cs.filter(c=>c[1]==='H').length,q:cs.includes('QS'),j:cs.includes('JD')}};
   const moon=P.find(p=>{const x=pts(p.id);return x.h===13&&x.q});
   if(moon&&X.moon==='choose'&&!g.ms){if(moon.bot)g.ms=htBotMoon(moon);else{g.phase='moon';g.moon=moon.id;g.turn=null;return}}
   P.forEach(p=>{const x=pts(p.id),R=htR(p,g.r);R.h=x.h;R.q=x.q;R.j=x.j;R.moon=moon===p;if(moon===p&&g.ms)R.ms=g.ms;else delete R.ms;R.set=true});
+  if(moon){gLog(g,`${nm(moon)} shot the moon!`,'🌙',1);gAnn(g,`${nm(moon)} shot the moon!`,'Every heart and the Queen of spades.','🌙')}else{const v=P.map(p=>{const x=pts(p.id);return [p,x.h+(x.q?X.qv:0)-(X.jack&&x.j?X.jv:0)]}),lo=Math.min(...v.map(x=>x[1])),best=v.filter(x=>x[1]===lo).map(x=>nm(x[0]));gLog(g,`Fewest points: ${best.join(' & ')} (${lo})`,'🏅',1);gAnn(g,`Hand ${g.r+1} is over`,v.map(([p,n])=>`${nm(p)} ${n}`).join(' · '),'🏁')}
   g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
 function htBotMoon(m){const P=act(),others=P.filter(p=>p!==m);const a=Math.min(...others.map(p=>htTot(p)+26))-htTot(m),b=Math.min(...others.map(htTot))-(htTot(m)-26);return a>=b?'others':'self'}
 const htOver=()=>{const X=HTX(),g=htG();if(!g||g.phase!=='done')return false;if(X.end==='hands')return g.r>=X.hands-1;if(X.end==='points'){const sc=act().map(htTot),lo=Math.min(...sc);return htReached()&&sc.filter(v=>v===lo).length===1}return false};
@@ -5256,10 +5291,11 @@ function sdDeal(r){const P=act(),n=P.length;let deck=[];for(const s of 'CDHS')fo
   const out=SDOUT[n]||[];deck=deck.filter(c=>!out.includes(c));htShuffle(deck);const per=Math.floor(deck.length/n),h={};
   P.forEach((p,i)=>h[p.id]=sdSort(deck.slice(i*per,(i+1)*per)));const dealer=P[r%n].id;
   const g={r,phase:'bid',dealer,h,bids:{},seen:{},bidTurn:sdNext(dealer),t:[],turn:null,n:0,broken:false,won:{},last:null,out,per};
-  P.forEach(p=>g.won[p.id]=0);g._atom=1;S.sdg=g;SDSEL=null;SDVIEW=null}
+  P.forEach(p=>g.won[p.id]=0);gAnn(g,`Hand ${r+1}`,`${nmid(dealer)} deals. Time to bid.`,'🃏');gLog(g,`${nmid(dealer)} dealt`,'🃏');g._atom=1;S.sdg=g;SDSEL=null;SDVIEW=null}
 const sdBidDone=g=>act().every(p=>g.bids[p.id]!==undefined);
 function sdBid(pid,v){const g=sdG();if(!g||g.phase!=='bid'||g.bidTurn!==pid)return false;g.bids[pid]=v;g.seen[pid]=1;
-  if(sdBidDone(g)){g.phase='play';g.bidTurn=null;g.turn=SDX().lead2c?(sdLow2c(g)||sdNext(g.dealer)):sdNext(g.dealer);g.lead=SDX().lead2c?sdLowClub(g):null}else g.bidTurn=sdNext(pid);return true}
+  const bl=x=>x==='nil'?'nil':x==='blind'?'blind nil':x;
+  if(sdBidDone(g)){const t=act().map(p=>`${nm(p)} ${bl(g.bids[p.id])}`).join(' · ');gLog(g,`Bids: ${t}`,'✋');gAnn(g,'The bids are in',t,'✋');g.phase='play';g.bidTurn=null;g.turn=SDX().lead2c?(sdLow2c(g)||sdNext(g.dealer)):sdNext(g.dealer);g.lead=SDX().lead2c?sdLowClub(g):null}else g.bidTurn=sdNext(pid);return true}
 function sdLowClub(g){let b=null;for(const pid in g.h)for(const c of g.h[pid])if(c[1]==='C'&&(!b||htRk(c)<htRk(b)))b=c;return b}
 function sdLow2c(g){const c=sdLowClub(g);if(!c)return null;for(const pid in g.h)if(g.h[pid].includes(c))return pid;return null}
 function sdLegal(g,pid){const h=g.h[pid]||[];if(!h.length)return [];
@@ -5267,11 +5303,15 @@ function sdLegal(g,pid){const h=g.h[pid]||[];if(!h.length)return [];
   const led=g.t[0].c[1],f=h.filter(c=>c[1]===led);return f.length?f:h}
 function sdWinner(t){const sp=t.filter(x=>x.c[1]==='S'),pool=sp.length?sp:t.filter(x=>x.c[1]===t[0].c[1]);return pool.reduce((a,x)=>htRk(x.c)>htRk(a.c)?x:a,pool[0]).p}
 function sdPlayCard(pid,c){const g=sdG();if(!g||g.phase!=='play'||g.turn!==pid||!sdLegal(g,pid).includes(c))return false;
-  g.h[pid]=g.h[pid].filter(x=>x!==c);g.t=g.t.concat([{p:pid,c}]);if(c[1]==='S')g.broken=true;
+  g.h[pid]=g.h[pid].filter(x=>x!==c);g.t=g.t.concat([{p:pid,c}]);if(c[1]==='S'&&!g.broken){g.broken=true;gLog(g,`${nmid(pid)} broke spades with the ${cdTxt(c)}`,'♠️');gAnn(g,'Spades are broken!',`${nmid(pid)} played the ${cdTxt(c)}.`,'♠️')}
   g.turn=g.t.length>=act().length?null:sdNext(pid);playCard();return true}
 function sdCollect(g){const w=sdWinner(g.t);g.won[w]=(g.won[w]||0)+1;g.last={t:g.t,w};g.t=[];g.n++;g.turn=w;
   if(!Object.values(g.h).some(h=>h.length))sdEndHand(g)}
 function sdEndHand(g){const P=act(),team=sdTeamOn();
+  {const seen={},res=[];P.forEach(p=>{const q=team?sdPartner(p.id):null;if(seen[p.id])return;seen[p.id]=1;if(q)seen[q.id]=1;const who=q?`${nm(p)} & ${nm(q)}`:nm(p),bid=sdTeamBid(g,p.id),won=team?sdTeamWon(g,p.id):(g.won[p.id]||0);
+    [p,q].filter(Boolean).forEach(x=>{const b=g.bids[x.id];if(b==='nil'||b==='blind'){const ok=!(g.won[x.id]||0);gLog(g,`${nm(x)} ${ok?'made':'missed'} ${b==='blind'?'blind nil':'nil'}`,ok?'🎉':'💥')}});
+    if(bid>0){const ok=won>=bid;res.push(`${who} ${ok?'made':'set'}`);gLog(g,`${who} ${ok?`made their bid: ${won} of ${bid}`:`were set: ${won} of ${bid}`}${ok&&won>bid?` (${won-bid} bag${won-bid>1?'s':''})`:''}`,ok?'✅':'❌',res.length===1)}});
+    gAnn(g,`Hand ${g.r+1} is over`,res.join(' · '),'🏁')}
   P.forEach(p=>{const R=sdR(p,g.r),q=sdPartner(p.id);R.b=[g.bids[p.id],q?g.bids[q.id]:null];R.t=[g.won[p.id]||0,q?g.won[q.id]||0:null];if(!team){R.b=[g.bids[p.id],null];R.t=[g.won[p.id]||0,null]}});
   g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
 const sdOverNow=()=>{const X=SDX(),g=sdG();if(!g||g.phase!=='done')return false;if(X.end==='hands')return g.r>=X.hands-1;return X.end==='points'&&sdOver()};
@@ -5484,7 +5524,7 @@ function rgDeal(r){const P=act(),n=rgCards(r);let deck=[];for(const s of 'roygbp
   const dealer=P[r%P.length].id,start=P.findIndex(p=>p.id===dealer)+1,h={};P.forEach((p,i)=>h[P[(start+i)%P.length].id]=deck.slice(i*n,(i+1)*n));
   const rest=deck.slice(n*P.length),ui=rest.findIndex(c=>!rgIsAct(c)),up=ui>=0?rest[ui]:null,tr=up?up[0]:null;for(const id in h)h[id]=rgSort(h[id],tr);
   const g={r,phase:'bid',dealer,h,tr,up,pile:ui>=0?rest.slice(ui+1):[],bids:{},bidTurn:rgNext(dealer),t:[],turn:null,n:0,won:{},bo:{},md:{},last:null,played:[],fore:rgFore(r)};
-  P.forEach(p=>{g.won[p.id]=0;g.bo[p.id]=0;g.md[p.id]=0});if(RGX().bidAll){g.bidTurn=null;P.forEach(p=>{if(p.bot)g.bids[p.id]=rgBotBid(g,p.id,p.bot)})}g._atom=1;S.rgg=g;RGSEL=null;RGVIEW=null}
+  P.forEach(p=>{g.won[p.id]=0;g.bo[p.id]=0;g.md[p.id]=0});if(RGX().bidAll){g.bidTurn=null;P.forEach(p=>{if(p.bot)g.bids[p.id]=rgBotBid(g,p.id,p.bot)})}{const tn=g.fore?'Forehead round: hold your card up':tr?`${RGC[tr][0]} is trump`:'No trump';gAnn(g,`Round ${r+1}: ${n} card${n===1?'':'s'}`,`${tn}. ${nmid(dealer)} deals.`,'🃏');gLog(g,`${n} card${n===1?'':'s'} each · ${tn}`,'🃏')}g._atom=1;S.rgg=g;RGSEL=null;RGVIEW=null}
 function rgFlip(g){const pile=g.pile||[];while(pile.length){const c=pile.shift();if(!rgIsAct(c)){g.tr=c[0];g.up=c;g.flip=true;g.pile=pile;return}}g.pile=pile;g.tr=null;g.up=null}
 function rgBid(pid,v){const g=rgG();if(!g||g.phase!=='bid')return false;v=+v;if(!(v>=0&&v<=rgCards(g.r)))return false;
   if(RGX().bidAll){if(g.bids[pid]!==undefined)return false;g.bids[pid]=v;return true}
@@ -5501,11 +5541,11 @@ function rgWinner(g,t){const w2=RGX().wild2nd,rank=(x,i)=>x.c[0]==='W'?rgWN(x)+(
 function rgPlayCard(pid,c,col,num){const g=rgG(),X=RGX();if(!g||g.phase!=='play'||g.turn!==pid||!rgLegal(g,pid).includes(c))return false;
   if((c[0]==='W'||c[0]==='C'&&!X.changeFlip)&&!RGC[col])return false;
   g.h[pid]=g.h[pid].filter(x=>x!==c);const e={p:pid,c};if(c[0]==='W'){e.w=col;if(X.wildNum){const n=Math.max(0,Math.min(16,+num));e.n=isNaN(n)?16:n}}
-  if(c[0]==='C'){if(X.changeFlip){rgFlip(g);e.w=g.tr}else{e.w=col;g.tr=col}g.outT=false}if(c[0]==='U'){g.tr=null;if(X.outOne)g.outT=true}
+  if(c[0]==='C'){if(X.changeFlip){rgFlip(g);e.w=g.tr}else{e.w=col;g.tr=col}g.outT=false;const t=g.tr&&RGC[g.tr]?RGC[g.tr][0]:'nothing';gLog(g,`${nmid(pid)} changed trump to ${t}`,'🔄');gAnn(g,`Trump is now ${t}!`,`${nmid(pid)} played Change Trump.`,'🔄')}if(c[0]==='U'){g.tr=null;if(X.outOne)g.outT=true;gLog(g,`${nmid(pid)} played Out Trump`,'🚫');gAnn(g,'No more trump!',`${nmid(pid)} played Out Trump.`,'🚫')}
   g.t=g.t.concat([e]);g.turn=g.t.length>=act().length?null:rgNext(pid);playCard();return true}
-function rgCollect(g){const w=rgWinner(g,g.t);{const wp=act().find(p=>p.id===w);if(wp&&wp.bot&&g.t.some(x=>x.c[0]==='M'))rgRage(w)}g.flip=false;if(g.outT){g.outT=false;if(g.tr===null)rgFlip(g)}g.won[w]=(g.won[w]||0)+1;g.t.forEach(x=>{if(x.c[0]==='A')g.bo[w]++;if(x.c[0]==='M')g.md[w]++});
+function rgCollect(g){const w=rgWinner(g,g.t);{const wp=act().find(p=>p.id===w);if(wp&&wp.bot&&g.t.some(x=>x.c[0]==='M'))rgRage(w)}g.flip=false;if(g.outT){g.outT=false;if(g.tr===null)rgFlip(g)}g.won[w]=(g.won[w]||0)+1;g.t.forEach(x=>{if(x.c[0]==='A'){g.bo[w]++;gLog(g,`${nmid(w)} won a Bonus Rage`,'😊')}if(x.c[0]==='M'){g.md[w]++;gLog(g,`${nmid(w)} got stuck with a Mad Rage`,'😡')}});
   g.played=(g.played||[]).concat(g.t.map(x=>x.c));g.last={t:g.t,w};g.t=[];g.n++;g.turn=w;if(!Object.values(g.h).some(h=>h.length))rgEndRound(g)}
-function rgEndRound(g){act().forEach(p=>{const R=rgR(p,g.r);R.b=g.bids[p.id];R.t=g.won[p.id]||0;R.bo=g.bo[p.id]||0;R.md=g.md[p.id]||0});g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
+function rgEndRound(g){act().forEach(p=>{const R=rgR(p,g.r);R.b=g.bids[p.id];R.t=g.won[p.id]||0;R.bo=g.bo[p.id]||0;R.md=g.md[p.id]||0});{const P=act(),made=P.filter(p=>(g.won[p.id]||0)===g.bids[p.id]);P.filter(p=>!made.includes(p)).forEach(p=>gLog(g,`${nm(p)} bid ${g.bids[p.id]}, took ${g.won[p.id]||0}`,'❌'));gLog(g,made.length?`Made it: ${made.map(nm).join(', ')}`:'Nobody made their bid',made.length?'✅':'😬',1);gAnn(g,`Round ${g.r+1} is over`,made.length?`Made their bid: ${made.map(nm).join(', ')}`:'Nobody made their bid!','🏁')}g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
 const rgOverNow=()=>{const g=rgG();return !!g&&g.phase==='done'&&g.r>=rgN()-1};
 
 /* ---------------- bots ---------------- */
@@ -5550,6 +5590,7 @@ const rgNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(rgHumans().length<2)ret
 
 function rgTick(){if(S.game!=='rage'||!rgPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!rgRes())return;if(lkqRun()){save();render();return}
   const g=rgG();if(!g||cgStale(g)||g.r!==rgCur()&&g.phase!=='done'){rgDeal(rgCur());save();render();return}
+  if(!g.bidsLog&&act().every(p=>g.bids[p.id]!==undefined)){g.bidsLog=1;const t=act().map(p=>`${nm(p)} ${g.bids[p.id]}`).join(' · ');gLog(g,`Bids: ${t}`,'✋');gAnn(g,'The bids are in',t,'✋')}
   const later=(ms,f)=>{if(!RGBOTT)RGBOTT=setTimeout(()=>{RGBOTT=null;f();save();render()},ms*htSpd())};
   if(g.phase==='bid'&&RGX().bidAll){act().forEach(p=>{if(p.bot&&g.bids[p.id]===undefined)g.bids[p.id]=rgBotBid(g,p.id,p.bot)});if(act().every(p=>g.bids[p.id]!==undefined))cdRun(g,x=>{x.turn=rgNext(x.dealer)});return}
   if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot)later(700,()=>{const g2=rgG();if(g2&&g2.phase==='bid'&&g2.bidTurn===q.id)rgBid(q.id,rgBotBid(g2,q.id,q.bot))});return}
@@ -6692,7 +6733,7 @@ function rkSort(h,tr){const o='RGYB'.split('').filter(s=>s!==tr).concat(tr?[tr]:
 function rkDeal(r){const P=act(),X=RKX();let deck=['X'];for(const s of 'RGYB'){for(let n=5;n<=14;n++)deck.push(s+n);if(X.ones)deck.push(s+'1')}htShuffle(deck);
   const per=Math.floor((deck.length-5)/P.length),h={},dealer=P[r%P.length].id;P.forEach((p,i)=>h[p.id]=rkSort(deck.slice(i*per,(i+1)*per)));
   const g={r,phase:'bid',dealer,h,nest:deck.slice(per*P.length),bids:{},high:null,bidTurn:X.bidFirst==='left'?rkNext(dealer):dealer,bidder:null,trump:null,disc:[],t:[],turn:null,n:0,won:{},last:null,played:[],per};
-  P.forEach(p=>g.won[p.id]=[]);g._atom=1;S.rkg=g;RKSEL=[];RKVIEW=null}
+  P.forEach(p=>g.won[p.id]=[]);gAnn(g,`Hand ${r+1}`,`${nmid(dealer)} deals. Time to bid.`,'🃏');gLog(g,`${nmid(dealer)} dealt`,'🃏');g._atom=1;S.rkg=g;RKSEL=[];RKVIEW=null}
 const rkMinBid=g=>g.high?g.high.v+5:RKX().min;
 function rkBid(pid,v){const g=rkG();if(!g||g.phase!=='bid'||g.bidTurn!==pid)return false;const all=rkAll();
   if(v!=='pass'){v=+v;if(v<rkMinBid(g)||v>all||v%5)return false;g.high={p:pid,v};g.bids[pid]=v}else g.bids[pid]='pass';
@@ -6701,10 +6742,12 @@ function rkBid(pid,v){const g=rkG();if(!g||g.phase!=='bid'||g.bidTurn!==pid)retu
   if(live.length===1&&g.high&&g.high.p===live[0].id){rkWonBid(g);return true}
   if(g.high&&g.high.v>=all){rkWonBid(g);return true}
   let n=rkNext(pid);for(let i=0;i<P.length&&g.bids[n]==='pass';i++)n=rkNext(n);g.bidTurn=n;return true}
-function rkWonBid(g){g.bidder=g.high.p;g.bidTurn=null;g.phase='nest';g.h[g.bidder]=rkSort(g.h[g.bidder].concat(g.nest));g.nest=[]}
+const rkTeamNm=t=>act().filter((p,i)=>i%2===t).map(nm).join(' & ');
+function rkWonBid(g){gLog(g,`${nmid(g.high.p)} won the bid at ${g.high.v}`,'✋');gAnn(g,`${nmid(g.high.p)} wins the bid`,`${g.high.v} points. They take the nest.`,'✋');g.bidder=g.high.p;g.bidTurn=null;g.phase='nest';g.h[g.bidder]=rkSort(g.h[g.bidder].concat(g.nest));g.nest=[]}
 const rkLayable=h=>{if(RKX().layCounters)return h;const ok=h.filter(c=>!rkVal(c));return ok.length>=5?ok:h};
 function rkSetNest(pid,disc,tr){const g=rkG();if(!g||g.phase!=='nest'||g.bidder!==pid||disc.length!==5||!'RGYB'.includes(tr))return false;const lay=rkLayable(g.h[pid]);if(disc.some(c=>!lay.includes(c)))return false;
   g.h[pid]=rkSort(g.h[pid].filter(c=>!disc.includes(c)),tr);for(const id in g.h)if(id!==pid)g.h[id]=rkSort(g.h[id],tr);
+  gLog(g,`${RKCOL[tr][0]} is trump`,'🎨');gAnn(g,`${RKCOL[tr][0]} is trump`,`${nmid(pid)} called it.`,'🎨');
   g.disc=disc.slice();g.trump=tr;g.phase='play';g.turn=rkNext(g.dealer);return true}
 function rkLegal(g,pid){const h=g.h[pid]||[];if(!g.t.length)return h;const tr=g.trump,led=rkSuitOf(g.t[0].c,tr);
   const f=h.filter(c=>rkSuitOf(c,tr)===led);if(!f.length)return h;
@@ -6714,10 +6757,10 @@ function rkWinner(g,t){const tr=g.trump;
   const tp=t.filter(x=>rkSuitOf(x.c,tr)===tr),pool=tp.length?tp:t.filter(x=>rkSuitOf(x.c,tr)===rkSuitOf(t[0].c,tr));return pool.reduce((a,x)=>rkRank(x.c)>rkRank(a.c)?x:a,pool[0]).p}
 function rkPlayCard(pid,c){const g=rkG();if(!g||g.phase!=='play'||g.turn!==pid||!rkLegal(g,pid).includes(c))return false;
   g.h[pid]=g.h[pid].filter(x=>x!==c);g.t=g.t.concat([{p:pid,c}]);g.turn=g.t.length>=act().length?null:rkNext(pid);playCard();return true}
-function rkCollect(g){const w=rkWinner(g,g.t);g.won[w]=(g.won[w]||[]).concat(g.t.map(x=>x.c));g.played=(g.played||[]).concat(g.t.map(x=>x.c));g.last={t:g.t,w};g.t=[];g.n++;g.turn=w;
+function rkCollect(g){const w=rkWinner(g,g.t);if(g.t.some(x=>x.c==='X'))gLog(g,`${nmid(w)} took the Rook`,'🐦');g.won[w]=(g.won[w]||[]).concat(g.t.map(x=>x.c));g.played=(g.played||[]).concat(g.t.map(x=>x.c));g.last={t:g.t,w};g.t=[];g.n++;g.turn=w;
   if(!Object.values(g.h).some(h=>h.length)){g.lastW=w;const to=RKX().nestTo==='bidder'?g.bidder:w;g.won[to]=g.won[to].concat(g.disc);rkEndHand(g)}}
 const rkTeamPts=(g,team)=>{let v=0;act().forEach((p,i)=>{if(i%2===team)(g.won[p.id]||[]).forEach(c=>v+=rkVal(c))});if(g.lastW&&rkTeamOf(g.lastW)===team)v+=+RKX().last||0;return v};
-function rkEndHand(g){const bt=rkTeamOf(g.bidder),H=rkH(g.r);H.bt=bt;H.bid=g.high.v;H.took=rkTeamPts(g,bt);g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
+function rkEndHand(g){const bt=rkTeamOf(g.bidder),H=rkH(g.r);H.bt=bt;H.bid=g.high.v;H.took=rkTeamPts(g,bt);{const ok=H.took>=H.bid,tn=rkTeamNm(bt);gLog(g,`${tn} ${ok?'made':'were set on'} ${H.bid}: took ${H.took}`,ok?'✅':'❌',1);gAnn(g,ok?`${tn} made it!`:`${tn} were set!`,`Bid ${H.bid}, took ${H.took} · the others took ${rkTeamPts(g,1-bt)}.`,ok?'✅':'💥')}g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
 const rkOverNow=()=>{const g=rkG();return !!g&&g.phase==='done'&&rkOverAt()>=0};
 
 /* ---------------- bots ---------------- */
@@ -7997,6 +8040,7 @@ function ohDeal(r){const P=act(),n=ohCards(r);let deck=[];for(const s of 'CDHS')
   const rest=deck.slice(n*P.length),up=rest.length?rest[0]:null,tr=up?up[1]:'N';for(const id in h)h[id]=ohSortT(h[id],tr);
   const g={r,phase:'bid',dealer,h,up,tr,bids:{},bidTurn:OHX().hook?ohNext(dealer):null,t:[],turn:null,n:0,won:{},last:null,played:[]};P.forEach(p=>g.won[p.id]=0);
   if(!OHX().hook)P.forEach(p=>{if(p.bot)g.bids[p.id]=ohBotBid(g,p.id,p.bot)});
+  {const tn=tr==='N'?'No trump':({S:'♠ spades',H:'♥ hearts',D:'♦ diamonds',C:'♣ clubs'}[tr]+' are trump');gAnn(g,`Round ${r+1}: ${n} card${n===1?'':'s'}`,`${tn}. ${nmid(dealer)} deals.`,'🃏');gLog(g,`${n} card${n===1?'':'s'} each · ${tn}`,'🃏')}
   g._atom=1;S.ohg=g;S.ohtr=S.ohtr||[];S.ohtr[r]=tr.toLowerCase();OHSEL=null;OHVIEW=null}
 /* the hook rule: the dealer bids last and can't make the bids add up to the cards dealt */
 const ohBanned=(g,pid)=>{if(!OHX().hook||pid!==g.dealer)return null;const s=Object.values(g.bids).reduce((a,b)=>a+b,0),v=ohCards(g.r)-s;return v>=0?v:null};
@@ -8009,7 +8053,7 @@ function ohPlayCard(pid,c){const g=ohG();if(!g||g.phase!=='play'||g.turn!==pid||
   g.h[pid]=g.h[pid].filter(x=>x!==c);g.t=g.t.concat([{p:pid,c}]);g.turn=g.t.length>=act().length?null:ohNext(pid);playCard();return true}
 function ohCollect(g){const w=ohWinner(g,g.t);g.won[w]=(g.won[w]||0)+1;g.played=(g.played||[]).concat(g.t.map(x=>x.c));g.last={t:g.t,w};g.t=[];g.n++;g.turn=w;
   if(!Object.values(g.h).some(h=>h.length))ohEndRound(g)}
-function ohEndRound(g){act().forEach(p=>{const R=ohR(p,g.r);R.b=g.bids[p.id];R.t=g.won[p.id]||0});g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
+function ohEndRound(g){act().forEach(p=>{const R=ohR(p,g.r);R.b=g.bids[p.id];R.t=g.won[p.id]||0});{const P=act(),made=P.filter(p=>(g.won[p.id]||0)===g.bids[p.id]);P.filter(p=>!made.includes(p)).forEach(p=>gLog(g,`${nm(p)} bid ${g.bids[p.id]}, took ${g.won[p.id]||0}`,'❌'));gLog(g,made.length?`Made it: ${made.map(nm).join(', ')}`:'Nobody made their bid',made.length?'✅':'😬',1);gAnn(g,`Round ${g.r+1} is over`,made.length?`Made their bid: ${made.map(nm).join(', ')}`:'Nobody made their bid!','🏁')}g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
 const ohOverNow=()=>{const g=ohG();return !!g&&g.phase==='done'&&g.r>=ohN()-1};
 
 /* ---------------- bots ---------------- */
@@ -8045,7 +8089,7 @@ const ohNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(ohHumans().length<2)ret
 function ohTick(){if(S.game!=='ohell'||!ohPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!ohRes())return;if(lkqRun()){save();render();return}
   const g=ohG();if(!g||cgStale(g)||g.r!==ohCur()&&g.phase!=='done'){ohDeal(ohCur());save();render();return}
   if(g.phase==='bid'&&!OHX().hook)act().forEach(p=>{if(p.bot&&g.bids[p.id]===undefined)g.bids[p.id]=ohBotBid(g,p.id,p.bot)});
-  if(g.phase==='bid'&&act().every(p=>g.bids[p.id]!==undefined)){if(OHX().hook){g.phase='play';g.bidTurn=null;g.turn=ohNext(g.dealer);save();render()}else cdRun(g,x=>{x.turn=ohNext(x.dealer)});return}
+  if(g.phase==='bid'&&act().every(p=>g.bids[p.id]!==undefined)){if(!g.bidsLog){g.bidsLog=1;const t=act().map(p=>`${nm(p)} ${g.bids[p.id]}`).join(' · '),sum=act().reduce((a,p)=>a+g.bids[p.id],0),n=ohCards(g.r);gLog(g,`Bids: ${t}`,'✋');gAnn(g,'The bids are in',`${t}. ${sum} bid for ${n} trick${n===1?'':'s'}${sum>n?' (overbid)':sum<n?' (underbid)':''}.`,'✋')}if(OHX().hook){g.phase='play';g.bidTurn=null;g.turn=ohNext(g.dealer);save();render()}else cdRun(g,x=>{x.turn=ohNext(x.dealer)});return}
   if(g.phase==='bid'){if(OHX().hook){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot&&!OHBOTT)OHBOTT=setTimeout(()=>{OHBOTT=null;const g2=ohG();if(!g2||g2.phase!=='bid'||g2.bidTurn!==q.id)return;ohBid(q.id,ohBotBid(g2,q.id,q.bot));save();render()},700*htSpd())}return}
   if(g.phase!=='play')return;
   if(g.t.length>=act().length){if(!OHCOLT)OHCOLT=setTimeout(()=>{OHCOLT=null;const g2=ohG();if(g2&&g2.t.length>=act().length){ohCollect(g2);save();render()}},1300*htSpd());return}
@@ -8377,7 +8421,7 @@ function unDeal(r){const P=act(),X=UNX(),ver=UNPV.includes(X.ver)?X.ver:'classic
 
 /* ---------------- drawing cards ---------------- */
 function unPull(g){if(!g.deck.length){if(g.disc.length<2)return null;const top=g.disc.pop();g.deck=htShuffle(g.disc.map(x=>x.c));g.disc=[top]}return g.deck.pop()||null}
-function unMercy(g,pid){if(!unNM(g)||g.ko[pid]||(g.h[pid]||[]).length<25)return;g.ko[pid]=1;g.deck.unshift(...g.h[pid]);g.h[pid]=[];delete g.uno[pid];if(g.catch&&g.catch.p===pid)g.catch=null;g.msg+=` 💀 ${nmid(pid)} has 25 cards and is knocked out by the Mercy rule!`}
+function unMercy(g,pid){if(!unNM(g)||g.ko[pid]||(g.h[pid]||[]).length<25)return;g.ko[pid]=1;gLog(g,`${nmid(pid)} hit 25 cards and is knocked out`,'💀');gAnn(g,`${nmid(pid)} is knocked out!`,'25 cards: the Mercy rule.','💀');g.deck.unshift(...g.h[pid]);g.h[pid]=[];delete g.uno[pid];if(g.catch&&g.catch.p===pid)g.catch=null;g.msg+=` 💀 ${nmid(pid)} has 25 cards and is knocked out by the Mercy rule!`}
 function unGive(g,pid,n){let got=0;for(let i=0;i<n;i++){const c=unPull(g);if(!c)break;g.h[pid].push(c);got++;if(unNM(g)&&g.h[pid].length>=25)break}if(g.h[pid].length>(g.ver==='dos'?2:1))delete g.uno[pid];return got}
 function unLaunch(g,pid){const r=Math.random(),left=g.deck.length+Math.max(0,g.disc.length-1);let n=r<.5?0:r<.75?1:r<.87?2+Math.floor(Math.random()*2):r<.95?4+Math.floor(Math.random()*3):7+Math.floor(Math.random()*5);n=Math.min(n,left);
   const got=unGive(g,pid,n);pst('launch',pid,got);g.shout={p:pid,k:(g.shout?g.shout.k:0)+1,t:got?`💥 +${got}`:'💨 0'};if(S.lk&&S.lk.me===pid||!S.lk&&!act().find(p=>p.id===pid).bot)vibe(got?[40,30,80]:20);return got}
@@ -8432,17 +8476,18 @@ function unPlayCard(pid,c,o={}){const g=ung();if(!g||g.phase!=='play')return fal
 /* a draw nobody can answer is taken right away */
 function unAuto(g){const p=g.pend;if(!p||p.ch)return;const v=g.turn;if(!p.wc&&unStackOn(g)&&(g.h[v]||[]).some(c=>(UNDRAW[unFace(g,c).k]||0)>=p.v))return;unResolvePend(g,v)}
 function unResolvePend(g,v){const p=g.pend;if(!p)return;if(g.catch&&g.catch.p!==v)g.catch=null;
-  if(p.wc){const n=unGiveUntil(g,v,p.wc);pst('pile',v,n,true);g.msg+=` ${nmid(v)} draws ${n} looking for ${UNCOL[p.wc][0].toLowerCase()} and loses the turn.`}else{unGive(g,v,p.n);pst('pile',v,p.n,true);g.msg+=` ${nmid(v)} draws ${p.n} and loses the turn.`}
+  if(p.wc){const n=unGiveUntil(g,v,p.wc);pst('pile',v,n,true);if(n>=4)gLog(g,`${nmid(v)} drew ${n} cards`,'😱');g.msg+=` ${nmid(v)} draws ${n} looking for ${UNCOL[p.wc][0].toLowerCase()} and loses the turn.`}else{unGive(g,v,p.n);pst('pile',v,p.n,true);if(p.n>=4)gLog(g,`${nmid(v)} drew ${p.n} cards`,'😱');g.msg+=` ${nmid(v)} draws ${p.n} and loses the turn.`}
   g.pend=null;g.turn=unNext(g,v)}
 function unChallenge(g,v){const p=g.pend;if(!p||!p.ch||g.turn!==v)return false;const by=p.by;if(g.catch&&g.catch.p!==v)g.catch=null;
+  gLog(g,p.ch.guilty?`${nmid(v)} won a challenge against ${nmid(by)}`:`${nmid(v)} lost a challenge to ${nmid(by)}`,'⚖️');
   if(p.ch.guilty){pst('chalwin',v);const n=p.wc?unGiveUntil(g,by,p.wc):(unGive(g,by,p.n),p.n);g.msg=`${nmid(v)} challenged and was right: ${nmid(by)} had a ${UNCOL[p.ch.prev][0].toLowerCase()} card and draws ${n}. ${nmid(v)} plays on.`;g.pend=null}
   else{const n=p.wc?unGiveUntil(g,v,p.wc)+unGive(g,v,2):(unGive(g,v,p.n+2),p.n+2);g.msg=`${nmid(v)} challenged, but ${nmid(by)} had no ${unColName(p.ch.prev).toLowerCase()} card. ${nmid(v)} draws ${n}.`;g.pend=null;g.turn=unNext(g,v)}
   return true}
-function unFlip(g){g.side=g.side==='D'?'L':'D';g.disc.reverse();g.deck.reverse();const top=g.disc[g.disc.length-1];top.w=null;g.col=unFace(g,top.c).col;
+function unFlip(g){g.side=g.side==='D'?'L':'D';gLog(g,`Flipped to the ${g.side==='D'?'dark':'light'} side`,'🔄');gAnn(g,'Flip!',`Everything turns to the ${g.side==='D'?'dark':'light'} side.`,'🔄');g.disc.reverse();g.deck.reverse();const top=g.disc[g.disc.length-1];top.w=null;g.col=unFace(g,top.c).col;
   Object.keys(g.h).forEach(id=>g.h[id]=unSort(g,g.h[id]))}
-function unShuffleHands(g,pid){const P=unAlive(g),all=htShuffle(P.flatMap(p=>g.h[p.id]));P.forEach(p=>g.h[p.id]=[]);let id=unNext(g,pid);while(all.length){g.h[id].push(all.pop());id=unNext(g,id)}g.uno={};g.catch=null}
+function unShuffleHands(g,pid){gLog(g,`${nmid(pid)} shuffled every hand together`,'🌀');const P=unAlive(g),all=htShuffle(P.flatMap(p=>g.h[p.id]));P.forEach(p=>g.h[p.id]=[]);let id=unNext(g,pid);while(all.length){g.h[id].push(all.pop());id=unNext(g,id)}g.uno={};g.catch=null}
 function unRotate(g){const P=unAlive(g),n=P.length,hs=P.map(p=>g.h[p.id]),d=g.dir;P.forEach((p,i)=>{g.h[p.id]=hs[(i-d+n*2)%n]});g.uno={};g.catch=null;P.forEach(p=>unMercy(g,p.id))}
-function unSwap(g,pid,t,auto){if(!g.h[t]||t===pid)return false;[g.h[pid],g.h[t]]=[g.h[t],g.h[pid]];g.uno={};g.catch=null;g.ask=null;g.msg+=` ${nmid(pid)} swaps hands with ${nmid(t)}.`;unMercy(g,pid);unMercy(g,t);if(!auto)g.turn=unNext(g,pid);if(!g.h[t].length){unEnd(g,t);return true}if(unCallOn()&&g.h[t].length===1)g.catch={p:t,id:g.n};return true}
+function unSwap(g,pid,t,auto){if(!g.h[t]||t===pid)return false;gLog(g,`${nmid(pid)} swapped hands with ${nmid(t)}`,'🔀');[g.h[pid],g.h[t]]=[g.h[t],g.h[pid]];g.uno={};g.catch=null;g.ask=null;g.msg+=` ${nmid(pid)} swaps hands with ${nmid(t)}.`;unMercy(g,pid);unMercy(g,t);if(!auto)g.turn=unNext(g,pid);if(!g.h[t].length){unEnd(g,t);return true}if(unCallOn()&&g.h[t].length===1)g.catch={p:t,id:g.n};return true}
 function unAim(g,pid,t,auto){if(!g.h[t]||t===pid)return false;g.ask=null;unGive(g,t,2);g.msg+=` ${nmid(t)} draws 2.`;if(!auto)g.turn=unNext(g,pid);return true}
 function unPress(g,pid){const h=g.hit;if(!h||h.p!==pid||g.turn!==pid)return false;if(g.catch&&g.catch.p!==pid)g.catch=null;const n=unLaunch(g,pid);g.msg=`${nmid(pid)} pressed the launcher: ${n?`💥 ${n} card${n===1?'':'s'}!`:'nothing came out.'}`;
   if(h.fire){if(n>0){g.hit=null;g.turn=unNext(g,pid);g.msg+=' It fired!'}}else{h.n--;if(h.n<=0){g.hit=null;g.turn=unNext(g,pid)}}return true}
@@ -8458,11 +8503,12 @@ function unDrawAct(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||g.ask||g.drawn)
   if(c&&unCanOn(g,c)){g.drawn={p:pid,c};return true}
   g.turn=unNext(g,pid);return true}
 function unKeepAct(g,pid){if(!g||!g.drawn||g.drawn.p!==pid||unNM(g))return false;g.drawn=null;g.msg=`${nmid(pid)} kept the card.`;g.turn=unNext(g,pid);return true}
-function unCallUno(g,pid){const h=g.h[pid]||[];if(!unCallOn()||!h.length||h.length>(unDOS(g)?3:2)||g.uno[pid])return false;g.uno[pid]=1;if(g.catch&&g.catch.p===pid)g.catch=null;g.shout={p:pid,k:(g.shout?g.shout.k:0)+1,t:unCallWord(g)+'!'};return true}
-function unCatch(g,by,t){if(!g||!g.catch||g.catch.p!==t||g.phase!=='play')return false;g.catch=null;pst('caught',t);pst('catches',by);if(unAT(g)){const n=unLaunch(g,t)+unLaunch(g,t);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without an UNO! ${nmid(t)} presses the launcher twice: ${n} card${n===1?'':'s'}.`;return true}unGive(g,t,2);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without ${unDOS(g)?'a DOS':'an UNO'}! ${nmid(t)} draws 2.`;return true}
+function unCallUno(g,pid){const h=g.h[pid]||[];if(!unCallOn()||!h.length||h.length>(unDOS(g)?3:2)||g.uno[pid])return false;g.uno[pid]=1;if(g.catch&&g.catch.p===pid)g.catch=null;g.shout={p:pid,k:(g.shout?g.shout.k:0)+1,t:unCallWord(g)+'!'};gLog(g,`${nmid(pid)} called ${unCallWord(g)}`,'📣');return true}
+function unCatch(g,by,t){if(!g||!g.catch||g.catch.p!==t||g.phase!=='play')return false;g.catch=null;pst('caught',t);pst('catches',by);gLog(g,`${by?nmid(by):'Someone'} caught ${nmid(t)} without ${unDOS(g)?'a DOS':'an UNO'}`,'🚨');gAnn(g,'Caught!',`${nmid(t)} forgot to call ${unDOS(g)?'DOS':'UNO'}.`,'🚨');if(unAT(g)){const n=unLaunch(g,t)+unLaunch(g,t);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without an UNO! ${nmid(t)} presses the launcher twice: ${n} card${n===1?'':'s'}.`;return true}unGive(g,t,2);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without ${unDOS(g)?'a DOS':'an UNO'}! ${nmid(t)} draws 2.`;return true}
 function unEnd(g,w){act().forEach(p=>{const R=unR(p,g.r),ko=!!g.ko[p.id];R.won=p.id===w;R.ko=ko;R.pv=p.id===w||ko?0:(g.h[p.id]||[]).reduce((a,c)=>a+unCardPts(g,c),0);R.v=R.pv;R.num=null;R.c={}});
   S.unside=S.unside||[];S.unside[g.r]=g.side==='D'?'dark':'light';g.phase='done';g.win=w;g.turn=null;g.pend=null;g.hit=null;g.ask=null;g.drawn=null;g.catch=null;
-  g.msg+=` ${nmid(w)} ${unAlive(g).length===1&&(g.h[w]||[]).length?'is the last one standing and':''} wins the hand!`.replace('  ',' ');S.hr=Math.max(S.hr||0,g.r)}
+  g.msg+=` ${nmid(w)} ${unAlive(g).length===1&&(g.h[w]||[]).length?'is the last one standing and':''} wins the hand!`.replace('  ',' ');S.hr=Math.max(S.hr||0,g.r);
+  {const left=act().filter(p=>p.id!==w&&!g.ko[p.id]).map(p=>`${nm(p)} ${(g.h[p.id]||[]).length}`);gLog(g,`${nmid(w)} won the hand`,'🏆',1);gAnn(g,`${nmid(w)} wins the hand!`,left.length?'Cards left: '+left.join(' · '):'','🏆')}}
 function unAfter(g){if(!g||g.phase!=='play')return;act().forEach(p=>unMercy(g,p.id));const al=unAlive(g);if(al.length===1){unEnd(g,al[0].id);return}
   {const w0=al.find(p=>!(g.h[p.id]||[]).length&&!(g.ask&&g.ask.forced&&g.ask.p===p.id));if(w0){unEnd(g,w0.id);return}}
   if(g.turn&&g.ko[g.turn])g.turn=unNext(g,g.turn);if(g.ask&&g.ko[g.ask.p]){g.ask=null;g.turn=unNext(g,g.turn)}if(UNSEL&&!Object.values(g.h).some(h=>h.includes(UNSEL)))UNSEL=null}
@@ -8760,7 +8806,7 @@ function gpPull(g){if(gpGN(g)){if(!g.deck.length){const rest=[];g.dps.forEach(d=
 function gpClear(g,pid){if(!gpSK(g))return;const cells=g.h[pid],X=SKX();let cl=0;
   const sets=[];for(let c=0;c<4;c++)sets.push([c,c+4,c+8]);if(X.rowClear)for(let r=0;r<3;r++)sets.push([r*4,r*4+1,r*4+2,r*4+3]);
   let v=null;sets.forEach(s=>{if(s.every(i=>cells[i].up&&!cells[i].gone)&&s.every(i=>gpSame(g,cells[i].c,cells[s[0]].c))){v=gpRank(cells[s[0]].c);s.forEach(i=>{cells[i].gone=true;g.disc.push(cells[i].c)});cl++}});
-  if(cl)g.msg+=` ${cl===1?'A line':cl+' lines'} of ${v}s cleared!`}
+  if(cl){g.msg+=` ${cl===1?'A line':cl+' lines'} of ${v}s cleared!`;gLog(g,`${nmid(pid)} cleared ${cl===1?'a line':cl+' lines'} of ${v}s`,'✨')}}
 function gpAllUp(g,pid){return g.h[pid].every(x=>x.up||x.gone)}
 function gpFlipStart(g,pid,i){if(g.phase!=='flip'||!(g.need[pid]>0))return false;const x=g.h[pid][i];if(!x||x.up)return false;x.up=true;g.need[pid]--;g.n++;gpStartIfReady(g);return true}
 function gpTake(g,pid,from){if(gpGN(g))return gpnTake(g,pid,from);if(g.phase!=='play'||g.turn!==pid||g.hold||g.flip)return false;let c;if(from==='disc'){c=g.disc.pop();if(!c)return false}else{c=gpPull(g);if(!c)return false}
@@ -8771,12 +8817,12 @@ function gpToss(g,pid){if(gpGN(g))return gpnToss(g,pid);const h=g.hold;if(!h||h.
   const canFlip=g.h[pid].some(x=>!x.up&&!x.gone);if((gpSK(g)||GFX().flipDisc)&&canFlip){g.flip=pid;return true}gpEndTurn(g,pid);return true}
 function gpFlipOne(g,pid,i){if(g.flip!==pid)return false;const x=g.h[pid][i];if(!x||x.up||x.gone)return false;x.up=true;g.flip=null;g.last={p:pid,i};g.n++;g.msg+=` Flipped a ${gpName(g,x.c)}.`;if(gpGN(g)){const c=g.tossC;g.tossC=null;gpnLeft(g,pid,c);return true}gpClear(g,pid);gpEndTurn(g,pid);return true}
 function gpEndTurn(g,pid){if(g.ender){g.left=g.left.filter(x=>x!==pid);if(!g.left.length){gpScore(g);return}}
-  else if(gpAllUp(g,pid)){g.ender=pid;g.left=act().map(p=>p.id).filter(x=>x!==pid);g.msg+=` ${nmid(pid)} has every card face up! Everyone else gets one more turn.`;if(!g.left.length){gpScore(g);return}}
+  else if(gpAllUp(g,pid)){g.ender=pid;g.left=act().map(p=>p.id).filter(x=>x!==pid);g.msg+=` ${nmid(pid)} has every card face up! Everyone else gets one more turn.`;gLog(g,`${nmid(pid)} went out first`,'🚪',1);gAnn(g,`${nmid(pid)} went out!`,'Every card is face up. Everyone else gets one more turn.','🚪');if(!g.left.length){gpScore(g);return}}
   let nx=gpNext(g,pid);if(g.ender){let guard=0;while(!g.left.includes(nx)&&guard++<20)nx=gpNext(g,nx)}g.turn=nx}
 function gpScore(g){const P=act();P.forEach(p=>g.h[p.id].forEach(x=>x.up=true));
-  if(gpGN(g)){P.forEach(p=>{const R=gnR(p,g.r);R.g=g.h[p.id].map(x=>{const k=gpRank(x.c);return k==='H'||k==='M'?k:+k});R.v=null;R.out=p.id===g.ender});g.phase='done';g.turn=null;g.hold=null;g.bounce=null;g.left2=null;g.hzf={};S.hr=Math.max(S.hr||0,g.r);g.msg='Round over: everyone turns up their cards.';return}
+  if(gpGN(g)){P.forEach(p=>{const R=gnR(p,g.r);R.g=g.h[p.id].map(x=>{const k=gpRank(x.c);return k==='H'||k==='M'?k:+k});R.v=null;R.out=p.id===g.ender});g.phase='done';g.turn=null;g.hold=null;g.bounce=null;g.left2=null;g.hzf={};S.hr=Math.max(S.hr||0,g.r);g.msg='Round over: everyone turns up their cards.';gAnn(g,`Round ${g.r+1} is over`,'Everyone turns up their cards.','🏁');return}
   P.forEach(p=>{const cells=g.h[p.id];if(gpSK(g)){const R=skR(p,g.r);R.g=cells.map(x=>+gpRank(x.c));R.v=null;R.out=p.id===g.ender}else{const R=gfR(p,g.r);R.g=cells.map(x=>gpRk(x.c));R.v=null;R.out=p.id===g.ender}});
-  S.gpprev=g.ender;g.phase='done';g.turn=null;g.hold=null;g.flip=null;S.hr=Math.max(S.hr||0,g.r);
+  S.gpprev=g.ender;g.phase='done';g.turn=null;g.hold=null;g.flip=null;S.hr=Math.max(S.hr||0,g.r);gAnn(g,`${glWord()} ${g.r+1} is over`,'Everyone turns up their cards.','🏁');
   g.msg=`Hole’s over: everyone turns up their cards.`;if(gpSK(g))g.msg='Round over: everyone turns up their cards.'}
 const gpName=(g,c)=>{if(gpGN(g)){const k=gpRank(c);return k==='H'?'Hazard':k==='M'?'Mulligan':k}if(gpSK(g))return gpRank(c);const k=gpRk(c);return k==='Jk'?'joker':({A:'ace',J:'jack',Q:'queen',K:'king'}[k]||k)};
 const gpPts=(g,pid)=>{const p=act().find(q=>q.id===pid);return gpGN(g)?gnPts(p,g.r):gpSK(g)?skPts(p,g.r):gfPts(p,g.r)};
@@ -8843,7 +8889,7 @@ function gpnToss(g,pid){const h=g.hold;if(!h||h.p!==pid||h.from==='bounce')retur
   if(GNX().skipFlip&&h.from==='deck'&&gpRank(h.c)!=='H'&&g.h[pid].some(x=>!x.up)){g.flip=pid;g.tossC=h.c;return true}
   gpnLeft(g,pid,h.c);return true}
 function gpnBounce(g,pid,yes){const b=g.bounce;if(!b||b.p!==pid)return false;g.bounce=null;g.n++;if(yes){g.hold={p:pid,c:b.c,from:'bounce',i:b.i};g.msg=`${nmid(pid)} bounces the ${gpName(g,b.c)}.`;return true}gpnLeft(g,pid,b.c);return true}
-function gpnLeft(g,pid,c){if(gpRank(c)==='H'){g.hzby=pid;g.msg+=` The Hazard is out of play: everyone else flips a card.`;act().forEach(p=>{if(p.id===pid)return;const downs=g.h[p.id].filter(x=>!x.up).length;if(downs<2)return;
+function gpnLeft(g,pid,c){if(gpRank(c)==='H'){g.hzby=pid;gLog(g,`${nmid(pid)} played a Hazard: everyone else flips a card`,'⚠️');g.msg+=` The Hazard is out of play: everyone else flips a card.`;act().forEach(p=>{if(p.id===pid)return;const downs=g.h[p.id].filter(x=>!x.up).length;if(downs<2)return;
     if(p.bot){const idx=g.h[p.id].map((x,j)=>j).filter(j=>!g.h[p.id][j].up);g.h[p.id][idx[Math.floor(Math.random()*idx.length)]].up=true}else g.hzf[p.id]=1});gpEndTurn(g,pid);return}
   const e=g.dps.map(d=>!d.length);if(e[0]!==e[1]){gpnPile(g,pid,e[0]?0:1,c);return}g.left2={p:pid,c}}
 function gpnPile(g,pid,k,c0){const c=c0||(g.left2&&g.left2.p===pid?g.left2.c:null);if(!c||!(k===0||k===1))return false;const e=g.dps.map(d=>!d.length);if(!c0&&e[0]!==e[1]&&!e[k])return false;
@@ -8978,21 +9024,21 @@ function sbFill(g,pid){const h=g.h[pid];while(h.length<5){const c=sbPull(g);if(!
 function sbDeal(r){const P=act(),dealer=P[r%P.length].id,L=[];for(let s=0;s<12;s++)for(let v=1;v<=12;v++)L.push(v);for(let i=0;i<18;i++)L.push('W');
   const g={_atom:1,r,h:{},st:{},dp:{},bp:[[],[],[],[]],deck:htShuffle(L.map((v,i)=>v+'#'+i)),done:[],turn:null,dealer,phase:'play',msg:'',n:0,win:null,last:null};
   const n=sbStock();P.forEach(p=>{g.st[p.id]=[];g.dp[p.id]=[[],[],[],[]];g.h[p.id]=[]});for(let i=0;i<n;i++)P.forEach(p=>g.st[p.id].push(g.deck.pop()));
-  g.turn=P[(P.findIndex(p=>p.id===dealer)+1)%P.length].id;sbFill(g,g.turn);g.msg=`${nmid(dealer)} dealt ${n} cards to every stock pile. ${nmid(g.turn)} goes first.`;S.sbg=g;SBSEL=null;SBVIEW=null}
+  g.turn=P[(P.findIndex(p=>p.id===dealer)+1)%P.length].id;sbFill(g,g.turn);g.msg=`${nmid(dealer)} dealt ${n} cards to every stock pile. ${nmid(g.turn)} goes first.`;gAnn(g,`Hand ${r+1}`,`${n} cards in every stock pile. ${nmid(g.turn)} goes first.`,'🃏');gLog(g,`${n}-card stock piles · ${nmid(g.turn)} first`,'🃏');S.sbg=g;SBSEL=null;SBVIEW=null}
 const sbNext=(g,pid)=>{const P=act(),i=P.findIndex(p=>p.id===pid);return P[(i+1)%P.length].id};
 /* src: {f:'hand',c} | {f:'stock'} | {f:'disc',i} */
 function sbCard(g,pid,src){if(!src)return null;if(src.f==='hand')return (g.h[pid]||[]).includes(src.c)?src.c:null;if(src.f==='stock')return sbTop(g.st[pid]);if(src.f==='disc')return sbTop((g.dp[pid]||[])[src.i]);return null}
 function sbPlay(g,pid,src,bi){if(!g||g.phase!=='play'||g.turn!==pid)return false;const c=sbCard(g,pid,src),pile=g.bp[bi];if(!c||!pile||!sbFits(c,pile))return false;
   if(src.f==='hand')g.h[pid].splice(g.h[pid].indexOf(c),1);else if(src.f==='stock')g.st[pid].pop();else g.dp[pid][src.i].pop();
   const v=sbNeed(pile);pile.push(c);g.n++;g.last={bi,p:pid};g.msg=`${nmid(pid)} played ${sbWild(c)?`a Skip-Bo card as ${v}`:'a '+v}${src.f==='stock'?' from the stock pile':src.f==='disc'?' from a discard pile':''}.`;
-  if(src.f==='stock')pst('sbstock',pid);
+  if(src.f==='stock'){pst('sbstock',pid);const L=g.st[pid].length;if(L===1){gLog(g,`${nmid(pid)} is down to 1 stock card`,'⚠️');gAnn(g,'Last stock card!',`${nmid(pid)} has just 1 card left in their stock.`,'⚠️')}else if(L===10||L===5||L===3)gLog(g,`${nmid(pid)} has ${L} stock cards left`,'📉')}
   if(pile.length===12){g.done.push(...pile);g.bp[bi]=[];g.msg+=' That pile is complete!';pst('sbdone',pid)}
   if(!g.st[pid].length){sbEnd(g,pid);return true}
   if(!g.h[pid].length){sbFill(g,pid);g.msg+=` Hand empty: ${nmid(pid)} draws 5 more.`}
   return true}
 function sbDiscard(g,pid,c,i){if(!g||g.phase!=='play'||g.turn!==pid||!(g.h[pid]||[]).includes(c)||!(i>=0&&i<4))return false;g.h[pid].splice(g.h[pid].indexOf(c),1);g.dp[pid][i].push(c);g.n++;
   g.msg=`${nmid(pid)} discarded ${sbWild(c)?'a Skip-Bo card':'a '+sbVal(c)} and ended the turn.`;const nx=sbNext(g,pid);g.turn=nx;sbFill(g,nx);g.last=null;return true}
-function sbEnd(g,w){act().forEach(p=>{const R=sbR(p,g.r);R.won=p.id===w;R.left=p.id===w?0:g.st[p.id].length});g.phase='done';g.win=w;g.turn=null;S.hr=Math.max(S.hr||0,g.r);g.msg+=` ${nmid(w)} played the last stock card and wins the hand!`}
+function sbEnd(g,w){act().forEach(p=>{const R=sbR(p,g.r);R.won=p.id===w;R.left=p.id===w?0:g.st[p.id].length});g.phase='done';g.win=w;g.turn=null;S.hr=Math.max(S.hr||0,g.r);g.msg+=` ${nmid(w)} played the last stock card and wins the hand!`;{const left=act().filter(p=>p.id!==w).map(p=>`${nm(p)} ${g.st[p.id].length}`);gLog(g,`${nmid(w)} emptied their stock and won`,'🏆',1);gAnn(g,`${nmid(w)} wins the hand!`,'Stock cards left: '+left.join(' · '),'🏆')}}
 
 /* ---------------- computer players ---------------- */
 function sbSources(g,pid){const out=[];(g.h[pid]||[]).forEach(c=>out.push({f:'hand',c}));(g.dp[pid]||[]).forEach((d,i)=>{if(d.length)out.push({f:'disc',i})});return out}
@@ -9139,7 +9185,7 @@ function fcDeal(r){const P=fcPP(r),ids=P.map(p=>p.id),L=[];for(let d=0;d<2;d++)f
   const k=fcCards(r),dealer=ids[r%ids.length];
   const g={_atom:1,r,k,ps:ids,h:{},deck:htShuffle(L.map((c,i)=>c+'#'+i)),disc:[],turn:null,dealer,phase:'play',drew:0,got:null,from:null,out:null,left:[],lay:{},msg:'',n:0};
   ids.forEach(id=>g.h[id]=[]);for(let i=0;i<k;i++)ids.forEach(id=>g.h[id].push(g.deck.pop()));g.disc.push(g.deck.pop());
-  g.turn=fcNextP(g,dealer);g.msg=`${nmid(dealer)} dealt ${k} cards each. ${fcWildName(r)} are wild. ${nmid(g.turn)} goes first.`;S.fcg=g;FCSEL=[];FCVIEW=null;FCORD={}}
+  g.turn=fcNextP(g,dealer);g.msg=`${nmid(dealer)} dealt ${k} cards each. ${fcWildName(r)} are wild. ${nmid(g.turn)} goes first.`;gAnn(g,`Round ${r+1}: ${k} cards`,`${fcWildName(r)} are wild. ${nmid(g.turn)} goes first.`,'👑');gLog(g,`${k} cards each · ${fcWildName(r)} wild`,'👑');S.fcg=g;FCSEL=[];FCVIEW=null;FCORD={}}
 function fcPull(g){if(!g.deck.length){if(g.disc.length<2)return null;const top=g.disc.pop();g.deck=htShuffle(g.disc);g.disc=[top];g.msg+=' The draw pile ran out, so the discards were shuffled into a new one.'}return g.deck.pop()||null}
 function fcDraw(g,pid,from){if(!g||g.phase!=='play'||g.turn!==pid||g.drew)return false;let c;
   if(from==='disc'){c=g.disc.pop();if(!c)return false}else{g.msg='';c=fcPull(g);if(!c)return false}
@@ -9149,13 +9195,13 @@ function fcDiscard(g,pid,c,out){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew)r
   if(out){if(g.out||fcBest(rest,g.k).pen!==0)return false}
   g.h[pid]=rest;g.disc.push(c);g.drew=0;g.got=null;g.from=null;g.n++;
   if(out){g.out=pid;g.lay[pid]=fcBest(rest,g.k);g.left=[];for(let x=fcNextP(g,pid);x!==pid;x=fcNextP(g,x))g.left.push(x);pst('fcout',pid);
-    g.msg=`${nmid(pid)} discarded the ${fcName(c)} and went out! Everyone else gets one more turn.`;if(!g.left.length){fcEnd(g);return true}g.turn=g.left[0];return true}
+    g.msg=`${nmid(pid)} discarded the ${fcName(c)} and went out! Everyone else gets one more turn.`;gLog(g,`${nmid(pid)} went out`,'🚪',1);gAnn(g,`${nmid(pid)} went out!`,'Everyone else gets one more turn.','🚪');if(!g.left.length){fcEnd(g);return true}g.turn=g.left[0];return true}
   g.msg=`${nmid(pid)} discarded the ${fcName(c)}.`;
   if(g.out){g.left=g.left.filter(x=>x!==pid);const b=fcBest(rest,g.k);g.lay[pid]=b;g.msg+=b.pen?` Laid down what they could, with ${b.pen} left.`:' Laid everything down too!';
-    if(!g.left.length){fcEnd(g);return true}g.turn=g.left[0];return true}
+    if(!b.pen)gLog(g,`${nmid(pid)} laid everything down too`,'🙌');if(!g.left.length){fcEnd(g);return true}g.turn=g.left[0];return true}
   g.turn=fcNextP(g,pid);return true}
 function fcEnd(g){g.ps.forEach(id=>{const p=act().find(q=>q.id===id);if(!p)return;const b=g.lay[id]||fcBest(g.h[id],g.k);g.lay[id]=b;const R=fcR(p,g.r);R.out=id===g.out;R.v=R.out?0:b.pen;R.c={}});
-  g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r);g.msg+=' The round is over.'}
+  g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r);g.msg+=' The round is over.';{const t=g.ps.map(id=>`${nmid(id)} ${g.lay[id]?g.lay[id].pen:0}`).join(' · ');gLog(g,`Points: ${t}`,'🧮');gAnn(g,`Round ${g.r+1} is over`,t,'🏁')}}
 
 /* ---------------- computer players ---------------- */
 function fcBotStep(g,q){const pid=q.id,lv=q.bot,k=g.k,h=g.h[pid];if(g.turn!==pid||g.phase!=='play')return;
@@ -9334,6 +9380,7 @@ function pzDeal(r){const P=act(),ids=P.map(p=>p.id),L=[];for(let d=0;d<2;d++)for
   P.forEach(p=>{g.h[p.id]=[];g.on[p.id]=ptOn(p,r)});for(let i=0;i<10;i++)ids.forEach(id=>g.h[id].push(g.deck.pop()));g.disc.push(g.deck.pop());
   g.turn=pzNext(g,dealer);g.msg=`${nmid(dealer)} dealt 10 cards each. ${nmid(g.turn)} goes first.`;
   if(pzS(pzTop(g))){g.msg+=` A Skip was turned up, so ${nmid(g.turn)} is skipped.`;g.turn=pzNext(g,g.turn)}
+  gAnn(g,`Hand ${r+1}`,`${nmid(dealer)} deals. ${nmid(g.turn)} goes first.`,'🃏');gLog(g,'Working on: '+ids.map(id=>`${nmid(id)} ${ptLab(g.on[id])}`).join(' · '),'🎯');
   S.pzg=g;PZSEL=[];PZVIEW=null;PZSTAGE={}}
 function pzPull(g){if(!g.deck.length){if(g.disc.length<2)return null;const top=g.disc.pop();g.deck=htShuffle(g.disc);g.disc=[top];g.msg+=' The draw pile ran out, so the discards were shuffled into a new one.'}return g.deck.pop()||null}
 function pzDraw(g,pid,from){if(!g||g.phase!=='play'||g.turn!==pid||g.drew||g.ask||g.pass)return false;let c;
@@ -9343,7 +9390,7 @@ function pzDraw(g,pid,from){if(!g||g.phase!=='play'||g.turn!==pid||g.drew||g.ask
 function pzLay(g,pid,groups){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew||g.made[pid]||g.ask)return false;const spec=pzSpec(g.on[pid]),h=g.h[pid];
   if(!Array.isArray(groups)||groups.length!==spec.length)return false;const all=groups.flat();if(new Set(all).size!==all.length||!all.every(c=>h.includes(c)))return false;
   const out=[];for(let i=0;i<spec.length;i++){const gr=pzFit(spec[i][0],spec[i][1],groups[i]);if(!gr)return false;out.push(gr)}
-  g.h[pid]=h.filter(c=>!all.includes(c));g.lay[pid]=out;g.made[pid]=1;g.n++;pst('pzmade',pid);g.msg=`${nmid(pid)} laid down ${ptLab(g.on[pid])}!`;
+  g.h[pid]=h.filter(c=>!all.includes(c));g.lay[pid]=out;g.made[pid]=1;g.n++;pst('pzmade',pid);g.msg=`${nmid(pid)} laid down ${ptLab(g.on[pid])}!`;gLog(g,`${nmid(pid)} made ${ptLab(g.on[pid])}`,'✅');gAnn(g,`${nmid(pid)} made ${ptLab(g.on[pid])}!`,ptDesc(g.on[pid])||'','✅');
   if(!g.h[pid].length)pzEnd(g,pid);return true}
 function pzHit(g,pid,c,owner,i){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew||!g.made[pid]||g.ask)return false;const h=g.h[pid],gr=((g.lay[owner]||[])[i]);if(!gr||!h.includes(c)||!pzHitOk(gr,c))return false;
   pzHitAdd(gr,c);g.h[pid]=h.filter(x=>x!==c);g.n++;pst('pzhit',pid);g.msg=`${nmid(pid)} added the ${pzName(c)}${owner===pid?'':` to ${nmid(owner)}’s cards`}.`;
@@ -9358,18 +9405,18 @@ function pzAdvance(g,pid){let nx=pzNext(g,pid),guard=0;g.sj=g.sj||{};
 const pzPassTo=(g,pid)=>PTX().skNext?[pzNext(g,pid)]:g.ps.filter(x=>x!==pid);
 function pzPass(g,pid,target){if(!g||g.phase!=='play'||g.pass!==pid||g.turn!==pid||!pzPassTo(g,pid).includes(target))return false;const c=(g.h[pid]||[]).find(pzS);if(!c)return false;
   g.h[pid]=g.h[pid].filter(x=>x!==c);g.disc.push(c);g.sk[pid]--;if(!(g.sk[pid]>0))delete g.sk[pid];g.sk[target]=(g.sk[target]>0?g.sk[target]:0)+1;g.pass=null;g.n++;pst('pzskip',pid);
-  g.msg=`${nmid(pid)} passed the skip to ${nmid(target)}!`;if(!g.h[pid].length){g.msg+=' That was their last card!';pzEnd(g,pid)}return true}
+  g.msg=`${nmid(pid)} passed the skip to ${nmid(target)}!`;gLog(g,`${nmid(pid)} passed the skip to ${nmid(target)}`,'⏭️');if(!g.h[pid].length){g.msg+=' That was their last card!';pzEnd(g,pid)}return true}
 function pzTakeSkip(g,pid){if(!g||g.phase!=='play'||g.pass!==pid||g.turn!==pid)return false;g.pass=null;g.sk[pid]--;if(!(g.sk[pid]>0))delete g.sk[pid];g.sj=g.sj||{};g.sj[pid]=1;g.n++;g.msg=`${nmid(pid)} takes the skip.`;g.turn=pzAdvance(g,pid);return true}
 function pzDiscard(g,pid,c,target){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew||g.ask&&g.ask.p!==pid)return false;const h=g.h[pid];if(!h.includes(c))return false;
   if(pzS(c)&&target!==undefined&&target!==null&&!pzSkipOk(g,pid).includes(target))return false;
   g.h[pid]=h.filter(x=>x!==c);g.disc.push(c);g.drew=0;g.got=null;g.from=null;g.ask=null;g.n++;g.msg=`${nmid(pid)} discarded the ${pzName(c)}.`;
   /* a normal turn clears a 'just skipped' mark */
   g.sj=g.sj||{};if(g.sj[pid])delete g.sj[pid];
-  if(pzS(c)&&target){g.sk[target]=(g.sk[target]>0?g.sk[target]:0)+1;g.msg=`${nmid(pid)} skipped ${nmid(target)}!`;pst('pzskip',pid)}
+  if(pzS(c)&&target){g.sk[target]=(g.sk[target]>0?g.sk[target]:0)+1;g.msg=`${nmid(pid)} skipped ${nmid(target)}!`;pst('pzskip',pid);gLog(g,`${nmid(pid)} skipped ${nmid(target)}`,'⏭️')}
   if(!g.h[pid].length){g.msg+=' That was their last card!';pzEnd(g,pid);return true}
   g.turn=pzAdvance(g,pid);return true}
 function pzEnd(g,w){g.out=w;act().forEach(p=>{const R=ptR(p,g.r),h=g.h[p.id]||[];R.made=!!g.made[p.id];R.out=p.id===w;R.lo=h.filter(c=>!pzW(c)&&!pzS(c)&&pzV(c)<=9).length;R.hi=h.filter(c=>!pzW(c)&&!pzS(c)&&pzV(c)>=10).length;R.sk=h.filter(pzS).length;R.wd=h.filter(pzW).length;R.t=1});
-  g.phase='done';g.turn=null;g.ask=null;S.hr=Math.max(S.hr||0,g.r);g.msg+=` ${nmid(w)} went out. The hand is over.`}
+  g.phase='done';g.turn=null;g.ask=null;S.hr=Math.max(S.hr||0,g.r);g.msg+=` ${nmid(w)} went out. The hand is over.`;{const miss=g.ps.filter(id=>!g.made[id]);gLog(g,`${nmid(w)} went out`,'🚪',1);if(miss.length)gLog(g,`Didn’t make their phase: ${miss.map(nmid).join(', ')}`,'😬');gAnn(g,`${nmid(w)} went out!`,miss.length?`Still on the same phase: ${miss.map(nmid).join(', ')}`:'Everyone made their phase this hand.','🚪')}}
 /* ---------------- computer players ---------------- */
 function pzBotStep(g,q){const pid=q.id,lv=q.bot,h=g.h[pid],spec=pzSpec(g.on[pid]);if(g.turn!==pid||g.phase!=='play')return;
   if(g.pass===pid){const ts=pzPassTo(g,pid);if(ts.length&&(lv!=='easy'||Math.random()<.6)){const t=ts.slice().sort((a,b)=>(g.made[b]?1:0)-(g.made[a]?1:0)||g.h[a].length-g.h[b].length)[0];pzPass(g,pid,t)}else pzTakeSkip(g,pid);return}
@@ -9537,6 +9584,7 @@ const hpOpenOf=(g,side,rank)=>(g.melds[side]||[]).findIndex(m=>!m.b3&&hpMeldRank
 /* red 3s are laid face up as soon as you get them (house rule); a replacement comes off the stock */
 function hpRed3(g,pid,replace){if(!HX().r3play)return 0;const side=hpSide(g,pid);let n=0,guard=0;g.r3=g.r3||{};
   while(guard++<20){const c=g.h[pid].find(x=>hp3(x)&&hpRed(x));if(!c)break;g.h[pid]=g.h[pid].filter(x=>x!==c);(g.r3[side]=g.r3[side]||[]).push(c);n++;if(replace&&g.deck.length)g.h[pid].push(g.deck.pop())}
+  if(n)gLog(g,`${nmid(pid)} laid down ${n===1?'a red 3':n+' red 3s'}`,'🔴');
   if(n)g.msg=(g.msg?g.msg+' ':'')+`${nmid(pid)} laid down ${n===1?'a red 3':n+' red 3s'}${replace?' and drew '+(n===1?'a card':n+' cards'):''}.`;return n}
 const hpMeldVal=cs=>cs.reduce((a,c)=>a+hpVal(c),0);
 /* what this player's side needs for its first meld this round */
@@ -9551,7 +9599,9 @@ function hpDeal(r){const P=act(),X=HX(),ids=P.map(p=>p.id),L=[],CA=HPCA();const 
   const dealer=ids[r%ids.length],g={_atom:1,r,ps:ids,tm:{},h:{},ft:{},inF:{},nc:L.length,deck:htShuffle(L.map((c,i)=>c+'#'+i)),disc:[],turn:null,dealer,phase:'play',drew:0,need:null,melds:{},down:{},out:null,msg:'',n:0};
   ids.forEach((id,i)=>{g.tm[id]=X.teams&&ids.length>=4&&ids.length%2===0?'T'+(i%(ids.length/2)):id;g.h[id]=[];g.ft[id]=[]});
   for(let i=0;i<HS;i++)ids.forEach(id=>{g.h[id].push(g.deck.pop());if(!CA)g.ft[id].push(g.deck.pop())});if(CA)ids.forEach(id=>g.inF[id]=1);
-  g.disc.push(g.deck.pop());g.frozen=CA&&(hpWild(hpTop(g))||hp3(hpTop(g))&&hpRed(hpTop(g)));g.turn=hpNext(g,dealer);g.tc=0;g.dn={};g.r3={};g.msg=CA?`${nmid(dealer)} dealt ${HS} cards to everyone.${g.frozen?' The pile starts frozen.':''} ${nmid(g.turn)} goes first.`:`${nmid(dealer)} dealt a hand and a foot of ${X.hand} cards to everyone. ${nmid(g.turn)} goes first.`;ids.forEach(id=>hpRed3(g,id,true));S.hpg=g;HPSEL=[];HPVIEW=null;HPSTAGE={}}
+  g.disc.push(g.deck.pop());g.frozen=CA&&(hpWild(hpTop(g))||hp3(hpTop(g))&&hpRed(hpTop(g)));g.turn=hpNext(g,dealer);g.tc=0;g.dn={};g.r3={};g.msg=CA?`${nmid(dealer)} dealt ${HS} cards to everyone.${g.frozen?' The pile starts frozen.':''} ${nmid(g.turn)} goes first.`:`${nmid(dealer)} dealt a hand and a foot of ${X.hand} cards to everyone. ${nmid(g.turn)} goes first.`;gAnn(g,`Round ${r+1}`,`${nmid(dealer)} deals. First meld needs ${hpMin(g,g.turn)} points.`,'🃏');gLog(g,`${nmid(dealer)} dealt · first meld needs ${hpMin(g,g.turn)}`,'🃏');ids.forEach(id=>hpRed3(g,id,true));S.hpg=g;HPSEL=[];HPVIEW=null;HPSTAGE={}}
+const hpSideNm=(g,side)=>hpMates(g,side).map(nmid).join(' & ');
+const hpRkPl=r=>({A:'aces',K:'kings',Q:'queens',J:'jacks',T:'10s',W:'wild cards','3':'3s'}[r]||r+'s');
 function hpDraw(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||g.drew)return false;if(!g.deck.length){hpEnd(g,null);g.msg='The stock ran out, so the round is over.';return true}
   const n=Math.min(HPCA()?1:2,g.deck.length);for(let i=0;i<n;i++)g.h[pid].push(g.deck.pop());g.drew=1;g.n++;g.msg=`${nmid(pid)} drew ${n} card${n===1?'':'s'}.`;hpRed3(g,pid,true);return true}
 /* can this player take the pile right now? */
@@ -9567,11 +9617,11 @@ function hpTakeOk(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||g.drew)return fa
 function hpBestExtra(h,skip){const by={};let w=h.filter(hpWild);h.filter(c=>!hpWild(c)&&!hp3(c)).forEach(c=>(by[hpRk(c)]=by[hpRk(c)]||[]).push(c));let v=0;
   Object.keys(by).filter(r=>!skip.includes(r)).sort((a,b)=>by[b].length-by[a].length).forEach(r=>{const n=by[r];if(n.length>=3)v+=hpMeldVal(n);else if(n.length===2&&w.length){if(hpMeldOk(n.concat(w[0]))){v+=hpMeldVal(n.concat(w[0]));w=w.slice(1)}}});return v}
 function hpTake(g,pid){if(!hpTakeOk(g,pid))return false;const t=hpTop(g),n=g.disc.length;g.took=g.disc.slice();g.h[pid].push(...g.disc);g.disc=[];g.drew=1;g.need=t;g.n++;g.frozen=false;pst('hptake',pid);
-  g.msg=`${nmid(pid)} took the discard pile (${n} card${n===1?'':'s'}) and has to meld the ${hpName(t)}.`;if(hpRed3(g,pid,false))g.took=null;return true}
+  g.msg=`${nmid(pid)} took the discard pile (${n} card${n===1?'':'s'}) and has to meld the ${hpName(t)}.`;if(n>=5)gLog(g,`${nmid(pid)} took the pile (${n} cards)`,'🫳');if(n>=8)gAnn(g,`${nmid(pid)} took the pile!`,`${n} cards.`,'🫳');if(hpRed3(g,pid,false))g.took=null;return true}
 /* lay down: news = [[ids]] new melds, adds = [{m:index,cs:[ids]}] onto the side's melds */
 /* changed your mind right after taking the pile (nothing melded yet): put it back and draw instead */
 function hpUntake(g,pid){if(!g||g.turn!==pid||!g.took||!g.need||!g.h[pid].includes(g.need))return false;const T=g.took;if(!T.every(c=>g.h[pid].includes(c)))return false;g.h[pid]=g.h[pid].filter(c=>!T.includes(c));g.disc=T;g.frozen=HPCA()&&T.some(x=>hpWild(x)||hp3(x)&&hpRed(x));g.took=null;g.need=null;g.drew=0;g.n++;g.msg=`${nmid(pid)} put the discard pile back.`;return true}
-function hpPlay(g,pid,news,adds){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew)return false;news=news||[];adds=adds||[];const side=hpSide(g,pid),h=g.h[pid],M=(g.melds[side]||[]).map(m=>m.b3?{c:m.c.slice(),b3:1}:{c:m.c.slice()});
+function hpPlay(g,pid,news,adds){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew)return false;news=news||[];adds=adds||[];const side=hpSide(g,pid),h=g.h[pid],OB=(g.melds[side]||[]).filter(hpBook).map(m=>hpMeldRank(m.c)+':'+hpKind(m)),M=(g.melds[side]||[]).map(m=>m.b3?{c:m.c.slice(),b3:1}:{c:m.c.slice()});
   const used=news.flat().concat(adds.flatMap(a=>a.cs||[]));if(!used.length||new Set(used).size!==used.length||!used.every(c=>h.includes(c)))return false;
   const allOut=h.length-used.length<1;if(allOut&&!HPCA())return false;/* Hand and Foot: the last card always goes on the discard pile. Canasta can go out by melding everything */
   if(!g.down[side]&&adds.length)return false;
@@ -9583,12 +9633,15 @@ function hpPlay(g,pid,news,adds){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew)
   if(g.inF[pid]&&h.length-used.length<2){const T=M.concat(news.map(cs=>({c:cs})));if(!hpCanGoOut({melds:{x:T}},'x'))return false}
   if(allOut&&g.need&&!used.includes(g.need))return false;
   news.forEach(cs=>M.push(hpB3(cs)?{c:cs.slice(),b3:1}:{c:cs.slice()}));g.melds[side]=M;g.took=null;const wasDown=g.down[side];if(!wasDown){g.dn=g.dn||{};g.dn[side]=g.tc||0}g.down[side]=1;g.h[pid]=h.filter(c=>!used.includes(c));if(g.need&&used.includes(g.need))g.need=null;g.n++;
+  {const W=hpW();if(!wasDown)gLog(g,`${hpSideNm(g,side)} went down (${news.reduce((s,cs)=>s+hpMeldVal(cs),0)} points)`,'⬇️');const ob=OB.slice();
+    M.filter(hpBook).forEach(m=>{const key=hpMeldRank(m.c)+':'+hpKind(m),x=ob.indexOf(key);if(x>=0){ob.splice(x,1);return}const k=hpKind(m),kn=k==='clean'?W.clean:k==='dirty'?W.dirty:'wild',rp=hpRkPl(hpMeldRank(m.c)),ic=k==='clean'?'🟥':k==='dirty'?'⬛':'🌟';
+      gLog(g,`${nmid(pid)} made a ${kn} ${W.book} of ${rp}`,ic);if(k!=='dirty')gAnn(g,`${kn[0].toUpperCase()+kn.slice(1)} ${W.book}!`,`${nmid(pid)} closed up the ${rp}.`,ic)})}
   const books=M.filter(hpBook).length;g.msg=`${nmid(pid)} ${wasDown?'played':'laid down'} ${used.length} card${used.length===1?'':'s'}${wasDown?'':` (${news.reduce((s,cs)=>s+hpMeldVal(cs),0)} points)`}.${books?` ${books} ${books===1?hpW().book:hpW().books} on the table.`:''}`;pst('hpmeld',pid);
   if(allOut){g.cc=!!(g.dn&&g.dn[side]===(g.tc||0));g.msg+=` ${nmid(pid)} melded every card and went out!`;hpEnd(g,pid)}return true}
 function hpDiscard(g,pid,c){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew)return false;const h=g.h[pid];if(!h.includes(c))return false;if(g.need&&h.includes(g.need)&&c!==g.need)return false;if(g.need===c)return false;
   const side=hpSide(g,pid);if(h.length===1&&g.inF[pid]&&!hpCanGoOut(g,side))return false;
   g.h[pid]=h.filter(x=>x!==c);g.disc.push(c);if(HPCA()&&hpWild(c))g.frozen=true;g.drew=0;g.need=null;g.took=null;g.n++;g.msg=`${nmid(pid)} discarded the ${hpName(c)}.`;const thisTurn=g.tc||0;g.tc=thisTurn+1;
-  if(!g.h[pid].length){if(!g.inF[pid]){g.inF[pid]=1;g.h[pid]=g.ft[pid];g.ft[pid]=[];g.msg+=` ${nmid(pid)} picks up their foot.`;hpRed3(g,pid,true);pst('hpfoot',pid)}else{g.cc=!!(g.dn&&g.dn[side]===thisTurn);g.msg+=` ${nmid(pid)} went out${g.cc&&HX().concealed?' concealed':''}!`;hpEnd(g,pid);return true}}
+  if(!g.h[pid].length){if(!g.inF[pid]){g.inF[pid]=1;g.h[pid]=g.ft[pid];g.ft[pid]=[];g.msg+=` ${nmid(pid)} picks up their foot.`;gLog(g,`${nmid(pid)} is in their foot`,'🦶');hpRed3(g,pid,true);pst('hpfoot',pid)}else{g.cc=!!(g.dn&&g.dn[side]===thisTurn);g.msg+=` ${nmid(pid)} went out${g.cc&&HX().concealed?' concealed':''}!`;hpEnd(g,pid);return true}}
   g.turn=hpNext(g,pid);return true}
 function hpEnd(g,w){const X=HX();g.out=w;g.phase='done';g.turn=null;const sides=[...new Set(g.ps.map(id=>g.tm[id]))];
   sides.forEach(side=>{const M=g.melds[side]||[],mates=hpMates(g,side),R0={cl:0,dt:0,wb:0,c:{},out:!!w&&g.tm[w]===side,l:{},r3:0,b3:0};
@@ -9596,7 +9649,7 @@ function hpEnd(g,w){const X=HX();g.out=w;g.phase='done';g.turn=null;const sides=
     R0.r3p=((g.r3||{})[side]||[]).length;if(R0.out&&g.cc)R0.cc=true;
     mates.forEach(id=>(g.h[id]||[]).concat(g.ft[id]||[]).forEach(c=>{if(hp3(c)){if(hpRed(c))R0.r3++;else R0.b3++;return}const gk=hpGrp(c);R0.l[gk]=(R0.l[gk]||0)+1}));R0.ct=M.filter(m=>!m.b3).reduce((s,m)=>s+hpMeldVal(m.c),0);R0.lt=mates.reduce((s,id)=>s+(g.h[id]||[]).concat(g.ft[id]||[]).reduce((a,c)=>a+hpVal(c),0),0);
     mates.forEach(id=>{const p=act().find(q=>q.id===id);if(!p)return;const R=hfR(p,g.r);Object.assign(R,JSON.parse(JSON.stringify(R0)))})});
-  S.hr=Math.max(S.hr||0,g.r);g.msg+=w?' The round is over.':''}
+  S.hr=Math.max(S.hr||0,g.r);g.msg+=w?' The round is over.':'';if(w){const sd=g.tm[w];gLog(g,`${nmid(w)} went out${g.cc&&X.concealed?' concealed':''}`,'🚪',1);gAnn(g,`${nmid(w)} went out!`,`${g.cc&&X.concealed?'Concealed! ':''}The hand is over.`,'🚪')}}
 /* ---------------- computer players ---------------- */
 function hpBotStep(g,q){const pid=q.id,lv=q.bot,side=hpSide(g,pid);if(g.turn!==pid||g.phase!=='play')return;let h=g.h[pid];
   if(!g.drew){const t=hpTop(g);const take=hpTakeOk(g,pid)&&(lv!=='easy'||Math.random()<.5)&&(g.disc.length>=2||lv==='hard');if(take){hpTake(g,pid);return}hpDraw(g,pid);return}
@@ -9755,7 +9808,7 @@ function nrStale(g){if(!g||!g.me)return false;const ids=act().map(p=>p.id),ks=Ob
 const nrTop=a=>a.length?a[a.length-1]:null;
 function nrDeal(r){const P=act(),X=NX(),ids=P.map(p=>p.id);const g={_atom:1,r,ps:ids,me:{},c:[],phase:'play',out:null,stuck:{},msg:'',n:0,t0:Date.now()};
   ids.forEach(id=>{const L=[];for(const s of 'SHDC')for(const k of 'A23456789TJQK')L.push(k+s+'#'+id);const d=htShuffle(L),n=d.splice(0,X.pile),w=[0,1,2,3].map(()=>[d.pop()]);g.me[id]={n,w,s:d,d:[],mv:0,rc:0}});
-  g.msg='';S.nrg=g;NRSEL=null;NRPEND={}}
+  g.msg='';gAnn(g,`Hand ${r+1}: go!`,`${X.pile} cards in every Nerts pile.`,'⚡');gLog(g,`${X.pile}-card Nerts piles`,'⚡');S.nrg=g;NRSEL=null;NRPEND={}}
 /* where a card can go in the center: index of a pile, -1 for a new pile (aces), or null */
 function nrCenterSpot(g,c){if(c[0]==='A')return -1;const r=nrRk(c),s=nrSu(c);const i=g.c.findIndex(p=>{const t=nrTop(p);return t&&nrSu(t)===s&&nrRk(t)===r-1});return i>=0?i:null}
 const nrFitsWork=(pile,c)=>{const t=nrTop(pile);return !t||nrRk(t)===nrRk(c)+1&&nrRed(t)!==nrRed(c)};
@@ -9763,11 +9816,12 @@ const nrFitsWork=(pile,c)=>{const t=nrTop(pile);return !t||nrRk(t)===nrRk(c)+1&&
 function nrTake(m,from){if(from.t==='n')return m.n.length?[nrTop(m.n)]:[];if(from.t==='d')return m.d.length?[nrTop(m.d)]:[];if(from.t==='w'){const p=m.w[from.i];if(!p||from.k<0||from.k>=p.length)return [];return p.slice(from.k)}return []}
 function nrMove(g,pid,from,to){if(!g||g.phase!=='play'||!g.me[pid])return false;const m=g.me[pid],cs=nrTake(m,from);if(!cs.length)return false;
   if(to.t==='c'){if(cs.length!==1)return false;const c=cs[0],spot=nrCenterSpot(g,c);if(spot===null)return false;if(to.i!==undefined&&to.i!==-2&&to.i!==spot)return false;
-    nrPull(m,from);if(spot===-1)g.c.push([c]);else g.c[spot].push(c);pst('nrcenter',pid)}
+    nrPull(m,from);if(spot===-1)g.c.push([c]);else g.c[spot].push(c);pst('nrcenter',pid);if(c[0]==='K')gLog(g,`${nmid(pid)} finished a ${cdTxt(c).slice(-1)} pile with the King`,'👑')}
   else if(to.t==='w'){if(from.t==='w'&&from.i===to.i)return false;const p=m.w[to.i];if(!p||!nrFitsWork(p,cs[0]))return false;nrPull(m,from);p.push(...cs)}
   else return false;
   m.mv=1;m.rc=0;delete g.stuck[pid];g.n++;
-  if(!m.n.length){g.msg=`${nmid(pid)} called Nerts!`;nrEnd(g,pid)}
+  if(from.t==='n'&&(m.n.length===5||m.n.length===2))gLog(g,`${nmid(pid)} is down to ${m.n.length} Nerts cards`,'📉');
+  if(!m.n.length){g.msg=`${nmid(pid)} called Nerts!`;gLog(g,`${nmid(pid)} called Nerts!`,'📣',1);gAnn(g,'Nerts!',`${nmid(pid)} emptied their Nerts pile first.`,'📣');nrEnd(g,pid)}
   return true}
 function nrPull(m,from){if(from.t==='n')m.n.pop();else if(from.t==='d')m.d.pop();else if(from.t==='w')m.w[from.i].splice(from.k)}
 /* flip 3 from the stock; when it runs out, turn the waste back over. A pass with no plays moves the top card to the bottom, so you don't loop forever. */
@@ -11460,6 +11514,7 @@ function render(){
   if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar){bar.insertAdjacentHTML('afterbegin',HOMEBTN);if(CBG.includes(S.game)&&['score','live'].includes(S.screen)&&!S.editing){const rb=bar.querySelector('.rulesbtn');if(rb&&!bar.querySelector('.cbbtn'))rb.insertAdjacentHTML('afterend',`<button class="btn sm cbbtn" data-a="cbopen" aria-label="Card back" title="Card back">${cbThumb(cbFor(S.game))}</button>`)}if(dashOn()&&!S.editing)bar.insertAdjacentHTML('beforeend','<button class="btn sm dashbtn" data-a="dashopen" aria-label="Everyone at a glance">📊</button>');if((window.FTLINK||window.FTLAN)&&!S.lk&&!S.demo&&!S.editing&&S.started&&!S.finished&&['score','live'].includes(S.screen))bar.insertAdjacentHTML('beforeend','<button class="btn sm lkbtn" data-a="lkchoose" aria-label="Link phones">📱<span class="lkw"> Link</span></button>')}}
   if(S.screen==='results'&&S.lk&&!S.demo&&S.finished){const app=document.getElementById('app'),ac=app.querySelector('.actions');if(ac){ac.querySelectorAll('[data-a="rematch"]').forEach(x=>x.remove());ac.insertAdjacentHTML('beforebegin',lkVoteHtml());if(!ac.querySelector('button'))ac.remove()}else app.insertAdjacentHTML('beforeend',lkVoteHtml())}
   bidMark();
+  try{glPanels()}catch(e){console.warn(e)}
   rcHydrate(document.getElementById('app'));
   if(S.game==='canasta'&&S.screen!=='home'&&S.screen!=='stats')caWords(document.getElementById('app'));
   {const hr=document.querySelector('.hfrounds [aria-pressed=true]');if(hr){const c=hr.parentElement;c.scrollLeft=hr.offsetLeft-c.offsetLeft-c.clientWidth/2+hr.offsetWidth/2}}
@@ -11479,7 +11534,7 @@ function render(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
+  tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){try{glTick()}catch(e){}if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -12413,6 +12468,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='a024a3';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='126b48';</script>
 </body>
 </html>
