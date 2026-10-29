@@ -1339,6 +1339,7 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 @keyframes tqann{0%{opacity:0;transform:translateY(16px) scale(.9)}10%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}
 .tqpkbar{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:8px 0 0}.tqpkbar .tqbest{margin:0}.tqhand .htc.sel{box-shadow:0 0 0 3px var(--accent);transform:translateY(-8px)}
 .tqhands{max-height:88vh;overflow:auto}.tqhrow{display:grid;gap:2px;padding:6px 0;border-top:1px solid var(--line)}.tqhrow small{color:var(--muted)}.tqhc{display:flex;gap:3px}.tqhc .htc{--cw:34px}
+.tqmine{pointer-events:auto}.tqpaid{text-align:center;border-top:6px solid var(--pc,var(--accent));border-radius:20px;margin:16px;display:grid;gap:6px;justify-items:center}.tqpaid h2{margin:0;font-size:24px}.tqpaid p{margin:0}.tqpaidnet{font-weight:800;font-size:16px}.tqpaidnet.up{color:#2e9d57}.tqpaidnet.down{color:#c8322b}
 </style>
 
 <div id="app"></div>
@@ -10033,7 +10034,7 @@ function tqBotLead(g,q){const L=tqLeads(g,q.id),h=g.h[q.id];if(q.bot==='easy')re
   /* lead the suit where I hold the longest run of cards in a row from the bottom, so I keep playing */
   let best=null;L.forEach(c=>{let run=0,r=tqRv(c);while(h.includes(TQR[r-2]+tqSu(c))){run++;r++}const sc=run*10+h.filter(x=>tqSu(x)===tqSu(c)).length;if(!best||sc>best.sc)best={c,sc}});return tqLead(g,q.id,best.c)}
 /* ---------------- this phone ---------------- */
-let TQSEL=null,TQVIEW=null,TQBOTT=null,TQBOTK='',TQPAYT=null,TQANNT=null,TQPICK=[],TQHANDS=false;
+let TQSEL=null,TQVIEW=null,TQBOTT=null,TQBOTK='',TQPAYT=null,TQANNT=null,TQPICK=[],TQHANDS=false;const TQPAIDOK={};
 const tqMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
 const tqHumans=()=>act().filter(p=>!p.bot);
 function tqViewer(){const g=tqG();if(!g)return null;if(S.lk&&!S.demo)return tqMe();const H=tqHumans();if(H.length===1)return H[0];if(!H.length)return null;const t=act().find(p=>p.id===tqActor(g));return t&&!t.bot&&TQVIEW===t.id?t:null}
@@ -10099,6 +10100,10 @@ function tqPlayUI(){if(!tqRes()&&S.tqg&&S.tqg.r!==S.hr)S.hr=S.tqg.r;/* hr isn't 
   out+=tqSummary(g,r,ST,h);
   if(TQHANDS){const ex=[['Straight flush','9S TS JS QS KS','5 in a row, all one suit'],['Four of a kind','7C 7D 7H 7S 2D','4 of the same rank'],['Full house','QH QS QC 4D 4S','3 of a kind plus a pair'],['Flush','2H 6H 9H JH KH','5 of one suit'],['Straight','5C 6D 7S 8H 9C','5 in a row, any suits (A-2-3-4-5 counts)'],['Three of a kind','8S 8H 8D KC 3S','3 of the same rank'],['Two pair','JC JD 5H 5S AC','two different pairs'],['One pair','TH TC 9S 6D 2C','2 of the same rank'],['High card','AS JD 8C 6H 3S','nothing else: highest card wins']];
     out+=`<div class="sheet-bg" data-a="tqphands"><div class="sheet tqhands" role="dialog" aria-modal="true" aria-labelledby="tqh-h" data-stop="1"><h2 id="tqh-h">Poker hands</h2><p class="rlab">Best at the top. Ties go to the higher cards.</p>${ex.map(([n,cs,d],i)=>`<div class="tqhrow"><b>${i+1}. ${n}</b><small>${d}</small><div class="tqhc">${cs.split(' ').map(c=>tqCardEl(c,{mini:true})).join('')}</div></div>`).join('')}<div class="sheet-btns"><button class="btn primary" data-a="tqphands">Close</button></div></div></div>`}
+  /* each phone: what you paid (or won) when the hand ended, before the next hand is dealt */
+  if(ph==='done'&&V&&!TQPAIDOK[(S.gameId||'')+':'+r+':'+V.id]&&!(g.ann&&Date.now()-g.ann.at<TQANNMS)){const H=tpH(r),paid=(h.paid||{})[V.id],n=(H.left||{})[V.id]||0,net=(h.net||{})[V.id]||0;
+    const msg=H.out===V.id?`<h2>You went out!</h2><p class="rlab">You take the Kitty${X.perCard?' and a chip per card from everyone else':''}.</p>`:n&&X.perCard?`<h2>You paid ${esc(nmid(H.out))} ${paid??n*X.perCard} chip${(paid??n*X.perCard)===1?'':'s'}</h2><p class="rlab">for the ${n} card${n===1?'':'s'} left in your hand${paid!==undefined&&paid<n*X.perCard?' (that was all your chips)':''}.</p>`:`<h2>Hand over</h2><p class="rlab">${esc(nmid(H.out))} went out first.</p>`;
+    out+=`<div class="sheet-bg tqpkbg tqmine"><div class="sheet tqpaid" role="dialog" aria-modal="true" style="${pc(V.color)}">${msg}<p class="tqpaidnet num ${net>=0?'up':'down'}">This hand: ${net>0?'+':''}${net} · you have ${ST.bal[V.id]} chips</p><button class="btn primary wide" data-a="tqppaidok">OK</button></div></div>`}
   if(g.ann&&Date.now()-g.ann.at<TQANNMS&&ph!=='pokerdone'){const A=g.ann;out+=`<div class="sheet-bg tqpkbg"><div class="sheet tqann" role="status" aria-live="polite" style="--o:${-(Date.now()-A.at)}ms">${A.ic?`<span class="tqannic" aria-hidden="true">${A.ic}</span>`:''}<h2>${esc(A.t)}</h2>${A.sub?`<p class="rlab">${esc(A.sub)}</p>`:''}</div></div>`;if(!TQANNT)TQANNT=setTimeout(()=>{TQANNT=null;render()},TQANNMS-(Date.now()-A.at)+30)}
   if(ph==='pokerdone'&&g.pkres){const R=g.pkres,p=P.find(q=>q.id===R.w[0]);out+=`<div class="sheet-bg tqpkbg"><div class="sheet tqpkres" role="status" aria-live="polite" style="${p?pc(p.color):''}"><span class="rlab">Poker</span><h2>${esc(R.w.map(nmid).join(' & '))} ${R.w.length>1?'split':'wins'} the pot!</h2><p class="tqpkcat">${R.fold?'Everyone else folded.':esc(TQCAT[R.cat])}</p>${R.five.length?`<div class="tqpk5">${R.five.map(c=>tqCardEl(c)).join('')}</div>`:''}<b class="num tqpkv">+${R.w.length>1?Math.floor(R.pot/R.w.length):R.pot} chips</b><small class="rlab">Next: the rummy round…</small></div></div>`}
   if(g.pay&&Date.now()-g.pay.at<3200){const p=P.find(q=>q.id===g.pay.pid);out+=`<div class="tqpaybn" style="${p?pc(p.color):''};--o:${-(Date.now()-g.pay.at)}ms" role="status" aria-live="polite"><b>💰 ${esc(g.pay.txt)}</b>${g.pay.v?`<span class="num">+${g.pay.v} chips</span>`:''}</div>`;if(!TQPAYT)TQPAYT=setTimeout(()=>{TQPAYT=null;render()},3300-(Date.now()-g.pay.at))}
@@ -10123,8 +10128,9 @@ function tqSummary(g,r,ST,h){const H=tpH(r),X=TPX(),pen=k=>(h.pens||{})[k]||0,ro
   return `<div class="panel tqsum"><b class="rlab">Hand ${r+1}${g.phase==='done'?'':' so far'}</b>${rows.map(([a,b])=>`<div class="srow"><span class="rlab">${a}</span><span>${b}</span></div>`).join('')}</div>`}
 function tqAct(a,b,k){const g=tqG();if(!g)return;
   if(a==='tqphands'){TQHANDS=!TQHANDS;return}
+  if(a==='tqppaidok'){const V0=tqViewer();if(V0)TQPAIDOK[(S.gameId||'')+':'+g.r+':'+V0.id]=1;return}
   if(a==='tqpshow'){TQVIEW=k;return}
-  if(a==='tqpdeal'){if(!tqRes()||g.phase!=='done')return;S.hr=tpCur()+1;window.scrollTo(0,0);return}
+  if(a==='tqpdeal'){if(!tqRes()||g.phase!=='done')return;{const V0=tqViewer();if(V0)TQPAIDOK[(S.gameId||'')+':'+g.r+':'+V0.id]=1}S.hr=tpCur()+1;window.scrollTo(0,0);return}
   const V=tqViewer();if(!V)return;
   if(a==='tqpace'){lkq('tqAce',V.id,k,b.dataset.v);return}
   if(a==='tqpdead'){if(lkq('tqDead',V.id,k,+b.dataset.v||0)){vibe(10);if(!S.lk&&tqHumans().length>1)TQVIEW=null}return}
@@ -12392,6 +12398,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='0a9b1d';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='7d6dd7';</script>
 </body>
 </html>
