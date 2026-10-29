@@ -1319,6 +1319,10 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .tqrun{display:flex}.tqrun .htc{--cw:clamp(40px,min(20cqh,11cqw),70px)}.tqrun .htc+.htc{margin-left:calc(var(--cw)*-.55)}.tqrun .htc.new{box-shadow:0 0 0 3px var(--accent)}
 .tqhand{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:8px 0}.tqhand .htc{--cw:clamp(40px,11vw,58px)}.tqhand .htc.ok{box-shadow:0 0 0 3px var(--accent);cursor:pointer;transform:translateY(-4px)}
 .tqhand .htc.tq5{box-shadow:0 0 0 3px #e3b71f;transform:translateY(-4px)}.tqbest{text-align:center;margin:8px 0 0}.tqbets{flex-wrap:wrap;gap:6px}
+.lkvoice.on{background:color-mix(in srgb,#2e9d57 22%,var(--surface));border-color:#2e9d57}.lkvoice.muted{background:color-mix(in srgb,#c8322b 18%,var(--surface));border-color:#c8322b}
+.vcstrip{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 0;padding:6px 8px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}.vcl{font-size:12.5px;font-weight:800;color:var(--muted)}
+.vcp{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;padding:3px 9px;border-radius:999px;border:1.5px solid var(--line)}.vcp i{width:8px;height:8px;border-radius:50%;background:var(--pc)}
+.vcp.talk{border-color:var(--pc);box-shadow:0 0 0 3px color-mix(in srgb,var(--pc) 35%,transparent)}.vcp.mute{opacity:.6}.vcstrip .btn{margin-left:auto;min-height:30px}
 </style>
 
 <div id="app"></div>
@@ -2378,11 +2382,11 @@ function waitLoader(msg){const [set,def]=wlPieces(S.game),dice=set.every(x=>x.in
 function lkWaitScreen(){return `<div class="bar"><h1>Linked game</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>${LKSW?'Next game coming up':'Waiting for the host'}</h2><p>${LKSW?'The host is setting up the next game. This phone joins it by itself, no scanning needed.':S.lk&&S.lk.me?`You’re <b>${esc(nm(act().find(p=>p.id===S.lk.me)||{name:''}))}</b>. The host is still choosing the game and rules. Play opens here as soon as they start.`:'The host is still choosing the game and rules. Play opens here as soon as they start.'}</p>${waitLoader('*')}</div>`}
 function lkBar(){if(!S.lk||S.demo||['lkwho','home'].includes(S.screen))return '';const seat=lkSeated(),n=lkReadyN(),mine=lkMine(),me=S.lk.me&&act().find(p=>p.id===S.lk.me);
   const head=`<div class="lkbar${LKOPEN?' open':''}"><button class="lkb-main" data-a="lkopen" aria-expanded="${LKOPEN}"><span class="lkb-code">📱 <b class="num">${fmtCode(S.lk.code)}</b></span><span class="lkb-st">${lanOn()?(lkHost()?`✈️ ${lanN()} phone${lanN()===1?'':'s'} · `:LANLOST?'⚠️ Lost the host · ':'✈️ '):''}${S.lklock?'🔒 ':''}${S.finished?'Revealed':seat.length?`${n}/${seat.length} done`:'No phones joined yet'}${me?' · '+esc(nm(me)):lkHost()?' · Host':''}</span><span class="chev">${LKOPEN?'▴':'▾'}</span></button>
-    ${me&&!me.bot?`<button class="btn sm lkreact" data-a="rxopen" aria-expanded="${RXOPEN}" aria-label="Send a reaction">${RXOPEN?'✕':'😀'}</button>`:''}${me&&S.started&&!S.finished?`<button class="btn sm${lkOk(mine)?'':' primary'}" data-a="lkready" data-k="${lkOk(mine)?'0':'1'}">${lkOk(mine)?'Not done':'I’m done'}</button>`:''}</div>${RXOPEN&&me?`<div class="rxpick" role="group" aria-label="Reactions">${RXE.map(e=>`<button data-a="rxsend" data-k="${e}" aria-label="Send ${e}">${e}</button>`).join('')}</div>`:''}${rxLayer()}`;
-  const dmine=me&&dashOn()?dashStrip(me):'';
+    ${me&&!me.bot&&vcOk()?`<button class="btn sm lkvoice${vcOn()?(vcMuted()?' muted':' on'):''}" data-a="${vcOn()?'vcmute':'vcjoin'}" aria-label="${vcOn()?(vcMuted()?'Unmute your microphone':'Mute your microphone'):'Join voice chat'}">${vcOn()?(vcMuted()?'🔇':'🎙️'):'🎧'}</button>`:''}${me&&!me.bot?`<button class="btn sm lkreact" data-a="rxopen" aria-expanded="${RXOPEN}" aria-label="Send a reaction">${RXOPEN?'✕':'😀'}</button>`:''}${me&&S.started&&!S.finished?`<button class="btn sm${lkOk(mine)?'':' primary'}" data-a="lkready" data-k="${lkOk(mine)?'0':'1'}">${lkOk(mine)?'Not done':'I’m done'}</button>`:''}</div>${RXOPEN&&me?`<div class="rxpick" role="group" aria-label="Reactions">${RXE.map(e=>`<button data-a="rxsend" data-k="${e}" aria-label="Send ${e}">${e}</button>`).join('')}</div>`:''}${rxLayer()}`;
+  const dmine=(me&&dashOn()?dashStrip(me):'')+vcStrip();
   if(!LKOPEN)return head+dmine;
   const P=act();
-  return head+`<div class="lkpanel">
+  return head+vcStrip()+`<div class="lkpanel">
     ${lkHost()?`<div class="rlab"><b>Who can enter scores?</b></div><div class="seg"><button data-a="lklock" data-k="0" aria-pressed="${!S.lklock}">Anyone, for anyone</button><button data-a="lklock" data-k="1" aria-pressed="${!!S.lklock}">Each phone, its own player</button></div>
       <p class="rlab" style="margin:0">${S.lklock?'Each phone can only change its own player. Shared scores that include their player still count. You (the host) can change anyone, including players without a phone.':'Any phone can score any player.'}</p>`:`<p class="rlab" style="margin:0"><b>${S.lklock?'Locked scoring:':'Open scoring:'}</b> ${S.lklock?'this phone can only change its own player\u2019s score. The host can change anyone.':'any phone can score any player.'}</p>`}
     <p class="rlab">${lkHost()?`Others join from the home screen with code <b class="num">${fmtCode(S.lk.code)}</b>.`:`Hosted game <b class="num">${fmtCode(S.lk.code)}</b>.`} When everyone with a phone taps <b>I’m done</b>, the reveal starts on every phone.</p>
@@ -2418,6 +2422,19 @@ window.lkBoot=function(){if(lanBootCheck()){render();return}if(S.lk&&S.lk.lan){r
 /* ---------- offline linked games: phones on the host's hotspot, paired by scanning QR codes (window.FTLAN comes from lan.js) ---------- */
 let LANUI=null,LANSTOP=null,LANLOST=false;const LANREADY=true;
 const lanOn=()=>!!(S.lk&&S.lk.lan);
+/* voice chat on phones linked without internet: open mic, a mute button, and a strip showing who's in and who's talking */
+const vcOk=()=>lanOn()&&!!(window.FTLAN&&FTLAN.voice&&FTLAN.hub)&&!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
+const vcOn=()=>{try{return vcOk()&&FTLAN.voice.on}catch(e){return false}},vcMuted=()=>{try{return FTLAN.voice.muted}catch(e){return false}};
+function vcStrip(){if(!vcOk())return '';let ppl=[];try{ppl=FTLAN.voice.people()}catch(e){}if(!ppl.length&&!vcOn())return '';
+  return `<div class="vcstrip" id="vcstrip">${vcInner(ppl)}</div>`}
+function vcInner(ppl){const P=act();return `<span class="vcl">🎧 Voice</span>${ppl.map(v=>{const p=P.find(q=>q.id===v.pid);return p?`<span class="vcp${v.talking?' talk':''}${v.muted?' mute':''}" style="${pc(p.color)}"><i></i>${esc(nm(p))}${v.muted?' 🔇':''}</span>`:''}).join('')}${vcOn()?`<button class="btn sm vcleave" data-a="vcleave">Leave</button>`:`<button class="btn sm primary" data-a="vcjoin">Join</button>`}`}
+function vcPaint(){const el=document.getElementById('vcstrip');if(!el){render();return}let ppl=[];try{ppl=FTLAN.voice.people()}catch(e){}el.innerHTML=vcInner(ppl);
+  const b=document.querySelector('.lkvoice');if(b){b.classList.toggle('on',vcOn()&&!vcMuted());b.classList.toggle('muted',vcOn()&&vcMuted())}}
+let VCWIRED=false;function vcWire(){if(VCWIRED||!window.FTLAN||!FTLAN.voice)return;VCWIRED=true;FTLAN.voice.onchange(()=>{clearTimeout(vcWire.t);vcWire.t=setTimeout(vcPaint,30)})}
+async function vcJoin(){vcWire();if(!S.lk||!S.lk.me){toast('Pick your player first.');return}
+  try{await FTLAN.voice.start(S.lk.me);vibe(15);toast('You’re in voice chat. Headphones help stop echo.');try{if(navigator.wakeLock)VCLOCK=await navigator.wakeLock.request('screen')}catch(e){}}
+  catch(e){toast(e&&e.name==='NotAllowedError'?'Voice chat needs the microphone. Allow it in your browser settings, then try again.':'Couldn’t start voice chat: '+(e&&e.message||e))}render()}
+let VCLOCK=null;
 const lanN=()=>{const h=window.FTLAN&&FTLAN.hub;return h&&h.role==='host'?h.count():0};
 function lanCam(show,title){let el=document.getElementById('lancam');
   if(!show){if(LANSTOP){try{LANSTOP()}catch(e){}LANSTOP=null}if(el)el.remove();return null}
@@ -11892,6 +11909,9 @@ document.addEventListener('click',e=>{
     case 'rgamigo':{const X=RGX(),am=['outOne','changeFlip','wild2nd','amigoDeck','wildNum'],on=am.every(q=>X[q]);am.forEach(q=>X[q]=!on);rgKeep();break}
     case 'rgstart':{switchGame('rage');resetScores();S.started=false;S.screen='map';RGX().play=k==='1';rgKeep();window.scrollTo(0,0);break}
     case 'rxopen':RXOPEN=!RXOPEN;break;
+    case 'vcjoin':vcJoin();return;
+    case 'vcmute':{try{FTLAN.voice.mute(!FTLAN.voice.muted);vibe(8)}catch(e){}break}
+    case 'vcleave':{try{FTLAN.voice.stop()}catch(e){}try{VCLOCK&&VCLOCK.release();VCLOCK=null}catch(e){}break}
     case 'rxsend':rxSend(k);break;
     case 'shareapp':shareOpen();return;
     case 'shareclose':SHAREQR=null;break;
@@ -12217,6 +12237,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='4a2ff3';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='55416d';</script>
 </body>
 </html>

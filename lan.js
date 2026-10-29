@@ -91,11 +91,13 @@ function startHost(){if(hub&&hub.role==='host')return hub;stop();const st=Store(
       await peer.pc.setRemoteDescription({type:'answer',sdp:d.sdp});await addCands(peer.pc,d.sdp);hub.pending=null;hub.last=peer;
       return new Promise((res,rej)=>{const t=setTimeout(async()=>{const e=new Error('The phones couldn’t reach each other. Make sure the other phone is on this phone’s hotspot (Wi-Fi on), then try again.');e.info=await iceInfo(peer.pc);rej(e)},25000);peer.onopen=()=>{clearTimeout(t);res()}})}};
   function wirePeer(peer){const {pc,dc}=peer;
-    dc.onopen=()=>{peer.open=true;peers.add(peer);(peer.q||[]).forEach(j=>{try{dc.send(j)}catch(x){}});peer.q=[];peer.onopen&&peer.onopen();ping()};
-    const gone=()=>{if(!peers.has(peer))return;peers.delete(peer);peer.open=false;peer.subs.forEach(u=>{try{u()}catch(e){}});peer.subs.clear();ping('lost')};
+    dc.onopen=()=>{peer.open=true;peers.add(peer);(peer.q||[]).forEach(j=>{try{dc.send(j)}catch(x){}});peer.q=[];peer.onopen&&peer.onopen();ping();vHostPeer(peer)};
+    const gone=()=>{if(!peers.has(peer))return;peers.delete(peer);peer.open=false;vHostGone(peer);peer.subs.forEach(u=>{try{u()}catch(e){}});peer.subs.clear();ping('lost')};
     dc.onclose=gone;pc.onconnectionstatechange=()=>{if(['failed','closed','disconnected'].includes(pc.connectionState))gone()};
     dc.onmessage=async e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}const send=o=>{const j=JSON.stringify(o);try{if(dc.readyState==='open')dc.send(j);else (peer.q||(peer.q=[])).push(j)}catch(x){}};
       if(m.t==='hi'){peer.client=m.id;send({t:'hi',id:me,code:st.code()});return}
+      if(m.t==='rtc'||m.t==='ice'){peer.rtc&&peer.rtc(m);return}
+      if(m.t==='vme'){vMeta(m.s,m.v,peer);return}
       const fb=hostFb(st,peer.client||'?');
       if(m.t==='req'){try{const v=m.op==='code'?st.code():await fb[m.op](...m.args);send({t:'res',id:m.id,ok:true,v})}catch(x){send({t:'res',id:m.id,ok:false,e:x.message,c:x.code||''})}return}
       if(m.t==='sub'){const cb=m.doc?(d)=>send({t:'evd',sid:m.sid,d}):(ch,first,all)=>send({t:'ev',sid:m.sid,ch,first,all});
@@ -118,7 +120,9 @@ async function joinWith(text){const d=await unpack(text);if(d.type!=='offer')thr
   g.connected=new Promise((res,rej)=>{const t=setTimeout(()=>rej(new Error('Couldn’t reach the host phone. Make sure this phone is on the host’s hotspot, then scan again.')),60000);
     pc.ondatachannel=e=>{dc=e.channel;let tries=0;const hello=()=>{g.open=true;if(g.hostCode!==undefined||tries++>20)return;try{g.send({t:'hi',id:me})}catch(x){}setTimeout(hello,700)};dc.onopen=()=>{if(!g.open)hello()};if(dc.readyState==='open'&&!g.open)hello();
       dc.onmessage=e2=>{let m;try{m=JSON.parse(e2.data)}catch(x){return}
-        if(m.t==='hi'){clearTimeout(t);if(g.hostCode===undefined){g.hostCode=m.code;res(m.code)}return}
+        if(m.t==='hi'){clearTimeout(t);if(g.hostCode===undefined){g.hostCode=m.code;res(m.code);vGuestWire(g,pc)}return}
+        if(m.t==='rtc'||m.t==='ice'){g.rtc&&g.rtc(m);return}
+        if(m.t==='vmap'){V.who=m.m||{};vEmit();return}
         if(m.t==='res'){const w=waits.get(m.id);if(w){waits.delete(m.id);if(m.ok)w.res(m.v);else{const er=new Error(m.e);er.code=m.c;w.rej(er)}}return}
         if(m.t==='ev'){const cb=subs.get(m.sid);if(cb)cb(m.ch,m.first,m.all,false);return}
         if(m.t==='evd'){const cb=subs.get(m.sid);if(cb)cb(m.d,false)}};
@@ -127,8 +131,56 @@ async function joinWith(text){const d=await unpack(text);if(d.type!=='offer')thr
   await pc.setRemoteDescription({type:'offer',sdp:d.sdp});await addCands(pc,d.sdp);await pc.setLocalDescription(await pc.createAnswer());await gathered(pc,4000);
   g.reply=await pack(pc.localDescription,'g'+String(d.tag||'').slice(1));g.noAddr=!hasAddress(pc.localDescription.sdp);g.addrs=addrs(pc.localDescription.sdp);g.hostAddrs=addrs(d.sdp);return g}
 
-function stop(){if(!hub)return;try{if(hub.role==='host')hub.peers.forEach(p=>{try{p.pc.close()}catch(e){}});else hub.pc.close()}catch(e){}if(hub.pending)try{hub.pending.pc.close()}catch(e){}hub=null}
+function stop(){vStop(true);if(!hub)return;try{if(hub.role==='host')hub.peers.forEach(p=>{try{p.pc.close()}catch(e){}});else hub.pc.close()}catch(e){}if(hub.pending)try{hub.pending.pc.close()}catch(e){}hub=null}
 const ping=why=>{try{window.lanPing&&window.lanPing(why)}catch(e){}};
+
+/* ---------------- voice chat over the same link ----------------
+   Open mic with a mute button. Audio rides on the same phone-to-phone connections: each guest sends its microphone to the host,
+   and the host passes every voice on to every other phone (and adds its own). New audio is set up by swapping descriptions
+   over the data channel we already have, so nobody scans again. Each voice is labelled with the player it belongs to. */
+const V={on:false,mic:null,muted:false,pid:null,who:{},els:new Map(),fw:new Map(),remote:new Map(),lv:{},cb:null,ac:null,an:new Map()};
+function vEmit(){try{V.cb&&V.cb()}catch(e){}}
+/* "perfect negotiation": the guest is polite (gives way when both ask at once), the host isn't */
+function vNego(pc,send,polite){let making=false;
+  pc.onnegotiationneeded=async()=>{try{making=true;await pc.setLocalDescription();send({t:'rtc',d:pc.localDescription})}catch(e){}finally{making=false}};
+  pc.onicecandidate=e=>{if(e.candidate)try{send({t:'ice',c:e.candidate})}catch(x){}};
+  return async m=>{try{if(m.t==='ice'){await pc.addIceCandidate(m.c).catch(()=>{});return}const d=m.d,coll=d.type==='offer'&&(making||pc.signalingState!=='stable');if(!polite&&coll)return;
+    await pc.setRemoteDescription(d);if(d.type==='offer'){await pc.setLocalDescription();send({t:'rtc',d:pc.localDescription})}}catch(e){console.warn('voice',e)}}}
+function vPlay(stream){if(V.els.has(stream.id))return;const a=document.createElement('audio');a.autoplay=true;a.setAttribute('playsinline','');a.srcObject=stream;a.muted=!V.on;a.style.display='none';document.body.appendChild(a);V.els.set(stream.id,a);
+  if(V.on)a.play().catch(()=>{});vMeter(stream);stream.onremovetrack=()=>{if(!stream.getTracks().length)vUnplay(stream.id)}}
+function vUnplay(id){const a=V.els.get(id);if(a){a.srcObject=null;a.remove();V.els.delete(id)}V.an.delete(id);vEmit()}
+/* a small level meter for each voice, so the app can show who's talking */
+function vMeter(stream){try{V.ac=V.ac||new (window.AudioContext||window.webkitAudioContext)();const src=V.ac.createMediaStreamSource(stream),an=V.ac.createAnalyser();an.fftSize=256;src.connect(an);V.an.set(stream.id,{an,buf:new Uint8Array(an.fftSize)});vLoop()}catch(e){}}
+let vLoopOn=false;function vLoop(){if(vLoopOn)return;vLoopOn=true;let last=0;const tick=t=>{if(!V.an.size){vLoopOn=false;return}if(t-last>120){last=t;let ch=false;
+  V.an.forEach((m,id)=>{m.an.getByteTimeDomainData(m.buf);let peak=0;for(const v of m.buf)peak=Math.max(peak,Math.abs(v-128));if(peak>10)m.loud=t;const on=t-(m.loud||-1e9)<450;/* hold the glow a moment between words */const pid=(V.who[id]||{}).pid;if(pid&&!!V.lv[pid]!==on){V.lv[pid]=on;ch=true}});if(ch)vEmit()}requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+/* host: every voice goes to every other phone */
+function vHostPeer(peer){const send=o=>{try{peer.dc.readyState==='open'&&peer.dc.send(JSON.stringify(o))}catch(e){}};peer.vsend=send;peer.rtc=vNego(peer.pc,send,false);peer.fw=new Map();
+  peer.pc.ontrack=e=>{const st=e.streams[0];if(!st)return;V.remote.set(st.id,{st,from:peer});vPlay(st);hub&&hub.peers.forEach(q=>{if(q!==peer)vFwd(q,st)});vEmit()};
+  if(V.mic)vFwd(peer,V.mic);V.remote.forEach(r=>{if(r.from!==peer)vFwd(peer,r.st)});send({t:'vmap',m:V.who})}
+function vFwd(q,st){if(!q.fw)return;st.getAudioTracks().forEach(tr=>{const k=st.id+'|'+tr.id;if(q.fw.has(k))return;try{q.fw.set(k,q.pc.addTrack(tr,st))}catch(e){}})}
+function vUnfwd(stid){hub&&hub.peers&&hub.peers.forEach(q=>{if(!q.fw)return;[...q.fw.keys()].filter(k=>k.startsWith(stid+'|')).forEach(k=>{try{q.pc.removeTrack(q.fw.get(k))}catch(e){}q.fw.delete(k)})})}
+function vHostGone(peer){[...V.remote].filter(([,r])=>r.from===peer).forEach(([id])=>{V.remote.delete(id);vUnfwd(id);vUnplay(id);delete V.who[id]});vBroadcast()}
+function vBroadcast(){if(hub&&hub.role==='host')hub.peers.forEach(q=>q.vsend&&q.vsend({t:'vmap',m:V.who}));vEmit()}
+/* who a voice belongs to, and whether they're muted: host keeps the list and shares it */
+function vMeta(sid,v,peer){if(v)V.who[sid]=v;else{delete V.who[sid];if(V.remote.has(sid)&&hub&&hub.role==='host'){vUnfwd(sid)}}vBroadcast()}
+function vGuestWire(g,pc){const send=o=>g.send(o);g.rtc=vNego(pc,send,true);pc.ontrack=e=>{const st=e.streams[0];if(st)vPlay(st);vEmit()}}
+async function vStart(pid){if(!hub)throw new Error('Link phones without internet first.');if(V.on)return;
+  const mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
+  V.mic=mic;V.on=true;V.muted=false;V.pid=pid;try{V.ac=V.ac||new (window.AudioContext||window.webkitAudioContext)();V.ac.resume()}catch(e){}
+  V.els.forEach(a=>{a.muted=false;a.play().catch(()=>{})});vMeter(mic);
+  const meta={pid,muted:false};
+  if(hub.role==='host'){V.who[mic.id]=meta;hub.peers.forEach(q=>vFwd(q,mic));vBroadcast()}
+  else{mic.getAudioTracks().forEach(tr=>hub.pc.addTrack(tr,mic));try{hub.send({t:'vme',s:mic.id,v:meta})}catch(e){}}
+  vEmit()}
+function vStop(quiet){if(!V.mic&&!V.on)return;const mic=V.mic;V.on=false;V.mic=null;V.lv={};
+  if(mic){mic.getTracks().forEach(t=>t.stop());V.an.delete(mic.id);
+    if(hub&&hub.role==='host'){delete V.who[mic.id];vUnfwd(mic.id);if(!quiet)vBroadcast()}
+    else if(hub){try{hub.pc.getSenders().forEach(sd=>{if(sd.track&&mic.getTracks().includes(sd.track))try{hub.pc.removeTrack(sd)}catch(e){}})}catch(e){}if(!quiet)try{hub.send({t:'vme',s:mic.id,v:null})}catch(e){}}}
+  V.els.forEach(a=>{a.muted=true});vEmit()}
+function vMute(on){if(!V.mic)return;V.muted=!!on;V.mic.getAudioTracks().forEach(t=>t.enabled=!on);const meta={pid:V.pid,muted:V.muted};
+  if(hub&&hub.role==='host'){V.who[V.mic.id]=meta;vBroadcast()}else if(hub){try{hub.send({t:'vme',s:V.mic.id,v:meta})}catch(e){}}vEmit()}
+const voice={start:vStart,stop:()=>vStop(false),mute:vMute,get on(){return V.on},get muted(){return V.muted},
+  people:()=>Object.values(V.who).filter(Boolean).map(v=>({pid:v.pid,muted:!!v.muted,talking:!!V.lv[v.pid]&&!v.muted})),onchange(cb){V.cb=cb},talking:pid=>!!V.lv[pid]};
 
 /* ---------------- QR codes: drawing them, and reading them with the camera ---------------- */
 const loadScript=src=>new Promise((res,rej)=>{if(document.querySelector(`script[data-lan="${src}"]`))return res();const s=document.createElement('script');s.src=src;s.dataset.lan=src;s.onload=res;s.onerror=()=>rej(new Error('Couldn’t load '+src));document.head.appendChild(s)});
@@ -154,5 +206,5 @@ async function warmCamera(){let s=null,late=false;const off=()=>{late=true;if(s)
   try{await Promise.race([navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false}).then(x=>{s=x;if(late)off()}),new Promise(r=>setTimeout(r,3000))])}catch(e){}
   return off}
 
-window.FTLAN={askLocal,lnaState,iceInfo,startHost,joinWith,stop,qrSvg,scan,warmCamera,pack,unpack,get hub(){return hub},id:myId,Store,hostFb};
+window.FTLAN={voice,askLocal,lnaState,iceInfo,startHost,joinWith,stop,qrSvg,scan,warmCamera,pack,unpack,get hub(){return hub},id:myId,Store,hostFb};
 try{window.lanReady&&window.lanReady()}catch(e){}
