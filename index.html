@@ -1258,6 +1258,10 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .cbpick[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 .mgbtn span.cbthumb{flex:0 0 26px;display:block;width:26px;height:36px;margin-left:2px}
 .bothead{width:1.15em;height:1.15em;vertical-align:-.2em;flex:none;display:inline-block}.bothead.big{width:24px;height:24px;vertical-align:middle}
+
+.cbbtn{padding:0 9px!important;display:inline-grid;place-items:center}.cbbtn .cbthumb{width:18px;height:26px;border-width:1.5px;border-radius:3px;display:block}
+.dndover{outline:3px solid var(--accent)!important;outline-offset:2px}.gphold,.sbme [data-a="sbpsrc"],.sbme .sbdpb,.gppile{touch-action:none}
+.cbpick .cbthumb{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
 </style>
 
 <div id="app"></div>
@@ -4655,7 +4659,7 @@ const cardDrag=()=>SET.cardPlay==='drag';
 const curSel=()=>S.game==='hearts'?HTSEL[0]:S.game==='spades'?SDSEL:S.game==='ohell'?OHSEL:S.game==='rook'?RKSEL[0]:S.game==='rage'?RGSEL:S.game==='uno'?UNSEL:null;
 let DRAG=null,DRAGPLAY=false,DRAGSUP=0;
 document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('#app .hofan .htc[data-c]');if(!b)return;
-  DRAG={b,c:b.dataset.c,a:b.dataset.a,x0:e.clientX,y0:e.clientY,el:null,id:e.pointerId,play:cardDrag()&&b.classList.contains('ok')&&!b.disabled}},{passive:true});
+  DRAG={b,c:b.dataset.c,a:b.dataset.a,x0:e.clientX,y0:e.clientY,el:null,id:e.pointerId,play:b.classList.contains('ok')&&!b.disabled}},{passive:true});
 document.addEventListener('pointermove',e=>{if(!DRAG||e.pointerId!==DRAG.id)return;const dx=e.clientX-DRAG.x0,dy=e.clientY-DRAG.y0;
   if(!DRAG.el){if(Math.hypot(dx,dy)<8)return;const r=DRAG.b.getBoundingClientRect(),el=DRAG.b.cloneNode(true);el.classList.add('dragcard');el.style.width=r.width+'px';el.style.height=r.height+'px';
     DRAG.ox=DRAG.x0-r.left;DRAG.oy=DRAG.y0-r.top;document.body.appendChild(el);DRAG.el=el;DRAG.b.style.visibility='hidden';clearTimeout(HOZT);hoZoomOff();const t=document.querySelector('.kttable');if(t&&DRAG.play)t.classList.add('dropzone')}
@@ -4672,8 +4676,8 @@ function dragEnd(e){if(!DRAG)return;const d=DRAG;DRAG=null;const t=document.quer
   const click=()=>{const x=[...document.querySelectorAll(`.hthand [data-a="${d.a}"]`)].find(q=>q.dataset.c===d.c);if(x){DRAGPLAY=true;x.click();DRAGPLAY=false}};
   if(curSel()!==d.c)click();click()}
 document.addEventListener('pointerup',dragEnd);document.addEventListener('pointercancel',()=>{if(DRAG&&DRAG.el){DRAG.el.remove();DRAG.b.style.visibility=''}const t=document.querySelector('.kttable');if(t)t.classList.remove('dropzone','dropover');DRAG=null});
-document.addEventListener('click',e=>{if(Date.now()<DRAGSUP&&!DRAGPLAY&&e.target.closest&&e.target.closest('.hthand .htc,.fchand .htc,.fcpile')){e.stopImmediatePropagation();e.preventDefault()}},true);
-const cardPlayHint=()=>`${cardDrag()?'Drag a card onto the table to play it.':(curSel()?'Tap it again to play it.':'Tap a card to play it.')} <button class="link-btn" data-a="cardplay">${cardDrag()?'Tap to play instead':'Drag to play instead'}</button>`;
+document.addEventListener('click',e=>{if(Date.now()<DRAGSUP&&!DRAGPLAY&&e.target.closest&&e.target.closest('.hthand .htc,.fchand .htc,.fcpile,.sbme button,.gppile,.gphold,.gpme .gpc,[data-a="sbpbuild"],[data-a="gpdisc"]')){e.stopImmediatePropagation();e.preventDefault()}},true);
+const cardPlayHint=()=>`${cardDrag()?'Drag a card onto the table to play it.':(curSel()?'Tap it again (or drag it to the table) to play it.':'Tap a card, or drag it onto the table, to play it.')} <button class="link-btn" data-a="cardplay">${cardDrag()?'Tap to play instead':'Drag to play instead'}</button>`;
 
 /* =====================================================================
    HAND ORGANIZER: your own card order in every phone-played card game.
@@ -4744,15 +4748,31 @@ function hoAfter(){const app=document.getElementById('app');if(!app||S.screen!==
     if(d.pile){/* drag a draw into a spot: remember where, then draw */HOPEND={pid:V.id,to,at:Date.now()};DRAGPLAY=true;d.el.click();DRAGPLAY=false;return}
     if(z.el===d.el){render();return}hoMove(V.id,d.el.dataset.c,to);vibe(8);render()};
   document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',end,true)})();
+/* ---------- drag a card to where it goes in Skip-Bo, Golf, Skyjo and Gnoming (the same as tapping the card, then the spot) ---------- */
+(function(){let D=null;
+  const SRC='.sbme [data-a="sbpsrc"],.sbme .sbdpb,.gphold,.gppile.go,[data-a="gpdeck"]';
+  const TGT='[data-a="sbpbuild"],.sbme .sbdpb,.gpme .gpgrid>*,[data-a="gpdisc"],[data-a="gppile"]';
+  const keyOf=el=>{const a=el.dataset.a;if(!a)return null;let q=`[data-a="${a}"]`;['i','k','c','f'].forEach(x=>{if(el.dataset[x]!==undefined)q+=`[data-${x}="${el.dataset[x]}"]`});return q};
+  document.addEventListener('pointerdown',e=>{if(!e.target.closest||!['skipbo','golf','skyjo','gnome'].includes(S.game))return;const el=e.target.closest(SRC);if(!el||el.getAttribute('aria-disabled')==='true')return;
+    if(el.classList.contains('gphold')&&!/^Your card/.test(el.textContent.trim().split('\n').pop()||'')&&!el.querySelector('small')?.textContent.startsWith('Your'))return;
+    D={el,x:e.clientX,y:e.clientY,on:false,id:e.pointerId,q:keyOf(el)}},true);
+  document.addEventListener('pointermove',e=>{if(!D||e.pointerId!==D.id)return;const dx=e.clientX-D.x,dy=e.clientY-D.y;
+    if(!D.on){if(Math.hypot(dx,dy)<10)return;const src=D.el.querySelector('.gpc,.sbc')||D.el;const r=src.getBoundingClientRect(),g=src.cloneNode(true);g.classList.add('dragcard');g.style.width=r.width+'px';g.style.height=r.height+'px';D.ox=D.x-r.left;D.oy=D.y-r.top;document.body.appendChild(g);D.g=g;D.on=true;clearTimeout(HOZT);hoZoomOff()}
+    D.g.style.transform=`translate(${e.clientX-D.ox}px,${e.clientY-D.oy}px)`;document.querySelectorAll('.dndover').forEach(x=>x.classList.remove('dndover'));
+    const t=document.elementFromPoint(e.clientX,e.clientY),tg=t&&t.closest(TGT);if(tg&&tg!==D.el)tg.classList.add('dndover');e.preventDefault()},{passive:false});
+  const end=e=>{if(!D||e.pointerId!==D.id)return;const d=D;D=null;if(!d.on)return;DRAGSUP=Date.now()+400;d.g.remove();document.querySelectorAll('.dndover').forEach(x=>x.classList.remove('dndover'));
+    const t=e.type==='pointerup'?document.elementFromPoint(e.clientX,e.clientY):null,tg=t&&t.closest(TGT);if(!tg||tg===d.el)return;const tq=tg.parentElement&&tg.parentElement.classList.contains('gpgrid')?`.gpme [data-a="gpcell"][data-i="${[...tg.parentElement.children].indexOf(tg)}"]`:keyOf(tg);
+    DRAGPLAY=true;try{if(d.q&&!d.el.classList.contains('gphold')){const s1=document.querySelector(d.q);if(s1)s1.click()}const t2=tq&&document.querySelector(tq);if(t2)t2.click()}finally{DRAGPLAY=false}};
+  document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',end,true)})();
 /* ---------- press and hold a card to see it big ---------- */
 let HOZT=null,HOZX=0,HOZY=0;
 function hoZoomOff(){const z=document.querySelector('.hozoom');if(z)z.remove()}
-document.addEventListener('pointerdown',e=>{if(!e.target.closest)return;const c=e.target.closest('.hthand .htc,.fchand .htc,.fcpile .htc');if(!c)return;HOZX=e.clientX;HOZY=e.clientY;clearTimeout(HOZT);
-  HOZT=setTimeout(()=>{const z=document.createElement('div');z.className='hozoom';const k=c.cloneNode(true);k.removeAttribute('data-a');k.style.setProperty('--cw','150px');k.classList.remove('sel','dragging');k.style.transform='none';k.style.opacity='1';z.appendChild(k);document.body.appendChild(z);HOZSUP=Date.now()+60000;vibe(10)},480)},true);
+document.addEventListener('pointerdown',e=>{if(!e.target.closest)return;const c=e.target.closest('.hthand .htc,.fchand .htc,.fcpile .htc,.cbpick .cbthumb');if(!c)return;HOZX=e.clientX;HOZY=e.clientY;clearTimeout(HOZT);
+  HOZT=setTimeout(()=>{const z=document.createElement('div');z.className='hozoom';const k=c.cloneNode(true);k.removeAttribute('data-a');k.style.setProperty('--cw','150px');if(k.classList.contains('cbthumb')){k.style.width='min(240px,62vw)';k.style.height='calc(min(240px,62vw) * 1.4)';k.style.borderRadius='14px';k.style.borderWidth='3px'}k.classList.remove('sel','dragging');k.style.transform='none';k.style.opacity='1';z.appendChild(k);document.body.appendChild(z);HOZSUP=Date.now()+60000;vibe(10)},480)},true);
 document.addEventListener('pointermove',e=>{if(HOZT&&Math.hypot(e.clientX-HOZX,e.clientY-HOZY)>9){clearTimeout(HOZT);HOZT=null}},true);
 const hoZEnd=()=>{clearTimeout(HOZT);HOZT=null;if(document.querySelector('.hozoom')){hoZoomOff();HOZSUP=Date.now()+350}};
 document.addEventListener('pointerup',hoZEnd,true);document.addEventListener('pointercancel',hoZEnd,true);
-document.addEventListener('click',e=>{if(Date.now()<HOZSUP&&e.target.closest&&e.target.closest('.hthand .htc,.fchand .htc,.fcpile')){HOZSUP=0;e.stopImmediatePropagation();e.preventDefault()}},true);
+document.addEventListener('click',e=>{if(Date.now()<HOZSUP&&e.target.closest&&e.target.closest('.hthand .htc,.fchand .htc,.fcpile,.cbpick')){HOZSUP=0;e.stopImmediatePropagation();e.preventDefault()}},true);
 document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('.hthand .htc,.fchand .htc'))e.preventDefault()});
 /* "Share the app": a QR code for the website, so someone else can open and install it */
 const APPURL='https://justintuckett-15412.github.io/final-tally/';let SHAREQR=null;
@@ -10589,7 +10609,7 @@ function render(){
   const winY=SLOCK?null:window.scrollY,winScr=S.screen;
   const KEEPSC=['.csheet .cbody','.rsheet .rs-body','.cpick','.lansheet'],keepSc=KEEPSC.map(q=>{const el=document.querySelector(q);return el?el.scrollTop:null});
   cbApply();document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+dashSheet()+cbSheet()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','phase10','rook','yahtzee','mextrain','catan','golf','tripoley','quacks'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||LPTIP.startsWith('ph:')||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
-  if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar){bar.insertAdjacentHTML('afterbegin',HOMEBTN);if(dashOn()&&!S.editing)bar.insertAdjacentHTML('beforeend','<button class="btn sm dashbtn" data-a="dashopen" aria-label="Everyone at a glance">📊</button>');if((window.FTLINK||window.FTLAN)&&!S.lk&&!S.demo&&!S.editing&&S.started&&!S.finished&&['score','live'].includes(S.screen))bar.insertAdjacentHTML('beforeend','<button class="btn sm lkbtn" data-a="lkchoose" aria-label="Link phones">📱<span class="lkw"> Link</span></button>')}}
+  if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar){bar.insertAdjacentHTML('afterbegin',HOMEBTN);if(CBG.includes(S.game)&&['score','live'].includes(S.screen)&&!S.editing){const rb=bar.querySelector('.rulesbtn');if(rb&&!bar.querySelector('.cbbtn'))rb.insertAdjacentHTML('afterend',`<button class="btn sm cbbtn" data-a="cbopen" aria-label="Card back" title="Card back">${cbThumb(cbFor(S.game))}</button>`)}if(dashOn()&&!S.editing)bar.insertAdjacentHTML('beforeend','<button class="btn sm dashbtn" data-a="dashopen" aria-label="Everyone at a glance">📊</button>');if((window.FTLINK||window.FTLAN)&&!S.lk&&!S.demo&&!S.editing&&S.started&&!S.finished&&['score','live'].includes(S.screen))bar.insertAdjacentHTML('beforeend','<button class="btn sm lkbtn" data-a="lkchoose" aria-label="Link phones">📱<span class="lkw"> Link</span></button>')}}
   if(S.screen==='results'&&S.lk&&!S.demo&&S.finished){const app=document.getElementById('app'),ac=app.querySelector('.actions');if(ac){ac.querySelectorAll('[data-a="rematch"]').forEach(x=>x.remove());ac.insertAdjacentHTML('beforebegin',lkVoteHtml());if(!ac.querySelector('button'))ac.remove()}else app.insertAdjacentHTML('beforeend',lkVoteHtml())}
   bidMark();
   rcHydrate(document.getElementById('app'));
@@ -11527,6 +11547,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='641765';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='d130a2';</script>
 </body>
 </html>
