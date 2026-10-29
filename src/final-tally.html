@@ -1295,6 +1295,9 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 @keyframes tqpay{0%{opacity:0;transform:translateX(-50%) scale(.6)}10%{opacity:1;transform:translateX(-50%) scale(1.06)}16%{transform:translateX(-50%) scale(1)}85%{opacity:1}100%{opacity:0}}
 .tqapots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:6px}.tqaces .lr{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:6px}
 .tqace{font:inherit;font-weight:800;font-size:20px;min-width:72px;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink)}.tqace.red{color:#c8322b}.tqace.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 22%,var(--surface))}
+.tqpkbg{align-items:center;pointer-events:none}.tqpkres{text-align:center;border-top:6px solid var(--pc,var(--accent));border-radius:20px;margin:16px;display:grid;gap:6px;justify-items:center;animation:tqpk 5.2s ease both}
+@keyframes tqpk{0%{opacity:0;transform:scale(.7)}8%{opacity:1;transform:scale(1.04)}13%{transform:scale(1)}88%{opacity:1}100%{opacity:0}}
+.tqpkres h2{margin:0;font-size:24px}.tqpkcat{margin:0;font-size:18px;font-weight:800}.tqpk5{display:flex;gap:4px;justify-content:center}.tqpk5 .htc{--cw:clamp(44px,13vw,60px)}.tqpkv{font-size:18px;color:#2e9d57}
 </style>
 
 <div id="app"></div>
@@ -9929,11 +9932,14 @@ function tqShowdown(g){const k=g.pk,live=tqLive(g),H=tpH(g.r);H.bets={};g.ps.for
   let w=live;if(live.length>1){const ev=live.map(id=>({id,v:tqEval(g.h[id])}));const top=ev.reduce((a,b)=>tqCmp(b.v,a.v)>0?b:a);w=ev.filter(x=>tqCmp(x.v,top.v)===0).map(x=>x.id);
     g.show=Object.fromEntries(ev.map(x=>[x.id,x.v[0]]));g.msg=`${w.map(nmid).join(' & ')} ${w.length>1?'split':'takes'} the pot with ${TQCAT[top.v[0]].toLowerCase()}.`}
   else g.msg=`${nmid(w[0])} takes the pot; everyone else folded.`;
-  H.pw=w.slice();w.forEach(id=>pst('tqpot',id));g.phase='pokerdone';g.at=Date.now();g.n++}
+  H.pw=w.slice();w.forEach(id=>pst('tqpot',id));
+  let pot=0;try{const ST=tpState(g.r),base=(ST.carry.pot||0)+TPX().ante*g.ps.length;pot=base+Object.values(k.in).reduce((a,b)=>a+b,0)}catch(e){}
+  g.pkres={w:w.slice(),cat:live.length>1?tqEval(g.h[w[0]])[0]:null,five:live.length>1?tqFive(g.h[w[0]]):[],pot,fold:live.length<=1};g.phase='pokerdone';g.at=Date.now();g.n++}
 function tqStartPlay(g){g.phase='play';g.lead=g.dealer;g.stop=null;g.run=[];g.last=null;g.msg=`${nmid(g.dealer)} leads: the lowest card of any suit.`;g.at=Date.now()}
 /* cards a leader may play: the lowest card they hold in each suit (another suit than the one that just stopped, if they can) */
 function tqLeads(g,pid){const h=g.h[pid]||[],out=[];for(const s of 'SHDC'){const cs=h.filter(c=>tqSu(c)===s);if(cs.length)out.push(cs.reduce((a,b)=>tqRv(b)<tqRv(a)?b:a))}
-  const other=out.filter(c=>tqSu(c)!==g.stop);return other.length?other:out}
+  if(!g.stop)return out;/* after a stop the lead switches color: red to black, black to red (another suit of the same color if that's all you have, then the same suit) */
+  const red=x=>x==='H'||x==='D',flip=out.filter(c=>red(tqSu(c))!==red(g.stop)),other=out.filter(c=>tqSu(c)!==g.stop);return flip.length?flip:other.length?other:out}
 function tqLead(g,pid,c){if(!g||g.phase!=='play'||g.lead!==pid||!tqLeads(g,pid).includes(c))return false;tqPlayCard(g,pid,c);return true}
 const TQPAYK={AH:'A',KH:'K',QH:'Q',JH:'J',TH:'T'};
 function tqAceOnPlay(g,pid,c){const H=tpH(g.r);if(c[0]!=='A'||!H.ace||!H.ace.open||!H.ace.open[c[1]])return;const su=c[1];if(H.ace.won[su])return;
@@ -9979,12 +9985,12 @@ const tqNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=tqG();if(!g||tqHum
 function tqTick(){if(S.game!=='tripoley'||!tqOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!tqRes())return;if(lkqRun()){save();render();return}
   const g=tqG(),cur=tpCur();if(!g||tqStale(g)||g.r!==cur){tqDeal(cur);save();render();return}
   if(TQBOTT&&TQBOTK!==g.n+':'+g.phase){clearTimeout(TQBOTT);TQBOTT=null}/* something changed: plan again */
-  if(TQBOTT||document.querySelector('.sheet-bg'))return;const sp=window.__htfast?.15:1;
+  if(TQBOTT||document.querySelector('.sheet-bg:not(.tqpkbg)'))return;const sp=window.__htfast?.15:1;
   const later=(ms,f)=>{TQBOTK=g.n+':'+g.phase;TQBOTT=setTimeout(()=>{TQBOTT=null;const g2=tqG();if(!g2||g2.r!==g.r||S.game!=='tripoley')return;if(f(g2)!==false){save()}render()},ms*sp)};
   if(g.phase==='aces'){const q=act().find(p=>p.id===g.ac.turn);if(q&&q.bot)later(1000,g2=>{if(g2.phase!=='aces'||g2.ac.turn!==q.id)return false;tqBotAce(g2,q)});return}
   if(g.phase==='dead'){const q=act().find(p=>p.id===g.dh.turn);if(q&&q.bot)later(1000,g2=>{if(g2.phase!=='dead'||g2.dh.turn!==q.id)return false;tqBotDead(g2,q)});return}
   if(g.phase==='pay')return later(3200,g2=>{if(g2.phase!=='pay')return false;tqStartPoker(g2)});
-  if(g.phase==='pokerdone')return later(3200,g2=>{if(g2.phase!=='pokerdone')return false;tqStartPlay(g2)});
+  if(g.phase==='pokerdone')return later(5200,g2=>{if(g2.phase!=='pokerdone')return false;tqStartPlay(g2)});
   if(g.phase==='poker'){const q=act().find(p=>p.id===g.pk.turn);if(q&&q.bot)later(900,g2=>{if(g2.phase!=='poker'||g2.pk.turn!==q.id)return false;tqBotPoker(g2,q)});return}
   if(g.phase==='play'){if(!g.lead){if(!g.need)return;const left=Math.max(0,g.wt+g.wd-Date.now()),holder=act().find(p=>(g.h[p.id]||[]).includes(g.need));
       /* computer players react after a moment, and easy ones sometimes miss it too */
@@ -10029,6 +10035,7 @@ function tqPlayUI(){if(!tqRes()&&S.tqg&&S.tqg.r!==S.hr)S.hr=S.tqg.r;/* hr isn't 
       else{b.push(`<button class="btn" data-a="tqpbet" data-k="fold">Fold</button>`,`<button class="btn primary" data-a="tqpbet" data-k="call">Call ${toCall}</button>`);if(!k.raised[V.id])[1,2,5].forEach(n=>b.push(`<button class="btn" data-a="tqpbet" data-k="raise" data-v="${n}">Raise ${n*A}</button>`))}
       out+=`<div class="actions"><div class="in tqbets">${b.join('')}</div></div>`}}
   else if(!S.lk&&tqHumans().length>1&&ph!=='done')out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
+  if(ph==='pokerdone'&&g.pkres){const R=g.pkres,p=P.find(q=>q.id===R.w[0]);out+=`<div class="sheet-bg tqpkbg"><div class="sheet tqpkres" role="status" aria-live="polite" style="${p?pc(p.color):''}"><span class="rlab">Poker</span><h2>${esc(R.w.map(nmid).join(' & '))} ${R.w.length>1?'split':'wins'} the pot!</h2><p class="tqpkcat">${R.fold?'Everyone else folded.':esc(TQCAT[R.cat])}</p>${R.five.length?`<div class="tqpk5">${R.five.map(c=>tqCardEl(c)).join('')}</div>`:''}<b class="num tqpkv">+${R.w.length>1?Math.floor(R.pot/R.w.length):R.pot} chips</b><small class="rlab">Next: the rummy round…</small></div></div>`}
   if(g.pay&&Date.now()-g.pay.at<3200){const p=P.find(q=>q.id===g.pay.pid);out+=`<div class="tqpaybn" style="${p?pc(p.color):''};--o:${-(Date.now()-g.pay.at)}ms" role="status" aria-live="polite"><b>💰 ${esc(g.pay.txt)}</b>${g.pay.v?`<span class="num">+${g.pay.v} chips</span>`:''}</div>`;if(!TQPAYT)TQPAYT=setTimeout(()=>{TQPAYT=null;render()},3300-(Date.now()-g.pay.at))}
   if(WARN)out+=`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
     <div class="sheet-btns"><button class="btn" data-a="warnclose">Go back and check</button><button class="btn primary" data-a="revstart">Reveal anyway</button></div></div></div>`;
