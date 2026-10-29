@@ -5663,7 +5663,7 @@ const UG={hf:{get:()=>S.hx,set:v=>S.hx=v,def:()=>HFDEF,keep:()=>hfKeep()},canast
   nerts:{get:()=>S.nx,set:v=>S.nx=v,def:()=>NXDEF,keep:()=>nxKeep()},hearts:{get:()=>S.htx,set:v=>S.htx=v,def:()=>HTDEF,keep:()=>htKeep()},
   spades:{get:()=>S.sdx,set:v=>{const tm=SDX().teams;S.sdx=v;if(v.teams!==tm)S.players.forEach((p,i)=>p.on=i<(v.teams?2:4))},def:()=>SDDEF,keep:()=>sdKeep()},
   rage:{get:()=>S.rgx,set:v=>S.rgx=v,def:()=>RGDEF,keep:()=>rgKeep()},ohell:{get:()=>S.ohx,set:v=>S.ohx=v,def:()=>OHDEF,keep:()=>ohKeep()},munchkin:{get:()=>S.mkx,set:v=>S.mkx=v,def:()=>mkDefs(),keep:()=>mkKeep()},uno:{get:()=>S.unx,set:v=>S.unx=v,def:()=>JSON.parse(JSON.stringify(UNDEF)),keep:()=>unKeep()},crowns:{get:()=>S.fcx,set:v=>S.fcx=v,def:()=>FCDEF,keep:()=>fcKeep()},quacks:{get:()=>S.qkx,set:v=>S.qkx=v,def:()=>QKDEF,keep:()=>qkKeep()},tripoley:{get:()=>S.tpx,set:v=>S.tpx=v,def:()=>TPDEF,keep:()=>tpKeep()},golf:{get:()=>S.gfx,set:v=>S.gfx=v,def:()=>GFDEF,keep:()=>gfKeep()},skyjo:{get:()=>S.skx,set:v=>S.skx=v,def:()=>SKDEF,keep:()=>skKeep()},catan:{get:()=>S.ctx,set:v=>S.ctx=v,def:()=>CTDEF,keep:()=>ctKeep()},mextrain:{get:()=>S.mtx,set:v=>S.mtx=v,def:()=>MTDEF,keep:()=>mtKeep()},yahtzee:{get:()=>S.yzx,set:v=>S.yzx=v,def:()=>YZDEF,keep:()=>yzKeep()},rook:{get:()=>S.rkx,set:v=>S.rkx=v,def:()=>RKDEF,keep:()=>rkKeep()},phase10:{get:()=>S.ptx,set:v=>S.ptx=v,def:()=>JSON.parse(JSON.stringify(PTDEF)),keep:()=>ptKeep()},wingspan:{get:()=>S.wsx,set:v=>S.wsx=v,def:()=>WSDEF,keep:()=>wsKeep()},gnome:{get:()=>S.gnx,set:v=>S.gnx=v,def:()=>GNDEF,keep:()=>gnKeep()},skipbo:{get:()=>S.sbx,set:v=>{const tm=SBX().teams;S.sbx=v;if(v.teams!==tm)S.players.forEach((p,i)=>p.on=i<(v.teams?2:3))},def:()=>SBDEF,keep:()=>sbKeep()}};
-function usualGet(g){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.usual.'+g))}catch(e){}if(x&&g==='tripoley'&&(x.av||0)<2){x.aces=true;x.av=2}return x}
+function usualGet(g){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.usual.'+g))}catch(e){}if(x&&g==='tripoley'&&(x.av||0)<2){x.aces=true;x.av=2}if(x&&g==='tripoley'&&(x.av||0)<3){if(+x.start===50)x.start=100;x.av=3}return x}
 function usualBase(g){const d=UG[g].def(),u=usualGet(g);return JSON.parse(JSON.stringify(Object.assign({},d,u||{})))}
 const usualSame=(a,b,d)=>Object.keys(d).every(k=>JSON.stringify(a[k])===JSON.stringify(b[k]));
 function usualUI(g){if(S.demo)return '';const G=UG[g],d=G.def(),cur=G.get()||{},base=usualBase(g),own=!!usualGet(g),ch=!usualSame(cur,base,d),std=!usualSame(cur,d,d);
@@ -7463,15 +7463,15 @@ function gfDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    poker pot and the Michigan run-out move chips around. Unclaimed pens
    carry over. S.tph[r] = {pens:{A:pid,..,T89:[pids]}, bets:{pid:n}, pw:[pids], out:pid, left:{pid:n}}
    ===================================================================== */
-const TPDEF={start:50,ante:1,poker:true,perCard:1,end:'open',hands:10,dead:false,wait:5,payPlay:true,aces:true,av:2,pkhelp:false};
+const TPDEF={start:100,ante:1,poker:true,perCard:1,end:'open',hands:10,dead:false,wait:5,payPlay:true,aces:true,av:3,pkhelp:false};
 const TPX=()=>{if(!S.tpx)S.tpx={...TPDEF};const X=S.tpx;for(const k in TPDEF)if(X[k]===undefined)X[k]=TPDEF[k];return X};
-function tpSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.tpx'))}catch(e){}if(x&&(x.av||0)<2){x.aces=true;x.av=2}/* ace bets became on by default */return Object.assign({...TPDEF},x||{})}
+function tpSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.tpx'))}catch(e){}if(x&&(x.av||0)<2){x.aces=true;x.av=2}/* ace bets became on by default */if(x&&(x.av||0)<3){if(+x.start===50)x.start=100;x.av=3}/* 100 chips each became the default */return Object.assign({...TPDEF},x||{})}
 function tpKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.tpx',JSON.stringify(TPX()))}catch(e){}}
 function tpFresh(){return {game:'tripoley',screen:'map',map:'tripoley',rules:{},started:false,active:0,picks:{},hr:0,tph:[],tpx:tpSaved(),players:CARC_COLORS.map((c,i)=>newPlayer('',c,i<5))}}
 function TPM(){const X=TPX();return {name:'Tripoley',meta:`${X.start} chips each · ante ${X.ante} a pen · ${X.end==='hands'?X.hands+' hands':'until you stop'}`,min:2,max:8,teams:false,colors:CARC_COLORS,lengths:[],pieces:0,piece:'',own:[],defaults:[],tb:[]}}
 const TPPENS=[['A','Ace ♥'],['K','King ♥'],['Q','Queen ♥'],['J','Jack ♥'],['T','10 ♥'],['KQ','King-Queen ♥'],['T89','8-9-10'],['kitty','Kitty'],['pot','Pot']];
 const tpH=r=>{const a=S.tph||(S.tph=[]);return a[r]||(a[r]={pens:{},bets:{},pw:[],out:null,left:{}})};
-const tpHas=H=>!!H&&(Object.keys(H.pens||{}).length>0||(H.pw||[]).length>0||!!H.out||Object.values(H.bets||{}).some(v=>+v>0)||!!(H.dh&&H.dh.b)||!!(H.ace&&Object.keys(H.ace.open||{}).length));
+const tpHas=H=>!!H&&(Object.keys(H.pens||{}).length>0||(H.pw||[]).length>0||!!H.out||Object.values(H.bets||{}).some(v=>+v>0)||!!(H.dh&&H.dh.b)||!!(H.ace&&Object.keys(H.ace.open||{}).length)||Array.isArray(H.ps));/* a hand dealt on the phone counts from the deal (antes are in) */
 const tpDone=r=>tpHas((S.tph||[])[r]);
 const tpLast=()=>{let l=-1;(S.tph||[]).forEach((H,i)=>{if(tpHas(H))l=i});return l};
 const tpN=()=>TPX().end==='hands'?TPX().hands:Math.max((S.hr||0)+1,tpLast()+1);
@@ -7480,9 +7480,9 @@ const tpPlayed=()=>Math.max(1,TPX().end==='hands'?Math.min(TPX().hands,tpLast()+
 /* replay every hand: balances, pen amounts at the start of each hand, nets */
 function tpState(upto){const X=TPX(),P=act(),bal={},carry={},acarry={S:0,H:0,D:0,C:0};P.forEach(p=>bal[p.id]=X.start);TPPENS.forEach(([k])=>carry[k]=0);const hands=[];
   const n=upto===undefined?tpN():upto;
-  for(let r=0;r<n;r++){const H=(S.tph||[])[r];const pens={};TPPENS.forEach(([k])=>pens[k]=carry[k]+X.ante*P.length);
+  for(let r=0;r<n;r++){const H=(S.tph||[])[r];const inP=H&&Array.isArray(H.ps)?P.filter(p=>H.ps.includes(p.id)):P;/* players knocked out don't ante */const pens={};TPPENS.forEach(([k])=>pens[k]=carry[k]+X.ante*inP.length);
     if(!tpHas(H)){hands.push({r,pens,pot:pens.pot,net:{},skip:true});continue}
-    const net={};P.forEach(p=>{net[p.id]=-X.ante*TPPENS.length;bal[p.id]-=X.ante*TPPENS.length});
+    const net={};P.forEach(p=>net[p.id]=0);inP.forEach(p=>{net[p.id]=-X.ante*TPPENS.length;bal[p.id]-=X.ante*TPPENS.length});
     const give=(pid,v)=>{if(!pid||!(pid in bal))return;bal[pid]+=v;net[pid]+=v};
     /* house rule: someone bought the dead hand; the seller (the dealer) gets the chips */
     if(H.dh&&H.dh.b&&H.dh.s&&H.dh.b!==H.dh.s&&+H.dh.n>0){give(H.dh.b,-(+H.dh.n));give(H.dh.s,+H.dh.n)}
@@ -7494,7 +7494,7 @@ function tpState(upto){const X=TPX(),P=act(),bal={},carry={},acarry={S:0,H:0,D:0
     const t=(H.pens.T89||[]).filter(id=>id in bal);if(t.length){const each=Math.floor(pens.T89/t.length);t.forEach(id=>give(id,each));after.T89=pens.T89-each*t.length}
     let pot=pens.pot;if(X.poker){P.forEach(p=>{const b=Math.max(0,+(H.bets||{})[p.id]||0);bal[p.id]-=b;net[p.id]-=b;pot+=b});const w=(H.pw||[]).filter(id=>id in bal);if(w.length){const each=Math.floor(pot/w.length);w.forEach(id=>give(id,each));after.pot=pot-each*w.length}else after.pot=pot}
     else after.pot=pens.pot;
-    if(H.out&&H.out in bal){give(H.out,pens.kitty);after.kitty=0;P.forEach(p=>{if(p.id===H.out)return;const c=Math.max(0,+(H.left||{})[p.id]||0)*X.perCard;bal[p.id]-=c;net[p.id]-=c;give(H.out,c)})}
+    if(H.out&&H.out in bal){give(H.out,pens.kitty);after.kitty=0;P.forEach(p=>{if(p.id===H.out)return;const c=Math.min(Math.max(0,+(H.left||{})[p.id]||0)*X.perCard,H.ps?Math.max(0,bal[p.id]):Infinity);/* playing on the phone: you can't pay more than you have */bal[p.id]-=c;net[p.id]-=c;give(H.out,c)})}
     hands.push({r,pens,pot,after,net,apot});TPPENS.forEach(([k])=>carry[k]=after[k])}
   return {bal,carry,hands,acarry}}
 const tpTot=p=>tpState().bal[p.id]??TPX().start;
@@ -7509,7 +7509,7 @@ function tpSetup(){const X=TPX();
   ${guideBtn()}<p class="hint" style="margin-top:14px">The app is the bank: no chips needed. Your house rules are remembered for next time. ${usualUI('tripoley')}</p>
   ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([v,t])=>`<button data-a="tqplaymode" data-k="${v}" aria-pressed="${!!X.play===!!v}">${t}</button>`).join('')}</div>`,
     S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals, pays the pens, runs the poker round and plays out the cards. Computer players, pass-and-play and linked phones all work.':'Play with real cards and tap who won each pen. The app is the bank.')}
-  ${sec('Chips',row('Everyone starts with','chips',st('start',X.start,0,1000,10,'chips'))+row('Ante','per pen',st('ante',X.ante,1,10,1,'chips')),`Each hand costs ${X.ante*9} chips to play (${X.ante} on each of the 9 pens).`)}
+  ${sec('Chips',row('Everyone starts with','chips',st('start',X.start,0,1000,10,'chips'))+row('Ante','per pen',st('ante',X.ante,1,10,1,'chips')),`Each hand costs ${X.ante*9} chips to play (${X.ante} on each of the 9 pens).${X.play?' Playing on the phone, nobody goes below zero: once you can’t pay the antes, you’re out of the game.':''}`)}
   ${sec('Each hand',tg('poker','Poker round','Bet on your best 5 cards; the winner takes the Pot.')+(X.play?row('Time to play the next card','seconds',st('wait',X.wait,2,20,1,'seconds')):'')+(X.play?tg('pkhelp','Poker hand helper','Lights up your best 5 cards and names the hand during the poker round.'):'')+tg('payPlay','Pay cards pay when played','Pay cards collect their pens when they’re played in the rummy round. A pay card that never gets played doesn’t collect, and that pen carries over.')+tg('aces','Ace bets','Before the deal, the dealer can open bets on any of the aces with a buy-in of 1 to 10 (and buys in on each one they open). Everyone else chooses ace by ace. Whoever bought in and plays that ace in the rummy round takes its pot; otherwise it carries over.')+tg('dead','Buying the dead hand','The dealer can swap for the dead hand first, then the others can bid for it (the dealer gets the chips). Anyone holding the A, K, Q, J or 10 of hearts can’t take it. Pay cards in it count for the new owner.')+row('Paying the winner','chips per card left',st('perCard',X.perCard,0,10,1,'chips')),'Pens nobody claims (like a card in the dead hand) carry over to the next hand.')}
   ${sec('How the game ends',seg('end',[['open','Until we stop'],['hands','Set hands']])+(X.end==='hands'?row('Hands','',st('hands',X.hands,1,40,1,'hands')):''),'Most chips wins.')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
@@ -9844,7 +9844,7 @@ const TQR='23456789TJQKA',tqRv=c=>TQR.indexOf(c[0])+2,tqSu=c=>c[1],tqRed=c=>c[1]
 const TQSN={S:'spades',H:'hearts',D:'diamonds',C:'clubs'};
 const tqName=c=>`${{A:'Ace',K:'King',Q:'Queen',J:'Jack',T:'10'}[c[0]]||c[0]} of ${TQSN[c[1]]}`;
 const tqSort=h=>h.slice().sort((a,b)=>'SHCD'.indexOf(tqSu(a))-'SHCD'.indexOf(tqSu(b))||tqRv(a)-tqRv(b));
-function tqStale(g){if(!g||!g.h)return false;const ids=act().map(p=>p.id),ks=Object.keys(g.h);return ids.some(id=>!g.h[id])||ks.some(id=>!ids.includes(id))}
+function tqStale(g){if(!g||!g.h)return false;const ids=act().map(p=>p.id),ks=Object.keys(g.h),out=g.outp||[];return ids.some(id=>!g.h[id]&&!out.includes(id))||ks.some(id=>!ids.includes(id))}
 const tqNext=(g,pid)=>{const i=g.ps.indexOf(pid);return g.ps[(i+1)%g.ps.length]};
 /* ---------------- poker hands ---------------- */
 const TQCAT=['High card','One pair','Two pair','Three of a kind','Straight','Flush','Full house','Four of a kind','Straight flush'];
@@ -9869,10 +9869,13 @@ function tqFive(cards){const v=tqEval(cards),cat=v[0];const pick=[];const has=c=
   if(cat===7){addR(v[1],4);addR(v[2],1)}else if(cat===6){addR(v[1],3);addR(v[2],2)}else if(cat===3){addR(v[1],3);v.slice(2).forEach(r=>addR(r,1))}
   else if(cat===2){addR(v[1],2);addR(v[2],2);addR(v[3],1)}else if(cat===1){addR(v[1],2);v.slice(2).forEach(r=>addR(r,1))}else v.slice(1).forEach(r=>addR(r,1));return pick}
 /* ---------------- the hand ---------------- */
-function tqDeal(r){const P=act(),ids=P.map(p=>p.id),X=TPX(),L=[];for(const s of 'SHDC')for(const k of TQR)L.push(k+s);const d=htShuffle(L);
+const tqAlive=r=>{const X=TPX(),bal=tpState(r).bal;return act().filter(p=>(bal[p.id]??X.start)>=X.ante*TPPENS.length)};
+/* chips you can still use this hand (antes, buy-ins, a dead hand and bets already counted) */
+function tqAvail(g,pid){let v=0;try{v=tpState().bal[pid]}catch(e){}if(g&&g.pk&&g.pk.in)v-=(g.pk.in[pid]||0);return Math.max(0,v)}
+function tqDeal(r){const P=tqAlive(r),ids=P.map(p=>p.id),X=TPX(),L=[];for(const s of 'SHDC')for(const k of TQR)L.push(k+s);const d=htShuffle(L);
   const dealer=ids[r%ids.length],g={_atom:1,r,ps:ids,dealer,h:{},dead:[],phase:'pay',at:Date.now(),pk:null,lead:null,stop:null,run:[],last:null,msg:'',n:0};ids.forEach(id=>g.h[id]=[]);
   const seats=[...ids.slice(ids.indexOf(dealer)+1),...ids.slice(0,ids.indexOf(dealer)+1),'dead'];let i=0;while(d.length){const s=seats[i++%seats.length];(s==='dead'?g.dead:g.h[s]).push(d.pop())}
-  const H=tpH(r);H.pens={};H.bets={};H.pw=[];H.out=null;H.left={};delete H.dh;delete H.ace;S.tqg=g;TQSEL=null;
+  const H=tpH(r);H.pens={};H.bets={};H.pw=[];H.out=null;H.left={};delete H.dh;delete H.ace;H.ps=ids.slice();g.outp=act().filter(p=>!ids.includes(p.id)).map(p=>p.id);S.tqg=g;TQSEL=null;
   if(X.aces){g.phase='aces';g.at=Date.now();g.ac={stage:'dealer',turn:dealer,open:{},n:1,done:{}};g.msg=`${nmid(dealer)} (the dealer) can open ace bets before the cards are looked at.`;tqAnn(g,'Ace bets',`${nmid(dealer)} (the dealer) can open bets on any aces.`,'🂡');return}
   tqAfterAces(g)}
 function tqAfterAces(g){if(TPX().dead&&tqDeadStart(g))return;tqPay(g)}
@@ -9891,23 +9894,23 @@ function tqAce(g,pid,a,v){if(!g||g.phase!=='aces'||g.ac.turn!==pid)return false;
   if(A.stage==='dealer'){if(a==='toggle'){if(!TQACES.includes(v))return false;A.pick=A.pick||{};A.pick[v]=!A.pick[v];g.n++;return true}
     if(a==='n'){A.n=Math.max(1,Math.min(10,+v||1));g.n++;return true}
     if(a==='none'){g.msg=`${nmid(pid)} isn’t opening any ace bets this hand.`;return tqAceEnd(g)}
-    if(a==='open'){const su=TQACES.filter(x=>(A.pick||{})[x]);if(!su.length)return false;su.forEach(x=>A.open[x]=A.n);H.ace={open:{...A.open},in:Object.fromEntries(su.map(x=>[x,[pid]])),won:{}};
+    if(a==='open'){const su=TQACES.filter(x=>(A.pick||{})[x]);if(!su.length)return false;if(su.length*A.n>tqAvail(g,pid))return false;su.forEach(x=>A.open[x]=A.n);H.ace={open:{...A.open},in:Object.fromEntries(su.map(x=>[x,[pid]])),won:{}};
       A.stage='buy';A.order=[...g.ps.slice(g.ps.indexOf(g.dealer)+1),...g.ps.slice(0,g.ps.indexOf(g.dealer))];A.turn=A.order[0];A.mine={};
       g.msg=`${nmid(pid)} opened ${su.map(x=>'A'+TQSUIT[x]).join(' ')} for ${A.n} chip${A.n===1?'':'s'} each. ${nmid(A.turn)}, are you in?`;tqAnn(g,`Ace bets: ${su.map(x=>'A'+TQSUIT[x]).join(' ')}`,`${A.n} chip${A.n===1?'':'s'} each to buy in. Everyone decides, starting with ${nmid(A.turn)}.`,'🂡');g.n++;return true}
     return false}
   if(a==='toggle'){if(!A.open[v])return false;A.mine=A.mine||{};A.mine[v]=!A.mine[v];g.n++;return true}
-  if(a==='done'){const ins=TQACES.filter(x=>A.open[x]&&(A.mine||{})[x]);ins.forEach(x=>H.ace.in[x].push(pid));A.mine={};g.msg=`${nmid(pid)} ${ins.length?'is in on '+ins.map(x=>'A'+TQSUIT[x]).join(' '):'sits out the ace bets'}.`;
+  if(a==='done'){const ins=TQACES.filter(x=>A.open[x]&&(A.mine||{})[x]);if(ins.reduce((t,x)=>t+A.open[x],0)>tqAvail(g,pid))return false;ins.forEach(x=>H.ace.in[x].push(pid));A.mine={};g.msg=`${nmid(pid)} ${ins.length?'is in on '+ins.map(x=>'A'+TQSUIT[x]).join(' '):'sits out the ace bets'}.`;
     const i=A.order.indexOf(pid);if(i>=A.order.length-1)return tqAceEnd(g);A.turn=A.order[i+1];g.n++;return true}
   return false}
 function tqAceEnd(g){g.ac=null;g.n++;tqAfterAces(g);return true}
 function tqBotAce(g,q){const A=g.ac,lv=q.bot,r=Math.random;
-  if(A.stage==='dealer'){if(r()<.45)return tqAce(g,q.id,'none');A.pick={};TQACES.forEach(x=>{if(r()<.4)A.pick[x]=true});if(!Object.keys(A.pick).length)A.pick[TQACES[Math.floor(r()*4)]]=true;A.n=1+Math.floor(r()*(lv==='hard'?5:3));return tqAce(g,q.id,'open')}
-  A.mine={};Object.keys(A.open).forEach(x=>{if(r()<(lv==='easy'?.6:lv==='normal'?.45:.35)&&tqBal(q.id)>A.open[x]*2)A.mine[x]=true});return tqAce(g,q.id,'done')}
+  if(A.stage==='dealer'){if(r()<.45)return tqAce(g,q.id,'none');A.pick={};TQACES.forEach(x=>{if(r()<.4)A.pick[x]=true});if(!Object.keys(A.pick).length)A.pick[TQACES[Math.floor(r()*4)]]=true;A.n=1+Math.floor(r()*(lv==='hard'?5:3));while(A.n>1&&Object.keys(A.pick).length*A.n>tqBal(q.id))A.n--;if(Object.keys(A.pick).length*A.n>tqBal(q.id))return tqAce(g,q.id,'none');return tqAce(g,q.id,'open')}
+  A.mine={};let left=tqBal(q.id);Object.keys(A.open).forEach(x=>{if(r()<(lv==='easy'?.6:lv==='normal'?.45:.35)&&left>=A.open[x]*2){A.mine[x]=true;left-=A.open[x]}});return tqAce(g,q.id,'done')}
 function tqSwap(g,pid){const old=g.h[pid];g.h[pid]=g.dead;g.dead=old;pst('tqdead',pid)}
 function tqDead(g,pid,a,n){if(!g||g.phase!=='dead'||g.dh.turn!==pid)return false;const D=g.dh;
   if(D.stage==='dealer'){if(a==='swap'){tqSwap(g,pid);tpH(g.r).dsw=pid;g.msg=`${nmid(pid)} swapped for the dead hand.`;g.annDead=['🔄',`${nmid(pid)} swapped for the dead hand!`,'The dealer took it for free.'];tqDeadEnd(g);return true}
     if(a!=='pass')return false;if(!D.order.length){g.msg=`${nmid(pid)} keeps their hand.`;g.annDead=['🂠',`${nmid(pid)} kept their hand`,'Nobody else can take the dead hand.'];tqDeadEnd(g);return true}D.stage='bid';D.turn=D.order[0];g.msg=`${nmid(pid)} keeps their hand. Bidding for the dead hand starts with ${nmid(D.turn)}.`;tqAnn(g,'Bidding for the dead hand',`${nmid(pid)} kept their hand. Bids start with ${nmid(D.turn)}. The dealer gets the chips. Holding a pay heart, you can’t bid.`,'🂠');g.n++;return true}
-  if(a==='bid'){const A=TPX().ante;if(![1,2,5].includes(n))return false;D.high+=n*A;D.by=pid;g.msg=`${nmid(pid)} bids ${D.high} for the dead hand.`}
+  if(a==='bid'){const A=TPX().ante;if(![1,2,5].includes(n))return false;if(D.high+n*A>tqAvail(g,pid))return false;D.high+=n*A;D.by=pid;g.msg=`${nmid(pid)} bids ${D.high} for the dead hand.`}
   else if(a==='pass'){D.out[pid]=1;g.msg=`${nmid(pid)} passes.`}else return false;
   g.n++;const cand=D.order.filter(id=>!D.out[id]&&id!==D.by);
   if(!cand.length){if(D.by){const H=tpH(g.r);H.dh={b:D.by,s:g.dealer,n:D.high};tqSwap(g,D.by);g.msg=`${nmid(D.by)} bought the dead hand from ${nmid(g.dealer)} for ${D.high}.`;g.annDead=['💰',`${nmid(D.by)} bought the dead hand!`,`${D.high} chip${D.high===1?'':'s'} to ${nmid(g.dealer)}.`]}else{g.msg='Nobody bid for the dead hand.';g.annDead=['🂠','Nobody bought the dead hand','It stays dead.']}tqDeadEnd(g);return true}
@@ -9926,11 +9929,13 @@ function tqPay(g){const ids=g.ps,H=tpH(g.r);H.pens={};
 function tqStartPoker(g){if(!TPX().poker){tqStartPlay(g);return}const first=tqNext(g,g.dealer);g.phase='poker';g.pk={turn:first,bet:0,in:{},fold:{},acted:{},raised:{}};g.msg=`Poker: ${nmid(first)} opens the betting.`;g.at=Date.now();tqAnnStep(g,'Poker round',`Bet on your best 5 cards. ${nmid(first)} opens the betting.`,'🃏')}
 function tqAnnStep(g,t,sub,ic){if(g.annDead){const [i2,t2,s2]=g.annDead;g.annDead=null;tqAnn(g,t2,s2+' Next: '+t.toLowerCase()+'.',i2);g.annNext=[t,sub,ic];return}tqAnn(g,t,sub,ic)}
 const tqLive=g=>g.ps.filter(id=>!g.pk.fold[id]);
-const tqBal=pid=>{try{return tpState(S.tqg?S.tqg.r:undefined).bal[pid]??TPX().start}catch(e){return TPX().start}};
+const tqBal=pid=>tqAvail(S.tqg,pid);
 function tqBet(g,pid,act_,amt,five){if(!g||g.phase!=='poker'||g.pk.turn!==pid)return false;g.pk.five=g.pk.five||{};
   /* you play the 5 cards you choose: pick them before your first bet */
   if(act_!=='fold'&&!g.pk.five[pid]){const h=g.h[pid]||[];if(!Array.isArray(five)||five.length!==5||new Set(five).size!==5||!five.every(c=>h.includes(c)))return false;g.pk.five[pid]=five.slice()}
   const k=g.pk,mine=k.in[pid]||0,A=TPX().ante;
+  const av=tqAvail(g,pid);/* no going below zero */
+  if((act_==='bet'||act_==='raise')&&amt*A+(act_==='raise'?k.bet-mine:0)>av)return false;if(act_==='call'&&k.bet-mine>av)return false;
   if(act_==='check'){if(mine!==k.bet)return false;g.msg=`${nmid(pid)} checks.`}
   else if(act_==='bet'){if(k.bet>0||![1,2,5].includes(amt))return false;k.bet=amt*A;k.in[pid]=k.bet;k.acted={};k.raised[pid]=1;g.msg=`${nmid(pid)} bets ${k.bet}.`}
   else if(act_==='call'){if(k.bet<=mine)return false;k.in[pid]=k.bet;g.msg=`${nmid(pid)} calls ${k.bet}.`}
@@ -9978,7 +9983,7 @@ function tqTimeUp(g){if(g.phase!=='play'||g.lead||!g.need)return false;const c=n
 
 function tqEnd(g,w){const H=tpH(g.r);H.out=w;H.left={};g.ps.forEach(id=>{if(id!==w)H.left[id]=g.h[id].length});g.phase='done';g.lead=null;g.msg=`${nmid(w)} is out of cards and takes the Kitty!`;pst('tqout',w);S.hr=Math.max(S.hr||0,g.r)}
 /* ---------------- computer players ---------------- */
-function tqBotPoker(g,q){const pid=q.id,k=g.pk,F5=tqFive(g.h[pid]),bet=(g,p,a,n)=>tqBet(g,p,a,n,F5),v=tqEval(g.h[pid]),cat=v[0],lv=q.bot,toCall=k.bet-(k.in[pid]||0),bal=tqBal(pid),A=TPX().ante;
+function tqBotPoker(g,q){const pid=q.id,k=g.pk,F5=tqFive(g.h[pid]),bet=(g,p,a,n)=>tqBet(g,p,a,n,F5)||tqBet(g,p,(g.pk.bet-(g.pk.in[p]||0))>0?'fold':'check',0,F5),v=tqEval(g.h[pid]),cat=v[0],lv=q.bot,toCall=k.bet-(k.in[pid]||0),bal=tqBal(pid),A=TPX().ante;
   let s=cat+(cat===1?(v[1]-8)/8:0)+(lv==='easy'?Math.random()*3-1:lv==='normal'?Math.random()-.5:0);
   if(toCall<=0){if(s>=3&&bal>5*A)return bet(g,pid,'bet',s>=5?5:2);if(s>=2&&Math.random()<.5&&bal>A)return bet(g,pid,'bet',1);return bet(g,pid,'check')}
   if(s>=5&&!k.raised[pid]&&bal>k.bet+5*A)return bet(g,pid,'raise',2);if(s>=1.5||toCall<=A&&s>=1||bal<0&&s>=3)return bet(g,pid,'call');return bet(g,pid,'fold')}
@@ -10014,7 +10019,7 @@ function tqCardEl(c,o={}){const tag=o.btn?'button':'span',attr=o.btn?` data-a="t
   return `<${tag} class="htc${o.mini?' mini':''}${tqRed(c)?' red':''}${o.cls?' '+o.cls:''}"${attr} aria-label="${tqName(c)}"><b${r==='T'?' class="ten"':''}>${r==='T'?'10':r}</b><i>${HTSU[c[1]]||c[1]}</i><em>${HTSU[c[1]]||c[1]}</em></${tag}>`}
 function tqPlayUI(){if(!tqRes()&&S.tqg&&S.tqg.r!==S.hr)S.hr=S.tqg.r;/* hr isn't synced: guests follow the host's hand */const X=TPX(),P=act(),g=tqG(),r=tpCur(),ST=tpState(),h=ST.hands[r]||{pens:{}};
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">#${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
-  <div class="tabs hftabs nxtabs" role="list">${P.map(q=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&tqActor(g)===q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}</div><div class="ts num">${ST.bal[q.id]}</div><div class="tr num">chips</div></button>`).join('')}</div>`;
+  <div class="tabs hftabs nxtabs" role="list">${P.map(q=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&tqActor(g)===q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}</div><div class="ts num">${ST.bal[q.id]}</div><div class="tr num">${g&&(g.outp||[]).includes(q.id)?'out of chips':'chips'}</div></button>`).join('')}</div>`;
   if(!g||tqStale(g)||g.r!==r)return out+`<div class="panel" style="padding:16px">${waitLoader(tqRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
   const V=tqViewer(),act_=act().find(p=>p.id===tqActor(g)),mine=V&&act_&&act_.id===V.id;
   const potNow=(h.pens.pot||0)+(g.pk?Object.values(g.pk.in).reduce((a,b)=>a+b,0):0);
@@ -10028,11 +10033,11 @@ function tqPlayUI(){if(!tqRes()&&S.tqg&&S.tqg.r!==S.hr)S.hr=S.tqg.r;/* hr isn't 
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
   const tw=ph==='play'&&!g.lead&&g.need?Math.max(0,g.wt+g.wd-Date.now()):0;
   const center=g.run.length?`${tw?`<div class="tqtimer" style="--d:${g.wd}ms;--o:${-(g.wd-tw)}ms"><i></i></div>`:''}<div class="tqrun">${g.run.slice(-5).map((c,i,a)=>tqCardEl(c,{cls:i===a.length-1?'new':''})).join('')}</div>`:`<small class="rlab">${ph==='play'?'Waiting for the lead…':'Dead hand · '+g.dead.length+' cards'}</small>`;
-  out+=ktTable({dealTag:'tripoley',dg:{...g,n:g.n},P,me:V?V.id:null,trick:[],faded:false,turn:tqActor(g),won:ph==='done'?tpH(r).out:null,dealer:g.dealer,
+  out+=ktTable({dealTag:'tripoley',dg:{...g,n:g.n},P:P.filter(q=>g.ps.includes(q.id)),me:V?V.id:null,trick:[],faded:false,turn:tqActor(g),won:ph==='done'?tpH(r).out:null,dealer:g.dealer,
     label:q=>{const n=(g.h[q.id]||[]).length;const sh=g.show&&g.show[q.id]!==undefined&&(ph==='pokerdone')?` · ${TQCAT[g.show[q.id]]}`:'';return ph==='poker'&&g.pk.fold[q.id]?'folded':ph==='poker'&&g.pk.in[q.id]?`bet ${g.pk.in[q.id]}`:`${n} card${n===1?'':'s'}${sh}`},center});
   if(ph==='done'){const H=tpH(r);
     out+=`<div class="panel htsum">${P.map(q=>{const v=(h.net||{})[q.id]||0;return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${H.out===q.id?'out first · ':''}${H.out===q.id?'took the Kitty':`${(H.left||{})[q.id]||0} card${((H.left||{})[q.id]||0)===1?'':'s'} left`}</small></span><span class="num"><b>${v>0?'+':''}${v}</b> · ${ST.bal[q.id]}</span></div>`}).join('')}</div>`;
-    const over=X.end==='hands'&&r>=X.hands-1;
+    const alive=tqAlive(r+1),over=X.end==='hands'&&r>=X.hands-1||alive.length<2;if(alive.length<2)out+=`<p class="hint" style="text-align:center"><b>${alive.length?esc(nm(alive[0]))+' is the only one who can still ante. Game over!':'Nobody can afford the next ante. Game over!'}</b></p>`;
     out+=`<div class="actions"><div class="in">${over?(tqRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal</button>`:`<span class="rlab">Game over! Waiting for the host…</span>`):tqRes()?`<button class="btn sm" data-a="finish">Finish</button><button class="btn primary" data-a="tqpdeal">Deal hand ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`}
   if(V&&ph!=='done'){const help=!!X.pkhelp,locked=(ph==='poker'||ph==='pokerdone')&&g.pk&&g.pk.five&&g.pk.five[V.id],picking=ph==='poker'&&!locked&&!(g.pk&&g.pk.fold[V.id]);if(picking)TQPICK=TQPICK.filter(c=>(g.h[V.id]||[]).includes(c));else if(ph!=='poker')TQPICK=[];
     const hand=tqSort(g.h[V.id]||[]),five=ph==='poker'||ph==='pokerdone'?(help&&!locked?tqFive(hand):[]):[],mine5=locked?g.pk.five[V.id]:picking?TQPICK:[],leads=ph==='play'&&g.lead===V.id?tqLeads(g,V.id):[],ev=tqEval(hand);
@@ -10043,12 +10048,13 @@ function tqPlayUI(){if(!tqRes()&&S.tqg&&S.tqg.r!==S.hr)S.hr=S.tqg.r;/* hr isn't 
         <div class="srow"><span class="rlab"><b>Buy-in</b> · each ace</span><div class="step"><button data-a="tqpace" data-k="n" data-v="${A.n-1}" ${A.n<=1?'disabled':''} aria-label="Lower buy-in">−</button><span class="n num">${A.n}</span><button data-a="tqpace" data-k="n" data-v="${A.n+1}" ${A.n>=10?'disabled':''} aria-label="Higher buy-in">+</button></div></div></div>
         <div class="actions"><div class="in"><button class="btn" data-a="tqpace" data-k="none">No ace bets</button><button class="btn primary" data-a="tqpace" data-k="open" ${Object.values(A.pick||{}).some(Boolean)?'':'disabled'}>Open them (you buy in)</button></div></div>`}
       else out+=`<div class="panel tqaces"><div class="lr">${Object.keys(A.open).map(x=>`<button class="tqace${(A.mine||{})[x]?' on':''}${x==='H'||x==='D'?' red':''}" data-a="tqpace" data-k="toggle" data-v="${x}" aria-pressed="${!!(A.mine||{})[x]}">A${TQSUIT[x]} · ${A.open[x]}</button>`).join('')}</div><p class="hint" style="margin:6px 0 0">Tap the aces you want in on. If you play that ace in the rummy round, you take its pot.</p></div><div class="actions"><div class="in"><button class="btn primary" data-a="tqpace" data-k="done">Done</button></div></div>`}
-    if(ph==='dead'&&V){const D=g.dh,ok=tqDeadOk(g,V.id);if(mine){const A=X.ante;out+=`<div class="actions"><div class="in tqbets">${D.stage==='dealer'?`<button class="btn" data-a="tqpdead" data-k="pass">Keep my hand</button><button class="btn primary" data-a="tqpdead" data-k="swap">Swap for the dead hand</button>`:`<button class="btn" data-a="tqpdead" data-k="pass">Pass</button>${[1,2,5].map(n=>`<button class="btn${n===1?' primary':''}" data-a="tqpdead" data-k="bid" data-v="${n}">Bid ${D.high+n*A}</button>`).join('')}`}</div></div>`}
+    if(ph==='dead'&&V){const D=g.dh,ok=tqDeadOk(g,V.id);if(mine){const A=X.ante;out+=`<div class="actions"><div class="in tqbets">${D.stage==='dealer'?`<button class="btn" data-a="tqpdead" data-k="pass">Keep my hand</button><button class="btn primary" data-a="tqpdead" data-k="swap">Swap for the dead hand</button>`:`<button class="btn" data-a="tqpdead" data-k="pass">Pass</button>${[1,2,5].map(n=>`<button class="btn${n===1?' primary':''}" data-a="tqpdead" data-k="bid" data-v="${n}" ${D.high+n*A>tqAvail(g,V.id)?'disabled':''}>Bid ${D.high+n*A}</button>`).join('')}`}</div></div>`}
       else if(!ok)out+=`<p class="hint" style="text-align:center">You hold a pay heart, so you can’t take the dead hand.</p>`}
     if(ph==='poker'&&mine){const k=g.pk,toCall=k.bet-(k.in[V.id]||0),A=X.ante,b=[];
-      const ok5=!!locked||TQPICK.length===5,dis=ok5?'':' disabled';
-      if(toCall<=0){b.push(`<button class="btn" data-a="tqpbet" data-k="check"${dis}>Check</button>`);[1,2,5].forEach(n=>b.push(`<button class="btn${n===1?' primary':''}" data-a="tqpbet" data-k="bet" data-v="${n}"${dis}>Bet ${n*A}</button>`))}
-      else{b.push(`<button class="btn" data-a="tqpbet" data-k="fold">Fold</button>`,`<button class="btn primary" data-a="tqpbet" data-k="call"${dis}>Call ${toCall}</button>`);if(!k.raised[V.id])[1,2,5].forEach(n=>b.push(`<button class="btn" data-a="tqpbet" data-k="raise" data-v="${n}"${dis}>Raise ${n*A}</button>`))}
+      const ok5=!!locked||TQPICK.length===5,dis=ok5?'':' disabled',av=tqAvail(g,V.id),cant=n=>n>av?' disabled':'';
+      if(toCall<=0){b.push(`<button class="btn" data-a="tqpbet" data-k="check"${dis}>Check</button>`);[1,2,5].forEach(n=>b.push(`<button class="btn${n===1?' primary':''}" data-a="tqpbet" data-k="bet" data-v="${n}"${dis||cant(n*A)}>Bet ${n*A}</button>`))}
+      else{b.push(`<button class="btn" data-a="tqpbet" data-k="fold">Fold</button>`,`<button class="btn primary" data-a="tqpbet" data-k="call"${dis||cant(toCall)}>Call ${toCall}</button>`);if(!k.raised[V.id])[1,2,5].forEach(n=>b.push(`<button class="btn" data-a="tqpbet" data-k="raise" data-v="${n}"${dis||cant(toCall+n*A)}>Raise ${n*A}</button>`))}
+      b.push(`<small class="rlab tqav">You have ${av} chip${av===1?'':'s'} to bet</small>`)
       out+=`<div class="actions"><div class="in tqbets">${b.join('')}</div></div>`}}
   else if(!S.lk&&tqHumans().length>1&&ph!=='done')out+=`<p class="hint" style="text-align:center">Cards are hidden until the right person has the phone.</p>`;
   out+=tqSummary(g,r,ST,h);
