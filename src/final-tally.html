@@ -9385,7 +9385,7 @@ function hpDraw(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||g.drew)return fals
 /* can this player take the pile right now? */
 function hpTakeOk(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||g.drew)return false;const t=hpTop(g);if(!t||hpWild(t)||hp3(t))return false;const side=hpSide(g,pid),h=g.h[pid],r=hpRk(t);
   const nat=h.filter(c=>!hpWild(c)&&hpRk(c)===r);
-  if(g.down[side]){const oi=hpOpenOf(g,side,r);if(oi>=0&&hpCanAdd(g.melds[side][oi],[t]))return true;return nat.length>=2&&h.length>=3}
+  if(g.down[side]){if((g.melds[side]||[]).some(m=>hpCanAdd(m,[t])))return true;return hpOpenOf(g,side,r)<0&&nat.length>=2&&h.length>=3}
   if(nat.length<2||h.length<3)return false;
   /* first meld: the top card with 2 naturals, plus what else the hand can lay down, has to reach the minimum */
   const rest=h.concat(g.disc.slice(0,-1)).filter(c=>c!==nat[0]&&c!==nat[1]);return hpVal(t)+hpVal(nat[0])+hpVal(nat[1])+hpBestExtra(rest,[r])>=hpMin(g,pid)}
@@ -9524,7 +9524,7 @@ function hpAct(a,b,k){const g=hpG();if(!g)return;
   if(a==='hppdeal'){if(!hpRes()||g.phase!=='done')return;S.hr=hfCur()+1;hpDeal(S.hr);window.scrollTo(0,0);return}
   const V=hpViewer();if(!V)return;
   if(a==='hppcard'){const c=b.dataset.c;if(HPSEL.includes(c))HPSEL=HPSEL.filter(x=>x!==c);else HPSEL=HPSEL.concat(c);return}
-  if(a==='hppstage'){if(HPSEL.length>=3&&hpMeldOk(HPSEL)){(HPSTAGE[V.id]=HPSTAGE[V.id]||[]).push(HPSEL.slice());HPSEL=[];vibe(10)}return}
+  if(a==='hppstage'){const side=hpSide(g,V.id),rk=hpMeldRank(HPSEL);if(rk!=='W'&&(hpOpenOf(g,side,rk)>=0||(HPSTAGE[V.id]||[]).some(cs=>hpMeldRank(cs)===rk))){toast(`Your side already has an unfinished meld of ${hpLab(HPSEL.find(c=>!hpWild(c)))}s. Add to it instead.`);return}if(HPSEL.length>=3&&hpMeldOk(HPSEL)){(HPSTAGE[V.id]=HPSTAGE[V.id]||[]).push(HPSEL.slice());HPSEL=[];vibe(10)}return}
   if(a==='hppunstage'){const st=HPSTAGE[V.id]||[];st.splice(+b.dataset.i,1);return}
   if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}
   if(a==='hppdeck'){if(g.drew){toast('You already drew.');return}HPSEL=[];if(lkq('hpDraw',V.id))vibe(12);return}

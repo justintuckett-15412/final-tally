@@ -9421,7 +9421,7 @@ function hpDraw(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||g.drew)return fals
 /* can this player take the pile right now? */
 function hpTakeOk(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||g.drew)return false;const t=hpTop(g);if(!t||hpWild(t)||hp3(t))return false;const side=hpSide(g,pid),h=g.h[pid],r=hpRk(t);
   const nat=h.filter(c=>!hpWild(c)&&hpRk(c)===r);
-  if(g.down[side]){const oi=hpOpenOf(g,side,r);if(oi>=0&&hpCanAdd(g.melds[side][oi],[t]))return true;return nat.length>=2&&h.length>=3}
+  if(g.down[side]){if((g.melds[side]||[]).some(m=>hpCanAdd(m,[t])))return true;return hpOpenOf(g,side,r)<0&&nat.length>=2&&h.length>=3}
   if(nat.length<2||h.length<3)return false;
   /* first meld: the top card with 2 naturals, plus what else the hand can lay down, has to reach the minimum */
   const rest=h.concat(g.disc.slice(0,-1)).filter(c=>c!==nat[0]&&c!==nat[1]);return hpVal(t)+hpVal(nat[0])+hpVal(nat[1])+hpBestExtra(rest,[r])>=hpMin(g,pid)}
@@ -9560,7 +9560,7 @@ function hpAct(a,b,k){const g=hpG();if(!g)return;
   if(a==='hppdeal'){if(!hpRes()||g.phase!=='done')return;S.hr=hfCur()+1;hpDeal(S.hr);window.scrollTo(0,0);return}
   const V=hpViewer();if(!V)return;
   if(a==='hppcard'){const c=b.dataset.c;if(HPSEL.includes(c))HPSEL=HPSEL.filter(x=>x!==c);else HPSEL=HPSEL.concat(c);return}
-  if(a==='hppstage'){if(HPSEL.length>=3&&hpMeldOk(HPSEL)){(HPSTAGE[V.id]=HPSTAGE[V.id]||[]).push(HPSEL.slice());HPSEL=[];vibe(10)}return}
+  if(a==='hppstage'){const side=hpSide(g,V.id),rk=hpMeldRank(HPSEL);if(rk!=='W'&&(hpOpenOf(g,side,rk)>=0||(HPSTAGE[V.id]||[]).some(cs=>hpMeldRank(cs)===rk))){toast(`Your side already has an unfinished meld of ${hpLab(HPSEL.find(c=>!hpWild(c)))}s. Add to it instead.`);return}if(HPSEL.length>=3&&hpMeldOk(HPSEL)){(HPSTAGE[V.id]=HPSTAGE[V.id]||[]).push(HPSEL.slice());HPSEL=[];vibe(10)}return}
   if(a==='hppunstage'){const st=HPSTAGE[V.id]||[];st.splice(+b.dataset.i,1);return}
   if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}
   if(a==='hppdeck'){if(g.drew){toast('You already drew.');return}HPSEL=[];if(lkq('hpDraw',V.id))vibe(12);return}
@@ -11816,6 +11816,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='564327';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='46b806';</script>
 </body>
 </html>
