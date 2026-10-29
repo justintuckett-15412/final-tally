@@ -535,12 +535,17 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .ctnums{display:grid;grid-template-columns:repeat(11,1fr);gap:3px;margin-top:8px}.ctnums>*{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:64px;padding:0 0 4px;border-radius:8px;background:var(--soft);overflow:hidden;line-height:1.1}
 .ctnums i{position:absolute;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--accent) 45%,transparent)}.ctnums b,.ctnums small{position:relative;font-size:15px}.ctnums small{font-size:11px;color:var(--muted);min-height:12px}
 .ctnums .hot b{color:#c0392b}.ctnums .r7{background:color-mix(in srgb,#26313b 18%,var(--soft))}.ctchart>*{height:90px}
+.qppop{position:fixed;inset:0;z-index:72;pointer-events:none;display:grid;place-items:center;align-content:center;gap:10px}.qppop .qpbig{width:130px;height:130px;border-radius:50%;background:var(--qi) center/100% 100% no-repeat,var(--qc);position:relative;box-shadow:0 16px 40px rgba(0,0,0,.35);animation:qppop var(--ms) ease both var(--o)}
+.qppop b{font-size:22px;background:var(--surface);padding:4px 14px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.2);animation:qplab var(--ms) ease both var(--o)}.qppop.boom .qpbig{animation:qpboom var(--ms) ease both var(--o)}
+@keyframes qppop{0%{transform:translateY(40vh) scale(.3);opacity:0}18%{transform:translateY(-10px) scale(1.12);opacity:1}28%{transform:none}78%{transform:none;opacity:1}100%{transform:translateY(22vh) scale(.25);opacity:0}}
+@keyframes qpboom{0%{transform:translateY(40vh) scale(.3);opacity:0}18%{transform:scale(1.15);opacity:1}30%,40%,50%{transform:rotate(-8deg) scale(1.1)}35%,45%{transform:rotate(8deg) scale(1.1)}80%{transform:scale(1.4);opacity:1}100%{transform:scale(2);opacity:0}}
+@keyframes qplab{0%,15%{opacity:0}25%,80%{opacity:1}100%{opacity:0}}.qpchip.qphide{visibility:hidden}
 .qppot{display:grid;grid-template-columns:repeat(9,1fr);gap:3px;margin:8px 0}.qppot.mini{grid-template-columns:repeat(14,1fr);gap:2px;margin:4px 0}.qpcell{aspect-ratio:1;border-radius:50%;background:var(--surface2,rgba(0,0,0,.05));display:grid;place-items:center;font-size:10px;color:var(--muted);position:relative;border:1.5px solid transparent}
 .qpcell.ruby{border-color:#d23a5a55;background:color-mix(in srgb,#d23a5a 10%,transparent)}.qpcell.drop::after{content:'💧';position:absolute;top:-6px;left:-4px;font-size:11px}.qpcell.rat::after{content:'🐀';position:absolute;top:-6px;left:-4px;font-size:11px}.qpcell.next{box-shadow:0 0 0 2px var(--accent)}
-.qpchip{width:100%;height:100%;min-width:22px;min-height:22px;border-radius:50%;background:var(--qc);color:var(--qt);display:grid;place-items:center;font-weight:800;font-size:13px;border:2px solid rgba(0,0,0,.25);box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
-.qppot.mini .qpchip{font-size:9px;min-width:0;min-height:0;border-width:1px}.qppot.mini small{font-size:0}
+.qpchip{width:100%;height:100%;min-width:22px;min-height:22px;border-radius:50%;background:var(--qi) center/100% 100% no-repeat,var(--qc);display:block;position:relative;border:0;padding:0;box-shadow:0 1px 3px rgba(0,0,0,.3)}.qpchip i,.qpbig i,.qpbs i{position:absolute;right:-3px;bottom:-3px;min-width:15px;height:15px;padding:0 3px;border-radius:99px;background:#fff;color:#26313b;font:800 10.5px/15px system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.qppot.mini .qpchip{min-width:0;min-height:0}.qppot.mini .qpchip i{min-width:11px;height:11px;font-size:8px;line-height:11px;right:-2px;bottom:-2px;padding:0 2px}.qppot.mini small{font-size:0}
 .qpme{margin-top:12px;padding:10px;border-radius:14px;border:2px solid var(--pc);background:var(--surface)}.qpo{padding:6px 8px;border-radius:12px;border:1px solid var(--line);border-left:5px solid var(--pc);background:var(--surface);margin-top:6px}
-.qpinfo{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:13px}.qpbs{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:50%;background:var(--qc);color:var(--qt);font-weight:800;font-size:11px;margin-right:3px;border:1px solid rgba(0,0,0,.25)}
+.qpinfo{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:13px}.qpbs{display:inline-block;position:relative;width:24px;height:24px;border-radius:50%;background:var(--qi) center/100% 100% no-repeat;margin-right:6px;vertical-align:middle}.qppop .qpbig i{min-width:40px;height:40px;font-size:26px;line-height:40px;right:-6px;bottom:-6px;border-radius:99px}
 .qpws{font-weight:800}.qpws.hot{color:#c8322b}.qpask{margin-top:10px;padding:10px;border-radius:12px;background:color-mix(in srgb,var(--accent) 14%,var(--surface));display:grid;gap:8px}.qpaskc{display:flex;gap:8px;flex-wrap:wrap}.qpaskc .qpchip{width:44px;height:44px}
 .qpsec{margin-top:12px;display:grid;gap:6px}.qpshop{display:flex;flex-wrap:wrap;gap:6px}.qpbuy{display:grid;justify-items:center;gap:2px;padding:4px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:inherit;font:inherit}.qpbuy .qpchip{width:34px;height:34px}.qpbuy.sel{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,var(--surface))}.qpbuy:disabled{opacity:.35}
 .qpcards{display:grid;gap:6px;margin-top:8px}.qpfc{display:grid;text-align:left;gap:2px}.qpfc small{font-weight:400;color:var(--muted)}.qpcardnow{margin:8px 0}
@@ -8272,10 +8277,12 @@ function qpRoundSetup(g){const r=g.r;
   /* file the round that just ended for "Earlier rounds" */if(r>0&&!lkGuest()){if(!S.hlg||S.hlg.g!==S.game)S.hlg={g:S.game,h:{}};const h=S.hlg.h[r-1]||(S.hlg.h[r-1]={});h.lg=(g.lg||[]).slice();h.done=1}g.lg=[];
   g.ps.forEach(id=>{const L=g.pl[id],p=act().find(q=>q.id===id);if(!L||!p)return;L.bag=L.bag.concat(L.pot.map(x=>x.c));L.pot=[];L.ex=false;L.stop=false;L.ws=0;L.lim=7;L.ask=null;L.done=false;L.buy=[];L.rubs={drop:0,flask:0};L.y2=false;L.ycount=0;L.seen1w=false;
     if(r===5)L.bag.push(qpNew('w1'));L.rat=0;L.start=L.drop});
-  g.phase=QKX().fortune===false?'brew':'card';g.card=null;g.msg='';
-  gAnn(g,`Round ${r+1}`,r===5?'Everyone adds a white 1-chip to their bag.':r===1?'Yellow chips are for sale from now on.':r===2?'Purple chips are for sale from now on.':r===8?'The last round!':'Time to brew.','⚗️');
+  g.phase='brew';g.card=null;g.msg='';
+  
   if(r===5)gLog(g,'Everyone added a white 1-chip','⚪');
-  if(g.phase==='brew')qpBrewStart(g)}
+  /* the fortune teller deck: shuffled, one card a round, never the same card twice in a game */
+  {const used=new Set((S.qkfc||[]).filter(Boolean)),left=QKFC.filter(c=>!used.has(c[0]));S.qkfc=S.qkfc||[];const c=left.length?left[Math.floor(Math.random()*left.length)]:null;S.qkfc[r]=c?c[0]:null;const ex=r===5?' Everyone adds a white 1-chip to their bag.':r===1?' Yellow chips are for sale now.':r===2?' Purple chips are for sale now.':r===8?' The last round!':'';if(c){gLog(g,`Fortune: ${c[1]}`,'🔮');gAnn(g,`Round ${r+1}: ${c[1]}`,c[2]+ex,'🔮')}else gAnn(g,`Round ${r+1}`,ex.trim()||'Time to brew.','⚗️')}
+  qpBrewStart(g)}
 function qpBrewStart(g){const id=qkCid(g.r),rats=qkRats(g.r)||[];g.ps.forEach(pid=>{const L=g.pl[pid],p=act().find(q=>q.id===pid),x=p&&rats.find(y=>y.p===p);L.rat=x?x.n:0;L.start=Math.min(QKSPOON-2,L.drop+L.rat);if(L.rat)gLog(g,`${nmid(pid)} gets ${L.rat} rat tail${L.rat===1?'':'s'}`,'🐀');if(id==='luxury')L.lim=9;if(id==='filling'){L.drop++;L.start=Math.min(QKSPOON-2,L.start+1)}});g.phase='brew'}
 function qpSetCard(g,id){if(!g||g.phase!=='card')return false;S.qkfc=S.qkfc||[];S.qkfc[g.r]=id||null;const c=qkCard(g.r);if(c){gLog(g,`Fortune: ${c[1]}`,'🔮');gAnn(g,c[1],c[2],'🔮')}qpBrewStart(g);return true}
 const qpLast=L=>L.pot.length?L.pot[L.pot.length-1]:null;
@@ -8394,11 +8401,23 @@ function qpTick(){if(S.game!=='quacks'||!qpOn()||!S.started||S.finished||S.scree
 function cgStale2(g){const ids=act().map(p=>p.id);return ids.some(id=>!g.pl[id])||g.ps.some(id=>!ids.includes(id))}
 
 /* ---------------- drawing ---------------- */
-const qpChipEl=(c,o={})=>{const k=qpK(c),v=qpV(c),C=QPCOL[k]||QPCOL.w;return `<${o.btn?'button':'span'} class="qpchip${o.cls?' '+o.cls:''}"${o.attr||''} style="--qc:${C[1]};--qt:${C[2]}" aria-label="${C[0]} ${v}${o.lab?', '+o.lab:''}">${v}</${o.btn?'button':'span'}>`};
+/* a drawn chip pops up big for a moment, then lands in the pot (works for linked phones too: it watches your pot grow) */
+let QPSEEN={},QPPOP=null,QPPOPT=null;const QPPOPMS=1600;
+function qpPopFx(){if(S.game!=='quacks'||!qpOn()||S.screen!=='score')return;const g=qpG();if(!g||g.phase!=='brew')return;const V=qpViewer();if(!V)return;const L=g.pl[V.id];if(!L)return;
+  const key=g.r+':'+V.id,n=L.pot.length+(L.ask&&L.ask.t==='stir'?1:0);
+  if(QPSEEN.key===key&&n>QPSEEN.n){const c=L.ask&&L.ask.t==='stir'?L.ask.c:L.pot[L.pot.length-1].c;QPPOP={c,at:Date.now(),ex:L.ex,key,n}}
+  QPSEEN={key,n};
+  if(!QPPOP||Date.now()-QPPOP.at>QPPOPMS*(window.__htfast?.3:1)){QPPOP=null;return}
+  const ms=QPPOPMS*(window.__htfast?.3:1),el=Date.now()-QPPOP.at,last=document.querySelector('.qpme .qppot .qpcell.last .qpchip');if(last)last.classList.add('qphide');
+  document.querySelectorAll('[data-a="qpdraw"],[data-a="qpstop"],.qpask button').forEach(b=>b.disabled=true);
+  if(!document.querySelector('.qppop')){const k=qpK(QPPOP.c),v=qpV(QPPOP.c),C=QPCOL[k];document.body.insertAdjacentHTML('beforeend',`<div class="qppop${QPPOP.ex?' boom':''}" style="--o:${-el}ms;--ms:${ms}ms" aria-live="polite"><span class="qpbig" style="--qc:${C[1]};--qt:${C[2]};--qi:url(art/trail/qk-${QPIMG[k]}.png)"><i>${v}</i></span><b>${QPPOP.ex?'💥 Boom!':`${C[0]} ${v}`}</b></div>`)}
+  clearTimeout(QPPOPT);QPPOPT=setTimeout(()=>{QPPOP=null;document.querySelectorAll('.qppop').forEach(x=>x.remove());render()},ms-el+20)}
+const QPIMG={w:'white',o:'orange',g:'green',r:'red',u:'blue',y:'yellow',p:'purple',k:'black'};
+const qpChipEl=(c,o={})=>{const k=qpK(c),v=qpV(c),C=QPCOL[k]||QPCOL.w;return `<${o.btn?'button':'span'} class="qpchip${o.cls?' '+o.cls:''}"${o.attr||''} style="--qc:${C[1]};--qt:${C[2]};--qi:url(art/trail/qk-${QPIMG[k]}.png)" aria-label="${C[0]} ${v}${o.lab?', '+o.lab:''}"><i>${v}</i></${o.btn?'button':'span'}>`};
 function qpPotEl(L,o={}){const cells=[],by={};L.pot.forEach(x=>by[x.at]=x.c);const end=o.end||Math.max(qpPos(L)+8,20),s=Math.min(QKSPOON,qpPos(L)+1);
-  for(let i=0;i<=Math.min(QKSPOON,Math.max(end,s));i++){const sp=QKPOT[i]||[0,0,false],c=by[i];cells.push(`<span class="qpcell${i===L.drop?' drop':''}${i===L.start&&L.start!==L.drop?' rat':''}${i===s&&!o.mini?' next':''}${sp[2]?' ruby':''}">${c?qpChipEl(c):`<small>${sp[0]}</small>`}</span>`)}
+  for(let i=0;i<=Math.min(QKSPOON,Math.max(end,s));i++){const sp=QKPOT[i]||[0,0,false],c=by[i];cells.push(`<span class="qpcell${c&&L.pot.length&&L.pot[L.pot.length-1].at===i?' last':''}${i===L.drop?' drop':''}${i===L.start&&L.start!==L.drop?' rat':''}${i===s&&!o.mini?' next':''}${sp[2]?' ruby':''}">${c?qpChipEl(c):`<small>${sp[0]}</small>`}</span>`)}
   return `<div class="qppot${o.mini?' mini':''}">${cells.join('')}</div>`}
-function qpBagSum(L){const n={};L.bag.forEach(c=>{const k=qpK(c);n[k]=(n[k]||0)+1});return Object.keys(QPCOL).filter(k=>n[k]).map(k=>`<span class="qpbs" style="--qc:${QPCOL[k][1]};--qt:${QPCOL[k][2]}">${n[k]}</span>`).join('')}
+function qpBagSum(L){const n={};L.bag.forEach(c=>{const k=qpK(c);n[k]=(n[k]||0)+1});return Object.keys(QPCOL).filter(k=>n[k]).map(k=>`<span class="qpbs" style="--qi:url(art/trail/qk-${QPIMG[k]}.png)" aria-label="${n[k]} ${QPCOL[k][0].toLowerCase()}"><i>${n[k]}</i></span>`).join('')}
 function qpPlayUI(){const X=QKX(),P=act(),g=qpG(),sc=P.map(qkTot),hi=Math.max(...sc),lead=qkLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
   const r=g?g.r:0;let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Round ${r+1} of 9">${r+1}/9</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>{const L=g&&g.pl[q.id];return `<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${L?(L.ex?'💥':'')+`💎${qpRubies(q,g.phase==='eval'||g.phase==='done'?r:r-1)}`:''}</div></button>`}).join('')}</div>`;
@@ -12148,7 +12167,7 @@ function render(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}try{htPassFx()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){try{glTick()}catch(e){}if(S.game==='hearts')htTick();if(S.game==='mextrain')mtTick();if(S.game==='chicken')cfTick();if(S.game==='quacks')qpTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
+  tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}try{htPassFx()}catch(e){}try{qpPopFx()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){try{glTick()}catch(e){}if(S.game==='hearts')htTick();if(S.game==='mextrain')mtTick();if(S.game==='chicken')cfTick();if(S.game==='quacks')qpTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
