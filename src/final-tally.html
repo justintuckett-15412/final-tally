@@ -1211,6 +1211,15 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .hosort .btn{padding:0 10px;font-size:14px;min-height:34px}.hosort{gap:5px}
 .pzbuild{padding:10px 12px;margin:10px 0}.pzparts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.pzpart{display:inline-flex;align-items:center;padding:6px 12px;border-radius:10px;background:color-mix(in srgb,#3d9a5a 14%,var(--surface));color:#237a42;font-weight:800;font-size:14px}
 .fcpile.hoover .htc{box-shadow:0 0 0 4px var(--accent),0 4px 12px rgba(0,0,0,.3)!important;transform:scale(1.06)}.fcpile.dropme .htc{box-shadow:0 0 0 3px var(--accent)}
+
+/* card backs from the picker */
+.gpback,.gpback.gnback,.fcback,.pzc.pzback,.ktdeal,.ktdeck,.kt-crowns .ktdeal,.kt-crowns .ktdeck{background:var(--cbimg,url(art/card-back.jpg)) center/100% 100% no-repeat,var(--cbbg,#2b3a55)!important;border-color:var(--cbbd,#f0b43a)!important}
+.cbthumb{display:inline-block;width:30px;height:42px;border-radius:5px;border:2px solid;flex:none;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.cbrow{margin-top:8px}.cbrow .cbthumb{width:26px;height:36px}
+.cbgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:10px}
+.cbpick{display:grid;justify-items:center;gap:6px;padding:10px 6px;border-radius:14px;border:2px solid var(--line);background:var(--surface);font:inherit;font-weight:700;font-size:13px;color:var(--ink)}
+.cbpick .cbthumb{width:64px;height:90px;border-radius:8px}.cbpick small{color:var(--muted);font-weight:600}
+.cbpick[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 </style>
 
 <div id="app"></div>
@@ -5494,7 +5503,22 @@ function usualUI(g){if(S.demo)return '';const G=UG[g],d=G.def(),cur=G.get()||{},
    scoring and winning, all written from the house rules in use.
    ===================================================================== */
 const GDICON='<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="9" width="17" height="24" rx="3" transform="rotate(-12 14 21)" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="16" y="7" width="17" height="24" rx="3" transform="rotate(10 24 19)" fill="currentColor"/></svg>';
-const guideBtn=()=>`<button class="mgbtn" data-a="rules">${GDICON}<span><b>Quick guide</b><small>${S.game==='wingspan'?'Round goals, ties and final scoring for your board side':S.game==='wyrmspan'?'Round objectives, ties and final scoring':S.game==='phase10'?'The phases, card points and how to win':S.game==='rook'?'Counters, bidding and how to win':S.game==='yahtzee'?'Every box, the bonuses and the Joker rule':S.game==='mextrain'?'Rounds, dealing and scoring':S.game==='catan'?(ctCK()?'Metropolises, the Merchant and the barbarians':ctTB()?'Scenario points and the goal':ctSF()?'Trade routes, island points and scenario goals':'Victory points, Longest Road and Largest Army'):'Setup, dealing, card values and scoring for your rules'}</small></span><i>›</i></button>`;
+/* ---------- card backs: each phone picks its own; the games with art have their own default ---------- */
+const CBACKS={moto:['Motorcycle','art/card-back.jpg','#2b3a55','#f0b43a'],crown:['Crown','art/crowns-back.jpg','#4b2c7a','#e7b423'],gnome:['Golfing gnome','art/gnome-back.jpg','#2f5a35','#f0b43a'],stripes:['Plain stripes','','#2b3a55','#f0b43a']};
+const CBG=['uno','hearts','spades','ohell','rook','rage','golf','skyjo','gnome','skipbo','crowns','phase10'];
+const CBDEF={gnome:'gnome',crowns:'crown'};
+let CBOPEN=false;
+const cbFor=g=>{const c=SET.cb||{},k=c[g]||c['*']||CBDEF[g]||'moto';return CBACKS[k]?k:'moto'};
+function cbApply(){const b=CBACKS[cbFor(S.game)],r=document.documentElement.style;r.setProperty('--cbimg',b[1]?`url(${b[1]})`:'none');r.setProperty('--cbbg',b[1]?b[2]:`repeating-linear-gradient(45deg,${b[2]} 0 6px,color-mix(in srgb,${b[2]} 80%,#fff) 6px 12px)`);r.setProperty('--cbbd',b[3])}
+const cbThumb=k=>{const b=CBACKS[k];return `<span class="cbthumb" style="background:${b[1]?`url(${b[1]}) center/100% 100% no-repeat,${b[2]}`:`repeating-linear-gradient(45deg,${b[2]} 0 5px,color-mix(in srgb,${b[2]} 80%,#fff) 5px 10px)`};border-color:${b[3]}"></span>`};
+const cbRow=()=>CBG.includes(S.game)?`<button class="mgbtn cbrow" data-a="cbopen">${cbThumb(cbFor(S.game))}<span><b>Card back</b><small>${CBACKS[cbFor(S.game)][0]} · just on this phone</small></span></button>`:'';
+function cbSheet(){if(!CBOPEN)return '';const cur=cbFor(S.game),def=CBDEF[S.game]||'moto',all=!!(SET.cb||{})['*'];
+  return `<div class="sheet-bg" data-a="cbclose"><div class="sheet cbsheet" role="dialog" aria-modal="true" aria-labelledby="cb-h" data-stop="1"><div class="rs-top"><div><h2 id="cb-h">Card back</h2><small class="lp-sub">For ${esc(M().name)} on this phone</small></div><button class="btn sm" data-a="cbclose">Done</button></div>
+    <div class="cbgrid">${Object.keys(CBACKS).map(k=>`<button class="cbpick" data-a="cbpick" data-k="${k}" aria-pressed="${cur===k}">${cbThumb(k)}<span>${CBACKS[k][0]}${k===def?' <small>(default)</small>':''}</span></button>`).join('')}</div>
+    <button class="btn wide" data-a="cball" style="margin-top:12px">Use it for every card game</button>
+    ${all||Object.keys(SET.cb||{}).length?`<button class="link-btn" data-a="cbreset" style="margin-top:8px">Back to the defaults</button>`:''}
+    <p class="hint">Gnoming A Round starts with the golfing gnome and Five Crowns with the crown; everything else starts with the motorcycle.</p></div></div>`}
+const guideBtn=()=>`<button class="mgbtn" data-a="rules">${GDICON}<span><b>Quick guide</b><small>${S.game==='wingspan'?'Round goals, ties and final scoring for your board side':S.game==='wyrmspan'?'Round objectives, ties and final scoring':S.game==='phase10'?'The phases, card points and how to win':S.game==='rook'?'Counters, bidding and how to win':S.game==='yahtzee'?'Every box, the bonuses and the Joker rule':S.game==='mextrain'?'Rounds, dealing and scoring':S.game==='catan'?(ctCK()?'Metropolises, the Merchant and the barbarians':ctTB()?'Scenario points and the goal':ctSF()?'Trade routes, island points and scenario goals':'Victory points, Longest Road and Largest Army'):'Setup, dealing, card values and scoring for your rules'}</small></span><i>›</i></button>`+cbRow();
 function guideSheet(title,secs){
   return `<div class="sheet-bg" data-a="rulesclose"><div class="sheet rsheet" role="dialog" aria-modal="true" aria-labelledby="rs-h" data-stop="1">
   <div class="rs-top"><div><h2 id="rs-h">${title}</h2><small class="lp-sub">Quick guide for your house rules</small></div><button class="btn sm" data-a="rulesclose">Close</button></div>
@@ -10515,7 +10539,7 @@ function render(){
   const wasFinal=REV&&REV.phase==='final'&&S.screen==='reveal'&&document.querySelector('[data-final]');
   const winY=SLOCK?null:window.scrollY,winScr=S.screen;
   const KEEPSC=['.csheet .cbody','.rsheet .rs-body','.cpick','.lansheet'],keepSc=KEEPSC.map(q=>{const el=document.querySelector(q);return el?el.scrollTop:null});
-  document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+dashSheet()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','phase10','rook','yahtzee','mextrain','catan','golf','tripoley','quacks'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||LPTIP.startsWith('ph:')||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
+  cbApply();document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+dashSheet()+cbSheet()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','phase10','rook','yahtzee','mextrain','catan','golf','tripoley','quacks'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||LPTIP.startsWith('ph:')||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
   if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar){bar.insertAdjacentHTML('afterbegin',HOMEBTN);if(dashOn()&&!S.editing)bar.insertAdjacentHTML('beforeend','<button class="btn sm dashbtn" data-a="dashopen" aria-label="Everyone at a glance">📊</button>');if((window.FTLINK||window.FTLAN)&&!S.lk&&!S.demo&&!S.editing&&S.started&&!S.finished&&['score','live'].includes(S.screen))bar.insertAdjacentHTML('beforeend','<button class="btn sm lkbtn" data-a="lkchoose" aria-label="Link phones">📱<span class="lkw"> Link</span></button>')}}
   if(S.screen==='results'&&S.lk&&!S.demo&&S.finished){const app=document.getElementById('app'),ac=app.querySelector('.actions');if(ac){ac.querySelectorAll('[data-a="rematch"]').forEach(x=>x.remove());ac.insertAdjacentHTML('beforebegin',lkVoteHtml());if(!ac.querySelector('button'))ac.remove()}else app.insertAdjacentHTML('beforeend',lkVoteHtml())}
   bidMark();
@@ -11143,6 +11167,11 @@ document.addEventListener('click',e=>{
     case 'pthelp':{const X=PTX();X.help=!X.help;ptKeep();break}
     case 'ptplaymode':{if(S.started)break;const X=PTX();X.play=k==='1'?1:0;if(X.play&&X.set==='custom'){X.set='all';X.goal=10}ptKeep();break}
     case 'ptstart':{switchGame('phase10');resetScores();S.started=false;S.screen='map';const X=PTX();X.play=k==='1'?1:0;if(X.play&&X.set==='custom'){X.set='all';X.goal=10}ptKeep();window.scrollTo(0,0);break}
+    case 'cbopen':CBOPEN=true;break;
+    case 'cbclose':CBOPEN=false;break;
+    case 'cbpick':{SET.cb=SET.cb||{};SET.cb[S.game]=k;saveSet();vibe(8);break}
+    case 'cball':{const k2=cbFor(S.game);SET.cb={'*':k2};saveSet();toast(`The ${CBACKS[k2][0].toLowerCase()} is now on every card game on this phone.`);break}
+    case 'cbreset':SET.cb={};saveSet();break;
     case 'hosort':hoSortNow(b.dataset.v);vibe(8);break;
     case 'ho2row':SET.ho2=ho2()?'off':'on';saveSet();break;
     case 'fcplaymode':{if(S.started)break;FCX().play=k==='1'?1:0;fcKeep();break}
