@@ -6232,7 +6232,7 @@ function wyDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    p.pt[r] = {lo:1-9s, hi:10-12s, sk:Skips, wd:Wilds, made:bool, out:bool}
    ===================================================================== */
 const PTOFF=['2 sets of 3','1 set of 3 + 1 run of 4','1 set of 4 + 1 run of 4','1 run of 7','1 run of 8','1 run of 9','2 sets of 4','7 cards of 1 color','1 set of 5 + 1 set of 2','1 set of 5 + 1 set of 3'];
-const PTDEF={play:0,arr:'auto',help:false,end:'phase',set:'all',goal:10,custom:PTOFF.slice()};
+const PTDEF={play:0,arr:'auto',help:false,skTwice:false,skPass:false,skNext:false,end:'phase',set:'all',goal:10,custom:PTOFF.slice()};
 const PTX=()=>{if(!S.ptx)S.ptx=JSON.parse(JSON.stringify(PTDEF));const X=S.ptx;for(const k in PTDEF)if(X[k]===undefined)X[k]=JSON.parse(JSON.stringify(PTDEF[k]));if(!Array.isArray(X.custom)||!X.custom.length)X.custom=PTOFF.slice();return X};
 function ptSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.ptx'))}catch(e){}const o=Object.assign(JSON.parse(JSON.stringify(PTDEF)),x||{});if(!Array.isArray(o.custom)||!o.custom.length)o.custom=PTOFF.slice();return o}
 function ptKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.ptx',JSON.stringify(PTX()))}catch(e){}}
@@ -6274,6 +6274,7 @@ function ptSetup(){const X=PTX(),L=ptList(),n=L.length;
   ${guideBtn()}<p class="hint" style="margin-top:14px">${X.end==='hands'?'Lowest total wins.':'First to finish the last phase wins. Ties go to the lowest total.'} Your house rules are remembered for next time. ${usualUI('phase10')}</p>
   ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([vv,t])=>`<button data-a="ptplaymode" data-k="${vv}" aria-pressed="${!!X.play===!!vv}">${t}</button>`).join('')}</div>`,S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals, runs every turn and checks every phase, hit and Skip. It can find your phase for you, or you can pick the cards yourself. Computer players, pass-and-play and linked phones all work.':'Play with real cards and enter who made their phase and the cards left. Just score keeping.')}
   ${X.play?sec('Help on the phone',`<div class="prow"><div class="rtext"><b>Find my phase for me</b><div class="rlab">Adds a 🪄 switch that spots when you have your phase and offers to lay it down and add your hits. Off: you pick the cards yourself.</div></div><button class="sw" role="switch" aria-checked="${!!X.help}" data-a="pthelp" aria-label="Find my phase for me"><i></i></button></div>`):''}
+  ${X.play?sec('Skip cards',[['skTwice','Skip someone twice in a row','A player who was just skipped can be skipped again. Off: they get a turn first (the rulebook).'],['skPass','Pass the skip','If you get skipped and hold a Skip card, you can play it to pass the skip to someone else and take your turn.'],['skNext','Only skip the next player','A Skip always hits the next player in turn order. No choosing.']].map(([k,l,d])=>`<div class="prow"><div class="rtext"><b>${l}</b><div class="rlab">${d}</div></div><button class="sw" role="switch" aria-checked="${!!X[k]}" data-a="pttg" data-k="${k}" aria-label="${l}"><i></i></button></div>`).join('')):''}
   ${sec('How the game ends',seg('end',[['phase','First to finish'],['hands',`${n}-hand game`]])+(X.end==='phase'?row('Phases to win',ptGoal()<n?'shorter game':'every phase',st('goal',ptGoal(),1,n,'phases')):''),
     X.end==='phase'?(ptGoal()<n?`First to finish ${ptGoal()} phase${ptGoal()===1?'':'s'} wins. If more than one finish in the same hand, the lowest total wins.`:'First to finish every phase wins. If more than one finish in the same hand, the lowest total wins.'):`Everyone moves up a phase each hand, made or not. After ${n} hands, the lowest total wins.`)}
   ${sec('Phases',seg('set',X.play?[['all','All 10'],['even','Even only']]:[['all','All 10'],['even','Even only'],['custom','Our own']])+list,X.set==='even'?'Just phases 2, 4, 6, 8 and 10.':X.set==='custom'?'Type your own list. Handy for homemade phases or another edition.':'The phases from the rulebook.')}
@@ -6320,7 +6321,7 @@ function ptResults(){const rk=ranking(),X=PTX();
   <div class="actions"><div class="in">${S.demo?'<button class="btn" data-a="revstart">Watch the reveal again</button><button class="btn primary" data-a="demoexit">Exit sample</button>':'<button class="btn primary" data-a="rematch">Rematch, same players</button>'}</div></div>`}
 function ptGuide(){const X=PTX(),L=ptList(),g=ptGoal();
   return guideSheet('Phase 10',[
-    X.play?['On the phone',[['Your turn','Tap the deck or the discard pile (a Skip can’t be picked up), then tap a card and discard it.'],['Your phase','🪄 Find my phase spots it and offers Lay it down. ✋ Pick cards myself: tap the cards for each part, then Lay it down.'],['Hitting','Once your phase is down, tap a card and then a glowing group on the table (yours or anyone’s), or tap Add them.'],['Skips','Play a Skip and pick who loses their next turn. You can’t skip someone who was just skipped.']]]:null,
+    X.play?['On the phone',[['Your turn','Tap the deck or the discard pile (a Skip can’t be picked up), then tap a card and discard it.'],['Your phase','🪄 Find my phase spots it and offers Lay it down. ✋ Pick cards myself: tap the cards for each part, then Lay it down.'],['Hitting','Once your phase is down, tap a card and then a glowing group on the table (yours or anyone’s), or tap Add them.'],['Skips',X.skNext?'A Skip always hits the next player.':'Play a Skip and pick who loses their next turn.'+(X.skTwice?' You can skip someone twice in a row.':' You can’t skip someone who was just skipped.')],X.skPass?['Passing the skip','Skipped while holding a Skip card? Play it to pass the skip to someone else, then take your turn.']:null]]:null,
     ['The phases',L.map(([no,t],i)=>[`Phase ${no||i+1}`,esc(t)])],
     ['Each hand',[['Your phase','Lay down your whole phase at once to make it. A set is cards of the same number; a run is numbers in order; a color is cards of one color.'],
       ['Moving up',X.end==='hands'?'Everyone moves up a phase each hand, made or not.':'Make your phase and you move to the next one. Miss it and you try the same phase again next hand.'],
@@ -8315,6 +8316,8 @@ const LKQF={
   pzLay:(pid,gs)=>{const g=pzG();return !!g&&pzLay(g,pid,gs)},
   pzHit:(pid,c,o,i)=>{const g=pzG();return !!g&&pzHit(g,pid,c,o,i)},
   pzDisc:(pid,c,t)=>{const g=pzG();return !!g&&pzDiscard(g,pid,c,t)},
+  pzPass:(pid,t)=>{const g=pzG();return !!g&&pzPass(g,pid,t)},
+  pzTakeSkip:pid=>{const g=pzG();return !!g&&pzTakeSkip(g,pid)},
   fcDraw:(pid,f)=>{const g=fcG();return !!g&&fcDraw(g,pid,f)},
   fcDisc:(pid,c,o)=>{const g=fcG();return !!g&&fcDiscard(g,pid,c,!!o)},
   unPlay:(pid,c,o)=>{const g=ung();if(!g)return false;if((g.h[pid]||[]).length===2&&!unCallOn())g.uno[pid]=1;const r=unPlayCard(pid,c,o);unAfter(g);return r},
@@ -9057,13 +9060,13 @@ function pzSolve(hand,spec,extra=0){const W0=hand.filter(pzW),N0=hand.filter(c=>
 function pzNeed(hand,spec){for(let e=0;e<=12;e++){const s=pzSolve(hand,spec,e);if(s)return e}return 99}
 /* ---------------- the game ---------------- */
 function pzDeal(r){const P=act(),ids=P.map(p=>p.id),L=[];for(let d=0;d<2;d++)for(const k of 'rbgy')for(let v=1;v<=12;v++)L.push(v+k);for(let i=0;i<8;i++)L.push('W');for(let i=0;i<4;i++)L.push('S');
-  const dealer=ids[r%ids.length];const g={_atom:1,r,ps:ids,h:{},deck:htShuffle(L.map((c,i)=>c+'#'+i)),disc:[],turn:null,dealer,phase:'play',drew:0,got:null,from:null,lay:{},on:{},made:{},sk:{},ask:null,out:null,msg:'',n:0};
+  const dealer=ids[r%ids.length];const g={_atom:1,r,ps:ids,h:{},deck:htShuffle(L.map((c,i)=>c+'#'+i)),disc:[],turn:null,dealer,phase:'play',drew:0,got:null,from:null,lay:{},on:{},made:{},sk:{},sj:{},pass:null,ask:null,out:null,msg:'',n:0};
   P.forEach(p=>{g.h[p.id]=[];g.on[p.id]=ptOn(p,r)});for(let i=0;i<10;i++)ids.forEach(id=>g.h[id].push(g.deck.pop()));g.disc.push(g.deck.pop());
   g.turn=pzNext(g,dealer);g.msg=`${nmid(dealer)} dealt 10 cards each. ${nmid(g.turn)} goes first.`;
   if(pzS(pzTop(g))){g.msg+=` A Skip was turned up, so ${nmid(g.turn)} is skipped.`;g.turn=pzNext(g,g.turn)}
   S.pzg=g;PZSEL=[];PZVIEW=null;PZSTAGE={}}
 function pzPull(g){if(!g.deck.length){if(g.disc.length<2)return null;const top=g.disc.pop();g.deck=htShuffle(g.disc);g.disc=[top];g.msg+=' The draw pile ran out, so the discards were shuffled into a new one.'}return g.deck.pop()||null}
-function pzDraw(g,pid,from){if(!g||g.phase!=='play'||g.turn!==pid||g.drew||g.ask)return false;let c;
+function pzDraw(g,pid,from){if(!g||g.phase!=='play'||g.turn!==pid||g.drew||g.ask||g.pass)return false;let c;
   if(from==='disc'){const t=pzTop(g);if(!t||pzS(t))return false;c=g.disc.pop()}else{g.msg='';c=pzPull(g);if(!c)return false}
   g.h[pid].push(c);g.drew=1;g.got=c;g.from=from;g.n++;g.msg=from==='disc'?`${nmid(pid)} took the ${pzName(c)}.`:`${nmid(pid)} drew a card.${g.msg}`;return true}
 /* lay down the phase: groups = [[ids], ...] in the phase's order */
@@ -9076,19 +9079,30 @@ function pzHit(g,pid,c,owner,i){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew||
   pzHitAdd(gr,c);g.h[pid]=h.filter(x=>x!==c);g.n++;pst('pzhit',pid);g.msg=`${nmid(pid)} added the ${pzName(c)}${owner===pid?'':` to ${nmid(owner)}’s cards`}.`;
   if(!g.h[pid].length){g.msg+=' That was their last card!';pzEnd(g,pid)}return true}
 /* who can be skipped right now */
-const pzSkipOk=(g,pid)=>g.ps.filter(x=>x!==pid&&!g.sk[x]);
+/* who can be skipped: house rules can allow skipping someone twice in a row, or only ever the next player */
+const pzSkipOk=(g,pid)=>{const X=PTX();g.sj=g.sj||{};const ok=x=>x!==pid&&(X.skTwice||!(g.sk[x]>0)&&!g.sj[x]);if(X.skNext){const n=pzNext(g,pid);return ok(n)?[n]:[]}return g.ps.filter(ok)};
+/* move on from pid, past anyone with a skip waiting (a player holding a Skip may get to pass it on: house rule) */
+function pzAdvance(g,pid){let nx=pzNext(g,pid),guard=0;g.sj=g.sj||{};
+  while(g.sk[nx]>0&&guard++<24){if(PTX().skPass&&(g.h[nx]||[]).some(pzS)){g.pass=nx;g.msg+=` ${nmid(nx)} was skipped but has a Skip card to pass on.`;return nx}
+    g.sk[nx]--;if(!(g.sk[nx]>0))delete g.sk[nx];g.sj[nx]=1;g.msg+=` ${nmid(nx)} loses this turn.`;nx=pzNext(g,nx)}return nx}
+const pzPassTo=(g,pid)=>PTX().skNext?[pzNext(g,pid)]:g.ps.filter(x=>x!==pid);
+function pzPass(g,pid,target){if(!g||g.phase!=='play'||g.pass!==pid||g.turn!==pid||!pzPassTo(g,pid).includes(target))return false;const c=(g.h[pid]||[]).find(pzS);if(!c)return false;
+  g.h[pid]=g.h[pid].filter(x=>x!==c);g.disc.push(c);g.sk[pid]--;if(!(g.sk[pid]>0))delete g.sk[pid];g.sk[target]=(g.sk[target]>0?g.sk[target]:0)+1;g.pass=null;g.n++;pst('pzskip',pid);
+  g.msg=`${nmid(pid)} passed the skip to ${nmid(target)}!`;if(!g.h[pid].length){g.msg+=' That was their last card!';pzEnd(g,pid)}return true}
+function pzTakeSkip(g,pid){if(!g||g.phase!=='play'||g.pass!==pid||g.turn!==pid)return false;g.pass=null;g.sk[pid]--;if(!(g.sk[pid]>0))delete g.sk[pid];g.sj=g.sj||{};g.sj[pid]=1;g.n++;g.msg=`${nmid(pid)} takes the skip.`;g.turn=pzAdvance(g,pid);return true}
 function pzDiscard(g,pid,c,target){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew||g.ask&&g.ask.p!==pid)return false;const h=g.h[pid];if(!h.includes(c))return false;
   if(pzS(c)&&target!==undefined&&target!==null&&!pzSkipOk(g,pid).includes(target))return false;
   g.h[pid]=h.filter(x=>x!==c);g.disc.push(c);g.drew=0;g.got=null;g.from=null;g.ask=null;g.n++;g.msg=`${nmid(pid)} discarded the ${pzName(c)}.`;
   /* a normal turn clears a 'just skipped' mark */
-  if(g.sk[pid]===2)delete g.sk[pid];
-  if(pzS(c)&&target){g.sk[target]=1;g.msg=`${nmid(pid)} skipped ${nmid(target)}!`;pst('pzskip',pid)}
+  g.sj=g.sj||{};if(g.sj[pid])delete g.sj[pid];
+  if(pzS(c)&&target){g.sk[target]=(g.sk[target]>0?g.sk[target]:0)+1;g.msg=`${nmid(pid)} skipped ${nmid(target)}!`;pst('pzskip',pid)}
   if(!g.h[pid].length){g.msg+=' That was their last card!';pzEnd(g,pid);return true}
-  let nx=pzNext(g,pid),guard=0;while(g.sk[nx]===1&&guard++<12){g.sk[nx]=2;g.msg+=` ${nmid(nx)} loses this turn.`;nx=pzNext(g,nx)}g.turn=nx;return true}
+  g.turn=pzAdvance(g,pid);return true}
 function pzEnd(g,w){g.out=w;act().forEach(p=>{const R=ptR(p,g.r),h=g.h[p.id]||[];R.made=!!g.made[p.id];R.out=p.id===w;R.lo=h.filter(c=>!pzW(c)&&!pzS(c)&&pzV(c)<=9).length;R.hi=h.filter(c=>!pzW(c)&&!pzS(c)&&pzV(c)>=10).length;R.sk=h.filter(pzS).length;R.wd=h.filter(pzW).length;R.t=1});
   g.phase='done';g.turn=null;g.ask=null;S.hr=Math.max(S.hr||0,g.r);g.msg+=` ${nmid(w)} went out. The hand is over.`}
 /* ---------------- computer players ---------------- */
 function pzBotStep(g,q){const pid=q.id,lv=q.bot,h=g.h[pid],spec=pzSpec(g.on[pid]);if(g.turn!==pid||g.phase!=='play')return;
+  if(g.pass===pid){const ts=pzPassTo(g,pid);if(ts.length&&(lv!=='easy'||Math.random()<.6)){const t=ts.slice().sort((a,b)=>(g.made[b]?1:0)-(g.made[a]?1:0)||g.h[a].length-g.h[b].length)[0];pzPass(g,pid,t)}else pzTakeSkip(g,pid);return}
   if(!g.drew){const t=pzTop(g);let take=false;if(t&&!pzS(t)){if(pzW(t))take=lv!=='easy'||Math.random()<.6;else if(!g.made[pid]){const a=pzNeed(h,spec),b=pzNeed(h.concat(t),spec);take=b<a&&(lv!=='easy'||Math.random()<.5)}
       else take=Object.values(g.lay).some(gs=>gs.some(gr=>pzHitOk(gr,t)))&&lv!=='easy'}
     pzDraw(g,pid,take?'disc':'deck');return}
@@ -9127,16 +9141,18 @@ function pzPlayUI(){if(!pzRes()&&S.pzg&&S.pzg.r!==S.hr)S.hr=S.pzg.r;const X=PTX(
   const V=pzViewer(),me=pzMe(),mine=V&&g.phase==='play'&&g.turn===V.id,turnP=P.find(p=>p.id===g.turn),top=pzTop(g),help=!!X.help,self=!help||X.arr==='self';
   let status='';
   if(g.phase==='done')status=`<b>Hand ${r+1} is over.</b>`;
+  else if(mine&&g.pass)status='<b>You were skipped!</b> You have a Skip card: pass it on and take your turn, or take the skip.';
+  else if(g.pass&&turnP)status=`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> was skipped and is deciding whether to pass it on…`;
   else if(mine&&PZPEND)status='<b>Who do you want to skip?</b>';
   else if(mine&&!g.drew)status=`<b>Your turn${S.lk||pzHumans().length<2?'':', '+esc(nm(V))}.</b> Draw from the deck${top&&!pzS(top)?`, or take the ${esc(pzName(top))}`:''}.`;
   else if(mine)status=g.made[V.id]?'<b>Add cards to any laid-down group, then discard.</b>':'<b>Lay down your phase if you can, then discard.</b>';
   else if(turnP)status=`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is playing…`;
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
   if(V)out+=`<div class="ohup"><span><b>You’re on ${ptLab(g.on[V.id])}${g.made[V.id]?' ✓':''}</b><br><small>${esc(ptDesc(g.on[V.id]))} · ${g.deck.length} in the draw pile</small></span></div>`;
-  const canDraw=mine&&!g.drew&&!PZPEND;
+  const canDraw=mine&&!g.drew&&!PZPEND&&!g.pass;
   const center=`<div class="fcpiles"><button class="fcpile${canDraw?' go':''}" data-a="pzpdeck" ${canDraw?'':'aria-disabled="true"'} aria-label="Draw from the deck">${pzBackEl()}<small>Deck</small></button>${(()=>{const dm=mine&&g.drew&&!PZPEND&&PZSEL.length===1;return dm?`<button class="fcpile go dropme" data-a="pzpdiscpile" data-hodisc="1" aria-label="Discard the ${esc(pzName(PZSEL[0]))} here">${pzCardEl(top)}<small>${pzS(PZSEL[0])?'Play Skip here':'Discard here'}</small></button>`:`<button class="fcpile${canDraw&&top&&!pzS(top)?' go':''}" data-a="pzptake" ${mine&&g.drew?'data-hodisc="1"':''} ${canDraw&&top&&!pzS(top)?'':'aria-disabled="true"'} aria-label="Take the ${esc(pzName(top))}">${pzCardEl(top)}<small>Discard</small></button>`})()}</div>`;
   out+=ktTable({dealTag:'phase10',dg:g,P,me:V?V.id:me?me.id:null,trick:[],faded:false,turn:g.phase==='play'?g.turn:null,won:g.out,dealer:!g.n?g.dealer:null,
-    label:q=>{const n=(g.h[q.id]||[]).length;return g.out===q.id?'went out 🎉':`${ptLab(g.on[q.id])}${g.made[q.id]?' ✓':''} · ${n} card${n===1?'':'s'}${g.sk[q.id]===1?' · ⊘':''}`},center});
+    label:q=>{const n=(g.h[q.id]||[]).length;return g.out===q.id?'went out 🎉':`${ptLab(g.on[q.id])}${g.made[q.id]?' ✓':''} · ${n} card${n===1?'':'s'}${g.sk[q.id]>0?' · ⊘'+(g.sk[q.id]>1?'×'+g.sk[q.id]:''):''}`},center});
   /* everything laid down, as hit targets */
   const hitSel=mine&&g.drew&&g.made[V.id]&&PZSEL.length===1?PZSEL[0]:null;
   const laid=g.ps.filter(id=>(g.lay[id]||[]).length);
@@ -9158,7 +9174,8 @@ function pzPlayUI(){if(!pzRes()&&S.pzg&&S.pzg.r!==S.hr)S.hr=S.pzg.r;const X=PTX(
     const piles=hoPiles(V.id,loose);out+=hoBar({piles:true});
     out+=`<div class="fchand" aria-label="Your cards">${!made?groups.map((gr,i)=>gr?pzGrpHtml(gr,{btn:true,sel,got:g.got,cls:'ok',lab:pzGL(spec[i]),x:self?i:undefined}):'').join(''):''}${piles.map((pl,i)=>pzGrpHtml(pl,{btn:true,sel,got:g.got,cls:'loose',drag:true,pile:i,lab:i===0?(!made&&groups.some(Boolean)?'Not in your phase':piles.length>1?'Your hand':''):`Pile ${i+1}`})).join('')}<div class="honew">＋ New pile</div></div>`;
     const btns=[];let tip='';
-    if(mine&&PZPEND){out+=`<div class="panel sdbids"><div class="lr sbwho">${pzSkipOk(g,V.id).map(id=>{const p=P.find(x=>x.id===id);return `<button style="${pc(p.color)}" data-a="pzpskipwho" data-k="${id}"><i></i>${esc(nm(p))}</button>`}).join('')}</div></div>`;btns.push(`<button class="btn" data-a="pzpskipcancel">Never mind</button>`)}
+    if(mine&&g.pass){out+=`<div class="panel sdbids"><p class="rlab" style="margin:0 0 6px"><b>Pass the skip to:</b></p><div class="lr sbwho">${pzPassTo(g,V.id).map(id=>{const p=P.find(x=>x.id===id);return `<button style="${pc(p.color)}" data-a="pzppass" data-k="${id}"><i></i>${esc(nm(p))}</button>`}).join('')}</div></div>`;btns.push(`<button class="btn" data-a="pzptakeskip">Take the skip</button>`)}
+    else if(mine&&PZPEND){out+=`<div class="panel sdbids"><div class="lr sbwho">${pzSkipOk(g,V.id).map(id=>{const p=P.find(x=>x.id===id);return `<button style="${pc(p.color)}" data-a="pzpskipwho" data-k="${id}"><i></i>${esc(nm(p))}</button>`}).join('')}</div></div>`;btns.push(`<button class="btn" data-a="pzpskipcancel">Never mind</button>`)}
     else if(mine&&g.drew){
       if(!made&&!self&&auto)out+=`<div class="panel fcgoout"><b>🎉 You have ${ptLab(g.on[V.id])}!</b><p class="rlab">${esc(ptDesc(g.on[V.id]))}</p><button class="btn primary wide" data-a="pzplay">Lay it down</button></div>`;
       if(made&&!self){const hits=[];h.forEach(c=>{g.ps.forEach(o=>(g.lay[o]||[]).forEach((gr,i)=>{if(!hits.find(x=>x.c===c)&&pzHitOk(gr,c))hits.push({c,o,i})}))});
@@ -9183,6 +9200,8 @@ function pzAct(a,b,k){const g=pzG();if(!g)return;
   if(a==='pzpunstage'){const st=PZSTAGE[V.id]||[];st[+b.dataset.i]=null;return}
   if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}
   if(a==='pzpskipcancel'){PZPEND=null;return}
+  if(a==='pzppass'){if(lkq('pzPass',V.id,k))vibe([15,30,15]);return}
+  if(a==='pzptakeskip'){if(lkq('pzTakeSkip',V.id))vibe(15);if(!S.lk&&pzHumans().length>1)PZVIEW=null;return}
   if(a==='pzpdeck'||a==='pzptake'){if(g.drew){toast('You already drew. Now play or discard.');return}if(a==='pzptake'&&pzS(pzTop(g)||'')){toast('A Skip can’t be picked up.');return}PZSEL=[];if(lkq('pzDraw',V.id,a==='pzptake'?'disc':'deck'))vibe(12);return}
   if(!g.drew){toast('Draw a card first.');return}
   if(a==='pzplay'){const spec=pzSpec(g.on[V.id]),h=g.h[V.id];let groups;if(!PTX().help||PTX().arr==='self')groups=(PZSTAGE[V.id]||[]).slice(0,spec.length);else{const s=pzSolve(h,spec);groups=s&&s.map(x=>x.c)}
@@ -11120,6 +11139,7 @@ document.addEventListener('click',e=>{
     case 'sharecopy':{try{navigator.clipboard.writeText(APPURL).then(()=>toast('Link copied.'),()=>toast(APPURL))}catch(e){toast(APPURL)}return}
     case 'sharesend':{try{navigator.share({title:'Final Tally',text:'Our game-night score keeper',url:APPURL}).catch(()=>{})}catch(e){}return}
     case 'sbstart':{switchGame('skipbo');resetScores();S.started=false;S.screen='map';const X=SBX();X.play=k==='1'?1:0;if(X.play&&X.teams){X.teams=false;S.players.forEach((p,i)=>p.on=i<3)}sbKeep();window.scrollTo(0,0);break}
+    case 'pttg':{const X=PTX();X[k]=!X[k];ptKeep();break}
     case 'pthelp':{const X=PTX();X.help=!X.help;ptKeep();break}
     case 'ptplaymode':{if(S.started)break;const X=PTX();X.play=k==='1'?1:0;if(X.play&&X.set==='custom'){X.set='all';X.goal=10}ptKeep();break}
     case 'ptstart':{switchGame('phase10');resetScores();S.started=false;S.screen='map';const X=PTX();X.play=k==='1'?1:0;if(X.play&&X.set==='custom'){X.set='all';X.goal=10}ptKeep();window.scrollTo(0,0);break}
