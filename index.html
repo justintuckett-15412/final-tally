@@ -1232,6 +1232,19 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .fchand .fcdrag.dropb{box-shadow:-4px 0 0 0 var(--accent)}.fchand .fcdrag.dropa{box-shadow:4px 0 0 0 var(--accent)}
 .fclast h2{margin:0 0 6px}.fclast .rlab{margin:0 0 8px}
 .htc b,.htc em{font-variant-numeric:tabular-nums}.htc b.ten{letter-spacing:.06em;font-size:calc(var(--cw)*.27);left:3px}.htc em{letter-spacing:.05em}
+
+/* hand organizer */
+.hosort{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;margin:10px 0 0}.hosort small{width:100%;text-align:center;font-size:11.5px}
+.hosort .btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.hofan .htc{touch-action:none;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.fchand .htc{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}.fchand .hodrag{touch-action:none;cursor:grab}
+.hofan .htc.dropb,.fchand .hodrag.dropb{box-shadow:-5px 0 0 0 var(--accent)!important}.hofan .htc.dropa,.fchand .hodrag.dropa{box-shadow:5px 0 0 0 var(--accent)!important}
+.fchand .hoover{outline:3px dashed var(--accent);outline-offset:2px}
+.fchand .honew{display:none;align-items:center;justify-content:center;min-width:90px;min-height:70px;border:2px dashed var(--line);border-radius:12px;color:var(--muted);font-size:12px;font-weight:700;padding:6px;text-align:center}
+.hodragging .fchand .honew{display:flex}
+.hozoom{position:fixed;inset:0;z-index:90;display:grid;place-items:center;background:rgba(0,0,0,.35);pointer-events:none;animation:hozin .15s ease-out}
+.hozoom .htc{box-shadow:0 14px 40px rgba(0,0,0,.45)}@keyframes hozin{from{opacity:0}}
+.hosort .btn{padding:0 10px;font-size:14px;min-height:34px}.hosort{gap:5px}
 </style>
 
 <div id="app"></div>
@@ -4628,22 +4641,105 @@ function bidMark(){if(!BIDSEL)return;const [a,k]=BIDSEL.split('|'),b=[...documen
 const cardDrag=()=>SET.cardPlay==='drag';
 const curSel=()=>S.game==='hearts'?HTSEL[0]:S.game==='spades'?SDSEL:S.game==='ohell'?OHSEL:S.game==='rook'?RKSEL[0]:S.game==='rage'?RGSEL:S.game==='uno'?UNSEL:null;
 let DRAG=null,DRAGPLAY=false,DRAGSUP=0;
-document.addEventListener('pointerdown',e=>{if(!cardDrag())return;const b=e.target.closest('.hthand .htc.ok');if(!b||b.disabled)return;
-  DRAG={b,c:b.dataset.c,a:b.dataset.a,x0:e.clientX,y0:e.clientY,el:null,id:e.pointerId}},{passive:true});
+document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('#app .hofan .htc[data-c]');if(!b)return;
+  DRAG={b,c:b.dataset.c,a:b.dataset.a,x0:e.clientX,y0:e.clientY,el:null,id:e.pointerId,play:cardDrag()&&b.classList.contains('ok')&&!b.disabled}},{passive:true});
 document.addEventListener('pointermove',e=>{if(!DRAG||e.pointerId!==DRAG.id)return;const dx=e.clientX-DRAG.x0,dy=e.clientY-DRAG.y0;
   if(!DRAG.el){if(Math.hypot(dx,dy)<8)return;const r=DRAG.b.getBoundingClientRect(),el=DRAG.b.cloneNode(true);el.classList.add('dragcard');el.style.width=r.width+'px';el.style.height=r.height+'px';
-    DRAG.ox=DRAG.x0-r.left;DRAG.oy=DRAG.y0-r.top;document.body.appendChild(el);DRAG.el=el;DRAG.b.style.visibility='hidden';const t=document.querySelector('.kttable');if(t)t.classList.add('dropzone')}
+    DRAG.ox=DRAG.x0-r.left;DRAG.oy=DRAG.y0-r.top;document.body.appendChild(el);DRAG.el=el;DRAG.b.style.visibility='hidden';clearTimeout(HOZT);hoZoomOff();const t=document.querySelector('.kttable');if(t&&DRAG.play)t.classList.add('dropzone')}
   DRAG.el.style.transform=`translate(${e.clientX-DRAG.ox}px,${e.clientY-DRAG.oy}px) rotate(${Math.max(-12,Math.min(12,dx/12))}deg)`;
-  const t=document.querySelector('.kttable');if(t){const r=t.getBoundingClientRect();t.classList.toggle('dropover',e.clientX>r.left&&e.clientX<r.right&&e.clientY>r.top&&e.clientY<r.bottom)}},{passive:true});
+  document.querySelectorAll('.hofan .dropb,.hofan .dropa').forEach(x=>x.classList.remove('dropb','dropa'));{const h=document.elementFromPoint(e.clientX,e.clientY),hc=h&&h.closest('.hofan .htc[data-c]');if(hc&&hc!==DRAG.b){const r=hc.getBoundingClientRect();hc.classList.add(e.clientX<r.left+r.width/2?'dropb':'dropa')}}
+  const t=document.querySelector('.kttable');if(t&&DRAG.play){const r=t.getBoundingClientRect();t.classList.toggle('dropover',e.clientX>r.left&&e.clientX<r.right&&e.clientY>r.top&&e.clientY<r.bottom)}},{passive:true});
 function dragEnd(e){if(!DRAG)return;const d=DRAG;DRAG=null;const t=document.querySelector('.kttable');if(t)t.classList.remove('dropzone','dropover');if(!d.el)return;
   DRAGSUP=Date.now()+400;d.el.remove();d.b.style.visibility='';const r=t&&t.getBoundingClientRect(),over=r&&e&&e.clientX>r.left&&e.clientX<r.right&&e.clientY>r.top&&e.clientY<r.bottom;
+  document.querySelectorAll('.hofan .dropb,.hofan .dropa').forEach(x=>x.classList.remove('dropb','dropa'));
+  /* dropped on another card in my hand: move it there */
+  if(e&&(!d.play||!over&&!(d.y0-e.clientY>110))){const h=document.elementFromPoint(e.clientX,e.clientY),hc=h&&h.closest('.hofan .htc[data-c]'),V=hoViewer();if(hc&&hc!==d.b&&V){const rr=hc.getBoundingClientRect();hoMove(V.id,d.c,{c:hc.dataset.c,after:e.clientX>=rr.left+rr.width/2});vibe(8);render()}return}
   if(!over&&!(e&&d.y0-e.clientY>110))return;
   /* dropped on the table: select it and play it, just like two taps */
   const click=()=>{const x=[...document.querySelectorAll(`.hthand [data-a="${d.a}"]`)].find(q=>q.dataset.c===d.c);if(x){DRAGPLAY=true;x.click();DRAGPLAY=false}};
   if(curSel()!==d.c)click();click()}
 document.addEventListener('pointerup',dragEnd);document.addEventListener('pointercancel',()=>{if(DRAG&&DRAG.el){DRAG.el.remove();DRAG.b.style.visibility=''}const t=document.querySelector('.kttable');if(t)t.classList.remove('dropzone','dropover');DRAG=null});
-document.addEventListener('click',e=>{if(Date.now()<DRAGSUP&&!DRAGPLAY&&e.target.closest('.hthand .htc')){e.stopImmediatePropagation();e.preventDefault()}},true);
+document.addEventListener('click',e=>{if(Date.now()<DRAGSUP&&!DRAGPLAY&&e.target.closest&&e.target.closest('.hthand .htc,.fchand .htc,.fcpile')){e.stopImmediatePropagation();e.preventDefault()}},true);
 const cardPlayHint=()=>`${cardDrag()?'Drag a card onto the table to play it.':(curSel()?'Tap it again to play it.':'Tap a card to play it.')} <button class="link-btn" data-a="cardplay">${cardDrag()?'Tap to play instead':'Drag to play instead'}</button>`;
+
+/* =====================================================================
+   HAND ORGANIZER: your own card order in every phone-played card game.
+   Drag cards to move them, Sort buttons (remembered per game), working piles (Five Crowns, Phase 10),
+   two rows for big hands on small phones, press and hold to zoom, and drag from the deck or discard pile to draw a card into a spot.
+   The order lives only on this phone (localStorage), keyed by game, hand and player.
+   ===================================================================== */
+let HO=null,HOSAVE=null,HOPEND=null,HOZSUP=0;
+const hoG=()=>({hearts:S.htg,spades:S.sdg,ohell:S.ohg,rook:S.rkg,rage:S.rgg,uno:S.ung,crowns:S.fcg,phase10:S.pzg})[S.game]||null;
+const hoViewer=()=>{try{const f={hearts:htViewer,spades:sdViewer,ohell:ohViewer,rook:rkViewer,rage:rgViewer,uno:unViewer,crowns:fcViewer,phase10:pzViewer}[S.game];return f?f():null}catch(e){return null}};
+function hoSorts(){const g=hoG()||{},G=S.game;
+  if(G==='hearts'||G==='spades'||G==='ohell')return [['s','Suit',h=>htSort(h)],['n','Number',h=>h.slice().sort((a,b)=>htRk(a)-htRk(b)||HTSO.indexOf(a[1])-HTSO.indexOf(b[1]))]];
+  if(G==='rook')return [['s','Color',h=>rkSort(h,g.trump)],['n','Number',h=>h.slice().sort((a,b)=>rkRank(a)-rkRank(b)||String(a).localeCompare(String(b)))]];
+  if(G==='rage')return [['s','Color',h=>rgSort(h,g.tr)],['n','Number',h=>h.slice().sort((a,b)=>{const ia=rgIsAct(a),ib=rgIsAct(b);if(ia!==ib)return ia?1:-1;if(ia)return a.localeCompare(b);return rgNum(a)-rgNum(b)||a.localeCompare(b)})]];
+  if(G==='uno')return [['s','Color',h=>unSort(g,h)],['n','Number',h=>{const base=unSort(g,h);return base.slice().sort((a,b)=>{const fa=unFace(g,a),fb=unFace(g,b),na=unIsNum(fa.k),nb=unIsNum(fb.k);if(na!==nb)return na?-1:1;if(na&&+fa.k!==+fb.k)return +fa.k-+fb.k;return base.indexOf(a)-base.indexOf(b)})}]];
+  if(G==='crowns')return [['n','Number',h=>fcSortN(h,g.k)],['s','Suit',h=>fcSort(h,g.k)]];
+  if(G==='phase10')return [['n','Number',h=>pzSort(h)],['s','Color',h=>h.slice().sort((a,b)=>{const ka=pzW(a)?9:pzS(a)?10:'rbgy'.indexOf(pzC(a)),kb=pzW(b)?9:pzS(b)?10:'rbgy'.indexOf(pzC(b));return ka-kb||pzV(a)-pzV(b)})]];
+  return []}
+function hoLoad(){if(HO)return HO;try{HO=JSON.parse(localStorage.getItem(KEY+'.ho'))||{}}catch(e){HO={}}return HO}
+function hoSave(){clearTimeout(HOSAVE);HOSAVE=null;(()=>{try{const ks=Object.keys(HO);if(ks.length>16)ks.sort((a,b)=>(HO[a].t||0)-(HO[b].t||0)).slice(0,ks.length-16).forEach(k=>delete HO[k]);localStorage.setItem(KEY+'.ho',JSON.stringify(HO))}catch(e){}})()}
+const hoKey=pid=>(S.gameId||'g')+':'+lkqKey()+':'+pid;
+function hoPrefs(){try{return JSON.parse(localStorage.getItem(KEY+'.hosort'))||{}}catch(e){return {}}}
+const hoPref=()=>hoPrefs()[S.game]||null;
+function hoSetPref(v){const o=hoPrefs();o[S.game]=v;try{localStorage.setItem(KEY+'.hosort',JSON.stringify(o))}catch(e){}}
+function hoSortFn(){const L=hoSorts(),p=hoPref();return (L.find(x=>x[0]===p)||L[0]||[0,0,h=>h.slice()])[2]}
+/* the piles of cards in my order (pile 0 is the main hand). New cards go on the end, unless I dragged a draw into a spot. */
+function hoPiles(pid,cards){const H=hoLoad(),k=hoKey(pid);let rec=H[k];
+  if(!rec||!Array.isArray(rec.p)){rec=H[k]={p:[hoSortFn()(cards)],t:Date.now()};hoSave();return rec.p.map(x=>x.slice())}
+  const set=new Set(cards),seen=new Set();rec.p=rec.p.map(pl=>pl.filter(c=>set.has(c)&&!seen.has(c)&&!!seen.add(c)));
+  const fresh=cards.filter(c=>!seen.has(c));
+  fresh.forEach(c=>{const P=HOPEND&&HOPEND.pid===pid&&Date.now()-HOPEND.at<15000?HOPEND:null;if(P&&fresh.length===1){hoPlace(rec,c,P.to);HOPEND=null}else rec.p[0].push(c)});
+  rec.p=rec.p.filter((pl,i)=>i===0||pl.length);rec.t=Date.now();if(fresh.length)hoSave();return rec.p.map(x=>x.slice())}
+const hoOrd=(pid,cards)=>hoPiles(pid,cards).flat();
+/* to = {c:card, after:bool} | {pile:index} | {pile:'new'} */
+function hoPlace(rec,c,to){rec.p=rec.p.map(pl=>pl.filter(x=>x!==c));
+  if(to.c){for(const pl of rec.p){const i=pl.indexOf(to.c);if(i>=0){pl.splice(i+(to.after?1:0),0,c);return}}rec.p[0].push(c);return}
+  if(to.pile==='new'){rec.p.push([c]);return}(rec.p[+to.pile]||rec.p[0]).push(c)}
+function hoMove(pid,c,to){const H=hoLoad(),rec=H[hoKey(pid)];if(!rec)return;hoPlace(rec,c,to);rec.p=rec.p.filter((pl,i)=>i===0||pl.length);hoSave()}
+function hoSortNow(v){const V=hoViewer();if(!V)return;hoSetPref(v);const rec=hoLoad()[hoKey(V.id)],L=hoSorts(),f=(L.find(x=>x[0]===v)||L[0]||[])[2];if(rec&&f)rec.p=rec.p.map(pl=>f(pl));hoSave()}
+const ho2=()=>SET.ho2==='on'?true:SET.ho2==='off'?false:innerWidth<600;
+function hoBar(o={}){const L=hoSorts();if(!L.length)return '';const p=hoPref()||L[0][0];
+  return `<div class="hosort"><span class="rlab">Sort:</span>${L.map(([v,l])=>`<button class="btn sm" data-a="hosort" data-v="${v}" aria-pressed="${p===v}">${l}</button>`).join('')}${o.rows?`<button class="btn sm" data-a="ho2row" aria-pressed="${ho2()}" aria-label="Two rows">▤ 2 rows</button>`:''}<small class="rlab">Drag to move${o.piles?' or make a pile':''} · hold to zoom</small></div>`}
+/* after each render: the Sort bar and two rows for the fanned hands of the card-table games and UNO */
+function hoAfter(){const app=document.getElementById('app');if(!app||S.screen!=='score')return;
+  const G=S.game;if(!['hearts','spades','ohell','rook','rage','uno'].includes(G))return;
+  let el=app.querySelector('.unhands[aria-label="Your cards"]')||app.querySelector('.hthand[aria-label="Your cards"]');if(!el||el.dataset.ho)return;
+  const cards=[...el.querySelectorAll('.htc[data-c]')];if(!cards.length)return;
+  const wrap=document.createElement('div');wrap.className='unhands hofan';wrap.dataset.ho='1';wrap.setAttribute('aria-label','Your cards');
+  const per=cards.length>8&&ho2()?Math.ceil(cards.length/2):12;
+  for(let i=0;i<cards.length;i+=per){const row=document.createElement('div');row.className='hthand';const part=cards.slice(i,i+per);row.style.setProperty('--n',part.length);part.forEach(c=>row.appendChild(c));wrap.appendChild(row)}
+  el.replaceWith(wrap);if(!app.querySelector('.hosort'))wrap.insertAdjacentHTML('beforebegin',hoBar({rows:cards.length>8}))}
+/* ---------- dragging cards in the Five Crowns and Phase 10 hands (and drawing by dragging from a pile) ---------- */
+(function(){let D=null;
+  const zoneAt=(x,y,ghost)=>{if(ghost)ghost.style.visibility='hidden';const t=document.elementFromPoint(x,y);if(ghost)ghost.style.visibility='';if(!t)return null;
+    const c=t.closest('.fchand .hodrag');if(c)return {el:c};const n=t.closest('.fchand .honew');if(n)return {pile:'new',el:n};const p=t.closest('.fchand [data-pile]');if(p)return {pile:p.dataset.pile,el:p};return null};
+  const clear=()=>document.querySelectorAll('.dropb,.dropa,.hoover').forEach(x=>x.classList.remove('dropb','dropa','hoover'));
+  document.addEventListener('pointerdown',e=>{if(!e.target.closest)return;const el=e.target.closest('.fchand .hodrag'),pile=!el&&e.target.closest('.fcpile.go');if(!el&&!pile)return;
+    D={el:el||pile,pile:!!pile,x:e.clientX,y:e.clientY,on:false,id:e.pointerId}},true);
+  document.addEventListener('pointermove',e=>{if(!D||e.pointerId!==D.id)return;const dx=e.clientX-D.x,dy=e.clientY-D.y;
+    if(!D.on){if(Math.hypot(dx,dy)<9)return;D.on=true;clearTimeout(HOZT);hoZoomOff();const src=D.pile?D.el.querySelector('.htc'):D.el;if(!src){D=null;return}const r=src.getBoundingClientRect(),g=src.cloneNode(true);
+      g.classList.add('dragcard');g.style.width=r.width+'px';g.style.height=r.height+'px';g.style.setProperty('--cw',r.width+'px');D.ox=D.x-r.left;D.oy=D.y-r.top;document.body.appendChild(g);D.g=g;if(!D.pile)D.el.style.opacity='.35';document.body.classList.add('hodragging')}
+    D.g.style.transform=`translate(${e.clientX-D.ox}px,${e.clientY-D.oy}px)`;clear();const z=zoneAt(e.clientX,e.clientY,D.g);
+    if(z&&z.el!==D.el){if(z.pile!==undefined)z.el.classList.add('hoover');else{const r=z.el.getBoundingClientRect();z.el.classList.add(e.clientX<r.left+r.width/2?'dropb':'dropa')}}e.preventDefault()},{passive:false});
+  const end=e=>{if(!D||e.pointerId!==D.id)return;const d=D;D=null;if(!d.on)return;DRAGSUP=Date.now()+400;clear();
+    const z=e.type==='pointerup'?zoneAt(e.clientX,e.clientY,d.g):null;document.body.classList.remove('hodragging');if(d.g)d.g.remove();d.el.style.opacity='';const V=hoViewer();if(!z||!V){render();return}
+    const to=z.pile!==undefined?{pile:z.pile}:(()=>{const r=z.el.getBoundingClientRect();return {c:z.el.dataset.c,after:e.clientX>=r.left+r.width/2}})();
+    if(d.pile){/* drag a draw into a spot: remember where, then draw */HOPEND={pid:V.id,to,at:Date.now()};DRAGPLAY=true;d.el.click();DRAGPLAY=false;return}
+    if(z.el===d.el){render();return}hoMove(V.id,d.el.dataset.c,to);vibe(8);render()};
+  document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',end,true)})();
+/* ---------- press and hold a card to see it big ---------- */
+let HOZT=null,HOZX=0,HOZY=0;
+function hoZoomOff(){const z=document.querySelector('.hozoom');if(z)z.remove()}
+document.addEventListener('pointerdown',e=>{if(!e.target.closest)return;const c=e.target.closest('.hthand .htc,.fchand .htc,.fcpile .htc');if(!c)return;HOZX=e.clientX;HOZY=e.clientY;clearTimeout(HOZT);
+  HOZT=setTimeout(()=>{const z=document.createElement('div');z.className='hozoom';const k=c.cloneNode(true);k.removeAttribute('data-a');k.style.setProperty('--cw','150px');k.classList.remove('sel','dragging');k.style.transform='none';k.style.opacity='1';z.appendChild(k);document.body.appendChild(z);HOZSUP=Date.now()+60000;vibe(10)},480)},true);
+document.addEventListener('pointermove',e=>{if(HOZT&&Math.hypot(e.clientX-HOZX,e.clientY-HOZY)>9){clearTimeout(HOZT);HOZT=null}},true);
+const hoZEnd=()=>{clearTimeout(HOZT);HOZT=null;if(document.querySelector('.hozoom')){hoZoomOff();HOZSUP=Date.now()+350}};
+document.addEventListener('pointerup',hoZEnd,true);document.addEventListener('pointercancel',hoZEnd,true);
+document.addEventListener('click',e=>{if(Date.now()<HOZSUP&&e.target.closest&&e.target.closest('.hthand .htc,.fchand .htc,.fcpile')){HOZSUP=0;e.stopImmediatePropagation();e.preventDefault()}},true);
+document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('.hthand .htc,.fchand .htc'))e.preventDefault()});
 /* "Share the app": a QR code for the website, so someone else can open and install it */
 const APPURL='https://justintuckett-15412.github.io/final-tally/';let SHAREQR=null;
 async function shareOpen(){SHAREQR={svg:''};render();try{SHAREQR={svg:window.FTLAN&&FTLAN.qrSvg?(await FTLAN.qrSvg(APPURL)).replace('aria-label="Pairing code"','aria-label="QR code for the Final Tally website"'):''}}catch(e){SHAREQR={svg:''}}if(SHAREQR)render()}
@@ -4800,7 +4896,7 @@ function htPlay(){const X=HTX(),P=act(),g=htG(),r=htCur(),sc=P.map(htTot),lo=Mat
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">♥︎${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&g.turn===q.id}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${htLast()>=0&&q===lead&&!tied?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${g?htTakenLab(g,q.id):''}</div></button>`).join('')}</div>`;
   if(!g||cgStale(g)){return out+`<div class="panel" style="padding:16px">${waitLoader(htRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`}
-  const V=htViewer(),hand=V?g.h[V.id]||[]:[],turnP=P.find(p=>p.id===g.turn),me=htMe();
+  const V=htViewer(),hand=V?hoOrd(V.id,g.h[V.id]||[]):[],turnP=P.find(p=>p.id===g.turn),me=htMe();
   /* status line */
   let status='';const dirTo=V&&g.dir!=='hold'?nm(P.find(p=>p.id===htTarget(V.id,g.dir))):'';
   if(g.phase==='pass')status=V?(g.sel[V.id]?`Waiting for everyone to pass…`:`<b>Pick 3 cards to pass ${g.dir==='across'?'across':'to the '+g.dir}</b> to ${esc(dirTo)}.`):`Everyone is choosing 3 cards to pass ${g.dir==='across'?'across':'to the '+g.dir}.`;
@@ -5055,7 +5151,7 @@ function sdPlay(){const X=SDX(),P=act(),g=sdG(),r=sdCur(),runs=P.map(p=>sdRun(p)
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&(g.turn===q.id||g.bidTurn===q.id)}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${lead&&sc[k]===hi&&sc.filter(v=>v===hi).length===(team?2:1)?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${X.bags?`${runs[k].bag} bag${runs[k].bag===1?'':'s'}`:''}</div></button>`).join('')}</div>`;
   if(team)out+=`<p class="hint lv-hint hftip">Partners: <b>${esc(nm(P[0]))} & ${esc(nm(P[2]))}</b> vs <b>${esc(nm(P[1]))} & ${esc(nm(P[3]))}</b>. Partners share a score.</p>`;
   if(!g||cgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(sdRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
-  const V=sdViewer(),hand=V?g.h[V.id]||[]:[],me=sdMe(),turnP=P.find(p=>p.id===(g.phase==='bid'?g.bidTurn:g.turn)),hidden=V&&g.phase==='bid'&&X.nil&&X.blind&&!g.seen[V.id]&&g.bids[V.id]===undefined;
+  const V=sdViewer(),hand=V?hoOrd(V.id,g.h[V.id]||[]):[],me=sdMe(),turnP=P.find(p=>p.id===(g.phase==='bid'?g.bidTurn:g.turn)),hidden=V&&g.phase==='bid'&&X.nil&&X.blind&&!g.seen[V.id]&&g.bids[V.id]===undefined;
   let status='';
   if(g.phase==='bid')status=V&&turnP&&turnP.id===V.id?`<b>Your bid${S.lk||sdHumans().length<2?'':', '+esc(nm(V))}.</b> How many tricks will you take?`:turnP?`${turnP.bot?'🤖 ':''}<b>${esc(nm(turnP))}</b> is bidding…`:'';
   else if(g.phase==='play'){if(!turnP)status='Collecting the trick…';else if(V&&turnP.id===V.id){const tb=team?sdTeamBid(g,V.id):(typeof g.bids[V.id]==='number'?g.bids[V.id]:0),tw=team?sdTeamWon(g,V.id):g.won[V.id];
@@ -5289,7 +5385,7 @@ function rgPlay(){const X=RGX(),P=act(),g=rgG(),r=rgCur(),N=rgN(),sc=P.map(rgTot
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Round ${r+1} of ${N}">${r+1}/${N}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&(g.turn===q.id||g.bidTurn===q.id)}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${rgHits(q)} made</div></button>`).join('')}</div>`;
   if(!g||cgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(rgRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
-  const V=rgViewer(),hand=V?g.h[V.id]||[]:[],me=rgMe(),n=rgCards(g.r),bidP=P.find(p=>p.id===g.bidTurn),turnP=P.find(p=>p.id===g.turn);
+  const V=rgViewer(),hand=V?hoOrd(V.id,g.h[V.id]||[]):[],me=rgMe(),n=rgCards(g.r),bidP=P.find(p=>p.id===g.bidTurn),turnP=P.find(p=>p.id===g.turn);
   const trName=g.tr?RGC[g.tr][0]:'No trump';let status='';
   const allMode=RGX().bidAll,myTurnBid=V&&g.phase==='bid'&&(allMode?g.bids[V.id]===undefined&&!g.cd:g.bidTurn===V.id);
   if(g.phase==='bid')status=myTurnBid?`<b>Your bid${S.lk||rgHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.fore?'You can’t see your own card, only everyone else’s. Will yours win?':'How many tricks will you win?'}${allMode?' Bids stay hidden until everyone locks theirs in.':''}`:allMode?(g.cd?'Get ready…':V&&g.bids[V.id]!==undefined?`You locked in <b>${g.bids[V.id]}</b>. Waiting for ${P.filter(p=>g.bids[p.id]===undefined).map(p=>esc(nm(p))).join(', ')}…`:`Everyone is locking in a bid (${P.filter(p=>g.bids[p.id]!==undefined).length} of ${P.length} in).`):`${bidP&&bidP.bot?'🤖 ':''}<b>${esc(nm(bidP||{name:''}))}</b> is bidding…`;
@@ -6169,7 +6265,7 @@ function wyDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    p.pt[r] = {lo:1-9s, hi:10-12s, sk:Skips, wd:Wilds, made:bool, out:bool}
    ===================================================================== */
 const PTOFF=['2 sets of 3','1 set of 3 + 1 run of 4','1 set of 4 + 1 run of 4','1 run of 7','1 run of 8','1 run of 9','2 sets of 4','7 cards of 1 color','1 set of 5 + 1 set of 2','1 set of 5 + 1 set of 3'];
-const PTDEF={play:0,arr:'auto',end:'phase',set:'all',goal:10,custom:PTOFF.slice()};
+const PTDEF={play:0,arr:'auto',help:false,end:'phase',set:'all',goal:10,custom:PTOFF.slice()};
 const PTX=()=>{if(!S.ptx)S.ptx=JSON.parse(JSON.stringify(PTDEF));const X=S.ptx;for(const k in PTDEF)if(X[k]===undefined)X[k]=JSON.parse(JSON.stringify(PTDEF[k]));if(!Array.isArray(X.custom)||!X.custom.length)X.custom=PTOFF.slice();return X};
 function ptSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.ptx'))}catch(e){}const o=Object.assign(JSON.parse(JSON.stringify(PTDEF)),x||{});if(!Array.isArray(o.custom)||!o.custom.length)o.custom=PTOFF.slice();return o}
 function ptKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.ptx',JSON.stringify(PTX()))}catch(e){}}
@@ -6210,6 +6306,7 @@ function ptSetup(){const X=PTX(),L=ptList(),n=L.length;
   return `<div class="bar"><h1>Phase 10</h1></div><img class="hero hfhero" src="art/phase10-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">${X.end==='hands'?'Lowest total wins.':'First to finish the last phase wins. Ties go to the lowest total.'} Your house rules are remembered for next time. ${usualUI('phase10')}</p>
   ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'🃏 Playing on the phone':'Scoring real cards'}</b></div>`:`<div class="seg">${[[1,'🃏 Play on the phone'],[0,'Score real cards']].map(([vv,t])=>`<button data-a="ptplaymode" data-k="${vv}" aria-pressed="${!!X.play===!!vv}">${t}</button>`).join('')}</div>`,S.started?'This is set for the whole game. Start a new game to change it.':X.play?'The phone deals, runs every turn and checks every phase, hit and Skip. It can find your phase for you, or you can pick the cards yourself. Computer players, pass-and-play and linked phones all work.':'Play with real cards and enter who made their phase and the cards left. Just score keeping.')}
+  ${X.play?sec('Help on the phone',`<div class="prow"><div class="rtext"><b>Find my phase for me</b><div class="rlab">Adds a 🪄 switch that spots when you have your phase and offers to lay it down and add your hits. Off: you pick the cards yourself.</div></div><button class="sw" role="switch" aria-checked="${!!X.help}" data-a="pthelp" aria-label="Find my phase for me"><i></i></button></div>`):''}
   ${sec('How the game ends',seg('end',[['phase','First to finish'],['hands',`${n}-hand game`]])+(X.end==='phase'?row('Phases to win',ptGoal()<n?'shorter game':'every phase',st('goal',ptGoal(),1,n,'phases')):''),
     X.end==='phase'?(ptGoal()<n?`First to finish ${ptGoal()} phase${ptGoal()===1?'':'s'} wins. If more than one finish in the same hand, the lowest total wins.`:'First to finish every phase wins. If more than one finish in the same hand, the lowest total wins.'):`Everyone moves up a phase each hand, made or not. After ${n} hands, the lowest total wins.`)}
   ${sec('Phases',seg('set',X.play?[['all','All 10'],['even','Even only']]:[['all','All 10'],['even','Even only'],['custom','Our own']])+list,X.set==='even'?'Just phases 2, 4, 6, 8 and 10.':X.set==='custom'?'Type your own list. Handy for homemade phases or another edition.':'The phases from the rulebook.')}
@@ -6459,7 +6556,7 @@ function rkPlay(){const X=RKX(),P=act(),g=rkG(),r=rkCur(),all=rkAll(),T=[P[0],P[
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">🐦‍⬛${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="rkteams">${[0,1].map(i=>`<div class="rkteam" style="${pc(P[i].color)}"><b>${team(i)}</b><span class="num">${T[i]}</span><small>${T[i]>=X.target?'reached '+X.target:`${X.target-T[i]} to go`}</small></div>`).join('')}</div>`;
   if(!g||cgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(rkRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
-  const V=rkViewer(),hand=V?g.h[V.id]||[]:[],me=rkMe(),bidTurnP=P.find(p=>p.id===g.bidTurn),turnP=P.find(p=>p.id===g.turn),bidderP=P.find(p=>p.id===g.bidder);
+  const V=rkViewer(),hand=V?hoOrd(V.id,g.h[V.id]||[]):[],me=rkMe(),bidTurnP=P.find(p=>p.id===g.bidTurn),turnP=P.find(p=>p.id===g.turn),bidderP=P.find(p=>p.id===g.bidder);
   const trName=g.trump?RKCOL[g.trump][0]:'';
   let status='';
   if(g.phase==='bid')status=V&&g.bidTurn===V.id?`<b>Your bid${S.lk||rkHumans().length<2?'':', '+esc(nm(V))}.</b> ${g.high?`High bid: ${g.high.v} by ${esc(nm(P.find(p=>p.id===g.high.p)))}.`:`Lowest bid is ${X.min}.`}`:`${bidTurnP&&bidTurnP.bot?'🤖 ':''}<b>${esc(nm(bidTurnP||{name:''}))}</b> is bidding…${g.high?` High bid: ${g.high.v}.`:''}`;
@@ -7736,7 +7833,7 @@ function ohPlay(){const X=OHX(),P=act(),g=ohG(),r=ohCur(),N=ohN(),sc=P.map(ohTot
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Round ${r+1} of ${N}">${r+1}/${N}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&(g.turn===q.id||g.bidTurn===q.id)}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${ohHits(q)} made</div></button>`).join('')}</div>`;
   if(!g||cgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(ohRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
-  const V=ohViewer(),hand=V?g.h[V.id]||[]:[],me=ohMe(),n=ohCards(g.r),allIn=P.every(p=>g.bids[p.id]!==undefined),showBids=allIn&&!g.cd||X.hook;
+  const V=ohViewer(),hand=V?hoOrd(V.id,g.h[V.id]||[]):[],me=ohMe(),n=ohCards(g.r),allIn=P.every(p=>g.bids[p.id]!==undefined),showBids=allIn&&!g.cd||X.hook;
   const trName=g.tr==='N'?'No trump':{S:'Spades',H:'Hearts',D:'Diamonds',C:'Clubs'}[g.tr]+' are trump';
   const sum=P.reduce((a,p)=>a+(g.bids[p.id]||0),0);
   let status='';const bidTurnP=P.find(p=>p.id===g.bidTurn),turnP=P.find(p=>p.id===g.turn);
@@ -8198,7 +8295,7 @@ function unPlay(){const X=UNX(),P=act(),g=ung(),r=unCur(),W=X.mode==='wins',low=
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">#${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&g.phase==='play'&&unActorId(g)===q.id}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${W?'wins':`${unWins(q)} won`}</div></button>`).join('')}</div>`;
   if(!g||cgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(unRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
-  const V=unViewer(),me=unMe(),hand=V?unSort(g,g.h[V.id]||[]):[],actor=g.phase==='play'?act().find(p=>p.id===unActorId(g)):null,mine=V&&actor&&actor.id===V.id,top=g.disc[g.disc.length-1];
+  const V=unViewer(),me=unMe(),hand=V?hoOrd(V.id,g.h[V.id]||[]):[],actor=g.phase==='play'?act().find(p=>p.id===unActorId(g)):null,mine=V&&actor&&actor.id===V.id,top=g.disc[g.disc.length-1];
   let status='';
   if(g.phase==='done')status=`<b>Hand ${r+1} is over.</b>`;
   else if(V&&g.ko[V.id])status='<b>You’re knocked out of this hand</b> (Mercy rule). Hang tight until the next one.';
@@ -8855,7 +8952,7 @@ function fcCardEl(c,o={}){const tag=o.btn?'button':'span',k=o.k,attr=o.btn?` dat
   const s=fcSu(c),n=fcRk(c),lab=n<=10?String(n):fcRkName(c)[0],w=k&&n===k;
   return `<${tag} class="${cls}${w?' fcw':''}" style="--fs:${FCCOL[s]}"${attr} aria-label="${fcName(c)}${w?', wild':''}${o.sel?', picked':''}"><b${lab.length>1?' class="ten"':''}>${lab}</b><i>${FCSYM[s]}</i><em>${FCSYM[s]}</em>${w?'<small>WILD</small>':''}</${tag}>`}
 const fcBackEl=(o={})=>`<span class="htc fcc fcback${o.mini?' mini':''}" aria-hidden="true"><em>♛</em></span>`;
-const fcGroupHtml=(cs,k,o={})=>`<div class="fcgrp${o.cls?' '+o.cls:''}">${o.lab?`<small class="fcgl">${o.lab}</small>`:''}<div class="fcgc">${cs.map(c=>fcCardEl(c,{k,mini:o.mini,btn:o.btn,sel:o.sel&&o.sel.includes(c),cls:(o.got===c?'new':'')+(o.drag?' fcdrag':'')})).join('')}</div>${o.x!==undefined?`<button class="fcgx" data-a="fcpungroup" data-i="${o.x}" aria-label="Break up this group">✕</button>`:''}</div>`;
+const fcGroupHtml=(cs,k,o={})=>`<div class="fcgrp${o.cls?' '+o.cls:''}"${o.pile!==undefined?` data-pile="${o.pile}"`:''}>${o.lab?`<small class="fcgl">${o.lab}</small>`:''}<div class="fcgc">${cs.map(c=>fcCardEl(c,{k,mini:o.mini,btn:o.btn,sel:o.sel&&o.sel.includes(c),cls:(o.got===c?'new':'')+(o.drag?' hodrag':'')})).join('')}</div>${o.x!==undefined?`<button class="fcgx" data-a="fcpungroup" data-i="${o.x}" aria-label="Break up this group">✕</button>`:''}</div>`;
 const fcLayHtml=(b,k)=>`<div class="fclay">${b.groups.map(gr=>fcGroupHtml(gr,k,{mini:true})).join('')}${b.left.length?fcGroupHtml(b.left,k,{mini:true,cls:'loose',lab:`${b.pen} left`}):''}</div>`;
 /* the groups I made myself (Arrange myself), cleaned up against my current hand */
 function fcMine(g,pid){const h=g.h[pid]||[],used={};const gs=(FCARR[pid]||[]).map(gr=>gr.filter(c=>h.includes(c)&&!used[c]&&(used[c]=1))).filter(gr=>gr.length>=3&&fcIsMeld(gr,g.k));FCARR[pid]=gs;return {groups:gs,loose:fcSort(h.filter(c=>!used[c]),g.k)}}
@@ -8883,9 +8980,9 @@ function fcPlayUI(){if(!fcRes()&&S.fcg&&S.fcg.r!==S.hr)S.hr=S.fcg.r;const X=FCX(
     out+=`<div class="actions"><div class="in">${lastR?(fcRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Game over! Waiting for the host to reveal…</span>`):fcRes()?`<button class="btn sm" data-a="finish">End game</button><button class="btn primary" data-a="fcpdeal">Deal round ${r+2}: ${fcCards(r+1)} cards ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`}
   else if(V){const h=g.h[V.id]||[],help=!!X.help,self=!help||X.arr==='self',sel=FCSEL.filter(c=>h.includes(c));FCSEL=sel;
     if(help)out+=`<div class="seg fcarr"><button data-a="fcparr" data-v="auto" aria-pressed="${!self}">🪄 Sort into groups</button><button data-a="fcparr" data-v="self" aria-pressed="${self}">✋ Arrange myself</button></div>`;
-    let groups,loose;if(self){const m=fcMine(g,V.id);groups=m.groups;loose=fcOrd(V.id,m.loose)}else{const b=fcBest(h,k);groups=b.groups;loose=fcSort(b.left,k)}
-    if(self)out+=`<div class="fcsort"><span class="rlab">Sort:</span><button class="btn sm" data-a="fcpsort" data-v="n">By number</button><button class="btn sm" data-a="fcpsort" data-v="s">By suit</button><small class="rlab">or drag cards to move them</small></div>`;
-    out+=`<div class="fchand" aria-label="Your cards">${groups.map((gr,i)=>fcGroupHtml(gr,k,{btn:true,sel,got:g.got,cls:'ok',lab:fcIsBook(gr,k)?'Book':'Run',x:self?i:undefined})).join('')}${loose.length?fcGroupHtml(loose,k,{btn:true,sel,got:g.got,cls:'loose',drag:self,lab:groups.length?'Not in a group':''}):''}</div>`;
+    let groups,loose,piles=null;if(self){const m=fcMine(g,V.id);groups=m.groups;piles=hoPiles(V.id,m.loose);loose=piles.flat()}else{const b=fcBest(h,k);groups=b.groups;loose=fcSort(b.left,k)}
+    if(self)out+=hoBar({piles:true});
+    out+=`<div class="fchand" aria-label="Your cards">${groups.map((gr,i)=>fcGroupHtml(gr,k,{btn:true,sel,got:g.got,cls:'ok',lab:fcIsBook(gr,k)?'Book':'Run',x:self?i:undefined})).join('')}${piles?piles.map((pl,i)=>fcGroupHtml(pl,k,{btn:true,sel,got:g.got,cls:'loose',drag:true,pile:i,lab:i===0?(groups.length||piles.length>1?'Your hand':''):`Pile ${i+1}`})).join('')+'<div class="honew">＋ New pile</div>':loose.length?fcGroupHtml(loose,k,{btn:true,sel,got:g.got,cls:'loose',lab:groups.length?'Not in a group':''}):''}</div>`;
     /* what can I do right now? */
     const btns=[];let tip='';
     if(mine&&g.drew){
@@ -9054,12 +9151,12 @@ function pzCardEl(c,o={}){const tag=o.btn?'button':'span',attr=o.btn?` data-a="p
   if(pzS(c))return `<${tag} class="${cls} pzs"${attr} aria-label="Skip${o.sel?', picked':''}"><b>⊘</b><em>⊘</em><i>SKIP</i></${tag}>`;
   const v=pzV(c);return `<${tag} class="${cls}" style="--pzc:${PZCOL[pzC(c)][1]}"${attr} aria-label="${pzName(c)}${o.sel?', picked':''}"><b${v>9?' class="ten"':''}>${v}</b><em>${v}</em></${tag}>`}
 const pzBackEl=()=>`<span class="htc pzc pzback" aria-hidden="true"></span>`;
-const pzGrpHtml=(cs,o={})=>`<div class="fcgrp${o.cls?' '+o.cls:''}"${o.attr||''}>${o.lab?`<small class="fcgl">${o.lab}</small>`:''}<div class="fcgc">${cs.map(c=>pzCardEl(c,{mini:o.mini,btn:o.btn,sel:o.sel&&o.sel.includes(c),cls:o.got===c?'new':''})).join('')}</div>${o.x!==undefined?`<button class="fcgx" data-a="pzpunstage" data-i="${o.x}" aria-label="Take these cards back">✕</button>`:''}</div>`;
+const pzGrpHtml=(cs,o={})=>`<div class="fcgrp${o.cls?' '+o.cls:''}"${o.attr||''}${o.pile!==undefined?` data-pile="${o.pile}"`:''}>${o.lab?`<small class="fcgl">${o.lab}</small>`:''}<div class="fcgc">${cs.map(c=>pzCardEl(c,{mini:o.mini,btn:o.btn,sel:o.sel&&o.sel.includes(c),cls:(o.got===c?'new':'')+(o.drag?' hodrag':'')})).join('')}</div>${o.x!==undefined?`<button class="fcgx" data-a="pzpunstage" data-i="${o.x}" aria-label="Take these cards back">✕</button>`:''}</div>`;
 function pzPlayUI(){if(!pzRes()&&S.pzg&&S.pzg.r!==S.hr)S.hr=S.pzg.r;const X=PTX(),P=act(),g=pzG(),r=ptCur(),sc=P.map(ptTot);
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 class="num" aria-label="Hand ${r+1}">#${r+1}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,i)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&g.phase==='play'&&g.turn===q.id}"><div class="tn">${q.bot?'🤖 ':''}${esc(nm(q))}</div><div class="ts num">${sc[i]}</div><div class="tr num">${ptLab(g&&g.on?g.on[q.id]??ptOn(q,r):ptOn(q,r))}${g&&g.made&&g.made[q.id]?' ✓':''}</div></button>`).join('')}</div>`;
   if(!g||pzStale(g)||g.r!==r)return out+`<div class="panel" style="padding:16px">${waitLoader(pzRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
-  const V=pzViewer(),me=pzMe(),mine=V&&g.phase==='play'&&g.turn===V.id,turnP=P.find(p=>p.id===g.turn),top=pzTop(g),self=X.arr==='self';
+  const V=pzViewer(),me=pzMe(),mine=V&&g.phase==='play'&&g.turn===V.id,turnP=P.find(p=>p.id===g.turn),top=pzTop(g),help=!!X.help,self=!help||X.arr==='self';
   let status='';
   if(g.phase==='done')status=`<b>Hand ${r+1} is over.</b>`;
   else if(mine&&PZPEND)status='<b>Who do you want to skip?</b>';
@@ -9081,13 +9178,14 @@ function pzPlayUI(){if(!pzRes()&&S.pzg&&S.pzg.r!==S.hr)S.hr=S.pzg.r;const X=PTX(
     const over=ptOverAt()>=0;
     out+=`<div class="actions"><div class="in">${over?(pzRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Game over! Waiting for the host to reveal…</span>`):pzRes()?`<button class="btn sm" data-a="finish">End game</button><button class="btn primary" data-a="pzpdeal">Deal hand ${r+2} ›</button>`:`<span class="rlab">Waiting for the host to deal…</span>`}</div></div>`}
   else if(V){const h=g.h[V.id]||[],sel=PZSEL.filter(c=>h.includes(c)),spec=pzSpec(g.on[V.id]),made=!!g.made[V.id];PZSEL=sel;
-    out+=`<div class="seg fcarr"><button data-a="pzparr" data-v="auto" aria-pressed="${!self}">🪄 Find my phase</button><button data-a="pzparr" data-v="self" aria-pressed="${self}">✋ Pick cards myself</button></div>`;
+    if(help)out+=`<div class="seg fcarr"><button data-a="pzparr" data-v="auto" aria-pressed="${!self}">🪄 Find my phase</button><button data-a="pzparr" data-v="self" aria-pressed="${self}">✋ Pick cards myself</button></div>`;
     /* staged groups (pick-myself) */
     const st=(PZSTAGE[V.id]||[]).map(gr=>gr?gr.filter(c=>h.includes(c)):null);PZSTAGE[V.id]=st;const staged=st.flat().filter(Boolean);
     let groups=[],loose=pzSort(h),auto=null;
     if(!made&&!self){auto=pzSolve(h,spec);if(auto){groups=auto.map(gr=>gr.c);const u=groups.flat();loose=pzSort(h.filter(c=>!u.includes(c)))}}
     if(!made&&self){groups=st.map((gr,i)=>gr&&gr.length?gr:null);loose=pzSort(h.filter(c=>!staged.includes(c)))}
-    out+=`<div class="fchand" aria-label="Your cards">${!made?groups.map((gr,i)=>gr?pzGrpHtml(gr,{btn:true,sel,got:g.got,cls:'ok',lab:pzGL(spec[i]),x:self?i:undefined}):'').join(''):''}${loose.length?pzGrpHtml(loose,{btn:true,sel,got:g.got,cls:'loose',lab:!made&&groups.some(Boolean)?'Not in your phase':''}):''}</div>`;
+    const piles=hoPiles(V.id,loose);out+=hoBar({piles:true});
+    out+=`<div class="fchand" aria-label="Your cards">${!made?groups.map((gr,i)=>gr?pzGrpHtml(gr,{btn:true,sel,got:g.got,cls:'ok',lab:pzGL(spec[i]),x:self?i:undefined}):'').join(''):''}${piles.map((pl,i)=>pzGrpHtml(pl,{btn:true,sel,got:g.got,cls:'loose',drag:true,pile:i,lab:i===0?(!made&&groups.some(Boolean)?'Not in your phase':piles.length>1?'Your hand':''):`Pile ${i+1}`})).join('')}<div class="honew">＋ New pile</div></div>`;
     const btns=[];let tip='';
     if(mine&&PZPEND){out+=`<div class="panel sdbids"><div class="lr sbwho">${pzSkipOk(g,V.id).map(id=>{const p=P.find(x=>x.id===id);return `<button style="${pc(p.color)}" data-a="pzpskipwho" data-k="${id}"><i></i>${esc(nm(p))}</button>`}).join('')}</div></div>`;btns.push(`<button class="btn" data-a="pzpskipcancel">Never mind</button>`)}
     else if(mine&&g.drew){
@@ -10452,7 +10550,7 @@ function render(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();navSync();if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();}
+  tourApply();navSync();try{hoAfter()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){if(S.game==='hearts')htTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();}
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -11053,8 +11151,11 @@ document.addEventListener('click',e=>{
     case 'sharecopy':{try{navigator.clipboard.writeText(APPURL).then(()=>toast('Link copied.'),()=>toast(APPURL))}catch(e){toast(APPURL)}return}
     case 'sharesend':{try{navigator.share({title:'Final Tally',text:'Our game-night score keeper',url:APPURL}).catch(()=>{})}catch(e){}return}
     case 'sbstart':{switchGame('skipbo');resetScores();S.started=false;S.screen='map';const X=SBX();X.play=k==='1'?1:0;if(X.play&&X.teams){X.teams=false;S.players.forEach((p,i)=>p.on=i<3)}sbKeep();window.scrollTo(0,0);break}
+    case 'pthelp':{const X=PTX();X.help=!X.help;ptKeep();break}
     case 'ptplaymode':{if(S.started)break;const X=PTX();X.play=k==='1'?1:0;if(X.play&&X.set==='custom'){X.set='all';X.goal=10}ptKeep();break}
     case 'ptstart':{switchGame('phase10');resetScores();S.started=false;S.screen='map';const X=PTX();X.play=k==='1'?1:0;if(X.play&&X.set==='custom'){X.set='all';X.goal=10}ptKeep();window.scrollTo(0,0);break}
+    case 'hosort':hoSortNow(b.dataset.v);vibe(8);break;
+    case 'ho2row':SET.ho2=ho2()?'off':'on';saveSet();break;
     case 'fcplaymode':{if(S.started)break;FCX().play=k==='1'?1:0;fcKeep();break}
     case 'fcstart':{switchGame('crowns');resetScores();S.started=false;S.screen='map';FCX().play=k==='1'?1:0;fcKeep();window.scrollTo(0,0);break}
     case 'sbplaymode':{if(S.started)break;const X=SBX();X.play=k==='1'?1:0;if(X.play&&X.teams){X.teams=false;S.players.forEach((p,i)=>p.on=i<3)}sbKeep();break}
@@ -11359,6 +11460,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='180ea5';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='fd21d8';</script>
 </body>
 </html>
