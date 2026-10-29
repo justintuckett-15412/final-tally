@@ -1177,7 +1177,7 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .rvlow{display:inline-block;margin:0 8px 4px 0;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,#2e9e55 16%,var(--surface));color:#237a42;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
 .actions .btn.homeend{flex:0 0 52px;min-width:52px;padding:0;display:inline-grid;place-items:center}.actions .btn.homeend svg{display:block}
 .gpc.gpgf{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}.gpc.gpgf i{position:static;font-size:clamp(18px,6.5vw,30px);line-height:1}.gpgrid.mini .gpc.gpgf{gap:0}.gpgrid.mini .gpc.gpgf i{display:block;font-size:13px}.gpgrid.mini .gpc.gpgf b{font-size:11px}
-@media (max-width:360px){.lkw{display:none}.bar{gap:5px}.bar h1{font-size:22px;min-width:1.7em}.bar .btn.sm{padding:0 7px;font-size:14px}.kttable{height:clamp(250px,78vw,380px)}}
+@media (max-width:360px){.bar .cbbtn{display:none}.lkw{display:none}.bar{gap:5px}.bar h1{font-size:22px;min-width:1.7em}.bar .btn.sm{padding:0 7px;font-size:14px}.kttable{height:clamp(250px,78vw,380px)}}
 @media (max-height:700px){.kttable{height:clamp(210px,42vh,380px)}}
 
 /* Phase 10 cards */
@@ -1226,6 +1226,9 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 .cbbtn{padding:0 9px!important;display:inline-grid;place-items:center}.cbbtn .cbthumb{width:18px;height:26px;border-width:1.5px;border-radius:3px;display:block}
 .dndover{outline:3px solid var(--accent)!important;outline-offset:2px}.gphold,.sbme [data-a="sbpsrc"],.sbme .sbdpb,.gppile{touch-action:none}
 .cbpick .cbthumb{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.rxfab{position:fixed;left:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 86px);z-index:46;width:40px;height:40px;opacity:.92;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font-size:21px;line-height:1;box-shadow:0 4px 14px rgba(0,0,0,.22);display:grid;place-items:center;padding:0}
+.rxfloat{position:fixed;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 140px);z-index:46;margin:0;box-shadow:0 6px 18px rgba(0,0,0,.22)}
+.unhands.hofan .hthand{padding-top:22px}.unhands.hofan .hthand+.hthand{margin-top:-10px}
 </style>
 
 <div id="app"></div>
@@ -1884,6 +1887,8 @@ let SET={reveal:'auto',revv:2,cb:false,sound:true,me:'',look:'art',lookv:2,awake
 try{Object.assign(SET,JSON.parse(localStorage.getItem(SKEY))||{})}catch(e){}
 if(SET.lookv!==2){SET.look='art';SET.lookv=2}
 if(SET.revv!==2){SET.reveal='auto';SET.revv=2}
+/* card-back picks briefly shared the colorblind setting's name: move them, and give colorblind mode back */
+if(SET.cb&&typeof SET.cb==='object'){SET.cbk=SET.cb;SET.cb=false;try{localStorage.setItem(SKEY,JSON.stringify(SET))}catch(e){}}
 function saveSet(){try{localStorage.setItem(SKEY,JSON.stringify(SET))}catch(e){}}
 
 /* ---------- sounds, made on the fly ---------- */
@@ -4752,7 +4757,19 @@ function rxLayer(){const R=S.react||{},out=[];for(const pid in R){const x=R[pid]
     if(x.k!==sn.k){sn.k=x.k;sn.at=Date.now();setTimeout(render,RXMS+60);if(!(S.lk&&S.lk.me===pid))vibe(15)}const el=Date.now()-sn.at;
     if(sn.at&&el<RXMS){const p=act().find(q=>q.id===pid);if(p)out.push(`<div class="rxpop" style="${pc(p.color)};animation-delay:-${el}ms;left:${18+(out.length*27)%64}%"><b>${esc(x.e)}</b><small>${esc(nm(p))}</small></div>`)}}
   return out.length?`<div class="rxlayer" aria-live="polite">${out.join('')}</div>`:''}
-function rxSend(e){const me=S.lk&&S.lk.me;if(!me||!RXE.includes(e))return;if(Date.now()<RXCOOL){toast('One at a time!');return}RXCOOL=Date.now()+1500;const cur=(S.react||{})[me];S.react={...(S.react||{}),[me]:{e,k:((cur&&cur.k)||0)+1}};RXOPEN=false;vibe(20)}
+/* reactions also work in a game on one device; computer players sometimes react to big moments */
+const RXGAME={hearts:()=>htPlayOn()&&S.htg,spades:()=>sdPlayOn()&&S.sdg,ohell:()=>ohPlayOn()&&S.ohg,rook:()=>rkPlayOn()&&S.rkg,rage:()=>rgPlayOn()&&S.rgg,uno:()=>unPlayOn()&&S.ung,golf:()=>gpOn()&&S.gpg,skyjo:()=>gpOn()&&S.gpg,gnome:()=>gpOn()&&S.gpg,skipbo:()=>sbOn()&&S.sbg,crowns:()=>fcOn()&&S.fcg,phase10:()=>pzOn()&&S.pzg};
+const rxG=()=>{const f=RXGAME[S.game];try{return f?f()||null:null}catch(e){return null}};
+const rxLocalOn=()=>!S.lk&&!S.demo&&S.screen==='score'&&S.started&&!S.finished&&!!rxG();
+const rxMe=()=>S.lk?S.lk.me:((hoViewer()||act().find(p=>!p.bot)||{}).id||null);
+const rxLocal=()=>!rxLocalOn()?'':`<button class="rxfab" data-a="rxopen" aria-expanded="${RXOPEN}" aria-label="Send a reaction">${RXOPEN?'✕':'😀'}</button>${RXOPEN?`<div class="rxpick rxfloat" role="group" aria-label="Reactions">${RXE.map(e=>`<button data-a="rxsend" data-k="${e}" aria-label="Send ${e}">${e}</button>`).join('')}</div>`:''}${rxLayer()}`;
+let RXB={m:'',t:0};
+function rxBots(){if(S.demo||S.screen!=='score'||!S.started||S.finished)return;if(S.lk&&!lkHost())return;const g=rxG();if(!g||!g.msg||g.msg===RXB.m)return;const m=String(g.msg);RXB.m=m;if(Date.now()-RXB.t<6000)return;
+  const bots=act().filter(p=>p.bot),named=bots.filter(b=>m.includes(nm(b)));if(!named.length)return;
+  const bad=/skipped|loses (this|their) turn|draws? \d|takes? \d|caught|knocked out|Hazard|Draw (Two|Four)|penalty|Mad|set them|got set|went down/i,good=/wins|won|went out|shot the moon|laid down|last stock card|every card face up|complete!|Bounce|made (their|the) bid|took the trick/i;
+  let who=null,e=null;if(bad.test(m)){who=named[named.length-1];e=Math.random()<.5?'😡':'😱'}else if(good.test(m)){who=named[0];e=Math.random()<.6?'🎉':'😂'}
+  if(!who||Math.random()>.4)return;RXB.t=Date.now();const cur=(S.react||{})[who.id];S.react={...(S.react||{}),[who.id]:{e,k:((cur&&cur.k)||0)+1}};setTimeout(()=>{save();render()},0)}
+function rxSend(e){const me=rxMe();if(!me||!RXE.includes(e))return;if(Date.now()<RXCOOL){toast('One at a time!');return}RXCOOL=Date.now()+1500;const cur=(S.react||{})[me];S.react={...(S.react||{}),[me]:{e,k:((cur&&cur.k)||0)+1}};RXOPEN=false;vibe(20)}
 const KTSW={},KTMS=750;
 /* dealing: card backs fly from the middle to each seat when a new hand is dealt (each phone plays it once) */
 const DLS={},DLMS=1500;
@@ -5226,8 +5243,10 @@ function sdDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    Everyone alone. Hands shrink each round (10 down to 1 by default).
    p.rg[r] = {b,t,bo,md}: bid, tricks, Bonus Rage cards, Mad Rage cards.
    ===================================================================== */
-const RGDEF={start:10,order:'down',fore:true,trickV:1,bidV:10,zeroV:5,missV:5,missKeep:true,bonusV:5,madV:5,sweep:true,play:false,rageAny:false,outOne:false,changeFlip:false,wild2nd:false,amigoDeck:false,wildNum:false,bidAll:false};
-const RGX=()=>{if(!S.rgx)S.rgx={...RGDEF};const X=S.rgx;for(const k in RGDEF)if(X[k]===undefined)X[k]=RGDEF[k];return X};
+const RGDEF={start:10,order:'down',fore:true,trickV:1,bidV:10,zeroV:5,missV:5,missKeep:true,bonusV:5,madV:5,sweep:true,play:false,rageAny:true,outOne:true,changeFlip:true,wild2nd:true,amigoDeck:true,wildNum:true,bidAll:true,rgv:2};
+const RGHR=['fore','missKeep','sweep','rageAny','outOne','changeFlip','wild2nd','amigoDeck','wildNum','bidAll'];
+/* every house rule is on by default (our family's way); older saved rules get switched on once, never mid-game */
+const RGX=()=>{if(!S.rgx)S.rgx={...RGDEF};const X=S.rgx;if(X.rgv!==2&&!S.started){RGHR.forEach(k=>X[k]=true);X.rgv=2;try{if(!S.demo)localStorage.setItem(KEY+'.rgx',JSON.stringify(X))}catch(e){}}for(const k in RGDEF)if(X[k]===undefined)X[k]=RGDEF[k];return X};
 function rgSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.rgx'))}catch(e){}return Object.assign({...RGDEF},x||{})}
 function rgKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.rgx',JSON.stringify(RGX()))}catch(e){}}
 function rgFresh(){return {game:'rage',screen:'map',map:'rage',rules:{},started:false,active:0,picks:{},hr:0,rgx:rgSaved(),players:CARC_COLORS.map((c,i)=>newPlayer('',c,i<4))}}
@@ -5537,7 +5556,7 @@ const CBACKS={moto:['Motorcycle','art/card-back.jpg','#2b3a55','#f0b43a'],crown:
 const CBG=['uno','hearts','spades','ohell','rook','rage','golf','skyjo','gnome','skipbo','crowns','phase10'];
 const CBDEF={gnome:'gnome',crowns:'crown'};
 let CBOPEN=false;
-const cbFor=g=>{const c=SET.cb||{},k=c[g]||c['*']||CBDEF[g]||'moto';return CBACKS[k]?k:'moto'};
+const cbFor=g=>{const c=SET.cbk||{},k=c[g]||c['*']||CBDEF[g]||'moto';return CBACKS[k]?k:'moto'};
 /* linked games: every player's own pick travels with the game, so their cards show their back on every phone */
 const cbVarsK=k=>{const b=CBACKS[k];return b?`--cbimg:${b[1]?`url(${b[1]})`:'none'};--cbbg:${b[1]?b[2]:`repeating-linear-gradient(45deg,${b[2]} 0 6px,color-mix(in srgb,${b[2]} 80%,#fff) 6px 12px)`};--cbbd:${b[3]};`:''};
 const cbVars=pid=>!S.lk||S.demo?'':cbVarsK((S.cbp||{})[pid]);
@@ -5545,11 +5564,11 @@ function cbApply(){if(S.lk&&S.lk.me&&!S.demo&&CBG.includes(S.game)){const me=S.l
   const b=CBACKS[cbFor(S.game)],r=document.documentElement.style;r.setProperty('--cbimg',b[1]?`url(${b[1]})`:'none');r.setProperty('--cbbg',b[1]?b[2]:`repeating-linear-gradient(45deg,${b[2]} 0 6px,color-mix(in srgb,${b[2]} 80%,#fff) 6px 12px)`);r.setProperty('--cbbd',b[3])}
 const cbThumb=k=>{const b=CBACKS[k];return `<span class="cbthumb" style="background:${b[1]?`url(${b[1]}) center/100% 100% no-repeat,${b[2]}`:`repeating-linear-gradient(45deg,${b[2]} 0 5px,color-mix(in srgb,${b[2]} 80%,#fff) 5px 10px)`};border-color:${b[3]}"></span>`};
 const cbRow=()=>CBG.includes(S.game)?`<button class="mgbtn cbrow" data-a="cbopen">${cbThumb(cbFor(S.game))}<span><b>Card back</b><small>${CBACKS[cbFor(S.game)][0]} · just on this phone</small></span><i aria-hidden="true">›</i></button>`:'';
-function cbSheet(){if(!CBOPEN)return '';const cur=cbFor(S.game),def=CBDEF[S.game]||'moto',all=!!(SET.cb||{})['*'];
+function cbSheet(){if(!CBOPEN)return '';const cur=cbFor(S.game),def=CBDEF[S.game]||'moto',all=!!(SET.cbk||{})['*'];
   return `<div class="sheet-bg" data-a="cbclose"><div class="sheet cbsheet" role="dialog" aria-modal="true" aria-labelledby="cb-h" data-stop="1"><div class="rs-top"><div><h2 id="cb-h">Card back</h2><small class="lp-sub">For ${esc(M().name)} on this phone</small></div><button class="btn sm" data-a="cbclose">Done</button></div>
     <div class="cbgrid">${Object.keys(CBACKS).map(k=>`<button class="cbpick" data-a="cbpick" data-k="${k}" aria-pressed="${cur===k}">${cbThumb(k)}<span>${CBACKS[k][0]}${k===def?' <small>(default)</small>':''}</span></button>`).join('')}</div>
     <button class="btn wide" data-a="cball" style="margin-top:12px">Use it for every card game</button>
-    ${all||Object.keys(SET.cb||{}).length?`<button class="link-btn" data-a="cbreset" style="margin-top:8px">Back to the defaults</button>`:''}
+    ${all||Object.keys(SET.cbk||{}).length?`<button class="link-btn" data-a="cbreset" style="margin-top:8px">Back to the defaults</button>`:''}
     <p class="hint">Gnoming A Round starts with the golfing gnome and Five Crowns with the crown; everything else starts with the motorcycle.${S.lk?' In a linked game, everyone sees your cards with the back you pick.':''}</p></div></div>`}
 const guideBtn=()=>`<button class="mgbtn" data-a="rules">${GDICON}<span><b>Quick guide</b><small>${S.game==='wingspan'?'Round goals, ties and final scoring for your board side':S.game==='wyrmspan'?'Round objectives, ties and final scoring':S.game==='phase10'?'The phases, card points and how to win':S.game==='rook'?'Counters, bidding and how to win':S.game==='yahtzee'?'Every box, the bonuses and the Joker rule':S.game==='mextrain'?'Rounds, dealing and scoring':S.game==='catan'?(ctCK()?'Metropolises, the Merchant and the barbarians':ctTB()?'Scenario points and the goal':ctSF()?'Trade routes, island points and scenario goals':'Victory points, Longest Road and Largest Army'):'Setup, dealing, card values and scoring for your rules'}</small></span><i>›</i></button>`+cbRow();
 function guideSheet(title,secs){
@@ -10572,7 +10591,7 @@ function render(){
   const wasFinal=REV&&REV.phase==='final'&&S.screen==='reveal'&&document.querySelector('[data-final]');
   const winY=SLOCK?null:window.scrollY,winScr=S.screen;
   const KEEPSC=['.csheet .cbody','.rsheet .rs-body','.cpick','.lansheet'],keepSc=KEEPSC.map(q=>{const el=document.querySelector(q);return el?el.scrollTop:null});
-  cbApply();document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+dashSheet()+cbSheet()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','phase10','rook','yahtzee','mextrain','catan','golf','tripoley','quacks'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||LPTIP.startsWith('ph:')||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
+  cbApply();try{rxBots()}catch(e){}document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+rxLocal()+dashSheet()+cbSheet()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','phase10','rook','yahtzee','mextrain','catan','golf','tripoley','quacks'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||LPTIP.startsWith('ph:')||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
   if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar){bar.insertAdjacentHTML('afterbegin',HOMEBTN);if(CBG.includes(S.game)&&['score','live'].includes(S.screen)&&!S.editing){const rb=bar.querySelector('.rulesbtn');if(rb&&!bar.querySelector('.cbbtn'))rb.insertAdjacentHTML('afterend',`<button class="btn sm cbbtn" data-a="cbopen" aria-label="Card back" title="Card back">${cbThumb(cbFor(S.game))}</button>`)}if(dashOn()&&!S.editing)bar.insertAdjacentHTML('beforeend','<button class="btn sm dashbtn" data-a="dashopen" aria-label="Everyone at a glance">📊</button>');if((window.FTLINK||window.FTLAN)&&!S.lk&&!S.demo&&!S.editing&&S.started&&!S.finished&&['score','live'].includes(S.screen))bar.insertAdjacentHTML('beforeend','<button class="btn sm lkbtn" data-a="lkchoose" aria-label="Link phones">📱<span class="lkw"> Link</span></button>')}}
   if(S.screen==='results'&&S.lk&&!S.demo&&S.finished){const app=document.getElementById('app'),ac=app.querySelector('.actions');if(ac){ac.querySelectorAll('[data-a="rematch"]').forEach(x=>x.remove());ac.insertAdjacentHTML('beforebegin',lkVoteHtml());if(!ac.querySelector('button'))ac.remove()}else app.insertAdjacentHTML('beforeend',lkVoteHtml())}
   bidMark();
@@ -11202,9 +11221,9 @@ document.addEventListener('click',e=>{
     case 'ptstart':{switchGame('phase10');resetScores();S.started=false;S.screen='map';const X=PTX();X.play=k==='1'?1:0;if(X.play&&X.set==='custom'){X.set='all';X.goal=10}ptKeep();window.scrollTo(0,0);break}
     case 'cbopen':CBOPEN=true;break;
     case 'cbclose':CBOPEN=false;break;
-    case 'cbpick':{SET.cb=SET.cb||{};SET.cb[S.game]=k;saveSet();vibe(8);break}
-    case 'cball':{const k2=cbFor(S.game);SET.cb={'*':k2};saveSet();toast(`The ${CBACKS[k2][0].toLowerCase()} is now on every card game on this phone.`);break}
-    case 'cbreset':SET.cb={};saveSet();break;
+    case 'cbpick':{SET.cbk=SET.cbk||{};SET.cbk[S.game]=k;saveSet();vibe(8);break}
+    case 'cball':{const k2=cbFor(S.game);SET.cbk={'*':k2};saveSet();toast(`The ${CBACKS[k2][0].toLowerCase()} is now on every card game on this phone.`);break}
+    case 'cbreset':SET.cbk={};saveSet();break;
     case 'hosort':hoSortNow(b.dataset.v);vibe(8);break;
     case 'ho2row':SET.ho2=ho2()?'off':'on';saveSet();break;
     case 'fcplaymode':{if(S.started)break;FCX().play=k==='1'?1:0;fcKeep();break}
