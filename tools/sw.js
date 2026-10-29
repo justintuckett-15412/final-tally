@@ -14,3 +14,8 @@ self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;c
   if(u.origin!==location.origin){if(/fonts\.(googleapis|gstatic)\.com$/.test(u.hostname)||(u.hostname==='www.gstatic.com'&&u.pathname.startsWith('/firebasejs/')))e.respondWith(caches.open(VER).then(c=>c.match(r).then(m=>m||Promise.race([fetch(r).then(res=>{c.put(r,res.clone());return res}),new Promise((_,j)=>setTimeout(()=>j(new Error('slow')),4000))]))));return}
   if(r.mode==='navigate'||/\/(index\.html|sync\.js|fb-firebase\.js|lan\.js)$/.test(u.pathname)){e.respondWith(Promise.race([fetch(new Request(r.url,{cache:'no-cache',credentials:'same-origin'})),new Promise((_,j)=>setTimeout(()=>j(new Error('slow')),4000))]).then(res=>{const c=res.clone();caches.open(VER).then(x=>x.put(r.mode==='navigate'?'index.html':r,c));return res}).catch(()=>caches.match(r.mode==='navigate'?'index.html':r)));return}
   e.respondWith(caches.match(r).then(m=>m||fetch(r).then(res=>{if(res.ok){const c=res.clone();caches.open(VER).then(x=>x.put(r,c))}return res})))});
+/* the Settings screen asks how much is saved for offline play, and can ask for the rest to be downloaded now */
+self.addEventListener('message',e=>{const d=e.data||{},src=e.source;if(d.t!=='ofst'&&d.t!=='offill')return;const say=o=>{try{src&&src.postMessage(Object.assign({t:'ofst',total:FILES.length},o))}catch(x){}};
+  e.waitUntil(caches.open(VER).then(async c=>{const miss=[];for(const f of FILES)if(!(await c.match(f)))miss.push(f);let have=FILES.length-miss.length;
+    if(d.t==='ofst'||!miss.length){say({have,busy:0});return}let fail=0,i=0;say({have,busy:1});
+    for(const f of miss){try{await c.add(f);have++}catch(x){fail++}if(++i%8===0)say({have,busy:1})}say({have,busy:0,fail})}))});

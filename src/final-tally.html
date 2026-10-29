@@ -1318,6 +1318,7 @@ body:has(.hthand) .hthand .htc.ok{touch-action:none}
 @keyframes tqpk{0%{opacity:0;transform:scale(.7)}8%{opacity:1;transform:scale(1.04)}13%{transform:scale(1)}88%{opacity:1}100%{opacity:0}}
 .tqpkres h2{margin:0;font-size:24px}.tqpkcat{margin:0;font-size:18px;font-weight:800}.tqpk5{display:flex;gap:4px;justify-content:center}.tqpk5 .htc{--cw:clamp(44px,13vw,60px)}.tqpkv{font-size:18px;color:#2e9d57}
 .glann{position:fixed;inset:0;z-index:60;display:grid;place-items:center;pointer-events:none}.glann .tqann{max-width:340px;box-shadow:0 12px 40px rgba(0,0,0,.28)}.gllog{margin:4px 0 2px;padding:0;list-style:none;display:grid;gap:4px;font-size:14px}.gllog li{display:flex;gap:8px;align-items:baseline;border-top:1px solid var(--line);padding-top:4px}.gllog li:first-child{border-top:0}.glic{width:1.4em;text-align:center;flex:none}.glsum .gllog{max-height:260px;overflow:auto}.glnone{margin:4px 0}.glpast .gllog{font-size:13.5px}
+.ofbar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:8px}.ofbar i{display:block;height:100%;background:var(--accent);transition:width .3s}
 .tqsum{margin-top:10px;padding:8px 12px}.tqsum .srow{padding:5px 0;border-top:1px solid var(--line);gap:10px}.tqsum .srow:first-of-type{border-top:0}.tqsum .srow>span:last-child{text-align:right}
 .tqann{text-align:center;border-radius:20px;margin:16px;display:grid;gap:6px;justify-items:center;border-top:6px solid var(--accent);animation:tqann 2.6s ease both var(--o)}.tqann h2{margin:0;font-size:26px}.tqann p{margin:0;font-size:16px}.tqannic{font-size:40px;line-height:1}
 @keyframes tqann{0%{opacity:0;transform:translateY(16px) scale(.9)}10%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}
@@ -1693,7 +1694,7 @@ function home(){
     <p class="hint hnone" hidden>No games match. Try the Score pad for anything else.</p>`})()}
   ${eventCard()}
   <button class="btn wide stats-btn" data-a="go" data-s="stats">${esc(GN())} stats &amp; history${H.games.length?` <span class="pill">${H.games.length} game${H.games.length===1?'':'s'}</span>`:''}</button>
-  <button class="btn wide stats-btn" data-a="opensettings">Settings <span class="pill">${SET.reveal==='auto'?'Auto reveal':'Tap-through reveal'}${SET.sound?' · sounds on':''}${window.FTSYNC&&window.FTSYNC.status().fid?' · synced':''}</span></button>
+  <button class="btn wide stats-btn" data-a="opensettings">Settings <span class="pill">${SET.reveal==='auto'?'Auto reveal':'Tap-through reveal'}${SET.sound?' · sounds on':''}${window.FTSYNC&&window.FTSYNC.status().fid?' · synced':''}${OFST&&OFST.total&&OFST.have>=OFST.total?' · offline ready':''}</span></button>
   <div class="sec hbk"><div class="prow"><button class="btn" style="flex:1" data-a="backup">💾 Back up everything</button><label class="btn" style="flex:1">Restore a backup<input type="file" accept=".json,application/json" id="restore-in" hidden></label></div>
     <p class="hint">${BKMSG?esc(BKMSG)+' ':''}${(()=>{const l=bkLast();if(!l)return 'No backup yet. Save one to your phone or computer now and then.';const d=Math.floor((Date.now()-new Date(l))/864e5);return `Last backup: ${d<1?'today':d===1?'yesterday':d+' days ago'}.`})()}</p></div>
   <button class="btn wide stats-btn samples-btn" data-a="go" data-s="samples">Sample games <span class="pill">${DEMOS.length+CDEMOS.length+HDEMOS.length+CADEMOS.length+NDEMOS.length+PDEMOS.length+DDEMOS.length+PLDEMOS.length+HTDEMOS.length+SDDEMOS.length+RGDEMOS.length+OHDEMOS.length+UNDEMOS.length+MKDEMOS.length+FCDEMOS.length+SBDEMOS.length+GNDEMOS.length+SKDEMOS.length+WSDEMOS.length+WYDEMOS.length+PTDEMOS.length+RKDEMOS.length+YZDEMOS.length+MTDEMOS.length+CTDEMOS.length+GFDEMOS.length+TPDEMOS.length+QKDEMOS.length+1}</span></button>
@@ -2141,11 +2142,22 @@ function finalSound(){
   if(me&&!win.includes(me))playLose();else playWin()}
 
 /* ---------- settings screen ---------- */
+/* offline: how much of the app is saved on this device (asked of the service worker) */
+let OFST=null;
+function ofAsk(t){try{const c=navigator.serviceWorker&&navigator.serviceWorker.controller;if(!c){OFST={none:1};return false}c.postMessage({t:t||'ofst'});return true}catch(e){OFST={none:1};return false}}
+try{navigator.serviceWorker&&navigator.serviceWorker.addEventListener('message',e=>{const d=e.data||{};if(d.t!=='ofst')return;OFST=Object.assign({},d,{at:Date.now()});if((S.screen==='settings'||S.screen==='home')&&!document.querySelector('input:focus'))render()});navigator.serviceWorker&&navigator.serviceWorker.ready.then(()=>setTimeout(()=>ofAsk(),2500))}catch(e){}
+function offlineSec(){if(!OFST||(!OFST.busy&&Date.now()-(OFST.at||0)>4000&&!OFST.none))setTimeout(()=>ofAsk(),0);const O=OFST||{},pct=O.total?Math.floor(O.have/O.total*100):0,ready=O.total&&O.have>=O.total;
+  const body=O.none?`<div class="rtext"><b>Offline isn’t set up here</b><div class="rlab">Open the app from its home-screen icon (or the website) with internet once, then come back here.</div></div>`
+    :!O.total?`<div class="rtext"><b>Checking…</b></div>`
+    :`<div class="rtext"><b>${ready?'Offline ready ✓':O.busy?`Downloading… ${pct}%`:`${pct}% saved for offline`}</b><div class="rlab">${ready?'Every game, picture and sound is saved on this device. You can play with no internet.':`${O.have} of ${O.total} files saved.${O.fail?` ${O.fail} couldn’t download; check the internet and try again.`:' The rest are mostly win and lose pictures for the reveal.'}`}</div>
+      <div class="ofbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div></div>${ready||O.busy?'':`<button class="btn sm primary" data-a="offill">Download everything now</button>`}`;
+  return `<div class="sec"><div class="sec-h"><h3>Playing offline</h3></div><div class="panel"><div class="prow">${body}</div></div><p class="hint">Do this on every phone and iPad before a trip, while you have Wi-Fi.</p></div>`}
 function settingsScreen(){
   const names=[...new Set([...H.roster.map(r=>r.name),...act().map(nm).filter(n=>!/^(Player|Team) \d$/.test(n))])];
   const seg=(k,opts)=>`<div class="seg">${opts.map(([v,t])=>`<button data-a="set" data-k="${k}" data-v="${v}" aria-pressed="${String(SET[k])===String(v)}">${t}</button>`).join('')}</div>`;
   return `<div class="bar"><button class="back" data-a="setback">‹ Back</button><h1>Settings</h1></div>
   ${syncSec()}
+  ${offlineSec()}
   <div class="sec"><div class="sec-h"><h3>Light or dark</h3></div>${seg('theme',[['auto','Match device'],['light','Light'],['dark','Dark']]).replace('class="seg"','class="seg three"').replace('aria-pressed="false">Match device','aria-pressed="'+(!SET.theme||SET.theme==='auto')+'">Match device')}
     <p class="hint">${SET.theme==='light'?'Always light, even when the device is in dark mode.':SET.theme==='dark'?'Always dark, easier on the eyes at night.':'Follows your device: light during the day, dark when the device switches to dark mode.'}</p></div>
   <div class="sec"><div class="sec-h"><h3>Screen size</h3></div>${seg('scale',[['auto','Fit the screen'],['big','Extra large'],['off','Phone size']]).replace('class="seg"','class="seg three"').replace('aria-pressed="false">Fit the screen','aria-pressed="'+(!SET.scale||SET.scale==='auto')+'">Fit the screen')}
@@ -12186,6 +12198,7 @@ document.addEventListener('click',e=>{
     case 'revfast':{SET.revFast=!SET.revFast;saveSet();b.classList.toggle('primary',!!SET.revFast);b.setAttribute('aria-pressed',String(!!SET.revFast));const l=document.getElementById('rv-list');if(l)l.classList.toggle('fast',!!SET.revFast);toast(SET.revFast?'Reveal at double speed.':'Reveal at normal speed.');return}
     case 'revpause':REVPAUSE=!REVPAUSE;if(!REVPAUSE&&REV&&REV.phase==='shown'){clearTimeout(AUTOT);AUTOT=setTimeout(revAdvance,500)}if(REVPAUSE){clearTimeout(AUTOT);AUTOT=null}
       {const bt=b;bt.textContent=REVPAUSE?'▶ Play':'❚❚ Pause'}return;
+    case 'offill':{try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}if(ofAsk('offill'))OFST=Object.assign({},OFST,{busy:1});break}
     case 'opensettings':SETBACK=S.screen==='settings'?SETBACK:S.screen;S.screen='settings';window.scrollTo(0,0);break;
     case 'setback':S.screen=SETBACK||'home';window.scrollTo(0,0);break;
     case 'set':SET[k]=b.dataset.v;saveSet();break;
