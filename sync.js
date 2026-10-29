@@ -123,8 +123,10 @@ export function makeLink(fb,o={}){
       const d=await withTimeout(fb.get(gref(c)),15000,'Couldn’t reach the database. Try again in a moment.');
       if(!d||d.ended)throw new Error('No game is using that code right now. Check the number on the host’s phone.');
       if(!d.m)throw new Error('That game was started on an older version of the app. Ask the host to close and reopen the app, then link again.');
-      const players=(await fb.list([...gref(c),'p'])).map(x=>({id:x.id,j:x.data.j})),seats=seatMap(await fb.list([...gref(c),'seats'])),items={};
-      (await fb.list([...gref(c),'i'])).forEach(x=>{if(x.data&&x.data.j)items[x.id]=x.data.j});
+      /* read players, seats and score entries at the same time instead of one after another (3 waits become 1) */
+      const [pl,se,it]=await withTimeout(Promise.all([fb.list([...gref(c),'p']),fb.list([...gref(c),'seats']),fb.list([...gref(c),'i'])]),20000,'Couldn’t reach the database. Try again in a moment.');
+      const players=pl.map(x=>({id:x.id,j:x.data.j})),seats=seatMap(se),items={};
+      it.forEach(x=>{if(x.data&&x.data.j)items[x.id]=x.data.j});
       lastRd=d.rd||0;lkWatch(c);return {...d,mflat:flatM(d.m),players,seats,items}},
     resume(c){authed().then(()=>lkWatch(c),fail)},
     /* the host starts a different game for the same linked phones: same code, fresh players, seats and scores */
