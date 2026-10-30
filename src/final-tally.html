@@ -1626,6 +1626,8 @@ const padSC=()=>Math.max(1,Math.round(Math.max(1,...act().map(p=>Math.abs(total(
 const LOW=()=>S.game==='phase10'||S.game==='mextrain'||S.game==='chicken'||S.game==='uno'&&UNX().mode==='low'||S.game==='golf'||S.game==='skyjo'||S.game==='gnome'&&!gnRW()||S.game==='hearts'||S.game==='crowns'||S.game==='pad'&&!!(S.px||{}).low,RS=p=>S.game==='darts'?dRankKey(p):S.game==='phase10'?ptKey(p):LOW()?-total(p):total(p),RU=(n,p)=>LOW()?-upto(n,p):upto(n,p);
 const total=p=>S.game==='carc'?cTot(p):HFE()?hfTot(p):S.game==='nerts'?nxTot(p):S.game==='pad'?pxTot(p):S.game==='darts'?dTot(p):S.game==='pool'?plTot(p):S.game==='hearts'?htTot(p):S.game==='spades'?sdTot(p):S.game==='rage'?rgTot(p):S.game==='ohell'?ohTot(p):S.game==='uno'?unTot(p):S.game==='munchkin'?mkTot(p):S.game==='crowns'?fcTot(p):S.game==='skipbo'?sbTot(p):S.game==='gnome'?gnTot(p):S.game==='skyjo'?skTot(p):S.game==='wingspan'?wsTot(p):S.game==='wyrmspan'?wyTot(p):S.game==='phase10'?ptTot(p):S.game==='rook'?rkTot(p):S.game==='yahtzee'?yzTot(p):S.game==='mextrain'?mtTot(p):S.game==='chicken'?cfTot(p):S.game==='catan'?ctTot(p):S.game==='golf'?gfTot(p):S.game==='tripoley'?tpTot(p):S.game==='quacks'?qkTot(p):hsPts(p)+routePts(p)+tkNet(p)+extrasPts(p)+bonusPts(p);
 
+/* a new game starts with nobody remembered from last time (linked games fill in the linked phones instead) */
+function clearPlayers(){if(S.lk||S.demo||S.editing)return;S.players.forEach(p=>{p.name='';p.rid=null;delete p.bot;p.hs=0;if(Array.isArray(p.mem))p.mem=p.mem.map(()=>'')})}
 function resetScores(){delete S.lkvote;delete S.hlg;delete S.qpg;delete S.mtg;delete S.cfg;delete S.pzg;delete S.hpg;delete S.nrg;delete S.tqg;delete S.ung;delete S.sbg;delete S.fcg;delete S.pst;delete S.lkq;delete S.lkqa;delete S.gpg;delete S.gpprev;delete S.rgrage;delete S.htg;delete S.sdg;delete S.ohg;delete S.rkg;delete S.rgg;['playMs','lastTick','tturn','turnAt'].forEach(k=>delete S[k]);S.endBy=null;S.final=null;S.players.forEach(blank);S.picks={};S.log=[];if(S.game==='carc'){S.clog=[];S.cend={};delete S.ctl;delete S.mtr}if(HFE()){S.players.forEach(p=>p.hf=[]);S.hr=0}if(S.game==='nerts'){S.players.forEach(p=>p.nt=[]);S.hr=0}if(S.game==='pad'){S.players.forEach(p=>p.pd=[]);S.hr=0}if(S.game==='darts'){S.dturns=[];DST=null}if(S.game==='pool'){S.pk=[];S.pr=0;S.ptag=''}if(S.game==='hearts'){S.players.forEach(p=>p.ht=[]);S.hr=0}if(S.game==='spades'){S.players.forEach(p=>p.sd=[]);S.hr=0}if(S.game==='rage'){S.players.forEach(p=>p.rg=[]);S.hr=0}if(S.game==='ohell'){S.players.forEach(p=>p.oh=[]);S.hr=0;S.ohtr=[];S.ohbid=null}if(S.game==='uno'){S.players.forEach(p=>p.un=[]);S.hr=0;S.unside=[]}if(S.game==='munchkin'){S.players.forEach(p=>p.mk=null);S.mklog=[];S.mkturn=0;S.mkstep=0;S.mkfight=null;S.mklast=null;S.mkdeals=[];MKEDIT=null;MKDIE=null;MKWIN10=null;MKITEM=null;MKBODY=null;MKROLL=null;MKSELL=null;MKDEAD=null;MKCURSE=null;MKBSI=false;MKVS=null;MKGIVE=null;NUMPAD=null;MKFX=false;MKBIGV=false;S.mkloot=null;S.mkifr=[];S.mkkills=[];S.mkruns=[];S.mkhs={};S.mkturnN=0;S.mkev=[];MKEVALL=false}if(S.game==='skipbo'){S.players.forEach(p=>p.sb=[]);S.hr=0}if(S.game==='tripoley'){S.tph=[];S.hr=0}if(S.game==='quacks'){S.players.forEach(p=>p.qk=[]);S.hr=0;QKSEL=null;S.qkfc=[]}if(S.game==='golf'){S.players.forEach(p=>p.gf=[]);S.hr=0;GFSEL=null}if(S.game==='skyjo'){S.players.forEach(p=>p.sk=[]);S.hr=0;SKSEL=null}if(S.game==='wingspan'){S.players.forEach(p=>p.ws=null);S.hr=0}if(S.game==='wyrmspan'){S.players.forEach(p=>p.wy=null);S.hr=0}if(S.game==='phase10'){S.players.forEach(p=>p.pt=[]);S.hr=0}if(S.game==='rook'){S.rk=[];S.hr=0}if(S.game==='yahtzee'){S.players.forEach(p=>p.yz=null);S.hr=0;S.yzt=0;S.yzd=[];S.yzr=null;YZBOTHELD=false}if(S.game==='mextrain'){S.players.forEach(p=>p.mt=[]);S.hr=0}if(S.game==='chicken'){S.players.forEach(p=>p.cf=[]);S.hr=0}if(S.game==='catan'){S.players.forEach(p=>p.ct=null);S.ctr=[];S.ctb=0;S.cta=0;CTATK=false}if(S.game==='gnome'){S.players.forEach(p=>p.gn=[]);S.hr=0;GNSEL=null}if(S.game==='crowns'){S.players.forEach(p=>p.fc=[]);S.hr=0;delete S.fctb;delete S.fcshare;FCTIE=false}CALC=null;S.active=0;S.gameId=null;S.gameDate=null;S.finished=false;UNDO=[];KP='';WARN=null;REV=null}
 let UNDO=[],KP='',RULESHEET=false;
 if(S.hideTotals===undefined)S.hideTotals=true;
@@ -12664,7 +12666,7 @@ document.addEventListener('click',e=>{
     case 'setcb':SET.cb=!SET.cb;saveSet();break;
     case 'hcat':{HOMECAT=HOMECAT===k?'':k;try{localStorage.setItem(KEY+'.homecat',HOMECAT)}catch(e){}break}
     case 'gabandon':{if(ABANDON!==k){ABANDON=k;clearTimeout(ABT);ABT=setTimeout(()=>{ABANDON=null;render()},4000);break}ABANDON=null;clearTimeout(ABT);const was=S.game;switchGame(k);delete S.tmatch;resetScores();if(k==='carc'){S.clog=[];S.cend={}}S.started=false;S.finished=false;S.gameId=null;S.gameDate=null;S.endBy=null;S.screen='home';save();if(was&&was!==k)switchGame(was);S.screen='home';toast('Game abandoned. Nothing was saved to your history.');break}
-    case 'gnew':switchGame(k);delete S.tmatch;if(k==='carc'){S.clog=[];S.cend={};S.started=false;S.finished=false;S.gameId=null;S.gameDate=null;S.endBy=null;S.screen='map'}else{resetScores();S.started=false;S.screen='map'}window.scrollTo(0,0);break;
+    case 'gnew':switchGame(k);clearPlayers();delete S.tmatch;if(k==='carc'){S.clog=[];S.cend={};S.started=false;S.finished=false;S.gameId=null;S.gameDate=null;S.endBy=null;S.screen='map'}else{resetScores();S.started=false;S.screen='map'}window.scrollTo(0,0);break;
     case 'gresume':switchGame(k);S.screen=S.finished?'results':S.rules.live?'live':'score';if(S.game==='carc'&&!S.finished)S.screen='live';window.scrollTo(0,0);break;
     case 'cdemo':cDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'hdemo':hfDemo(b.dataset.k);window.scrollTo(0,0);break;
@@ -12699,7 +12701,7 @@ document.addEventListener('click',e=>{
     case 'tpset':TPX()[k]=b.dataset.v;tpKeep();break;
     case 'tptg':{const X=TPX();X[k]=!X[k];tpKeep();break}
     case 'tqplaymode':{if(S.started)break;TPX().play=k==='1'?1:0;tpKeep();break}
-    case 'tqstart':{switchGame('tripoley');resetScores();S.started=false;S.screen='map';TPX().play=k==='1'?1:0;tpKeep();window.scrollTo(0,0);break}
+    case 'tqstart':{switchGame('tripoley');resetScores();clearPlayers();S.started=false;S.screen='map';TPX().play=k==='1'?1:0;tpKeep();window.scrollTo(0,0);break}
     case 'tppen':{const H=tpH(tpCur()),v=b.dataset.v;snap();if(k==='T89'){const a=H.pens.T89||[];H.pens.T89=v===''?[]:a.includes(v)?a.filter(x=>x!==v):[...a,v];if(!H.pens.T89.length)delete H.pens.T89}else{if(v===''||H.pens[k]===v)delete H.pens[k];else{H.pens[k]=v;if(k==='KQ'){H.pens.K=v;H.pens.Q=v}}}break}
     case 'tppw':{const H=tpH(tpCur()),v=b.dataset.v;snap();H.pw=v===''?[]:(H.pw||[]).includes(v)?H.pw.filter(x=>x!==v):[...(H.pw||[]),v];break}
     case 'tpacen':{const H=tpH(tpCur());snap();H.ace=H.ace||{open:{},in:{},won:{}};const n=Math.max(0,Math.min(10,(+H.ace.open[k]||0)+(+b.dataset.d)));if(n)H.ace.open[k]=n;else{delete H.ace.open[k];delete H.ace.in[k];delete H.ace.won[k]}break}
@@ -12757,16 +12759,16 @@ document.addEventListener('click',e=>{
     case 'mtdemo':mtDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'mtset':{const X=MTX();X.set=+b.dataset.v;mtKeep();break}
     case 'qkplaymode':{if(S.started)break;QKX().play=k==='1'?1:0;if(QKX().play){QKX().herb=false;QKX().alch=false;QKX().tubes=false;while(act().length>4){const l=[...act()].pop();l.on=false}}qkKeep();break}
-    case 'qpstart':{switchGame('quacks');resetScores();S.started=false;S.screen='map';const X=QKX();X.play=k==='1'?1:0;if(X.play){X.herb=false;X.alch=false;X.tubes=false;while(act().length>4){const l=[...act()].pop();l.on=false}}qkKeep();window.scrollTo(0,0);break}
+    case 'qpstart':{switchGame('quacks');resetScores();clearPlayers();S.started=false;S.screen='map';const X=QKX();X.play=k==='1'?1:0;if(X.play){X.herb=false;X.alch=false;X.tubes=false;while(act().length>4){const l=[...act()].pop();l.on=false}}qkKeep();window.scrollTo(0,0);break}
     case 'mtplaymode':{if(S.started)break;MTX().play=k==='1'?1:0;mtKeep();break}
     case 'mtpn':{MTX().hand=+b.dataset.v;mtKeep();break}
     case 'mtpstart':{MTX().start=b.dataset.v;mtKeep();break}
-    case 'mtstart':{switchGame('mextrain');resetScores();S.started=false;S.screen='map';MTX().play=k==='1'?1:0;mtKeep();window.scrollTo(0,0);break}
+    case 'mtstart':{switchGame('mextrain');resetScores();clearPlayers();S.started=false;S.screen='map';MTX().play=k==='1'?1:0;mtKeep();window.scrollTo(0,0);break}
     case 'cfset':{const X=CFX();X.set=+b.dataset.v;cfKeep();break}
     case 'cfplaymode':{if(S.started)break;CFX().play=k==='1'?1:0;cfKeep();break}
     case 'cfpn':{CFX().hand=+b.dataset.v;cfKeep();break}
     case 'cfpcenter':{CFX().center=+b.dataset.v;cfKeep();break}
-    case 'cfstart':{switchGame('chicken');resetScores();S.started=false;S.screen='map';CFX().play=k==='1'?1:0;cfKeep();window.scrollTo(0,0);break}
+    case 'cfstart':{switchGame('chicken');resetScores();clearPlayers();S.started=false;S.screen='map';CFX().play=k==='1'?1:0;cfKeep();window.scrollTo(0,0);break}
     case 'mtst':{const X=MTX();X[k]=k==='hand'?Math.max(3,Math.min(30,(+X[k]||0)+(+b.dataset.d))):Math.max(5,Math.min(100,(+X[k]||0)+(+b.dataset.d)));mtKeep();break}
     case 'mttg':{const X=MTX();X[k]=!X[k];mtKeep();break}
     case 'cfst':{const X=CFX();X[k]=k==='hand'?Math.max(3,Math.min(30,(+X[k]||0)+(+b.dataset.d))):Math.max(5,Math.min(100,(+X[k]||0)+(+b.dataset.d)));cfKeep();break}
@@ -12781,9 +12783,9 @@ document.addEventListener('click',e=>{
     case 'cfnext':{S.hr=Math.min(cfN()-1,cfCur()+1);window.scrollTo(0,0);break}
     case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:S.game==='rook'?RKBOTS:S.game==='rage'?RGBOTS:S.game==='uno'?UNBOTS:S.game==='golf'||S.game==='skyjo'||S.game==='gnome'?GPBOTS:S.game==='skipbo'?SBBOTS:S.game==='crowns'?FCBOTS:S.game==='phase10'?PZBOTS:HFE()?HPBOTS:S.game==='nerts'?NRBOTS:S.game==='tripoley'?TQBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS),Object.values(RKBOTS),Object.values(RGBOTS),Object.values(UNBOTS),Object.values(GPBOTS),Object.values(SBBOTS),Object.values(FCBOTS),Object.values(PZBOTS),Object.values(HPBOTS),Object.values(NRBOTS),Object.values(TQBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
       if(!q.name||defs.includes(base(q.name))||BOTPOOL.all().includes(base(q.name))){let nmv='';if(nx){const pool=[BT[nx][1]].concat(BOTPOOL[nx].filter(x=>x!==BT[nx][1])),taken=n=>S.players.some(o=>o!==q&&o.on&&o.name===n);nmv=pool.find(n=>!taken(n))||'';if(!nmv){nmv=BT[nx][1];let j=2;while(taken(nmv+' '+j))j++;nmv+=' '+j}}q.name=nmv}if(nx)q.bot=nx;else delete q.bot;delete q.rid;break}
-    case 'htstart':{switchGame('hearts');resetScores();S.started=false;S.screen='map';HTX().play=k==='1';htKeep();window.scrollTo(0,0);break}
+    case 'htstart':{switchGame('hearts');resetScores();clearPlayers();S.started=false;S.screen='map';HTX().play=k==='1';htKeep();window.scrollTo(0,0);break}
     case 'htplaymode':{if(S.started)break;HTX().play=k==='1';if(HTX().play&&act().length>6)toast('Playing on the phone works for 3 to 6 players.');htKeep();break}
-    case 'yzstart':{switchGame('yahtzee');resetScores();S.started=false;S.screen='map';YZX().roller=k==='1';yzKeep();window.scrollTo(0,0);break}
+    case 'yzstart':{switchGame('yahtzee');resetScores();clearPlayers();S.started=false;S.screen='map';YZX().roller=k==='1';yzKeep();window.scrollTo(0,0);break}
     case 'yzplaymode':{if(S.started)break;YZX().roller=k==='1';yzKeep();break}
     case 'yzdemo':yzDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'yzset':YZX()[k]=b.dataset.v;yzKeep();break;
@@ -12813,7 +12815,7 @@ document.addEventListener('click',e=>{
     case 'rkst':{const X=RKX(),lim={last:[0,50],min:[5,rkAll()],target:[50,2000]}[k]||[0,9999];X[k]=Math.max(lim[0],Math.min(lim[1],(+X[k]||0)+(+b.dataset.d)));if(X.min>rkAll())X.min=rkAll();rkKeep();break}
     case 'rktg':{const X=RKX();X[k]=!X[k];if(X.min>rkAll())X.min=rkAll();rkKeep();break}
     case 'rkset':RKX()[k]=b.dataset.v;rkKeep();break;
-    case 'rkstart':{switchGame('rook');resetScores();S.started=false;S.screen='map';RKX().play=k==='1';while(S.players.length<4)S.players.push(Object.assign(newPlayer('',CARC_COLORS[S.players.length]||'purple',false),{mem:['','']}));S.players.forEach((p,i)=>p.on=i<(RKX().play?4:2));rkKeep();window.scrollTo(0,0);break}
+    case 'rkstart':{switchGame('rook');resetScores();clearPlayers();S.started=false;S.screen='map';RKX().play=k==='1';while(S.players.length<4)S.players.push(Object.assign(newPlayer('',CARC_COLORS[S.players.length]||'purple',false),{mem:['','']}));S.players.forEach((p,i)=>p.on=i<(RKX().play?4:2));rkKeep();window.scrollTo(0,0);break}
     case 'rkplaymode':{if(S.started)break;RKX().play=k==='1';S.players.forEach((p,i)=>p.on=i<(RKX().play?4:2));rkKeep();break}
     case 'rkbt':{const H=rkH(rkCur());snap();H.bt=+b.dataset.v;if(H.bid===null||H.bid===undefined)H.bid=RKX().min;break}
     case 'rkbid':{const H=rkH(rkCur()),X=RKX();snap();H.bid=Math.max(X.min,Math.min(rkAll(),(H.bid??X.min)+(+b.dataset.d)));break}
@@ -12998,7 +13000,7 @@ document.addEventListener('click',e=>{
     case 'ohdemo':ohDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'ohst':{const X=OHX();X[k]=Math.max(0,X[k]+(+b.dataset.d));ohKeep();break}
     case 'ohset':OHX()[k]=b.dataset.v;ohKeep();break;
-    case 'ohstart':{switchGame('ohell');resetScores();S.started=false;S.screen='map';OHX().play=k==='1';ohKeep();window.scrollTo(0,0);break}
+    case 'ohstart':{switchGame('ohell');resetScores();clearPlayers();S.started=false;S.screen='map';OHX().play=k==='1';ohKeep();window.scrollTo(0,0);break}
     case 'ohplaymode':{if(S.started)break;OHX().play=k==='1';ohKeep();break}
     case 'ohtg':{const X=OHX();X[k]=!X[k];ohKeep();break}
     case 'ohreset':S.ohx={...OHDEF};ohKeep();break;
@@ -13012,7 +13014,7 @@ document.addEventListener('click',e=>{
     case 'rgst':{const X=RGX();X[k]=Math.max(0,X[k]+(+b.dataset.d));rgKeep();break}
     case 'rgset':RGX()[k]=b.dataset.v;rgKeep();break;
     case 'rgamigo':{const X=RGX(),am=['outOne','changeFlip','wild2nd','amigoDeck','wildNum'],on=am.every(q=>X[q]);am.forEach(q=>X[q]=!on);rgKeep();break}
-    case 'rgstart':{switchGame('rage');resetScores();S.started=false;S.screen='map';RGX().play=k==='1';rgKeep();window.scrollTo(0,0);break}
+    case 'rgstart':{switchGame('rage');resetScores();clearPlayers();S.started=false;S.screen='map';RGX().play=k==='1';rgKeep();window.scrollTo(0,0);break}
     case 'rxopen':RXOPEN=!RXOPEN;break;
     case 'vcjoin':vcJoin();return;
     case 'vcmute':{try{FTLAN.voice.mute(!FTLAN.voice.muted);vibe(8)}catch(e){}break}
@@ -13022,11 +13024,11 @@ document.addEventListener('click',e=>{
     case 'shareclose':SHAREQR=null;break;
     case 'sharecopy':{try{navigator.clipboard.writeText(APPURL).then(()=>toast('Link copied.'),()=>toast(APPURL))}catch(e){toast(APPURL)}return}
     case 'sharesend':{try{navigator.share({title:'Final Tally',text:'Our game-night score keeper',url:APPURL}).catch(()=>{})}catch(e){}return}
-    case 'sbstart':{switchGame('skipbo');resetScores();S.started=false;S.screen='map';const X=SBX();X.play=k==='1'?1:0;if(X.play&&X.teams){X.teams=false;S.players.forEach((p,i)=>p.on=i<3)}sbKeep();window.scrollTo(0,0);break}
+    case 'sbstart':{switchGame('skipbo');resetScores();clearPlayers();S.started=false;S.screen='map';const X=SBX();X.play=k==='1'?1:0;if(X.play&&X.teams){X.teams=false;S.players.forEach((p,i)=>p.on=i<3)}sbKeep();window.scrollTo(0,0);break}
     case 'pttg':{const X=PTX();X[k]=!X[k];ptKeep();break}
     case 'pthelp':{const X=PTX();X.help=!X.help;ptKeep();break}
     case 'ptplaymode':{if(S.started)break;const X=PTX();X.play=k==='1'?1:0;if(X.play&&X.set==='custom'){X.set='all';X.goal=10}ptKeep();break}
-    case 'ptstart':{switchGame('phase10');resetScores();S.started=false;S.screen='map';const X=PTX();X.play=k==='1'?1:0;if(X.play&&X.set==='custom'){X.set='all';X.goal=10}ptKeep();window.scrollTo(0,0);break}
+    case 'ptstart':{switchGame('phase10');resetScores();clearPlayers();S.started=false;S.screen='map';const X=PTX();X.play=k==='1'?1:0;if(X.play&&X.set==='custom'){X.set='all';X.goal=10}ptKeep();window.scrollTo(0,0);break}
     case 'cbopen':CBOPEN=true;break;
     case 'cbclose':CBOPEN=false;break;
     case 'cbpick':{SET.cbk=SET.cbk||{};SET.cbk[S.game]=k;saveSet();vibe(8);break}
@@ -13035,11 +13037,11 @@ document.addEventListener('click',e=>{
     case 'hosort':hoSortNow(b.dataset.v);vibe(8);break;
     case 'ho2row':SET.ho2=ho2()?'off':'on';saveSet();break;
     case 'fcplaymode':{if(S.started)break;FCX().play=k==='1'?1:0;fcKeep();break}
-    case 'fcstart':{switchGame('crowns');resetScores();S.started=false;S.screen='map';FCX().play=k==='1'?1:0;fcKeep();window.scrollTo(0,0);break}
+    case 'fcstart':{switchGame('crowns');resetScores();clearPlayers();S.started=false;S.screen='map';FCX().play=k==='1'?1:0;fcKeep();window.scrollTo(0,0);break}
     case 'sbplaymode':{if(S.started)break;const X=SBX();X.play=k==='1'?1:0;if(X.play&&X.teams){X.teams=false;S.players.forEach((p,i)=>p.on=i<3)}sbKeep();break}
-    case 'gpstart':{const G=b.dataset.g;switchGame(G);resetScores();S.started=false;S.screen='map';const X=G==='golf'?GFX():G==='gnome'?GNX():SKX();X.play=k==='1'?1:0;G==='golf'?gfKeep():G==='gnome'?gnKeep():skKeep();window.scrollTo(0,0);break}
+    case 'gpstart':{const G=b.dataset.g;switchGame(G);resetScores();clearPlayers();S.started=false;S.screen='map';const X=G==='golf'?GFX():G==='gnome'?GNX():SKX();X.play=k==='1'?1:0;G==='golf'?gfKeep():G==='gnome'?gnKeep():skKeep();window.scrollTo(0,0);break}
     case 'gpplaymode':{if(S.started)break;const X=S.game==='golf'?GFX():S.game==='gnome'?GNX():SKX();X.play=k==='1'?1:0;S.game==='golf'?gfKeep():S.game==='gnome'?gnKeep():skKeep();break}
-    case 'unstart':{switchGame('uno');resetScores();S.started=false;S.screen='map';const X=UNX();X.play=k==='1'?1:0;if(X.play&&!UNPV.includes(X.ver))X.ver='classic';unKeep();window.scrollTo(0,0);break}
+    case 'unstart':{switchGame('uno');resetScores();clearPlayers();S.started=false;S.screen='map';const X=UNX();X.play=k==='1'?1:0;if(X.play&&!UNPV.includes(X.ver))X.ver='classic';unKeep();window.scrollTo(0,0);break}
     case 'unplaymode':{if(S.started)break;const X=UNX();X.play=k==='1'?1:0;if(X.play&&!UNPV.includes(X.ver))X.ver='classic';unKeep();break}
     case 'rgplaymode':{if(S.started)break;RGX().play=k==='1';rgKeep();break}
     case 'rgtg':{const X=RGX();X[k]=!X[k];rgKeep();break}
@@ -13053,7 +13055,7 @@ document.addEventListener('click',e=>{
     case 'sddemo':sdDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'sdst':{const X=SDX();X[k]=X[k]+(+b.dataset.d);sdKeep();break}
     case 'sdset':{const X=SDX();if(k==='teams'){X.teams=b.dataset.v==='true';S.players.forEach((p,i)=>p.on=i<(X.teams&&!X.play?2:4))}else X[k]=b.dataset.v;sdKeep();break}
-    case 'sdstart':{switchGame('spades');resetScores();S.started=false;S.screen='map';SDX().play=k==='1';S.players.forEach((p,i)=>p.on=i<(SDX().teams&&!SDX().play?2:4));sdKeep();window.scrollTo(0,0);break}
+    case 'sdstart':{switchGame('spades');resetScores();clearPlayers();S.started=false;S.screen='map';SDX().play=k==='1';S.players.forEach((p,i)=>p.on=i<(SDX().teams&&!SDX().play?2:4));sdKeep();window.scrollTo(0,0);break}
     case 'sdplaymode':{if(S.started)break;SDX().play=k==='1';S.players.forEach((p,i)=>p.on=i<(SDX().teams&&!SDX().play?2:4));sdKeep();break}
     case 'sdtg':{const X=SDX();X[k]=!X[k];sdKeep();break}
     case 'sdreset':{const tm=SDX().teams;S.sdx={...SDDEF};if(S.sdx.teams!==tm)S.players.forEach((p,i)=>p.on=i<(S.sdx.teams?2:4));sdKeep();break}
@@ -13132,7 +13134,7 @@ document.addEventListener('click',e=>{
     case 'nxst':{const X=NX(),d2=+b.dataset.d;X[k]=Math.max(0,X[k]+d2);nxKeep();break}
     case 'nxset':{NX()[k]=b.dataset.v;nxKeep();break}
     case 'nxplaymode':{if(S.started)break;NX().play=k==='1'?1:0;nxKeep();break}
-    case 'nrstart':{switchGame('nerts');resetScores();S.started=false;S.screen='map';NX().play=k==='1'?1:0;if(NX().play){const P=S.players;let h=0;P.forEach(q=>{if(q.on&&!q.bot){h++;if(h>1){q.bot='normal'}}});P.forEach(q=>{if(q.bot&&!q.name){const nmv=[NRBOTS.normal[1]].concat(BOTPOOL.normal).find(n=>!P.some(o=>o.on&&o.name===n));if(nmv)q.name=nmv}})}nxKeep();window.scrollTo(0,0);break}
+    case 'nrstart':{switchGame('nerts');resetScores();clearPlayers();S.started=false;S.screen='map';NX().play=k==='1'?1:0;if(NX().play){const P=S.players;let h=0;P.forEach(q=>{if(q.on&&!q.bot){h++;if(h>1){q.bot='normal'}}});P.forEach(q=>{if(q.bot&&!q.name){const nmv=[NRBOTS.normal[1]].concat(BOTPOOL.normal).find(n=>!P.some(o=>o.on&&o.name===n));if(nmv)q.name=nmv}})}nxKeep();window.scrollTo(0,0);break}
     case 'nxreset':S.nx={...NXDEF};nxKeep();break;
     case 'nxcall':{const q=act()[+b.dataset.i],r=nxCur(),R=nxR(q,r);snap();R.call=!R.call;if(R.call){R.n=0;act().forEach(o=>{if(o!==q&&(o.nt||[])[r])o.nt[r].call=false})}break}
     case 'nxhand':{S.hr=+b.dataset.v;const pid=LPTIP&&LPTIP.startsWith('ph:')?LPTIP.slice(3):null;LPTIP=null;window.scrollTo(0,0);if(pid)setTimeout(()=>{const el=document.getElementById('nxc-'+pid);if(el)el.scrollIntoView({block:'center'})},60);break}
@@ -13148,7 +13150,7 @@ document.addEventListener('click',e=>{
       hfKeep();break}
     case 'hftg':{const X=HX();X[k]=!X[k];hfKeep();break}
     case 'hfplaymode':{if(S.started)break;const X=HX();X.play=k==='1'?1:0;const mx=HM().max;while(act().length>mx){const l=[...act()].pop();l.on=false}if(X.play&&X.teams){S.players.forEach(q=>{q.name=q.name||''});let n=act().length;for(const q of S.players){if(n>=4)break;if(!q.on){q.on=true;n++}}}hfKeep();break}
-    case 'hfstart':{switchGame(b.dataset.g||'hf');resetScores();S.started=false;S.screen='map';HX().play=k==='1'?1:0;const mx=HM().max;while(act().length>mx){const l=[...act()].pop();l.on=false}if(HX().play&&HX().teams){let n=act().length;for(const q of S.players){if(n>=4)break;if(!q.on){q.on=true;n++}}}hfKeep();window.scrollTo(0,0);break}
+    case 'hfstart':{switchGame(b.dataset.g||'hf');resetScores();clearPlayers();S.started=false;S.screen='map';HX().play=k==='1'?1:0;const mx=HM().max;while(act().length>mx){const l=[...act()].pop();l.on=false}if(HX().play&&HX().teams){let n=act().length;for(const q of S.players){if(n>=4)break;if(!q.on){q.on=true;n++}}}hfKeep();window.scrollTo(0,0);break}
     case 'hfset':{const X=HX(),v=b.dataset.v;X[k]=v==='true'?true:v==='false'?false:/^\d+$/.test(v)?+v:v;if(k==='teams'){S.players.forEach(q=>q.mem=q.mem||['','']);const mx=HM().max;while(act().length>mx){const l=[...act()].pop();l.on=false}if(hpOn()&&X.teams){let n=act().length;for(const q of S.players){if(n>=4)break;if(!q.on){q.on=true;n++}}}}hfKeep();break}
     case 'hfreset':S.hx=JSON.parse(JSON.stringify(HFD()));hfKeep();break;
     case 'hfpick':{const ro=H.roster.find(x=>x.id===k);if(!ro)break;const X={...HX(),teams:hfTeamUI()},low=ro.name.toLowerCase();
