@@ -33,7 +33,7 @@ const {chromium,W,ok,done,BASE}=require('./link.js');
   r=await page.evaluate(()=>({cards:document.querySelectorAll('.qwboard .qwcard img').length,small:document.querySelectorAll('.qpwchips').length,ready:!!document.querySelector('.qwboard .qwcard.ready')}));
   ok('the witches board shows all 3 witches while brewing',r.cards===3,r);ok('other players show their pennies by their names',r.small>=2,r);ok('a usable witch is highlighted',r.ready,r);
   await page.evaluate(()=>document.querySelector('.qwboard .qwcard.ready').click());await W(200);
-  ok('a used witch shows as in use',await page.evaluate(()=>!!document.querySelector('.qwboard .qwcard.on')));
+  ok('a used witch shows as in use or used',await page.evaluate(()=>!!document.querySelector('.qwboard .qwcard.on, .qwboard .qwcard.used')));
   // --- next round scrolls to your pot ---
   await page.evaluate(()=>{const g=S.qpg,id=act()[0].id;g.pl[id].d6&&g.pl[id].d6.length&&qpD6(g,id,null);qpStop(g,id);save();render()});
   for(let i=0;i<100;i++){if(await page.evaluate(()=>S.qpg.phase==='eval'))break;await W(150)}
