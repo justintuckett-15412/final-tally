@@ -17,7 +17,7 @@ const {chromium,W,ok,done,BASE}=require('./link.js');
   await page.evaluate(()=>{window.__htfast=1;switchGame('quacks');resetScores();const X=QKX();X.play=1;X.herb=true;X.wit={s:'draw6',c:'double',g:'colors'};const P=S.players;P.forEach((p,i)=>{p.on=i<3;p.name=['Me','Bot A','Bot B'][i]||'';if(i)p.bot='normal';else delete p.bot});save();
     const x=document.createElement('button');x.dataset.a='start';x.hidden=true;document.body.appendChild(x);x.click();x.remove();document.querySelectorAll('[data-a=tourskip]').forEach(b=>b.click())});
   for(let i=0;i<50;i++){if(await page.evaluate(()=>S.qpg&&S.qpg.phase==='brew'))break;await page.evaluate(()=>{const g=S.qpg;if(g&&g.phase==='card'){qpSetCard(g,'');save();render()}});await W(100)}
-  await page.evaluate(()=>{const g=S.qpg;(S.qkfc=S.qkfc||[])[g.r]='choose1';g.ps.forEach(id=>{g.pl[id].sf=undefined});qpBrewStart(g);save();render()});await W(300);
+  await page.evaluate(()=>{const g=S.qpg;(S.qkfc=S.qkfc||[])[g.r]='choose1';g.ps.forEach(id=>{g.pl[id].sf=undefined});act().forEach(p=>{qkR(p,g.r).fp=null});qpBrewStart(g);save();render()});await W(300);
   r=await page.evaluate(()=>{const b=document.querySelector('[data-a=qpseen][data-k=sf]');return {shown:!!document.querySelector('.qpfpick'),gotDisabled:!!b&&b.disabled}});
   ok('fortune card shows the choice, Got it waits for it',r.shown&&r.gotDisabled,r);
   r=await page.evaluate(()=>{const g=S.qpg,id=act()[0].id,L=g.pl[id],n0=L.bag.filter(c=>c.startsWith('u2#')).length;document.querySelector('[data-a=qpfc][data-k=chip][data-v=u2]').click();const n1=L.bag.filter(c=>c.startsWith('u2#')).length;

@@ -8,13 +8,14 @@ export NODE_PATH="${NODE_PATH:-$(npm root -g)}"
 PORT=8765; export BASE="http://localhost:$PORT/"
 if ! curl -s -o /dev/null "$BASE"; then (cd "$REPO" && setsid nohup python3 -m http.server $PORT >/tmp/ft-test-server.log 2>&1 </dev/null &); sleep 1; fi
 TESTS="scoring lobby features endlink effects announce newgame snappy snappy-cards witches quacks-fixes turquoise pot quacks-holds"
-[ "$1" = "all" ] && TESTS="$TESTS fullgame fullgame-herb audit audit-bots audit-score"
+[ "$1" = "all" ] && TESTS="$TESTS fullgame fullgame-herb audit audit-bots audit-score fuzz linkfuzz"
 for t in $TESTS; do
   case $t in
     audit) f=audit.js; env="";; audit-bots) f=audit.js; env="ALLBOT=1 T=60000";; audit-score) f=audit.js; env="SCORE=1 T=15000";;
+    fuzz) f=fuzz.js; env="N=8";; linkfuzz) f=linkfuzz.js; env="N=2";;
     fullgame) f=fullgame.js; env="";; fullgame-herb) f=fullgame.js; env="HERB=1";; *) f=$t.test.js; env="";;
   esac
   echo "== $t"
-  env $env node "$f" 2>&1 | grep -E "^(PASS|FAIL|DBG)|Error"
+  env $env node "$f" 2>&1 | grep -oE "(PASS|FAIL|DBG) .*|Error.*"
 done 2>&1 | tee /tmp/ft-test.out
 if grep -qE "^FAIL|Error" /tmp/ft-test.out; then echo; echo "SOME TESTS FAILED"; exit 1; else echo; echo "ALL PASSED"; fi

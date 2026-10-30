@@ -8524,7 +8524,7 @@ const qpLast=L=>L.pot.length?L.pot[L.pot.length-1]:null;
 const qpPos=L=>L.pot.length?L.pot[L.pot.length-1].at:L.start;
 const qpRisk=L=>{const left=L.lim-L.ws;if(!L.bag.length)return 0;return L.bag.filter(c=>qpK(c)==='w'&&qpV(c)>left).length/L.bag.length};
 /* draw one chip from the bag */
-function qpDraw(g,pid){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||L.stop||L.ask||(L.d6||[]).length||!L.bag.length)return false;L.nd=(L.nd||0)+1;const i=Math.floor(Math.random()*L.bag.length),c=L.bag.splice(i,1)[0];g.n++;
+function qpDraw(g,pid){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||L.sf===false||L.stop||L.ask||(L.d6||[]).length||!L.bag.length)return false;L.nd=(L.nd||0)+1;const i=Math.floor(Math.random()*L.bag.length),c=L.bag.splice(i,1)[0];g.n++;
   const as0=qpAs(L,c),ek=as0?as0[0]:qpK(c),ev=as0?+as0.slice(1):qpV(c);
   if(ek==='u'&&qpBook('blue')==='u1'){/* crow skull: look at as many chips as its value, may place one of them */qpPlace(g,pid,c);if(L.stop||L.ex)return true;const n=Math.min(ev,L.bag.length);if(n){const pick=[];for(let k=0;k<n;k++)pick.push(L.bag.splice(Math.floor(Math.random()*L.bag.length),1)[0]);L.ask={t:'blue',cs:pick}}return true}
   if(qpK(c)==='w'&&qkCid(g.r)==='stirred'&&!L.seen1w){L.seen1w=true;L.ask={t:'stir',c};return true}
@@ -8554,13 +8554,13 @@ function qpAnswer(g,pid,v){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||!L.ask)
   if(A.t==='wflask'){if(v==='yes'){const p=act().find(q=>q.id===pid),R=qkR(p,g.r);R.wu={...(R.wu||{}),s:true};const x=L.pot.pop();if(x){L.ws-=qpVx(x);L.bag.push(x.c)}L.flask=false;L.ex=false;L.stop=false;gLog(g,`${nm(p)} used a witch: flask after the boom`,'🧙')}return true}
   return false}
 /* the flask: put the white chip you just drew back in the bag */
-function qpFlask(g,pid){const L=g&&g.pl[pid],x=L&&qpLast(L);if(!L||g.phase!=='brew'||L.stop||L.ask||!L.flask||!x||qpKx(x)!=='w')return false;L.pot.pop();L.ws-=qpVx(x);L.bag.push(x.c);L.flask=false;g.n++;gLog(g,`${nmid(pid)} used their flask`,'🧪');return true}
+function qpFlask(g,pid){const L=g&&g.pl[pid],x=L&&qpLast(L);if(!L||g.phase!=='brew'||L.sf===false||L.stop||L.ask||!L.flask||!x||qpKx(x)!=='w')return false;L.pot.pop();L.ws-=qpVx(x);L.bag.push(x.c);L.flask=false;g.n++;gLog(g,`${nmid(pid)} used their flask`,'🧪');return true}
 
 /* ---------------- Herb Witches on the phone: one witch penny of each color per player, each used once per game ---------------- */
 const qpWFree=(p,t,id)=>!!QKX().herb&&qkWit(t)===id&&qkWUsedAt(p,t)<0;
 const qpWOn=(p,r,t)=>!!(((p.qk||[])[r]||{}).wu||{})[t];
 /* can this witch be used right now? */
-function qpWCan(g,pid,t){const L=g&&g.pl[pid],p=act().find(q=>q.id===pid);if(!L||!p||!QKX().herb)return false;const r=g.r,id=qkWit(t);if(!id||qkWUsedAt(p,t)>=0)return false;
+function qpWCan(g,pid,t){const L=g&&g.pl[pid],p=act().find(q=>q.id===pid);if(!L||!p||!QKX().herb)return false;if(g.phase==='brew'&&L.sf===false)return false;const r=g.r,id=qkWit(t);if(!id||qkWUsedAt(p,t)>=0)return false;
   if(g.phase==='brew'){if(L.stop||L.ask||(L.d6||[]).length)return false;if(id==='draw6')return !(L.nd>0)&&L.bag.length>0;if(id==='white2')return !L.ex&&L.pot.some(x=>qpKx(x)==='w');return false}
   if(g.phase==='eval'){if(L.done)return false;const R=qkR(p,r);if(id==='full')return !!L.ex;if(['rubyval','double','upgrade'].includes(id))return qpCanBuy(r)&&(!L.ex||R.ch==='coins'||qkWid(p,r,'full'));if(id==='twice')return qpCanBuy(r)&&L.buy.length>0;
     if(['colors','bag','rubyvp'].includes(id))return true;if(id==='endprice')return r<8&&!L.rubs.drop&&!L.rubs.flask;return false}
@@ -8584,13 +8584,13 @@ function qpWitch(g,pid,t,v){const L=g&&g.pl[pid],p=act().find(q=>q.id===pid);if(
   if(id==='upgrade'){L.wup=v||'last';return true}
   return true}
 /* the silver "draw 6" witch: place the drawn chips one at a time, in the order you choose; the rest go back */
-function qpD6(g,pid,v){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||!(L.d6||[]).length||L.ask)return false;g.n++;
+function qpD6(g,pid,v){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||L.sf===false||!(L.d6||[]).length||L.ask)return false;g.n++;
   if(v==null){L.bag.push(...L.d6);L.d6=[];return true}const i=L.d6.indexOf(v);if(i<0)return false;L.d6.splice(i,1);qpPlace(g,pid,v);
   if(L.ex||L.stop){L.bag.push(...L.d6);L.d6=[]}return true}
 const qpUpLabel=c=>{const k=qpK(c),v=qpV(c),nv=v===1?2:v===2?4:0;return k!=='o'&&k!=='w'&&nv&&QPPRICE[k+nv]?k+nv:''};
 /* this player tapped away their fortune card ('sf') or their pot results card ('sr') */
 function qpSeen(g,pid,f){const L=g&&g.pl[pid];if(!L||!['sf','sr','sq'].includes(f))return false;if(f==='sf'&&L.sf===false&&qpFNeeds(g.r)){const p=act().find(q=>q.id===pid);if(p&&qkR(p,g.r).fp==null)return false}if(f==='sq')L.sq=(L.sq||0)+1;else L[f]=true;if(f==='sf')qpBrewAnn(g);g.n++;return true}
-function qpStop(g,pid){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||L.stop)return false;if((L.d6||[]).length){L.bag.push(...L.d6);L.d6=[]}if(L.ask)qpAnswer(g,pid,'no');L.stop=true;L.ask=null;g.n++;return true}
+function qpStop(g,pid){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||L.stop||L.sf===false)return false;if((L.d6||[]).length){L.bag.push(...L.d6);L.d6=[]}if(L.ask)qpAnswer(g,pid,'no');L.stop=true;L.ask=null;g.n++;return true}
 /* everyone done brewing: work out the scoring space and the book counts, roll the bonus die */
 /* the space a pot scores: the space after the last chip, plus the green book 3 push (whites exactly 7) */
 function qpGreenPush(L){const lx=L.pot[L.pot.length-1];if(lx&&lx.from!=null)return 0;if(qpBook('green')!=='g3'||L.ex||L.ws!==7||!L.pot.length)return 0;return L.pot.filter(x=>qpKx(x)==='g').reduce((a,x)=>a+qpVx(x),0)}
@@ -8629,7 +8629,7 @@ function qpChoose(g,pid,o){const L=g&&g.pl[pid],p=act().find(q=>q.id===pid);if(!
   if(o.t==='ch'){if(!L.ex)return false;R.ch=o.v==='coins'?'coins':'vp';if(R.ch==='vp')L.buy=[];return true}
   if(o.t==='buy'){if(!qpCanBuy(r)||L.ex&&R.ch!=='coins'&&!qkWid(p,r,'full'))return false;const c=o.v,k=c[0];if(!qpShop().some(([kk,vs])=>kk===k&&vs.includes(+c.slice(1))))return false;if(!QPPRICE[c]||!qpAvail(r,k)||L.buy.some(x=>x[0]===k)||L.buy.length>=qpBuyMax()||qpSpent(L)+QPPRICE[c]>qpCoins(p,r))return false;L.buy.push(c);return true}
   if(o.t==='unbuy'){L.buy=L.buy.filter(x=>x!==o.v);return true}
-  if(o.t==='ruby'){const have=qpRubies(p,r),cst=qkWid(p,r,'endprice')?1:2;if(o.v==='undo'){const k=L.rubs.flask?'flask':L.rubs.drop?'drop':null;if(!k)return false;L.rubs[k]--;R.rb=(+R.rb||0)+cst;return true}if(have<cst)return false;if(o.v==='flask'&&(L.flask||L.rubs.flask))return false;L.rubs[o.v]=(L.rubs[o.v]||0)+1;R.rb=(+R.rb||0)-cst;return true}
+  if(o.t==='ruby'){const have=qpRubies(p,r),cst=qkWid(p,r,'endprice')?1:2;if(o.v!=='undo'&&r>=8)return false;if(o.v==='undo'){const k=L.rubs.flask?'flask':L.rubs.drop?'drop':null;if(!k)return false;L.rubs[k]--;R.rb=(+R.rb||0)+cst;return true}if(have<cst)return false;if(o.v==='flask'&&(L.flask||L.rubs.flask))return false;L.rubs[o.v]=(L.rubs[o.v]||0)+1;R.rb=(+R.rb||0)-cst;return true}
   if(o.t==='fp'){R.fp=String(R.fp)===String(o.v)?null:o.v;return true}
   if(o.t==='pt'){const n=Math.max(0,Math.min(3,+o.v,R.pu||0));R.pt=n;return true}
   if(o.t==='g4'){const old=+R.g4||0,n=Math.max(0,Math.min(+o.v,R.gl||0,qpRubies(p,r)+old));R.g4=n;R.rb=(+R.rb||0)+old-n;return true}
@@ -8681,7 +8681,7 @@ function qpBotEval(g,q){const L=g.pl[q.id],r=g.r,R=qkR(q,r);if(!L||L.done)return
     /* house rule (one of each color, as many as you can afford): keep shopping with what's left */
     if(QKX().shop!=='two'){let guard=0;while(guard++<6){const left=budget-qpSpent(L),c=opts.filter(x=>QPPRICE[x]<=left&&!L.buy.some(y=>y[0]===x[0])).sort((a,b)=>want(b)-want(a))[0];if(!c||!qpChoose(g,q.id,{t:'buy',v:c}))break}}}
   if(QKX().herb&&L.buy.length){const t=['s','c','g'].find(t=>qkWit(t)==='twice');if(t&&qpWCan(g,q.id,t))qpWitch(g,q.id,t,L.buy.slice().sort((a,b)=>QPPRICE[b]-QPPRICE[a])[0])}
-  let guard=0;while(guard++<6){const have=qpRubies(q,r);if(have<2)break;if(!L.flask&&!L.rubs.flask)qpChoose(g,q.id,{t:'ruby',v:'flask'});else qpChoose(g,q.id,{t:'ruby',v:'drop'})}
+  let guard=0;while(r<8&&guard++<6){const have=qpRubies(q,r);if(have<(qkWid(q,r,'endprice')?1:2))break;if(!L.flask&&!L.rubs.flask)qpChoose(g,q.id,{t:'ruby',v:'flask'});else qpChoose(g,q.id,{t:'ruby',v:'drop'})}
   qpChoose(g,q.id,{t:'done'})}
 
 /* ---------------- who is looking at this phone ---------------- */
@@ -8689,7 +8689,7 @@ let QPVIEW=null,QPBOTT=null,QPBUYK=null;
 const qpMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
 const qpHumans=()=>act().filter(p=>!p.bot);
 /* on a shared phone, people take turns: the next person who still has something to do */
-function qpTurnP(g){if(S.lk&&!S.demo)return null;const H=qpHumans();return H.find(p=>{const L=g.pl[p.id];return L&&(g.phase==='brew'?!L.stop:g.phase==='eval'?!L.done:false)})||null}
+function qpTurnP(g){if(S.lk&&!S.demo)return null;const H=qpHumans();return H.find(p=>{const L=g.pl[p.id];return L&&(g.phase==='brew'?!L.stop||!!L.ask:g.phase==='eval'?!L.done:false)})||null}
 function qpViewer(){const g=qpG();if(!g)return null;if(S.lk&&!S.demo)return qpMe();const H=qpHumans();if(H.length===1)return H[0];if(!H.length)return null;const t=qpTurnP(g);return t&&QPVIEW===t.id?t:null}
 const qpNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=qpG();if(!g||!['brew','eval'].includes(g.phase)||qpHumans().length<2)return null;const t=qpTurnP(g);return t&&QPVIEW!==t.id?t:null};
 function qpTick(){if(S.game!=='quacks'||!qpOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!qpRes())return;if(lkqRun()){save();render();return}
@@ -13564,6 +13564,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='292f06';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='58395e';</script>
 </body>
 </html>
