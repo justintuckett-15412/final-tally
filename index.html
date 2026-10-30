@@ -5121,8 +5121,14 @@ function shareSheet(){if(!SHAREQR)return '';return `<div class="sheet-bg" data-a
 const RXE=['😂','😱','🎉','👏','😡','🤞'],RXSEEN={},RXMS=2600;let RXOPEN=false,RXCOOL=0;const RXT0=Date.now();
 function rxLayer(){const R=S.react||{},out=[];for(const pid in R){const x=R[pid];if(!x)continue;let sn=RXSEEN[pid];if(!sn){sn=RXSEEN[pid]={k:Date.now()-RXT0>4000?null:x.k,at:0}}
     if(x.k!==sn.k){sn.k=x.k;sn.at=Date.now();setTimeout(render,RXMS+60);if(!(S.lk&&S.lk.me===pid))vibe(15)}const el=Date.now()-sn.at;
-    if(sn.at&&el<RXMS){const p=act().find(q=>q.id===pid);if(p)out.push(`<div class="rxpop" style="${pc(p.color)};animation-delay:-${el}ms;left:${18+(out.length*27)%64}%"><b>${esc(x.e)}</b><small>${esc(nm(p))}</small></div>`)}}
-  return out.length?`<div class="rxlayer" aria-live="polite">${out.join('')}</div>`:''}
+    if(sn.at&&el<RXMS){const p=act().find(q=>q.id===pid);if(p)out.push({key:pid+':'+x.k,el,html:`<div class="rxpop" data-rxk="${esc(pid+':'+x.k)}" style="${pc(p.color)};animation-delay:-${el}ms;left:${18+(out.length*27)%64}%"><b>${esc(x.e)}</b><small>${esc(nm(p))}</small></div>`})}}
+  RXLIVE=out;return ''}
+/* the pop-ups live on their own layer outside the redrawn page, so redraws (frequent on linked phones) don't restart them */
+let RXLIVE=[];
+function rxFx(){let L=document.getElementById('rxfx');if(!RXLIVE.length){if(L)L.querySelectorAll('.rxpop').forEach(e=>e.remove());return}
+  if(!L){L=document.createElement('div');L.id='rxfx';L.className='rxlayer';L.setAttribute('aria-live','polite');document.body.appendChild(L)}
+  const want=new Set(RXLIVE.map(x=>x.key));L.querySelectorAll('.rxpop').forEach(e=>{if(!want.has(e.dataset.rxk))e.remove()});
+  RXLIVE.forEach(x=>{if(!L.querySelector(`[data-rxk="${CSS.escape(x.key)}"]`))L.insertAdjacentHTML('beforeend',x.html)})}
 /* reactions also work in a game on one device; computer players sometimes react to big moments */
 const RXGAME={hearts:()=>htPlayOn()&&S.htg,spades:()=>sdPlayOn()&&S.sdg,ohell:()=>ohPlayOn()&&S.ohg,rook:()=>rkPlayOn()&&S.rkg,rage:()=>rgPlayOn()&&S.rgg,uno:()=>unPlayOn()&&S.ung,golf:()=>gpOn()&&S.gpg,skyjo:()=>gpOn()&&S.gpg,gnome:()=>gpOn()&&S.gpg,skipbo:()=>sbOn()&&S.sbg,crowns:()=>fcOn()&&S.fcg,phase10:()=>pzOn()&&S.pzg,hf:()=>hpOn()&&S.hpg,canasta:()=>hpOn()&&S.hpg,nerts:()=>nrOn()&&S.nrg,tripoley:()=>tqOn()&&S.tqg,mextrain:()=>mtOn()&&S.mtg,chicken:()=>cfOn()&&S.cfg,quacks:()=>qpOn()&&S.qpg};
 const rxG=()=>{const f=RXGAME[S.game];try{return f?f()||null:null}catch(e){return null}};
@@ -12399,6 +12405,7 @@ function render(){
   if(S.screen==='reveal'&&!RCWARMED){RCWARMED=true;setTimeout(()=>{try{const w=winMoment();rcWarm([w.src,...(w.layers||[]),...Object.values(loserMoments()).map(m=>m.img.u),...(LOOK()==='art'?act().flatMap(p=>['box','tank','hopper','caboose','engine'].map(k=>`train/${k}-${TCOL(p.color)}.png`)):[])])}catch(e){}},50)}else if(S.screen!=='reveal')RCWARMED=false;
   if(REMATCH)document.getElementById('app').insertAdjacentHTML('beforeend',rematchSheet());
   try{rgFx()}catch(e){}
+  try{if(!document.querySelector('#app .lkbar')&&!document.querySelector('#app .rxfab'))RXLIVE=[];rxFx()}catch(e){}
   if(LANUI)document.getElementById('app').insertAdjacentHTML('beforeend',lanSheet());else if(LKCHOOSE)document.getElementById('app').insertAdjacentHTML('beforeend',lkChooseSheet());else if(luInvite())document.getElementById('app').insertAdjacentHTML('beforeend',luInviteSheet());
   if(S.lk&&lkHost()&&!S.started&&!S.demo&&['map','players'].includes(S.screen)){const bar=document.querySelector('#app .bar');if(bar&&!document.querySelector('.lustrip'))bar.insertAdjacentHTML('afterend',luStrip())}
   if(WARN&&!document.getElementById('warn-h'))document.getElementById('app').insertAdjacentHTML('beforeend',`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
@@ -13382,6 +13389,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='013e76';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='c7220a';</script>
 </body>
 </html>
