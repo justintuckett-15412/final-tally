@@ -2071,11 +2071,11 @@ function saveGame(){
   if(!S.gameId){S.gameId=uid()+uid();S.gameDate=new Date().toISOString()}
   let rosterChanged=false;
   const HFG=HFE()||(S.game==='pool'&&PLM().teams);
-  act().forEach(p=>{const n=p.name.trim();if(!n||HFG)return;
+  act().forEach(p=>{const n=p.name.trim();if(!n||HFG||p.bot)return;
     let r=(p.rid&&H.roster.find(x=>x.id===p.rid))||H.roster.find(x=>x.name.toLowerCase()===n.toLowerCase());
-    if(!r){r={id:uid()+uid(),name:n,color:p.color,...(p.bot?{bot:true,bg:[S.game||'ttr']}:{})};H.roster.push(r);rosterChanged=true}
+    if(!r){r={id:uid()+uid(),name:n,color:p.color};H.roster.push(r);rosterChanged=true}
     else if(r.color!==p.color||r.name!==n){r.color=p.color;r.name=n;rosterChanged=true}
-    if(p.bot&&r.bot&&!(r.bg||[]).includes(S.game||'ttr')){r.bg=[...(r.bg||[]),S.game||'ttr'];rosterChanged=true}if(!p.bot&&r.bot){delete r.bot;delete r.bg;rosterChanged=true}
+    if(r.bot){delete r.bot;delete r.bg;rosterChanged=true}
     if(S.rules.handicap&&(r.hs||0)!==(+p.hs||0)){r.hs=+p.hs||0;rosterChanged=true}
     p.rid=r.id});
   const m=M(),rk=ranking();
@@ -3143,7 +3143,8 @@ function rosterBots(){if(RBOT.n===H.games.length&&RBOT.m)return RBOT.m;const m={
   H.games.forEach(g=>{const ps=(g.state&&g.state.players)||[];ps.forEach(p=>{const n=String(p.name||'').trim().toLowerCase();if(!n)return;const key=p.rid||n;const e=m[key]||(m[key]={bot:true,games:new Set()});if(p.bot)e.games.add(g.game);else e.bot=false;if(p.rid&&n&&!m[n])m[n]=e})});
   RBOT={n:H.games.length,m};return m}
 const rosterBot=r=>{const m=rosterBots(),e=m[r.id]||m[String(r.name||'').trim().toLowerCase()];return r.bot&&!(e&&!e.bot)?(e||{games:new Set(r.bg||[])}):e&&e.bot&&e.games.size?e:null};
-function rosterFor(){const g=S.game||'ttr';return H.roster.filter(r=>{const b=rosterBot(r);return !b||b.games.has(g)||(r.bg||[]).includes(g)})}
+const isBotName=n=>{n=String(n||'').trim();return /\bBot( \d+)?$/i.test(n)||BOTPOOL.all().includes(n.replace(/ \d+$/,''))};
+function rosterFor(){return H.roster.filter(r=>!rosterBot(r)&&!r.bot&&!isBotName(r.name))}
 const isFamily=r=>!r.guest&&(r.family||gamesFor(r.id)>=GUEST_GAMES);
 
 /* ---------- smart head start ---------- */
@@ -5160,6 +5161,7 @@ function ktTable(o){const P=o.P,n=P.length,v=Math.max(0,P.findIndex(p=>o.me&&p.i
 const HTR='23456789TJQKA',HTSU={C:'♣',D:'♦',S:'♠',H:'♥'},HTSO='CDSH';
 const htRk=c=>HTR.indexOf(c[0]),htSu=c=>c[1],htLab=c=>(c[0]==='T'?'10':c[0])+HTSU[c[1]]+'︎';
 const htIsPt=c=>c[1]==='H'||c==='QS';
+const botPick=(list,taken)=>{const f=list.filter(n=>!taken(n));return f.length?f[Math.floor(Math.random()*f.length)]:''};
 const BOTPOOL={easy:['Lucky Bot','Wobbly Bot','Doodle Bot','Sleepy Bot','Bumble Bot','Giggle Bot','Penny Bot','Noodle Bot','Pip'],normal:['Card Bot','Sparky','Gizmo','Widget','Sprocket','Pixel','Rusty','Bolt','Dot'],hard:['Mega Bot','Brainy Bot','Turbo Bot','Shark Bot','Iron Bot','Max Bot','Ace','Chip','Boss Bot'],all(){return this.easy.concat(this.normal,this.hard)}};
 const HTBOTS={easy:['Easy','Lucky Bot'],normal:['Normal','Card Bot'],hard:['Hard','Hearts Bot']};
 const HTOUT={3:['2D'],5:['2D','2C'],6:['2D','2C','3D','3C']};
@@ -12911,7 +12913,7 @@ document.addEventListener('click',e=>{
     case 'cfhand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'cfnext':{S.hr=Math.min(cfN()-1,cfCur()+1);window.scrollTo(0,0);break}
     case 'yzbot':{const BT=S.game==='hearts'?HTBOTS:S.game==='spades'?SDBOTS:S.game==='ohell'?OHBOTS:S.game==='rook'?RKBOTS:S.game==='rage'?RGBOTS:S.game==='uno'?UNBOTS:S.game==='golf'||S.game==='skyjo'||S.game==='gnome'?GPBOTS:S.game==='skipbo'?SBBOTS:S.game==='crowns'?FCBOTS:S.game==='phase10'?PZBOTS:HFE()?HPBOTS:S.game==='nerts'?NRBOTS:S.game==='tripoley'?TQBOTS:YZBOTS,q=S.players[+b.dataset.i],L=['','easy','normal','hard'],nx=L[(L.indexOf(q.bot||'')+1)%L.length],defs=Object.values(YZBOTS).concat(Object.values(HTBOTS),Object.values(SDBOTS),Object.values(OHBOTS),Object.values(RKBOTS),Object.values(RGBOTS),Object.values(UNBOTS),Object.values(GPBOTS),Object.values(SBBOTS),Object.values(FCBOTS),Object.values(PZBOTS),Object.values(HPBOTS),Object.values(NRBOTS),Object.values(TQBOTS)).map(x=>x[1]),base=n=>n.replace(/ \d+$/,'');
-      if(!q.name||defs.includes(base(q.name))||BOTPOOL.all().includes(base(q.name))){let nmv='';if(nx){const pool=[BT[nx][1]].concat(BOTPOOL[nx].filter(x=>x!==BT[nx][1])),taken=n=>S.players.some(o=>o!==q&&o.on&&o.name===n);nmv=pool.find(n=>!taken(n))||'';if(!nmv){nmv=BT[nx][1];let j=2;while(taken(nmv+' '+j))j++;nmv+=' '+j}}q.name=nmv}if(nx)q.bot=nx;else delete q.bot;delete q.rid;break}
+      if(!q.name||defs.includes(base(q.name))||BOTPOOL.all().includes(base(q.name))){let nmv='';if(nx){const own=BT!==YZBOTS||S.game==='yahtzee',pool=(own?[BT[nx][1]]:[]).concat(BOTPOOL[nx].filter(x=>x!==BT[nx][1])),taken=n=>S.players.some(o=>o!==q&&o.on&&o.name===n);nmv=botPick(pool,taken);if(!nmv){nmv=BT[nx][1];let j=2;while(taken(nmv+' '+j))j++;nmv+=' '+j}}q.name=nmv}if(nx)q.bot=nx;else delete q.bot;delete q.rid;break}
     case 'htstart':{switchGame('hearts');resetScores();clearPlayers();S.started=false;S.screen='map';HTX().play=k==='1';htKeep();window.scrollTo(0,0);break}
     case 'htplaymode':{if(S.started)break;HTX().play=k==='1';if(HTX().play&&act().length>6)toast('Playing on the phone works for 3 to 6 players.');htKeep();break}
     case 'yzstart':{switchGame('yahtzee');resetScores();clearPlayers();S.started=false;S.screen='map';YZX().roller=k==='1';yzKeep();window.scrollTo(0,0);break}
@@ -13263,7 +13265,7 @@ document.addEventListener('click',e=>{
     case 'nxst':{const X=NX(),d2=+b.dataset.d;X[k]=Math.max(0,X[k]+d2);nxKeep();break}
     case 'nxset':{NX()[k]=b.dataset.v;nxKeep();break}
     case 'nxplaymode':{if(S.started)break;NX().play=k==='1'?1:0;nxKeep();break}
-    case 'nrstart':{switchGame('nerts');resetScores();clearPlayers();S.started=false;S.screen='map';NX().play=k==='1'?1:0;if(NX().play){const P=S.players;let h=0;P.forEach(q=>{if(q.on&&!q.bot){h++;if(h>1){q.bot='normal'}}});P.forEach(q=>{if(q.bot&&!q.name){const nmv=[NRBOTS.normal[1]].concat(BOTPOOL.normal).find(n=>!P.some(o=>o.on&&o.name===n));if(nmv)q.name=nmv}})}nxKeep();window.scrollTo(0,0);break}
+    case 'nrstart':{switchGame('nerts');resetScores();clearPlayers();S.started=false;S.screen='map';NX().play=k==='1'?1:0;if(NX().play){const P=S.players;let h=0;P.forEach(q=>{if(q.on&&!q.bot){h++;if(h>1){q.bot='normal'}}});P.forEach(q=>{if(q.bot&&!q.name){const nmv=botPick([NRBOTS.normal[1]].concat(BOTPOOL.normal),n=>P.some(o=>o.on&&o.name===n));if(nmv)q.name=nmv}})}nxKeep();window.scrollTo(0,0);break}
     case 'nxreset':S.nx={...NXDEF};nxKeep();break;
     case 'nxcall':{const q=act()[+b.dataset.i],r=nxCur(),R=nxR(q,r);snap();R.call=!R.call;if(R.call){R.n=0;act().forEach(o=>{if(o!==q&&(o.nt||[])[r])o.nt[r].call=false})}break}
     case 'nxhand':{S.hr=+b.dataset.v;const pid=LPTIP&&LPTIP.startsWith('ph:')?LPTIP.slice(3):null;LPTIP=null;window.scrollTo(0,0);if(pid)setTimeout(()=>{const el=document.getElementById('nxc-'+pid);if(el)el.scrollIntoView({block:'center'})},60);break}
@@ -13422,7 +13424,7 @@ document.addEventListener('click',e=>{
       if(cur){cur.rid=null;cur.name='';delete cur.bot;if(act().length>m.min)cur.on=false;break}
       let seat=act().find(q=>!q.name.trim());
       if(!seat){if(act().length>=m.max)break;seat=slots().find(q=>!q.on);if(!seat)break;seat.on=true}
-      seat.name=ro.name;seat.rid=ro.id;seat.hs=ro.hs||0;if(rosterBot(ro))seat.bot=seat.bot||'normal';else delete seat.bot;
+      seat.name=ro.name;seat.rid=ro.id;seat.hs=ro.hs||0;delete seat.bot;
       if(ro.color&&seat.color!==ro.color){const o=S.players.find(x=>x!==seat&&x.color===ro.color);if(o)o.color=seat.color;seat.color=ro.color}
       break}
     case 'go':MEEPLESHEET=false;COLPICK=null;LPTIP=null;if(b.dataset.s==='home'&&(S.demo||S.editing)){exitDemo();window.scrollTo(0,0);break}S.screen=b.dataset.s;window.scrollTo(0,0);break;

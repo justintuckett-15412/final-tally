@@ -9,9 +9,10 @@ const {chromium,W,ok,done,BASE}=require('./link.js');
     H.games=[{id:'g1',game:'rage',date:'2026-10-01',players:[],state:{players:[{name:'Justin',rid:'r1'},{name:'Rage Bot',rid:'r2',bot:'hard'}]}},{id:'g2',game:'yahtzee',date:'2026-10-02',players:[],state:{players:[{name:'Yahtzee Bot',rid:'r3',bot:'normal'},{name:'B',rid:'r4'}]}}];RBOT={n:-1,m:null}});
   const chips=g=>page.evaluate(g=>{switchGame(g);S.screen='players';render();return [...document.querySelectorAll('[data-a=rpick]')].map(x=>x.innerText.trim())},g);
   let q=await chips('quacks');ok('Quacks players: people only, no bot names',q.includes('Justin')&&q.includes('B')&&!q.some(n=>/Bot/.test(n)),q);
-  let r=await chips('rage');ok('Rage players: Rage Bot shows, Yahtzee Bot doesn’t',r.includes('Rage Bot')&&!r.includes('Yahtzee Bot'),r);
-  await page.evaluate(()=>{const b=[...document.querySelectorAll('[data-a=rpick]')].find(x=>x.innerText.includes('Rage Bot'));b.click()});
-  ok('tapping a bot name seats it as a computer player',await page.evaluate(()=>{const p=S.players.find(x=>x.name==='Rage Bot');return !!p&&!!p.bot}));
+  let r=await chips('rage');ok('Rage players: no bot names either',r.includes('Justin')&&!r.some(n=>/Bot/.test(n)),r);
+  const names=await page.evaluate(()=>{switchGame('quacks');S.screen='players';const out=new Set();for(let k=0;k<12;k++){S.players[1].name='';delete S.players[1].bot;const b=document.createElement('button');b.dataset.a='yzbot';b.dataset.i='1';b.hidden=true;document.body.appendChild(b);b.click();b.remove();out.add(S.players[1].name+'|'+S.players[1].bot)}return [...out]});
+  ok('adding a bot gives it a random name',names.length>2&&names.every(n=>n.endsWith('|easy')&&n.split('|')[0]),names);
+  ok('Quacks bots never get the Yahtzee bot name',names.every(n=>!/Yahtzee/.test(n)),names);
   // --- fortune choices before brewing ---
   await page.evaluate(()=>{window.__htfast=1;switchGame('quacks');resetScores();const X=QKX();X.play=1;X.herb=true;X.wit={s:'draw6',c:'double',g:'colors'};const P=S.players;P.forEach((p,i)=>{p.on=i<3;p.name=['Me','Bot A','Bot B'][i]||'';if(i)p.bot='normal';else delete p.bot});save();
     const x=document.createElement('button');x.dataset.a='start';x.hidden=true;document.body.appendChild(x);x.click();x.remove();document.querySelectorAll('[data-a=tourskip]').forEach(b=>b.click())});
