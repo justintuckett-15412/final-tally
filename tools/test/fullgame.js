@@ -4,8 +4,8 @@ const click=(page,a,k)=>page.evaluate(([a,k])=>{const sel=k!=null?`[data-a="${a}
 const btns=page=>page.evaluate(()=>[...new Set([...document.querySelectorAll('[data-a]')].filter(b=>!b.disabled&&b.offsetParent).map(b=>b.dataset.a+(b.dataset.k?':'+b.dataset.k:'')))]);
 (async()=>{const browser=await chromium.launch();
   const H=await mk(browser,'qh'),G=await mk(browser,'qg');const errs=[];
-  for(const [n,p] of [['host',H],['guest',G]]){p.on('pageerror',e=>errs.push(n+': '+e.message));await p.evaluate(()=>{window.__htfast=1})}
-  const ids=await H.evaluate(()=>{switchGame('quacks');resetScores();const P=S.players;P.forEach((p,i)=>{p.on=i<4;p.name=['Justin','Brad','Dice Bot','Yahtzee Bot'][i]||'';if(i>1&&i<4)p.bot='normal';else delete p.bot});QKX().play=1;save();
+  for(const [n,p] of [['host',H],['guest',G]]){p.on('pageerror',e=>errs.push(n+': '+e.message));await p.evaluate(h=>{window.__htfast=1;window.__herb=h},!!process.env.HERB)}
+  const ids=await H.evaluate(()=>{switchGame('quacks');resetScores();const P=S.players;P.forEach((p,i)=>{p.on=i<4;p.name=['Justin','Brad','Dice Bot','Yahtzee Bot'][i]||'';if(i>1&&i<4)p.bot='normal';else delete p.bot});QKX().play=1;if(window.__herb){const X=QKX();X.herb=true;X.wit={};['s','c','g'].forEach(t=>{const o=QKWITCH[t][1];X.wit[t]=o[Math.floor(Math.random()*o.length)][0]})}save();
     const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove();return [P[0].id,P[1].id]});
   await H.evaluate(()=>lkHostStart());await W(2500);const code=await H.evaluate(()=>S.lk.code);
   await H.evaluate(id=>lkPick(id),ids[0]);await G.evaluate(c=>lkJoin(c),code);await W(3000);await G.evaluate(id=>lkPick(id),ids[1]);await W(2000);
