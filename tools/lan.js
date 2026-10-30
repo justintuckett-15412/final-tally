@@ -188,7 +188,7 @@ async function qrSvg(text){await loadScript('qr.js');const q=window.qrcode(0,'L'
   for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+m} ${r+m}h1v1h-1z`;
   return `<svg class="lanqr" viewBox="0 0 ${n+2*m} ${n+2*m}" shape-rendering="crispEdges" role="img" aria-label="Pairing code"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`}
 /* camera scanner: uses the phone's built-in QR reader when it has one, otherwise a small reader that ships with the app */
-async function scan(video,onText){const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280}},audio:false});
+async function scan(video,onText,want){const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280}},audio:false});
   video.srcObject=stream;video.setAttribute('playsinline','');video.muted=true;await video.play().catch(()=>{});
   let det=null;try{if('BarcodeDetector' in window&&(await BarcodeDetector.getSupportedFormats()).includes('qr_code'))det=new BarcodeDetector({formats:['qr_code']})}catch(e){}
   if(!det)await loadScript('jsqr.js');
@@ -197,7 +197,7 @@ async function scan(video,onText){const stream=await navigator.mediaDevices.getU
       if(det){const r=await det.detect(video);if(r&&r[0])t=r[0].rawValue}
       else{const w=video.videoWidth,h=video.videoHeight,s=Math.min(1,720/Math.max(w,h));cv.width=w*s|0;cv.height=h*s|0;cx.drawImage(video,0,0,cv.width,cv.height);
         const r=window.jsQR(cx.getImageData(0,0,cv.width,cv.height).data,cv.width,cv.height,{inversionAttempts:'dontInvert'});if(r)t=r.data}
-      if(t&&/FT[01]/.test(t)){live=false;onText(t)}}catch(e){}busy=false}if(live)requestAnimationFrame(tick)};
+      if(t&&(want||/FT[01]/).test(t)){live=false;onText(t)}}catch(e){}busy=false}if(live)requestAnimationFrame(tick)};
   requestAnimationFrame(tick);
   return ()=>{live=false;stream.getTracks().forEach(t=>t.stop());video.srcObject=null}}
 /* asking for the camera early also lets the phone share its real local address with the other phone */

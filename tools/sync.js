@@ -90,10 +90,10 @@ export function makeLink(fb,o={}){
   /* ---- linked games: one shared game, several phones, joined with a 6-number code ---- */
   let lk=null,uid='',lastRd=0;const gref=c=>['games',c],exp=()=>fb.when(Date.now()+3*864e5);
   const authed=async()=>{uid=await withTimeout(fb.ready(),20000,o.local?'Couldn\u2019t reach the host phone.':'Couldn\u2019t connect. Check your internet connection.');return uid};
-  const seatMap=all=>{const m={};all.forEach(d=>{if(d.data&&d.data.uid)m[d.id]={dev:d.data.uid,ready:!!d.data.ready,rd:d.data.rd||0}});return m};
+  const seatMap=all=>{const m={};all.forEach(d=>{if(d.data&&d.data.uid)m[d.id]={dev:d.data.uid,ready:!!d.data.ready,rd:d.data.rd||0,t:d.data.t||0}});return m};
   function lkStop(){if(lk){lk.un.forEach(u=>{try{u()}catch(e){}});lk=null}}
   function lkWatch(code){lkStop();const un=[],send=u=>{try{window.lkRecv&&window.lkRecv(u)}catch(e){console.error(e)}};
-    un.push(fb.watchDoc(gref(code),d=>{if(!d||d.ended){send({gone:true});return}lastRd=d.rd||0;send({mflat:flatM(d.m),order:d.order,rv:d.rv||null,rd:lastRd,gen:d.gen||0,sw:!!d.sw})},()=>{}));
+    un.push(fb.watchDoc(gref(code),d=>{if(!d||d.ended){send({gone:true});return}lastRd=d.rd||0;send({mflat:flatM(d.m),order:d.order,rv:d.rv||null,rd:lastRd,gen:d.gen||0,sw:!!d.sw,host:d.hostUid||'',t:d.t||0})},()=>{}));
     un.push(fb.watch([...gref(code),'i'],ch=>{const items={};ch.forEach(c=>{if(c.local)return;items[c.id]=c.removed||!c.data?null:c.data.j});if(Object.keys(items).length)send({items})},()=>{}));
     un.push(fb.watch([...gref(code),'seats'],(ch,first,all)=>send({seats:seatMap(all)}),()=>{}));
     un.push(fb.watch([...gref(code),'p'],ch=>{const ps={};ch.forEach(c=>{if(!c.local&&c.data&&c.data.j)ps[c.id]=c.data.j});if(Object.keys(ps).length)send({ps})},()=>{}));
@@ -142,6 +142,10 @@ export function makeLink(fb,o={}){
     /* claiming a player creates their seat; the database rules refuse it if another device already holds that player */
     seat(id,s){if(!lk)return Promise.reject(new Error('Not linked'));const p=[...gref(lk.code),'seats',id];
       return s?fb.set(p,{uid,ready:!!s.ready,rd:s.rd||0,t:Date.now(),expireAt:exp()}):fb.del(p)},
+    /* heartbeats: the host touches the game, each guest touches its seat, so phones can tell who has dropped */
+    beat(id,s){if(!lk)return;if(id)fb.set([...gref(lk.code),'seats',id],{uid,ready:!!(s&&s.ready),rd:(s&&s.rd)||0,t:Date.now(),expireAt:exp()}).catch(()=>{});else fb.update(gref(lk.code),{t:Date.now()}).catch(()=>{})},
+    /* another phone takes over hosting (the old host's phone died) */
+    takeHost(){if(!lk)return Promise.reject(new Error('Not linked'));return withTimeout(fb.update(gref(lk.code),{hostUid:uid,t:Date.now()}),15000,'Couldn’t reach the other phones.')},
     reveal(on=true){if(!lk)return;fb.update(gref(lk.code),on?{rv:Date.now()}:{rv:null,rd:lastRd+1}).catch(fail)},
     end(){if(!lk)return;const c=lk.code;lkStop();fb.update(gref(c),{ended:true}).then(()=>purge(c),fail)},
     endCode(c){authed().then(()=>fb.update(gref(c),{ended:true})).then(()=>purge(c)).catch(fail)},
