@@ -10,3 +10,4 @@ The site must be built first (`python3 /home/claude/site-tools/build.py`). The r
 Writing a new test: `const {mk,W,ok,done,chromium}=require('./link.js')`. Use `mk(browser,'name')` for each phone, and call `ok('what should be true', condition)` for each check.
 
 - `fuzz.js` (N=8): random full Quacks games on one phone (random settings, a person tapping at random, 0-2 people) with rule checks after every step. `linkfuzz.js`: the same on two linked phones.
+- `rgfuzz.js` (N=8, LINK=1 for linked phones): random full Rage games with random house rules; checks every card played was legal, every trick went to the right player, no card lost or doubled, rounds add up.

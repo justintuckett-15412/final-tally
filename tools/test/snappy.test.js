@@ -17,6 +17,7 @@ const until=async(p,fn,ms=8000,arg=null)=>{const t=Date.now();while(Date.now()-t
   ok('a chip draw is not shown before the host answers',await G.evaluate(([id,n])=>{const L=S.qpg.pl[id];return L.pot.length===n},[ids[1],pot0]));
   await until(G,([id,n])=>S.qpg.pl[id].pot.length>n,8000,[ids[1],pot0]);await W(2500);
   // Stop: no chance involved, so the guest's screen should show it at once
+  for(let t=0;t<10;t++){const b=await btns(G);const an=b.find(x=>x.startsWith('qpans'));if(!an)break;await tap(G,'qpans',an.split(':')[1]);await W(800)}
   await tap(G,'qpstop');
   const seen=await until(G,()=>/You stopped|Your pot exploded/.test(document.body.innerText),8000);
   const conf=await until(G,id=>S.qpg.pl[id].stop,8000,ids[1]);

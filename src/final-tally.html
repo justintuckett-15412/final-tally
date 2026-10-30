@@ -5658,7 +5658,7 @@ const rgBidsIn=r=>act().every(p=>{const R=(p.rg||[])[r];return R&&R.b!==null&&R.
 const rgPhase=r=>S.rgbid===r||!rgBidsIn(r)?'bid':'play';
 const rgMoon=r=>!rgFore(r)&&rgCards(r)>1;
 function rgCheck(r){const P=act(),n=rgCards(r);let t=0,bo=0,md=0;P.forEach(p=>{const R=(p.rg||[])[r]||{};t+=+R.t||0;bo+=+R.bo||0;md+=+R.md||0});
-  const m=[];if(t!==n)m.push(`${t} of ${n} trick${n===1?'':'s'} entered`);if(bo>2)m.push(`${bo} Bonus Rage cards (the deck has 2)`);if(md>2)m.push(`${md} Mad Rage cards (the deck has 2)`);return m.join(', ')}
+  const m=[];if(t!==n)m.push(`${t} of ${n} trick${n===1?'':'s'} entered`);{const dk=RGX().amigoDeck?3:2;if(bo>dk)m.push(`${bo} Bonus Rage cards (the deck has ${dk})`);if(md>dk)m.push(`${md} Mad Rage cards (the deck has ${dk})`)}return m.join(', ')}
 function rgBidNote(r){const P=act(),n=rgCards(r);let s=0,all=true;P.forEach(p=>{const R=(p.rg||[])[r];if(!R||R.b===null||R.b===undefined)all=false;else s+=+R.b});
   if(!all)return '';return s===n?`Bids add up to exactly ${n}. Somebody’s going to miss.`:s>n?`Bids total ${s} for ${n} trick${n===1?'':'s'}: overbid by ${s-n}.`:`Bids total ${s} for ${n} trick${n===1?'':'s'}: underbid by ${n-s}.`}
 /* ================= Rage on the phone (classic rules) =================
@@ -12762,11 +12762,11 @@ document.addEventListener('click',e=>{
   if(/^(ht|sd|oh|rk|rg)card$/.test(a)&&cardDrag()&&!DRAGPLAY&&b.classList.contains('ok')&&curSel()===b.dataset.c){toast('Drag it onto the table to play it.');return}
   if(a==='cardplay'){SET.cardPlay=SET.cardPlay==='drag'?'tap':'drag';saveSet();toast(SET.cardPlay==='drag'?'Drag cards onto the table to play them.':'Tap a card, then tap it again to play it.');render();return}
   if(lkqWaiting()&&/^(unp(card|draw|keep|col|chal|swap|roul|aim|row|end)|gp(cell|deck|disc|pile|skip|bounce)|ht(card|pass|msel)|sd(card|bid|look)|oh(card|bid)|rk(card|bid|nest)|rg(card|bid|color|num|fore)|sbp(disc|build))$/.test(a))return;
-  if(/^ht(card|pass|deal|msel|show)$/.test(a)&&S.game==='hearts'){htAct(a,b,k);render();return}
-  if(/^sd(card|bid|deal|show|look)$/.test(a)&&S.game==='spades'){sdAct(a,b,k);render();return}
-  if(/^oh(card|bid|deal|show)$/.test(a)&&S.game==='ohell'&&ohPlayOn()&&S.started){ohAct(a,b,k);render();return}
-  if(/^rk(card|bid|deal|show|trump|nest)$/.test(a)&&S.game==='rook'&&rkPlayOn()&&S.started){rkAct(a,b,k);render();return}
-  if(/^rg(card|bid|deal|show|color|num|fore|rage)$/.test(a)&&S.game==='rage'&&rgPlayOn()&&S.started){rgAct(a,b,k);render();return}
+  if(/^ht(card|pass|deal|msel|show)$/.test(a)&&S.game==='hearts'){htAct(a,b,k);save();render();return}
+  if(/^sd(card|bid|deal|show|look)$/.test(a)&&S.game==='spades'){sdAct(a,b,k);save();render();return}
+  if(/^oh(card|bid|deal|show)$/.test(a)&&S.game==='ohell'&&ohPlayOn()&&S.started){ohAct(a,b,k);save();render();return}
+  if(/^rk(card|bid|deal|show|trump|nest)$/.test(a)&&S.game==='rook'&&rkPlayOn()&&S.started){rkAct(a,b,k);save();render();return}
+  if(/^rg(card|bid|deal|show|color|num|fore|rage)$/.test(a)&&S.game==='rage'&&rgPlayOn()&&S.started){rgAct(a,b,k);save();render();return}
   if(/^pzp[a-z]+$/.test(a)&&S.game==='phase10'&&pzOn()&&S.started){pzAct(a,b,k);save();render();return}
   if(/^tqp[a-z]+$/.test(a)&&S.game==='tripoley'&&tqOn()&&S.started){tqAct(a,b,k);save();render();return}
   if(/^nrp[a-z]+$/.test(a)&&S.game==='nerts'&&nrOn()&&S.started){nrAct(a,b,k);save();render();return}
