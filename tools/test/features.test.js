@@ -19,6 +19,7 @@ const {mk,st,pages,chromium,W,click,ok,done,BASE}=require('./link.js');
   await H.evaluate(()=>{const b=document.createElement('button');b.dataset.a='lulobby';b.hidden=true;document.body.appendChild(b);b.click();b.remove()});await W(6000);
   const hb=await H.evaluate(()=>({g:S.game,s:S.screen,p:act().map(p=>p.name),me:S.lk.me}));const bb=await B.evaluate(()=>({g:S.game,s:S.screen,me:S.lk.me&&(act().find(p=>p.id===S.lk.me)||{}).name}));
   ok('back to linked phones (host)',hb.g==='linkup'&&hb.s==='home'&&hb.p.join()==='Justin,Brad'&&!!hb.me,hb);
+  if(!(bb.g==='linkup'&&bb.s==='lkwait'&&bb.me==='Brad'))console.log('DBG',await B.evaluate(()=>JSON.stringify({LKPREV,LKAUTO,LKGEN,LKBUSY,LKSW,seats:LKSEATS,pl:S.players.map(p=>[p.id,p.name,p.bot]),me:S.lk&&S.lk.me,claimed:S.lk&&S.lk.claimed,inv:S.lkinv,invg:LKINVG})));
   ok('back to linked phones (guest)',bb.g==='linkup'&&bb.s==='lkwait'&&bb.me==='Brad',bb);
   // host drops: guest takes over
   await B.evaluate(()=>{LKSTALE=4000});await H.evaluate(()=>window.FTLINK.beat(null));await W(2500);

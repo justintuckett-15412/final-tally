@@ -15,6 +15,6 @@ for t in $TESTS; do
     fullgame) f=fullgame.js; env="";; fullgame-herb) f=fullgame.js; env="HERB=1";; *) f=$t.test.js; env="";;
   esac
   echo "== $t"
-  env $env node "$f" 2>&1 | grep -E "^(PASS|FAIL)|Error"
+  env $env node "$f" 2>&1 | grep -E "^(PASS|FAIL|DBG)|Error"
 done 2>&1 | tee /tmp/ft-test.out
 if grep -qE "^FAIL|Error" /tmp/ft-test.out; then echo; echo "SOME TESTS FAILED"; exit 1; else echo; echo "ALL PASSED"; fi
