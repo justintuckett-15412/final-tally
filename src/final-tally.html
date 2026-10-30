@@ -35,6 +35,18 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 
 /* top bar */
 .bar{display:flex;align-items:center;gap:12px;padding-block:16px 8px}
+.qpwrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.qpwit .qkw{display:grid;justify-items:center;gap:4px;padding:8px 4px 10px;border-radius:14px;border:2px solid var(--line,rgba(127,127,127,.3));background:var(--surface);color:var(--ink);font:inherit;text-align:center;min-height:0}
+.qpwit .qkw.ready{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.qpwit .qkw.on{border-color:var(--good);background:color-mix(in srgb,var(--good) 18%,var(--surface));box-shadow:0 0 14px 2px color-mix(in srgb,var(--good) 45%,transparent)}
+.qpwit .qkw.used{opacity:.45;filter:grayscale(1)}
+.qpwit .qkw[disabled]:not(.used):not(.on){opacity:.85}
+.qkcoin{position:relative;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;border:2px solid rgba(0,0,0,.35);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),inset 0 3px 0 rgba(255,255,255,.35)}
+.qkcoin.s{background:radial-gradient(circle at 35% 30%,#fff,#c9ced6 45%,#8c939e)}.qkcoin.c{background:radial-gradient(circle at 35% 30%,#ffd6b0,#d9824a 45%,#9a4f22)}.qkcoin.g{background:radial-gradient(circle at 35% 30%,#fff3b0,#f0b43a 45%,#b27a10)}
+.qkcoin i{font-style:normal;font-size:24px}.qkcoin img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover}.qkcoin img+i{display:none}
+.qkw.on .qkcoin{animation:qkcoinpulse 1.6s ease-in-out infinite}@keyframes qkcoinpulse{50%{transform:scale(1.08)}}
+.qkwt{display:grid;gap:1px;line-height:1.15}.qkwt small{font-size:11px;opacity:.75;text-transform:uppercase;letter-spacing:.04em}.qkwt b{font-size:13px}.qkwt em{font-style:normal;font-size:11px;opacity:.85}
+.qpwchips{display:inline-flex;gap:3px;margin-left:4px;vertical-align:middle}.qpwchips .qkcoin{width:18px;height:18px;border-width:1px}.qpwchips .qkcoin i{font-size:10px}.qpwchips .qkcoin.used{opacity:.3;filter:grayscale(1)}.qpwchips .qkcoin.on{box-shadow:0 0 0 2px var(--good)}
 .lkqr{display:grid;justify-items:center;gap:4px;margin:6px auto 2px}.lkqr svg{width:min(200px,60vw);height:auto;background:#fff;padding:8px;border-radius:12px}.lkqr small{color:var(--muted,inherit);font-size:13px}
 .back{font-weight:700;color:var(--muted);padding:8px 4px;margin-left:-4px;white-space:nowrap}
 .bar h1{font-family:var(--display);font-weight:800;font-size:30px;line-height:1;margin:0;letter-spacing:.01em;text-transform:uppercase;flex:1;text-wrap:balance}
@@ -1799,9 +1811,9 @@ function playersScreen(){
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="${m.teams?'Team':'Player'} ${i+1}" aria-label="${m.teams?'Team':'Player'} ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button>
   </div>${S.rules.handicap&&p.on?`<div class="hsrow"><span class="rlab"><b>${esc(nm(p))}</b> starts with</span>${stepper('hs',p.hs||0,{min:0,max:100,k:i,label:'head start points'})}<span class="rlab">pts</span></div>`:''}${COLPICK===i?colPicker(p,i):''}`);
-  const fam=!m.teams&&H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div>
-    <div class="lr">${H.roster.filter(isFamily).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div>
-    ${H.roster.some(r=>!isFamily(r))?`<div class="rlab" style="margin:10px 0 6px"><b>Guests</b></div><div class="lr guests">${H.roster.filter(r=>!isFamily(r)).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div>`:''}
+  const fam=!m.teams&&rosterFor().length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div>
+    <div class="lr">${rosterFor().filter(isFamily).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div>
+    ${rosterFor().some(r=>!isFamily(r))?`<div class="rlab" style="margin:10px 0 6px"><b>Guests</b></div><div class="lr guests">${rosterFor().filter(r=>!isFamily(r)).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div>`:''}
     <p class="hint">Tap names to fill the seats with their usual colors. New names start as guests and join the ${esc(GN())} list after ${GUEST_GAMES} games.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="rules">‹ Rules</button><h1>${m.teams?'Teams':'Players'}</h1><span class="sub num">${n}</span></div>${steps(3)}
   ${fam}<div class="sec"><div class="panel">${rows.join('')}</div>
@@ -2061,8 +2073,9 @@ function saveGame(){
   const HFG=HFE()||(S.game==='pool'&&PLM().teams);
   act().forEach(p=>{const n=p.name.trim();if(!n||HFG)return;
     let r=(p.rid&&H.roster.find(x=>x.id===p.rid))||H.roster.find(x=>x.name.toLowerCase()===n.toLowerCase());
-    if(!r){r={id:uid()+uid(),name:n,color:p.color};H.roster.push(r);rosterChanged=true}
+    if(!r){r={id:uid()+uid(),name:n,color:p.color,...(p.bot?{bot:true,bg:[S.game||'ttr']}:{})};H.roster.push(r);rosterChanged=true}
     else if(r.color!==p.color||r.name!==n){r.color=p.color;r.name=n;rosterChanged=true}
+    if(p.bot&&r.bot&&!(r.bg||[]).includes(S.game||'ttr')){r.bg=[...(r.bg||[]),S.game||'ttr'];rosterChanged=true}if(!p.bot&&r.bot){delete r.bot;delete r.bg;rosterChanged=true}
     if(S.rules.handicap&&(r.hs||0)!==(+p.hs||0)){r.hs=+p.hs||0;rosterChanged=true}
     p.rid=r.id});
   const m=M(),rk=ranking();
@@ -3123,6 +3136,14 @@ const GUEST_GAMES=3;
 const GN=()=>(H.group||'').trim()||'Family';
 function saveGroup(){if(H.mode==='db')hWrite('group',{name:H.group});else hSaveLocal()}
 const gamesFor=rid=>H.games.filter(g=>g.players.some(q=>q.rid===rid)).length;
+
+/* bots in the "Who's playing?" names: a name that has only ever played as a computer player shows only in the games it played */
+let RBOT={n:-1,m:null};
+function rosterBots(){if(RBOT.n===H.games.length&&RBOT.m)return RBOT.m;const m={};
+  H.games.forEach(g=>{const ps=(g.state&&g.state.players)||[];ps.forEach(p=>{const n=String(p.name||'').trim().toLowerCase();if(!n)return;const key=p.rid||n;const e=m[key]||(m[key]={bot:true,games:new Set()});if(p.bot)e.games.add(g.game);else e.bot=false;if(p.rid&&n&&!m[n])m[n]=e})});
+  RBOT={n:H.games.length,m};return m}
+const rosterBot=r=>{const m=rosterBots(),e=m[r.id]||m[String(r.name||'').trim().toLowerCase()];return r.bot&&!(e&&!e.bot)?(e||{games:new Set(r.bg||[])}):e&&e.bot&&e.games.size?e:null};
+function rosterFor(){const g=S.game||'ttr';return H.roster.filter(r=>{const b=rosterBot(r);return !b||b.games.has(g)||(r.bg||[]).includes(g)})}
 const isFamily=r=>!r.guest&&(r.family||gamesFor(r.id)>=GUEST_GAMES);
 
 /* ---------- smart head start ---------- */
@@ -3985,7 +4006,7 @@ function hfPlayers(){const X0=HX(),X={...X0,teams:hfTeamUI()},PL=hpOn(),m=M(),n=
     ${PL&&(!S.lk||lkHost()&&!S.started)&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`${botHead(p,1)}<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button></div>
     ${X.teams&&p.on?`<div class="hfmem" style="${pc(p.color)}">${[0,1].map(j=>`<input data-mem="${i}.${j}" value="${esc(p.mem[j]||'')}" placeholder="Partner ${j+1}" aria-label="Team ${i+1} partner ${j+1}" autocomplete="off" maxlength="20">`).join('')}</div>`:''}${COLPICK===i?colPicker(p,i):''}`});
-  const fam=H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="hfpick" data-k="${r.id}" aria-pressed="${act().some(p=>X.teams?(p.mem||[]).some(x=>x.trim().toLowerCase()===r.name.toLowerCase()):p.name.trim().toLowerCase()===r.name.toLowerCase())}"><i></i>${esc(r.name)}</button>`).join('')}</div>
+  const fam=rosterFor().length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${rosterFor().filter(isFamily).concat(rosterFor().filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="hfpick" data-k="${r.id}" aria-pressed="${act().some(p=>X.teams?(p.mem||[]).some(x=>x.trim().toLowerCase()===r.name.toLowerCase()):p.name.trim().toLowerCase()===r.name.toLowerCase())}"><i></i>${esc(r.name)}</button>`).join('')}</div>
     <p class="hint">Tap names to fill the ${X.teams?'partner':'player'} spots in order.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="map">‹ House rules</button><h1>${X.teams?'Teams':'Players'}</h1><span class="sub num">${n}</span></div>${steps(2)}
   ${fam}<div class="sec"><div class="panel">${pairRows(sl,rows)}</div>
@@ -4184,7 +4205,7 @@ function nxPlayers(){const m=M(),n=act().length,sl=S.players.slice(0,8);
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="Player ${i+1}" aria-label="Player ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
     ${(S.game==='yahtzee'&&yzRoller()||S.game==='hearts'&&htPlayOn()||S.game==='spades'&&sdPlayOn()||S.game==='ohell'&&ohPlayOn()||S.game==='rook'&&rkPlayOn()||S.game==='rage'&&rgPlayOn()||S.game==='uno'&&unPlayOn()||(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')&&gpOn()||S.game==='skipbo'&&sbOn()||S.game==='crowns'&&fcOn()||S.game==='phase10'&&pzOn()||S.game==='nerts'&&nrOn()||S.game==='tripoley'&&tqOn()||S.game==='mextrain'&&mtOn()||S.game==='chicken'&&cfOn()||S.game==='quacks'&&qpOn())&&(!S.lk||lkHost()&&!S.started)&&p.on?`<button class="botbtn${p.bot?' on':''}" data-a="yzbot" data-i="${i}" aria-label="${p.bot?`Computer, ${YZBOTS[p.bot][0]}`:'Person'}. Tap to change">${p.bot?`${botHead(p,1)}<small>${YZBOTS[p.bot][0]}</small>`:'👤'}</button>`:''}
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button></div>${COLPICK===i?colPicker(p,i):''}`);
-  const fam=H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the seats.</p></div>`:'';
+  const fam=rosterFor().length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${rosterFor().filter(isFamily).concat(rosterFor().filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the seats.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="map">‹ House rules</button><h1>Players</h1><span class="sub num">${n}</span></div>${steps(2)}
   ${fam}<div class="sec"><div class="panel">${pairRows(sl,rows)}</div><p class="hint">${S.game==='tripoley'&&tqOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='nerts'&&nrOn()?'2 to 8 players. One person per phone: make the others computer players, or link phones to race each other.'+(S.lk&&!lkHost()?'':' Tap 👤 to switch a seat between a person and a computer player: Easy, Normal or Hard.'):S.game==='gnome'&&gpOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='phase10'&&pzOn()?'2 to 6 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='crowns'&&fcOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='skipbo'&&sbOn()?'2 to 6 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):(S.game==='golf'||S.game==='skyjo')&&gpOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='uno'&&unPlayOn()?'2 to 10 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rage'&&rgPlayOn()?'2 to 8 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='rook'&&rkPlayOn()?'4 or 6 players in teams of 2.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='ohell'&&ohPlayOn()?'2 to 7 players.'+(S.lk&&!lkHost()?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='hearts'?(htPlayOn()?(S.lk?'3 to 6 players.':'3 to 6 players; 4 is the classic game. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'3 to 7 players; 4 is the classic game.'):S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='gnome'||S.game==='yahtzee'?(S.lk||!yzRoller()?'1 to 8 players. Solo works too.':'1 to 8 players. Solo works too. Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):S.game==='mextrain'||S.game==='chicken'?'2 to 8 players.'+((S.game==='chicken'?cfOn():mtOn())&&!(S.lk&&!lkHost())?' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.':''):S.game==='catan'?'3 to 4 players, or 5 to 6 with the extension.':S.game==='phase10'?'2 to 6 players.':S.game==='wingspan'||S.game==='wyrmspan'?'2 to 5 players.':S.game==='skyjo'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks'?'2 to 8 players.':S.game==='spades'?(SDX().teams?'4 or 6 players in teams of 2.':'3 to 5 players, everyone alone.')+(S.lk?'':' Tap 👤 to make a seat a computer player: Easy, Normal or Hard.'):'2 to 8 players, each with their own deck.'} Tap a color to change it.</p></div>
   ${S.game==='quacks'?firstPicker():''}
@@ -4328,7 +4349,7 @@ function pxPlayers(){const m=M(),n=act().length,sl=S.players.slice(0,8);
     <button class="swatch" style="background:var(--t-${p.color});${pc(p.color)}" data-a="colpick" data-i="${i}" aria-expanded="${COLPICK===i}" aria-label="Color ${CNAME[p.color]}, tap to choose a color"></button>
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="Player ${i+1}" aria-label="Player ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button></div>${COLPICK===i?colPicker(p,i):''}`).join('');
-  const fam=H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the seats.</p></div>`:'';
+  const fam=rosterFor().length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${rosterFor().filter(isFamily).concat(rosterFor().filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the seats.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="map">‹ Game</button><h1>Players</h1><span class="sub num">${n}</span></div>${steps(2)}
   ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">1 to 8 players, or name them as teams. Tap a color to change it.</p></div>
   <div class="actions"><div class="in"><button class="btn primary" data-a="start">${startLbl()}</button></div></div>`}
@@ -4483,7 +4504,7 @@ function dtPlayers(){const m=M(),X=DX(),n=act().length,sl=S.players.slice(0,8);
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="Player ${i+1}" aria-label="Player ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button></div>
     ${X.g==='killer'&&p.on?`<div class="kpick"><span class="rlab">Number</span>${stepper('dkn',(S.dkill||{})[p.id]||0,{min:1,max:20,k:p.id,label:'number'})}</div>`:''}${COLPICK===i?colPicker(p,i):''}`).join('');
-  const fam=H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the spots, in throwing order.</p></div>`:'';
+  const fam=rosterFor().length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${rosterFor().filter(isFamily).concat(rosterFor().filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the spots, in throwing order.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="map">‹ Game</button><h1>Players</h1><span class="sub num">${n}</span></div>${steps(2)}
   ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">Players throw in this order.${X.g==='killer'?' Each player needs their own number: <button class="link-btn" data-a="dkrand">Pick numbers for us</button>':''}</p></div>
   <div class="actions"><div class="in"><button class="btn primary" data-a="dtstart">${S.started?'Back to the game':'Start the game'}</button></div></div>`}
@@ -4673,7 +4694,7 @@ function plPlayers(){const m=M(),X=PX2(),T=m.teams,n=act().length,sl=S.players.s
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="${T?'Team name (optional)':'Player '+(i+1)}" aria-label="${T?'Team':'Player'} ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button></div>
     ${T&&p.on?`<div class="hfmem" style="${pc(p.color)}">${[0,1].map(j=>`<input data-mem="${i}.${j}" value="${esc(p.mem[j]||'')}" placeholder="Partner ${j+1}" aria-label="Team ${i+1} partner ${j+1}" autocomplete="off" maxlength="20">`).join('')}</div>`:''}${COLPICK===i?colPicker(p,i):''}`}).join('');
-  const fam=!T&&H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the spots.</p></div>`:'';
+  const fam=!T&&rosterFor().length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${rosterFor().filter(isFamily).concat(rosterFor().filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div><p class="hint">Tap names to fill the spots.</p></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="map">‹ Game</button><h1>${T?'Teams':'Players'}</h1><span class="sub num">${n}</span></div>${steps(2)}
   ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${X.g==='cut'?'Cutthroat takes 3 to 5 players.':T?'Leave the team name blank to use the partners’ names.':'Tap a color to change it.'}</p></div>
   <div class="actions"><div class="in"><button class="btn primary" data-a="plstart">${S.started?'Back to the game':'Start the game'}</button></div></div>`}
@@ -4818,7 +4839,7 @@ function tSetup(){if(!TD)tDraft();const ps=TD.ps,can=ps.length>=2,G=tGames();
   return `<div class="bar"><button class="back" data-a="tcancel" aria-label="Cancel">‹</button><h1>Tournament</h1></div><img class="hero hfhero" src="art/tourney-banner.jpg" alt="" width="1200" height="560">
   <div class="sec"><div class="sec-h"><h3>Name</h3></div><input id="t-name" class="search" data-tname="1" value="${esc(TD.name)}" maxlength="40" placeholder="Tournament"></div>
   <div class="sec"><div class="sec-h"><h3>Players</h3><span class="sub num">${ps.length}</span></div>
-    ${H.roster.length?`<div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="tpick" data-k="${r.id}" aria-pressed="${ps.some(p=>p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div>`:''}
+    ${H.roster.length?`<div class="lr">${rosterFor().filter(isFamily).concat(rosterFor().filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="tpick" data-k="${r.id}" aria-pressed="${ps.some(p=>p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div>`:''}
     <div class="tadd"><input id="t-add" class="search" placeholder="Add a name" maxlength="20" autocomplete="off" enterkeyhint="done"><button class="btn" data-a="tadd">Add</button></div>
     ${ps.length?`<div class="panel tseeds">${ps.map((p,i)=>`<div class="tseed" style="${pc(p.color)}"><span class="num">${i+1}</span><i></i><b>${esc(p.name)}</b><button data-a="tmove" data-i="${i}" data-d="-1" ${i?'':'disabled'} aria-label="Move up">↑</button><button data-a="tmove" data-i="${i}" data-d="1" ${i<ps.length-1?'':'disabled'} aria-label="Move down">↓</button><button data-a="tdrop" data-i="${i}" aria-label="Remove">×</button></div>`).join('')}</div>
       <div class="lr"><button data-a="tshuffle">Shuffle the seeds</button></div><p class="hint">Seed 1 is at the top. Seeds 1 and 2 can only meet in the final.</p>`:'<p class="hint">Tap names or add new ones. You need at least 2.</p>'}</div>
@@ -5390,7 +5411,7 @@ function sdPlayers(){const m=M(),X=SDX(),T=m.teams,n=act().length,sl=S.players.s
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="${T?'Team name (optional)':'Player '+(i+1)}" aria-label="${T?'Team':'Player'} ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
     <button class="sw" role="switch" aria-checked="${p.on}" data-a="toggle" data-i="${i}" ${(p.on&&n<=m.min)||(!p.on&&n>=m.max)?'disabled':''} aria-label="${esc(nm(p))} playing"><i></i></button></div>
     ${T&&p.on?`<div class="hfmem" style="${pc(p.color)}">${[0,1].map(j=>`<input data-mem="${i}.${j}" value="${esc(p.mem[j]||'')}" placeholder="Partner ${j+1}" aria-label="Team ${i+1} partner ${j+1}" autocomplete="off" maxlength="20">`).join('')}</div>`:''}${COLPICK===i?colPicker(p,i):''}`}).join('');
-  const fam=!T&&H.roster.length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${H.roster.filter(isFamily).concat(H.roster.filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div></div>`:'';
+  const fam=!T&&rosterFor().length?`<div class="sec"><div class="sec-h"><h3>Who's playing?</h3></div><div class="lr">${rosterFor().filter(isFamily).concat(rosterFor().filter(r=>!isFamily(r))).map(r=>`<button style="${pc(r.color)}" data-a="rpick" data-k="${r.id}" aria-pressed="${S.players.some(p=>p.on&&p.rid===r.id)}"><i></i>${esc(r.name)}</button>`).join('')}</div></div>`:'';
   return `<div class="bar"><button class="back" data-a="go" data-s="map">‹ House rules</button><h1>${T?'Teams':'Players'}</h1><span class="sub num">${n}</span></div>${steps(2)}
   ${fam}<div class="sec"><div class="panel">${rows}</div><p class="hint">${T?'Two teams of partners. Leave the team name blank to use the partners’ names.':S.game==='skipbo'?'2 to 6 players.':'2 to 5 players.'}</p></div>
   <div class="actions"><div class="in"><button class="btn primary" data-a="start">${startLbl()}</button></div></div>`}
@@ -8411,8 +8432,31 @@ function qpRoundSetup(g){const r=g.r;act().forEach(p=>qkR(p,r));
   qpBrewStart(g)}
 function qpBrewStart(g){const id=qkCid(g.r),rats=qkRats(g.r)||[];g.ps.forEach(pid=>{const L=g.pl[pid],p=act().find(q=>q.id===pid),x=p&&rats.find(y=>y.p===p);L.rat=x?x.n:0;L.start=Math.min(QKSPOON-2,L.drop+L.rat);if(L.rat)gLog(g,`${nmid(pid)} gets ${L.rat} rat tail${L.rat===1?'':'s'}`,'🐀');if(id==='luxury')L.lim=9;if(id==='filling'){L.drop++;L.start=Math.min(QKSPOON-2,L.start+1)}});g.phase='brew';
   const rt=g.ps.map(pid=>[pid,g.pl[pid].rat]).filter(x=>x[1]);
-  g.ps.forEach(pid=>{const p=act().find(q=>q.id===pid);g.pl[pid].sf=!p||!!p.bot;g.pl[pid].sr=true});
+  g.ps.forEach(pid=>{const p=act().find(q=>q.id===pid);g.pl[pid].sf=!p||!!p.bot;g.pl[pid].sr=true;g.pl[pid].fpc=null;g.pl[pid].fpw=null;g.pl[pid].fpd=0});
+  if(id==='lessmore'){const sums=g.ps.map(pid=>{const b=g.pl[pid].bag.slice(),t=[];for(let k=0;k<5&&b.length;k++)t.push(b.splice(Math.floor(Math.random()*b.length),1)[0]);return [pid,t.reduce((a,c)=>a+qpV(c),0)]}),lo=Math.min(...sums.map(x=>x[1]));
+    sums.forEach(([pid,n])=>{const p=act().find(q=>q.id===pid);if(!p)return;const R=qkR(p,g.r);if(n===lo){R.fp='low';g.pl[pid].bag.push(qpNew('u2'));gLog(g,`${nm(p)} drew the lowest sum (${n}): a blue 2-chip`,'🔮')}else R.fp='hi'})}
+  if(id==='beginner'){const sc=g.ps.map(pid=>{const p=act().find(q=>q.id===pid);return [pid,p?qkBefore(p,g.r):0]}),lo=Math.min(...sc.map(x=>x[1]));sc.forEach(([pid,n])=>{if(n===lo){g.pl[pid].bag.push(qpNew('g1'));gLog(g,`${nmid(pid)} has the fewest points: a green 1-chip`,'🔮')}})}
+  if(qpFNeeds(g.r))act().filter(q=>q.bot).forEach(q=>qpBotFP(g,q));
   g.brewAnn=[['Rat tails',rt.length?rt.map(([pid,n])=>`${nmid(pid)} ${n} 🐀`).join(' · ')+'. They start that far ahead.':'Nobody is far enough behind for rat tails.','🐀',rt.length?5500:3500],['Start brewing!','Draw chips one at a time. Stop before the white chips go over the limit!','⚗️']];qpBrewAnn(g);g.cardAnn=null}
+
+/* fortune teller cards with a choice are decided on the card, before brewing; their chips go in the bag right away */
+const QPFPICK=['choose1','wheel','ratfriend','goodstart','justtime','wisely'];
+const qpFNeeds=r=>QPFPICK.includes(qkCid(r));
+const qpChips=v=>QPSHOP.flatMap(([k,vs])=>vs.filter(x=>x===v).map(x=>k+x));
+function qpFUndo(g,pid){const L=g.pl[pid],p=act().find(q=>q.id===pid),R=qkR(p,g.r);
+  if(L.fpc){const i=L.bag.indexOf(L.fpc);if(i>=0)L.bag.splice(i,1);L.fpc=null}if(L.fpw){L.bag.push(L.fpw);L.fpw=null}if(L.fpd){L.drop-=L.fpd;L.start-=L.fpd;L.fpd=0}R.fp=null}
+function qpRatsNow(g,pid){const L=g.pl[pid],p=act().find(q=>q.id===pid),x=(qkRats(g.r)||[]).find(y=>y.p===p);L.rat=x?x.n:0;L.start=Math.min(QKSPOON-2,L.drop+L.rat)}
+function qpFP(g,pid,v,c){const L=g&&g.pl[pid],p=act().find(q=>q.id===pid);if(!L||!p||g.phase!=='brew'||L.sf!==false||!qpFNeeds(g.r))return false;const id=qkCid(g.r),r=g.r,R=qkR(p,r);
+  qpFUndo(g,pid);if(id==='goodstart')qpRatsNow(g,pid);const add=ch=>{if(!QPPRICE[ch])return false;const n=qpNew(ch);L.bag.push(n);L.fpc=n;return true};
+  if(id==='choose1'){if(v==='black'){add('k1')}else if(v==='chip'){if(!qpChips(2).includes(c)||!add(c))return false}else if(v!=='ruby')return false}
+  else if(id==='wheel'){if(v==='trade'){if(qpRubies(p,r)<1||!/^[ogruy]1$/.test(c||'')||!add(c))return false}else if(v!=='no')return false}
+  else if(id==='ratfriend'){if(v==='chip'){if(!qpChips(4).includes(c)||!add(c))return false}else if(v!=='vp')return false}
+  else if(id==='goodstart'){const n=+v;if(!(n>=0&&n<=Math.min(3,L.rat)))return false;R.fp=n;qpRatsNow(g,pid);g.n++;return true}
+  else if(id==='justtime'){if(v==='white'){const i=L.bag.findIndex(x=>x.startsWith('w1#'));if(i<0)return false;L.fpw=L.bag.splice(i,1)[0]}else if(v!=='vp')return false}
+  else if(id==='wisely'){if(v==='drop'){L.drop+=2;L.start=Math.min(QKSPOON-2,L.start+2);L.fpd=2}else if(v==='purple'){add('p1')}else return false}
+  R.fp=v;g.n++;return true}
+function qpBotFP(g,q){const id=qkCid(g.r),L=g.pl[q.id];if(!L)return;if(id==='choose1')qpFP2(g,q.id,'ruby');else if(id==='wheel')qpFP2(g,q.id,'no');else if(id==='ratfriend'){L.rat>=3?qpFP2(g,q.id,'vp'):qpFP2(g,q.id,'chip',q.bot==='easy'?'g4':'r4')}else if(id==='goodstart')qpFP2(g,q.id,0);else if(id==='justtime')qpFP2(g,q.id,q.bot==='hard'&&g.r<4?'white':'vp');else if(id==='wisely')qpFP2(g,q.id,g.r<5?'drop':'purple')}
+function qpFP2(g,pid,v,c){const L=g.pl[pid],was=L.sf;L.sf=false;qpFP(g,pid,v,c);L.sf=was}
 /* the rat tails and start cards wait until every phone has tapped away its fortune card */
 function qpBrewAnn(g){if(!g.brewAnn||!g.ps.every(id=>(g.pl[id]||{}).sf!==false))return;const q=g.brewAnn;g.brewAnn=null;gAnnQ(g,q,2200)}
 function qpSetCard(g,id){if(!g||g.phase!=='card')return false;S.qkfc=S.qkfc||[];S.qkfc[g.r]=id||null;const c=qkCard(g.r);if(c){gLog(g,`Fortune: ${c[1]}`,'🔮');gAnn(g,c[1],c[2],'🔮')}qpBrewStart(g);return true}
@@ -8478,7 +8522,7 @@ function qpD6(g,pid,v){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||!(L.d6||[])
   if(L.ex||L.stop){L.bag.push(...L.d6);L.d6=[]}return true}
 const qpUpLabel=c=>{const k=qpK(c),v=qpV(c),nv=v===1?2:v===2?4:0;return k!=='o'&&k!=='w'&&nv&&QPPRICE[k+nv]?k+nv:''};
 /* this player tapped away their fortune card ('sf') or their pot results card ('sr') */
-function qpSeen(g,pid,f){const L=g&&g.pl[pid];if(!L||!['sf','sr','sq'].includes(f))return false;if(f==='sq')L.sq=(L.sq||0)+1;else L[f]=true;if(f==='sf')qpBrewAnn(g);g.n++;return true}
+function qpSeen(g,pid,f){const L=g&&g.pl[pid];if(!L||!['sf','sr','sq'].includes(f))return false;if(f==='sf'&&L.sf===false&&qpFNeeds(g.r)){const p=act().find(q=>q.id===pid);if(p&&qkR(p,g.r).fp==null)return false}if(f==='sq')L.sq=(L.sq||0)+1;else L[f]=true;if(f==='sf')qpBrewAnn(g);g.n++;return true}
 function qpStop(g,pid){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||L.stop)return false;if((L.d6||[]).length){L.bag.push(...L.d6);L.d6=[]}if(L.ask)qpAnswer(g,pid,'no');L.stop=true;L.ask=null;g.n++;return true}
 /* everyone done brewing: work out the scoring space and the book counts, roll the bonus die */
 /* the space a pot scores: the space after the last chip, plus the green book 3 push (whites exactly 7) */
@@ -8567,7 +8611,6 @@ function qpBotEval(g,q){const L=g.pl[q.id],r=g.r,R=qkR(q,r);if(!L||L.done)return
     /* house rule (one of each color, as many as you can afford): keep shopping with what's left */
     if(QKX().shop!=='two'){let guard=0;while(guard++<6){const left=budget-qpSpent(L),c=opts.filter(x=>QPPRICE[x]<=left&&!L.buy.some(y=>y[0]===x[0])).sort((a,b)=>want(b)-want(a))[0];if(!c||!qpChoose(g,q.id,{t:'buy',v:c}))break}}}
   if(QKX().herb&&L.buy.length){const t=['s','c','g'].find(t=>qkWit(t)==='twice');if(t&&qpWCan(g,q.id,t))qpWitch(g,q.id,t,L.buy.slice().sort((a,b)=>QPPRICE[b]-QPPRICE[a])[0])}
-  if(qkCard(r)&&qkCard(r)[3]==='pick'){const id=qkCid(r),f={choose1:'ruby',wheel:'no',ratfriend:'vp',goodstart:0,lessmore:'no',justtime:'vp'}[id];if(f!==undefined)qpChoose(g,q.id,{t:'fp',v:f})}
   let guard=0;while(guard++<6){const have=qpRubies(q,r);if(have<2)break;if(!L.flask&&!L.rubs.flask)qpChoose(g,q.id,{t:'ruby',v:'flask'});else qpChoose(g,q.id,{t:'ruby',v:'drop'})}
   qpChoose(g,q.id,{t:'done'})}
 
@@ -8583,7 +8626,7 @@ function qpTick(){if(S.game!=='quacks'||!qpOn()||!S.started||S.finished||S.scree
   let g=qpG();if(!g||cgStale2(g)){qpStart();save();render();return}
   if(gAnnBusy(g)){if(!QPBOTT)QPBOTT=setTimeout(()=>{QPBOTT=null;render()},500);return}
   if(g.phase==='brew'){if(g.ps.every(id=>g.pl[id].stop&&!g.pl[id].ask)){qpEval(g);save();render();return}
-    const bots=act().filter(p=>p.bot&&(!g.pl[p.id].stop||g.pl[p.id].ask));if(bots.length&&!QPBOTT)QPBOTT=setTimeout(()=>{QPBOTT=null;const g2=qpG();if(!g2||g2.phase!=='brew')return;bots.forEach(q=>qpBotBrew(g2,q));save();render()},650*htSpd());return}
+    const bots=act().filter(p=>p.bot&&(!g.pl[p.id].stop||g.pl[p.id].ask));if(g.brewAnn||!g.ps.every(id=>g.pl[id].sf!==false))return;if(bots.length&&!QPBOTT)QPBOTT=setTimeout(()=>{QPBOTT=null;const g2=qpG();if(!g2||g2.phase!=='brew')return;bots.forEach(q=>qpBotBrew(g2,q));save();render()},650*htSpd());return}
   if(g.phase==='eval'){if(g.ps.every(id=>g.pl[id].done)){qpFinish(g);save();render();return}
     const bots=act().filter(p=>p.bot&&!g.pl[p.id].done);if(bots.length&&!QPBOTT)QPBOTT=setTimeout(()=>{QPBOTT=null;const g2=qpG();if(!g2||g2.phase!=='eval')return;bots.forEach(q=>qpBotEval(g2,q));save();render()},900*htSpd())}}
 function cgStale2(g){const ids=act().map(p=>p.id);return ids.some(id=>!g.pl[id])||g.ps.some(id=>!ids.includes(id))}
@@ -8632,7 +8675,7 @@ function qpPlayUI(){const X=QKX(),P=act(),g=qpG(),sc=P.map(qkTot),hi=Math.max(..
     return out+qpModal()}
   const card=qkCard(r);if(card)out+=`<p class="hint qpcardnow">🔮 <b>${esc(card[1])}</b>: ${esc(card[2])}</p>`;
   if(g.phase==='brew'){
-    out+=`<div class="qpothers">${P.filter(q=>!V||q.id!==V.id).map(q=>{const L=g.pl[q.id];return `<div class="qpo" style="${pc(q.color)}"><div class="gpon"><b>${botHead(q)}${esc(nm(q))}</b><span class="num">${L.ex?'💥 exploded':L.stop?'✋ stopped':'brewing…'} · ⚪ ${L.ws}/${L.lim}</span></div>${qpPotEl(L,{mini:true})}</div>`}).join('')}</div>`;
+    out+=`<div class="qpothers">${P.filter(q=>!V||q.id!==V.id).map(q=>{const L=g.pl[q.id];return `<div class="qpo" style="${pc(q.color)}"><div class="gpon"><b>${botHead(q)}${esc(nm(q))}${qpWChips(q,g.r)}</b><span class="num">${L.ex?'💥 exploded':L.stop?'✋ stopped':'brewing…'} · ⚪ ${L.ws}/${L.lim}</span></div>${qpPotEl(L,{mini:true})}</div>`}).join('')}</div>`;
     if(me){const A=me.ask,risk=Math.round(qpRisk(me)*100);
       out+=`<div class="qpme" style="${pc(V.color)}"><div class="gpon"><b>${S.lk||qpHumans().length<2?'Your pot':esc(nm(V))+'’s pot'}</b><span class="num qpws${me.ws>=me.lim-2?' hot':''}">⚪ ${me.ws} / ${me.lim}</span></div>
         ${qpPotEl(me)}${me.stop?'':(()=>{const pv=qpPend(me)||me,ns=qpScoreAt(pv),gp=qpGreenPush(pv),sp=QKPOT[ns]||[0,0,false];let nr=-1;for(let j=ns+1;j<QKPOT.length;j++)if(QKPOT[j][2]){nr=j;break}return `<div class="qpnow${sp[2]?' rb':''}"><b>Stop now:</b> ${gp?`🕷️ greens push you ${gp} ahead: scores space ${sp[0]}`:`scores the next space, ${sp[0]}`} · ⭐ ${sp[1]} · 🪙 ${sp[0]}${sp[2]?` · ${QPRB} ruby!`:nr>0?` · next ${QPRB} in ${nr-ns} space${nr-ns===1?'':'s'}`:''}</div>`})()}<div class="qpinfo"><span>Bag: ${qpBagSum(me)}</span><span class="rlab">${me.stop?'':`${risk}% chance the next chip explodes it`}</span><span>${me.flask?'🧪 flask ready':'🧪 flask empty'}</span><span class="qprbn">${QPRB} ${qpRubies(V,r-1)}</span></div>
@@ -8643,10 +8686,10 @@ function qpPlayUI(){const X=QKX(),P=act(),g=qpG(),sc=P.map(qkTot),hi=Math.max(..
           :`<div class="qpask"><b>Well stirred: put this first white chip back?</b><div class="lr"><button class="btn primary" data-a="qpans" data-k="yes">Back in the bag</button><button class="btn" data-a="qpans" data-k="no">Place it</button></div></div>`)
         :me.stop?`<p class="rlab" style="text-align:center">${me.ex?'💥 Your pot exploded! Waiting for the others…':'✋ You stopped. Waiting for the others…'}</p>`:''}</div>`;
       if(!me.stop&&!A&&(me.d6||[]).length)out+=`<div class="qpask"><b>🧙 Silver witch: place these in the order you like</b><span class="rlab">Tap chips one at a time to put them in your pot. The rest go back in the bag.</span><div class="qpaskc">${me.d6.map(c=>qpChipEl(c,{btn:true,attr:` data-a="qpd6" data-k="${c}"`})).join('')}</div><button class="btn sm" data-a="qpd6" data-k="">Put the rest back</button></div>`;
-      if(!me.stop&&!A&&QKX().herb&&qpWCan(g,V.id,'s'))out+=qpWitchUI(g,V,me);
+      if(QKX().herb)out+=qpWitchUI(g,V,me);
       if(!me.stop&&!A&&!(me.d6||[]).length){const lx=qpLast(me),fl=me.flask&&lx&&qpK(lx.c)==='w';out+=`<div class="actions"><div class="in"><button class="btn" data-a="qpstop">✋ Stop</button><button class="btn" data-a="qpflask" ${fl?'':'disabled'} aria-label="${fl?`Use the flask: put the white ${qpV(lx.c)} back`:me.flask?'Flask: draw a white chip first':'Flask is empty'}">🧪 ${fl?`Undo ${qpV(lx.c)}`:me.flask?'Flask':'Empty'}</button><button class="btn primary" data-a="qpdraw" style="white-space:nowrap">${me.bag.length?'Draw':'Bag empty'}</button></div></div>`}}}
   if(g.phase==='eval'||g.phase==='done'){
-    out+=`<div class="panel htsum">${P.map(q=>{const R=qkR(q,r),x=qkParts(q,r)||{},B=qkB(q,r),L=g.pl[q.id];return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b>${L.done&&g.phase==='eval'?' ✓':''}<br><small>space ${(QKPOT[R.s]||[0])[0]}${R.ex?' · 💥 '+(R.ch==='coins'?'took coins':'took points'):''}${R.die?' · 🎲 '+R.die.replace('vp','+').replace('pump','orange chip'):''}${B.notes.length?' · '+esc(B.notes.join(', ')):''}</small></span><span class="num"><b>+${x.v||0}</b> · ${qkTot(q)}</span></div>`}).join('')}</div>`;
+    out+=`<div class="panel htsum">${P.map(q=>{const R=qkR(q,r),x=qkParts(q,r)||{},B=qkB(q,r),L=g.pl[q.id];return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b>${qpWChips(q,r)}${L.done&&g.phase==='eval'?' ✓':''}<br><small>space ${(QKPOT[R.s]||[0])[0]}${R.ex?' · 💥 '+(R.ch==='coins'?'took coins':'took points'):''}${R.die?' · 🎲 '+R.die.replace('vp','+').replace('pump','orange chip'):''}${B.notes.length?' · '+esc(B.notes.join(', ')):''}</small></span><span class="num"><b>+${x.v||0}</b> · ${qkTot(q)}</span></div>`}).join('')}</div>`;
     if(me&&g.phase==='eval'){const R=qkR(V,r),coins=qpCoins(V,r),spent=qpSpent(me),rub=qpRubies(V,r),canBuy=qpCanBuy(r)&&(!me.ex||R.ch==='coins'||qkWid(V,r,'full'));
       out+=`<div class="qpme" style="${pc(V.color)}"><div class="gpon"><b>${S.lk||qpHumans().length<2?'Your turn to score':esc(nm(V))}</b></div><div class="qpwallet"><div class="qpw"><span class="qpwi" aria-hidden="true">🪙</span><b class="num">${canBuy?coins-spent:coins}</b><small>${canBuy&&spent?`coins left (of ${coins})`:'coins'}</small></div><div class="qpw rb"><span class="qpwi">${QPRB}</span><b class="num">${rub}</b><small>rubies</small></div></div>`;
       out+=qpWitchUI(g,V,me);
@@ -8656,7 +8699,6 @@ function qpPlayUI(){const X=QKX(),P=act(),g=qpG(),sc=P.map(qkTot),hi=Math.max(..
       if(r<8)out+=`<div class="qpsec"><b>Rubies</b> <span class="rlab">${qkWid(V,r,'endprice')?'1 ruby each (witch)':'2 rubies each'}</span><div class="lr"><button class="btn sm" data-a="qpruby" data-k="drop" ${rub<(qkWid(V,r,'endprice')?1:2)?'disabled':''}>💧 Move droplet (${me.rubs.drop})</button><button class="btn sm" data-a="qpruby" data-k="flask" ${rub<(qkWid(V,r,'endprice')?1:2)||me.flask||me.rubs.flask?'disabled':''}>🧪 Refill flask${me.rubs.flask?' ✓':''}</button>${me.rubs.drop||me.rubs.flask?`<button class="btn sm" data-a="qpruby" data-k="undo">↶ Undo</button>`:''}</div></div>`;
       if(qpBook('purple')==='p2'&&R.pu)out+=`<div class="qpsec"><b>Ghost’s breath (set 2): trade in purple chips?</b><div class="seg">${[0,1,2,3].filter(n=>n<=R.pu).map(n=>`<button data-a="qppt" data-k="${n}" aria-pressed="${(+R.pt||0)===n}">${n?'Trade '+n:'Keep'}</button>`).join('')}</div></div>`;
       if(qpBook('green')==='g4'&&R.gl)out+=`<div class="qpsec"><b>Spider (set 4): pay rubies to move the droplet?</b><div class="seg">${Array.from({length:R.gl+1},(_,n)=>`<button data-a="qpg4" data-k="${n}" aria-pressed="${(+R.g4||0)===n}">${n?n+' '+QPRB:'No'}</button>`).join('')}</div></div>`;
-      if(card&&card[3]==='pick')out+=`<div class="qpsec">${qkFCUI(V,act().indexOf(V),r).replace(/data-a="qkfp"/g,'data-a="qpfp"')}</div>`;
       out+=`<details class="qpsec qpadj"><summary><b>Adjust</b> <span class="rlab">for fortune cards or book effects the app doesn’t do</span></summary><div class="lr"><button class="btn sm" data-a="qpadj" data-k="ruby">+1 ${QPRB}</button><button class="btn sm" data-a="qpadj" data-k="-ruby">−1 ${QPRB}</button><button class="btn sm" data-a="qpadj" data-k="vp">+1 point</button><button class="btn sm" data-a="qpadj" data-k="-vp">−1 point</button><button class="btn sm" data-a="qpadj" data-k="drop">+1 💧</button><button class="btn sm" data-a="qpadj" data-k="white">Remove a white 1</button></div>
         <div class="qpshop">${['o1','k1','g1','g2','u2','r1','y1','y4','p1'].map(c=>`<button class="qpbuy" data-a="qpadj" data-k="chip:${c}" aria-label="Take a free chip">${qpChipEl(c)}<small>free</small></button>`).join('')}</div>${(me.gift||[]).length?`<small class="rlab">Free chips: ${(me.gift||[]).join(', ')}</small>`:''}</details>`;
       out+=`</div><div class="actions"><div class="in"><button class="btn primary" data-a="qpdone">Done ›</button></div></div>`}
@@ -8670,8 +8712,8 @@ const QPTXT={u1:'Look at as many chips from your bag as the blue chip’s value.
 function qpMyCard(){const g=qpG(),V=qpViewer();if(!g||!V)return '';const L=g.pl[V.id];if(!L)return '';const r=g.r,you=S.lk||qpHumans().length<2;
   if(g.phase==='brew'&&L.sf===false){const c=qkCard(r),ex=r===5?'Everyone adds a white 1-chip to their bag this round.':r===1?'Yellow chips are for sale from now on.':r===2?'Purple chips are for sale from now on.':r===8?'This is the last round!':'';
     return `<div class="sheet-bg"><div class="sheet qpcardm" role="dialog" aria-modal="true" aria-labelledby="qpf-h" style="${pc(V.color)}"><span class="rlab">Round ${r+1} of 9 · Fortune teller</span><div class="qpfortune"><span class="qpfic" aria-hidden="true">🔮</span><h2 id="qpf-h">${c?esc(c[1]):'No card this round'}</h2>${c?`<p>${esc(c[2])}</p>`:''}</div>
-      ${ex?`<p class="rlab">${esc(ex)}</p>`:''}<p class="rlab">${L.rat?`🐀 ${you?'You get':esc(nm(V))+' gets'} ${L.rat} rat tail${L.rat===1?'':'s'}: ${you?'your':'their'} first chip starts ${L.rat} space${L.rat===1?'':'s'} ahead.`:`🐀 No rat tails for ${you?'you':esc(nm(V))} this round.`}</p>
-      <button class="btn primary wide" data-a="qpseen" data-k="sf">Got it, start brewing</button></div></div>`}
+      ${qpFNeeds(r)?qpFPUI(g,V,L):''}${ex?`<p class="rlab">${esc(ex)}</p>`:''}<p class="rlab">${L.rat?`🐀 ${you?'You get':esc(nm(V))+' gets'} ${L.rat} rat tail${L.rat===1?'':'s'}: ${you?'your':'their'} first chip starts ${L.rat} space${L.rat===1?'':'s'} ahead.`:`🐀 No rat tails for ${you?'you':esc(nm(V))} this round.`}</p>
+      <button class="btn primary wide" data-a="qpseen" data-k="sf" ${qpFNeeds(r)&&qkR(V,r).fp==null?'disabled':''}>${qpFNeeds(r)&&qkR(V,r).fp==null?'Choose one first':'Got it, start brewing'}</button></div></div>`}
   if(g.phase==='eval'&&L.sr===false){const R=qkR(V,r),sp=QKPOT[R.s]||[0,0,false],roll=qkDieRollers(r).includes(V);
     return `<div class="sheet-bg"><div class="sheet qpcardm" role="dialog" aria-modal="true" aria-labelledby="qpr-h" style="${pc(V.color)}"><span class="rlab">Round ${r+1} · ${you?'Your pot':esc(nm(V))+'’s pot'}</span>
       <h2 id="qpr-h">${L.ex?'💥 Your pot exploded!':'✋ Nice brewing!'}</h2>${qpPotEl(L,{mini:true,score:true})}
@@ -8725,21 +8767,36 @@ function qpAct(a,b,k){const g=qpG();if(!g)return;
   if(a==='qpans'){lkq('qpAnswer',V.id,k||null);after();return}
   if(a==='qpwit'){if(!lkq('qpWitch',V.id,k,b.dataset.v||null))toast('That witch can’t be used right now.');return}
   if(a==='qpd6'){lkq('qpD6',V.id,k||null);return}
+  if(a==='qpfc'){if(!lkq('qpFP',V.id,/^\d+$/.test(k)?+k:k,b.dataset.v||null))toast('That choice isn’t possible.');return}
   const map={qpch:'ch',qpbuy:'buy',qpunbuy:'unbuy',qpruby:'ruby',qpfp:'fp',qppt:'pt',qpg4:'g4',qpadj:'adj',qpdone:'done',qpundone:'undone'};
   if(map[a]){let v=k;if(a==='qpfp')v=/^\d+$/.test(b.dataset.v)?+b.dataset.v:b.dataset.v;if(!lkq('qpChoose',V.id,{t:map[a],v})&&a==='qpbuy')toast('You can’t buy that one.');after();return}}
 
 
 /* the witch pennies on the phone */
+const QPWWHEN={draw6:'Before your first chip',white2:'While brewing',flask:'When your pot explodes',full:'At scoring, after a boom',rubyval:'At scoring, for shopping',twice:'At scoring, after buying',upgrade:'At scoring',double:'At scoring, for shopping',colors:'At scoring',bag:'At scoring',rubyvp:'At scoring',endprice:'At scoring'};
+const qpWChips=(q,r)=>QKX().herb?`<span class="qpwchips" title="Witch pennies">${['s','c','g'].map(t=>{const at=qkWUsedAt(q,t);return `<span class="qkcoin ${t}${at===r?' on':at>=0?' used':''}"><i>🧙</i></span>`}).join('')}</span>`:'';
+const qpCoin=t=>`<span class="qkcoin ${t}" aria-hidden="true"><img src="art/witch-${t}.png" alt="" onerror="this.remove()"><i>🧙</i></span>`;
 function qpWitchUI(g,V,me){if(!QKX().herb)return '';const r=g.r,R=qkR(V,r);
-  const row=['s','c','g'].map(t=>{const id=qkWit(t),w=QKWITCH[t][1].find(x=>x[0]===id);if(!w)return '';const at=qkWUsedAt(V,t),on=at===r,can=qpWCan(g,V.id,t);
-    if(at>=0&&!on)return `<button class="qkw qkw-${t}" disabled>${QKWITCH[t][0]}: ${esc(w[1])} · used round ${at+1}</button>`;
-    const sw=on&&g.phase==='eval'&&!me.done&&!['draw6','white2','flask'].includes(id);
-    return `<button class="qkw qkw-${t}" data-a="qpwit" data-k="${t}" aria-pressed="${on}" ${can||sw?'':'disabled'} title="${esc(w[2])}">${QKWITCH[t][0]}: ${esc(w[1])}${on?' ✓':''}</button>`}).join('');
+  const row=['s','c','g'].map(t=>{const id=qkWit(t),w=QKWITCH[t][1].find(x=>x[0]===id);if(!w)return '';const at=qkWUsedAt(V,t),on=at===r,can=qpWCan(g,V.id,t),used=at>=0&&!on;
+    const sw=on&&g.phase==='eval'&&!me.done&&!['draw6','white2','flask'].includes(id),act2=!used&&(can||sw);
+    const st=on?'✓ Using it this round':used?`Used in round ${at+1}`:can?'Tap to use it now':QPWWHEN[id];
+    return `<button class="qkw qkw-${t}${on?' on':''}${used?' used':''}${can?' ready':''}" ${act2?`data-a="qpwit" data-k="${t}"`:'disabled'} aria-pressed="${on}" title="${esc(w[2])}">${qpCoin(t)}<span class="qkwt"><small>${QKWITCH[t][0]} penny</small><b>${esc(w[1])}</b><em>${st}</em></span></button>`}).join('');
   let ex='';const L=me;
   if(qkWid(V,r,'twice')&&L.buy.length)ex+=`<div class="rlab" style="margin-top:6px"><b>Take which chip twice?</b></div><div class="qpshop">${L.buy.map(c=>`<button class="qpbuy${R.wtw===c?' sel':''}" data-a="qpwit" data-k="${['s','c','g'].find(t=>qkWit(t)==='twice')}" data-v="${c}" aria-pressed="${R.wtw===c}">${qpChipEl(c)}</button>`).join('')}</div>`;
   if(qkWid(V,r,'upgrade')){const t=['s','c','g'].find(t=>qkWit(t)==='upgrade'),ups=[...new Set(L.pot.map(x=>x.c).filter(qpUpLabel))];
     ex+=`<div class="rlab" style="margin-top:6px"><b>Upgrade:</b> your last 2 chips, or 1 chip of your choice. <i>Check the rule card if unsure.</i></div><div class="qpshop"><button class="btn sm${L.wup==='last'?' primary':''}" data-a="qpwit" data-k="${t}" data-v="last">Last 2 chips</button>${ups.map(c=>`<button class="qpbuy${L.wup===c?' sel':''}" data-a="qpwit" data-k="${t}" data-v="${c}" aria-pressed="${L.wup===c}">${qpChipEl(c)}<small>→ ${qpV(qpUpLabel(c))}</small></button>`).join('')}</div>`}
-  return `<div class="qpsec qkwit"><b>🧙 Witches</b> <span class="rlab">${qkPennies(V)} penn${qkPennies(V)===1?'y':'ies'} left · 2 points each at the end if unused</span><div class="qkwbtns">${row}</div>${ex}</div>`}
+  return `<div class="qpsec qkwit qpwit"><b>🧙 Your witch pennies</b> <span class="rlab">${qkPennies(V)} left · 2 points each at the end if unused · hold one to read it</span><div class="qpwrow">${row}</div>${ex}</div>`}
+
+function qpFPUI(g,V,L){const r=g.r,id=qkCid(r),f=qkR(V,r).fp,b=(v,l,dis)=>`<button class="btn sm${String(f)===String(v)?' primary':''}" data-a="qpfc" data-k="${v}" ${dis?'disabled':''} aria-pressed="${String(f)===String(v)}">${l}</button>`,chips=(v,list)=>`<div class="qpshop">${list.map(c=>`<button class="qpbuy${f===v&&L.fpc&&L.fpc.startsWith(c+'#')?' sel':''}" data-a="qpfc" data-k="${v}" data-v="${c}">${qpChipEl(c)}</button>`).join('')}</div>`;
+  let o='';if(id==='choose1')o=b('black','⚫ Black chip')+b('ruby','3 rubies')+`<div class="rlab" style="margin-top:6px">Or tap a 2-chip:</div>`+chips('chip',qpChips(2));
+  if(id==='wheel'){const rb=qpRubies(V,r);o=b('no','No trade')+`<div class="rlab" style="margin-top:6px">${rb?'Trade 1 ruby for one of these:':'You need a ruby to trade.'}</div>`+(rb?chips('trade',['o1','g1','r1','u1','y1']):'')}
+  if(id==='ratfriend')o=b('vp',`${L.rat} point${L.rat===1?'':'s'} (rat tails)`)+`<div class="rlab" style="margin-top:6px">Or tap a 4-chip:</div>`+chips('chip',qpChips(4));
+  if(id==='goodstart'){const mx=Math.min(3,L.rat+(+f||0));o=b(0,'Keep my rat tails');for(let k=1;k<=mx;k++)o+=b(k,`Trade ${k} 🐀 → ${k} 💎`)}
+  if(id==='justtime')o=b('vp','4 points')+b('white','Remove a white 1-chip',!L.bag.some(x=>x.startsWith('w1#'))&&f!=='white');
+  if(id==='wisely')o=b('drop','💧 Move droplet 2')+b('purple','Take a purple chip');
+  return `<div class="qpsec qpfpick"><b>Your choice</b><div class="lr" style="flex-wrap:wrap;gap:6px;margin-top:6px">${o}</div></div>`}
+/* a new round of brewing starts with your pot on screen, not the last round's results */
+let QPSCR='';function qpScrollFx(){if(S.game!=='quacks'||!qpOn()||S.screen!=='score'||!S.started)return;const g=qpG();if(!g||g.phase!=='brew')return;const V=qpViewer();if(!V)return;const L=g.pl[V.id];if(!L||L.sf===false)return;const k=g.r+':'+V.id;if(QPSCR===k)return;QPSCR=k;setTimeout(()=>{const el=document.querySelector('.qpme');if(el)el.scrollIntoView({block:'start',behavior:'smooth'})},80)}
 let QKSEL=null;
 function qkPotPick(i){return `<div class="qkpot">${QKPOT.map((s,j)=>`<button data-a="qkspace" data-i="${i}" data-v="${j}" class="${s[2]?'rb':''}" aria-label="Space ${qkSpLab(j)}, ${s[1]} points${s[2]?', ruby':''}"><b>${j===QKSPOON?'35':s[0]}</b><small>${s[1]}${s[2]?' ◆':''}</small></button>`).join('')}</div><p class="hint" style="margin:4px 0 0">Big number = coins, small = points, ◆ = ruby. 35 is the spoon, for going past the last space.</p>`}
 function qkScore(){if(qpOn()&&S.started&&!S.demo)return qpPlayUI();const X=QKX(),P=act(),r=qkCur(),sc=P.map(qkTot),hi=Math.max(...sc),lead=qkLast()>=0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null,rollers=qkDieRollers(r),last=r===8;
@@ -9572,7 +9629,8 @@ const LKQF={
   qpAnswer:(pid,v)=>{const g=qpG();return !!g&&qpAnswer(g,pid,v)},
   qpChoose:(pid,o)=>{const g=qpG();return !!g&&qpChoose(g,pid,o)},
   qpWitch:(pid,t,v)=>{const g=qpG();return !!g&&qpWitch(g,pid,t,v)},
-  qpD6:(pid,v)=>{const g=qpG();return !!g&&qpD6(g,pid,v)}};
+  qpD6:(pid,v)=>{const g=qpG();return !!g&&qpD6(g,pid,v)},
+  qpFP:(pid,v,c)=>{const g=qpG();return !!g&&qpFP(g,pid,v,c)}};
 function lkq(fn,...args){if(!lkqOn())return LKQF[fn](...args);const snap=JSON.stringify(S);let r;try{const o=lkOptState();if(o)S=o;LKOPTR=true;r=LKQF[fn](...args)}catch(e){r=false}finally{LKOPTR=false}S=JSON.parse(snap);
   if(r===true){const me=S.lk.me;if(!me)return r;const q=(S.lkq=S.lkq||{}),done=(S.lkqa||{})[me]||0,mine=(q[me]||[]).filter(e=>e.id>done);mine.push({id:Date.now()*1000+(LKQN++%1000),k:lkqKey(),f:fn,a:args});q[me]=mine}
   return r}
@@ -12442,6 +12500,7 @@ function render0(){
   if(S.screen==='reveal'&&!RCWARMED){RCWARMED=true;setTimeout(()=>{try{const w=winMoment();rcWarm([w.src,...(w.layers||[]),...Object.values(loserMoments()).map(m=>m.img.u),...(LOOK()==='art'?act().flatMap(p=>['box','tank','hopper','caboose','engine'].map(k=>`train/${k}-${TCOL(p.color)}.png`)):[])])}catch(e){}},50)}else if(S.screen!=='reveal')RCWARMED=false;
   if(REMATCH)document.getElementById('app').insertAdjacentHTML('beforeend',rematchSheet());
   try{rgFx()}catch(e){}
+  try{qpScrollFx()}catch(e){}
   try{if(!document.querySelector('#app .lkbar')&&!document.querySelector('#app .rxfab'))RXLIVE=[];rxFx()}catch(e){}
   if(LANUI)document.getElementById('app').insertAdjacentHTML('beforeend',lanSheet());else if(LKCHOOSE)document.getElementById('app').insertAdjacentHTML('beforeend',lkChooseSheet());else if(luInvite())document.getElementById('app').insertAdjacentHTML('beforeend',luInviteSheet());
   if(S.lk&&lkHost()&&!S.started&&!S.demo&&['map','players'].includes(S.screen)){const bar=document.querySelector('#app .bar');if(bar&&!document.querySelector('.lustrip'))bar.insertAdjacentHTML('afterend',luStrip())}
@@ -12673,7 +12732,7 @@ document.addEventListener('click',e=>{
   if(/^sbp(src|disc|build|show|deal)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
   if(/^mtp(tile|train|draw|pass|done|show|deal)$/.test(a)&&S.game==='mextrain'&&mtOn()&&S.started){mtAct(a,b,k);save();render();return}
   if((a==='dmflip'||a==='dmsort')&&(S.game==='mextrain'&&mtOn()||S.game==='chicken'&&cfOn())&&S.started){const CF=S.game==='chicken',G=CF?cfG():mtG(),V=CF?cfViewer():mtViewer();if(G&&V){if(a==='dmflip')dmFlip(G,V.id,b.dataset.t);else dmSortNow(G,V.id,b.dataset.v);vibe(6)}render();return}
-  if(/^qp(seen|show|info|infox|infoall|nobuy|warnx|card|draw|stop|flask|ans|ch|buy|unbuy|ruby|fp|pt|g4|adj|done|undone|wit|d6)$/.test(a)&&S.game==='quacks'&&qpOn()&&S.started){qpAct(a,b,k);save();render();return}
+  if(/^qp(seen|show|info|infox|infoall|nobuy|warnx|card|draw|stop|flask|ans|ch|buy|unbuy|ruby|fp|pt|g4|adj|done|undone|wit|d6|fc)$/.test(a)&&S.game==='quacks'&&qpOn()&&S.started){qpAct(a,b,k);save();render();return}
   if(/^cfp(tile|spot|draw|pass|show|deal)$/.test(a)&&S.game==='chicken'&&cfOn()&&S.started){cfAct(a,b,k);save();render();return}
   if(a==='gplastok'){const V=gpViewer(),g=gpG();if(V&&g)GPLASTOK[(S.gameId||'')+':'+g.r+':'+V.id]=1;render();return}
   if(/^gp(cell|deck|disc|deal|pile|skip|bounce)$/.test(a)&&(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')&&gpOn()&&S.started){gpAct(a,b,k);save();render();return}
@@ -13360,10 +13419,10 @@ document.addEventListener('click',e=>{
     case 'delg':if(DELG!==k){DELG=k;break}DELG=null;H.games=H.games.filter(g=>g.id!==k);hWrite('g_'+k,null);if(S.gameId===k){S.gameId=null;S.finished=false}break;
     case 'delr':if(DELR!==k){DELR=k;break}DELR=null;H.roster=H.roster.filter(r=>r.id!==k);hWrite('roster',{list:H.roster});break;
     case 'rpick':{const ro=H.roster.find(x=>x.id===k);if(!ro)break;const cur=S.players.find(q=>q.on&&q.rid===ro.id);
-      if(cur){cur.rid=null;cur.name='';if(act().length>m.min)cur.on=false;break}
+      if(cur){cur.rid=null;cur.name='';delete cur.bot;if(act().length>m.min)cur.on=false;break}
       let seat=act().find(q=>!q.name.trim());
       if(!seat){if(act().length>=m.max)break;seat=slots().find(q=>!q.on);if(!seat)break;seat.on=true}
-      seat.name=ro.name;seat.rid=ro.id;seat.hs=ro.hs||0;
+      seat.name=ro.name;seat.rid=ro.id;seat.hs=ro.hs||0;if(rosterBot(ro))seat.bot=seat.bot||'normal';else delete seat.bot;
       if(ro.color&&seat.color!==ro.color){const o=S.players.find(x=>x!==seat&&x.color===ro.color);if(o)o.color=seat.color;seat.color=ro.color}
       break}
     case 'go':MEEPLESHEET=false;COLPICK=null;LPTIP=null;if(b.dataset.s==='home'&&(S.demo||S.editing)){exitDemo();window.scrollTo(0,0);break}S.screen=b.dataset.s;window.scrollTo(0,0);break;

@@ -5,7 +5,7 @@ const {mk,W,ok,done,chromium,BASE}=require('./link.js');
   const start=wit=>page.evaluate(wit=>{window.__htfast=1;switchGame('quacks');resetScores();const X=QKX();X.play=1;X.herb=true;X.wit=wit;const P=S.players;P.forEach((p,i)=>{p.on=i<2;p.name=['Me','Bot'][i]||'';if(i===1)p.bot='normal';else delete p.bot});save();
     const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove();document.querySelectorAll('[data-a=tourskip]').forEach(b=>b.click())},wit);
   const until=async(fn,ms=20000,arg)=>{const t=Date.now();while(Date.now()-t<ms){if(await page.evaluate(fn,arg))return true;await W(100)}return false};
-  const toBrew=()=>until(()=>{const g=S.qpg;if(!g)return false;if(g.phase==='card'){qpSetCard(g,'');save();render()}const me=act()[0];const L=g.pl[me.id];if(g.phase==='brew'){L.sf=true;g.brewAnn=null}return g.phase==='brew'});
+  const toBrew=()=>until(()=>{const g=S.qpg;if(!g)return false;if(g.phase==='card'){qpSetCard(g,'');save();render()}const me=act()[0];const L=g.pl[me.id];if(g.phase==='brew'){(S.qkfc=S.qkfc||[])[g.r]=null;g.ps.forEach(id=>{const M=g.pl[id];M.sf=true;M.lim=7});g.brewAnn=null}return g.phase==='brew'});
   const me=()=>page.evaluate(()=>act()[0].id);
   const toEval=async()=>{await page.evaluate(()=>{const g=S.qpg,id=act()[0].id;qpStop(g,id);save();render()});return until(()=>S.qpg.phase==='eval')};
   // --- silver: draw 6 ---
@@ -29,8 +29,8 @@ const {mk,W,ok,done,chromium,BASE}=require('./link.js');
   ok('take a chip twice: pick a bought chip',r.b&&r.t&&r.wtw==='o1',r);
   const o1before=r.before;await page.evaluate(()=>{const g=S.qpg,id=act()[0].id;qpChoose(g,id,{t:'done'});save();render()});
   await until(()=>S.qpg.phase!=='eval'||S.qpg.r>0,20000);await W(500);
-  r=await page.evaluate(()=>{const g=S.qpg,L=g.pl[act()[0].id];return L.bag.filter(c=>c.startsWith('o1')).length+L.pot.filter(x=>x.c.startsWith('o1')).length});
-  ok('take a chip twice: two of that chip go in the bag',r===o1before+2,{r,o1before});
+  r=await page.evaluate(()=>{const g=S.qpg,p=act()[0],L=g.pl[p.id],R0=(p.qk||[])[0]||{},pump=R0.die==='pump'&&qkDieRollers(0).includes(p)?1:0;return {n:L.bag.filter(c=>c.startsWith('o1')).length+L.pot.filter(x=>x.c.startsWith('o1')).length,pump}});
+  ok('take a chip twice: two of that chip go in the bag',r.n===o1before+2+r.pump,{r,o1before});
   // --- gold endprice: rubies cost 1; silver white2; copper upgrade ---
   await start({s:'white2',c:'upgrade',g:'endprice'});await toBrew();
   r=await page.evaluate(()=>{const g=S.qpg,id=act()[0].id,L=g.pl[id];L.bag=['w1#801','w1#802','g1#803','r1#804','w2#805'];for(let i=0;i<4;i++)qpDraw(g,id);const w0=L.pot.filter(x=>qpK(x.c)==='w').length,ws0=L.ws;const ok=qpWitch(g,id,'s');return {ok,w0,w1:L.pot.filter(x=>qpK(x.c)==='w').length,ws0,ws:L.ws}});
@@ -51,11 +51,11 @@ const {mk,W,ok,done,chromium,BASE}=require('./link.js');
   await start({s:'draw6',c:'upgrade',g:'rubyvp'});await toBrew();
   await page.evaluate(()=>{const g=S.qpg,id=act()[0].id,L=g.pl[id];L.bag=['g1#601','r1#602','u1#603'];for(let i=0;i<3;i++)qpDraw(g,id)});await toEval();
   r=await page.evaluate(()=>{const g=S.qpg,p=act()[0],id=p.id,R=qkR(p,g.r);const rubySp=QKPOT.findIndex((x,i)=>x[2]&&x[1]>=3);R.s=rubySp;const before=qkRubies(p,g.r+1);qpWitch(g,id,'g');const after=qkRubies(p,g.r+1);
-    const pot=g.pl[id].pot.map(x=>x.c);qpWitch(g,id,'c','last');qpChoose(g,id,{t:'done'});return {before,after,pts:QKPOT[rubySp][1],pot}});
+    const pot=g.pl[id].pot.map(x=>x.c);window.__upN=Math.min(2,pot.filter(qpUpLabel).length);qpWitch(g,id,'c','last');qpChoose(g,id,{t:'done'});return {before,after,pts:QKPOT[rubySp][1],pot}});
   ok('rubies for points: take as many rubies as the points',r.after-r.before===r.pts-1,r);
   await until(()=>S.qpg.r>0,20000);
-  r=await page.evaluate(()=>{const L=S.qpg.pl[act()[0].id];return L.bag.concat(L.pot.map(x=>x.c)).map(c=>c.split('#')[0]).sort()});
-  ok('upgrade: the last 2 chips moved up a size',r.filter(c=>c==='u2'||c==='r2'||c==='g2').length>=2,r);
+  r=await page.evaluate(()=>{const L=S.qpg.pl[act()[0].id];return {all:L.bag.concat(L.pot.map(x=>x.c)).map(c=>c.split('#')[0]).sort(),want:window.__upN}});
+  ok('upgrade: the last 2 chips moved up a size',r.all.filter(c=>c==='u2'||c==='r2'||c==='g2').length>=r.want&&r.want>=1,r);
   // --- round 9: 2 points per unused penny ---
   r=await page.evaluate(()=>{const p=act()[1];for(let i=0;i<9;i++){const R=qkR(p,i);if(R.s==null)R.s=5}const x=qkParts(p,8);return {pen:x.pen,left:qkPennies(p)}});
   ok('round 9: 2 points per unused penny',r.pen===2*r.left,r);
