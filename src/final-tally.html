@@ -2351,13 +2351,21 @@ function luToggle(name){const k=name.trim().toLowerCase(),m=M(),q=S.players.find
   if(q){q.on=true;delete q.bot;return}
   let seat=act().find(p=>!p.bot&&!p.name.trim());if(!seat){seat=S.players.find(p=>!p.on&&p.color===x.color)||S.players.find(p=>!p.on&&!p.name.trim())||S.players.find(p=>!p.on);if(!seat){seat=newPlayer('',x.color||'red');S.players.push(seat)}seat.on=true}
   seat.name=x.name||name;delete seat.bot}
+
+/* blank score entries carry no information: a guest phone never sends (or gets blocked over) another player whose only change is blanks */
+const LKDEFS=new Set(['{"s":1}','{"ch":"vp","pen":3}']);
+function lkBlank(v){if(v==null||v===false||v===0||v==='')return true;if(Array.isArray(v))return v.every(lkBlank);if(typeof v==='object'){const n=lkNorm(v);return n===undefined}return false}
+function lkNorm(v){if(Array.isArray(v)){const a=v.map(x=>lkBlank(x)?null:lkNorm(x));while(a.length&&a[a.length-1]==null)a.pop();return a.length?a:undefined}
+  if(v&&typeof v==='object'){const o={};Object.keys(v).sort().forEach(k=>{if(k==='_k')return;const x=v[k];if(!lkBlank(x)){const n=lkNorm(x);if(n!==undefined)o[k]=n}});const j=JSON.stringify(o);return j==='{}'||LKDEFS.has(j)?undefined:o}
+  return v}
+const lkSameBut=(a,b)=>{try{return JSON.stringify(lkNorm(JSON.parse(a)))===JSON.stringify(lkNorm(JSON.parse(b)))}catch(e){return false}};
 const lkGuest=()=>!!(S.lk&&S.lk.role==='guest');
 /* locked scoring: a guest phone may only change its own player's score (or a shared score that includes its player) */
 function lkBase(){const st={...lkUnflat(LKLAST.m||{}),players:(LKLAST.order||[]).map(id=>LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):null).filter(Boolean)};LKITEMS.forEach(f=>{if(Array.isArray(S[f]))st[f]=[]});lkItemsTo(st,LKLAST.items||{});return st}
 function lkTotals(st){const cur=S,o={};try{S=st;act().forEach(p=>{try{o[p.id]=total(p)}catch(e){o[p.id]=null}})}catch(e){}finally{S=cur}return o}
 function lkLockBlock(){if(!S.lk||S.demo||LKMUTE||lkHost()||!S.lklock||!LKLAST.m)return false;
   const base=lkBase(),bt=lkTotals(base),ct=lkTotals(S),me=S.lk.me,changed=[];
-  S.players.forEach(p=>{if(stable(p)!==LKLAST.ps[p.id]||bt[p.id]!==ct[p.id])changed.push(p.id)});
+  S.players.forEach(p=>{const sp=stable(p);if(sp!==LKLAST.ps[p.id]&&!(LKLAST.ps[p.id]&&lkSameBut(LKLAST.ps[p.id],sp)&&bt[p.id]===ct[p.id])||bt[p.id]!==ct[p.id])changed.push(p.id)});
   if(!changed.length||(me&&changed.includes(me)))return false;
   const loc={};LKLOCAL.forEach(k=>{if(k in S)loc[k]=S[k]});S={...base,...loc};
   const who=changed.map(id=>{const p=S.players.find(x=>x.id===id);return p?nm(p):''}).filter(Boolean).join(' and ');
@@ -2380,7 +2388,7 @@ function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK||LKSWAP)return;if(lkHost()&&L
   const it={},oi=LKLAST.items||{};for(const k in x.items)if(x.items[k]!==oi[k])it[k]=x.items[k];for(const k in oi)if(!(k in x.items))it[k]=null;
   if(Object.keys(it).length){u.items=it;LKLAST.items=x.items}
   if(stable(x.order)!==stable(LKLAST.order)&&!(lkGuest()&&S.game==='linkup')){u.order=x.order;LKLAST.order=x.order}
-  const ps={};for(const id in x.ps)if(x.ps[id]!==LKLAST.ps[id]){ps[id]=x.ps[id];LKLAST.ps[id]=x.ps[id]}
+  const ps={};for(const id in x.ps)if(x.ps[id]!==LKLAST.ps[id]){if(lkGuest()&&id!==S.lk.me&&LKLAST.ps[id]&&lkSameBut(LKLAST.ps[id],x.ps[id]))continue;ps[id]=x.ps[id];LKLAST.ps[id]=x.ps[id]}
   if(Object.keys(ps).length)u.ps=ps;if(Object.keys(u).length){lkTouch();window.FTLINK.push(u)}},250)}
 
 /* "Your turn!" on a linked phone: a strong buzz, plus a notification if the app is in the background (and notifications are allowed) */
@@ -2446,7 +2454,7 @@ window.lkRecv=function(u){if(!S.lk)return;
     for(const k in u.items){if(u.items[k]==null)delete base[k];else base[k]=u.items[k]}LKLAST.items=base;
     if(ch){lkItemsTo(S,res);changed=true}}
   if(Array.isArray(u.order)&&stable(u.order)!==stable(LKLAST.order)){LKLAST.order=u.order;changed=true}
-  const keepP={};if(u.ps)for(const id in u.ps)if(u.ps[id]&&LKLAST.ps[id]!==u.ps[id]){if(cur.ps[id]&&cur.ps[id]!==LKLAST.ps[id])keepP[id]=cur.ps[id];LKLAST.ps[id]=u.ps[id];changed=true}
+  const keepP={};if(u.ps)for(const id in u.ps)if(u.ps[id]&&LKLAST.ps[id]!==u.ps[id]){if(cur.ps[id]&&cur.ps[id]!==LKLAST.ps[id]&&!(lkGuest()&&id!==S.lk.me&&LKLAST.ps[id]&&lkSameBut(cur.ps[id],LKLAST.ps[id])))keepP[id]=cur.ps[id];LKLAST.ps[id]=u.ps[id];changed=true}
   if(changed&&LKLAST.order){const old=S.players,unsent=id=>cur&&cur.ps[id]&&!(u.ps&&id in u.ps)&&cur.ps[id]!==LKLAST.ps[id];S.players=LKLAST.order.map(id=>keepP[id]?JSON.parse(keepP[id]):unsent(id)?JSON.parse(cur.ps[id]):LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):old.find(p=>p.id===id)).filter(Boolean)}
   let fix=false;if(changed&&S.game==='linkup'){const have=new Set(S.players.map(p=>p.id));if(lkHost())Object.keys(LKLAST.ps).forEach(id=>{if(!have.has(id)){S.players.push(JSON.parse(LKLAST.ps[id]));fix=true}});else{const me=S.lk.me;if(me&&!have.has(me)&&cur&&cur.ps[me])S.players.push(JSON.parse(cur.ps[me]))}}
   if(lkHost()&&!S.started&&S.lksit){Object.keys(S.lksit).forEach(n=>{const q=S.players.find(p=>p.on&&!p.bot&&p.name.trim().toLowerCase()===n);if(q&&act().length>(M().min||1)){q.on=false;fix=true}});delete S.lksit;fix=true}
@@ -2561,7 +2569,7 @@ function lkHomeCard(){if(!window.FTLINK&&!window.FTLAN)return '';
     <div class="rlab">${S.lk.lan?'Others join this phone’s Wi-Fi and scan its code.':`Others tap <b>📱 Join</b> and scan this, or type <b class="num" style="font-size:1.3em">${fmtCode(S.lk.code)}</b>`}</div>${lkQr()}${luChips()}
     <div class="rlab">${n>1?'<b>Pick a game below.</b> Everyone linked is added as a player and gets an invite.':'Waiting for phones to join…'}</div>
     <div class="prow" style="padding:0">${S.lk.lan?'<button class="btn" style="flex:1" data-a="lanadd">✈️ Add a phone</button>':''}<button class="btn" style="flex:1" data-a="lustop">${LKSTOP==='stop'?'Tap again to stop':'Stop linking'}</button></div></div></div>`}
-  if(S.lk&&lkHost())return `<div class="sec lkhome"><div class="panel lkrow"><span>📱 Hosting <b class="num">${fmtCode(S.lk.code)}</b> · ${esc(M().name)}</span><button class="btn sm primary" data-a="lkback">Back to the game</button></div>${S.finished||!S.started?'<button class="link-btn" data-a="lulobby">📱 Back to linked phones</button>':''}</div>`;
+  if(S.lk&&lkHost())return `<div class="sec lkhome"><div class="panel lkrow"><span>📱 Hosting <b class="num">${fmtCode(S.lk.code)}</b> · ${esc(M().name)}</span><button class="btn sm primary" data-a="lkback">Back to the game</button></div><div class="prow" style="padding:6px 0 0;gap:8px">${S.finished||!S.started?'<button class="btn sm" style="flex:1" data-a="lulobby">📱 Back to linked phones</button>':''}<button class="btn sm" style="flex:1" data-a="lkstop">${LKSTOP==='stop'?'Tap again to end':'End linking'}</button></div></div>`;
   const msg=LKMSG?`<p class="hint" style="margin:0"><b>${esc(LKMSG)}</b></p>`:'';
   if(LKUI==='join')return `<div class="sec lkhome"><div class="panel" style="padding:12px;display:grid;gap:10px">
     <div class="rlab"><b>Join a game.</b> Scan the code on the host\u2019s phone, or type its 6 numbers.</div><button class="btn primary" data-a="lkscan" ${LKBUSY?'disabled':''}>📷 Scan the code</button>${LANREADY?'<button class="btn" data-a="lanjoin">✈️ Join without internet</button>':''}
