@@ -1,6 +1,6 @@
 // Quacks: "Start with 1 ruby" house rule, Start brewing card comes right away, press and hold a witch.
 const {chromium,W,ok,done,BASE}=require('./link.js');
-const hold=async(page,sel)=>{const loc=page.locator(sel+' >> visible=true');if(!await loc.count())return 'missing '+sel;await loc.first().scrollIntoViewIfNeeded().catch(()=>{});await W(150);const b=await loc.first().boundingBox();if(!b)return 'no box';const at=await page.evaluate(([x,y])=>{const e=document.elementFromPoint(x,y);return e&&(e.className+'|'+(e.closest('[data-lp]')||{}).outerHTML||'').slice(0,160)},[b.x+b.width/2,b.y+b.height/2]);await page.mouse.move(b.x+b.width/2,b.y+b.height/2);await page.mouse.down();await W(700);await page.mouse.up();await W(200);
+const hold=async(page,sel)=>{const loc=page.locator(sel+' >> visible=true');if(!await loc.count())return 'missing '+sel;await loc.first().evaluate(e=>e.scrollIntoView({block:'center'})).catch(()=>{});await W(150);const b=await loc.first().boundingBox();if(!b)return 'no box';const at=await page.evaluate(([x,y])=>{const e=document.elementFromPoint(x,y);return e&&(e.className+'|'+(e.closest('[data-lp]')||{}).outerHTML||'').slice(0,160)},[b.x+b.width/2,b.y+b.height/2]);await page.mouse.move(b.x+b.width/2,b.y+b.height/2);await page.mouse.down();await W(700);await page.mouse.up();await W(200);
   return page.evaluate(()=>{const h=document.querySelector('.qwsheet h2');const r=h?h.textContent:null;const c=document.querySelector('.qwsheet [data-a="lpclose"]');if(c)c.click();return r})};
 (async()=>{const b=await chromium.launch();const page=await b.newPage({viewport:{width:400,height:850}});const errs=[];page.on('pageerror',e=>errs.push(e.message));
   await page.goto(BASE);await W(1500);await page.evaluate(()=>{SET.toursOff=true});
@@ -15,7 +15,7 @@ const hold=async(page,sel)=>{const loc=page.locator(sel+' >> visible=true');if(!
   // fortune card dismissed -> Start brewing card right away
   r=await page.evaluate(()=>{const g=S.qpg,id=act()[0].id;(S.qkfc=S.qkfc||[])[g.r]=null;g.pl[id].sf=false;qpSeen(g,id,'sf');return {t:g.ann&&g.ann.t,q:(g.annq||[]).length}});
   ok('the Start brewing card comes as soon as the fortune card is tapped away',r.t==='Start brewing!'&&r.q===0,r);
-  await page.evaluate(()=>{const g=S.qpg;g.ann=null;g.annq=[];save();render()});await W(300);
+  await page.evaluate(()=>{const g=S.qpg;g.ann=null;g.annq=[];save();render()});await W(3500);
   nm=await hold(page,'.qwcard.qw-c');ok('press and hold a witch on your board in play',nm==='Take a chip twice',nm);
   r=await page.evaluate(()=>{const g=S.qpg;return document.querySelectorAll('.qkcoin[data-lp]').length});
   if(r){nm=await hold(page,'.qkcoin.g[data-lp]');ok('press and hold a witch penny shows that witch',nm==='Points for colors'||!!nm,nm)}

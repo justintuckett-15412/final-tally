@@ -88,12 +88,12 @@ export function startSync(fb){
 export function makeLink(fb,o={}){
   const withTimeout=(p,ms,msg)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error(msg)),ms))]);
   /* ---- linked games: one shared game, several phones, joined with a 6-number code ---- */
-  let lk=null,uid='',lastRd=0;const gref=c=>['games',c],exp=()=>fb.when(Date.now()+3*864e5);
+  let lk=null,uid='',lastRd=0,lastSnap=Date.now();const gref=c=>['games',c],exp=()=>fb.when(Date.now()+3*864e5);
   const authed=async()=>{uid=await withTimeout(fb.ready(),20000,o.local?'Couldn\u2019t reach the host phone.':'Couldn\u2019t connect. Check your internet connection.');return uid};
   const seatMap=all=>{const m={};all.forEach(d=>{if(d.data&&d.data.uid)m[d.id]={dev:d.data.uid,ready:!!d.data.ready,rd:d.data.rd||0,t:d.data.t||0}});return m};
   function lkStop(){if(lk){lk.un.forEach(u=>{try{u()}catch(e){}});lk=null}}
   function lkWatch(code){lkStop();const un=[],send=u=>{try{window.lkRecv&&window.lkRecv(u)}catch(e){console.error(e)}};
-    un.push(fb.watchDoc(gref(code),d=>{if(!d||d.ended){send({gone:true});return}lastRd=d.rd||0;send({mflat:flatM(d.m),order:d.order,rv:d.rv||null,rd:lastRd,gen:d.gen||0,sw:!!d.sw,host:d.hostUid||'',t:d.t||0})},()=>{}));
+    un.push(fb.watchDoc(gref(code),d=>{lastSnap=Date.now();if(!d||d.ended){send({gone:true});return}lastRd=d.rd||0;send({mflat:flatM(d.m),order:d.order,rv:d.rv||null,rd:lastRd,gen:d.gen||0,sw:!!d.sw,host:d.hostUid||'',t:d.t||0})},()=>{}));
     un.push(fb.watch([...gref(code),'i'],ch=>{const items={};ch.forEach(c=>{if(c.local)return;items[c.id]=c.removed||!c.data?null:c.data.j});if(Object.keys(items).length)send({items})},()=>{}));
     un.push(fb.watch([...gref(code),'seats'],(ch,first,all)=>send({seats:seatMap(all)}),()=>{}));
     un.push(fb.watch([...gref(code),'p'],ch=>{const ps={};ch.forEach(c=>{if(!c.local&&c.data&&c.data.j)ps[c.id]=c.data.j});if(Object.keys(ps).length)send({ps})},()=>{}));
@@ -129,6 +129,9 @@ export function makeLink(fb,o={}){
       it.forEach(x=>{if(x.data&&x.data.j)items[x.id]=x.data.j});
       lastRd=d.rd||0;lkWatch(c);return {...d,mflat:flatM(d.m),players,seats,items}},
     resume(c){authed().then(()=>lkWatch(c),fail)},
+    /* the phone came back (or went quiet): reconnect and listen again */
+    refresh(){if(!lk)return;const c=lk.code;lastSnap=Date.now();Promise.resolve(fb.kick&&fb.kick()).then(()=>{if(lk&&lk.code===c)lkWatch(c)},fail)},
+    quiet:()=>Date.now()-lastSnap,
     /* the host starts a different game for the same linked phones: same code, fresh players, seats and scores */
     async swap(x){if(!lk)throw new Error('Not linked');const c=lk.code,d=await withTimeout(fb.get(gref(c)),15000,'Couldn’t reach the other phones.')||{},gen=(d.gen||0)+1;
       await fb.update(gref(c),{gen,sw:true,t:Date.now()});

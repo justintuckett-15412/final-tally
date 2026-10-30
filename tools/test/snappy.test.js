@@ -21,6 +21,7 @@ const until=async(p,fn,ms=8000,arg=null)=>{const t=Date.now();while(Date.now()-t
   for(let t=0;t<40;t++){if(await tap(G,'qpstop'))break;await W(100)}
   const seen=await until(G,()=>/You stopped|Your pot exploded/.test(document.body.innerText),8000);
   const conf=await until(G,id=>S.qpg.pl[id].stop,8000,ids[1]);
+  if(seen<0)console.log('DBG',JSON.stringify(await G.evaluate(id=>({L:(({stop,ask,sf,ex,ws,d6})=>({stop,ask,sf,ex,ws,d6}))(S.qpg.pl[id]),pend:lkPending().length,btns:[...new Set([...document.querySelectorAll('[data-a]')].filter(b=>!b.disabled&&b.offsetParent).map(b=>b.dataset.a))].join(' ')}),ids[1])));
   ok('Stop shows on the guest right away (under 300 ms)',seen>=0&&seen<300,{seen});
   ok('the host confirms the Stop',await until(H,()=>true)>=0&&await H.evaluate(id=>S.qpg.pl[id].stop,ids[1]));
   // host's own player stops; wait for scoring

@@ -1,14 +1,16 @@
 /* Firebase storage for Final Tally family sync. These config values are public by design; the database rules protect the data. */
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import {getAuth,signInAnonymously,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import {initializeFirestore,getFirestore,persistentLocalCache,persistentMultipleTabManager,doc,getDoc,setDoc,updateDoc,deleteDoc,deleteField,FieldPath,collection,getDocs,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import {initializeFirestore,getFirestore,persistentLocalCache,persistentSingleTabManager,disableNetwork,enableNetwork,doc,getDoc,setDoc,updateDoc,deleteDoc,deleteField,FieldPath,collection,getDocs,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import {startSync} from './sync.js';
 const app=initializeApp({apiKey:"AIzaSyCefypb0DpuHgwgp7RF3fhe6kxSSrC1cag",authDomain:"final-tally-12c6a.firebaseapp.com",projectId:"final-tally-12c6a",storageBucket:"final-tally-12c6a.firebasestorage.app",messagingSenderId:"55109323074",appId:"1:55109323074:web:fe3e1ec29ce5a9ee3ae0db"});
-let db;try{db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})})}catch(e){db=getFirestore(app)}
+let db;try{db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentSingleTabManager()})})}catch(e){db=getFirestore(app)}
 const auth=getAuth(app);let readyP=null;
 const ready=()=>readyP||(readyP=new Promise((res,rej)=>{const un=onAuthStateChanged(auth,u=>{un();if(u)res(u.uid);else signInAnonymously(auth).then(c=>res(c.user.uid),e=>{readyP=null;rej(e)})},e=>{readyP=null;rej(e)})}));
 const ref=p=>doc(db,...p);
 const fb={ready,
+  /* after the phone wakes up: drop and reopen the connection, so a stalled one can't leave the game hanging */
+  kick:async()=>{try{await disableNetwork(db);await enableNetwork(db)}catch(e){}},
   when:ms=>new Date(ms),
   get:async p=>{const s=await getDoc(ref(p));return s.exists()?s.data():null},
   set:(p,d)=>setDoc(ref(p),d),
