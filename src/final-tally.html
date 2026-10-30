@@ -575,7 +575,9 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 @keyframes qpboom{0%{transform:translateY(40vh) scale(.3);opacity:0}18%{transform:scale(1.15);opacity:1}30%,40%,50%{transform:rotate(-8deg) scale(1.1)}35%,45%{transform:rotate(8deg) scale(1.1)}80%{transform:scale(1.4);opacity:1}100%{transform:scale(2);opacity:0}}
 @keyframes qplab{0%,15%{opacity:0}25%,80%{opacity:1}100%{opacity:0}}.qpchip.qphide{visibility:hidden}
 .qppot{display:grid;grid-template-columns:repeat(9,1fr);gap:3px;margin:8px 0}.qppot.mini{grid-template-columns:repeat(14,1fr);gap:2px;margin:4px 0}.qpcell{aspect-ratio:1;border-radius:50%;background:var(--surface2,rgba(0,0,0,.05));display:grid;place-items:center;font-size:10px;color:var(--muted);position:relative;border:1.5px solid transparent}
-.qpcell.drop::after{content:'💧';position:absolute;top:-6px;left:-4px;font-size:11px}.qpcell.rat::after{content:'🐀';position:absolute;top:-6px;left:-4px;font-size:11px}.qpcell.ghost{border:1.5px dashed var(--muted)}.qpcell.ghost small{font-size:11px}.qpcell.next{box-shadow:0 0 0 2px var(--accent)}.qpcell.next::after{content:'scores';position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);font-size:9px;font-weight:800;line-height:1;padding:2px 4px;border-radius:6px;background:var(--accent);color:#2a2000;z-index:2;white-space:nowrap}.qppot.mini .qpcell.next::after{content:'';padding:2px;bottom:-4px}
+.qpcell.drop{box-shadow:0 0 0 3px #3b9cff,0 0 10px 2px rgba(59,156,255,.7)}.qpcell.drop::after{content:'💧';position:absolute;top:-12px;left:-8px;font-size:20px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6));z-index:3}.qppot.mini .qpcell.drop::after{font-size:13px;top:-8px;left:-5px}.qpcell.rat{box-shadow:0 0 0 3px #e0912f,0 0 10px 2px rgba(224,145,47,.7)}.qpcell.rat::after{content:'🐀';position:absolute;top:-12px;left:-8px;font-size:20px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6));z-index:3}.qppot.mini .qpcell.rat::after{font-size:13px;top:-8px;left:-5px}
+.qpdr{display:flex;flex-wrap:wrap;gap:6px}.qpdrop,.qprat{padding:2px 8px;border-radius:999px;font-size:13px}.qpdrop{background:rgba(59,156,255,.18);color:#3b9cff}.qprat{background:rgba(224,145,47,.2);color:#e0912f}
+.qpbowl{margin:8px 4px 2px;padding:8px 10px;border-radius:14px;border:2px dashed #1fb3a5;background:color-mix(in srgb,#1fb3a5 12%,transparent);display:grid;gap:4px}.qpbowl.mini{padding:4px 6px;font-size:12px}.qpbowlc{display:flex;flex-wrap:wrap;gap:4px}.qpbowlc .qpchip{width:30px;height:30px}.qpcell.ghost{border:1.5px dashed var(--muted)}.qpcell.ghost small{font-size:11px}.qpcell.next{box-shadow:0 0 0 2px var(--accent)}.qpcell.next::after{content:'scores';position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);font-size:9px;font-weight:800;line-height:1;padding:2px 4px;border-radius:6px;background:var(--accent);color:#2a2000;z-index:2;white-space:nowrap}.qppot.mini .qpcell.next::after{content:'';padding:2px;bottom:-4px}
 .qpsub{white-space:pre-line}
 .qpchip{width:100%;height:100%;min-width:22px;min-height:22px;border-radius:50%;background:var(--qi) center/100% 100% no-repeat,var(--qc);display:block;position:relative;border:0;padding:0;box-shadow:0 1px 3px rgba(0,0,0,.3)}.qpchip i,.qpbig i,.qpbs i{position:absolute;right:-3px;bottom:-3px;min-width:15px;height:15px;padding:0 3px;border-radius:99px;background:#fff;color:#26313b;font:800 10.5px/15px system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.35)}
 .qppot.mini .qpchip{min-width:0;min-height:0}.qppot.mini .qpchip i{min-width:11px;height:11px;font-size:8px;line-height:11px;right:-2px;bottom:-2px;padding:0 2px}.qppot.mini small{font-size:0}
@@ -8222,7 +8224,7 @@ function tpDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringi
    p.qk[r] = {s: pot index | null, ex, ch:'vp'|'coins', die, xp: other points, es: essence points,
              ov: overflow bowl total, rub: rubies left (round 9), pen: witch pennies left (round 9)}
    ===================================================================== */
-const QKDEF={play:0,herb:true,turq:false,o6:false,alch:false,set:1,coins9:true,tubes:false,shop:'color',bk:null,wit:{s:'full',c:'double',g:'colors'}};
+const QKDEF={play:0,herb:true,turq:false,o6:false,ovf:false,alch:false,set:1,coins9:true,tubes:false,shop:'color',bk:null,wit:{s:'full',c:'double',g:'colors'}};
 const QKX=()=>{if(!S.qkx)S.qkx={...QKDEF};const X=S.qkx;for(const k in QKDEF)if(X[k]===undefined)X[k]=QKDEF[k];if(!X.bk||typeof X.bk!=='object')X.bk=qkSetBooks(X.set);if(!X.wit||X.wit===QKDEF.wit)X.wit={...QKDEF.wit};if(!X.bk.red)Object.assign(X.bk,{red:'r1',yellow:'y1'},{...X.bk});return X};
 const qkSetBooks=n=>({black:'base',green:'g'+Math.min(n,4),purple:'p'+Math.min(n,4),blue:'u'+Math.min(n,4),red:'r'+Math.min(n,4),yellow:'y'+Math.min(n,4)});
 function qkSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.qkx'))}catch(e){}return Object.assign({...QKDEF},x||{})}
@@ -8258,7 +8260,7 @@ const QKDIE=[['vp1','1 point',1],['vp2','2 points',2],['ruby','Ruby',0],['drop',
 function qkParts(p,r){const X=QKX(),R=(p.qk||[])[r];if(!qkHas(R))return null;const sp=QKPOT[R.s],ex=qkEx(p,r),pts=ex&&R.ch==='coins'?0:sp[1];
   const dv=k=>(QKDIE.find(d=>d[0]===k)||[0,0,0])[2],nx=qkB(p,r).rolls,die=(qkDieRollers(r).includes(p)&&R.die?dv(R.die):0)+(R.dies||[]).slice(0,nx).reduce((a,k)=>a+dv(k),0);
   let coins=(ex&&R.ch==='vp'?0:sp[0])+(+R.ca||0);if(qkWid(p,r,'rubyval'))coins+=2*qkRubies(p,r+1);if(qkWid(p,r,'double'))coins*=2;const last=r===8;
-  const buy=last&&X.coins9?Math.floor(coins/5):0,rub=last?Math.floor(qkRubies(p,9)/2):0,pen=last&&X.herb?2*qkPennies(p):0,ov=R.s===QKSPOON&&X.herb?Math.floor((+R.ov||0)/2):0;
+  const buy=last&&X.coins9?Math.floor(coins/5):0,rub=last?Math.floor(qkRubies(p,9)/2):0,pen=last&&X.herb?2*qkPennies(p):0,ov=R.s===QKSPOON&&(X.herb||X.ovf)?Math.floor((+R.ov||0)/2):0;
   const es=X.alch?(+R.es||0):0,xp=+R.xp||0,tv=X.tubes?qkTubeGain(p,r).vp:0;
   const bv=qkB(p,r).vp;return {sp,pts,die,coins,buy,rub,pen,ov,es,xp,tv,bv,v:pts+die+buy+rub+pen+ov+es+xp+tv+bv}}
 /* rubies on hand after round r (exclusive end): space ruby + die ruby + manual change */
@@ -8409,7 +8411,7 @@ function qkSetup(){const X=QKX();
   return `<div class="bar"><h1>Quacks</h1></div><img class="hero hfhero" src="art/quacks-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">Highest score after 9 rounds wins. Your setup is remembered for next time. ${usualUI('quacks')}</p>
   ${sec('How you’re playing',S.started?`<div class="rlab"><b>${X.play?'⚗️ Playing on the phone':'Scoring real pots'}</b></div>`:`<div class="seg">${[[1,'⚗️ Play on the phone'],[0,'Score real pots']].map(([vv,t])=>`<button data-a="qkplaymode" data-k="${vv}" aria-pressed="${!!X.play===!!vv}">${t}</button>`).join('')}</div>`,X.play?'The base game on the phone: bags, pots, the bonus die, rubies, the shop and the ingredient books. Each round, flip your real fortune teller card and pick it in the app. Computer players, pass-and-play and linked phones all work.':'Play with your own box and enter each pot’s scoring space. Just score keeping.')}
-  ${X.play?sec('Expansions',tg('herb','The Herb Witches: witch pennies','Each player gets one witch penny of each color to use once per game (2 points each if unused). The overflow bowl and the Herb Witches ingredient books are for scoring real pots for now.')+tg('turq','Turquoise chips (locoweed)','From the Herb Witches box, but you can use them without the witches. 8 coins, for sale from round 1; pick a side of the turquoise book below.')+tg('o6','Orange 6-chip','From the Herb Witches box, but you can use it without the witches. 22 coins.'),''):sec('Expansions',tg('herb','The Herb Witches','Witch pennies (2 points each if unused), the overflow bowl, a 5th player, and new ingredient books.')+tg('alch','The Alchemists','Essence points each round; in round 9, 1 point per flask space. (Full card support once you have the box.)'),'')}
+  ${X.play?sec('Expansions',tg('herb','The Herb Witches: witch pennies','Each player gets one witch penny of each color to use once per game (2 points each if unused). The overflow bowl and the Herb Witches ingredient books are for scoring real pots for now.')+tg('turq','Turquoise chips (locoweed)','From the Herb Witches box, but you can use them without the witches. 8 coins, for sale from round 1; pick a side of the turquoise book below.')+tg('o6','Orange 6-chip','From the Herb Witches box, but you can use it without the witches. 22 coins.')+tg('ovf','Overflow bowl','From the Herb Witches box. Once your pot is full, keep drawing into the bowl (whites still count toward exploding). At scoring, half the bowl’s total is points, rounded down.'),''):sec('Expansions',tg('herb','The Herb Witches','Witch pennies (2 points each if unused), the overflow bowl, a 5th player, and new ingredient books.')+tg('alch','The Alchemists','Essence points each round; in round 9, 1 point per flask space. (Full card support once you have the box.)'),'')}
   ${sec('Ingredient books',`<div class="qkbtns"><button class="btn sm" data-a="qkrand">🎲 Deal random books</button>${Array.from({length:4},(_,i)=>`<button class="btn sm" data-a="qkset" data-k="set" data-v="${i+1}">Set ${i+1}</button>`).join('')}</div>`+['red','blue','green','yellow','purple','black',...(X.turq?['turquoise']:[])].map(c=>`<div class="srow qkbook"><span class="rlab"><b>${QKCOL[c][0]}</b><br><small>${QKCOL[c][1]}</small></span><select data-qkbook="${c}" aria-label="${c} book">${QKBOOKS[c].filter(o=>X.play?QPBOOKOK[c].includes(o[0]):X.herb||!o[0].startsWith('h')).map(o=>`<option value="${o[0]}"${X.bk[c]===o[0]?' selected':''}>${esc(o[1])}</option>`).join('')}</select></div>${(QKBOOKS[c].find(o=>o[0]===X.bk[c])||[])[2]?`<p class="hint" style="margin:0 0 6px">${esc(QKBOOKS[c].find(o=>o[0]===X.bk[c])[2])}</p>`:''}`).join(''),'Mix and match: pick each color\u2019s book, deal them at random, or fill in a whole set. The app scores the end-of-round books (black, green, purple, blue) for you.')}
   ${X.herb?sec('Herb witches this game',['s','c','g'].map(t=>`<div class="srow qkbook"><span class="rlab"><b>${QKWITCH[t][0]} penny</b></span><select data-qkwit="${t}" aria-label="${QKWITCH[t][0]} witch">${QKWITCH[t][1].map(w=>`<option value="${w[0]}"${X.wit[t]===w[0]?' selected':''}>${esc(w[1])}</option>`).join('')}</select></div><p class="hint" style="margin:0 0 6px">${esc(QKWITCH[t][1].find(w=>w[0]===X.wit[t])[2])}</p>`).join('')+qpWBoard(null)+`<div class="qkbtns"><button class="btn sm" data-a="qkwrand">🎲 Turn up random witches</button></div>`,'One witch of each penny color is turned up each game. Everyone can use each penny once; unused pennies are worth 2 points at the end.'):''}
   ${sec('Shopping',`<div class="seg"><button data-a="qkshop" data-v="color" aria-pressed="${X.shop==='color'}">1 of each color</button><button data-a="qkshop" data-v="two" aria-pressed="${X.shop==='two'}">2 chips max</button></div>`,X.shop==='color'?'House rule: buy as many as you can afford, one per ingredient color.':'Printed rule: 1 or 2 chips, different colors.')}
@@ -8442,7 +8444,7 @@ function qpStart(){const X=QKX();Object.keys(QPBOOKOK).forEach(c=>{if(!QPBOOKOK[
 /* start of a round: rat tails, the white chip in round 6, empty pots */
 function qpRoundSetup(g){const r=g.r;act().forEach(p=>qkR(p,r));
   /* file the round that just ended for "Earlier rounds" */if(r>0&&!lkGuest()){if(!S.hlg||S.hlg.g!==S.game)S.hlg={g:S.game,h:{}};const h=S.hlg.h[r-1]||(S.hlg.h[r-1]={});h.lg=(g.lg||[]).slice();h.done=1}g.lg=[];
-  g.ps.forEach(id=>{const L=g.pl[id],p=act().find(q=>q.id===id);if(!L||!p)return;L.bag=L.bag.concat(L.pot.map(x=>x.c));L.pot=[];L.ex=false;L.stop=false;L.ws=0;L.lim=7;L.ask=null;L.done=false;L.buy=[];L.rubs={drop:0,flask:0};L.y2=false;L.ycount=0;L.seen1w=false;L.nd=0;L.d6=[];delete L.wup;
+  g.ps.forEach(id=>{const L=g.pl[id],p=act().find(q=>q.id===id);if(!L||!p)return;L.bag=L.bag.concat(L.pot.map(x=>x.c),L.ovf||[]);L.pot=[];L.ovf=[];L.ex=false;L.stop=false;L.ws=0;L.lim=7;L.ask=null;L.done=false;L.buy=[];L.rubs={drop:0,flask:0};L.y2=false;L.ycount=0;L.seen1w=false;L.nd=0;L.d6=[];delete L.wup;
     if(r===5)L.bag.push(qpNew('w1'));L.rat=0;L.start=L.drop});
   g.phase='brew';g.card=null;g.msg='';
   
@@ -8491,7 +8493,10 @@ function qpDraw(g,pid){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||L.stop||L.a
   qpPlace(g,pid,c);return true}
 /* what a drawn chip counts as: a turquoise chip on the copy side becomes the last colored chip in the pot */
 function qpAs(L,c){if(qpK(c)!=='t'||qpBook('turquoise')!=='tCopy'||!QKX().turq)return null;const pe=[...L.pot].reverse().find(e=>qpKx(e)!=='w');return pe?qpKx(pe)+qpVx(pe):null}
-function qpPlace(g,pid,c){const L=g.pl[pid],as=qpAs(L,c),k=as?as[0]:qpK(c),v=as?+as.slice(1):qpV(c),prev=qpLast(L);let mv=v;
+const qpOvfOn=()=>!!QKX().ovf;
+const qpFull=L=>!!L.pot.length&&qpLast(L).at>=QKSPOON-1;
+function qpPlace(g,pid,c){if(qpOvfOn()&&qpFull(g.pl[pid])){const L=g.pl[pid];(L.ovf=L.ovf||[]).push(c);if(qpK(c)==='w'){L.ws+=qpV(c);if(L.ws>L.lim){L.ex=true;L.stop=true;gLog(g,`${nmid(pid)}’s pot exploded`,'💥')}}return}
+  const L=g.pl[pid],as=qpAs(L,c),k=as?as[0]:qpK(c),v=as?+as.slice(1):qpV(c),prev=qpLast(L);let mv=v;
   if(L.y2){mv*=2;L.y2=false}
   if(k==='t'&&qpBook('turquoise')!=='tCopy')mv=Math.min(4,(L.rat||0)+1);
   if(k==='o'&&qkCid(g.r)==='pumpkin')mv++;
@@ -8501,7 +8506,7 @@ function qpPlace(g,pid,c){const L=g.pl[pid],as=qpAs(L,c),k=as?as[0]:qpK(c),v=as?
   const at=Math.min(QKSPOON-1,qpPos(L)+mv);L.pot.push(as?{c,at,as}:{c,at});if(as)gLog(g,`${nmid(pid)}’s turquoise chip copies a ${QPCOL[as[0]][0].toLowerCase()} ${as.slice(1)}`,'🌺');if(k==='w')L.ws+=v;
   if(L.ws>L.lim){L.ex=true;L.stop=true;gLog(g,`${nmid(pid)}’s pot exploded`,'💥');{const p=act().find(q=>q.id===pid);if(p&&L.flask&&k==='w'&&qpWFree(p,'s','flask'))L.ask={t:'wflask',c}}return}
   if(k==='y'&&qpBook('yellow')==='y1'&&prev&&qpKx(prev)==='w')L.ask={t:'mandrake',w:prev.c};
-  if(at>=QKSPOON-1){L.stop=true;L.ask=null;gLog(g,`${nmid(pid)} filled the whole pot!`,'🥄')}}
+  if(at>=QKSPOON-1){if(qpOvfOn()){gLog(g,`${nmid(pid)} filled the pot! Now into the overflow bowl`,'🥄')}else{L.stop=true;L.ask=null;gLog(g,`${nmid(pid)} filled the whole pot!`,'🥄')}}}
 /* answer a question while brewing: blue pick, mandrake, flask, stirred */
 function qpAnswer(g,pid,v){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||!L.ask)return false;const A=L.ask;L.ask=null;g.n++;
   if(A.t==='blue'){const keep=A.cs.find(c=>c===v)||null;A.cs.forEach(c=>{if(c!==keep)L.bag.push(c)});if(keep)qpPlace(g,pid,keep);return true}
@@ -8558,7 +8563,7 @@ function qpEval(g){const r=g.r,P=act();g.phase='eval';
     Object.assign(R,{s,ex:L.ex,bk:L.pot.filter(x=>qpKx(x)==='k').length,gl:last2.filter(x=>qpKx(x)==='g').length,pu:L.pot.filter(x=>qpKx(x)==='p').length,
       p10:L.pot.filter(x=>qpKx(x)==='p'&&QKPOT[x.at][0]>=10&&QKPOT[x.at][0]<20).length,p20:L.pot.filter(x=>qpKx(x)==='p'&&QKPOT[x.at][0]>=20&&QKPOT[x.at][0]<30).length,p30:L.pot.filter(x=>qpKx(x)==='p'&&QKPOT[x.at][0]>=30).length,
       br:L.pot.filter(x=>qpKx(x)==='u'&&ruby(x.at)).length,bv:L.pot.filter(x=>qpKx(x)==='u'&&ruby(x.at)).reduce((a,x)=>a+qpVx(x),0),
-      ch:L.ex?(R.ch==='coins'?'coins':'vp'):'vp',rb:0,xp:0,pt:0});
+      ch:L.ex?(R.ch==='coins'?'coins':'vp'):'vp',rb:0,xp:0,pt:0,ov:(L.ovf||[]).reduce((a,c)=>a+qpV(c),0)});
     if(gs){const lx=L.pot[L.pot.length-1];lx.from=lx.at;lx.at=Math.min(QKSPOON-1,lx.at+gs);lx.push=gs}
     if(qkCid(r)==='seasoned'&&!L.ex&&L.ws===7){L.drop++;gLog(g,`${nmid(pid)}: exactly 7 whites, droplet moves`,'💧')}
     L.done=false;L.buy=[]});
@@ -8602,11 +8607,12 @@ function qpFinish(g){const r=g.r,P=act(),id=qkCid(r);
     (L.gift||[]).forEach(c=>L.bag.push(qpNew(c)));
     if(qkWid(p,r,'twice')&&R.wtw&&L.buy.includes(R.wtw))L.bag.push(qpNew(R.wtw));
     if(qkWid(p,r,'upgrade')&&L.wup){const pick=L.wup==='last'?L.pot.slice().reverse().filter(x=>qpUpLabel(x.c)).slice(0,2).map(x=>x.c):[L.wup];pick.forEach(c=>{const nc=qpUpLabel(c);if(!nc)return;const ib=L.bag.indexOf(c);if(ib>=0)L.bag[ib]=qpNew(nc);else{const x=L.pot.find(y=>y.c===c);if(x)x.c=qpNew(nc)}})}
-    if(R.die==='pump')L.bag.push(qpNew('o1'));
+    if(R.die==='pump'&&qkDieRollers(r).includes(p))L.bag.push(qpNew('o1'));
+    {const ex=(R.dies||[]).slice(0,qkB(p,r).rolls);ex.forEach(d=>{if(d==='pump')L.bag.push(qpNew('o1'))});L.edrop=ex.filter(d=>d==='drop').length}
     if(qpBook('purple')==='p2'&&R.pt){const n=R.pt;let k=0;L.pot=L.pot.filter(x=>{if(qpKx(x)==='p'&&k<n){k++;return false}return true});(n===1?['k1']:n===2?['g1','u2']:['y4']).forEach(c=>L.bag.push(qpNew(c)))}
     if(L.up){const all=L.bag.concat(L.pot.map(x=>x.c)),c=all.find(x=>x===L.up);if(c){const k=qpK(c),v=qpV(c),nv=v===1?2:4;const ch=k+nv;if(QPPRICE[ch]){const inBag=L.bag.indexOf(c);if(inBag>=0)L.bag[inBag]=qpNew(ch);else{const x=L.pot.find(y=>y.c===c);if(x)x.c=qpNew(ch)}}}}
     for(let i=0;i<(L.rmw||0);i++){const j=L.bag.findIndex(c=>c.startsWith('w1#'));if(j>=0)L.bag.splice(j,1);else{const x=L.pot.findIndex(y=>y.c.startsWith('w1#'));if(x>=0)L.pot.splice(x,1)}}
-    L.drop+=(B.drop||0)+(R.die==='drop'&&qkDieRollers(r).includes(p)?1:0)+(L.rubs.drop||0)+(L.adrop||0)+(+R.g4||0);
+    L.drop+=(B.drop||0)+(R.die==='drop'&&qkDieRollers(r).includes(p)?1:0)+(L.edrop||0)+(L.rubs.drop||0)+(L.adrop||0)+(+R.g4||0);L.edrop=0;
     if(L.rubs.flask||id==='magic')L.flask=true;
     L.gift=[];L.up=null;L.rmw=0;L.adrop=0});
   S.hr=Math.max(S.hr||0,r);
@@ -8686,7 +8692,8 @@ function qpPotEl(L,o={}){const cells=[],by={},gh={},pv=o.mini?null:qpPend(L),D=p
   if(pv){const x=L.pot[L.pot.length-1];by[x.at]=x.as?x.as+'#cp':x.c;lastAt=x.at}
   const end=o.end||Math.max(qpPos(L)+8,20),s=qpScoreAt(D);
   for(let i=0;i<=Math.min(QKSPOON,Math.max(end,s));i++){const sp=QKPOT[i]||[0,0,false],c=by[i];cells.push(`<span class="qpcell${c&&i===lastAt?' last':''}${i===L.drop?' drop':''}${i===L.start&&L.start!==L.drop?' rat':''}${i===s&&(!o.mini||o.score)?' next':''}${sp[2]?' ruby':''}${gh[i]&&!c?' ghost':''}"${sp[2]&&!o.mini?' title="Ruby space"':''}>${c?qpChipEl(c):gh[i]?`<small aria-label="moved ${gh[i].push} ahead">🕷️→</small>`:`<small>${sp[0]}</small>`}${sp[2]&&!o.mini?`<span class="qprbm">${QPRB}</span>`:''}</span>`)}
-  return `<div class="qppot${o.mini?' mini':''}">${cells.join('')}</div>`}
+  const bowl=qpOvfOn()&&(qpFull(D)||(L.ovf||[]).length)?`<div class="qpbowl${o.mini?' mini':''}"><b>🥣 Overflow bowl</b>${(L.ovf||[]).length?`<span class="qpbowlc">${L.ovf.map(c=>qpChipEl(c)).join('')}</span><small>Total ${L.ovf.reduce((a,c)=>a+qpV(c),0)} → +${Math.floor(L.ovf.reduce((a,c)=>a+qpV(c),0)/2)} points</small>`:`<small>Your pot is full. Keep drawing: chips go here, and half their total is points.</small>`}</div>`:'';
+  return `<div class="qppot${o.mini?' mini':''}">${cells.join('')}</div>${bowl}`}
 function qpBagSum(L){const n={},wv={};L.bag.forEach(c=>{const k=qpK(c);if(k==='w'){const v=qpV(c);wv[v]=(wv[v]||0)+1;return}n[k]=(n[k]||0)+1});
   /* whites by value (they decide when you explode), the other colors just counted */
   const W=Object.keys(wv).sort((a,b)=>a-b).map(v=>`<span class="qpwv" aria-label="${wv[v]} white ${v}-chip${wv[v]===1?'':'s'}">${qpChipEl('w'+v)}<b>×${wv[v]}</b></span>`).join('');
@@ -8704,7 +8711,7 @@ function qpPlayUI(){const X=QKX(),P=act(),g=qpG(),sc=P.map(qkTot),hi=Math.max(..
     out+=`<div class="qpothers">${P.filter(q=>!V||q.id!==V.id).map(q=>{const L=g.pl[q.id];return `<div class="qpo" style="${pc(q.color)}"><div class="gpon"><b>${botHead(q)}${esc(nm(q))}${qpWChips(q,g.r)}</b><span class="num">${L.ex?'💥 exploded':L.stop?'✋ stopped':'brewing…'} · ⚪ ${L.ws}/${L.lim}</span></div>${qpPotEl(L,{mini:true})}</div>`}).join('')}</div>`;
     if(me){const A=me.ask,risk=Math.round(qpRisk(me)*100);
       out+=`<div class="qpme" style="${pc(V.color)}"><div class="gpon"><b>${S.lk||qpHumans().length<2?'Your pot':esc(nm(V))+'’s pot'}${qpWChips(V,g.r)}</b><span class="num qpws${me.ws>=me.lim-2?' hot':''}">⚪ ${me.ws} / ${me.lim}</span></div>
-        ${qpPotEl(me)}${me.stop?'':(()=>{const pv=qpPend(me)||me,ns=qpScoreAt(pv),gp=qpGreenPush(pv),sp=QKPOT[ns]||[0,0,false];let nr=-1;for(let j=ns+1;j<QKPOT.length;j++)if(QKPOT[j][2]){nr=j;break}return `<div class="qpnow${sp[2]?' rb':''}"><b>Stop now:</b> ${gp?`🕷️ greens push you ${gp} ahead: scores space ${sp[0]}`:`scores the next space, ${sp[0]}`} · ⭐ ${sp[1]} · 🪙 ${sp[0]}${sp[2]?` · ${QPRB} ruby!`:nr>0?` · next ${QPRB} in ${nr-ns} space${nr-ns===1?'':'s'}`:''}</div>`})()}<div class="qpinfo"><span>Bag: ${qpBagSum(me)}</span><span class="rlab">${me.stop?'':`${risk}% chance the next chip explodes it`}</span><span>${me.flask?'🧪 flask ready':'🧪 flask empty'}</span><span class="qprbn">${QPRB} ${qpRubies(V,r-1)}</span></div>
+        ${qpPotEl(me)}${me.stop?'':(()=>{const pv=qpPend(me)||me,ns=qpScoreAt(pv),gp=qpGreenPush(pv),sp=QKPOT[ns]||[0,0,false];let nr=-1;for(let j=ns+1;j<QKPOT.length;j++)if(QKPOT[j][2]){nr=j;break}return `<div class="qpnow${sp[2]?' rb':''}"><b>Stop now:</b> ${gp?`🕷️ greens push you ${gp} ahead: scores space ${sp[0]}`:`scores the next space, ${sp[0]}`} · ⭐ ${sp[1]} · 🪙 ${sp[0]}${sp[2]?` · ${QPRB} ruby!`:nr>0?` · next ${QPRB} in ${nr-ns} space${nr-ns===1?'':'s'}`:''}</div>`})()}<div class="qpinfo"><span>Bag: ${qpBagSum(me)}</span><span class="qpdr"><b class="qpdrop">💧 Droplet: space ${(QKPOT[me.drop]||[0])[0]}</b>${me.rat?` <b class="qprat">🐀 ${me.rat} rat tail${me.rat===1?'':'s'}: start on ${(QKPOT[me.start]||[0])[0]}</b>`:''}</span><span class="rlab">${me.stop?'':`${risk}% chance the next chip explodes it`}</span><span>${me.flask?'🧪 flask ready':'🧪 flask empty'}</span><span class="qprbn">${QPRB} ${qpRubies(V,r-1)}</span></div>
         ${A?(A.t==='blue'?`<div class="qpask"><b>Crow skull: place one of these?</b><div class="qpaskc">${A.cs.map(c=>qpChipEl(c,{btn:true,attr:` data-a="qpans" data-k="${c}"`})).join('')}</div><button class="btn sm" data-a="qpans" data-k="">None, put them back</button></div>`
           :A.t==='mandrake'?`<div class="qpask"><b>Mandrake: put the white chip before it back in your bag?</b><div class="lr"><button class="btn primary" data-a="qpans" data-k="yes">Yes, back in the bag</button><button class="btn" data-a="qpans" data-k="no">Keep it</button></div></div>`
           :A.t==='flask'?`<div class="qpask"><b>Use your flask?</b><span class="rlab">Puts that white ${qpV(A.c)} back in the bag. You can refill the flask with 2 rubies.</span><div class="lr"><button class="btn" data-a="qpans" data-k="yes">🧪 Use the flask</button><button class="btn primary" data-a="qpans" data-k="no">Keep going</button></div></div>`
@@ -12844,7 +12851,7 @@ document.addEventListener('click',e=>{
     case 'qkbs':{const [i,f]=k.split('.'),q=act()[+i],R=qkR(q,qkCur());snap();R[f]=Math.max(0,(+R[f]||0)+d);break}
     case 'qkbt':{const q=act()[+b.dataset.i],R=qkR(q,qkCur());snap();R[k]=!R[k];break}
     case 'qkbf':{const q=act()[+k],R=qkR(q,qkCur());snap();const cur=R.bf===null||R.bf===undefined?-1:QKPOT[R.bf][0],nv=Math.max(0,Math.min(33,cur+d));R.bf=cur<0&&d<0?null:QKPOT.findIndex(x=>x[0]===nv);break}
-    case 'qktg':{const X=QKX();X[k]=!X[k];if(k==='herb'&&X.herb&&X.play){X.turq=true;X.o6=true}if(k==='herb'&&!X.herb){let n=0;S.players.forEach(p=>{if(p.on){n++;if(n>4)p.on=false}})}qkKeep();break}
+    case 'qktg':{const X=QKX();X[k]=!X[k];if(k==='herb'&&X.herb&&X.play){X.turq=true;X.o6=true;X.ovf=true}if(k==='herb'&&!X.herb){let n=0;S.players.forEach(p=>{if(p.on){n++;if(n>4)p.on=false}})}qkKeep();break}
     case 'qkopen':{const i=+b.dataset.i,r=qkCur();QKSEL=QKSEL&&QKSEL.i===i&&QKSEL.r===r?null:{i,r};break}
     case 'qkspace':{const q=act()[+b.dataset.i],R=qkR(q,qkCur());snap();R.s=+b.dataset.v;QKSEL=null;break}
     case 'qkex':{const q=act()[+b.dataset.i],R=qkR(q,qkCur());snap();R.ex=!R.ex;if(R.ex)R.die=null;break}
