@@ -18,7 +18,7 @@ const until=async(p,fn,ms=8000,arg=null)=>{const t=Date.now();while(Date.now()-t
   await until(G,([id,n])=>S.qpg.pl[id].pot.length>n,8000,[ids[1],pot0]);await W(2500);
   // Stop: no chance involved, so the guest's screen should show it at once
   for(let t=0;t<10;t++){const b=await btns(G);const an=b.find(x=>x.startsWith('qpans'));if(!an)break;await tap(G,'qpans',an.split(':')[1]);await W(800)}
-  await tap(G,'qpstop');
+  for(let t=0;t<40;t++){if(await tap(G,'qpstop'))break;await W(100)}
   const seen=await until(G,()=>/You stopped|Your pot exploded/.test(document.body.innerText),8000);
   const conf=await until(G,id=>S.qpg.pl[id].stop,8000,ids[1]);
   ok('Stop shows on the guest right away (under 300 ms)',seen>=0&&seen<300,{seen});

@@ -7,12 +7,12 @@ REPO="$(cd ../.. && pwd)"
 export NODE_PATH="${NODE_PATH:-$(npm root -g)}"
 PORT=8765; export BASE="http://localhost:$PORT/"
 if ! curl -s -o /dev/null "$BASE"; then (cd "$REPO" && setsid nohup python3 -m http.server $PORT >/tmp/ft-test-server.log 2>&1 </dev/null &); sleep 1; fi
-TESTS="scoring lobby features endlink effects announce newgame snappy snappy-cards witches quacks-fixes turquoise pot quacks-holds"
-[ "$1" = "all" ] && TESTS="$TESTS fullgame fullgame-herb audit audit-bots audit-score fuzz linkfuzz rgfuzz rgfuzz-link"
+TESTS="scoring lobby features endlink effects announce newgame snappy snappy-cards witches quacks-fixes turquoise pot quacks-holds hf-untake"
+[ "$1" = "all" ] && TESTS="$TESTS fullgame fullgame-herb audit audit-bots audit-score fuzz linkfuzz rgfuzz rgfuzz-link allfuzz allfuzz-link"
 for t in $TESTS; do
   case $t in
     audit) f=audit.js; env="";; audit-bots) f=audit.js; env="ALLBOT=1 T=60000";; audit-score) f=audit.js; env="SCORE=1 T=15000";;
-    fuzz) f=fuzz.js; env="N=8";; rgfuzz) f=rgfuzz.js; env="N=8";; rgfuzz-link) f=rgfuzz.js; env="LINK=1 N=3";; linkfuzz) f=linkfuzz.js; env="N=2";;
+    fuzz) f=fuzz.js; env="N=8";; allfuzz) f=allfuzz.js; env="MIN=4";; allfuzz-link) f=allfuzz.js; env="LINK=1 MIN=4 G=hearts,spades,ohell,rook,uno,golf,skyjo,gnome,skipbo,crowns,phase10,hf,canasta,tripoley,mextrain,chicken,yahtzee";; rgfuzz) f=rgfuzz.js; env="N=8";; rgfuzz-link) f=rgfuzz.js; env="LINK=1 N=3";; linkfuzz) f=linkfuzz.js; env="N=2";;
     fullgame) f=fullgame.js; env="";; fullgame-herb) f=fullgame.js; env="HERB=1";; *) f=$t.test.js; env="";;
   esac
   echo "== $t"

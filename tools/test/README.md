@@ -11,3 +11,4 @@ Writing a new test: `const {mk,W,ok,done,chromium}=require('./link.js')`. Use `m
 
 - `fuzz.js` (N=8): random full Quacks games on one phone (random settings, a person tapping at random, 0-2 people) with rule checks after every step. `linkfuzz.js`: the same on two linked phones.
 - `rgfuzz.js` (N=8, LINK=1 for linked phones): random full Rage games with random house rules; checks every card played was legal, every trick went to the right player, no card lost or doubled, rounds add up.
+- `allfuzz.js` (G=games, LINK=1, MIN=minutes per game): every phone-played game with random players and a person tapping at random; catches page errors and stuck games (no change for 60 s). Nerts is skipped when linked (one person per phone).

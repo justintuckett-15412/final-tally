@@ -2468,7 +2468,7 @@ window.lkRecv=function(u){if(!S.lk)return;
   if(LKSW&&lkGuest())return;
   /* while the host is switching games, and afterwards from an older game, incoming state is stale: drop it */
   if(typeof u.gen==='number'&&u.gen<LKGEN)return;
-  if(lkHost()&&LKSWAP&&(u.mflat||u.order||u.ps||u.items))return;
+  if(lkHost()&&LKSWAP&&(u.mflat||u.order||u.ps||u.items))return;/* the host's own in-between 'switching games' state can arrive late: never apply it */if(lkHost()&&u.sw)return;
   if(u.gone){const was=lkGuest();lkClear(was?'The host ended the linked game.':'');return}
   if(typeof u.rd==='number')LKRD=u.rd;
   if(typeof u.t==='number'&&u.t!==LKHT){LKHT=u.t;LKHOSTSEEN=Date.now()}
@@ -6031,7 +6031,7 @@ function rgGuide(){const X=RGX(),n=act().length,N=rgBase();
     ['Setup',[['Cards',X.amigoDeck?'The 112-card deck: 6 colors numbered 0 to 15, plus 16 Rage cards (2 Wild, 4 Change, 4 Out, 3 Bonus, 3 Mad).':'The 110-card deck: 6 colors numbered 0 to 15, plus 14 Rage cards (2 Wild, 4 Change, 4 Out, 2 Bonus, 2 Mad).'],
       ['The deal',`Cards each round: ${show}${X.fore?', then 1 for the forehead round':''}. ${rgN()} rounds in all. The deal passes left.`],
       ['Trump','Put the leftover cards face down and flip the top one. Its color is trump. Flip again if it’s an action card.'],
-      X.start*n>109?['Heads up',`${n} players × ${X.start} cards is more than the deck holds. Lower the first hand.`]:null]],
+      X.start*n>(X.amigoDeck?111:109)?['Heads up',`${n} players × ${X.start} cards is more than the deck holds. Lower the first hand.`]:null]],
     ['Bidding',[['Your bid',X.bidAll&&X.play?'Everyone locks in how many tricks they’ll win, from 0 to the cards in hand. After a 3-2-1 countdown all the bids show at once.':'Everyone says how many tricks they’ll win, from 0 to the cards in hand, starting left of the dealer.'],
       ['Shooting the moon','Bidding every trick in the round.'],X.fore?['Forehead round','Everyone holds their single card on their forehead without looking, then bids 0 or 1 based on everyone else’s cards.']:null]],
     ['Play',[['Following','Follow the color led if you can. Highest trump wins; otherwise the highest card of the color led.'],['Action cards',X.rageAny&&X.play?'Play one any time (house rule).':'Play one when you lead or can’t follow. If a Rage card leads, the first color card after it sets the color.'],
@@ -9675,7 +9675,7 @@ const LKQF={
   qpD6:(pid,v)=>{const g=qpG();return !!g&&qpD6(g,pid,v)},
   qpFP:(pid,v,c)=>{const g=qpG();return !!g&&qpFP(g,pid,v,c)}};
 function lkq(fn,...args){if(!lkqOn())return LKQF[fn](...args);const snap=JSON.stringify(S);let r;try{const o=lkOptState();if(o)S=o;LKOPTR=true;r=LKQF[fn](...args)}catch(e){r=false}finally{LKOPTR=false}S=JSON.parse(snap);
-  if(r===true){const me=S.lk.me;if(!me)return r;const q=(S.lkq=S.lkq||{}),done=(S.lkqa||{})[me]||0,mine=(q[me]||[]).filter(e=>e.id>done);mine.push({id:Date.now()*1000+(LKQN++%1000),k:lkqKey(),f:fn,a:args});q[me]=mine}
+  if(r===true){const me=S.lk.me;if(!me)return r;const q=(S.lkq=S.lkq||{}),done=(S.lkqa||{})[me]||0,mine=(q[me]||[]).filter(e=>e.id>done);mine.push({id:Date.now()*1000+(LKQN++%1000),k:lkqKey(),f:fn,a:args});q[me]=mine;save()}
   return r}
 function lkqRun(){if(!lkHost()||S.demo||!S.lkq)return false;let did=false;S.lkqa=S.lkqa||{};const key=lkqKey();
   const all=[];for(const pid in S.lkq)(S.lkq[pid]||[]).forEach(e=>{if(e&&e.id>(S.lkqa[pid]||0))all.push({pid,e})});all.sort((x,y)=>x.e.id-y.e.id);
@@ -10620,10 +10620,10 @@ function hpTakeOk(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||g.drew)return fa
 function hpBestExtra(h,skip){const by={};let w=h.filter(hpWild);h.filter(c=>!hpWild(c)&&!hp3(c)).forEach(c=>(by[hpRk(c)]=by[hpRk(c)]||[]).push(c));let v=0;
   Object.keys(by).filter(r=>!skip.includes(r)).sort((a,b)=>by[b].length-by[a].length).forEach(r=>{const n=by[r];if(n.length>=3)v+=hpMeldVal(n);else if(n.length===2&&w.length){if(hpMeldOk(n.concat(w[0]))){v+=hpMeldVal(n.concat(w[0]));w=w.slice(1)}}});return v}
 function hpTake(g,pid){if(!hpTakeOk(g,pid))return false;const t=hpTop(g),n=g.disc.length;g.took=g.disc.slice();g.h[pid].push(...g.disc);g.disc=[];g.drew=1;g.need=t;g.n++;g.frozen=false;pst('hptake',pid);
-  g.msg=`${nmid(pid)} took the discard pile (${n} card${n===1?'':'s'}) and has to meld the ${hpName(t)}.`;if(n>=5)gLog(g,`${nmid(pid)} took the pile (${n} cards)`,'🫳');if(n>=8)gAnn(g,`${nmid(pid)} took the pile!`,`${n} cards.`,'🫳');if(hpRed3(g,pid,false))g.took=null;return true}
+  g.msg=`${nmid(pid)} took the discard pile (${n} card${n===1?'':'s'}) and has to meld the ${hpName(t)}.`;if(n>=5)gLog(g,`${nmid(pid)} took the pile (${n} cards)`,'🫳');if(n>=8)gAnn(g,`${nmid(pid)} took the pile!`,`${n} cards.`,'🫳');{const sd=hpSide(g,pid),b=((g.r3||{})[sd]||[]).length;g.tookR3=[];if(hpRed3(g,pid,false))g.tookR3=g.r3[sd].slice(b)}return true}
 /* lay down: news = [[ids]] new melds, adds = [{m:index,cs:[ids]}] onto the side's melds */
 /* changed your mind right after taking the pile (nothing melded yet): put it back and draw instead */
-function hpUntake(g,pid){if(!g||g.turn!==pid||!g.took||!g.need||!g.h[pid].includes(g.need))return false;const T=g.took;if(!T.every(c=>g.h[pid].includes(c)))return false;g.h[pid]=g.h[pid].filter(c=>!T.includes(c));g.disc=T;g.frozen=HPCA()&&T.some(x=>hpWild(x)||hp3(x)&&hpRed(x));g.took=null;g.need=null;g.drew=0;g.n++;g.msg=`${nmid(pid)} put the discard pile back.`;return true}
+function hpUntake(g,pid){if(!g||g.turn!==pid||!g.took||!g.need||!g.h[pid].includes(g.need))return false;const T=g.took,R3=g.tookR3||[];if(!T.every(c=>g.h[pid].includes(c)||R3.includes(c)))return false;if(R3.length){const sd=hpSide(g,pid);g.r3[sd]=(g.r3[sd]||[]).filter(c=>!R3.includes(c))}g.tookR3=[];g.h[pid]=g.h[pid].filter(c=>!T.includes(c));g.disc=T;g.frozen=HPCA()&&T.some(x=>hpWild(x)||hp3(x)&&hpRed(x));g.took=null;g.need=null;g.drew=0;g.n++;g.msg=`${nmid(pid)} put the discard pile back.`;return true}
 function hpPlay(g,pid,news,adds){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew)return false;news=news||[];adds=adds||[];const side=hpSide(g,pid),h=g.h[pid],OB=(g.melds[side]||[]).filter(hpBook).map(m=>hpMeldRank(m.c)+':'+hpKind(m)),M=(g.melds[side]||[]).map(m=>m.b3?{c:m.c.slice(),b3:1}:{c:m.c.slice()});
   const used=news.flat().concat(adds.flatMap(a=>a.cs||[]));if(!used.length||new Set(used).size!==used.length||!used.every(c=>h.includes(c)))return false;
   const allOut=h.length-used.length<1;if(allOut&&!HPCA())return false;/* Hand and Foot: the last card always goes on the discard pile. Canasta can go out by melding everything */
@@ -10869,7 +10869,7 @@ function nrView(){const g=nrG();if(!g||!lkqOn())return g;const me=S.lk.me,done=(
   const v=JSON.parse(JSON.stringify(g));pend.forEach(e=>{try{NRF[e.f](v,...e.a)}catch(err){}});return v}
 function nrq(fn,...args){const g=nrG();if(!g)return false;if(!lkqOn())return NRF[fn](g,...args);
   const v=nrView(),snapMsg=g.msg;let ok=false;try{ok=NRF[fn](JSON.parse(JSON.stringify(v)),...args)}catch(e){ok=false}if(!ok)return false;
-  const me=S.lk.me,q=(S.lkq=S.lkq||{}),done=(S.lkqa||{})[me]||0;q[me]=(q[me]||[]).filter(e=>e.id>done);q[me].push({id:Date.now()*1000+(LKQN++%1000),k:lkqKey(),f:fn,a:args});return true}
+  const me=S.lk.me,q=(S.lkq=S.lkq||{}),done=(S.lkqa||{})[me]||0;q[me]=(q[me]||[]).filter(e=>e.id>done);q[me].push({id:Date.now()*1000+(LKQN++%1000),k:lkqKey(),f:fn,a:args});save();return true}
 function nrTick(){if(S.game!=='nerts'||!nrOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!nrRes())return;if(lkqRun()){save();render();return}
   const g=nrG(),cur=nxCur();if(!g||nrStale(g)||g.r!==cur){Object.values(NRBT).forEach(clearTimeout);NRBT={};nrDeal(cur);save();render();return}
   if(g.phase!=='play'){Object.values(NRBT).forEach(clearTimeout);NRBT={};return}
