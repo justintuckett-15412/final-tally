@@ -625,6 +625,12 @@ body.bigview .bigv.row{flex-direction:row}body.bigview .bigb{flex:1 1 auto;min-h
 body.bigview .bigh{flex:0 0 auto;overflow:auto;max-height:46%}body.bigview .bigv.row .bigh{flex:0 0 38%;max-height:none;display:flex;flex-direction:column;justify-content:safe center}
 body.bigview .bigh .hthand{--w:min(var(--colw,100vw) - 8px,640px)}body.bigview .bigsw{position:relative;flex:none}body.bigview .bigs{transform-origin:0 0;position:absolute;left:0;top:0}
 body.bigview .bigv .htstat{margin:0}body.bigview .bigs.rowp{display:flex;gap:18px;align-items:center;width:max-content}body.bigview .bigs.rowp>*{flex:none;margin:0}body.bigview .bigs.rowp>.gpme,body.bigview .bigs.rowp>.sbme{width:320px}body.bigview .bigb.scroll{overflow:auto;justify-content:flex-start;align-items:stretch}
+.tab.starglow{position:relative;overflow:visible;box-shadow:0 0 0 2px #f5c400,0 0 18px rgba(245,196,0,.65);animation:starpulse 1.4s ease-in-out infinite}@keyframes starpulse{50%{box-shadow:0 0 0 2px #ffd84a,0 0 26px rgba(245,196,0,.9)}}
+.tab .sparks{position:absolute;inset:0;pointer-events:none;z-index:2}.tab .sparks i{position:absolute;bottom:4px;font-style:normal;color:#f5c400;font-size:14px;text-shadow:0 0 6px rgba(245,196,0,.9);animation:spark 1.4s ease-out infinite}@keyframes spark{0%{transform:translateY(0) scale(.4);opacity:0}25%{opacity:1}100%{transform:translateY(-60px) scale(1.2);opacity:0}}
+.glburst{position:fixed;z-index:70;width:0;height:0;pointer-events:none}.glburst em{position:absolute;left:-28px;top:-28px;font-size:56px;font-style:normal;animation:gbem 1.2s ease-out both}@keyframes gbem{0%{transform:scale(.2);opacity:0}25%{transform:scale(1.25);opacity:1}100%{transform:scale(1);opacity:0}}
+.glburst .puff{position:absolute;left:-60px;top:-60px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(90,90,90,.75),rgba(90,90,90,0) 65%);animation:gbpuff 1.6s ease-out both}.glburst .puff.p2{animation-delay:.15s;left:-40px;top:-80px}@keyframes gbpuff{0%{transform:scale(.3);opacity:0}30%{opacity:1}100%{transform:scale(1.8) translateY(-30px);opacity:0}}
+.glburst .ring{position:absolute;left:-50px;top:-50px;width:100px;height:100px;border-radius:50%;border:4px solid #f5c400;animation:gbring .9s ease-out both}@keyframes gbring{0%{transform:scale(.2);opacity:1}100%{transform:scale(1.6);opacity:0}}
+.glburst i{position:absolute;left:-8px;top:-10px;font-style:normal;font-size:20px;color:#f5c400;text-shadow:0 0 8px rgba(245,196,0,.9);animation:gbspark 1.1s ease-out both;--a:0deg}@keyframes gbspark{0%{transform:rotate(var(--a)) translateY(0) scale(.4);opacity:0}20%{opacity:1}100%{transform:rotate(var(--a)) translateY(-80px) scale(1);opacity:0}}
 .tab.smolder{position:relative;overflow:visible;background:linear-gradient(180deg,rgba(40,25,15,0) 20%,rgba(50,28,15,.55)),radial-gradient(ellipse at 50% 110%,rgba(255,110,30,.45),rgba(255,110,30,0) 60%),var(--surface);box-shadow:inset 0 -14px 18px -8px rgba(30,20,15,.55),0 0 0 2px rgba(224,81,47,.55);animation:smold 2.4s ease-in-out infinite}
 @keyframes smold{50%{box-shadow:inset 0 -14px 18px -8px rgba(30,20,15,.7),0 0 10px 2px rgba(255,120,40,.6)}}
 .tab .smoke{position:absolute;inset:auto 0 0 0;height:0;pointer-events:none;z-index:2}.tab .smoke i{position:absolute;bottom:0;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--ink) 70%,transparent),transparent 70%);animation:wisp 2.1s linear infinite}
@@ -1753,6 +1759,18 @@ const GLG=()=>({uno:S.ung,golf:S.gpg,skyjo:S.gpg,gnome:S.gpg,hearts:S.htg,spades
 const glOn=()=>{try{return !!(S.started&&!S.demo&&!S.finished&&['score','live'].includes(S.screen)&&S.game!=='tripoley'&&playingOn()&&GLG())}catch(e){return false}};
 const glWord=()=>S.game==='golf'?'Hole':['quacks','mextrain','chicken','crowns','skyjo','gnome','rage','ohell','hf','canasta'].includes(S.game)?'Round':'Hand';
 function gLog(g,t,ic,key){if(!g)return;const L=(g.lg=g.lg||[]);if(L.length&&L[L.length-1].t===t)return;L.push({t,ic:ic||'',k:key?1:0});if(L.length>80)L.splice(0,L.length-80)}
+/* big moments: a burst over that player's score card on every phone, then smoke (bad) or a golden glow (good) on the card for a while */
+function gFx(g,p,t){if(!g||!p)return;const L=(g.fxl=g.fxl||[]);L.push({k:(L.length?L[L.length-1].k:0)+1,p,t,at:Date.now()});if(L.length>6)L.splice(0,L.length-6)}
+const GLFXSEEN={};
+function glFx(){if(S.game==='quacks'||!glOn())return;const g=GLG();if(!g||!(g.fxl||[]).length)return;const now=Date.now(),me=S.lk&&S.lk.me;
+  g.fxl.forEach(e=>{const age=now-e.at;if(age>16000)return;const tab=document.querySelector(`#app .tab[data-lp="ph:${e.p}"]`);
+    if(tab&&!tab.querySelector('.gfxw')){if(e.t==='boom'&&age<14000){tab.classList.add('smolder');tab.insertAdjacentHTML('afterbegin',`<span class="smoke gfxw" aria-hidden="true">${[0,1,2,3,4].map(j=>`<i style="left:${6+j*19}%;animation-delay:-${(age+j*420)%2100}ms"></i>`).join('')}</span>`)}
+      else if(e.t==='star'&&age<8000){tab.classList.add('starglow');tab.insertAdjacentHTML('afterbegin',`<span class="sparks gfxw" aria-hidden="true">${[0,1,2,3].map(j=>`<i style="left:${10+j*24}%;animation-delay:-${(age+j*350)%1400}ms">✦</i>`).join('')}</span>`)}}
+    const key=S.game+':'+g.r+':'+e.k+':'+e.at;if(GLFXSEEN[key]||age>3500)return;GLFXSEEN[key]=1;
+    const R=tab?tab.getBoundingClientRect():null,z=parseFloat(document.documentElement.style.zoom)||1,x=R?(R.left+R.width/2)/z:innerWidth/2/z,y=R?(R.top+R.height/2)/z:innerHeight/3/z;
+    const el=document.createElement('div');el.className='glburst '+e.t;el.setAttribute('aria-hidden','true');el.style.left=x+'px';el.style.top=y+'px';
+    el.innerHTML=e.t==='boom'?`<b class="puff"></b><b class="puff p2"></b><em>💥</em>`:`<b class="ring"></b>${[0,1,2,3,4,5,6,7].map(j=>`<i style="--a:${j*45}deg">✦</i>`).join('')}<em>🌟</em>`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),1800);if(e.p===me||!S.lk)vibe(e.t==='boom'?[40,40,80]:[20,30,20])})}
 function gAnn(g,t,sub,ic,ms){if(!g)return;g.ann={t,sub:sub||'',ic:ic||'',at:Date.now(),k:(g.ann?g.ann.k:0)+1,ms:ms||0}}
 /* several cards in a row: the host moves to the next when one has had its time */
 function gAnnQ(g,list,ms){if(!g||!list.length)return;const [a,...rest]=list;gAnn(g,a[0],a[1],a[2],a[3]||ms);g.annq=rest.map(x=>[x[0],x[1],x[2],x[3]||ms])}
@@ -1761,6 +1779,16 @@ const cdTxt=c=>{if(!c)return '';c=String(c).split('#')[0];const r=c.slice(0,-1),
 const glGpStart=g=>{const W=glWord();gAnn(g,`${W} ${g.r+1}`,S.game==='golf'&&!GFX().startFlip?'Here we go!':'Everyone flips cards to start.',S.game==='golf'?'⛳':S.game==='gnome'?'🍄':'🃏');gLog(g,`${nmid(g.dealer)} dealt`,'🃏')};
 const GLSTART={golf:glGpStart,skyjo:glGpStart,gnome:glGpStart,uno:g=>{const f=act().find(p=>p.id===g.turn);gAnn(g,`Hand ${g.r+1}`,`${nmid(g.dealer)} deals${f?`. ${nm(f)} goes first`:''}.`,'🃏');gLog(g,`${nmid(g.dealer)} dealt`,'🃏')}};
 const GLMS=2600,GLSEEN={};let GLT=null;
+/* linked games: nobody plays a new round until every phone has tapped Ready (Quacks has its own) */
+const glRdyP=()=>act().filter(p=>!p.bot&&LKSEATS[p.id]&&LKSEATS[p.id].dev);
+const glRdyOf=g=>g&&g.rdy&&g.rdy.r===g.r?g.rdy.p||{}:null;
+function glHold(){try{if(!S.lk||S.demo||S.game==='quacks'||!glOn())return false;const g=GLG();if(!g||g.r==null||g.phase==='done')return false;const R=glRdyOf(g);if(!R&&(g.n||0)>0)return false;/* a round already under way when this arrived */const P=glRdyP();return P.length>0&&P.some(p=>!(R||{})[p.id])}catch(e){return false}}
+function glReady(pid){const g=GLG();if(!g)return false;if(!g.rdy||g.rdy.r!==g.r)g.rdy={r:g.r,p:{}};if(g.rdy.p[pid])return false;g.rdy.p[pid]=1;if(!glRdyP().some(p=>!g.rdy.p[p.id])&&g.t0)g.t0=Date.now();return true}
+function glReadySheet(){const g=GLG(),me=S.lk&&S.lk.me,R=glRdyOf(g)||{},P=glRdyP(),wait=P.filter(p=>!R[p.id]).map(nm),mine=me&&P.some(p=>p.id===me)&&!R[me];const W=glWord();
+  if(mine)return `<div class="sheet-bg glrdy"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="glrdy-h"><div class="tqannic" aria-hidden="true">🃏</div><h2 id="glrdy-h">${W} ${g.r+1}</h2><p class="rlab">Tap when you’re set. Play starts once every phone is ready.</p><button class="btn primary wide" data-a="glready">I’m ready</button></div></div>`;
+  if(!glWaitAt[g.r])glWaitAt[g.r]=Date.now();return `<div class="sheet-bg glrdy"><div class="qpwait" role="status" style="animation-delay:-${Date.now()-glWaitAt[g.r]}ms"><b>✋ ${me?'You’re ready':'Getting ready'}</b><span>Waiting for ${esc(wait.join(', ').replace(/, ([^,]*)$/,' and $1'))} to tap Ready…</span></div></div>`}
+const glWaitAt={};
+
 /* host (or the only phone) files each hand away: totals at the start, the log and totals at the end */
 function glTick(){if(!glOn()||lkGuest())return;const g=GLG();if(!g||g.r==null)return;
   if(g.annq&&g.annq.length&&g.ann){const ms=(g.ann.ms||GLMS)*(window.__htfast?.3:1),left=ms-(Date.now()-g.ann.at);if(left<=0){const [t,sub,ic,m]=g.annq.shift();gAnn(g,t,sub,ic,m);save();setTimeout(render,30)}else if(!GLQT)GLQT=setTimeout(()=>{GLQT=null;render()},left+30)}
@@ -5327,13 +5355,13 @@ function htPlayCard(pid,c){const g=htG();if(!g||g.phase!=='play'||g.turn!==pid)r
   playCard();return true}
 function playCard(){try{vibe(12)}catch(e){}}
 /* the table: collect a finished trick, score a finished hand */
-function htCollect(g){const w=htWinner(g.t),cs=g.t.map(x=>x.c);if(cs.includes('QS')){gLog(g,`${nmid(w)} took the Queen of spades (+${HTX().qv})`,'♠️');gAnn(g,'Queen of spades!',`${nmid(w)} takes ${HTX().qv} points.`,'♠️')}if(HTX().jack&&cs.includes('JD'))gLog(g,`${nmid(w)} took the Jack of diamonds (−${HTX().jv})`,'♦️');g.tk[w]=(g.tk[w]||[]).concat(cs);if(g.n===0&&g.kitty&&g.kitty.length)g.tk[w]=g.tk[w].concat(g.kitty);
+function htCollect(g){const w=htWinner(g.t),cs=g.t.map(x=>x.c);if(cs.includes('QS')){gLog(g,`${nmid(w)} took the Queen of spades (+${HTX().qv})`,'♠️');gAnn(g,'Queen of spades!',`${nmid(w)} takes ${HTX().qv} points.`,'♠️');gFx(g,w,'boom')}if(HTX().jack&&cs.includes('JD'))gLog(g,`${nmid(w)} took the Jack of diamonds (−${HTX().jv})`,'♦️');g.tk[w]=(g.tk[w]||[]).concat(cs);if(g.n===0&&g.kitty&&g.kitty.length)g.tk[w]=g.tk[w].concat(g.kitty);
   g.last={t:g.t,w};g.t=[];g.n++;g.turn=w;const left=Object.values(g.h).reduce((a,h)=>a+h.length,0);if(!left)htEndHand(g)}
 function htEndHand(g){const P=act(),X=HTX();const pts=pid=>{const cs=g.tk[pid]||[];return {h:cs.filter(c=>c[1]==='H').length,q:cs.includes('QS'),j:cs.includes('JD')}};
   const moon=P.find(p=>{const x=pts(p.id);return x.h===13&&x.q});
   if(moon&&X.moon==='choose'&&!g.ms){if(moon.bot)g.ms=htBotMoon(moon);else{g.phase='moon';g.moon=moon.id;g.turn=null;return}}
   P.forEach(p=>{const x=pts(p.id),R=htR(p,g.r);R.h=x.h;R.q=x.q;R.j=x.j;R.moon=moon===p;if(moon===p&&g.ms)R.ms=g.ms;else delete R.ms;R.set=true});
-  if(moon){gLog(g,`${nm(moon)} shot the moon!`,'🌙',1);gAnn(g,`${nm(moon)} shot the moon!`,'Every heart and the Queen of spades.','🌙')}else{const v=P.map(p=>{const x=pts(p.id);return [p,x.h+(x.q?X.qv:0)-(X.jack&&x.j?X.jv:0)]}),lo=Math.min(...v.map(x=>x[1])),best=v.filter(x=>x[1]===lo).map(x=>nm(x[0]));gLog(g,`Fewest points: ${best.join(' & ')} (${lo})`,'🏅',1);gAnn(g,`Hand ${g.r+1} is over`,v.map(([p,n])=>`${nm(p)} ${n}`).join(' · '),'🏁')}
+  if(moon){gLog(g,`${nm(moon)} shot the moon!`,'🌙',1);gAnn(g,`${nm(moon)} shot the moon!`,'Every heart and the Queen of spades.','🌙');gFx(g,moon.id,'star')}else{const v=P.map(p=>{const x=pts(p.id);return [p,x.h+(x.q?X.qv:0)-(X.jack&&x.j?X.jv:0)]}),lo=Math.min(...v.map(x=>x[1])),best=v.filter(x=>x[1]===lo).map(x=>nm(x[0]));gLog(g,`Fewest points: ${best.join(' & ')} (${lo})`,'🏅',1);gAnn(g,`Hand ${g.r+1} is over`,v.map(([p,n])=>`${nm(p)} ${n}`).join(' · '),'🏁')}
   g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
 function htBotMoon(m){const P=act(),others=P.filter(p=>p!==m);const a=Math.min(...others.map(p=>htTot(p)+26))-htTot(m),b=Math.min(...others.map(htTot))-(htTot(m)-26);return a>=b?'others':'self'}
 const htOver=()=>{const X=HTX(),g=htG();if(!g||g.phase!=='done')return false;if(X.end==='hands')return g.r>=X.hands-1;if(X.end==='points'){const sc=act().map(htTot),lo=Math.min(...sc);return htReached()&&sc.filter(v=>v===lo).length===1}return false};
@@ -5390,7 +5418,7 @@ function htTick(){if(S.game!=='hearts'||!htPlayOn()||!S.started||S.finished||S.s
   if(g.phase==='moon'){if(g.ms){htEndHand(g);save();render()}return}
   if(g.phase!=='play')return;
   if(g.t.length>=act().length){if(!HTCOLT)HTCOLT=setTimeout(()=>{HTCOLT=null;const g2=htG();if(g2&&g2.t.length>=act().length){htCollect(g2);save();render()}},1300*htSpd());return}
-  const q=act().find(p=>p.id===g.turn);if(q&&q.bot&&!HTBOTT&&!document.querySelector('.sheet-bg'))HTBOTT=setTimeout(()=>{HTBOTT=null;const g2=htG();if(!g2||g2.phase!=='play'||g2.turn!==q.id)return;
+  const q=act().find(p=>p.id===g.turn);if(q&&q.bot&&!HTBOTT&&!glHold()&&!document.querySelector('.sheet-bg'))HTBOTT=setTimeout(()=>{HTBOTT=null;const g2=htG();if(!g2||g2.phase!=='play'||g2.turn!==q.id)return;
     htPlayCard(q.id,htBotCard(g2,q.id,q.bot));save();render()},(g.t.length?750:1000)*htSpd())}
 
 /* ---------------- drawing ---------------- */
@@ -5648,10 +5676,10 @@ const sdNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(sdHumans().length<2)ret
 
 function sdTick(){if(S.game!=='spades'||!sdPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!sdRes())return;if(lkqRun()){save();render();return}
   const g=sdG();if(!g||cgStale(g)||g.r!==sdCur()&&g.phase!=='done'){sdDeal(sdCur());save();render();return}
-  if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot&&!SDBOTT)SDBOTT=setTimeout(()=>{SDBOTT=null;const g2=sdG();if(!g2||g2.phase!=='bid'||g2.bidTurn!==q.id)return;sdBid(q.id,sdBotBid(g2,q.id,q.bot));save();render()},700*htSpd());return}
+  if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot&&!SDBOTT&&!glHold())SDBOTT=setTimeout(()=>{SDBOTT=null;const g2=sdG();if(!g2||g2.phase!=='bid'||g2.bidTurn!==q.id)return;sdBid(q.id,sdBotBid(g2,q.id,q.bot));save();render()},700*htSpd());return}
   if(g.phase!=='play')return;
   if(g.t.length>=act().length){if(!SDCOLT)SDCOLT=setTimeout(()=>{SDCOLT=null;const g2=sdG();if(g2&&g2.t.length>=act().length){g2.played=(g2.played||[]).concat(g2.t.map(x=>x.c));sdCollect(g2);save();render()}},1300*htSpd());return}
-  const q=act().find(p=>p.id===g.turn);if(q&&q.bot&&!SDBOTT&&!document.querySelector('.sheet-bg'))SDBOTT=setTimeout(()=>{SDBOTT=null;const g2=sdG();if(!g2||g2.phase!=='play'||g2.turn!==q.id)return;
+  const q=act().find(p=>p.id===g.turn);if(q&&q.bot&&!SDBOTT&&!glHold()&&!document.querySelector('.sheet-bg'))SDBOTT=setTimeout(()=>{SDBOTT=null;const g2=sdG();if(!g2||g2.phase!=='play'||g2.turn!==q.id)return;
     sdPlayCard(q.id,sdBotCard(g2,q.id,q.bot));save();render()},(g.t.length?750:1000)*htSpd())}
 
 /* ---------------- drawing ---------------- */
@@ -5839,7 +5867,7 @@ function rgPlayCard(pid,c,col,num){const g=rgG(),X=RGX();if(!g||g.phase!=='play'
   g.t=g.t.concat([e]);g.turn=g.t.length>=act().length?null:rgNext(pid);playCard();return true}
 function rgCollect(g){const w=rgWinner(g,g.t);{const wp=act().find(p=>p.id===w);if(wp&&wp.bot&&g.t.some(x=>x.c[0]==='M'))rgRage(w)}g.flip=false;if(g.outT){g.outT=false;if(g.tr===null)rgFlip(g)}g.won[w]=(g.won[w]||0)+1;g.t.forEach(x=>{if(x.c[0]==='A'){g.bo[w]++;gLog(g,`${nmid(w)} won a Bonus Rage`,'😊')}if(x.c[0]==='M'){g.md[w]++;gLog(g,`${nmid(w)} got stuck with a Mad Rage`,'😡')}});
   g.played=(g.played||[]).concat(g.t.map(x=>x.c));g.last={t:g.t,w};g.t=[];g.n++;g.turn=w;if(!Object.values(g.h).some(h=>h.length))rgEndRound(g)}
-function rgEndRound(g){act().forEach(p=>{const R=rgR(p,g.r);R.b=g.bids[p.id];R.t=g.won[p.id]||0;R.bo=g.bo[p.id]||0;R.md=g.md[p.id]||0});{const P=act(),made=P.filter(p=>(g.won[p.id]||0)===g.bids[p.id]);P.filter(p=>!made.includes(p)).forEach(p=>gLog(g,`${nm(p)} bid ${g.bids[p.id]}, took ${g.won[p.id]||0}`,'❌'));gLog(g,made.length?`Made it: ${made.map(nm).join(', ')}`:'Nobody made their bid',made.length?'✅':'😬',1);gAnn(g,`Round ${g.r+1} is over`,made.length?`Made their bid: ${made.map(nm).join(', ')}`:'Nobody made their bid!','🏁')}g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
+function rgEndRound(g){act().forEach(p=>{const R=rgR(p,g.r);R.b=g.bids[p.id];R.t=g.won[p.id]||0;R.bo=g.bo[p.id]||0;R.md=g.md[p.id]||0});{const P=act(),made=P.filter(p=>(g.won[p.id]||0)===g.bids[p.id]);P.filter(p=>!made.includes(p)).forEach(p=>gLog(g,`${nm(p)} bid ${g.bids[p.id]}, took ${g.won[p.id]||0}`,'❌'));P.forEach(p=>{if(Math.abs((g.won[p.id]||0)-g.bids[p.id])>=2)gFx(g,p.id,'boom')});gLog(g,made.length?`Made it: ${made.map(nm).join(', ')}`:'Nobody made their bid',made.length?'✅':'😬',1);gAnn(g,`Round ${g.r+1} is over`,made.length?`Made their bid: ${made.map(nm).join(', ')}`:'Nobody made their bid!','🏁')}g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
 const rgOverNow=()=>{const g=rgG();return !!g&&g.phase==='done'&&g.r>=rgN()-1};
 
 /* ---------------- bots ---------------- */
@@ -5885,7 +5913,7 @@ const rgNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(rgHumans().length<2)ret
 function rgTick(){if(S.game!=='rage'||!rgPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!rgRes())return;if(lkqRun()){save();render();return}
   const g=rgG();if(!g||cgStale(g)||g.r!==rgCur()&&g.phase!=='done'){rgDeal(rgCur());save();render();return}
   if(!g.bidsLog&&act().every(p=>g.bids[p.id]!==undefined)){g.bidsLog=1;const t=act().map(p=>`${nm(p)} ${g.bids[p.id]}`).join(' · ');gLog(g,`Bids: ${t}`,'✋');gAnn(g,'The bids are in',t,'✋')}
-  const later=(ms,f)=>{if(!RGBOTT)RGBOTT=setTimeout(()=>{RGBOTT=null;f();save();render()},ms*htSpd())};
+  const later=(ms,f)=>{if(!RGBOTT&&!glHold())RGBOTT=setTimeout(()=>{RGBOTT=null;f();save();render()},ms*htSpd())};
   if(g.phase==='bid'&&RGX().bidAll){act().forEach(p=>{if(p.bot&&g.bids[p.id]===undefined)g.bids[p.id]=rgBotBid(g,p.id,p.bot)});if(act().every(p=>g.bids[p.id]!==undefined))cdRun(g,x=>{x.turn=rgNext(x.dealer)});return}
   if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot)later(700,()=>{const g2=rgG();if(g2&&g2.phase==='bid'&&g2.bidTurn===q.id)rgBid(q.id,rgBotBid(g2,q.id,q.bot))});return}
   if(g.phase!=='play')return;
@@ -7091,7 +7119,7 @@ const rkNeedHandoff=()=>{if(S.lk&&!S.demo)return null;if(rkHumans().length<2)ret
 
 function rkTick(){if(S.game!=='rook'||!rkPlayOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!rkRes())return;if(lkqRun()){save();render();return}
   const g=rkG();if(!g||cgStale(g)||g.r!==rkCur()&&g.phase!=='done'){rkDeal(rkCur());save();render();return}
-  const later=(ms,f)=>{if(!RKBOTT)RKBOTT=setTimeout(()=>{RKBOTT=null;f();save();render()},ms*htSpd())};
+  const later=(ms,f)=>{if(!RKBOTT&&!glHold())RKBOTT=setTimeout(()=>{RKBOTT=null;f();save();render()},ms*htSpd())};
   if(g.phase==='bid'){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot)later(800,()=>{const g2=rkG();if(g2&&g2.phase==='bid'&&g2.bidTurn===q.id)rkBid(q.id,rkBotBid(g2,q.id,q.bot))});return}
   if(g.phase==='nest'){const q=act().find(p=>p.id===g.bidder);if(q&&q.bot)later(1200,()=>{const g2=rkG();if(g2&&g2.phase==='nest'){const x=rkBotNest(g2,q.id);rkSetNest(q.id,x.disc,x.tr)}});return}
   if(g.phase!=='play')return;
@@ -7297,7 +7325,7 @@ const yzBot=q=>!!q&&!!q.bot&&yzRoller()&&(S.lk&&!S.demo?yzShared()&&lkHost():!yz
 const yzHumans=()=>act().filter(q=>!q.bot);
 let YZBOTT=null,YZBOTHELD=false;
 function yzBotReady(){if(S.game!=='yahtzee'||S.screen!=='score'||yzDone()||WARN||YZFIX||RULESHEET||document.querySelector('.sheet-bg'))return null;const q=yzTurnP();return yzBot(q)?q:null}
-function yzBotTick(){if(YZBOTT||!yzBotReady())return;YZBOTT=setTimeout(yzBotStep,yzRS().n===0&&!YZBOTHELD?1100:900)}
+function yzBotTick(){if(YZBOTT||!yzBotReady()||glHold())return;YZBOTT=setTimeout(yzBotStep,yzRS().n===0&&!YZBOTHELD?1100:900)}
 function yzBotPick(c,k){const b=document.createElement('button');b.dataset.a='yzpick';b.dataset.c=c;b.dataset.k=k;b.dataset.hapt='1';b.hidden=true;document.getElementById('app').appendChild(b);b.click();b.remove()}
 function yzBotStep(){YZBOTT=null;const q=yzBotReady();if(!q)return;const R=yzRS(),d=S.yzd||[],lv=q.bot,left=3-R.n;
   if(R.n===0||YZBOTHELD){YZBOTHELD=false;if(R.n===0)R.h=[false,false,false,false,false];yzRollDice();if(yzIsY(S.yzd))setTimeout(()=>yzCheer(q),450);render();return}
@@ -7574,7 +7602,7 @@ function mtEndTurn(g,pid){g.built[pid]=1;const nx=mtNext(g,pid);g.turn=nx;g.bonu
 function mtEnd(g,w){const P=act(),X=MTX();g.phase='done';g.out=w;g.turn=null;g.bonus=0;
   g.ps.forEach(id=>{const p=P.find(q=>q.id===id);if(!p)return;const R=mtR(p,g.r),h=g.h[id]||[];R.out=id===w;R.v=id===w?null:h.reduce((s,t)=>s+mtPip(t),0);R.db=!!X.db50&&h.some(t=>mtPip(t)===0)});
   S.hr=Math.max(S.hr||0,g.r);
-  if(w){g.msg+=` ${nmid(w)} played their last domino!`;gLog(g,`${nmid(w)} went out`,'🏁',1);gAnn(g,`${nmid(w)} went out!`,`Everyone else counts the dots left in their hand.`,'🏁')}
+  if(w){g.msg+=` ${nmid(w)} played their last domino!`;gLog(g,`${nmid(w)} went out`,'🏁',1);gAnn(g,`${nmid(w)} went out!`,`Everyone else counts the dots left in their hand.`,'🏁');gFx(g,w,'star')}
   else{gLog(g,'Blocked: nobody could play','⛔',1);gAnn(g,'The round is blocked',`Nobody can play. Everyone counts their dots.`,'⛔')}}
 
 /* ---------------- computer players ---------------- */
@@ -7600,7 +7628,7 @@ const mtNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=mtG();if(!g||g.pha
 function mtTick(){if(S.game!=='mextrain'||!mtOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!mtRes())return;if(lkqRun()){save();render();return}
   const g=mtG(),cur=mtCur();if(!g||cgStale(g)||g.r!==cur&&g.phase!=='done'){mtDeal(cur);save();render();return}
   if(g.phase!=='play')return;const q=act().find(p=>p.id===g.turn);
-  if(q&&q.bot&&!MTBOTT&&!document.querySelector('.sheet-bg'))MTBOTT=setTimeout(()=>{MTBOTT=null;const g2=mtG();if(g2&&g2.phase==='play'&&g2.turn===q.id){mtBotStep(g2,q);save()}render()},(g.bt?550:800)*htSpd())}
+  if(q&&q.bot&&!MTBOTT&&!glHold()&&!document.querySelector('.sheet-bg'))MTBOTT=setTimeout(()=>{MTBOTT=null;const g2=mtG();if(g2&&g2.phase==='play'&&g2.turn===q.id){mtBotStep(g2,q);save()}render()},(g.bt?550:800)*htSpd())}
 
 /* ---------------- drawing ---------------- */
 /* ---------- your dominoes, your way (Mexican Train, Chicken Foot): order and which way round each one faces live only on this phone ---------- */
@@ -7810,7 +7838,7 @@ function cfEndTurn(g,pid){g.turn=cfNext(g,pid);g.bonus=0;g.drew=0}
 function cfEnd(g,w){const P=act(),X=CFX();g.phase='done';g.out=w;g.turn=null;g.bonus=0;
   g.ps.forEach(id=>{const p=P.find(q=>q.id===id);if(!p)return;const R=cfR(p,g.r),h=g.h[id]||[];R.out=id===w;R.v=id===w?null:h.reduce((s,t)=>s+mtPip(t),0);R.db=!!X.db50&&h.some(t=>mtPip(t)===0)});
   S.hr=Math.max(S.hr||0,g.r);
-  if(w){g.msg+=` ${nmid(w)} played their last domino!`;gLog(g,`${nmid(w)} went out`,'🏁',1);gAnn(g,`${nmid(w)} went out!`,'Everyone else counts the dots left in their hand.','🏁')}
+  if(w){g.msg+=` ${nmid(w)} played their last domino!`;gLog(g,`${nmid(w)} went out`,'🏁',1);gAnn(g,`${nmid(w)} went out!`,'Everyone else counts the dots left in their hand.','🏁');gFx(g,w,'star')}
   else{gLog(g,'Blocked: nobody could play','⛔',1);gAnn(g,'The round is blocked','Nobody can play. Everyone counts their dots.','⛔')}}
 
 /* ---------------- computer players ---------------- */
@@ -7833,7 +7861,7 @@ const cfNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=cfG();if(!g||g.pha
 function cfTick(){if(S.game!=='chicken'||!cfOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!cfRes())return;if(lkqRun()){save();render();return}
   const g=cfG(),cur=cfCur();if(!g||cgStale(g)||g.r!==cur&&g.phase!=='done'){cfDeal(cur);save();render();return}
   if(g.phase!=='play')return;const q=act().find(p=>p.id===g.turn);
-  if(q&&q.bot&&!CFBOTT&&!document.querySelector('.sheet-bg'))CFBOTT=setTimeout(()=>{CFBOTT=null;const g2=cfG();if(g2&&g2.phase==='play'&&g2.turn===q.id){cfBotStep(g2,q);save()}render()},800*htSpd())}
+  if(q&&q.bot&&!CFBOTT&&!glHold()&&!document.querySelector('.sheet-bg'))CFBOTT=setTimeout(()=>{CFBOTT=null;const g2=cfG();if(g2&&g2.phase==='play'&&g2.turn===q.id){cfBotStep(g2,q);save()}render()},800*htSpd())}
 
 /* ---------------- drawing ---------------- */
 function cfRowEl(g,s,V,selT){const can=selT&&V&&cfSpots(g,V.id,selT).includes(s),isN=s[0]==='n',i=+s.slice(1);
@@ -9364,7 +9392,7 @@ function ohPlayCard(pid,c){const g=ohG();if(!g||g.phase!=='play'||g.turn!==pid||
   g.h[pid]=g.h[pid].filter(x=>x!==c);g.t=g.t.concat([{p:pid,c}]);g.turn=g.t.length>=act().length?null:ohNext(pid);playCard();return true}
 function ohCollect(g){const w=ohWinner(g,g.t);g.won[w]=(g.won[w]||0)+1;g.played=(g.played||[]).concat(g.t.map(x=>x.c));g.last={t:g.t,w};g.t=[];g.n++;g.turn=w;
   if(!Object.values(g.h).some(h=>h.length))ohEndRound(g)}
-function ohEndRound(g){act().forEach(p=>{const R=ohR(p,g.r);R.b=g.bids[p.id];R.t=g.won[p.id]||0});{const P=act(),made=P.filter(p=>(g.won[p.id]||0)===g.bids[p.id]);P.filter(p=>!made.includes(p)).forEach(p=>gLog(g,`${nm(p)} bid ${g.bids[p.id]}, took ${g.won[p.id]||0}`,'❌'));gLog(g,made.length?`Made it: ${made.map(nm).join(', ')}`:'Nobody made their bid',made.length?'✅':'😬',1);gAnn(g,`Round ${g.r+1} is over`,made.length?`Made their bid: ${made.map(nm).join(', ')}`:'Nobody made their bid!','🏁')}g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
+function ohEndRound(g){act().forEach(p=>{const R=ohR(p,g.r);R.b=g.bids[p.id];R.t=g.won[p.id]||0});{const P=act(),made=P.filter(p=>(g.won[p.id]||0)===g.bids[p.id]);P.filter(p=>!made.includes(p)).forEach(p=>gLog(g,`${nm(p)} bid ${g.bids[p.id]}, took ${g.won[p.id]||0}`,'❌'));P.forEach(p=>{if(Math.abs((g.won[p.id]||0)-g.bids[p.id])>=2)gFx(g,p.id,'boom')});gLog(g,made.length?`Made it: ${made.map(nm).join(', ')}`:'Nobody made their bid',made.length?'✅':'😬',1);gAnn(g,`Round ${g.r+1} is over`,made.length?`Made their bid: ${made.map(nm).join(', ')}`:'Nobody made their bid!','🏁')}g.phase='done';g.turn=null;S.hr=Math.max(S.hr||0,g.r)}
 const ohOverNow=()=>{const g=ohG();return !!g&&g.phase==='done'&&g.r>=ohN()-1};
 
 /* ---------------- bots ---------------- */
@@ -9401,10 +9429,10 @@ function ohTick(){if(S.game!=='ohell'||!ohPlayOn()||!S.started||S.finished||S.sc
   const g=ohG();if(!g||cgStale(g)||g.r!==ohCur()&&g.phase!=='done'){ohDeal(ohCur());save();render();return}
   if(g.phase==='bid'&&!OHX().hook)act().forEach(p=>{if(p.bot&&g.bids[p.id]===undefined)g.bids[p.id]=ohBotBid(g,p.id,p.bot)});
   if(g.phase==='bid'&&act().every(p=>g.bids[p.id]!==undefined)){if(!g.bidsLog){g.bidsLog=1;const t=act().map(p=>`${nm(p)} ${g.bids[p.id]}`).join(' · '),sum=act().reduce((a,p)=>a+g.bids[p.id],0),n=ohCards(g.r);gLog(g,`Bids: ${t}`,'✋');gAnn(g,'The bids are in',`${t}. ${sum} bid for ${n} trick${n===1?'':'s'}${sum>n?' (overbid)':sum<n?' (underbid)':''}.`,'✋')}if(OHX().hook){g.phase='play';g.bidTurn=null;g.turn=ohNext(g.dealer);save();render()}else cdRun(g,x=>{x.turn=ohNext(x.dealer)});return}
-  if(g.phase==='bid'){if(OHX().hook){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot&&!OHBOTT)OHBOTT=setTimeout(()=>{OHBOTT=null;const g2=ohG();if(!g2||g2.phase!=='bid'||g2.bidTurn!==q.id)return;ohBid(q.id,ohBotBid(g2,q.id,q.bot));save();render()},700*htSpd())}return}
+  if(g.phase==='bid'){if(OHX().hook){const q=act().find(p=>p.id===g.bidTurn);if(q&&q.bot&&!OHBOTT&&!glHold())OHBOTT=setTimeout(()=>{OHBOTT=null;const g2=ohG();if(!g2||g2.phase!=='bid'||g2.bidTurn!==q.id)return;ohBid(q.id,ohBotBid(g2,q.id,q.bot));save();render()},700*htSpd())}return}
   if(g.phase!=='play')return;
   if(g.t.length>=act().length){if(!OHCOLT)OHCOLT=setTimeout(()=>{OHCOLT=null;const g2=ohG();if(g2&&g2.t.length>=act().length){ohCollect(g2);save();render()}},1300*htSpd());return}
-  const q=act().find(p=>p.id===g.turn);if(q&&q.bot&&!OHBOTT&&!document.querySelector('.sheet-bg'))OHBOTT=setTimeout(()=>{OHBOTT=null;const g2=ohG();if(!g2||g2.phase!=='play'||g2.turn!==q.id)return;
+  const q=act().find(p=>p.id===g.turn);if(q&&q.bot&&!OHBOTT&&!glHold()&&!document.querySelector('.sheet-bg'))OHBOTT=setTimeout(()=>{OHBOTT=null;const g2=ohG();if(!g2||g2.phase!=='play'||g2.turn!==q.id)return;
     ohPlayCard(q.id,ohBotCard(g2,q.id,q.bot));save();render()},(g.t.length?750:1000)*htSpd())}
 
 /* ---------------- drawing ---------------- */
@@ -9732,8 +9760,8 @@ function unDeal(r){const P=act(),X=UNX(),ver=UNPV.includes(X.ver)?X.ver:'classic
 
 /* ---------------- drawing cards ---------------- */
 function unPull(g){if(!g.deck.length){if(g.disc.length<2)return null;const top=g.disc.pop();g.deck=htShuffle(g.disc.map(x=>x.c));g.disc=[top]}return g.deck.pop()||null}
-function unMercy(g,pid){if(!unNM(g)||g.ko[pid]||(g.h[pid]||[]).length<25)return;g.ko[pid]=1;gLog(g,`${nmid(pid)} hit 25 cards and is knocked out`,'💀');gAnn(g,`${nmid(pid)} is knocked out!`,'25 cards: the Mercy rule.','💀');g.deck.unshift(...g.h[pid]);g.h[pid]=[];delete g.uno[pid];if(g.catch&&g.catch.p===pid)g.catch=null;g.msg+=` 💀 ${nmid(pid)} has 25 cards and is knocked out by the Mercy rule!`}
-function unGive(g,pid,n){let got=0;for(let i=0;i<n;i++){const c=unPull(g);if(!c)break;g.h[pid].push(c);got++;if(unNM(g)&&g.h[pid].length>=25)break}if(g.h[pid].length>(g.ver==='dos'?2:1))delete g.uno[pid];return got}
+function unMercy(g,pid){if(!unNM(g)||g.ko[pid]||(g.h[pid]||[]).length<25)return;g.ko[pid]=1;gLog(g,`${nmid(pid)} hit 25 cards and is knocked out`,'💀');gAnn(g,`${nmid(pid)} is knocked out!`,'25 cards: the Mercy rule.','💀');gFx(g,pid,'boom');g.deck.unshift(...g.h[pid]);g.h[pid]=[];delete g.uno[pid];if(g.catch&&g.catch.p===pid)g.catch=null;g.msg+=` 💀 ${nmid(pid)} has 25 cards and is knocked out by the Mercy rule!`}
+function unGive(g,pid,n){if(n>=4&&g.phase==='play')gFx(g,pid,'boom');let got=0;for(let i=0;i<n;i++){const c=unPull(g);if(!c)break;g.h[pid].push(c);got++;if(unNM(g)&&g.h[pid].length>=25)break}if(g.h[pid].length>(g.ver==='dos'?2:1))delete g.uno[pid];return got}
 function unLaunch(g,pid){const r=Math.random(),left=g.deck.length+Math.max(0,g.disc.length-1);let n=r<.5?0:r<.75?1:r<.87?2+Math.floor(Math.random()*2):r<.95?4+Math.floor(Math.random()*3):7+Math.floor(Math.random()*5);n=Math.min(n,left);
   const got=unGive(g,pid,n);pst('launch',pid,got);g.shout={p:pid,k:(g.shout?g.shout.k:0)+1,t:got?`💥 +${got}`:'💨 0'};if(S.lk&&S.lk.me===pid||!S.lk&&!act().find(p=>p.id===pid).bot)vibe(got?[40,30,80]:20);return got}
 function unGiveUntil(g,pid,col){let n=0;for(;;){const c=unPull(g);if(!c)break;g.h[pid].push(c);n++;if(unFace(g,c).col===col)break;if(unNM(g)&&g.h[pid].length>=25)break}if(g.h[pid].length>1)delete g.uno[pid];return n}
@@ -9815,11 +9843,11 @@ function unDrawAct(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||g.ask||g.drawn)
   g.turn=unNext(g,pid);return true}
 function unKeepAct(g,pid){if(!g||!g.drawn||g.drawn.p!==pid||unNM(g))return false;g.drawn=null;g.msg=`${nmid(pid)} kept the card.`;g.turn=unNext(g,pid);return true}
 function unCallUno(g,pid){const h=g.h[pid]||[];if(!unCallOn()||!h.length||h.length>(unDOS(g)?3:2)||g.uno[pid])return false;g.uno[pid]=1;if(g.catch&&g.catch.p===pid)g.catch=null;g.shout={p:pid,k:(g.shout?g.shout.k:0)+1,t:unCallWord(g)+'!'};gLog(g,`${nmid(pid)} called ${unCallWord(g)}`,'📣');return true}
-function unCatch(g,by,t){if(!g||!g.catch||g.catch.p!==t||g.phase!=='play')return false;g.catch=null;pst('caught',t);pst('catches',by);gLog(g,`${by?nmid(by):'Someone'} caught ${nmid(t)} without ${unDOS(g)?'a DOS':'an UNO'}`,'🚨');gAnn(g,'Caught!',`${nmid(t)} forgot to call ${unDOS(g)?'DOS':'UNO'}.`,'🚨');if(unAT(g)){const n=unLaunch(g,t)+unLaunch(g,t);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without an UNO! ${nmid(t)} presses the launcher twice: ${n} card${n===1?'':'s'}.`;return true}unGive(g,t,2);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without ${unDOS(g)?'a DOS':'an UNO'}! ${nmid(t)} draws 2.`;return true}
+function unCatch(g,by,t){if(!g||!g.catch||g.catch.p!==t||g.phase!=='play')return false;g.catch=null;pst('caught',t);pst('catches',by);gLog(g,`${by?nmid(by):'Someone'} caught ${nmid(t)} without ${unDOS(g)?'a DOS':'an UNO'}`,'🚨');gAnn(g,'Caught!',`${nmid(t)} forgot to call ${unDOS(g)?'DOS':'UNO'}.`,'🚨');gFx(g,t,'boom');if(unAT(g)){const n=unLaunch(g,t)+unLaunch(g,t);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without an UNO! ${nmid(t)} presses the launcher twice: ${n} card${n===1?'':'s'}.`;return true}unGive(g,t,2);g.msg=`${by?nmid(by):'Someone'} caught ${nmid(t)} without ${unDOS(g)?'a DOS':'an UNO'}! ${nmid(t)} draws 2.`;return true}
 function unEnd(g,w){act().forEach(p=>{const R=unR(p,g.r),ko=!!g.ko[p.id];R.won=p.id===w;R.ko=ko;R.pv=p.id===w||ko?0:(g.h[p.id]||[]).reduce((a,c)=>a+unCardPts(g,c),0);R.v=R.pv;R.num=null;R.c={}});
   S.unside=S.unside||[];S.unside[g.r]=g.side==='D'?'dark':'light';g.phase='done';g.win=w;g.turn=null;g.pend=null;g.hit=null;g.ask=null;g.drawn=null;g.catch=null;
   g.msg+=` ${nmid(w)} ${unAlive(g).length===1&&(g.h[w]||[]).length?'is the last one standing and':''} wins the hand!`.replace('  ',' ');S.hr=Math.max(S.hr||0,g.r);
-  {const left=act().filter(p=>p.id!==w&&!g.ko[p.id]).map(p=>`${nm(p)} ${(g.h[p.id]||[]).length}`);gLog(g,`${nmid(w)} won the hand`,'🏆',1);gAnn(g,`${nmid(w)} wins the hand!`,left.length?'Cards left: '+left.join(' · '):'','🏆')}}
+  {const left=act().filter(p=>p.id!==w&&!g.ko[p.id]).map(p=>`${nm(p)} ${(g.h[p.id]||[]).length}`);gLog(g,`${nmid(w)} won the hand`,'🏆',1);gAnn(g,`${nmid(w)} wins the hand!`,left.length?'Cards left: '+left.join(' · '):'','🏆');gFx(g,w,'star')}}
 function unAfter(g){if(!g||g.phase!=='play')return;act().forEach(p=>unMercy(g,p.id));const al=unAlive(g);if(al.length===1){unEnd(g,al[0].id);return}
   {const w0=al.find(p=>!(g.h[p.id]||[]).length&&!(g.ask&&g.ask.forced&&g.ask.p===p.id));if(w0){unEnd(g,w0.id);return}}
   if(g.turn&&g.ko[g.turn])g.turn=unNext(g,g.turn);if(g.ask&&g.ko[g.ask.p]){g.ask=null;g.turn=unNext(g,g.turn)}if(UNSEL&&!Object.values(g.h).some(h=>h.includes(UNSEL)))UNSEL=null}
@@ -9863,7 +9891,7 @@ function unTick(){if(S.game!=='uno'||!unPlayOn()||!S.started||S.finished||S.scre
   if(unJumpOn()&&!g.pend&&!g.ask&&!g.drawn&&g.disc.length){const top=g.disc[g.disc.length-1],key=g.r+':'+g.n+':'+top.c;if(!UNJS[key]){UNJS[key]=1;const cands=unAlive(g).filter(p=>p.bot&&p.id!==g.turn&&unJumpable(g,p.id).length);
     const q=cands.find(p=>Math.random()<({easy:0,normal:.2,hard:.5})[p.bot]);if(q)setTimeout(()=>{const g2=ung();if(!g2||g2.n!==g.n)return;const J=unJumpable(g2,q.id);if(!J.length)return;const h=g2.h[q.id];if(h.length===2&&unCallOn())unCallUno(g2,q.id);unPlayCard(q.id,J[0],{jump:true});unAfter(g2);save();render()},(450+Math.random()*400)*spd)}}
   const q=act().find(p=>p.id===unActorId(g));
-  if(q&&q.bot&&!document.querySelector('.sheet-bg')&&!UNBOTT)UNBOTT=setTimeout(()=>{UNBOTT=null;const g2=ung();if(g2&&g2.phase==='play'&&unActorId(g2)===q.id){unBotMove(g2,q);unAfter(g2);save()}render()},(g.catch?1800:g.hit?750:g.pend?950:g.drawn?700:unDOS(g)&&g.m&&(g.m.made||g.m.drew)?650:900)*spd)}
+  if(q&&q.bot&&!document.querySelector('.sheet-bg')&&!UNBOTT&&!glHold())UNBOTT=setTimeout(()=>{UNBOTT=null;const g2=ung();if(g2&&g2.phase==='play'&&unActorId(g2)===q.id){unBotMove(g2,q);unAfter(g2);save()}render()},(g.catch?1800:g.hit?750:g.pend?950:g.drawn?700:unDOS(g)&&g.m&&(g.m.made||g.m.drew)?650:900)*spd)}
 
 /* ---------------- drawing the table ---------------- */
 function unCardEl(g,c,o={}){const f=unFace(g,c),tag=o.btn?'button':'span',attr=o.btn?` data-a="unpcard" data-c="${c}" aria-pressed="${!!o.sel}"${o.dis?' aria-disabled="true"':''}`:'';
@@ -9981,7 +10009,7 @@ const LKQF={
   rgBid:(pid,v)=>rgBid(pid,v)!==false,
   rgPlay:(pid,c,col,num)=>rgPlayCard(pid,c,col,num)!==false,
   sbPlay:(pid,src,bi)=>{const g=sbG();return !!g&&sbPlay(g,pid,src,bi)},
-  sbDiscard:(pid,c,i)=>{const g=sbG();return !!g&&sbDiscard(g,pid,c,i)},sbPass:pid=>{const g=sbG();return !!g&&sbPass(g,pid)},
+  sbDiscard:(pid,c,i)=>{const g=sbG();return !!g&&sbDiscard(g,pid,c,i)},glReady:pid=>glReady(pid),sbPass:pid=>{const g=sbG();return !!g&&sbPass(g,pid)},
   mtPlay:(pid,t,k)=>{const g=mtG();return !!g&&mtPlay(g,pid,t,k)},
   mtDraw:pid=>{const g=mtG();return !!g&&mtDraw(g,pid)},
   mtPass:pid=>{const g=mtG();return !!g&&mtPass(g,pid)},
@@ -10145,7 +10173,7 @@ function gpToss(g,pid){if(gpGN(g))return gpnToss(g,pid);const h=g.hold;if(!h||h.
   const canFlip=g.h[pid].some(x=>!x.up&&!x.gone);if((gpSK(g)||GFX().flipDisc)&&canFlip){g.flip=pid;return true}gpEndTurn(g,pid);return true}
 function gpFlipOne(g,pid,i){if(g.flip!==pid)return false;const x=g.h[pid][i];if(!x||x.up||x.gone)return false;x.up=true;g.flip=null;g.last={p:pid,i};g.n++;g.msg+=` Flipped a ${gpName(g,x.c)}.`;if(gpGN(g)){const c=g.tossC;g.tossC=null;gpnLeft(g,pid,c);return true}gpClear(g,pid);gpEndTurn(g,pid);return true}
 function gpEndTurn(g,pid){if(g.ender){g.left=g.left.filter(x=>x!==pid);if(!g.left.length){gpScore(g);return}}
-  else if(gpAllUp(g,pid)){g.ender=pid;g.left=act().map(p=>p.id).filter(x=>x!==pid);g.msg+=` ${nmid(pid)} has every card face up! Everyone else gets one more turn.`;gLog(g,`${nmid(pid)} went out first`,'🚪',1);gAnn(g,`${nmid(pid)} went out!`,'Every card is face up. Everyone else gets one more turn.','🚪');if(!g.left.length){gpScore(g);return}}
+  else if(gpAllUp(g,pid)){g.ender=pid;g.left=act().map(p=>p.id).filter(x=>x!==pid);g.msg+=` ${nmid(pid)} has every card face up! Everyone else gets one more turn.`;gLog(g,`${nmid(pid)} went out first`,'🚪',1);gAnn(g,`${nmid(pid)} went out!`,'Every card is face up. Everyone else gets one more turn.','🚪');gFx(g,pid,'star');if(!g.left.length){gpScore(g);return}}
   let nx=gpNext(g,pid);if(g.ender){let guard=0;while(!g.left.includes(nx)&&guard++<20)nx=gpNext(g,nx)}g.turn=nx}
 function gpScore(g){const P=act();P.forEach(p=>g.h[p.id].forEach(x=>x.up=true));
   if(gpGN(g)){P.forEach(p=>{const R=gnR(p,g.r);R.g=g.h[p.id].map(x=>{const k=gpRank(x.c);return k==='H'||k==='M'?k:+k});R.v=null;R.out=p.id===g.ender});g.phase='done';g.turn=null;g.hold=null;g.bounce=null;g.left2=null;g.hzf={};S.hr=Math.max(S.hr||0,g.r);g.msg='Round over: everyone turns up their cards.';gAnn(g,`Round ${g.r+1} is over`,'Everyone turns up their cards.','🏁');return}
@@ -10251,7 +10279,7 @@ function gpTick(){if((S.game!=='golf'&&S.game!=='skyjo'&&S.game!=='gnome')||!gpO
   if(g.phase==='flip'&&act().some(p=>p.bot&&g.need[p.id]>0)){act().forEach(p=>{if(p.bot&&g.need[p.id]>0)gpBotFlips(g,p)});gpStartIfReady(g);save();render();return}
   if(g.hzf&&act().some(p=>p.bot&&g.hzf[p.id])){act().forEach(p=>{if(p.bot&&g.hzf[p.id]){const idx=g.h[p.id].map((x,j)=>j).filter(j=>!g.h[p.id][j].up);if(idx.length>1)g.h[p.id][idx[Math.floor(Math.random()*idx.length)]].up=true;delete g.hzf[p.id]}});save();render();return}
   const actor=g.phase==='flip'?null:g.turn,q=act().find(p=>p.id===actor);
-  if(q&&q.bot&&!GPBOTT)GPBOTT=setTimeout(()=>{GPBOTT=null;const g2=gpG();if(g2&&g2.phase==='play'&&g2.turn===q.id){gpBotStep(g2,q);save()}render()},(g.hold||g.flip||g.bounce||g.left2?850:1000)*htSpd())}
+  if(q&&q.bot&&!GPBOTT&&!glHold())GPBOTT=setTimeout(()=>{GPBOTT=null;const g2=gpG();if(g2&&g2.phase==='play'&&g2.turn===q.id){gpBotStep(g2,q);save()}render()},(g.hold||g.flip||g.bounce||g.left2?850:1000)*htSpd())}
 
 /* ---------------- drawing ---------------- */
 function gpCardEl(g,c,o={}){if(!c)return `<span class="gpc gpempty"></span>`;
@@ -10359,7 +10387,7 @@ function sbCard(g,pid,src){if(!src)return null;if(src.f==='hand')return (g.h[pid
 function sbPlay(g,pid,src,bi){if(!g||g.phase!=='play'||g.turn!==pid)return false;const c=sbCard(g,pid,src),pile=g.bp[bi];if(!c||!pile||!sbFits(c,pile))return false;
   if(src.f==='hand')g.h[pid].splice(g.h[pid].indexOf(c),1);else if(src.f==='stock')g.st[pid].pop();else g.dp[pid][src.i].pop();
   const v=sbNeed(pile);pile.push(c);g.n++;g.last={bi,p:pid};g.msg=`${nmid(pid)} played ${sbWild(c)?`a Skip-Bo card as ${v}`:'a '+v}${src.f==='stock'?' from the stock pile':src.f==='disc'?' from a discard pile':''}.`;
-  if(src.f==='stock'){pst('sbstock',pid);const L=g.st[pid].length;if(L===1){gLog(g,`${nmid(pid)} is down to 1 stock card`,'⚠️');gAnn(g,'Last stock card!',`${nmid(pid)} has just 1 card left in their stock.`,'⚠️')}else if(L===10||L===5||L===3)gLog(g,`${nmid(pid)} has ${L} stock cards left`,'📉')}
+  if(src.f==='stock'){pst('sbstock',pid);const L=g.st[pid].length;if(L===1){gLog(g,`${nmid(pid)} is down to 1 stock card`,'⚠️');gAnn(g,'Last stock card!',`${nmid(pid)} has just 1 card left in their stock.`,'⚠️');gFx(g,pid,'star')}else if(L===10||L===5||L===3)gLog(g,`${nmid(pid)} has ${L} stock cards left`,'📉')}
   if(pile.length===12){g.done.push(...pile);g.bp[bi]=[];g.msg+=' That pile is complete!';pst('sbdone',pid)}
   if(!g.st[pid].length){sbEnd(g,pid);return true}
   if(!g.h[pid].length){sbFill(g,pid);g.msg+=` Hand empty: ${nmid(pid)} draws 5 more.`}
@@ -10368,7 +10396,7 @@ function sbDiscard(g,pid,c,i){if(!g||g.phase!=='play'||g.turn!==pid||!(g.h[pid]|
   g.msg=`${nmid(pid)} discarded ${sbWild(c)?'a Skip-Bo card':'a '+sbVal(c)} and ended the turn.`;const nx=sbNext(g,pid);g.turn=nx;sbFill(g,nx);g.last=null;return true}
 /* nothing in your hand and nothing left to draw: you may end your turn without discarding */
 function sbPass(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||(g.h[pid]||[]).length)return false;g.n++;g.msg=`${nmid(pid)} had no cards to draw and ended the turn.`;gLog(g,`${nmid(pid)} had no cards to draw and passed`,'⏭️');const nx=sbNext(g,pid);g.turn=nx;sbFill(g,nx);g.last=null;return true}
-function sbEnd(g,w){act().forEach(p=>{const R=sbR(p,g.r);R.won=p.id===w;R.left=p.id===w?0:g.st[p.id].length});g.phase='done';g.win=w;g.turn=null;S.hr=Math.max(S.hr||0,g.r);g.msg+=` ${nmid(w)} played the last stock card and wins the hand!`;{const left=act().filter(p=>p.id!==w).map(p=>`${nm(p)} ${g.st[p.id].length}`);gLog(g,`${nmid(w)} emptied their stock and won`,'🏆',1);gAnn(g,`${nmid(w)} wins the hand!`,'Stock cards left: '+left.join(' · '),'🏆')}}
+function sbEnd(g,w){act().forEach(p=>{const R=sbR(p,g.r);R.won=p.id===w;R.left=p.id===w?0:g.st[p.id].length});g.phase='done';g.win=w;g.turn=null;S.hr=Math.max(S.hr||0,g.r);g.msg+=` ${nmid(w)} played the last stock card and wins the hand!`;{const left=act().filter(p=>p.id!==w).map(p=>`${nm(p)} ${g.st[p.id].length}`);gLog(g,`${nmid(w)} emptied their stock and won`,'🏆',1);gAnn(g,`${nmid(w)} wins the hand!`,'Stock cards left: '+left.join(' · '),'🏆');gFx(g,w,'star')}}
 
 /* ---------------- computer players ---------------- */
 function sbSources(g,pid){const out=[];(g.h[pid]||[]).forEach(c=>out.push({f:'hand',c}));(g.dp[pid]||[]).forEach((d,i)=>{if(d.length)out.push({f:'disc',i})});return out}
@@ -10405,7 +10433,7 @@ const sbNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=sbG();if(!g||g.pha
 function sbTick(){if(S.game!=='skipbo'||!sbOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!sbRes())return;if(lkqRun()){save();render();return}
   const g=sbG(),cur=sbCur();if(!g||cgStale(g)||g.r!==cur&&g.phase!=='done'){sbDeal(cur);save();render();return}
   if(g.phase!=='play')return;const q=act().find(p=>p.id===g.turn);
-  if(q&&q.bot&&!SBBOTT&&!document.querySelector('.sheet-bg'))SBBOTT=setTimeout(()=>{SBBOTT=null;const g2=sbG();if(g2&&g2.phase==='play'&&g2.turn===q.id){sbBotStep(g2,q);save()}render()},700*htSpd())}
+  if(q&&q.bot&&!SBBOTT&&!glHold()&&!document.querySelector('.sheet-bg'))SBBOTT=setTimeout(()=>{SBBOTT=null;const g2=sbG();if(g2&&g2.phase==='play'&&g2.turn===q.id){sbBotStep(g2,q);save()}render()},700*htSpd())}
 
 /* ---------------- drawing ---------------- */
 function sbCardEl(c,o={}){const tag=o.btn?'button':'span';if(!c)return `<${tag} class="sbc sbempty${o.cls?' '+o.cls:''}"${o.attr||''} aria-label="${o.lab||'Empty'}">${o.inner||''}</${tag}>`;
@@ -10527,7 +10555,7 @@ function fcDiscard(g,pid,c,out){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew)r
   if(out){if(g.out||fcBest(rest,g.k).pen!==0)return false}
   g.h[pid]=rest;g.disc.push(c);g.drew=0;g.got=null;g.from=null;g.n++;
   if(out){g.out=pid;g.lay[pid]=fcBest(rest,g.k);g.left=[];for(let x=fcNextP(g,pid);x!==pid;x=fcNextP(g,x))g.left.push(x);pst('fcout',pid);
-    g.msg=`${nmid(pid)} discarded the ${fcName(c)} and went out! Everyone else gets one more turn.`;gLog(g,`${nmid(pid)} went out`,'🚪',1);gAnn(g,`${nmid(pid)} went out!`,'Everyone else gets one more turn.','🚪');if(!g.left.length){fcEnd(g);return true}g.turn=g.left[0];return true}
+    g.msg=`${nmid(pid)} discarded the ${fcName(c)} and went out! Everyone else gets one more turn.`;gLog(g,`${nmid(pid)} went out`,'🚪',1);gAnn(g,`${nmid(pid)} went out!`,'Everyone else gets one more turn.','🚪');gFx(g,pid,'star');if(!g.left.length){fcEnd(g);return true}g.turn=g.left[0];return true}
   g.msg=`${nmid(pid)} discarded the ${fcName(c)}.`;
   if(g.out){g.left=g.left.filter(x=>x!==pid);const b=fcBest(rest,g.k);g.lay[pid]=b;g.msg+=b.pen?` Laid down what they could, with ${b.pen} left.`:' Laid everything down too!';
     if(!b.pen)gLog(g,`${nmid(pid)} laid everything down too`,'🙌');if(!g.left.length){fcEnd(g);return true}g.turn=g.left[0];return true}
@@ -10561,7 +10589,7 @@ const fcNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=fcG();if(!g||g.pha
 function fcTick(){if(S.game!=='crowns'||!fcOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!fcRes())return;if(lkqRun()){save();render();return}
   const g=fcG(),cur=fcCur();if(!g||fcStale(g)||g.r!==cur){fcDeal(cur);save();render();return}
   if(g.phase!=='play')return;const q=act().find(p=>p.id===g.turn);
-  if(q&&q.bot&&!FCBOTT&&!document.querySelector('.sheet-bg'))FCBOTT=setTimeout(()=>{FCBOTT=null;const g2=fcG();if(g2&&g2.phase==='play'&&g2.turn===q.id){fcBotStep(g2,q);save()}render()},(g.drew?650:750)*htSpd())}
+  if(q&&q.bot&&!FCBOTT&&!glHold()&&!document.querySelector('.sheet-bg'))FCBOTT=setTimeout(()=>{FCBOTT=null;const g2=fcG();if(g2&&g2.phase==='play'&&g2.turn===q.id){fcBotStep(g2,q);save()}render()},(g.drew?650:750)*htSpd())}
 
 /* ---------------- drawing ---------------- */
 function fcCardEl(c,o={}){const tag=o.btn?'button':'span',k=o.k,attr=o.btn?` data-a="fcpcard" data-c="${c}" aria-pressed="${!!o.sel}"`:'',cls=`htc fcc${o.mini?' mini':''}${o.cls?' '+o.cls:''}`;
@@ -10722,7 +10750,7 @@ function pzDraw(g,pid,from){if(!g||g.phase!=='play'||g.turn!==pid||g.drew||g.ask
 function pzLay(g,pid,groups){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew||g.made[pid]||g.ask)return false;const spec=pzSpec(g.on[pid]),h=g.h[pid];
   if(!Array.isArray(groups)||groups.length!==spec.length)return false;const all=groups.flat();if(new Set(all).size!==all.length||!all.every(c=>h.includes(c)))return false;
   const out=[];for(let i=0;i<spec.length;i++){const gr=pzFit(spec[i][0],spec[i][1],groups[i]);if(!gr)return false;out.push(gr)}
-  g.h[pid]=h.filter(c=>!all.includes(c));g.lay[pid]=out;g.made[pid]=1;g.n++;pst('pzmade',pid);g.msg=`${nmid(pid)} laid down ${ptLab(g.on[pid])}!`;gLog(g,`${nmid(pid)} made ${ptLab(g.on[pid])}`,'✅');gAnn(g,`${nmid(pid)} made ${ptLab(g.on[pid])}!`,ptDesc(g.on[pid])||'','✅');
+  g.h[pid]=h.filter(c=>!all.includes(c));g.lay[pid]=out;g.made[pid]=1;g.n++;pst('pzmade',pid);g.msg=`${nmid(pid)} laid down ${ptLab(g.on[pid])}!`;gLog(g,`${nmid(pid)} made ${ptLab(g.on[pid])}`,'✅');gAnn(g,`${nmid(pid)} made ${ptLab(g.on[pid])}!`,ptDesc(g.on[pid])||'','✅');gFx(g,pid,'star');
   if(!g.h[pid].length)pzEnd(g,pid);return true}
 function pzHit(g,pid,c,owner,i){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew||!g.made[pid]||g.ask)return false;const h=g.h[pid],gr=((g.lay[owner]||[])[i]);if(!gr||!h.includes(c)||!pzHitOk(gr,c))return false;
   pzHitAdd(gr,c);g.h[pid]=h.filter(x=>x!==c);g.n++;pst('pzhit',pid);g.msg=`${nmid(pid)} added the ${pzName(c)}${owner===pid?'':` to ${nmid(owner)}’s cards`}.`;
@@ -10748,7 +10776,7 @@ function pzDiscard(g,pid,c,target){if(!g||g.phase!=='play'||g.turn!==pid||!g.dre
   if(!g.h[pid].length){g.msg+=' That was their last card!';pzEnd(g,pid);return true}
   g.turn=pzAdvance(g,pid);return true}
 function pzEnd(g,w){g.out=w;act().forEach(p=>{const R=ptR(p,g.r),h=g.h[p.id]||[];R.made=!!g.made[p.id];R.out=p.id===w;R.lo=h.filter(c=>!pzW(c)&&!pzS(c)&&pzV(c)<=9).length;R.hi=h.filter(c=>!pzW(c)&&!pzS(c)&&pzV(c)>=10).length;R.sk=h.filter(pzS).length;R.wd=h.filter(pzW).length;R.t=1});
-  g.phase='done';g.turn=null;g.ask=null;S.hr=Math.max(S.hr||0,g.r);g.msg+=` ${nmid(w)} went out. The hand is over.`;{const miss=g.ps.filter(id=>!g.made[id]);gLog(g,`${nmid(w)} went out`,'🚪',1);if(miss.length)gLog(g,`Didn’t make their phase: ${miss.map(nmid).join(', ')}`,'😬');gAnn(g,`${nmid(w)} went out!`,miss.length?`Still on the same phase: ${miss.map(nmid).join(', ')}`:'Everyone made their phase this hand.','🚪')}}
+  g.phase='done';g.turn=null;g.ask=null;S.hr=Math.max(S.hr||0,g.r);g.msg+=` ${nmid(w)} went out. The hand is over.`;{const miss=g.ps.filter(id=>!g.made[id]);gLog(g,`${nmid(w)} went out`,'🚪',1);if(miss.length)gLog(g,`Didn’t make their phase: ${miss.map(nmid).join(', ')}`,'😬');gAnn(g,`${nmid(w)} went out!`,miss.length?`Still on the same phase: ${miss.map(nmid).join(', ')}`:'Everyone made their phase this hand.','🚪');gFx(g,w,'star')}}
 /* ---------------- computer players ---------------- */
 function pzBotStep(g,q){const pid=q.id,lv=q.bot,h=g.h[pid],spec=pzSpec(g.on[pid]);if(g.turn!==pid||g.phase!=='play')return;
   if(g.pass===pid){const ts=pzPassTo(g,pid);if(ts.length&&(lv!=='easy'||Math.random()<.6)){const t=ts.slice().sort((a,b)=>(g.made[b]?1:0)-(g.made[a]?1:0)||g.h[a].length-g.h[b].length)[0];pzPass(g,pid,t)}else pzTakeSkip(g,pid);return}
@@ -10774,7 +10802,7 @@ const pzNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=pzG();if(!g||g.pha
 function pzTick(){if(S.game!=='phase10'||!pzOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!pzRes())return;if(lkqRun()){save();render();return}
   const g=pzG(),cur=ptCur();if(!g||pzStale(g)||g.r!==cur){pzDeal(cur);save();render();return}
   if(g.phase!=='play')return;const q=act().find(p=>p.id===g.turn);
-  if(q&&q.bot&&!PZBOTT&&!document.querySelector('.sheet-bg'))PZBOTT=setTimeout(()=>{PZBOTT=null;const g2=pzG();if(g2&&g2.phase==='play'&&g2.turn===q.id){pzBotStep(g2,q);save()}render()},(g.drew?600:750)*htSpd())}
+  if(q&&q.bot&&!PZBOTT&&!glHold()&&!document.querySelector('.sheet-bg'))PZBOTT=setTimeout(()=>{PZBOTT=null;const g2=pzG();if(g2&&g2.phase==='play'&&g2.turn===q.id){pzBotStep(g2,q);save()}render()},(g.drew?600:750)*htSpd())}
 /* ---------------- drawing ---------------- */
 function pzCardEl(c,o={}){const tag=o.btn?'button':'span',attr=o.btn?` data-a="pzpcard" data-c="${c}" aria-pressed="${!!o.sel}"`:'',cls=`htc pzc${o.mini?' mini':''}${o.cls?' '+o.cls:''}`;
   if(!c)return `<span class="${cls} empty"></span>`;
@@ -10982,7 +11010,7 @@ function hpEnd(g,w){const X=HX();g.out=w;g.phase='done';g.turn=null;const sides=
     R0.r3p=((g.r3||{})[side]||[]).length;if(R0.out&&g.cc)R0.cc=true;
     mates.forEach(id=>(g.h[id]||[]).concat(g.ft[id]||[]).forEach(c=>{if(hp3(c)){if(hpRed(c))R0.r3++;else R0.b3++;return}const gk=hpGrp(c);R0.l[gk]=(R0.l[gk]||0)+1}));R0.ct=M.filter(m=>!m.b3).reduce((s,m)=>s+hpMeldVal(m.c),0);R0.lt=mates.reduce((s,id)=>s+(g.h[id]||[]).concat(g.ft[id]||[]).reduce((a,c)=>a+hpVal(c),0),0);
     mates.forEach(id=>{const p=act().find(q=>q.id===id);if(!p)return;const R=hfR(p,g.r);Object.assign(R,JSON.parse(JSON.stringify(R0)))})});
-  S.hr=Math.max(S.hr||0,g.r);g.msg+=w?' The round is over.':'';if(w){const sd=g.tm[w];gLog(g,`${nmid(w)} went out${g.cc&&X.concealed?' concealed':''}`,'🚪',1);gAnn(g,`${nmid(w)} went out!`,`${g.cc&&X.concealed?'Concealed! ':''}The hand is over.`,'🚪')}}
+  S.hr=Math.max(S.hr||0,g.r);g.msg+=w?' The round is over.':'';if(w){const sd=g.tm[w];gLog(g,`${nmid(w)} went out${g.cc&&X.concealed?' concealed':''}`,'🚪',1);gAnn(g,`${nmid(w)} went out!`,`${g.cc&&X.concealed?'Concealed! ':''}The hand is over.`,'🚪');gFx(g,w,'star')}}
 /* ---------------- computer players ---------------- */
 function hpBotStep(g,q){const pid=q.id,lv=q.bot,side=hpSide(g,pid);if(g.turn!==pid||g.phase!=='play')return;let h=g.h[pid];
   if(!g.drew){const take=hpTakeOk(g,pid)&&(lv==='easy'?Math.random()<.5&&g.disc.length>=2:hpPileWorth(g,pid,lv)>=(lv==='hard'?1.5:1));if(take){hpTake(g,pid);return}hpDraw(g,pid);return}
@@ -11040,7 +11068,7 @@ const hpNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=hpG();if(!g||g.pha
 function hpTick(){if(!HFE()||!hpOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!hpRes())return;if(lkqRun()){save();render();return}
   const g=hpG(),cur=hfCur();if(!g||hpStale(g)||g.r!==cur){hpDeal(cur);save();render();return}
   if(g.phase!=='play')return;const q=act().find(p=>p.id===g.turn);
-  if(q&&q.bot&&!HPBOTT&&!document.querySelector('.sheet-bg'))HPBOTT=setTimeout(()=>{HPBOTT=null;const g2=hpG();if(g2&&g2.phase==='play'&&g2.turn===q.id){hpBotStep(g2,q);save()}render()},(g.drew?600:750)*htSpd())}
+  if(q&&q.bot&&!HPBOTT&&!glHold()&&!document.querySelector('.sheet-bg'))HPBOTT=setTimeout(()=>{HPBOTT=null;const g2=hpG();if(g2&&g2.phase==='play'&&g2.turn===q.id){hpBotStep(g2,q);save()}render()},(g.drew?600:750)*htSpd())}
 /* ---------------- drawing ---------------- */
 function hpCardEl(c,o={}){const tag=o.btn?'button':'span',attr=o.btn?` data-a="hppcard" data-c="${c}" aria-pressed="${!!o.sel}"`:'',cls=`htc hpc${o.mini?' mini':''}${o.cls?' '+o.cls:''}`;
   if(!c)return `<span class="${cls} empty"></span>`;const w=hpWild(c),r=hpRk(c);
@@ -11162,7 +11190,7 @@ function nrMove(g,pid,from,to){if(!g||g.phase!=='play'||!g.me[pid])return false;
   else return false;
   m.mv=1;m.rc=0;delete g.stuck[pid];g.n++;
   if(from.t==='n'&&(m.n.length===5||m.n.length===2))gLog(g,`${nmid(pid)} is down to ${m.n.length} Nerts cards`,'📉');
-  if(!m.n.length){g.msg=`${nmid(pid)} called Nerts!`;gLog(g,`${nmid(pid)} called Nerts!`,'📣',1);gAnn(g,'Nerts!',`${nmid(pid)} emptied their Nerts pile first.`,'📣');nrEnd(g,pid)}
+  if(!m.n.length){g.msg=`${nmid(pid)} called Nerts!`;gLog(g,`${nmid(pid)} called Nerts!`,'📣',1);gAnn(g,'Nerts!',`${nmid(pid)} emptied their Nerts pile first.`,'📣');gFx(g,pid,'star');nrEnd(g,pid)}
   return true}
 function nrPull(m,from){if(from.t==='n')m.n.pop();else if(from.t==='d')m.d.pop();else if(from.t==='w')m.w[from.i].splice(from.k)}
 /* flip 3 from the stock; when it runs out, turn the waste back over. A pass with no plays moves the top card to the bottom, so you don't loop forever. */
@@ -11204,7 +11232,7 @@ function nrTick(){if(S.game!=='nerts'||!nrOn()||!S.started||S.finished||S.screen
   const g=nrG(),cur=nxCur();if(!g||nrStale(g)||g.r!==cur){Object.values(NRBT).forEach(clearTimeout);NRBT={};nrDeal(cur);save();render();return}
   if(g.phase!=='play'){Object.values(NRBT).forEach(clearTimeout);NRBT={};return}
   if(Date.now()-(g.t0||0)<(window.__htfast?200:2600))return setTimeout(render,400);/* 3-2-1 */
-  act().filter(q=>q.bot).forEach(q=>{if(NRBT[q.id])return;NRBT[q.id]=setTimeout(()=>{delete NRBT[q.id];const g2=nrG();if(!g2||g2.phase!=='play'||S.game!=='nerts')return;if(document.querySelector('.sheet-bg'))return render();nrBotStep(g2,q);save();render()},nrBotMs(q.bot))})}
+  act().filter(q=>q.bot).forEach(q=>{if(NRBT[q.id])return;NRBT[q.id]=setTimeout(()=>{delete NRBT[q.id];const g2=nrG();if(!g2||g2.phase!=='play'||S.game!=='nerts')return;if(document.querySelector('.sheet-bg')||glHold())return render();nrBotStep(g2,q);save();render()},nrBotMs(q.bot))})}
 /* ---------------- drawing ---------------- */
 function nrCardEl(c,o={}){if(!c)return `<span class="htc nrc empty${o.cls?' '+o.cls:''}"${o.attr||''}></span>`;const r=c[0],own=act().find(p=>p.id===nrOwn(c));
   return `<span class="htc nrc${nrRed(c)?' red':''}${o.cls?' '+o.cls:''}" style="${own?pc(own.color):''}"${o.attr||''} aria-label="${nrName(c)}"><b${r==='T'?' class="ten"':''}>${r==='T'?'10':r}</b><i>${NRSU[c[1]]}</i><em>${NRSU[c[1]]}</em>${o.own?'<u class="nrown"></u>':''}</span>`}
@@ -12875,7 +12903,7 @@ function render0(){
   try{rgFx()}catch(e){}
   try{qpScrollFx()}catch(e){}
   try{if(!document.querySelector('#app .lkbar')&&!document.querySelector('#app .rxfab'))RXLIVE=[];rxFx()}catch(e){}
-  if(LANUI)document.getElementById('app').insertAdjacentHTML('beforeend',lanSheet());else if(LKCHOOSE)document.getElementById('app').insertAdjacentHTML('beforeend',lkChooseSheet());else if(luInvite())document.getElementById('app').insertAdjacentHTML('beforeend',luInviteSheet());
+  if(LANUI)document.getElementById('app').insertAdjacentHTML('beforeend',lanSheet());else if(LKCHOOSE)document.getElementById('app').insertAdjacentHTML('beforeend',lkChooseSheet());else if(luInvite())document.getElementById('app').insertAdjacentHTML('beforeend',luInviteSheet());else if(glHold())document.getElementById('app').insertAdjacentHTML('beforeend',glReadySheet());
   if(S.lk&&lkHost()&&!S.started&&!S.demo&&['map','players'].includes(S.screen)){const bar=document.querySelector('#app .bar');if(bar&&!document.querySelector('.lustrip'))bar.insertAdjacentHTML('afterend',luStrip())}
   if(WARN&&!document.getElementById('warn-h'))document.getElementById('app').insertAdjacentHTML('beforeend',`<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="warn-h"><h2 id="warn-h">Before the reveal</h2><p class="rlab">A few things look unfinished:</p><ul>${WARN.map(w=>`<li>${w}</li>`).join('')}</ul>
     <div class="sheet-btns"><button class="btn" data-a="warnclose">Go back and check</button><button class="btn primary" data-a="revstart">Reveal anyway</button></div></div></div>`);
@@ -12889,7 +12917,7 @@ function render0(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  try{qpWideFx()}catch(e){}try{qpFocusFx()}catch(e){}try{bigFx()}catch(e){}tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}try{htPassFx()}catch(e){}try{qpPopFx()}catch(e){}try{qpPlopFx()}catch(e){}try{qpMoveFx()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){try{glTick()}catch(e){}if(S.game==='hearts')htTick();if(S.game==='mextrain')mtTick();if(S.game==='chicken')cfTick();if(S.game==='quacks')qpTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
+  try{qpWideFx()}catch(e){}try{qpFocusFx()}catch(e){}try{bigFx()}catch(e){}try{glFx()}catch(e){}tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}try{htPassFx()}catch(e){}try{qpPopFx()}catch(e){}try{qpPlopFx()}catch(e){}try{qpMoveFx()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){try{glTick()}catch(e){}if(S.game==='hearts')htTick();if(S.game==='mextrain')mtTick();if(S.game==='chicken')cfTick();if(S.game==='quacks')qpTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -13759,6 +13787,7 @@ document.addEventListener('click',e=>{
       if(k==='lan'){lanHost('linkup');return}lkHostStart('linkup');return}
     case 'luname':{const n=((document.getElementById('lu-gname')||{}).value||'').trim();if(!n){toast('Type your name first.');break}if(S.players.some(p=>p.name.trim().toLowerCase()===n.toLowerCase()&&LKSEATS[p.id]&&LKSEATS[p.id].dev&&LKSEATS[p.id].dev!==window.FTLINK.dev())){toast('Someone else is using that name. Add an initial.');break}
       luSetName(n);LKPREV=n;let q=S.players.find(p=>p.name.trim().toLowerCase()===n.toLowerCase());if(!q){const used=S.players.map(p=>p.color);q=newPlayer(n,LUCOLS.find(c=>!used.includes(c))||'red');S.players.push(q);save()}lkPick(q.id);return}
+    case 'glready':{const me=S.lk&&S.lk.me;if(me&&lkq('glReady',me))vibe(15);break}
     case 'luinv':{if(!luInvite())break;if(k==='sit'){LKSITG=LKGEN;if(!S.started&&LKPREV){S.lksit={...(S.lksit||{}),[LKPREV.trim().toLowerCase()]:1};save()}S.screen='lkwait';break}
       LKINVG=LKGEN;LKAUTO=-1;if(!LKPREV)LKPREV=luName();const q=act().find(p=>!p.bot&&nm(p).trim().toLowerCase()===String(LKPREV).trim().toLowerCase());if(q&&!(LKSEATS[q.id]&&LKSEATS[q.id].dev)){lkPick(q.id);return}S.screen='lkwho';break}
     case 'luadd':luToggle(k);break;
@@ -13862,6 +13891,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='6f55d4';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='2a0fc6';</script>
 </body>
 </html>

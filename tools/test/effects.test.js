@@ -1,10 +1,10 @@
 // Rage! fire-and-shake and reactions stay smooth through redraws on linked phones.
-const {mk,st,pages,chromium,W,click,ok,done,BASE}=require('./link.js');
+const {mk,st,pages,chromium,W,click,ok,done,BASE,readyAll}=require('./link.js');
 (async()=>{const browser=await chromium.launch();const H=await mk(browser,'rh'),G=await mk(browser,'rg');
   const ids=await H.evaluate(()=>{switchGame('rage');resetScores();RGX().play=1;const P=S.players;P.forEach((p,i)=>{p.on=i<4;p.name=['Justin','Brad','Bot A','Bot B'][i]||'';if(i>1&&i<4)p.bot='normal';else delete p.bot});save();const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove();return [P[0].id,P[1].id]});
   await H.evaluate(()=>lkHostStart());await W(2500);const code=await H.evaluate(()=>S.lk.code);await H.evaluate(id=>lkPick(id),ids[0]);
   await G.evaluate(c=>lkJoin(c),code);await W(3000);await G.evaluate(id=>lkPick(id),ids[1]);await W(3000);
-  for(const p of [H,G])await p.evaluate(()=>document.querySelectorAll('[data-a=tourskip]').forEach(b=>b.click()));
+  for(const p of [H,G])await p.evaluate(()=>document.querySelectorAll('[data-a=tourskip]').forEach(b=>b.click()));await readyAll([H,G]);
   ok('rage button on guest',await G.evaluate(()=>!!document.querySelector('[data-a=rgrage]')));
   await G.evaluate(()=>document.querySelector('[data-a=rgrage]').click());
   await W(300);ok('guest sees own fire',await G.evaluate(id=>!!document.getElementById('rgfx-'+id),ids[1]));

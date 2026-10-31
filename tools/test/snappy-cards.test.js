@@ -1,11 +1,11 @@
 // Snappier linked moves in a card game: the guest's Hearts pass and card plays show right away, and the host agrees.
-const {mk,W,ok,done,chromium}=require('./link.js');
+const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
 const until=async(p,fn,ms=8000,arg=null)=>{const t=Date.now();while(Date.now()-t<ms){if(await p.evaluate(fn,arg))return Date.now()-t;await W(15)}return -1};
 (async()=>{const browser=await chromium.launch();const H=await mk(browser,'host'),G=await mk(browser,'guest');const errs=[];[H,G].forEach(p=>p.on('pageerror',e=>errs.push(e.message)));
   const ids=await H.evaluate(()=>{switchGame('hearts');resetScores();HTX().play=1;const P=S.players;P.forEach((p,i)=>{p.on=i<4;p.name=['Brad','Bot A','Bot B','Bot C'][i]||'';if(i)p.bot='normal';else delete p.bot});save();
     const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove();return [P[0].id]});
   await H.evaluate(()=>{window.__htfast=1;lkHostStart()});await W(3000);const code=await H.evaluate(()=>S.lk.code);await H.evaluate(()=>lkPick(null));
-  await G.evaluate(c=>lkJoin(c),code);await W(4000);await G.evaluate(id=>lkPick(id),ids[0]);await W(3000);
+  await G.evaluate(c=>lkJoin(c),code);await W(4000);await G.evaluate(id=>lkPick(id),ids[0]);await W(3000);await readyAll([H,G]);
   const me=ids[0];
   // the pass (if this hand passes)
   if(await G.evaluate(()=>S.htg.phase==='pass')){

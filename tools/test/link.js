@@ -48,4 +48,6 @@ const click=(page,a,k)=>page.evaluate(([a,k])=>{const sel=k!=null?`[data-a="${a}
 const act=(page,a,k)=>page.evaluate(([a,k])=>{const b=document.createElement('button');b.dataset.a=a;if(k!=null)b.dataset.k=k;b.hidden=true;document.body.appendChild(b);b.click();b.remove()},[a,k]);
 let FAILS=0;const ok=(n,c,x)=>{if(!c)FAILS++;console.log((c?'PASS ':'FAIL ')+n+(x!==undefined&&!c?' '+JSON.stringify(x):''))};
 const done=async b=>{await b.close();process.exit(FAILS?1:0)};
-module.exports={mk,st,pages,chromium,W,click,act,ok,done,BASE};
+/* linked games start each round with a Ready card: tap it on every phone and wait until it's gone */
+const readyAll=async ps=>{for(let t=0;t<40;t++){let open=false;for(const p of ps){const c=await p.evaluate(()=>{const b=document.querySelector('[data-a=glready]');if(b){b.click();return 1}return document.querySelector('.glrdy')?2:0}).catch(()=>0);if(c)open=true}if(!open)return true;await W(300)}return false};
+module.exports={mk,st,pages,chromium,W,click,act,ok,done,BASE,readyAll};
