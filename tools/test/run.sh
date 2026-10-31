@@ -7,7 +7,7 @@ REPO="$(cd ../.. && pwd)"
 export NODE_PATH="${NODE_PATH:-$(npm root -g)}"
 PORT=8765; export BASE="http://localhost:$PORT/"
 if ! curl -s -o /dev/null "$BASE"; then (cd "$REPO" && setsid nohup python3 -m http.server $PORT >/tmp/ft-test-server.log 2>&1 </dev/null &); sleep 1; fi
-TESTS="scoring lobby features endlink effects announce newgame snappy snappy-cards witches quacks-fixes turquoise pot quacks-holds hf-untake react-replay past-open quacks-view wake book-prices book-play fortune quacks-extras hint again quacks-end layout ready smoke-link buy-link draw-once"
+TESTS="scoring lobby features endlink effects announce newgame snappy snappy-cards witches quacks-fixes turquoise pot quacks-holds hf-untake react-replay past-open quacks-view wake book-prices book-play fortune quacks-extras hint again quacks-end layout ready smoke-link buy-link draw-once hf-need"
 [ "$1" = "all" ] && TESTS="$TESTS fullgame fullgame-herb audit audit-bots audit-score fuzz linkfuzz rgfuzz rgfuzz-link allfuzz allfuzz-link"
 for t in $TESTS; do
   case $t in

@@ -10912,6 +10912,7 @@ function hpTake(g,pid){if(!hpTakeOk(g,pid))return false;const t=hpTop(g),n=g.dis
 function hpUntake(g,pid){if(!g||g.turn!==pid||!g.took||!g.need||!g.h[pid].includes(g.need))return false;const T=g.took,R3=g.tookR3||[];if(!T.every(c=>g.h[pid].includes(c)||R3.includes(c)))return false;if(R3.length){const sd=hpSide(g,pid);g.r3[sd]=(g.r3[sd]||[]).filter(c=>!R3.includes(c))}g.tookR3=[];g.h[pid]=g.h[pid].filter(c=>!T.includes(c));g.disc=T;g.frozen=HPCA()&&T.some(x=>hpWild(x)||hp3(x)&&hpRed(x));g.took=null;g.need=null;g.drew=0;g.n++;g.msg=`${nmid(pid)} put the discard pile back.`;return true}
 function hpPlay(g,pid,news,adds){if(!g||g.phase!=='play'||g.turn!==pid||!g.drew)return false;news=news||[];adds=adds||[];const side=hpSide(g,pid),h=g.h[pid],OB=(g.melds[side]||[]).filter(hpBook).map(m=>hpMeldRank(m.c)+':'+hpKind(m)),M=(g.melds[side]||[]).map(m=>m.b3?{c:m.c.slice(),b3:1}:{c:m.c.slice()});
   const used=news.flat().concat(adds.flatMap(a=>a.cs||[]));if(!used.length||new Set(used).size!==used.length||!used.every(c=>h.includes(c)))return false;
+  /* after picking up the pile, the picked-up card goes down first: otherwise melding its partners elsewhere could leave you unable to discard, with no way to put the pile back */if(g.need&&h.includes(g.need)&&!used.includes(g.need))return false;
   const allOut=h.length-used.length<1;if(allOut&&!HPCA())return false;/* Hand and Foot: the last card always goes on the discard pile. Canasta can go out by melding everything */
   if(!g.down[side]&&adds.length)return false;
   const X3=HX(),b3s=news.filter(hpB3);if(b3s.length){if(!X3.b3meld||!g.inF[pid]||h.length-used.length>1)return false;const T=M.concat(news.filter(cs=>!hpB3(cs)).map(cs=>({c:cs})));adds.forEach(a=>{});if(!hpCanGoOut({melds:{x:T}},'x'))return false}
@@ -11081,7 +11082,7 @@ function hpAct(a,b,k){const g=hpG();if(!g)return;
   if(a==='hppdeck'){if(g.drew){toast('You already drew.');return}HPSEL=[];if(lkq('hpDraw',V.id))vibe(12);return}
   if(a==='hpptake'){if(g.drew){toast('You already drew.');return}if(!hpTakeOk(g,V.id)){toast(HPCA()&&(g.frozen||!g.down[hpSide(g,V.id)])?'The pile is frozen: you need two natural cards that match the top card.':'You can take the pile only when you can meld its top card right away.');return}HPSEL=[];if(lkq('hpTake',V.id))vibe([12,20,12]);return}
   if(!g.drew){toast('Draw first.');return}
-  if(a==='hpplay'){const st=HPSTAGE[V.id]||[];if(lkq('hpPlay',V.id,st,[])){HPSTAGE[V.id]=[];HPSEL=[];vibe([20,40,20])}else toast('Those melds can’t go down yet.');return}
+  if(a==='hpplay'){const st=HPSTAGE[V.id]||[];if(lkq('hpPlay',V.id,st,[])){HPSTAGE[V.id]=[];HPSEL=[];vibe([20,40,20])}else{const g0=hpG();toast(g0&&g0.need&&!st.flat().includes(g0.need)?`Meld the picked-up ${hpName(g0.need)} first.`:'Those melds can’t go down yet.')}return}
   if(a==='hppadd'){const i=+b.dataset.i;if(lkq('hpPlay',V.id,[],[{m:i,cs:HPSEL.slice()}])){HPSEL=[];vibe(12)}else toast('Those cards don’t fit there.');return}
   if(a==='hppuntake'){HPSEL=[];HPSTAGE[V.id]=[];if(lkq('hpUntake',V.id))vibe(10);return}
   if(a==='hppdiscpile'){const c=HPSEL[0];if(!c)return;return hpAct('hppdisc',{dataset:{c}},k)}

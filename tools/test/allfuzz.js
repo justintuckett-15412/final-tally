@@ -47,12 +47,25 @@ const audit=([game,sk,prev])=>{const g=S[sk];const out=(window.__bad||[]).slice(
   const idl=Object.keys(ids);if(!prev||prev.key!==key)now={key,n,ids:idl,where:ids};else if(n!==prev.n&&g.phase!=='done'&&g.phase!=='deal'){const gone=prev.ids.filter(k=>!ids[k]&&!(game==='gnome'&&/^H#/.test(k)));out.push(`card count changed ${prev.n}→${n} (r${g.r+1} ${g.phase})${gone.length?' missing '+gone.slice(0,3).map(k=>k+' (was '+(prev.where[k]||[]).join('/')+')').join(', '):''} msg: ${String(g.msg||'').slice(0,90)}`)}
   if(game==='spades'&&g.phase==='done'){const t=Object.values(g.won).reduce((a,b)=>a+b,0);if(t!==g.per)out.push(`${t} tricks taken in a ${g.per}-card hand`)}
   if(game==='ohell'&&g.phase==='done'){const t=Object.values(g.won).reduce((a,b)=>a+b,0);if(t!==(g.played||[]).length/act().length)out.push(`${t} tricks for ${(g.played||[]).length/act().length} cards`)}
+  if(game==='hf'||game==='canasta'){/* referee: every meld legal, and going out only with the books the rules need */const X=HX();
+    for(const side in (g.melds||{}))(g.melds[side]||[]).forEach((m,i)=>{const cs=m.c||[],tag=`${side} meld ${i+1} [${cs.map(c=>c.split('#')[0]).join(' ')}] (r${g.r+1})`;
+      if(m.b3){if(!cs.every(c=>hp3(c)&&!hpRed(c)))out.push(`black-3 meld with other cards: ${tag}`);return}
+      if(cs.length<3)out.push(`meld under 3 cards: ${tag}`);if(cs.some(hp3))out.push(`3 inside a meld: ${tag}`);
+      const N=cs.filter(c=>!hpWild(c)),w=cs.length-N.length;
+      if(!N.length){if(!X.wildBook)out.push(`all-wild meld without the wild-book rule: ${tag}`);return}
+      if(!N.every(c=>hpRk(c)===hpRk(N[0])))out.push(`mixed ranks: ${tag}`);if(N.length<2)out.push(`fewer than 2 natural cards: ${tag}`);
+      if(X.wildRule==='fewer'&&w>=N.length)out.push(`too many wilds (must be fewer than naturals): ${tag}`);if(X.wildRule==='three'&&w>3)out.push(`more than 3 wilds: ${tag}`);if(X.wildRule==='two'&&w>2)out.push(`more than 2 wilds: ${tag}`)});
+    if(g.out&&now&&!now.outSeen){now.outSeen=1;const pid=g.out.p||g.out,side=g.tm?g.tm[pid]:pid,M=(g.melds||{})[side]||[];
+      const bk=M.filter(m=>!m.b3&&m.c.length>=7),wd=c=>hpWild(c),cl=bk.filter(m=>!m.c.some(wd)).length,wb=bk.filter(m=>m.c.every(wd)).length,dt=bk.length-cl-wb;
+      if(cl<(X.needC||0)||dt<(X.needD||0)||(X.wildBook&&wb<(X.needW||0))||bk.length<(X.needAny||0))out.push(`${nmid(pid)} went out with ${cl} clean, ${dt} dirty, ${wb} wild books (needs ${X.needC||0}/${X.needD||0}/${X.needAny||0} any) (r${g.r+1})`);
+      if(g.h&&g.h[pid]&&g.h[pid].length)out.push(`${nmid(pid)} went out still holding ${g.h[pid].length} cards (r${g.r+1})`)}}
   if(game==='hearts'&&g.phase==='done'){const all=Object.values(g.tk).flat();const h=all.filter(c=>c[1]==='H').length,q=all.filter(c=>c==='QS').length;if(h!==13||q!==1)out.push(`hand ended with ${h} hearts and ${q} Queens of spades taken`)}
   if(game==='rook'&&g.phase==='done'){const all=Object.values(g.won).flat(),pts=all.reduce((a,c)=>a+rkVal(c),0)+(+RKX().last||0);const tot=rkTeamPts(g,0)+rkTeamPts(g,1);if(tot!==pts)out.push(`team points ${tot} but counters taken add to ${pts}`)}
   return {out,prev:now}};
 const tapper=()=>{
   if((S.game==='mextrain'||S.game==='chicken')&&Math.random()<.7){const CF=S.game==='chicken',g=CF?cfG():mtG(),V=CF?cfViewer():mtViewer();if(g&&V&&g.turn===V.id&&g.h[V.id]){const opts=g.h[V.id].map(t=>[t,CF?cfSpots(g,V.id,t):mtTargets(g,V.id,t)]).filter(x=>x[1].length);if(opts.length){const [t,ks]=opts[Math.floor(Math.random()*opts.length)],k=ks[Math.floor(Math.random()*ks.length)];const b=document.querySelector(`[data-a=${CF?'cfpspot':'mtptrain'}][data-k="${k}"]`);if(b){if(CF)CFSEL=t;else MTSEL=t;b.click();return 'dom'}}}}
-  for(const v of ['HPSEL','PZSEL','FCSEL','DOSSEL']){try{const a=eval(v);if(Array.isArray(a)&&a.length>1&&Math.random()<.3)eval(v+'=a.slice(0,1)')}catch(e){}}
+  {let trim=false;for(const v of ['HPSEL','PZSEL','FCSEL','DOSSEL']){try{const a=eval(v);if(Array.isArray(a)&&a.length>1&&Math.random()<.3){eval(v+'=a.slice(0,1)');trim=true}}catch(e){}}if(trim){render();return 'trim'}}
+  if((S.game==='hf'||S.game==='canasta')&&Math.random()<.4){try{const g=hpG(),V=hpViewer();if(g&&V&&g.turn===V.id&&g.need&&(g.h[V.id]||[]).includes(g.need)){const r=hpRk(g.need),nat=g.h[V.id].filter(c=>c!==g.need&&!hpWild(c)&&hpRk(c)===r).slice(0,2);if(nat.length===2&&!(HPSTAGE[V.id]||[]).length){HPSEL=[g.need,...nat];render();const st=document.querySelector('[data-a=hppstage]:not([disabled])');if(st){st.click();return 'stage'}}const pl=document.querySelector('[data-a=hpplay]:not([disabled])');if(pl){pl.click();return 'play'}}}catch(e){}}
   try{if(MTSEL&&Math.random()<.15)MTSEL=null}catch(e){}try{if(CFSEL&&Math.random()<.15)CFSEL=null}catch(e){}
   if(S.game==='mextrain'&&typeof MTSEL!=='undefined'&&!MTSEL&&document.querySelector('[data-a=mtptrain]')&&Math.random()<.6){const V=mtViewer(),g=mtG();if(V&&g&&g.h[V.id]&&g.h[V.id].length)MTSEL=g.h[V.id][Math.floor(Math.random()*g.h[V.id].length)]}
   if(S.game==='chicken'&&typeof CFSEL!=='undefined'&&!CFSEL&&document.querySelector('[data-a=cfpspot]')&&Math.random()<.6){const V=cfViewer(),g=cfG();if(V&&g&&g.h[V.id]&&g.h[V.id].length)CFSEL=g.h[V.id][Math.floor(Math.random()*g.h[V.id].length)]}
@@ -60,7 +73,7 @@ const tapper=()=>{
   if(S.game==='phase10'&&typeof PZSEL!=='undefined'&&PZSEL.length>1&&Math.random()<.3)PZSEL=PZSEL.slice(0,1);const deny=/^(go|rules|undo|dash|lk(?!vote)|rx|cb|hosort|ho2row|share|home|set|abandon|rematch|back|tab|nxjump|rghand|htpmode|.*mode$|.*setup|.*start$|qkwrand|gnew|playagain|newgame|lpopen|lp$|tour|toast|sfx|theme|hpview|.*rules$|.*hist|.*sheet$|.*guide)/;
   const vis=[...document.querySelectorAll('#app [data-a], .sheet [data-a], .glann [data-a]')].filter(b=>!b.disabled&&b.getAttribute('aria-disabled')!=='true'&&b.offsetParent);
   let c=vis.filter(b=>{const a=b.dataset.a;if(a==='finish'||a==='revstart')return /reveal|results|see|finish/i.test(b.textContent)&&!/end game/i.test(b.textContent);return !deny.test(a)});
-  if(!c.length)return '';const pri=c.filter(b=>/show|seen|ok|next|deal|lpclose|finish|revstart|pass$|ready|confirm|lock/.test(b.dataset.a));
+  if(!c.length)return '';const pri=c.filter(b=>/show|seen|ok|next|deal|lpclose|finish|revstart|pass$|ready|confirm|lock|hppdisc|hpplay|hppstage|hppadd|fcpdisc|pzpdisc/.test(b.dataset.a));
   const pick=pri.length&&Math.random()<.5?pri[Math.floor(Math.random()*pri.length)]:c[Math.floor(Math.random()*c.length)];pick.click();return pick.dataset.a};
 (async()=>{const browser=await chromium.launch();
   for(const game of GAMES)for(let gi=0;gi<N;gi++){const errs=[];let pages;
