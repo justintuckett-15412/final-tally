@@ -20,4 +20,9 @@ const until=async(p,fn,ms=8000,arg=null)=>{const t=Date.now();while(Date.now()-t
   ok('guest phone has no Adjust section',await G.evaluate(()=>!document.querySelector('.qpadj')));
   ok('host phone has the Adjust section',await H.evaluate(()=>!!document.querySelector('.qpadj')));
   ok('a guest adjust is refused by the host',await H.evaluate(id=>{const R=qkR(act().find(q=>q.id===id),S.qpg.r),b=+R.rb||0;const r=qpChoose(S.qpg,id,{t:'adj',v:'ruby'});return !r&&(+R.rb||0)===b},ids[1]));
+  // a stale echo from the host (older copy of this phone's queue) must not drop its newest move
+  const kept=await G.evaluate(id=>{const q=(S.lkq=S.lkq||{});q[id]=[{id:1,k:lkqKey(),f:'qpChoose',a:[id,{t:'buy',v:'o1'}]},{id:2,k:lkqKey(),f:'qpChoose',a:[id,{t:'buy',v:'k1'}]}];
+    const x=lkSplit();LKLAST.m={...x.m};const key='lkq'+LKSEP+id;const stale={...x.m};stale[key]=JSON.stringify([q[id][0]]).length?stable([q[id][0]]):stale[key];stale.__poke=String(Date.now());
+    window.lkRecv({mflat:stale});return (S.lkq[id]||[]).map(e=>e.id).join(',')+'/'+(key in x.m)},ids[1]);
+  ok('a stale echo keeps both queued moves',kept==='1,2/true',{kept});
   await done(browser)})();
