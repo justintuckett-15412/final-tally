@@ -13,10 +13,11 @@ const st=p=>p.evaluate(()=>({game:S.game,screen:S.screen,me:S.lk&&S.lk.me,meName
   await click(H,'qpstart','1');await W(5000);const hs=await st(H);
   ok('host on setup, seated, with linked names to add',hs.game==='quacks'&&hs.screen==='map'&&hs.meName==='Justin'&&hs.strip,hs);
   ok('player list is just the linked people (no remembered bots)',hs.players.join()==='Justin,Brad,Cam',hs.players);
-  ok('Brad gets an invite card',(await st(B)).sheet);
-  await click(B,'luinv','join');await click(C,'luinv','sit');await W(5000);
-  ok('Brad joined as Brad',(await st(B)).meName==='Brad');
-  ok('Cam sat out and came off the list',(await st(H)).players.join()==='Justin,Brad',(await st(H)).players);
+  const until=async(f,ms=12000)=>{const t=Date.now();while(Date.now()-t<ms){if(await f())return true;await W(300)}return false};
+  ok('Brad gets an invite card',await until(async()=>(await st(B)).sheet&&(await st(C)).sheet));
+  await click(B,'luinv','join');await click(C,'luinv','sit');
+  ok('Brad joined as Brad',await until(async()=>(await st(B)).meName==='Brad'));
+  ok('Cam sat out and came off the list',await until(async()=>(await st(H)).players.join()==='Justin,Brad'),(await st(H)).players);
   ok('Cam sees the sitting-out screen',await C.evaluate(()=>luSitting()));
   await click(H,'luadd','Cam');await W(300);ok('tapping Cam adds him back',(await st(H)).players.join()==='Justin,Brad,Cam');
   await done(browser)})();

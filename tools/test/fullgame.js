@@ -21,6 +21,7 @@ const btns=page=>page.evaluate(()=>[...new Set([...document.querySelectorAll('[d
     for(const [n,p] of [['host',H],['guest',G]]){const b=await btns(p);const g=await p.evaluate(()=>S.qpg&&{r:S.qpg.r,ph:S.qpg.phase,me:S.lk&&S.lk.me&&S.qpg.pl[S.lk.me]});
       const tap=pre=>{const m=b.find(x=>x===pre||x.startsWith(pre+':'));if(!m)return null;const [a,...k]=m.split(':');return click(p,a,k.length?k.join(':'):null)};
       if(b.some(x=>x.startsWith('qpfc:')))await tap('qpfc');
+      if(await tap('qplastok'))continue;
       if(await tap('qpseen'))continue;
       if(b.some(x=>x.startsWith('qpans'))){await tap('qpans');continue}
       if(g&&g.ph==='brew'&&g.me&&!g.me.stop){const k=n+g.r;if(!want[k]){want[k]=3+Math.floor(Math.random()*4);drawn[k]=0}

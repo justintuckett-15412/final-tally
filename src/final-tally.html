@@ -2426,7 +2426,7 @@ const luName=()=>{try{return localStorage.getItem('ft.lkname')||''}catch(e){retu
 const luSetName=n=>{try{localStorage.setItem('ft.lkname',n)}catch(e){}};
 /* everyone on a linked phone in this game (plus anyone carried in from before), by name */
 function luPeople(){const out=[],seen=new Set(),add=(name,color)=>{const k=String(name||'').trim().toLowerCase();if(!k||seen.has(k))return;seen.add(k);out.push({name:String(name).trim(),color})};
-  act().forEach(p=>{if(!p.bot&&p.name.trim()&&LKSEATS[p.id]&&LKSEATS[p.id].dev)add(p.name,p.color)});(S.lkppl||[]).forEach(x=>add(x.name,x.color));return out}
+  /* on the linked-phones screen everyone listed has joined, even if their seat hasn't reached this phone yet */act().forEach(p=>{if(!p.bot&&p.name.trim()&&(S.game==='linkup'||LKSEATS[p.id]&&LKSEATS[p.id].dev))add(p.name,p.color)});(S.lkppl||[]).forEach(x=>add(x.name,x.color));return out}
 /* a new linked game starts with just the linked people (nobody remembered from last time) */
 function luFill(ppl){S.lkppl=ppl;S.players.forEach(p=>{p.on=false;p.name='';p.rid=null;delete p.bot;if(Array.isArray(p.mem))p.mem=p.mem.map(()=>'')});
   ppl.forEach(x=>{let q=S.players.find(p=>!p.on&&p.color===x.color)||S.players.find(p=>!p.on);if(!q){q=newPlayer(x.name,x.color);S.players.push(q)}q.name=x.name;q.on=true});
@@ -2553,10 +2553,13 @@ window.lkRecv=function(u){if(!S.lk)return;
     for(const k in u.items){const r=u.items[k];if(r===base[k]||(r==null&&base[k]==null))continue;ch=true;if(mine[k]!==base[k])continue;if(r==null)delete res[k];else res[k]=r}
     for(const k in u.items){if(u.items[k]==null)delete base[k];else base[k]=u.items[k]}LKLAST.items=base;
     if(ch){lkItemsTo(S,res);changed=true}}
+  /* an empty player list is never real (it's an in-between copy from switching games): never let it wipe the players */
+  if(Array.isArray(u.order)&&!u.order.length&&S.players.length)u.order=null;
+  /* the host decides who's in the game: an older list from another phone may add people but never drop anyone the host has */let LKORDFIX=false;if(lkHost()&&Array.isArray(u.order)){const miss=S.players.map(p=>p.id).filter(id=>!u.order.includes(id));if(miss.length){u.order=u.order.concat(miss);LKORDFIX=true}}
   if(Array.isArray(u.order)&&stable(u.order)!==stable(LKLAST.order)){LKLAST.order=u.order;changed=true}
   const keepP={};if(u.ps)for(const id in u.ps)if(u.ps[id]&&LKLAST.ps[id]!==u.ps[id]){if(cur.ps[id]&&cur.ps[id]!==LKLAST.ps[id]&&!(lkGuest()&&id!==S.lk.me&&LKLAST.ps[id]&&lkSameBut(cur.ps[id],LKLAST.ps[id])))keepP[id]=cur.ps[id];LKLAST.ps[id]=u.ps[id];changed=true}
   if(changed&&LKLAST.order){const old=S.players,unsent=id=>cur&&cur.ps[id]&&!(u.ps&&id in u.ps)&&cur.ps[id]!==LKLAST.ps[id];S.players=LKLAST.order.map(id=>keepP[id]?JSON.parse(keepP[id]):unsent(id)?JSON.parse(cur.ps[id]):LKLAST.ps[id]?JSON.parse(LKLAST.ps[id]):old.find(p=>p.id===id)).filter(Boolean)}
-  let fix=false;if(changed&&S.game==='linkup'){const have=new Set(S.players.map(p=>p.id));if(lkHost())Object.keys(LKLAST.ps).forEach(id=>{if(!have.has(id)){S.players.push(JSON.parse(LKLAST.ps[id]));fix=true}});else{const me=S.lk.me;if(me&&!have.has(me)&&cur&&cur.ps[me])S.players.push(JSON.parse(cur.ps[me]))}}
+  let fix=LKORDFIX;if(changed&&S.game==='linkup'){const have=new Set(S.players.map(p=>p.id));if(lkHost())Object.keys(LKLAST.ps).forEach(id=>{if(!have.has(id)){S.players.push(JSON.parse(LKLAST.ps[id]));fix=true}});else{const me=S.lk.me;if(me&&!have.has(me)&&cur&&cur.ps[me])S.players.push(JSON.parse(cur.ps[me]))}}
   if(lkHost()&&!S.started&&S.lksit){Object.keys(S.lksit).forEach(n=>{const q=S.players.find(p=>p.on&&!p.bot&&p.name.trim().toLowerCase()===n);if(q&&act().length>(M().min||1)){q.on=false;fix=true}});delete S.lksit;fix=true}
   if(changed||fix){lkTouch();UNDO.length=0;if(!S.finished&&S.screen==='reveal'){S.screen=lkScreen();REV=null}LKMUTE=!(fix&&lkHost());save();LKMUTE=false}
   if(lkGuest()&&!S.finished&&S.screen==='results'){S.screen=lkScreen();window.scrollTo(0,0)}

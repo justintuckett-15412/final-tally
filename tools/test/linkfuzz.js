@@ -3,9 +3,9 @@
 const {mk,chromium,W,ok,done}=require('./link.js');
 const N=+(process.env.N||2);
 const tapper=()=>{const vis=[...document.querySelectorAll('#app [data-a], .sheet [data-a], .glann [data-a]')].filter(b=>!b.disabled&&b.getAttribute('aria-disabled')!=='true'&&b.offsetParent);
-  const A=b=>b.dataset.a;const want=['qpseen','qpans','qpfc','qpfp','qpdraw','qpstop','qpflask','qpwit','qpch','qpbuy','qpruby','qpdone','qpd6','qpup','lpclose','lkvote','finish','revstart'];
+  const A=b=>b.dataset.a;const want=['qplastok','qpseen','qpans','qpfc','qpfp','qpdraw','qpstop','qpflask','qpwit','qpch','qpbuy','qpruby','qpdone','qpd6','qpup','lpclose','lkvote','finish','revstart'];
   const c=vis.filter(b=>want.some(w=>A(b)===w||A(b).startsWith(w)));if(!c.length)return;
-  const pri=c.filter(b=>['qpseen','qpans','qpfc','lpclose','finish','revstart'].includes(A(b)));
+  const pri=c.filter(b=>['qplastok','qpseen','qpans','qpfc','lpclose','finish','revstart'].includes(A(b)));
   const weight=b=>A(b)==='qpdraw'?6:A(b)==='qpstop'?1.2:A(b)==='qpdone'?1:A(b)==='qpbuy'?3:2;
   let pick;if(pri.length&&Math.random()<.8)pick=pri[Math.floor(Math.random()*pri.length)];else{const tot=c.reduce((a,b)=>a+weight(b),0);let x=Math.random()*tot;for(const b of c){x-=weight(b);if(x<=0){pick=b;break}}pick=pick||c[0]}
   pick.click()};
