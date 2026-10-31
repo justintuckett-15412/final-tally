@@ -1,4 +1,4 @@
-// Quacks: Charity gives its ruby when the card comes up; the scoring card shows a ruby; round 9 ends with a big card.
+// Quacks: Charity gives its ruby when the card comes up; the scoring card shows a ruby; round 9 starts with a big card.
 const {chromium,W,ok,done,BASE}=require('./link.js');
 (async()=>{const b=await chromium.launch();const page=await b.newPage({viewport:{width:400,height:850}});const errs=[];page.on('pageerror',e=>errs.push(e.message));
   await page.goto(BASE);await W(1200);
@@ -9,10 +9,10 @@ const {chromium,W,ok,done,BASE}=require('./link.js');
   ok('Charity: the fewest-rubies ruby comes right when the card is revealed',r.after.every((v,i)=>v===r.before[i]+1),r);
   r=await page.evaluate(()=>{const g=S.qpg;g.ps.forEach(id=>{g.pl[id].sf=true;g.pl[id].stop=true});qpEval(g);const q=g.scoreQ.find(x=>x[0]==='Rubies and points');return {ruby:/qprb/.test(q[2]),noDouble:act().map(p=>qpRubies(p,g.r))}});
   ok('the “Rubies and points” scoring card shows a ruby, not a star',r.ruby,r);
-  r=await page.evaluate(()=>{const g=S.qpg;g.r=8;S.hr=8;g.ps.forEach(id=>{g.pl[id].done=true});qpFinish(g);render();const c=document.querySelector('#qpl-h');return {phase:g.phase,card:!!c,txt:c&&c.closest('.sheet').textContent}});
-  ok('round 9 ends with a big card that has to be tapped away',r.phase==='done'&&r.card,r);
+  r=await page.evaluate(()=>{const g=S.qpg;g.r=7;S.hr=7;g.phase='eval';g.ps.forEach(id=>{g.pl[id].done=true});qpFinish(g);if(g.phase==='card'){qpSetCard(g,'')}render();const c=document.querySelector('#qpl-h');return {r:g.r,phase:g.phase,card:!!c,txt:c&&c.closest('.sheet').textContent}});
+  ok('round 9 starts with a big “last round” card',r.r===8&&r.phase==='brew'&&r.card&&/No shopping/.test(r.txt),r);
   await page.screenshot({path:'/tmp/qend.png'});
-  await page.evaluate(()=>document.querySelector('[data-a=qplastok]').click());await W(1500);console.log('DBG',await page.evaluate(()=>[...document.querySelectorAll('[data-a=finish]')].map(b=>b.textContent+'|'+!!b.offsetParent).join(';')+' toast:'+(document.querySelector('.toast')||{}).textContent));
-  r=await page.evaluate(()=>({card:!!document.querySelector('#qpl-h'),fin:!!S.finished||S.screen!=='score'||!!document.querySelector('.sheet-bg'),scr:S.screen}));
-  ok('tapping it goes on to see who won',!r.card&&r.fin,r);
+  await page.evaluate(()=>document.querySelector('[data-a=qplastok]').click());await W(500);
+  r=await page.evaluate(()=>({card:!!document.querySelector('#qpl-h'),fortune:!!document.querySelector('[data-a=qpseen][data-k=sf]')}));
+  ok('tapping it away moves on to the fortune card',!r.card&&r.fortune,r);
   ok('no page errors',!errs.length,errs.slice(0,3));await done(b)})();
