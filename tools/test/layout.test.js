@@ -35,4 +35,9 @@ const START=`const x=document.createElement('button');x.dataset.a='start';x.hidd
   await p.evaluate(()=>{window.FTLINK={host:x=>new Promise(r=>setTimeout(()=>r('123456'),2000)),dev:()=>'d1',seat:async()=>{},beat(){},push(){},reveal(){}};lkHostStart('hearts')});
   await W(600);ok('host sees "Making your link code" while waiting',await p.evaluate(()=>!!document.querySelector('.lkmaking')));
   await W(2600);ok('the card goes away once the code is ready',await p.evaluate(()=>!document.querySelector('.lkmaking')&&S.lk&&S.lk.code==='123456'));
+  // Landscape, any card game: table left, hand at the top right
+  for(const [w,h] of [[915,412],[1180,820]]){const q=await b.newPage({viewport:{width:w,height:h}});q.on('pageerror',e=>errs.push(e.message));await q.goto(BASE);await W(900);
+    await q.evaluate(S0=>{window.__htfast=1;SET.toursOff=true;switchGame('hearts');resetScores();HTX().play=1;S.players.forEach((x,i)=>{x.on=i<4;x.name=['Me','Gizmo','Pip','Ace'][i]||'';if(i&&i<4)x.bot='normal';else delete x.bot});save();eval(S0)},START);await W(2000);
+    const r=await q.evaluate(()=>{const R=document.querySelector('.qpcolR'),hand=document.querySelector('.qpcolR .hthand');return {table:!!document.querySelector('.qpcolL .kttable'),hand:!!hand,fits:hand?hand.getBoundingClientRect().left>=R.getBoundingClientRect().left-2:false}});
+    ok(`landscape ${w}x${h}: table left, hand right and fully inside`,r.table&&r.hand&&r.fits,r);await q.close()}
   ok('no page errors',!errs.length,errs.slice(0,3));await done(b)})();

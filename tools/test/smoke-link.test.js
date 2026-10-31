@@ -13,8 +13,9 @@ const until=async(p,fn,ms=8000,arg=null)=>{const t=Date.now();while(Date.now()-t
   const ready=async p=>{for(let t=0;t<30;t++){const b=await btns(p);if(b.includes('qpseen:sf'))return tap(p,'qpseen','sf');const fc=b.find(x=>x.startsWith('qpfc:'));if(fc)await tap(p,'qpfc',fc.split(':')[1]);await W(300)}return false};
   await ready(G);await ready(H);await W(1500);await H.evaluate(()=>{S.qpg.ps.forEach(i=>S.qpg.pl[i].sf=true);save();render()});await W(2500);
   await H.evaluate(id=>{const L=S.qpg.pl[id];L.ws=6;L.bag=['w3#1','w3#2'];save()},ids[1]);await W(2500);
-  await tap(G,'qpdraw');  
-  let boom=false;for(let t=0;t<60;t++){await W(100);if(await G.evaluate(()=>!!document.querySelector('.qpboom'))){boom=true;break}}
+  await G.evaluate(()=>{window.__boom=0;new MutationObserver(()=>{if(document.querySelector('.qpboom'))window.__boom=1}).observe(document.body,{childList:true,subtree:true})});
+  await tap(G,'qpdraw');
+  let boom=false;for(let t=0;t<80;t++){await W(100);if(await G.evaluate(()=>window.__boom)){boom=true;break}}
   ok('the exploding phone shows the boom',boom);
   const sm=await until(H,id=>{const L=S.qpg.pl[id];return L.ex&&document.querySelectorAll('.tab.smolder').length>0},8000,ids[1]);
   ok('the other phone shows smoke on that player card',sm>=0,{sm});
