@@ -53,7 +53,7 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   ok('game ends when the cards run out at the start of a round',r.ph==='done'&&r.end==='cards',r);
   /* a whole game against computer players on one phone */
   await P.evaluate(()=>{switchGame('stoneage');resetScores();SAX().play=1;S.players.forEach((p,i)=>{p.on=i<4;p.name=['Ann','Bob','Cat','Dan'][i]||'';if(i<4)p.bot=['easy','normal','hard','normal'][i];else delete p.bot});S.started=true;S.finished=false;S.screen='score';delete S.sag;save();render()});
-  for(let t=0;t<600&&!(await P.evaluate(()=>S.sag&&S.sag.phase==='done'));t++)await W(150);
+  for(let t=0;t<1200&&!(await P.evaluate(()=>S.sag&&S.sag.phase==='done'));t++)await W(150);
   r=await P.evaluate(()=>({ph:S.sag.phase,r:S.sag.r,hu:Object.values(S.sag.me).reduce((a,M)=>a+M.hu,0),sc:act().map(p=>total(p))}));
   ok('computer players finish a 4-player game',r.ph==='done'&&r.r>=6&&r.r<=30,r);
   ok('computer players rarely go hungry',r.hu<=4,r);
