@@ -6,8 +6,8 @@ const tapStep=(p,k,d)=>p.evaluate(([k,d])=>{const b=document.querySelector(`[dat
 const typeIn=async(p,sel,v)=>{await p.focus(sel);await p.fill(sel,String(v));await p.dispatchEvent(sel,'input')};
 (async()=>{const browser=await chromium.launch();const P=await mk(browser,'p');
   const errs=[];P.on('pageerror',e=>errs.push(e.message));
-  ok('Stone Age: card on the home screen',await P.evaluate(()=>!!document.querySelector('[data-a="gnew"][data-k="stoneage"]')));
-  await P.evaluate(()=>document.querySelector('[data-a="gnew"][data-k="stoneage"]').click());await W(500);
+  ok('Stone Age: Play and Score buttons on the home screen',await P.evaluate(()=>!!document.querySelector('[data-a="sastart"][data-k="0"]')&&!!document.querySelector('[data-a="sastart"][data-k="1"]')));
+  await P.evaluate(()=>document.querySelector('[data-a="sastart"][data-k="0"]').click());await W(500);
   ok('Stone Age: setup screen',await P.evaluate(()=>S.game==='stoneage'&&document.body.textContent.includes('Hungry tribe')));
   await P.evaluate(()=>{S.players.forEach((p,i)=>{p.on=i<3;p.name=['Justin','Brad','Kim'][i]||''});save();const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove()});await W(400);
   ok('Stone Age: score screen, during the game',await P.evaluate(()=>S.screen==='score'&&S.hr===0&&!!document.querySelector('[data-a="sahand"][aria-pressed="true"]')));
