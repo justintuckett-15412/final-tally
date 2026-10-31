@@ -606,6 +606,8 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .qpbagbtn{all:unset;cursor:pointer;display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px}.qpbagbtn small{color:var(--accent);font-weight:700}.qpbagrow{display:grid;grid-template-columns:34px 1fr 70px 44px;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--line)}.qpbagrow.bad b{color:#e0512f}.qpbagbar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}.qpbagbar i{display:block;height:100%}.qpbagboom{font-weight:700;font-size:16px}.qpbagboom.bad{color:#e0512f}
 .qpfly{position:fixed;z-index:60;pointer-events:none;font-size:26px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}.qpfly.coin{font-size:22px}.qpfly .qprb{width:22px;height:22px}
 .qprblit{background:#d6334a;color:#fff;border-color:#d6334a;box-shadow:0 0 0 2px rgba(214,51,74,.35),0 0 14px rgba(214,51,74,.55);font-weight:700}
+.hintfab{position:fixed;left:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 134px);z-index:46;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font-size:20px;line-height:1;box-shadow:0 4px 14px rgba(0,0,0,.22);display:grid;place-items:center;padding:0}.hintcard{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));z-index:52;width:min(92vw,420px);display:grid;gap:6px;padding:14px 16px;border-radius:16px;background:var(--surface);border:3px solid #f0b43a;box-shadow:0 10px 30px rgba(0,0,0,.3)}.hintcard b{font-size:18px}.hintcard span{color:var(--muted)}.hintglow{outline:4px solid #f0b43a!important;outline-offset:2px;animation:hintp 1s ease-in-out 3}@keyframes hintp{50%{outline-color:rgba(240,180,58,.25)}}
+.hgagain{width:100%;margin-top:8px;font-size:14px;white-space:normal;text-align:left}
 .qkchart{padding:10px 12px;margin:10px 0}.qkchart svg{width:100%;height:auto;display:block}.qkcg{stroke:var(--line);stroke-width:1}.qkct{font-size:10px;fill:var(--muted)}.qkcleg{display:flex;flex-wrap:wrap;gap:10px;font-size:13px}.qkcleg i{display:inline-block;width:12px;height:4px;border-radius:2px;background:var(--pc);margin-right:4px;vertical-align:middle}
 .qpwait{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:50;width:min(92vw,420px);display:grid;gap:4px;text-align:center;padding:14px 18px;border-radius:18px;background:var(--card,#fff);border:3px solid var(--accent);box-shadow:0 10px 30px rgba(0,0,0,.3);animation:qpwaitin .35s ease-out}.qpwait b{font-size:22px}.qpwait span{font-size:17px}.qpwait.ex{border-color:#e0512f}@keyframes qpwaitin{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
 .qpsplashw{position:fixed;pointer-events:none;z-index:55}.qpsplash{position:absolute;inset:0;pointer-events:none;z-index:3}.qpsplash i{position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--sc);box-shadow:0 0 0 1.5px rgba(0,0,0,.25);transform:scale(0);animation:qpdrop .7s ease-out .18s forwards}
@@ -1790,10 +1792,13 @@ function ttrHomeCard(TS,TM){return `<div class="game">
       :`<button class="btn primary wide" data-a="gnew" data-k="ttr">Score a game</button>`}
   </div>`}
 let HOMECAT=(()=>{try{return localStorage.getItem(KEY+'.homecat')||''}catch(e){return ''}})();
+/* a finished game on this phone: start the same game again with the same players and settings, skipping setup */
+function hgAgain(k,html){if(S.lk)return html;let st=null;try{st=gamePeek(k)}catch(e){}if(!st||!st.finished||!Array.isArray(st.players))return html;const P=st.players.filter(p=>p.on&&String(p.name||'').trim());if(P.length<1)return html;
+  const btn=`<button class="btn hgagain" data-a="gagain" data-k="${k}">🔁 Play again: ${esc(P.map(p=>p.name.trim()).join(', '))}</button>`;return html.replace(/<\/div>\s*$/,btn+'</div>')}
 function home(){
   const TS=gamePeek('ttr'),TM=TS&&TS.map&&MAPS[TS.map]?MAPS[TS.map]:MAPS.usa;
   return `<img class="hero home" src="art/hero-home.png" alt="" width="1200" height="355"><div class="brand"><img class="appicon" src="art/app-icon.jpg" alt="Final Tally" width="96" height="96"><div><h1>Final<br>Tally</h1><p>End-of-game scoring for the table.</p></div></div>
-  ${(()=>{const W=(k,n,html)=>`<div class="hg" data-gn="${esc(n.toLowerCase())}">${html}</div>`;
+  ${(()=>{const W=(k,n,html)=>`<div class="hg" data-gn="${esc(n.toLowerCase())}">${hgAgain(k,html)}</div>`;
     const TTR=ttrHomeCard(TS,TM);
     const CATS=[['board','Board games','ttr-icon.png',[W('ttr','ticket to ride trains',TTR),W('carc','carcassonne tiles meeples',cHomeCard()),W('quacks','quacks of quedlinburg potion herb witches alchemists',qkHomeCard()),W('wingspan','wingspan birds eggs bird cards',wsHomeCard()),W('wyrmspan','wyrmspan dragons caves eggs',wyHomeCard()),W('yahtzee','yahtzee yatzy dice triple',yzHomeCard()),W('catan','catan settlers seafarers knights',ctHomeCard())]],
       ['cards','Card games','hf-icon.png',[W('hf','hand and foot',hfHomeCard()),W('canasta','canasta',caHomeCard()),W('nerts','nerts nertz pounce',nxHomeCard()),W('hearts','hearts',htHomeCard()),W('spades','spades',sdHomeCard()),W('rage','rage',rgHomeCard()),W('ohell','oh hell trick bidding',ohHomeCard()),W('uno','uno flip no mercy attack dos all wild',unHomeCard()),W('munchkin','munchkin deluxe levels combat',mkHomeCard()),W('crowns','five crowns',fcHomeCard()),W('skipbo','skip-bo skip bo',sbHomeCard()),W('gnome','gnoming a round mini golf',gnHomeCard()),W('skyjo','skyjo',skHomeCard()),W('phase10','phase 10 ten phases',ptHomeCard()),W('rook','rook bird kentucky discard partners bid',rkHomeCard()),W('golf','golf card game',gfHomeCard()),W('tripoley','tripoley chips',tpHomeCard())]],
@@ -2287,6 +2292,8 @@ function settingsScreen(){
     <p class="hint">${(SET.hlook||'cards')==='cards'?'Each team or player\u2019s stack of cards grows as their score climbs, and the top card flips over with every round. Used for the card games.':'Simple colored bars that grow with each score.'}</p></div>
   <div class="sec"><div class="sec-h"><h3>Ticket to Ride reveal look</h3></div>${seg('look',[['art','Illustrated trains'],['trains','Simple trains'],['bars','Classic bars']])}
     <p class="hint">${SET.cb&&SET.look==='art'?'Color-blind mode is on, so this phone shows Simple trains in color-blind-safe colors. ':''}${SET.look==='bars'?'Simple colored bars that grow with each score.':SET.look==='art'?'Each player gets a cartoon train in their color, with an engine, a mix of cars and a caboose. It adds cars as their score climbs.':'Each player\'s train grows a car at a time along the track as their score climbs.'}</p></div>
+  <div class="sec"><div class="sec-h"><h3>💡 Hint button</h3></div><div class="seg">${[['on','Show'],['off','Hide']].map(([v,t])=>`<button data-a="set" data-k="hints" data-v="${v}" aria-pressed="${(SET.hints===false||SET.hints==='off'?'off':'on')===v}">${t}</button>`).join('')}</div>
+    <p class="hint">A 💡 button in games the phone plays. Tap it on your turn and the Hard computer player suggests a move. Great for kids and new players.</p></div>
   <div class="sec"><div class="sec-h"><h3>Playing cards on the phone</h3></div><div class="seg">${[['tap','Tap twice'],['drag','Drag to the table']].map(([v,t])=>`<button data-a="set" data-k="cardPlay" data-v="${v}" aria-pressed="${(SET.cardPlay||'tap')===v}">${t}</button>`).join('')}</div>
     <p class="hint">${SET.cardPlay==='drag'?'Drag a card from your hand onto the table to play it. Tapping a card only lifts it, so you can’t play one by accident.':'Tap a card to lift it, then tap it again to play it.'} Bids always take two taps: pick a number, then tap it again to lock it in.</p></div>
   <div class="sec"><div class="sec-h"><h3>Sounds &amp; vibration</h3></div><div class="panel"><div class="prow"><div class="rtext"><b>Sounds</b><div class="rlab">A fanfare with applause for the winner, a sad trombone for everyone else, and the pew when someone shoots the moon.</div></div>${sw('setsound','',SET.sound,'Sounds')}</div>
@@ -2323,6 +2330,14 @@ const DASHX={
   phase10:p=>{const r=ptCur();return [{k:'Working on',v:ptLab(ptOn(p,r)),s:`hand ${r+1}`},{k:'Phases made',v:ptMadeN(p),s:`of ${ptGoal()}`}]},
   rook:p=>{const R=rkRows(p),t=RKX().target;return [{k:'To go',v:Math.max(0,t-rkTot(p)),s:`to ${t}`},{k:'Bids made',v:R.filter(x=>x.bid&&x.made).length,s:`of ${R.filter(x=>x.bid).length}`},{k:'Times set',v:R.filter(x=>!x.made&&x.bid).length}]},
   mextrain:p=>{const R=mtRows(p);return [{k:'Went out',v:R.filter(x=>x.out).length,i:'🚂'},{k:'Worst round',v:R.length?Math.max(...R.map(x=>x.v)):'·'},{k:'Rounds left',v:Math.max(0,mtN()-mtLast()-1)}]},
+  rage:p=>{const R=rgRows(p);return [{k:'Bids made',v:rgHits(p),s:`of ${R.length}`,i:'✅'},{k:'Best round',v:R.length?Math.max(...R.map(x=>x.v)):'·'},{k:'Rounds left',v:Math.max(0,rgN()-rgLast()-1)}]},
+  crowns:p=>{const R=fcRows(p);return [{k:'Went out',v:R.filter(x=>x.out).length,i:'👑'},{k:'Zero rounds',v:R.filter(x=>x.v===0).length},{k:'Rounds left',v:Math.max(0,fcN()-fcLast()-1)}]},
+  skipbo:p=>{const R=sbRows(p);return [{k:'Hands won',v:R.filter(x=>x.won).length,i:'🏆'},{k:'Stock left',v:R.length?R[R.length-1].left:'·',s:'last hand'}]},
+  gnome:p=>{const R=gnRows(p);return [{k:'Went out',v:R.filter(x=>x.out).length,i:'⛳'},{k:'Best round',v:R.length?Math.min(...R.map(x=>x.v)):'·',s:'lowest'},{k:'Rounds left',v:Math.max(0,gnN()-gnLast()-1)}]},
+  skyjo:p=>{const R=skRows(p);return [{k:'Went out',v:R.filter(x=>x.out).length},{k:'Doubled',v:R.filter(x=>x.dbl).length,i:'⚠️'},{k:'Best round',v:R.length?Math.min(...R.map(x=>x.v)):'·',s:'lowest'}]},
+  golf:p=>{const R=gfRows(p);return [{k:'Went out',v:R.filter(x=>x.out).length,i:'⛳'},{k:'Best hole',v:R.length?Math.min(...R.map(x=>x.v)):'·',s:'lowest'},{k:'Holes left',v:Math.max(0,gfN()-gfLast()-1)}]},
+  chicken:p=>{const R=cfRows(p);return [{k:'Went out',v:R.filter(x=>x.out).length,i:'🐔'},{k:'Worst round',v:R.length?Math.max(...R.map(x=>x.v)):'·'},{k:'Rounds left',v:Math.max(0,cfN()-cfLast()-1)}]},
+  tripoley:p=>{const R=tpRows(p);return [{k:'Chips',v:R.length?R[R.length-1].tot:TPX().start,i:'🪙'},{k:'Best hand',v:R.length?Math.max(...R.map(x=>x.v)):'·'}]},
   catan:p=>{const C=ctP(p),g=ctGoalP(p),t=[{k:'To win',v:Math.max(0,g-ctTot(p)),s:`of ${g}`},{k:'Cities',v:C.c,s:`${C.s} settlement${C.s===1?'':'s'}`}];
     if(ctCK())t.push({k:'Knights',v:ctStr(p),s:'active strength',i:'⚔️'});else if(!ctT('barb'))t.push({k:'Knights',v:C.k,i:'⚔️'});
     t.push({k:'Sevens rolled',v:ctRolls().filter(x=>x.pid===p.id&&x.n===7).length});return t}};
@@ -8773,6 +8788,71 @@ function qpPopFx(){if(S.game!=='quacks'||!qpOn()||S.screen!=='score')return;cons
   if(!document.querySelector('.qppop')){const k=qpK(QPPOP.c),v=qpV(QPPOP.c),C=QPCOL[k];document.body.insertAdjacentHTML('beforeend',`<div class="qppop${QPPOP.ex?' boom':''}" style="--o:${-el}ms;--ms:${ms}ms" aria-live="polite"><span class="qpbig" style="--qc:${C[1]};--qt:${C[2]};--qi:url(art/trail/qk-${QPIMG[k]}.png)"><i>${v}</i></span><b>${QPPOP.ex?'💥 Boom!':`${C[0]} ${v}`}</b></div>`)}
   clearTimeout(QPPOPT);QPPOPT=setTimeout(()=>{const P0=QPPOP;QPPOP=null;QPLAND=P0?{key:P0.key,n:P0.n,at:Date.now(),c:P0.c,ex:P0.ex}:null;document.querySelectorAll('.qppop').forEach(x=>x.remove());render()},ms-el+20)}
 /* the droplet and rat tails slide to their new space; coins and rubies fly into your wallet at scoring */
+
+/* ---------------- 💡 hints: "what should I do?" — the Hard computer player thinks it over on a copy of the game ---------------- */
+let HINT=null,HINTRUN=false;
+const HINTGAMES={hearts:['htg',()=>htViewer()],spades:['sdg',()=>sdViewer()],ohell:['ohg',()=>ohViewer()],rook:['rkg',()=>rkViewer()],rage:['rgg',()=>rgViewer()],uno:['ung',()=>unViewer()],golf:['gpg',()=>gpViewer()],skyjo:['gpg',()=>gpViewer()],gnome:['gpg',()=>gpViewer()],skipbo:['sbg',()=>sbViewer()],crowns:['fcg',()=>fcViewer()],phase10:['pzg',()=>pzViewer()],hf:['hpg',()=>hpViewer()],canasta:['hpg',()=>hpViewer()],mextrain:['mtg',()=>mtViewer()],chicken:['cfg',()=>cfViewer()],quacks:['qpg',()=>qpViewer()]};
+const hintOn=()=>SET.hints!==false&&SET.hints!=='off'&&!!HINTGAMES[S.game]&&S.screen==='score'&&S.started&&!S.finished&&!S.demo&&(()=>{try{return playingOn()&&!!S[HINTGAMES[S.game][0]]}catch(e){return false}})();
+function hintFab(){if(!hintOn()){HINT=null;return ''}if(HINT&&HINT.k!==hintKey())HINT=null;return `<button class="hintfab" data-a="hint" aria-label="Hint: what should I do?">💡</button>${HINT?`<div class="hintcard" role="status"><b>💡 ${esc(HINT.t)}</b>${HINT.why?`<span>${esc(HINT.why)}</span>`:''}<button class="btn sm" data-a="hintx">Got it</button></div>`:''}`}
+const hintRk=c=>c==='X'?'the Rook':`${{R:'red',G:'green',Y:'yellow',B:'black'}[c[0]]||''} ${c.slice(1)}`;
+const hintRg=x=>{const c=x.c;if(!c)return 'a card';const n={W:'Wild',C:'Change Trump',U:'Out Trump',A:'Bonus Rage',M:'Mad Rage'}[c[0]];if(n)return n+(c[0]==='W'&&x.col?` as ${RGC[x.col][0].toLowerCase()}${x.num!=null&&x.num!==16?' '+x.num:''}`:'');return `${RGC[c[0]][0]} ${c.slice(1)}`};
+const hintSb=c=>!c?'card':c.startsWith('W')?'Skip-Bo card':c.split('#')[0];
+function hintDescribe(G,g,pid,calls){if(!calls.length)return null;const [n,a]=calls[0],nmo=o=>o===pid?'your':nmid(o)+'’s';
+  const all=n0=>calls.filter(c=>c[0]===n0);
+  switch(n){
+    case 'pzDraw':return {t:a[2]==='disc'?`Take the ${pzName(pzTop(g))} from the discard pile`:'Draw from the deck',c:a[2]==='disc'?pzTop(g):null};
+    case 'pzLay':return {t:'You can lay down your phase now!',why:'Tap Lay it down.'};
+    case 'pzHit':return {t:`Add your ${pzName(a[2])} to ${nmo(a[3])} group`,c:a[2]};
+    case 'pzDiscard':return {t:`Discard the ${pzName(a[2])}`+(a[3]?` and skip ${nmid(a[3])}`:''),c:a[2],why:pzS(a[2])?'A Skip slows down whoever is closest to going out.':'It helps your phase the least.'};
+    case 'pzPass':case 'pzTakeSkip':return {t:n==='pzPass'?`Pass the Skip to ${nmid(a[2])}`:'Take the Skip yourself'};
+    case 'fcDraw':return {t:a[2]==='disc'?`Take the ${fcName(fcTopD(g))} from the discard pile`:'Draw from the deck'};
+    case 'fcDiscard':return {t:`Discard the ${fcName(a[2])}`+(a[3]?' and go out!':''),c:a[2],why:'It fits your groups the least.'};
+    case 'hpDraw':return {t:'Draw from the deck'};case 'hpTake':return {t:'Take the discard pile!',why:'You can meld the top card right away.'};
+    case 'hpPlay':{const cs=(a[2]||[]).flat().concat((a[3]||[]).flatMap(x=>x.cs||[]));return {t:`Lay down: ${cs.map(hpName).join(', ')}`,c:cs[0]}}
+    case 'hpDiscard':return {t:`Discard the ${hpName(a[2])}`,c:a[2]};
+    case 'mtPlay':return {t:`Play the ${mtNm(a[2])} on ${a[3]==='mx'?'the Mexican train':a[3]===pid?'your train':nmid(a[3])+'’s train'}`,c:a[2]};
+    case 'mtDraw':case 'cfDraw':return {t:'Draw from the boneyard',why:'Nothing in your hand fits.'};case 'mtPass':case 'cfPass':return {t:'Pass'};case 'mtBuilt':return {t:'You’re done building your train'};
+    case 'cfPlay':return {t:`Play the ${mtNm(a[2])}`,c:a[2]};
+    case 'sbPlay':{const src=a[2]||{},c=sbCard(g,pid,src);return {t:`Play your ${hintSb(c)} from your ${src.f==='hand'?'hand':src.f==='stock'?'stock pile':'discard pile'} on building pile ${a[3]+1}`,c}}
+    case 'sbDiscard':return {t:`End your turn: put the ${hintSb(a[2])} on discard pile ${a[3]+1}`,c:a[2]};
+    case 'gpTake':return {t:a[2]==='disc'?'Take the top card of the discard pile':'Draw from the deck'};
+    case 'gpPlace':return {t:`Swap it into spot ${a[2]+1} of your grid`};case 'gpToss':return {t:'Toss it, then flip a face-down card'};case 'gpFlipOne':case 'gpFlipStart':return {t:`Flip spot ${(a[2]||0)+1}`};
+    case 'gpnPile':return {t:'Put it on a discard pile'};case 'gpnBounce':return {t:'Bounce the matching card to another spot'};case 'gpnHz':return {t:'Skip the Hazard'};
+    case 'unPlayCard':return {t:`Play the ${unName(g,a[1])}`+(a[2]&&a[2].col?` and pick ${UNCOL[a[2].col][0].toLowerCase()}`:''),c:a[1]};
+    case 'unDrawAct':return {t:'Draw a card',why:'Nothing in your hand can be played.'};case 'unKeepAct':return {t:'Keep the card you drew'};case 'unChallenge':return {t:'Challenge it!'};case 'unCallUno':return {t:'Call UNO!'};
+    case 'dosMatch':case 'dosLay':return {t:'Match a card to the center row'};case 'dosDraw':return {t:'Draw a card'};case 'dosEnd':return {t:'End your turn'};
+    case 'qpDraw':{const L=g.pl[pid];return {t:'Draw another chip',why:`${Math.round(qpRisk(L)*100)}% chance the next chip explodes your pot.`}}
+    case 'qpStop':{const L=g.pl[pid];return {t:'Stop now',why:`${Math.round(qpRisk(L)*100)}% chance the next chip would explode your pot.`}}
+    case 'qpFlask':return {t:'Use your flask on that white chip',why:'You’re close to exploding.'};
+    case 'qpAnswer':return {t:a[2]==='yes'?'Yes':a[2]==='no'||!a[2]?'No':a[2]==='over'?'Start over':a[2]==='keep'?'Keep going':`Pick the ${QPCOL[qpK(a[2])]?QPCOL[qpK(a[2])][0].toLowerCase()+' '+qpV(a[2]):'chip'}`,c:a[2]};
+    case 'qpHA':return {t:'Place your set-aside chip now'};
+    case 'qpChoose':{const buys=calls.filter(c=>c[0]==='qpChoose'&&c[1][2]&&c[1][2].t==='buy').map(c=>c[1][2].v),rb=calls.filter(c=>c[0]==='qpChoose'&&c[1][2]&&c[1][2].t==='ruby').map(c=>c[1][2].v);const ch=calls.find(c=>c[0]==='qpChoose'&&c[1][2]&&c[1][2].t==='ch');
+      const parts=[];if(ch)parts.push(ch[1][2].v==='coins'?'take the coins':'take the points');if(buys.length)parts.push('buy '+buys.map(c=>`a ${QPCOL[c[0]][0].toLowerCase()} ${c.slice(1)}`).join(' and '));if(rb.length)parts.push(rb.map(v=>v==='flask'?'refill your flask':'move your droplet').join(', ')+' with rubies');return {t:parts.length?parts.join('; ').replace(/^./,x=>x.toUpperCase()):'Tap Done',c:buys[0]}}
+    case 'qpWitch':return {t:'Use your witch now'};
+  }return null}
+function hintCompute(){const G=S.game,spec=HINTGAMES[G];if(!spec)return null;const V=spec[1](),g0=S[spec[0]];if(!V||!g0)return {t:'Hints show up when it’s your turn.'};
+  const pid=V.id,real=S,saved={},calls=[];const stub=['playCard','vibe','toast','render','save','sfx','playSfx','lkPush','pst'];
+  const names=['pzDraw','pzLay','pzHit','pzDiscard','pzPass','pzTakeSkip','fcDraw','fcDiscard','hpDraw','hpTake','hpPlay','hpDiscard','mtPlay','mtDraw','mtPass','mtBuilt','cfPlay','cfDraw','cfPass','sbPlay','sbDiscard','gpTake','gpPlace','gpToss','gpFlipOne','gpFlipStart','gpnPile','gpnBounce','gpnHz','unPlayCard','unDrawAct','unKeepAct','unChallenge','unCallUno','unSwap','unAim','dosMatch','dosLay','dosDraw','dosEnd','qpDraw','qpStop','qpFlask','qpAnswer','qpHA','qpChoose','qpWitch','qpSeen'];
+  let out=null;HINTRUN=true;const was=LKOPTR;LKOPTR=true;
+  try{S=JSON.parse(JSON.stringify(real));const g=S[spec[0]],q={...act().find(p=>p.id===pid),bot:'hard'};
+    stub.forEach(n=>{if(typeof window[n]==='function'){saved[n]=window[n];window[n]=()=>{}}});
+    names.forEach(n=>{if(typeof window[n]==='function'){saved[n]=window[n];const f=window[n];window[n]=function(...a){calls.push([n,a]);return f.apply(this,a)}}});
+    const tc=(f,ph)=>{if(g.phase==='bid'&&(G==='spades'||G==='ohell'||G==='rage'||G==='rook')){const fb={spades:sdBotBid,ohell:ohBotBid,rage:rgBotBid,rook:rkBotBid}[G];return {t:`Bid ${fb(g,pid,'hard')}`,why:'Count the cards you’re sure to win.'}}
+      if(g.phase==='pass'&&G==='hearts')return {t:`Pass the ${htBotPass(g.h[pid],'hard').map(htName).join(', ')}`};
+      if(G==='rook'&&g.phase==='nest'){return {t:'Lay aside your weakest cards and name trump in your longest suit'}}
+      if(g.turn!==pid)return {t:'It isn’t your turn yet.'};const c=f(g,pid,'hard');return G==='rage'?{t:`Play ${hintRg(c)}`,c:c.c}:{t:`Play the ${G==='rook'?hintRk(c):htName(c)}`,c}};
+    if(G==='hearts')out=tc(htBotCard);else if(G==='spades')out=tc(sdBotCard);else if(G==='ohell')out=tc(ohBotCard);else if(G==='rook')out=tc(rkBotCard);else if(G==='rage')out=tc(rgBotCard);
+    else{const step={uno:unBotMove,golf:gpBotStep,skyjo:gpBotStep,gnome:gpBotStep,skipbo:sbBotStep,crowns:fcBotStep,phase10:pzBotStep,hf:hpBotStep,canasta:hpBotStep,mextrain:mtBotStep,chicken:cfBotStep}[G];
+      if(G==='quacks'){const L=g.pl[pid];if(!L)out={t:'Hints show up when it’s your turn.'};else if(g.phase==='brew'&&(!L.stop||L.ask))qpBotBrew(g,q);else if(g.phase==='eval'&&!L.done)qpBotEval(g,q);else out={t:'Nothing to do right now: waiting for the others.'}}
+      else if(['golf','skyjo','gnome'].includes(G)&&g.phase==='flip'&&g.need&&g.need[pid]>0)out={t:`Flip any ${g.need[pid]} of your cards`,why:'They’re all face down, so any pick is as good as another.'};
+      else if(step){if(G!=='uno'&&g.turn!==pid&&!(g.ask&&g.ask.p===pid)&&!(g.phase==='flip'&&g.need&&g.need[pid]>0))out={t:'It isn’t your turn yet.'};else step(g,q)}
+      if(!out)out=hintDescribe(G,real[spec[0]],pid,calls.filter(c=>c[0]!=='qpSeen'))||{t:'No hint for this spot. Go with your gut!'}}}
+  catch(e){console.warn('hint',e);out={t:'No hint for this spot. Go with your gut!'}}
+  finally{for(const n in saved)window[n]=saved[n];S=real;LKOPTR=was;HINTRUN=false}
+  return out}
+const hintKey=()=>{const sp=HINTGAMES[S.game],g=sp&&S[sp[0]];return g?[S.game,g.r,g.n,g.phase,g.turn,g.t&&g.t.length,g.drew].join(':'):''};
+function hintShow(){HINT=hintCompute();if(HINT)HINT.k=hintKey();if(HINT&&HINT.c){const k=String(HINT.c);setTimeout(()=>{document.querySelectorAll('.hintglow').forEach(e=>e.classList.remove('hintglow'));const el=[...document.querySelectorAll('[data-c]')].find(e=>e.dataset.c===k||e.dataset.c===k.split('#')[0]);if(el){el.classList.add('hintglow');el.scrollIntoView({block:'nearest',behavior:'smooth'})}},60)}}
+
 const QPMV={};function qpFly(from,to,html,cls,delay){if(!from||!to)return;const A=from.getBoundingClientRect(),B=to.getBoundingClientRect();if(!A.width||!B.width)return;const z=parseFloat(document.documentElement.style.zoom)||1;
   const el=document.createElement('div');el.className='qpfly '+(cls||'');el.innerHTML=html;el.setAttribute('aria-hidden','true');document.body.appendChild(el);const k=el.getBoundingClientRect().width/(el.offsetWidth||1)||1;
   const x0=(A.left+A.width/2)/k,y0=(A.top+A.height/2)/k,x1=(B.left+B.width/2)/k,y1=(B.top+B.height/2)/k;el.style.left=x0+'px';el.style.top=y0+'px';
@@ -12667,7 +12747,7 @@ function render0(){
   const wasFinal=REV&&REV.phase==='final'&&S.screen==='reveal'&&document.querySelector('[data-final]');
   const winY=SLOCK?null:window.scrollY,winScr=S.screen;
   const KEEPSC=['.csheet .cbody','.rsheet .rs-body','.cpick','.lansheet'],keepSc=KEEPSC.map(q=>{const el=document.querySelector(q);return el?el.scrollTop:null});
-  cbApply();try{rxBots()}catch(e){}document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+rxLocal()+dashSheet()+cbSheet()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','phase10','rook','yahtzee','mextrain','chicken','catan','golf','tripoley','quacks'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||LPTIP.startsWith('ph:')||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:')||LPTIP.startsWith('wt:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
+  cbApply();try{rxBots()}catch(e){}document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+rxLocal()+hintFab()+dashSheet()+cbSheet()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','phase10','rook','yahtzee','mextrain','chicken','catan','golf','tripoley','quacks'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||LPTIP.startsWith('ph:')||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:')||LPTIP.startsWith('wt:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
   if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar){bar.insertAdjacentHTML('afterbegin',HOMEBTN);if(CBG.includes(S.game)&&['score','live'].includes(S.screen)&&!S.editing){const rb=bar.querySelector('.rulesbtn');if(rb&&!bar.querySelector('.cbbtn'))rb.insertAdjacentHTML('afterend',`<button class="btn sm cbbtn" data-a="cbopen" aria-label="Card back" title="Card back">${cbThumb(cbFor(S.game))}</button>`)}if(dashOn()&&!S.editing)bar.insertAdjacentHTML('beforeend','<button class="btn sm dashbtn" data-a="dashopen" aria-label="Everyone at a glance">📊</button>');if((window.FTLINK||window.FTLAN)&&!S.lk&&!S.demo&&!S.editing&&S.started&&!S.finished&&['score','live'].includes(S.screen))bar.insertAdjacentHTML('beforeend','<button class="btn sm lkbtn" data-a="lkchoose" aria-label="Link phones">📱<span class="lkw"> Link</span></button>')}}
   if(S.screen==='results'&&S.lk&&!S.demo&&S.finished){const app=document.getElementById('app'),ac=app.querySelector('.actions');if(ac){ac.querySelectorAll('[data-a="rematch"]').forEach(x=>x.remove());ac.insertAdjacentHTML('beforebegin',lkVoteHtml());if(!ac.querySelector('button'))ac.remove()}else app.insertAdjacentHTML('beforeend',lkVoteHtml())}
   bidMark();
@@ -12975,6 +13055,7 @@ document.addEventListener('click',e=>{
     case 'setcb':SET.cb=!SET.cb;saveSet();break;
     case 'hcat':{HOMECAT=HOMECAT===k?'':k;try{localStorage.setItem(KEY+'.homecat',HOMECAT)}catch(e){}break}
     case 'gabandon':{if(ABANDON!==k){ABANDON=k;clearTimeout(ABT);ABT=setTimeout(()=>{ABANDON=null;render()},4000);break}ABANDON=null;clearTimeout(ABT);const was=S.game;switchGame(k);delete S.tmatch;resetScores();if(k==='carc'){S.clog=[];S.cend={}}S.started=false;S.finished=false;S.gameId=null;S.gameDate=null;S.endBy=null;S.screen='home';save();if(was&&was!==k)switchGame(was);S.screen='home';toast('Game abandoned. Nothing was saved to your history.');break}
+    case 'gagain':{switchGame(k);S.screen='results';setTimeout(()=>{const x=document.createElement('button');x.dataset.a='rematch';x.hidden=true;document.body.appendChild(x);x.click();x.remove()},30);break}
     case 'gnew':switchGame(k);clearPlayers();delete S.tmatch;if(k==='carc'){S.clog=[];S.cend={};S.started=false;S.finished=false;S.gameId=null;S.gameDate=null;S.endBy=null;S.screen='map'}else{resetScores();S.started=false;S.screen='map'}window.scrollTo(0,0);break;
     case 'gresume':switchGame(k);S.screen=S.finished?'results':S.rules.live?'live':'score';if(S.game==='carc'&&!S.finished)S.screen='live';window.scrollTo(0,0);break;
     case 'cdemo':cDemo(b.dataset.k);window.scrollTo(0,0);break;
@@ -13324,6 +13405,8 @@ document.addEventListener('click',e=>{
     case 'rgset':RGX()[k]=b.dataset.v;rgKeep();break;
     case 'rgamigo':{const X=RGX(),am=['outOne','changeFlip','wild2nd','amigoDeck','wildNum'],on=am.every(q=>X[q]);am.forEach(q=>X[q]=!on);rgKeep();break}
     case 'rgstart':{switchGame('rage');resetScores();clearPlayers();S.started=false;S.screen='map';RGX().play=k==='1';rgKeep();window.scrollTo(0,0);break}
+    case 'hint':{hintShow();break}
+    case 'hintx':{HINT=null;document.querySelectorAll('.hintglow').forEach(e=>e.classList.remove('hintglow'));break}
     case 'rxopen':RXOPEN=!RXOPEN;break;
     case 'vcjoin':vcJoin();return;
     case 'vcmute':{try{FTLAN.voice.mute(!FTLAN.voice.muted);vibe(8)}catch(e){}break}
@@ -13665,6 +13748,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='784f0c';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='ca294f';</script>
 </body>
 </html>
