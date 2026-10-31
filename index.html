@@ -7314,7 +7314,7 @@ function yzPassSheet(q){return `<div class="sheet-bg yzpassbg"><div class="sheet
   <p class="rlab">${yzFilled(q)} of ${yzNeed()} boxes filled · ${yzTot(q)} points</p><button class="btn primary wide" data-a="yzpassok">I’m ${esc(nm(q))}, start my turn</button></div></div>`}
 let YZFIX=null,YZSHAKE=false;
 const yzRoller=()=>!!YZX().roller;
-const yzRS=()=>{if(!S.yzr)S.yzr={n:0,h:[false,false,false,false,false]};return S.yzr};
+const yzRS=()=>{if(!S.yzr)S.yzr={n:0,h:[false,false,false,false,false]};/* a copy from another phone can arrive without the held list */if(!Array.isArray(S.yzr.h))S.yzr.h=[0,1,2,3,4].map(i=>!!(S.yzr.h&&S.yzr.h[i]));if(typeof S.yzr.n!=='number')S.yzr.n=+S.yzr.n||0;return S.yzr};
 function yzRollDice(){const R=yzRS();if(R.n>=3)return;const d=(S.yzd||[]).length===5?S.yzd.slice():[0,0,0,0,0],u=new Uint32Array(5);crypto.getRandomValues(u);
   for(let i=0;i<5;i++)if(!R.h[i]||!d[i])d[i]=1+u[i]%6;S.yzd=d;R.n++;if(R.n>=3)R.h=[false,false,false,false,false];YZSHAKE=true;playDie()}
 /* big celebration when a Yahtzee appears in the dice */
@@ -9981,7 +9981,7 @@ const LKQF={
   rgBid:(pid,v)=>rgBid(pid,v)!==false,
   rgPlay:(pid,c,col,num)=>rgPlayCard(pid,c,col,num)!==false,
   sbPlay:(pid,src,bi)=>{const g=sbG();return !!g&&sbPlay(g,pid,src,bi)},
-  sbDiscard:(pid,c,i)=>{const g=sbG();return !!g&&sbDiscard(g,pid,c,i)},
+  sbDiscard:(pid,c,i)=>{const g=sbG();return !!g&&sbDiscard(g,pid,c,i)},sbPass:pid=>{const g=sbG();return !!g&&sbPass(g,pid)},
   mtPlay:(pid,t,k)=>{const g=mtG();return !!g&&mtPlay(g,pid,t,k)},
   mtDraw:pid=>{const g=mtG();return !!g&&mtDraw(g,pid)},
   mtPass:pid=>{const g=mtG();return !!g&&mtPass(g,pid)},
@@ -10366,6 +10366,8 @@ function sbPlay(g,pid,src,bi){if(!g||g.phase!=='play'||g.turn!==pid)return false
   return true}
 function sbDiscard(g,pid,c,i){if(!g||g.phase!=='play'||g.turn!==pid||!(g.h[pid]||[]).includes(c)||!(i>=0&&i<4))return false;g.h[pid].splice(g.h[pid].indexOf(c),1);g.dp[pid][i].push(c);g.n++;
   g.msg=`${nmid(pid)} discarded ${sbWild(c)?'a Skip-Bo card':'a '+sbVal(c)} and ended the turn.`;const nx=sbNext(g,pid);g.turn=nx;sbFill(g,nx);g.last=null;return true}
+/* nothing in your hand and nothing left to draw: you may end your turn without discarding */
+function sbPass(g,pid){if(!g||g.phase!=='play'||g.turn!==pid||(g.h[pid]||[]).length)return false;g.n++;g.msg=`${nmid(pid)} had no cards to draw and ended the turn.`;gLog(g,`${nmid(pid)} had no cards to draw and passed`,'⏭️');const nx=sbNext(g,pid);g.turn=nx;sbFill(g,nx);g.last=null;return true}
 function sbEnd(g,w){act().forEach(p=>{const R=sbR(p,g.r);R.won=p.id===w;R.left=p.id===w?0:g.st[p.id].length});g.phase='done';g.win=w;g.turn=null;S.hr=Math.max(S.hr||0,g.r);g.msg+=` ${nmid(w)} played the last stock card and wins the hand!`;{const left=act().filter(p=>p.id!==w).map(p=>`${nm(p)} ${g.st[p.id].length}`);gLog(g,`${nmid(w)} emptied their stock and won`,'🏆',1);gAnn(g,`${nmid(w)} wins the hand!`,'Stock cards left: '+left.join(' · '),'🏆')}}
 
 /* ---------------- computer players ---------------- */
@@ -10415,6 +10417,7 @@ function sbPlayUI(){const X=SBX(),P=act(),g=sbG(),r=sbCur(),sc=P.map(sbTot),hi=M
   if(!g||cgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(sbRes()?'Shuffling…':'Waiting for the host phone to deal…')}</div>`;
   const V=sbViewer(),turnP=P.find(p=>p.id===g.turn),mine=V&&g.turn===V.id,sel=mine?SBSEL:null,selC=sel?sbCard(g,V.id,sel):null;
   let status=g.phase==='done'?`<b>Hand ${r+1} is over.</b>`:mine?(selC?`<b>Tap a building pile</b> to play the ${sbWild(selC)?'Skip-Bo card':sbVal(selC)}${sel.f==='hand'?', or one of your discard piles to discard it and end your turn':''}.`:`<b>Your turn${S.lk||sbHumans().length<2?'':', '+esc(nm(V))}.</b> Tap a card from your hand, stock pile or discard piles.`):turnP?`${botHead(turnP)}<b>${esc(nm(turnP))}</b> is playing…`:'';
+  if(mine&&g.phase==='play'&&!(g.h[V.id]||[]).length)status+=` Your hand is empty and the draw pile is used up: play what you can, then <button class="btn sm primary" data-a="sbppass">End turn</button>`;
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
   out+=`<div class="sbothers">${P.filter(p=>!V||p.id!==V.id).map(p=>`<div class="sbo${g.turn===p.id?' now':''}" style="${pc(p.color)}"><div class="gpon"><b>${botHead(p)}${esc(nm(p))}</b><span class="num">${g.st[p.id].length} left · ${g.h[p.id].length} in hand</span></div>
     <div class="sbrow mini"><span class="sbstock">${sbCardEl(sbTop(g.st[p.id]),{lab:'stock top'})}</span>${g.dp[p.id].map(d=>sbCardEl(sbTop(d),{cnt:d.length>1?d.length:'',lab:'discard pile'})).join('')}</div></div>`).join('')}</div>`;
@@ -10437,6 +10440,7 @@ function sbAct(a,b,k){const g=sbG();if(!g)return;
   if(a==='sbpdeal'){if(!sbRes()||g.phase!=='done')return;S.hr=sbCur()+1;sbDeal(S.hr);window.scrollTo(0,0);return}
   const V=sbViewer();if(!V)return;if(g.turn!==V.id){toast(`It’s ${nmid(g.turn)}’s turn.`);return}
   if(a==='sbpsrc'){const f=b.dataset.f,src=f==='hand'?{f,c:b.dataset.c}:{f};SBSEL=SBSEL&&SBSEL.f===src.f&&SBSEL.c===src.c?null:src;return}
+  if(a==='sbppass'){if(lkq('sbPass',V.id)){SBSEL=null;vibe(15)}return}
   if(a==='sbpdisc'){const i=+b.dataset.i;if(SBSEL&&SBSEL.f==='hand'){const c=SBSEL.c;SBSEL=null;if(lkq('sbDiscard',V.id,c,i)){vibe(15);if(!S.lk)SBVIEW=null}return}
     if(!(g.dp[V.id][i]||[]).length){toast('Pick a card from your hand to discard here.');return}SBSEL=SBSEL&&SBSEL.f==='disc'&&SBSEL.i===i?null:{f:'disc',i};return}
   if(a==='sbpbuild'){if(!SBSEL){toast('Pick a card first.');return}const i=+b.dataset.i,c=sbCard(g,V.id,SBSEL);if(!c||!sbFits(c,g.bp[i])){toast(`That pile needs a ${g.bp[i].length+1}.`);return}const src=SBSEL;SBSEL=null;if(lkq('sbPlay',V.id,src,i))vibe(15);return}}
@@ -13098,7 +13102,7 @@ document.addEventListener('click',e=>{
   if(/^nrp[a-z]+$/.test(a)&&S.game==='nerts'&&nrOn()&&S.started){nrAct(a,b,k);save();render();return}
   if(/^hpp[a-z]+$/.test(a)&&HFE()&&hpOn()&&S.started){hpAct(a,b,k);save();render();return}
   if(/^fcp(deck|take|card|disc|out|group|ungroup|arr|show|deal|lastok|sort|discpile)$/.test(a)&&S.game==='crowns'&&fcOn()&&S.started){fcAct(a,b,k);save();render();return}
-  if(/^sbp(src|disc|build|show|deal)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
+  if(/^sbp(src|disc|build|show|deal|pass)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
   if(/^mtp(tile|train|draw|pass|done|show|deal)$/.test(a)&&S.game==='mextrain'&&mtOn()&&S.started){mtAct(a,b,k);save();render();return}
   if((a==='dmflip'||a==='dmsort')&&(S.game==='mextrain'&&mtOn()||S.game==='chicken'&&cfOn())&&S.started){const CF=S.game==='chicken',G=CF?cfG():mtG(),V=CF?cfViewer():mtViewer();if(G&&V){if(a==='dmflip')dmFlip(G,V.id,b.dataset.t);else dmSortNow(G,V.id,b.dataset.v);vibe(6)}render();return}
   if(a==='bigv'){SET.bigv={...(SET.bigv||{})};SET.bigv[S.game]=!SET.bigv[S.game];saveSet();window.scrollTo(0,0);render();return}
@@ -13858,6 +13862,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='12b41a';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='6f55d4';</script>
 </body>
 </html>
