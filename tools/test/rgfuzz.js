@@ -33,9 +33,9 @@ const check=prev=>{const g=rgG();if(!g)return {none:1};const out=[],X=RGX(),P=ac
   P.forEach(p=>{const t=rgTot(p);if(!Number.isFinite(t))out.push(`${nm(p)} total ${t}`)});
   return {out:out.concat(window.__bad||[]),r:g.r,ph:g.phase,n:g.n+':'+g.t.length+':'+Object.keys(g.bids).length,fin:!!S.finished}};
 const tapper=()=>{const vis=[...document.querySelectorAll('#app [data-a], .sheet [data-a], .glann [data-a]')].filter(b=>!b.disabled&&b.getAttribute('aria-disabled')!=='true'&&b.offsetParent);
-  const A=b=>b.dataset.a;const g0=rgG(),endOK=g0&&g0.phase==='done'&&g0.r>=rgN()-1;const want=['rgcard','rgbid','rglock','rgcolor','rgnum',...(window.__norage?[]:['rgrage']),'rgshow','rgnext','rgdeal','rgfore','revstart','lpclose','htc','hoplay','lkvote'].concat(endOK?['finish']:[]);
+  const A=b=>b.dataset.a;const g0=rgG(),endOK=g0&&g0.phase==='done'&&g0.r>=rgN()-1;const want=['rgcard','rgbid','rglock','rgcolor','rgnum',...(window.__norage?[]:['rgrage']),'rgshow','rgnext','rgdeal','rgfore','rgfcard','gllastok','revstart','lpclose','htc','hoplay','lkvote'].concat(endOK?['finish']:[]);
   const c=vis.filter(b=>want.includes(A(b)));if(!c.length)return '';
-  const pri=c.filter(b=>['rgshow','rgnext','rgdeal','finish','revstart','lpclose','rgcolor','rglock','rgfore'].includes(A(b)));
+  const pri=c.filter(b=>['rgshow','rgnext','rgdeal','finish','revstart','lpclose','rgcolor','rglock','rgfore','rgfcard','gllastok'].includes(A(b)));
   const pick=pri.length&&Math.random()<.7?pri[Math.floor(Math.random()*pri.length)]:c[Math.floor(Math.random()*c.length)];pick.click();return A(pick)};
 const setup=(gi)=>{const R=()=>Math.random();window.__htfast=1;SET.toursOff=true;switchGame('rage');resetScores();const X=RGX();X.play=true;
   RGHR.forEach(k=>X[k]=R()<.65);const np=2+Math.floor(R()*7);X.order=['down','up','downup'][Math.floor(R()*3)];X.start=Math.max(1,Math.min(10,Math.floor((X.amigoDeck?112:110)/np)-Math.floor(R()*3)));if(R()<.5)X.start=Math.min(X.start,3+Math.floor(R()*3));

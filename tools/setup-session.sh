@@ -4,7 +4,7 @@
 set -e
 R=/home/claude/final-tally
 cp "$R/src/final-tally.html" /home/claude/final-tally.html
-mkdir -p /home/claude/site-tools && cp "$R"/tools/* /home/claude/site-tools/
+mkdir -p /home/claude/site-tools && find "$R/tools" -maxdepth 1 -type f -exec cp {} /home/claude/site-tools/ \;
 A=/tmp/claude-0/build/rtsrv; mkdir -p "$A"
 for d in art badges lose mask sfx train wait win; do rm -rf "${A:?}/${d:?}"; cp -r "$R/$d" "$A/$d"; done
 cp /home/claude/final-tally.html "$A/srv.html"
