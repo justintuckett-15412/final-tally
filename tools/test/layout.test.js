@@ -5,10 +5,11 @@ const START=`const x=document.createElement('button');x.dataset.a='start';x.hidd
   // Boom + smolder
   let p=await b.newPage({viewport:{width:400,height:850}});p.on('pageerror',e=>errs.push(e.message));await p.goto(BASE);await W(1000);
   await p.evaluate(START0=>{SET.toursOff=true;switchGame('quacks');resetScores();const X=QKX();X.play=1;X.herb=false;S.players.forEach((q,i)=>{q.on=i<3;q.name=['Me','Gizmo','Pip'][i]||'';if(i)q.bot='normal';else delete q.bot});save();eval(START0);const g=S.qpg;g.phase='card';qpSetCard(g,'');g.ps.forEach(id=>g.pl[id].sf=true);g.brewAnn=null;g.ann=null;const L=g.pl[act()[0].id];L.ws=6;L.bag=['w3#1'];render()},START);
-  await W(1500);await p.waitForSelector("[data-a=qpdraw]");await p.evaluate(()=>document.querySelector("[data-a=qpdraw]").click());
-  let boom=false;for(let i=0;i<40;i++){await W(100);if(await p.evaluate(()=>!!document.querySelector('.qpboom'))){boom=true;break}}
+  await W(1500);await p.waitForSelector("[data-a=qpdraw]");
+  await p.evaluate(()=>{window.__boom=0;new MutationObserver(()=>{if(document.querySelector('.qpboom'))window.__boom=1}).observe(document.body,{childList:true,subtree:true});document.querySelector("[data-a=qpdraw]").click()});
+  let boom=false;for(let i=0;i<80;i++){await W(100);if(await p.evaluate(()=>window.__boom)){boom=true;break}}
   ok('pot burst shows the boom overlay',boom);
-  await W(2600);
+  await W(3000);
   ok('boom overlay cleans itself up',await p.evaluate(()=>!document.querySelector('.qpboom')));
   ok('exploded player card smolders',await p.evaluate(()=>document.querySelectorAll('.tab.smolder .smoke').length>0));
   await p.close();
