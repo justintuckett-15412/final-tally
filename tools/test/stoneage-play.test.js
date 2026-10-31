@@ -15,7 +15,8 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   ok('the hut takes 2 people',r.hut2===2,r);
   r=await P.evaluate(()=>{const g=S.sag,a=g.ps[0];g.phase='act';g.turn=a;g.todo={[a]:['forest']};g.pl={forest:{[a]:3}};g.roll=g.pay=g.pick=g.dc=null;const o={};o.res=saResolve(g,a,'forest');o.noDice=g.roll&&g.roll.dice===null;o.takeEarly=saTake(g,a);o.roll=saRoll(g,a);o.n=g.roll.dice.length;o.twice=saRoll(g,a);o.take=saTake(g,a);return o});
   ok('gathering waits for a tap to roll, then rolls one die per person',r.res&&r.noDice&&!r.takeEarly&&r.roll&&r.n===3&&!r.twice&&r.take,r);
-  r=await P.evaluate(()=>{const g=S.sag,c=g.ps[2];return {max:saCanPlace(g,c,'clay'),place:saPlace(g,c,'clay',3),n:(g.pl.clay||{})[c],card:saIsCard('clay'),slot:saIsCard('c2')}});
+  await setup(3);
+  r=await P.evaluate(()=>{const g=S.sag,c=g.ps[0];return {max:saCanPlace(g,c,'clay'),place:saPlace(g,c,'clay',3),n:(g.pl.clay||{})[c],card:saIsCard('clay'),slot:saIsCard('c2')}});
   ok('the clay pit takes several people (not mistaken for a card spot)',r.max>=3&&r.place&&r.n===3&&!r.card&&r.slot,r);
   /* tools go 1, 1+1, 1+1+1, 2+1+1 ... 4+4+4 */
   r=await P.evaluate(()=>{const M={tl:[],tu:[]},L=[];for(let i=0;i<13;i++){saAddTool(M);L.push(M.tl.join('/'))}return L});
