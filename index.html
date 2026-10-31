@@ -7108,7 +7108,8 @@ const saNext=(g,pid)=>g.ps[(g.ps.indexOf(pid)+1)%g.ps.length];
 const saTT=M=>M.tl.reduce((a,v)=>a+v,0);
 const saResN=M=>SAK.reduce((a,k)=>a+(M[k]||0),0);
 const saPlN=(g,loc)=>Object.values(g.pl[loc]||{}).reduce((a,v)=>a+v,0);
-const saLocNm=loc=>SALOC[loc]?SALOC[loc].n:loc[0]==='c'?'a Civilization card':'a hut';
+const saIsCard=l=>/^c\d$/.test(String(l||''));
+const saLocNm=loc=>SALOC[loc]?SALOC[loc].n:saIsCard(loc)?'a Civilization card':'a hut';
 function saFresh(){return {game:'stoneage',screen:'map',map:'stoneage',rules:{},started:false,active:0,picks:{},hr:0,sar:1,sax:saSaved(),players:CARC_COLORS.map((c,i)=>newPlayer('',c,i<4))}}
 
 /* ---------------- setting up ---------------- */
@@ -7141,14 +7142,14 @@ function saCanPlace(g,pid,loc,any){if(g.phase!=='place'||!any&&g.turn!==pid||!(g
   if(SAGATH.includes(loc)){const others=Object.keys(here).length;if(n===2&&others>=1||n===3&&others>=2)return 0;return Math.min(left,L.cap-saPlN(g,loc))}
   if(SAVIL.includes(loc)){if(saPlN(g,loc))return 0;if(n<4&&SAVIL.filter(v=>saPlN(g,v)).length>=2)return 0;if(loc==='hut')return left>=2&&g.me[pid].pp<10?2:0;
     if(loc==='field'&&g.me[pid].ag>=10)return 0;if(loc==='tools'&&saTT(g.me[pid])>=12)return 0;return 1}
-  if(loc[0]==='c'){const i=+loc.slice(1);return g.slots[i]&&!saPlN(g,loc)?1:0}
+  if(saIsCard(loc)){const i=+loc.slice(1);return g.slots[i]&&!saPlN(g,loc)?1:0}
   if(loc[0]==='b'){const i=+loc.slice(1);return (g.piles[i]||[]).length&&!saPlN(g,loc)?1:0}
   return 0}
 const saLocs=g=>[...SAGATH,...SAVIL,...g.slots.map((_,i)=>'c'+i),...g.piles.map((_,i)=>'b'+i)];
 const saCanAny=(g,pid)=>g.left[pid]>0&&saLocs(g).some(l=>saCanPlace(g,pid,l,1));
-function saPlace(g,pid,loc,n){n=Math.floor(+n||0);const max=saCanPlace(g,pid,loc);if(!max||n<1||n>max)return false;if(loc==='hut'&&n!==2)return false;if((loc[0]==='c'||loc[0]==='b'||loc==='tools'||loc==='field')&&n!==1)return false;
+function saPlace(g,pid,loc,n){n=Math.floor(+n||0);const max=saCanPlace(g,pid,loc);if(!max||n<1||n>max)return false;if(loc==='hut'&&n!==2)return false;if((saIsCard(loc)||loc[0]==='b'||loc==='tools'||loc==='field')&&n!==1)return false;
   (g.pl[loc]=g.pl[loc]||{})[pid]=n;g.left[pid]-=n;(g.todo[pid]=g.todo[pid]||[]).push(loc);g.n++;
-  g.msg=`${nmid(pid)} placed ${n} on ${loc[0]==='c'?'a Civilization card':loc[0]==='b'?'a hut':SALOC[loc].n}.`;
+  g.msg=`${nmid(pid)} placed ${n} on ${saIsCard(loc)?'a Civilization card':loc[0]==='b'?'a hut':SALOC[loc].n}.`;
   saPlaceNext(g,pid);return true}
 function saPlaceNext(g,pid){let nx=pid;for(let i=0;i<g.ps.length;i++){nx=saNext(g,nx);if(saCanAny(g,nx)){g.turn=nx;return}}
   /* nobody can place any more: people still at home stay home */
@@ -7165,7 +7166,7 @@ function saResolve(g,pid,loc){if(g.phase!=='act'||g.turn!==pid||saBusy(g)||!(g.t
   if(loc==='tools'){saAddTool(M);g.msg=`${nmid(pid)} made a tool (tool value ${saTT(M)}).`;gLog(g,`${nmid(pid)} made a tool`,'🔨')}
   else if(loc==='hut'){M.pp=Math.min(10,M.pp+1);g.msg=`${nmid(pid)} has a new person (${M.pp} now).`;gLog(g,`${nmid(pid)} grew to ${M.pp} people`,'🛖')}
   else if(loc==='field'){M.ag=Math.min(10,M.ag+1);g.msg=`${nmid(pid)} moved up to agriculture ${M.ag}.`;gLog(g,`${nmid(pid)}: agriculture ${M.ag}`,'🌾')}
-  else if(loc[0]==='c'||loc[0]==='b'){g.pay={pid,loc};g.msg=`${nmid(pid)} is deciding whether to buy ${loc[0]==='c'?'the card':'the hut'}.`;return true}
+  else if(saIsCard(loc)||loc[0]==='b'){g.pay={pid,loc};g.msg=`${nmid(pid)} is deciding whether to buy ${saIsCard(loc)?'the card':'the hut'}.`;return true}
   saActNext(g);return true}
 function saAddTool(M){if(saTT(M)>=12)return;if(M.tl.length<3){M.tl.push(1);M.tu.push(0);return}let i=M.tl.indexOf(Math.min(...M.tl));M.tl[i]++}
 function saRoll(g,pid){const R=g.roll;if(!R||R.pid!==pid||R.dice||g.phase!=='act')return false;R.dice=Array.from({length:R.n||1},()=>1+Math.floor(Math.random()*6));g.n++;
@@ -7188,7 +7189,7 @@ const saHas=(M,o)=>SAK.every(k=>(o[k]||0)<=(M[k]||0)&&(o[k]||0)>=0);
 const saSum=o=>SAK.reduce((a,k)=>a+(o[k]||0),0);
 const saVal=o=>SAK.reduce((a,k)=>a+(o[k]||0)*SARV[k],0);
 function saPayOk(g,o){const P=g.pay;if(!P)return false;const M=g.me[P.pid];if(!saHas(M,o))return false;const n=saSum(o);
-  if(P.loc[0]==='c')return n===saCost(+P.loc.slice(1));
+  if(saIsCard(P.loc))return n===saCost(+P.loc.slice(1));
   const h=saHut(g.piles[+P.loc.slice(1)][0]);
   if(h.c){const need={};[...h.c].forEach(x=>need[x]=(need[x]||0)+1);return SAK.every(k=>(o[k]||0)===(need[k]||0))}
   if(h.v){const kinds=SAK.filter(k=>o[k]>0).length;return n===h.v.n&&kinds===h.v.k}
@@ -7201,7 +7202,7 @@ function saBuy(g,pid,o){const P=g.pay;if(!P||P.pid!==pid||g.phase!=='act'||!saPa
   const i=+P.loc.slice(1),id=g.slots[i];g.slots[i]=null;M.cards.push(id);const c=saCard(id);
   g.msg=`${nmid(pid)} took the ${c.k?SACULT[c.k]:saSandNm(c.s)} card.`;gLog(g,`${nmid(pid)} took ${c.k?SACULTI[c.k]+' '+SACULT[c.k]:saSandNm(c.s)}`,'🃏');
   saCardTop(g,pid,c);saSync(g);if(!saBusy(g))saActNext(g);return true}
-function saSkip(g,pid){const P=g.pay;if(!P||P.pid!==pid)return false;g.pay=null;g.n++;g.msg=`${nmid(pid)} didn’t buy ${P.loc[0]==='c'?'the card':'the hut'}.`;saActNext(g);return true}
+function saSkip(g,pid){const P=g.pay;if(!P||P.pid!==pid)return false;g.pay=null;g.n++;g.msg=`${nmid(pid)} didn’t buy ${saIsCard(P.loc)?'the card':'the hut'}.`;saActNext(g);return true}
 const saSandNm=s=>{const k=Object.keys(s||{})[0];if(!k)return '';const v=s[k];return `${v} ${SASAND[k][v===1?0:1]}`};
 function saCardTop(g,pid,c){const M=g.me[pid],t=c.t||{};
   if(t.food){M.food+=t.food;g.msg+=` +${t.food} food.`}
@@ -7248,7 +7249,7 @@ function saCardVal(g,pid,id){const M=g.me[pid],c=saCard(id),t=c.t||{},L=saLeftRo
   if(c.s){const k=Object.keys(c.s)[0],n=c.s[k],base=k==='fa'?M.ag+L*.4:k==='tm'?saTT(M)+L*.4:k==='bu'?M.bld.length+L*.6:M.pp+L*.2;v+=n*base*.9}
   return v}
 function saBotPayPlan(g,pid,loc){const M=g.me[pid];
-  if(loc[0]==='c'){const n=saCost(+loc.slice(1));if(saResN(M)<n)return null;const o={w:0,c:0,s:0,g:0};let need=n;for(const k of SAK){const t=Math.min(need,M[k]);o[k]=t;need-=t}return need?null:o}
+  if(saIsCard(loc)){const n=saCost(+loc.slice(1));if(saResN(M)<n)return null;const o={w:0,c:0,s:0,g:0};let need=n;for(const k of SAK){const t=Math.min(need,M[k]);o[k]=t;need-=t}return need?null:o}
   const h=saHut((g.piles[+loc.slice(1)]||[])[0]);if(!h)return null;
   if(h.c){const o={w:0,c:0,s:0,g:0};[...h.c].forEach(x=>o[x]++);return saHas(M,o)?o:null}
   if(h.any){if(!saResN(M))return null;const o={w:0,c:0,s:0,g:0};let left=7;for(const k of ['g','s','c','w']){const t=Math.min(left,M[k]);o[k]=t;left-=t}return o}
@@ -7269,7 +7270,7 @@ function saPlaceOptions(g,pid,lv){const M=g.me[pid],left=g.left[pid],L=saLeftRou
     if(loc==='tools')opts.push({loc,n:1,per:tt<4?Math.min(8,2+L*.7):tt<8?Math.min(5,1+L*.4):Math.min(3,L*.2)});
     else if(loc==='hut')opts.push({loc,n:2,per:(M.pp<8?Math.min(14,1+L*1.4):M.pp<10?Math.min(6,L*.5):0)/2+(M.ag>=M.pp?1:0)});
     else if(loc==='field')opts.push({loc,n:1,per:M.ag<M.pp?Math.min(10,2+L*1.1):M.ag<10?Math.min(5,L*.5):0});
-    else if(loc[0]==='c'){const i=+loc.slice(1),id=g.slots[i];if(resN>=saCost(i)){const plan=saBotPayPlan(g,pid,loc);opts.push({loc,n:1,per:saCardVal(g,pid,id)-(plan?saVal(plan):99)*.45})}}
+    else if(saIsCard(loc)){const i=+loc.slice(1),id=g.slots[i];if(resN>=saCost(i)){const plan=saBotPayPlan(g,pid,loc);opts.push({loc,n:1,per:saCardVal(g,pid,id)-(plan?saVal(plan):99)*.45})}}
     else if(loc[0]==='b'){const plan=saBotPayPlan(g,pid,loc);if(plan){const h=saHut(g.piles[+loc.slice(1)][0]);const pts=h.c?saHutPts(h):saVal(plan);opts.push({loc,n:1,per:pts-saVal(plan)*.45+4+(lv==='hard'?2:0)})}}}
   return opts}
 function saBotPlace(g,q){const pid=q.id,lv=q.bot;let O=saPlaceOptions(g,pid,lv);if(!O.length){saPlaceNext(g,pid);return}
@@ -7284,7 +7285,7 @@ function saBotAct(g,q){const pid=q.id,M=g.me[pid];
       if(worth)for(let b=0;b<n;b++)if(best.m&1<<b)saTool(g,pid,avail[b].k,avail[b].i)}
     saTake(g,pid);return}
   if(g.pay&&g.pay.pid===pid){const plan=saBotPayPlan(g,pid,g.pay.loc);
-    if(plan&&g.pay.loc[0]==='c'){const v=saCardVal(g,pid,g.slots[+g.pay.loc.slice(1)]);if(v<saVal(plan)*.4&&q.bot!=='easy'){saSkip(g,pid);return}}
+    if(plan&&saIsCard(g.pay.loc)){const v=saCardVal(g,pid,g.slots[+g.pay.loc.slice(1)]);if(v<saVal(plan)*.4&&q.bot!=='easy'){saSkip(g,pid);return}}
     if(plan&&saBuy(g,pid,plan))return;saSkip(g,pid);return}
   if(g.pick&&g.pick.pid===pid){saChoose(g,pid,{w:0,c:0,s:0,g:g.pick.n});return}
   if(g.dc&&saDcWho(g)===pid){const D=g.dc,L=saLeftRounds(g),val=v=>v===5?(saTT(M)<12?5+L*.3:0):v===6?(M.ag<10?3+L*.9:0):SARV[SADIE[v][0]];
@@ -7356,9 +7357,9 @@ function saPayCtx(g,V){const key=g.pay?`pay:${g.pay.loc}:${g.n}`:g.pick?`pick:${
     SAPAY={key,o:{...o}}}return SAPAY.o}
 function saPanel(g,V){if(!V)return '';const M=g.me[V.id],who=S.lk||saHumans().length<2?'':`${esc(nm(V))}: `;
   if(g.phase==='place'&&g.turn===V.id){if(!SASEL)return `<p class="rlab" style="margin:4px 0 0">Tap a glowing spot on the board.</p>`;
-    const max=saCanPlace(g,V.id,SASEL);if(!max)return '';const fixed=SASEL==='hut'||SASEL==='tools'||SASEL==='field'||SASEL[0]==='c'||SASEL[0]==='b';const n=fixed?(SASEL==='hut'?2:1):Math.min(Math.max(1,SAN),max);
-    const nmL=SASEL[0]==='c'?`This card (costs ${saCost(+SASEL.slice(1))} resources)`:SASEL[0]==='b'?'This hut':SALOC[SASEL].n;
-    return `<div class="sapanel"><b>${who}${nmL}</b>${fixed?`<span class="rlab">${SASEL==='hut'?'Takes 2 people. You get one more person from next round.':SASEL[0]==='c'||SASEL[0]==='b'?'One person. You decide whether to pay when you bring them home.':'One person.'}</span>`:`<div class="srow"><span class="rlab">How many people? (up to ${max})</span>${stepper('sapn',n,{min:1,max,label:'people'})}</div>${SALOC[SASEL].div?`<span class="rlab">About ${Math.floor(3.5*n/SALOC[SASEL].div)} ${SALOC[SASEL].r==='food'?'food':SARN[SALOC[SASEL].r]} before tools.</span>`:''}`}
+    const max=saCanPlace(g,V.id,SASEL);if(!max)return '';const fixed=SASEL==='hut'||SASEL==='tools'||SASEL==='field'||saIsCard(SASEL)||SASEL[0]==='b';const n=fixed?(SASEL==='hut'?2:1):Math.min(Math.max(1,SAN),max);
+    const nmL=saIsCard(SASEL)?`This card (costs ${saCost(+SASEL.slice(1))} resources)`:SASEL[0]==='b'?'This hut':SALOC[SASEL].n;
+    return `<div class="sapanel"><b>${who}${nmL}</b>${fixed?`<span class="rlab">${SASEL==='hut'?'Takes 2 people. You get one more person from next round.':saIsCard(SASEL)||SASEL[0]==='b'?'One person. You decide whether to pay when you bring them home.':'One person.'}</span>`:`<div class="srow"><span class="rlab">How many people? (up to ${max})</span>${stepper('sapn',n,{min:1,max,label:'people'})}</div>${SALOC[SASEL].div?`<span class="rlab">About ${Math.floor(3.5*n/SALOC[SASEL].div)} ${SALOC[SASEL].r==='food'?'food':SARN[SALOC[SASEL].r]} before tools.</span>`:''}`}
       <div class="sheet-btns"><button class="btn" data-a="sapsel" data-k="">Cancel</button><button class="btn primary" data-a="sapplace" data-k="${SASEL}" data-v="${n}">Place ${n}</button></div></div>`}
   if(g.phase==='act'){
     if(g.dc&&saDcWho(g)===V.id)return `<div class="sapanel"><b>${who}take a die</b><span class="rlab">1 wood · 2 clay · 3 stone · 4 gold · 5 a tool · 6 agriculture</span><div class="sadice">${g.dc.dice.map((v,j)=>v==null?'':`<button class="sadie" data-a="sapdie" data-k="${j}" aria-label="${v}: ${SADIE[v][1]}">${yzDie(v,46)}<small>${SADIE[v][1]}</small></button>`).join('')}</div></div>`;
@@ -7371,13 +7372,13 @@ function saPanel(g,V){if(!V)return '';const M=g.me[V.id],who=S.lk||saHumans().le
         <div class="sheet-btns"><button class="btn primary" data-a="saptake">Take ${got}</button></div></div>`}
     if(g.roll)return `<p class="hint sahint">🎲 ${esc(nmid(g.roll.pid))} is rolling…</p>`;
     if(g.pay&&g.pay.pid===V.id){const o=saPayCtx(g,V),loc=g.pay.loc,ok=saPayOk(g,o);let head,rule;
-      if(loc[0]==='c'){const n=saCost(+loc.slice(1));head=saCardEl(g.slots[+loc.slice(1)]);rule=`Pay any ${n} resource${n>1?'s':''}.`}
+      if(saIsCard(loc)){const n=saCost(+loc.slice(1));head=saCardEl(g.slots[+loc.slice(1)]);rule=`Pay any ${n} resource${n>1?'s':''}.`}
       else{const id=g.piles[+loc.slice(1)][0],h=saHut(id);head=saHutEl(id);rule=h.c?`Pay ${[...h.c].map(x=>SARN[x]).join(', ')}.`:h.v?`Pay exactly ${h.v.n} resources of exactly ${h.v.k} kind${h.v.k>1?'s':''}. Points = their value: ${saVal(o)}.`:`Pay 1 to 7 resources of your choice. Points = their value: ${saVal(o)}.`}
       return `<div class="sapanel"><div class="sapayh">${head}<span><b>${who}buy it?</b><br><span class="rlab">${rule}</span></span></div>${saPicker(M,o)}
         <div class="sheet-btns"><button class="btn${saBotPayPlan(g,V.id,loc)?'':' primary'}" data-a="sapskip">Leave it</button>${saBotPayPlan(g,V.id,loc)?`<button class="btn primary" data-a="sappay" ${ok?'':'disabled'}>${ok?'Pay':'Pick what to pay'}</button>`:''}</div>${saBotPayPlan(g,V.id,loc)?'':'<span class="rlab">You don’t have the right resources, so this one goes back.</span>'}</div>`}
     if(g.pay)return `<p class="hint sahint">${esc(nmid(g.pay.pid))} is deciding whether to buy…</p>`;
     if(g.pick&&g.pick.pid===V.id){const o=saPayCtx(g,V),n=g.pick.n;return `<div class="sapanel"><b>${who}take ${n} resource${n>1?'s':''} of your choice</b>${saPicker(null,o,n)}<div class="sheet-btns"><button class="btn primary" data-a="sapchoose" ${saSum(o)===n?'':'disabled'}>Take them</button></div></div>`}
-    if(g.turn===V.id){const T=g.todo[V.id]||[];return `<div class="sapanel"><b>${who}bring your people home</b><span class="rlab">Tap a spot (in any order).</span><div class="satodo">${T.map(l=>`<button class="btn" data-a="sapres" data-k="${l}">${l[0]==='c'?'🃏 Card':l[0]==='b'?'🛖 Hut':SALOC[l].ic+' '+SALOC[l].n}</button>`).join('')}</div></div>`}}
+    if(g.turn===V.id){const T=g.todo[V.id]||[];return `<div class="sapanel"><b>${who}bring your people home</b><span class="rlab">Tap a spot (in any order).</span><div class="satodo">${T.map(l=>`<button class="btn" data-a="sapres" data-k="${l}">${saIsCard(l)?'🃏 Card':l[0]==='b'?'🛖 Hut':SALOC[l].ic+' '+SALOC[l].n}</button>`).join('')}</div></div>`}}
   if(g.phase==='feed'&&g.fd&&g.fd[V.id]){const F=g.fd[V.id],o=saPayCtx(g,V),can=saResN(M)>=F.short;
     return `<div class="sapanel bad"><b>${who}${F.short} short of food</b><span class="rlab">${can?`Pay ${F.short} resource${F.short>1?'s':''} instead, or go hungry and lose 10 points.`:`You don’t have ${F.short} resource${F.short>1?'s':''} to trade, so your tribe goes hungry: −10 points.`}</span>${can?saPicker(M,o,F.short):''}
       <div class="sheet-btns"><button class="btn" data-a="sapstarve">Go hungry (−10)</button>${can?`<button class="btn primary" data-a="sapfeed" ${saSum(o)===F.short?'':'disabled'}>Pay ${F.short}</button>`:''}</div></div>`}
@@ -14538,6 +14539,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='82b086';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='1589f2';</script>
 </body>
 </html>

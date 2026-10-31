@@ -11,6 +11,8 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   ok('2 players: only 2 of tool maker, hut and field',r.tools&&r.field&&r.hutBlocked===0,r);
   await setup(3);
   r=await P.evaluate(()=>{const g=S.sag,[a,b,c]=g.ps,o={};o.a=saPlace(g,a,'quarry',1);o.b=saPlace(g,b,'quarry',1);o.c=saCanPlace(g,c,'quarry');o.hut2=saCanPlace(g,c,'hut');return o});
+  r=await P.evaluate(()=>{const g=S.sag,c=g.ps[2];return {max:saCanPlace(g,c,'clay'),place:saPlace(g,c,'clay',3),n:(g.pl.clay||{})[c],card:saIsCard('clay'),slot:saIsCard('c2')}});
+  ok('the clay pit takes several people (not mistaken for a card spot)',r.max>=3&&r.place&&r.n===3&&!r.card&&r.slot,r);
   ok('3 players: two players per resource spot',r.a&&r.b&&r.c===0,r);
   ok('the hut takes 2 people',r.hut2===2,r);
   r=await P.evaluate(()=>{const g=S.sag,a=g.ps[0];g.phase='act';g.turn=a;g.todo={[a]:['forest']};g.pl={forest:{[a]:3}};g.roll=g.pay=g.pick=g.dc=null;const o={};o.res=saResolve(g,a,'forest');o.noDice=g.roll&&g.roll.dice===null;o.takeEarly=saTake(g,a);o.roll=saRoll(g,a);o.n=g.roll.dice.length;o.twice=saRoll(g,a);o.take=saTake(g,a);return o});
