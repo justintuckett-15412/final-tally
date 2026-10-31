@@ -583,6 +583,12 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 body.qpfocus #app .qpme{position:fixed;left:0;right:0;top:0;bottom:var(--actH,0px);z-index:30;margin:0;border-radius:0;border-width:0 0 0 6px;overflow:auto;display:flex;flex-direction:column;justify-content:safe center;gap:4px;padding:calc(env(safe-area-inset-top,0px) + 8px) max(14px,env(safe-area-inset-right)) 8px max(14px,env(safe-area-inset-left));background:var(--bg)}
 body.qpfocus #app .qpme .qppot{margin-inline:auto;max-width:none}body.qpfocus #app .qpme.tight .qpinfo{display:none}body.qpfocus #app .qpme.tight .qpnow{font-size:13px;padding:4px 10px}body.qpfocus #app .qpme.tight>.gpon{margin:0}body.qpfocus #app .qpme>.gpon{max-width:var(--fw,100%)}
 .qpfocusb{margin-left:auto;flex:none}.gpon:has(.qpfocusb){display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bigfab{position:fixed;left:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 182px);z-index:46;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-size:19px;line-height:1;box-shadow:0 4px 14px rgba(0,0,0,.22);display:grid;place-items:center;padding:0}.bigfab.on{background:var(--accent);color:#2a2100;border-color:transparent}
+body.bigview .bigv{position:fixed;left:0;right:0;top:0;bottom:var(--actH,0px);z-index:30;background:var(--bg);display:flex;flex-direction:column;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 8px) max(8px,env(safe-area-inset-right)) 8px max(8px,env(safe-area-inset-left));overflow:hidden}body.bigview .bigv.row{padding-left:max(56px,env(safe-area-inset-left))}
+body.bigview .bigv.row{flex-direction:row}body.bigview .bigb{flex:1 1 auto;min-height:0;min-width:0;display:flex;flex-direction:column;justify-content:safe center;align-items:center;overflow:hidden}body.bigview .bigb>.kttable{width:100%;margin:0}
+body.bigview .bigh{flex:0 0 auto;overflow:auto;max-height:46%}body.bigview .bigv.row .bigh{flex:0 0 38%;max-height:none;display:flex;flex-direction:column;justify-content:safe center}
+body.bigview .bigh .hthand{--w:min(var(--colw,100vw) - 8px,640px)}body.bigview .bigsw{position:relative;flex:none}body.bigview .bigs{transform-origin:0 0;position:absolute;left:0;top:0}
+body.bigview .bigv .htstat{margin:0}body.bigview .bigs.rowp{display:flex;gap:18px;align-items:center;width:max-content}body.bigview .bigs.rowp>*{flex:none;margin:0}body.bigview .bigs.rowp>.gpme,body.bigview .bigs.rowp>.sbme{width:320px}body.bigview .bigb.scroll{overflow:auto;justify-content:flex-start;align-items:stretch}
 .tab.smolder{position:relative;overflow:visible;background:linear-gradient(180deg,rgba(40,25,15,0) 20%,rgba(50,28,15,.55)),radial-gradient(ellipse at 50% 110%,rgba(255,110,30,.45),rgba(255,110,30,0) 60%),var(--surface);box-shadow:inset 0 -14px 18px -8px rgba(30,20,15,.55),0 0 0 2px rgba(224,81,47,.55);animation:smold 2.4s ease-in-out infinite}
 @keyframes smold{50%{box-shadow:inset 0 -14px 18px -8px rgba(30,20,15,.7),0 0 10px 2px rgba(255,120,40,.6)}}
 .tab .smoke{position:absolute;inset:auto 0 0 0;height:0;pointer-events:none;z-index:2}.tab .smoke i{position:absolute;bottom:0;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--ink) 70%,transparent),transparent 70%);animation:wisp 2.1s linear infinite}
@@ -8864,6 +8870,28 @@ function hintShow(){HINT=hintCompute();if(HINT)HINT.k=hintKey();if(HINT&&HINT.c)
 /* landscape, any game being played on the device: the play area (table, hand, piles, your pot) on the left; scores, status, other players and history on the right */
 const WIDEMAIN='.qpme,.kttable,.ohup,.ragerow,.rgled,.hosort,.unhands,.fchand,.gppiles,.gpme,.sbbuild,.sbme,.mtstation,.mttrains,.rkbids,.tppens';
 const WIDESKIP='.bar,.sheet-bg,.turnban,.rxfab,.hintfab,.hintcard,.lkmaking,.qpwait,.qpboom,.demobar,.lkbar';
+/* Big view for the other games: the table or board (and your hand) fill the screen; remembered per game on this device */
+const BIGB='.kttable,.tppens,.gppiles,.gpme,.sbbuild,.sbme,.mtstation,.mttrains,.mtme',BIGH='.htstat,.ohup,.hosort,.unhands,.fchand';
+const bigOn=()=>!!(SET.bigv&&SET.bigv[S.game])&&S.game!=='quacks'&&S.screen==='score'&&S.started&&!S.finished;
+function bigFx(){const app=document.getElementById('app');if(!app||S.game==='quacks'||S.screen!=='score'||!S.started||S.finished){document.body.classList.remove('bigview');return}
+  const parts=[...app.querySelectorAll(':scope > :is('+BIGB+')')];if(!parts.length){document.body.classList.remove('bigview');return}
+  const on=bigOn();document.body.classList.toggle('bigview',on);
+  app.insertAdjacentHTML('beforeend',`<button class="bigfab${on?' on':''}" data-a="bigv" aria-pressed="${on}" aria-label="${on?'Back to the normal view':'Big view: make the board fill the screen'}">${on?'✕':'⛶'}</button>`);
+  if(!on)return;const act=[...app.querySelectorAll(':scope > .actions')].find(e=>getComputedStyle(e).position==='fixed');
+  const ov=document.createElement('div');ov.className='bigv';ov.style.setProperty('--actH',(act?act.offsetHeight:0)+'px');const B=document.createElement('div');B.className='bigb';const Hd=document.createElement('div');Hd.className='bigh';
+  const hand=[...app.querySelectorAll(':scope > :is('+BIGH+')')];const wide=innerWidth>innerHeight;ov.classList.toggle('row',wide&&hand.some(e=>e.matches('.unhands,.fchand,.hosort')));
+  const side=wide&&parts.some(e=>e.matches('.kttable'))?parts.filter(e=>e.matches('.tppens')):[];if(side.length)ov.classList.add('row');
+  parts[0].before(ov);ov.append(B);if(hand.length||side.length)ov.append(Hd);parts.filter(e=>!side.includes(e)).forEach(e=>B.append(e));side.forEach(e=>Hd.append(e));hand.forEach(e=>Hd.append(e));
+  Hd.style.setProperty('--colw',Hd.clientWidth+'px');
+  const tbl=B.querySelector('.kttable');
+  if(tbl){/* a table stretches to fill what's left */const others=[...B.children].filter(e=>e!==tbl).reduce((a,e)=>a+e.offsetHeight+8,0);tbl.style.height=Math.max(220,Math.min(B.clientHeight-others-12,tbl.offsetWidth*(wide?.8:1.05)))+'px';return}
+  /* grids and piles: scale the whole board up to fit */const inner=document.createElement('div');inner.className='bigs';[...B.children].forEach(e=>inner.append(e));const wrap=document.createElement('div');wrap.className='bigsw';wrap.append(inner);B.append(wrap);
+  /* try stacked and side by side, keep whichever lets the board grow more */
+  const fit=()=>Math.min((B.clientWidth-8)/inner.offsetWidth,(B.clientHeight-8)/inner.offsetHeight,2.4);
+  inner.style.width=Math.min(560,B.clientWidth)+'px';let k=fit();
+  if(inner.children.length>1){inner.classList.add('rowp');inner.style.width='';const kr=fit();if(kr>k)k=kr;else{inner.classList.remove('rowp');inner.style.width=Math.min(560,B.clientWidth)+'px'}}
+  const w=inner.offsetWidth,h=inner.offsetHeight;if(!w||!h)return;if(k<(inner.classList.contains('rowp')?.6:.85)){/* too tall to shrink and still read: normal size, scrolling */B.classList.add('scroll');inner.style.width='';wrap.replaceWith(...inner.children);return}
+  inner.style.transform=`scale(${k})`;wrap.style.width=w*k+'px';wrap.style.height=h*k+'px'}
 /* Big pot: your pot fills the screen while you brew (this device only) */
 const qpFocusOn=()=>!!SET.qpfocus&&S.game==='quacks'&&S.screen==='score'&&S.started&&!S.finished&&qpOn()&&(qpG()||{}).phase==='brew';
 function qpFocusFx(){const on=qpFocusOn()&&!!document.querySelector('#app .qpme .qppot');document.body.classList.toggle('qpfocus',on);if(!on)return;const me=document.querySelector('#app .qpme'),pot=me.querySelector('.qppot'),act=document.querySelector('#app .actions');
@@ -8871,7 +8899,7 @@ function qpFocusFx(){const on=qpFocusOn()&&!!document.querySelector('#app .qpme 
   /* the board's padding scales with its own width here, then shrink until it fits the height */
   me.classList.toggle('tight',me.clientHeight<460);  const setW=w=>{pot.style.width=w+'px';pot.style.padding=`${w*.07}px ${w*.075}px`};let fw=me.clientWidth-28;
   for(let k=0;k<4;k++){setW(fw);const h=pot.offsetHeight,avail=me.clientHeight-(me.scrollHeight-h)-6;if(h<=avail+1||avail<120)break;fw=Math.max(260,fw*avail/h)}}
-function qpWideFx(){const app=document.getElementById('app');if(!app)return;if(qpFocusOn()){document.body.classList.remove('qpwide');return}const z=parseFloat(document.documentElement.style.zoom)||1,W=innerWidth,H=innerHeight;
+function qpWideFx(){const app=document.getElementById('app');if(!app)return;if(bigOn()){document.body.classList.remove('qpwide');return}if(qpFocusOn()){document.body.classList.remove('qpwide');return}const z=parseFloat(document.documentElement.style.zoom)||1,W=innerWidth,H=innerHeight;
   const on=S.screen==='score'&&S.started&&!S.finished&&W>H&&W/z>=740&&!!app.querySelector(':scope > :is('+WIDEMAIN+')');document.body.classList.toggle('qpwide',on);if(!on||app.querySelector(':scope > .qpcols'))return;
   const kids=[...app.children],bi=kids.findIndex(e=>e.matches('.bar')),short=H/z<600;
   const mov=kids.slice(bi+1).filter(e=>{if(e.matches(WIDESKIP))return false;if(e.matches('.tabs'))return short;const ps=getComputedStyle(e).position;return ps!=='fixed'&&ps!=='sticky'});if(!mov.length)return;
@@ -12817,7 +12845,7 @@ function render0(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  try{qpWideFx()}catch(e){}try{qpFocusFx()}catch(e){}tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}try{htPassFx()}catch(e){}try{qpPopFx()}catch(e){}try{qpPlopFx()}catch(e){}try{qpMoveFx()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){try{glTick()}catch(e){}if(S.game==='hearts')htTick();if(S.game==='mextrain')mtTick();if(S.game==='chicken')cfTick();if(S.game==='quacks')qpTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
+  try{qpWideFx()}catch(e){}try{qpFocusFx()}catch(e){}try{bigFx()}catch(e){}tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}try{htPassFx()}catch(e){}try{qpPopFx()}catch(e){}try{qpPlopFx()}catch(e){}try{qpMoveFx()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){try{glTick()}catch(e){}if(S.game==='hearts')htTick();if(S.game==='mextrain')mtTick();if(S.game==='chicken')cfTick();if(S.game==='quacks')qpTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -13033,6 +13061,7 @@ document.addEventListener('click',e=>{
   if(/^sbp(src|disc|build|show|deal)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
   if(/^mtp(tile|train|draw|pass|done|show|deal)$/.test(a)&&S.game==='mextrain'&&mtOn()&&S.started){mtAct(a,b,k);save();render();return}
   if((a==='dmflip'||a==='dmsort')&&(S.game==='mextrain'&&mtOn()||S.game==='chicken'&&cfOn())&&S.started){const CF=S.game==='chicken',G=CF?cfG():mtG(),V=CF?cfViewer():mtViewer();if(G&&V){if(a==='dmflip')dmFlip(G,V.id,b.dataset.t);else dmSortNow(G,V.id,b.dataset.v);vibe(6)}render();return}
+  if(a==='bigv'){SET.bigv={...(SET.bigv||{})};SET.bigv[S.game]=!SET.bigv[S.game];saveSet();window.scrollTo(0,0);render();return}
   if(/^qp(seen|show|info|infox|infoall|nobuy|warnx|card|draw|stop|flask|ans|ch|buy|unbuy|ruby|fp|pt|g4|adj|done|undone|wit|d6|fc|ha|sch|bag|bagx|lastok|focus)$/.test(a)&&S.game==='quacks'&&qpOn()&&S.started){qpAct(a,b,k);save();render();return}
   if(/^cfp(tile|spot|draw|pass|show|deal)$/.test(a)&&S.game==='chicken'&&cfOn()&&S.started){cfAct(a,b,k);save();render();return}
   if(a==='gplastok'){const V=gpViewer(),g=gpG();if(V&&g)GPLASTOK[(S.gameId||'')+':'+g.r+':'+V.id]=1;render();return}

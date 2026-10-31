@@ -40,4 +40,13 @@ const START=`const x=document.createElement('button');x.dataset.a='start';x.hidd
     await q.evaluate(S0=>{window.__htfast=1;SET.toursOff=true;switchGame('hearts');resetScores();HTX().play=1;S.players.forEach((x,i)=>{x.on=i<4;x.name=['Me','Gizmo','Pip','Ace'][i]||'';if(i&&i<4)x.bot='normal';else delete x.bot});save();eval(S0)},START);await W(2000);
     const r=await q.evaluate(()=>{const R=document.querySelector('.qpcolR'),hand=document.querySelector('.qpcolR .hthand');return {table:!!document.querySelector('.qpcolL .kttable'),hand:!!hand,fits:hand?hand.getBoundingClientRect().left>=R.getBoundingClientRect().left-2:false}});
     ok(`landscape ${w}x${h}: table left, hand right and fully inside`,r.table&&r.hand&&r.fits,r);await q.close()}
+  // Big view: the table fills the screen, toggled by the corner button, remembered per game
+  {const q=await b.newPage({viewport:{width:412,height:900}});q.on('pageerror',e=>errs.push(e.message));await q.goto(BASE);await W(900);
+    await q.evaluate(S0=>{window.__htfast=1;SET.toursOff=true;switchGame('uno');resetScores();UNX().play=1;S.players.forEach((x,i)=>{x.on=i<3;x.name=['Me','Gizmo','Pip'][i]||'';if(i&&i<3)x.bot='normal';else delete x.bot});save();eval(S0)},START);await W(2000);
+    const h0=await q.evaluate(()=>document.querySelector('.kttable').offsetHeight);
+    await q.evaluate(()=>document.querySelector('.bigfab').click());await W(800);
+    const r=await q.evaluate(()=>({on:document.body.classList.contains('bigview'),h:document.querySelector('.bigv .kttable').offsetHeight,hand:!!document.querySelector('.bigv .unhands'),saved:!!(SET.bigv&&SET.bigv.uno)}));
+    ok('Big view: table is bigger, hand still there, remembered for this game',r.on&&r.h>h0&&r.hand&&r.saved,{h0,...r});
+    await q.evaluate(()=>document.querySelector('.bigfab').click());await W(600);
+    ok('Big view: the button turns it back off',await q.evaluate(()=>!document.body.classList.contains('bigview')&&!document.querySelector('.bigv')));await q.close()}
   ok('no page errors',!errs.length,errs.slice(0,3));await done(b)})();
