@@ -1,0 +1,20 @@
+// Quacks: the fortune cards that used to be reminders now run on the phone.
+const {chromium,W,ok,done,BASE}=require('./link.js');
+(async()=>{const b=await chromium.launch();const page=await b.newPage({viewport:{width:400,height:850}});const errs=[];page.on('pageerror',e=>errs.push(e.message));
+  await page.goto(BASE);await W(1200);
+  const setup=card=>page.evaluate(card=>{window.__htfast=1;SET.toursOff=true;switchGame('quacks');resetScores();const X=QKX();X.play=1;X.herb=false;X.bk=qkSetBooks(1);S.players.forEach((q,i)=>{q.on=i<2;q.name=['Me','Bot'][i]||'';if(i)q.bot='normal';else delete q.bot});save();
+    const x=document.createElement('button');x.dataset.a='start';x.hidden=true;document.body.appendChild(x);x.click();x.remove();const g=S.qpg;g.phase='card';qpSetCard(g,card);g.ps.forEach(id=>{g.pl[id].sf=true});g.brewAnn=null;return act().map(p=>p.id)},card);
+  let [me,bot]=await setup('second');
+  let r=await page.evaluate(me=>{const g=S.qpg,L=g.pl[me];L.bag=['o1#1','g1#2','o1#3','g1#4','o1#5','w1#6','w2#7'];for(let i=0;i<5;i++){qpDraw(g,me);if(L.ask&&L.ask.t!=='second')L.ask=null}const ask=L.ask&&L.ask.t;const n=L.pot.length;qpAnswer(g,me,'over');return {ask,n,after:L.pot.length,bag:L.bag.length,sec:L.sec}},me);
+  ok('A Second Chance: after 5 chips you can start over (once)',r.ask==='second'&&r.n===5&&r.after===0&&r.bag===7,r);
+  [me,bot]=await setup('strong');
+  r=await page.evaluate(me=>{const g=S.qpg,L=g.pl[me];L.bag=['r4#11','g1#12','o1#13'];qpStop(g,me);const ask=L.ask&&L.ask.t,cs=(L.ask&&L.ask.cs||[]).length;qpAnswer(g,me,'r4#11');return {ask,cs,pot:L.pot.map(x=>x.c),bag:L.bag.length}},me);
+  ok('Strong Ingredient: after stopping, draw up to 5 and place 1',r.ask==='strong'&&r.cs===3&&r.pot.includes('r4#11')&&r.bag===2,r);
+  [me,bot]=await setup('schaden');
+  r=await page.evaluate(([me,bot])=>{const g=S.qpg;g.pl[bot].ex=true;g.pl[bot].stop=true;g.pl[me].stop=true;qpEval(g);const s1=g.pl[me].sch;qpChoose(g,me,{t:'sch',v:'r2'});return {s1,gift:g.pl[me].gift,s2:g.pl[me].sch}},[me,bot]);
+  ok('Schadenfreude: when the player to your right explodes you pick a free 2-chip',r.s1===1&&r.gift.includes('r2')&&r.s2===0,r);
+  [me,bot]=await setup('opport');
+  r=await page.evaluate(me=>{const g=S.qpg,L=g.pl[me];L.sf=false;const four=(L.op||[]).slice();const up=four.find(qpUp1);let res=null;if(up){qpFP(g,me,'up',up);res={had:L.bag.includes(up),fpc:L.fpc}}else{qpFP(g,me,'green');res={green:L.bag.some(c=>c.startsWith('g1#'))}}return {n:four.length,up,res}},me);
+  ok('An Opportunistic Moment: look at 4 chips and trade one up a size (or take a green 1)',r.n===4&&(r.up?!r.res.had&&!!r.res.fpc:r.res.green),r);
+  await page.screenshot({path:'/tmp/opport.png'});
+  ok('no page errors',!errs.length,errs.slice(0,3));await done(b)})();

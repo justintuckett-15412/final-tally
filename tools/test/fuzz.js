@@ -21,7 +21,7 @@ const N=+(process.env.N||6);
       // invariants
       const v=await page.evaluate(prev=>{const g=S.qpg;if(!g)return {none:1};const out=[],X=QKX(),now={};
         const ids=new Set();for(const id of g.ps){const L=g.pl[id],p=act().find(q=>q.id===id);if(!L||!p){out.push('missing player '+id);continue}
-          const all=[...L.bag,...L.pot.map(x=>x.c),...(L.ovf||[]),...(L.d6||[]),...(L.aside||[]),...(L.saved||[]),...(L.ha||[]),...(L.ask&&L.ask.t==='blue'?L.ask.cs||[]:[]),...(L.ask&&L.ask.t==='stir'&&L.ask.c?[L.ask.c]:[])];
+          const all=[...L.bag,...L.pot.map(x=>x.c),...(L.ovf||[]),...(L.d6||[]),...(L.aside||[]),...(L.saved||[]),...(L.ha||[]),...(L.ask&&(L.ask.t==='blue'||L.ask.t==='strong')?L.ask.cs||[]:[]),...(L.ask&&L.ask.t==='stir'&&L.ask.c?[L.ask.c]:[])];
           for(const c of all){if(ids.has(c))out.push(`${nm(p)} chip ${c} appears twice`);ids.add(c);if(!/^[a-z]\d+#/.test(c))out.push(`${nm(p)} odd chip ${c}`)}
           for(let i=1;i<L.pot.length;i++)if(L.pot[i].at<=L.pot[i-1].at)out.push(`${nm(p)} pot spaces not increasing ${L.pot[i-1].at}->${L.pot[i].at}`);
           if(L.pot.length&&L.pot[L.pot.length-1].at>QKSPOON)out.push(`${nm(p)} chip past the spoon`);

@@ -603,6 +603,10 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .qpwallet{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 2px}.qpwallet.w3{grid-template-columns:1fr 1fr 1fr;gap:6px}.qpwallet.w3>.qpw{min-width:0;padding:8px 6px;column-gap:6px}.qpwallet.w3 .qpwi{transform:scale(.78);transform-origin:center}.qpw.pn{border-color:#9aa3ad;background:color-mix(in srgb,#9aa3ad 14%,var(--surface));grid-template-columns:1fr;justify-items:center;text-align:center;row-gap:0}.qpw.pn .qpwi{transform:none}.qpw.pn .qpwchips{display:flex;flex-wrap:nowrap;gap:2px;margin:0}.qpw.pn .qpwchips .qkcoin{width:20px;height:20px}.qpchip.tcopy{box-shadow:0 0 0 3px #1fb3a5,0 0 8px #1fb3a5}.qpw{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;align-items:center;column-gap:10px;padding:10px 14px;border-radius:14px;background:color-mix(in srgb,#e3a21a 16%,var(--surface));border:2px solid #e3a21a}.qpw.rb{background:color-mix(in srgb,#d6283f 14%,var(--surface));border-color:#d6283f}.qpwi{grid-row:1/3;font-size:34px;line-height:1}.qpwi .qprb{width:34px;height:34px}.qpw b{font-size:30px;line-height:1}.qpw small{color:var(--muted);font-size:13px}
 .qpnow{margin:2px 0 6px;padding:6px 10px;border-radius:10px;background:var(--surface2,rgba(0,0,0,.05));font-size:14px}.qpnow.rb{background:color-mix(in srgb,#d6283f 18%,var(--surface));box-shadow:inset 0 0 0 2px #d6283f}
 .qprb{width:1.05em;height:1.05em;vertical-align:-.15em;display:inline-block}.qpcell{overflow:visible}.qpchip.qpplop{animation:qpplop .55s cubic-bezier(.3,1.6,.5,1)}@keyframes qpplop{0%{transform:translateY(-26px) scale(1.5)}55%{transform:translateY(0) scale(.82,1.12)}75%{transform:scale(1.12,.9)}100%{transform:none}}
+.qpbagbtn{all:unset;cursor:pointer;display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px}.qpbagbtn small{color:var(--accent);font-weight:700}.qpbagrow{display:grid;grid-template-columns:34px 1fr 70px 44px;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--line)}.qpbagrow.bad b{color:#e0512f}.qpbagbar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}.qpbagbar i{display:block;height:100%}.qpbagboom{font-weight:700;font-size:16px}.qpbagboom.bad{color:#e0512f}
+.qpfly{position:fixed;z-index:60;pointer-events:none;font-size:26px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}.qpfly.coin{font-size:22px}.qpfly .qprb{width:22px;height:22px}
+.qprblit{background:#d6334a;color:#fff;border-color:#d6334a;box-shadow:0 0 0 2px rgba(214,51,74,.35),0 0 14px rgba(214,51,74,.55);font-weight:700}
+.qkchart{padding:10px 12px;margin:10px 0}.qkchart svg{width:100%;height:auto;display:block}.qkcg{stroke:var(--line);stroke-width:1}.qkct{font-size:10px;fill:var(--muted)}.qkcleg{display:flex;flex-wrap:wrap;gap:10px;font-size:13px}.qkcleg i{display:inline-block;width:12px;height:4px;border-radius:2px;background:var(--pc);margin-right:4px;vertical-align:middle}
 .qpwait{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:50;width:min(92vw,420px);display:grid;gap:4px;text-align:center;padding:14px 18px;border-radius:18px;background:var(--card,#fff);border:3px solid var(--accent);box-shadow:0 10px 30px rgba(0,0,0,.3);animation:qpwaitin .35s ease-out}.qpwait b{font-size:22px}.qpwait span{font-size:17px}.qpwait.ex{border-color:#e0512f}@keyframes qpwaitin{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
 .qpsplashw{position:fixed;pointer-events:none;z-index:55}.qpsplash{position:absolute;inset:0;pointer-events:none;z-index:3}.qpsplash i{position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--sc);box-shadow:0 0 0 1.5px rgba(0,0,0,.25);transform:scale(0);animation:qpdrop .7s ease-out .18s forwards}
 .qpsplash b{position:absolute;inset:-6px;border-radius:50%;border:3px solid var(--sc);opacity:0;animation:qpring .55s ease-out .15s}@keyframes qpdrop{0%{transform:translate(0,0) scale(0)}30%{transform:translate(calc(var(--dx)*.6),calc(var(--dy)*.6 - 6px)) scale(var(--s))}100%{transform:translate(var(--dx),calc(var(--dy) + 10px)) scale(0);opacity:.2}}
@@ -8348,7 +8352,7 @@ const QKFC=[
  ['lessmore','Less is More','Everyone draws 5 chips. Lowest sum takes a blue 2-chip; everyone else gets 1 ruby.','pick'],
  ['rolldie','Roll the Die','Everyone rolls the bonus die once.','auto'],
  ['justtime','Just in Time','Take 4 points, or remove a white 1-chip from your bag.','pick'],
- ['opport','An Opportunistic Moment','Draw 4 chips; you may trade 1 up a size (or take a green 1-chip).','note']];
+ ['opport','An Opportunistic Moment','Draw 4 chips; you may trade 1 up a size (or take a green 1-chip).','pick']];
 const qkCard=r=>{const id=(S.qkfc||[])[r];return QKFC.find(c=>c[0]===id)||null};
 const qkCid=r=>(qkCard(r)||[])[0];
 const qkPick=(p,r)=>(((p.qk||[])[r]||{}).fp);
@@ -8499,7 +8503,7 @@ function qpStart(){const X=QKX();Object.keys(QPBOOKOK).forEach(c=>{if(!QPBOOKOK[
 /* start of a round: rat tails, the white chip in round 6, empty pots */
 function qpRoundSetup(g){const r=g.r;act().forEach(p=>qkR(p,r));
   /* file the round that just ended for "Earlier rounds" */if(r>0&&!lkGuest()){if(!S.hlg||S.hlg.g!==S.game)S.hlg={g:S.game,h:{}};const h=S.hlg.h[r-1]||(S.hlg.h[r-1]={});h.lg=(g.lg||[]).slice();h.done=1}g.lg=[];
-  g.ps.forEach(id=>{const L=g.pl[id],p=act().find(q=>q.id===id);if(!L||!p)return;L.bag=L.bag.concat(L.pot.map(x=>x.c),L.ovf||[]);L.pot=[];L.ovf=[];L.ex=false;L.stop=false;L.ws=0;L.lim=7;L.ask=null;L.done=false;L.buy=[];L.rubs={drop:0,flask:0};L.y2=false;L.ycount=0;L.seen1w=false;L.nd=0;L.d6=[];delete L.wup;L.u2p=0;L.u2s=false;L.aside=[];L.ha=[];
+  g.ps.forEach(id=>{const L=g.pl[id],p=act().find(q=>q.id===id);if(!L||!p)return;L.bag=L.bag.concat(L.pot.map(x=>x.c),L.ovf||[]);L.pot=[];L.ovf=[];L.ex=false;L.stop=false;L.ws=0;L.lim=7;L.ask=null;L.done=false;L.buy=[];L.rubs={drop:0,flask:0};L.y2=false;L.ycount=0;L.seen1w=false;L.nd=0;L.d6=[];delete L.wup;L.u2p=0;L.u2s=false;L.aside=[];L.ha=[];L.sec=0;L.strd=0;L.sch=0;L.op=null;
     if(r===5)L.bag.push(qpNew('w1'));L.rat=0;L.start=L.drop});
   g.phase='brew';g.card=null;g.msg='';
   
@@ -8514,12 +8518,14 @@ function qpBrewStart(g){const id=qkCid(g.r),rats=qkRats(g.r)||[];g.ps.forEach(pi
   if(id==='lessmore'){const sums=g.ps.map(pid=>{const b=g.pl[pid].bag.slice(),t=[];for(let k=0;k<5&&b.length;k++)t.push(b.splice(Math.floor(Math.random()*b.length),1)[0]);return [pid,t.reduce((a,c)=>a+qpV(c),0)]}),lo=Math.min(...sums.map(x=>x[1]));
     sums.forEach(([pid,n])=>{const p=act().find(q=>q.id===pid);if(!p)return;const R=qkR(p,g.r);if(n===lo){R.fp='low';g.pl[pid].bag.push(qpNew('u2'));gLog(g,`${nm(p)} drew the lowest sum (${n}): a blue 2-chip`,'🔮')}else R.fp='hi'})}
   if(id==='beginner'){const sc=g.ps.map(pid=>{const p=act().find(q=>q.id===pid);return [pid,p?qkBefore(p,g.r):0]}),lo=Math.min(...sc.map(x=>x[1]));sc.forEach(([pid,n])=>{if(n===lo){g.pl[pid].bag.push(qpNew('g1'));gLog(g,`${nmid(pid)} has the fewest points: a green 1-chip`,'🔮')}})}
+  if(id==='opport')g.ps.forEach(pid=>{const L=g.pl[pid],b=L.bag.slice(),t=[];for(let k=0;k<4&&b.length;k++)t.push(b.splice(Math.floor(Math.random()*b.length),1)[0]);L.op=t});
   if(qpFNeeds(g.r))act().filter(q=>q.bot).forEach(q=>qpBotFP(g,q));
   g.ps.forEach(pid=>{const L=g.pl[pid];if(L.sf!==false)qpNxPlace(g,pid)});
   g.brewAnn=[['Start brewing!',(rt.length?'🐀 Rat tails: '+rt.map(([pid,n])=>`${nmid(pid)} ${n}`).join(' · ')+'. They start that far ahead. ':'')+'Draw chips one at a time. Stop before the white chips go over the limit!','⚗️',rt.length?4500:2600]];qpBrewAnn(g);g.cardAnn=null}
 
 /* fortune teller cards with a choice are decided on the card, before brewing; their chips go in the bag right away */
-const QPFPICK=['choose1','wheel','ratfriend','goodstart','justtime','wisely'];
+const QPFPICK=['choose1','wheel','ratfriend','goodstart','justtime','wisely','opport'];
+const qpUp1=c=>{const k=qpK(c),v=qpV(c),nv=v===1?2:v===2?4:0;return nv&&QPPRICE0[k+nv]?k+nv:null};
 const qpFNeeds=r=>QPFPICK.includes(qkCid(r));
 const qpChips=v=>QPSHOP.flatMap(([k,vs])=>vs.filter(x=>x===v).map(x=>k+x));
 function qpFUndo(g,pid){const L=g.pl[pid],p=act().find(q=>q.id===pid),R=qkR(p,g.r);
@@ -8533,8 +8539,9 @@ function qpFP(g,pid,v,c){const L=g&&g.pl[pid],p=act().find(q=>q.id===pid);if(!L|
   else if(id==='goodstart'){const n=+v;if(!(n>=0&&n<=Math.min(3,L.rat)))return false;R.fp=n;qpRatsNow(g,pid);g.n++;return true}
   else if(id==='justtime'){if(v==='white'){const i=L.bag.findIndex(x=>x.startsWith('w1#'));if(i<0)return false;L.fpw=L.bag.splice(i,1)[0]}else if(v!=='vp')return false}
   else if(id==='wisely'){if(v==='drop'){L.drop+=2;L.start=Math.min(QKSPOON-2,L.start+2);L.fpd=2}else if(v==='purple'){add('p1')}else return false}
+  else if(id==='opport'){if(v==='green'){add('g1')}else if(v==='up'){const four=L.op||[];if(!four.includes(c))return false;const nc=qpUp1(c);if(!nc)return false;const i=L.bag.indexOf(c);if(i<0)return false;const n=qpNew(nc);L.bag[i]=n;L.fpw=c;L.fpc=n}else if(v!=='no')return false}
   R.fp=v;g.n++;return true}
-function qpBotFP(g,q){const id=qkCid(g.r),L=g.pl[q.id];if(!L)return;if(id==='choose1')qpFP2(g,q.id,'ruby');else if(id==='wheel')qpFP2(g,q.id,'no');else if(id==='ratfriend'){L.rat>=3?qpFP2(g,q.id,'vp'):qpFP2(g,q.id,'chip',q.bot==='easy'?'g4':'r4')}else if(id==='goodstart')qpFP2(g,q.id,0);else if(id==='justtime')qpFP2(g,q.id,q.bot==='hard'&&g.r<4?'white':'vp');else if(id==='wisely')qpFP2(g,q.id,g.r<5?'drop':'purple')}
+function qpBotFP(g,q){const id=qkCid(g.r),L=g.pl[q.id];if(!L)return;if(id==='choose1')qpFP2(g,q.id,'ruby');else if(id==='wheel')qpFP2(g,q.id,'no');else if(id==='ratfriend'){L.rat>=3?qpFP2(g,q.id,'vp'):qpFP2(g,q.id,'chip',q.bot==='easy'?'g4':'r4')}else if(id==='goodstart')qpFP2(g,q.id,0);else if(id==='justtime')qpFP2(g,q.id,q.bot==='hard'&&g.r<4?'white':'vp');else if(id==='wisely')qpFP2(g,q.id,g.r<5?'drop':'purple');else if(id==='opport'){const up=(L.op||[]).filter(qpUp1).sort((a,b)=>(QPPRICE[qpUp1(b)]-QPPRICE[b.split('#')[0]])-(QPPRICE[qpUp1(a)]-QPPRICE[a.split('#')[0]]))[0];up?qpFP2(g,q.id,'up',up):qpFP2(g,q.id,'green')}}
 function qpFP2(g,pid,v,c){const L=g.pl[pid],was=L.sf;L.sf=false;qpFP(g,pid,v,c);L.sf=was}
 /* the rat tails and start cards wait until every phone has tapped away its fortune card */
 function qpBrewAnn(g){if(!g.brewAnn||!g.ps.every(id=>(g.pl[id]||{}).sf!==false))return;const q=g.brewAnn;g.brewAnn=null;gAnnQ(g,q,2200)}
@@ -8543,12 +8550,13 @@ const qpLast=L=>L.pot.length?L.pot[L.pot.length-1]:null;
 const qpPos=L=>L.pot.length?L.pot[L.pot.length-1].at:L.start;
 const qpRisk=L=>{const left=L.lim-L.ws;if(!L.bag.length)return 0;return L.bag.filter(c=>qpK(c)==='w'&&qpV(c)>left).length/L.bag.length};
 /* draw one chip from the bag */
+function qpSecond(g,pid){const L=g.pl[pid];if(qkCid(g.r)!=='second'||L.sec||L.ex||L.stop||L.ask||L.pot.length<5)return;L.sec=1;L.ask={t:'second'}}
 function qpDraw(g,pid){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||L.sf===false||L.stop||L.ask||(L.d6||[]).length||!L.bag.length)return false;L.nd=(L.nd||0)+1;const i=Math.floor(Math.random()*L.bag.length),c=L.bag.splice(i,1)[0];g.n++;
   const as0=qpAs(L,c),ek=as0?as0[0]:qpK(c),ev=as0?+as0.slice(1):qpV(c);
   if(ek==='u'&&qpBook('blue')==='u1'){/* crow skull: look at as many chips as its value, may place one of them */qpPlace(g,pid,c);if(L.stop||L.ex)return true;const n=Math.min(ev,L.bag.length);if(n){const pick=[];for(let k=0;k<n;k++)pick.push(L.bag.splice(Math.floor(Math.random()*L.bag.length),1)[0]);L.ask={t:'blue',cs:pick}}return true}
   if(qpK(c)==='w'&&qkCid(g.r)==='stirred'&&!L.seen1w){L.seen1w=true;L.ask={t:'stir',c};return true}
   if(qpK(c)==='r'&&qpBook('red')==='r2'){(L.aside=L.aside||[]).push(c);gLog(g,`${nmid(pid)} set a red chip aside`,'🍄');return true}
-  qpPlace(g,pid,c);return true}
+  qpPlace(g,pid,c);qpSecond(g,pid);return true}
 /* what a drawn chip counts as: a turquoise chip on the copy side becomes the last colored chip in the pot */
 function qpAs(L,c){if(qpK(c)!=='t'||qpBook('turquoise')!=='tCopy'||!QKX().turq)return null;const pe=[...L.pot].reverse().find(e=>qpKx(e)!=='w');return pe?qpKx(pe)+qpVx(pe):null}
 const qpOvfOn=()=>!!QKX().ovf;
@@ -8573,6 +8581,8 @@ function qpAnswer(g,pid,v){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||!L.ask)
   if(A.t==='blue'){const keep=A.cs.find(c=>c===v)||null;A.cs.forEach(c=>{if(c!==keep)L.bag.push(c)});if(keep)qpPlace(g,pid,keep);return true}
   if(A.t==='mandrake'){if(v==='yes'){const i=L.pot.findIndex(x=>x.c===A.w);if(i>=0){L.pot.splice(i,1);L.ws-=qpV(A.w);L.bag.push(A.w)}}return true}
   if(A.t==='flask'){if(v==='yes'){const x=L.pot.pop();if(x){L.ws-=qpVx(x);L.bag.push(x.c)}L.flask=false;gLog(g,`${nmid(pid)} used their flask`,'🧪')}return true}
+  if(A.t==='second'){if(v==='over'){L.bag.push(...L.pot.map(x=>x.c),...(L.ovf||[]));L.pot=[];L.ovf=[];L.ws=0;L.ycount=0;L.y2=false;L.seen1w=false;L.u2p=0;L.lim=qkCid(g.r)==='luxury'?9:7;gLog(g,`${nmid(pid)} took the second chance and started over`,'🔄')}return true}
+  if(A.t==='strong'){const keep=A.cs.find(c=>c===v)||null;A.cs.forEach(c=>{if(c!==keep)L.bag.push(c)});if(keep){qpPlace(g,pid,keep);gLog(g,`${nmid(pid)} added one more chip (strong ingredient)`,'💪')}qpAfterStop(g,pid);return true}
   if(A.t==='yruby'){if(v==='yes'){const p=act().find(q=>q.id===pid),R=qkR(p,g.r),x=L.pot[L.pot.length-1];if(p&&x&&qpRubies(p,g.r-1)>=1){R.rb=(+R.rb||0)-1;x.at=Math.min(QKSPOON-1,x.at+3);gLog(g,`${nm(p)} paid a ruby: the mandrake moves 3 more`,'🌱')}}return true}
   if(A.t==='ha'){const all=L.ha||[];if(v==='yes'||all.includes(v)){const c=all.includes(v)?v:all[0];L.ha=all.filter(x=>x!==c);qpPlace(g,pid,c);if(L.stop&&!L.ex){qpAfterStop(g,pid)}}else if(L.stop){qpAfterStop(g,pid)}return true}
   if(A.t==='r2'){const pool=(L.aside||[]).concat(L.saved||[]);if(v==='yes'){pool.forEach(c=>{L.aside=(L.aside||[]).filter(x=>x!==c);L.saved=(L.saved||[]).filter(x=>x!==c);if(!L.ex)qpPlace(g,pid,c)});return true}
@@ -8622,7 +8632,7 @@ const qpUpLabel=c=>{const k=qpK(c),v=qpV(c),nv=v===1?2:v===2?4:0;return k!=='o'&
 function qpSeen(g,pid,f){const L=g&&g.pl[pid];if(!L||!['sf','sr','sq'].includes(f))return false;if(f==='sf'&&L.sf===false&&qpFNeeds(g.r)){const p=act().find(q=>q.id===pid);if(p&&qkR(p,g.r).fp==null)return false}if(f==='sq')L.sq=(L.sq||0)+1;else L[f]=true;if(f==='sf'){qpNxPlace(g,pid);qpBrewAnn(g)}g.n++;return true}
 function qpStop(g,pid){const L=g&&g.pl[pid];if(!L||g.phase!=='brew'||L.stop||L.sf===false)return false;if((L.d6||[]).length){L.bag.push(...L.d6);L.d6=[]}if(L.ask)qpAnswer(g,pid,'no');L.stop=true;L.ask=null;g.n++;qpAfterStop(g,pid);return true}
 /* after a voluntary stop: red chips set aside (set 2, and ones saved from earlier rounds) and the Herb Witches set-aside chip */
-function qpAfterStop(g,pid){const L=g.pl[pid];if(L.ex)return;if((L.ha||[]).length)L.ask={t:'ha'};else if((L.aside||[]).length||(L.saved||[]).length)L.ask={t:'r2'}}
+function qpAfterStop(g,pid){const L=g.pl[pid];if(L.ex)return;if(qkCid(g.r)==='strong'&&!L.strd){L.strd=1;const n=Math.min(5,L.bag.length);if(n){const t=[];for(let k=0;k<n;k++)t.push(L.bag.splice(Math.floor(Math.random()*L.bag.length),1)[0]);L.ask={t:'strong',cs:t};return}}if((L.ha||[]).length)L.ask={t:'ha'};else if((L.aside||[]).length||(L.saved||[]).length)L.ask={t:'r2'}}
 /* everyone done brewing: work out the scoring space and the book counts, roll the bonus die */
 /* the space a pot scores: the space after the last chip, plus the green book 3 push (whites exactly 7) */
 function qpGreenPush(L){const lx=L.pot[L.pot.length-1];if(lx&&lx.from!=null)return 0;if(qpBook('green')!=='g3'||L.ex||L.ws!==7||!L.pot.length)return 0;return L.pot.filter(x=>qpKx(x)==='g').reduce((a,x)=>a+qpVx(x),0)}
@@ -8646,6 +8656,7 @@ function qpEval(g){const r=g.r,P=act();g.phase='eval';
     if(gs){const lx=L.pot[L.pot.length-1];lx.from=lx.at;lx.at=Math.min(QKSPOON-1,lx.at+gs);lx.push=gs}
     if(qkCid(r)==='seasoned'&&!L.ex&&L.ws===7){L.drop++;gLog(g,`${nmid(pid)}: exactly 7 whites, droplet moves`,'💧')}
     L.done=false;L.buy=[]});
+  if(qkCid(r)==='schaden')g.ps.forEach(pid=>{const L=g.pl[pid],p=P.find(q=>q.id===pid);if(!p||!L.ex)return;const {left}=qkNbrs(p);if(left&&left!==p&&g.pl[left.id]){g.pl[left.id].sch=(g.pl[left.id].sch||0)+1;gLog(g,`${nm(p)}’s pot exploded: ${nm(left)} gets a free 2-chip`,'😈')}});
   /* the bonus die */
   const rollers=qkDieRollers(r);P.forEach(p=>{const R=qkR(p,r);R.die=rollers.includes(p)?QPDIE[Math.floor(Math.random()*6)]:null;R.dies=[0,1,2].map(()=>QPDIE[Math.floor(Math.random()*6)]);
     if(R.die){const lab={vp1:'1 point',vp2:'2 points',ruby:'a ruby',drop:'a droplet move',pump:'an orange chip'}[R.die];gLog(g,`${nm(p)} rolled the bonus die: ${lab}`,'🎲')}});
@@ -8665,8 +8676,10 @@ const qpAvail=(r,k)=>!(k==='y'&&r<1)&&!(k==='p'&&r<2)&&!(k==='t'&&!QKX().turq);
 const qpBuyMax=()=>(QKX().shop==='two'?2:7)+(qpBook('purple')==='hBuy'?2:0);
 function qpSpent(L){return L.buy.reduce((a,c)=>a+QPPRICE[c],0)}
 /* evaluation choices, one per call: {t:'ch',v}|{t:'buy',v:'g2'}|{t:'unbuy',v}|{t:'ruby',v:'drop'|'flask'|'undo'}|{t:'fp',v}|{t:'adj',v:'ruby'|'vp'|'drop'|'chip:g1'|'white'}|{t:'pt',v}|{t:'up',v:chip}|{t:'g4',v}|{t:'done'} */
+function qpSchAuto(L){while(L.sch>0){const c=qpChips(2).sort((a,b)=>QPPRICE[b]-QPPRICE[a])[0];if(!c)break;(L.gift=L.gift||[]).push(c);L.sch--}}
 function qpChoose(g,pid,o){const L=g&&g.pl[pid],p=act().find(q=>q.id===pid);if(!L||!p||g.phase!=='eval'||L.done&&o.t!=='undone')return false;const r=g.r,R=qkR(p,r);g.n++;
   if(o.t==='undone'){L.done=false;return true}
+  if(o.t==='sch'){if(!(L.sch>0)||!qpChips(2).includes(o.v))return false;(L.gift=L.gift||[]).push(o.v);L.sch--;return true}
   if(o.t==='ch'){if(!L.ex)return false;R.ch=o.v==='coins'?'coins':'vp';if(R.ch==='vp')L.buy=[];return true}
   if(o.t==='buy'){if(!qpCanBuy(r)||L.ex&&R.ch!=='coins'&&!qkWid(p,r,'full'))return false;const c=o.v,k=c[0];if(!qpShop().some(([kk,vs])=>kk===k&&vs.includes(+c.slice(1))))return false;if(!QPPRICE[c]||!qpAvail(r,k)||L.buy.some(x=>x[0]===k)||L.buy.length>=qpBuyMax()||qpSpent(L)+QPPRICE[c]>qpCoins(p,r))return false;L.buy.push(c);return true}
   if(o.t==='unbuy'){L.buy=L.buy.filter(x=>x!==o.v);return true}
@@ -8677,7 +8690,7 @@ function qpChoose(g,pid,o){const L=g&&g.pl[pid],p=act().find(q=>q.id===pid);if(!
   if(o.t==='adj'){const v=o.v;if(v==='ruby')R.rb=(+R.rb||0)+1;else if(v==='-ruby')R.rb=(+R.rb||0)-1;else if(v==='vp')R.xp=(+R.xp||0)+1;else if(v==='-vp')R.xp=(+R.xp||0)-1;else if(v==='drop')L.adrop=(L.adrop||0)+1;
     else if(v.startsWith('chip:')){(L.gift=L.gift||[]).push(v.slice(5))}else if(v==='white'){const i=L.bag.findIndex(c=>c.startsWith('w1#'));L.rmw=(L.rmw||0)+1}return true}
   if(o.t==='up'){L.up=o.v||null;return true}
-  if(o.t==='done'){L.done=true;return true}
+  if(o.t==='done'){qpSchAuto(L);L.done=true;return true}
   return false}
 /* everyone is done: shopping goes in the bags, droplets move, flasks refill; then the next round */
 function qpFinish(g){const r=g.r,P=act(),id=qkCid(r);
@@ -8702,7 +8715,8 @@ function qpFinish(g){const r=g.r,P=act(),id=qkCid(r);
 /* a bot uses its flask only when the white it just drew puts it close to exploding (Easy bots are a bit jumpier) */
 function qpFlaskNow(L,v,lv){const left=L.lim-L.ws,edge=lv==='easy'?2:1;return v>=2&&left<=edge||v>=3&&left<=edge+1||left<=0}
 function qpBotBrew(g,q){const L=g.pl[q.id];if(!L||L.stop&&!L.ask)return;const lv=q.bot;
-  if(L.ask){const A=L.ask;if(A.t==='blue'){const ok=A.cs.filter(c=>qpK(c)!=='w'||L.ws+qpV(c)<=L.lim).sort((a,b)=>(qpK(a)==='w')-(qpK(b)==='w')||qpV(b)-qpV(a));qpAnswer(g,q.id,ok[0]||null);return}
+  if(!L.ask&&!L.stop&&(L.ha||[]).length){const c=L.ha.find(x=>qpK(x)!=='w')||L.ha.find(x=>L.ws+qpV(x)<=L.lim-3);if(c){qpHA(g,q.id,c);return}}
+  if(L.ask){const A=L.ask;if(A.t==='yruby'){qpAnswer(g,q.id,lv==='easy'&&Math.random()<.5?'no':'yes');return}if(A.t==='ha'){const c=(L.ha||[]).slice().sort((a,b)=>(qpK(a)==='w')-(qpK(b)==='w')||qpV(b)-qpV(a))[0];qpAnswer(g,q.id,c||'yes');return}if(A.t==='second'){const at=qpPos(L);qpAnswer(g,q.id,at<10&&L.ws>=4?'over':'keep');return}if(A.t==='blue'||A.t==='strong'){const ok=A.cs.filter(c=>qpK(c)!=='w'||L.ws+qpV(c)<=L.lim).sort((a,b)=>(qpK(a)==='w')-(qpK(b)==='w')||qpV(b)-qpV(a));qpAnswer(g,q.id,ok[0]||null);return}
     if(A.t==='flask'){qpAnswer(g,q.id,qpFlaskNow(L,qpV(A.c),lv)?'yes':'no');return}qpAnswer(g,q.id,'yes');return}
   {const x=qpLast(L);if(x&&qpKx(x)==='w'&&L.flask&&qpFlaskNow(L,qpVx(x),lv)){qpFlask(g,q.id);return}}
   const risk=qpRisk(L),lim={easy:.5,normal:.3,hard:.22}[lv]||.3,jit=lv==='easy'?(Math.random()-.5)*.3:lv==='normal'?(Math.random()-.5)*.1:0;
@@ -8722,6 +8736,10 @@ function qpBotEval(g,q){const L=g.pl[q.id],r=g.r,R=qkR(q,r);if(!L||L.done)return
     /* house rule (one of each color, as many as you can afford): keep shopping with what's left */
     if(QKX().shop!=='two'){let guard=0;while(guard++<6){const left=budget-qpSpent(L),c=opts.filter(x=>QPPRICE[x]<=left&&!L.buy.some(y=>y[0]===x[0])).sort((a,b)=>want(b)-want(a))[0];if(!c||!qpChoose(g,q.id,{t:'buy',v:c}))break}}}
   if(QKX().herb&&L.buy.length){const t=['s','c','g'].find(t=>qkWit(t)==='twice');if(t&&qpWCan(g,q.id,t))qpWitch(g,q.id,t,L.buy.slice().sort((a,b)=>QPPRICE[b]-QPPRICE[a])[0])}
+  /* green set 4: 1 ruby per green last/next-to-last moves the droplet (cheaper than 2) */
+  if(qpBook('green')==='g4'&&R.gl&&r<8)qpChoose(g,q.id,{t:'g4',v:Math.min(R.gl,qpRubies(q,r))});
+  /* purple set 4: upgrade the best chip it can */
+  if(qpBook('purple')==='p4'&&R.pu&&!L.up){const c=L.bag.concat(L.pot.map(x=>x.c)).filter(c=>qpK(c)!=='w'&&qpUp1(c)).sort((a,b)=>(QPPRICE[qpUp1(b)]||0)-(QPPRICE[qpUp1(a)]||0))[0];if(c)qpChoose(g,q.id,{t:'up',v:c})}
   let guard=0;while(r<8&&guard++<6){const have=qpRubies(q,r);if(have<(qkWid(q,r,'endprice')?1:2))break;if(!L.flask&&!L.rubs.flask)qpChoose(g,q.id,{t:'ruby',v:'flask'});else qpChoose(g,q.id,{t:'ruby',v:'drop'})}
   qpChoose(g,q.id,{t:'done'})}
 
@@ -8754,6 +8772,16 @@ function qpPopFx(){if(S.game!=='quacks'||!qpOn()||S.screen!=='score')return;cons
   document.querySelectorAll('[data-a="qpdraw"],[data-a="qpstop"],[data-a="qpflask"],.qpask button').forEach(b=>b.disabled=true);
   if(!document.querySelector('.qppop')){const k=qpK(QPPOP.c),v=qpV(QPPOP.c),C=QPCOL[k];document.body.insertAdjacentHTML('beforeend',`<div class="qppop${QPPOP.ex?' boom':''}" style="--o:${-el}ms;--ms:${ms}ms" aria-live="polite"><span class="qpbig" style="--qc:${C[1]};--qt:${C[2]};--qi:url(art/trail/qk-${QPIMG[k]}.png)"><i>${v}</i></span><b>${QPPOP.ex?'💥 Boom!':`${C[0]} ${v}`}</b></div>`)}
   clearTimeout(QPPOPT);QPPOPT=setTimeout(()=>{const P0=QPPOP;QPPOP=null;QPLAND=P0?{key:P0.key,n:P0.n,at:Date.now(),c:P0.c,ex:P0.ex}:null;document.querySelectorAll('.qppop').forEach(x=>x.remove());render()},ms-el+20)}
+/* the droplet and rat tails slide to their new space; coins and rubies fly into your wallet at scoring */
+const QPMV={};function qpFly(from,to,html,cls,delay){if(!from||!to)return;const A=from.getBoundingClientRect(),B=to.getBoundingClientRect();if(!A.width||!B.width)return;const z=parseFloat(document.documentElement.style.zoom)||1;
+  const el=document.createElement('div');el.className='qpfly '+(cls||'');el.innerHTML=html;el.setAttribute('aria-hidden','true');document.body.appendChild(el);const k=el.getBoundingClientRect().width/(el.offsetWidth||1)||1;
+  const x0=(A.left+A.width/2)/k,y0=(A.top+A.height/2)/k,x1=(B.left+B.width/2)/k,y1=(B.top+B.height/2)/k;el.style.left=x0+'px';el.style.top=y0+'px';
+  el.animate([{transform:'translate(-50%,-50%) scale(1)',opacity:1},{transform:`translate(calc(${x1-x0}px - 50%),calc(${y1-y0}px - 50%)) scale(1.1)`,opacity:1,offset:.85},{transform:`translate(calc(${x1-x0}px - 50%),calc(${y1-y0}px - 50%)) scale(.6)`,opacity:0}],{duration:(window.__htfast?300:900),delay:delay||0,easing:'cubic-bezier(.4,0,.2,1)',fill:'both'}).onfinish=()=>el.remove()}
+function qpMoveFx(){if(S.game!=='quacks'||!qpOn()||!S.started)return;const g=qpG(),V=qpViewer();if(!g||!V||!g.pl[V.id])return;const L=g.pl[V.id],k=V.id,pv=QPMV[k],cells=document.querySelectorAll('.qpme .qppot .qpcell');
+  const now={drop:L.drop,start:L.start,r:g.r,ph:g.phase};QPMV[k]=now;if(!pv||!cells.length)return;
+  if(now.drop>pv.drop&&cells[pv.drop]&&cells[now.drop])qpFly(cells[pv.drop],cells[now.drop],'💧','drop');
+  if(now.ph==='brew'&&now.start>now.drop&&(pv.start!==now.start||pv.r!==now.r)&&cells[now.drop]&&cells[now.start])qpFly(cells[now.drop],cells[now.start],'🐀','rat',250);
+  if(now.ph==='eval'&&pv.ph==='brew'){setTimeout(()=>{const from=document.querySelector('.qpme .qpcell.next')||document.querySelector('.qpcell.next'),c=document.querySelector('.qpwallet .qpw .qpwi'),rb=document.querySelector('.qpwallet .qpw.rb .qpwi');for(let i=0;i<4;i++)qpFly(from,c,'🪙','coin',i*120);const R=qkR(V,g.r);if((QKPOT[R.s]||[])[2])qpFly(from,rb,QPRB,'ruby',520)},400)}}
 function qpPlopFx(){const Q=QPLAND;if(!Q||Q.done||Date.now()-Q.at>900)return;const cell=document.querySelector('.qpme .qppot .qpcell.last');if(!cell)return;Q.done=1;const ch=cell.querySelector('.qpchip');if(ch)ch.classList.add('qpplop');
   const R=cell.getBoundingClientRect();document.querySelectorAll('.qpsplashw').forEach(x=>x.remove());setTimeout(()=>{if(S.game==='quacks')render()},Math.max(0,QPRINGMS*(window.__htfast?.3:1)-(Date.now()-Q.at))+30);
   const C=QPCOL[qpK(Q.c)]||QPCOL.w,dots=Array.from({length:9},(_,i)=>{const a=i/9*Math.PI*2+Math.random()*.4,d=22+Math.random()*16;return `<i style="--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;--s:${.6+Math.random()*.7}"></i>`}).join('');
@@ -8790,8 +8818,10 @@ function qpPlayUI(){const X=QKX(),P=act(),g=qpG(),sc=P.map(qkTot),hi=Math.max(..
     out+=`<div class="qpothers">${P.filter(q=>!V||q.id!==V.id).map(q=>{const L=g.pl[q.id];return `<div class="qpo" style="${pc(q.color)}"><div class="gpon"><b>${botHead(q)}${esc(nm(q))}${qpWChips(q,g.r)}</b><span class="num">${L.ex?'💥 exploded':L.stop?'✋ stopped':'brewing…'} · ⚪ ${L.ws}/${L.lim}</span></div>${qpPotEl(L,{mini:true})}</div>`}).join('')}</div>`;
     if(me){const A=me.ask,risk=Math.round(qpRisk(me)*100);
       out+=`<div class="qpme" style="${pc(V.color)}"><div class="gpon"><b>${S.lk||qpHumans().length<2?'Your pot':esc(nm(V))+'’s pot'}${qpWChips(V,g.r)}</b><span class="num qpws${me.ws>=me.lim-2?' hot':''}">⚪ ${me.ws} / ${me.lim}</span></div>
-        ${qpPotEl(me)}${me.stop?'':(()=>{const pv=qpPend(me)||me,ns=qpScoreAt(pv),gp=qpGreenPush(pv),sp=QKPOT[ns]||[0,0,false];let nr=-1;for(let j=ns+1;j<QKPOT.length;j++)if(QKPOT[j][2]){nr=j;break}return `<div class="qpnow${sp[2]?' rb':''}"><b>Stop now:</b> ${gp?`🕷️ greens push you ${gp} ahead: scores space ${sp[0]}`:`scores the next space, ${sp[0]}`} · ⭐ ${sp[1]} · 🪙 ${sp[0]}${sp[2]?` · ${QPRB} ruby!`:nr>0?` · next ${QPRB} in ${nr-ns} space${nr-ns===1?'':'s'}`:''}</div>`})()}<div class="qpinfo"><span>Bag: ${qpBagSum(me)}</span><span class="qpdr"><b class="qpdrop">💧 Droplet: space ${(QKPOT[me.drop]||[0])[0]}</b>${me.rat?` <b class="qprat">🐀 ${me.rat} rat tail${me.rat===1?'':'s'}: start on ${(QKPOT[me.start]||[0])[0]}</b>`:''}</span><span class="rlab">${me.stop?'':`${risk}% chance the next chip explodes it`}</span><span>${me.flask?'🧪 flask ready':'🧪 flask empty'}</span><span class="qprbn">${QPRB} ${qpRubies(V,r-1)}</span></div>
+        ${qpPotEl(me)}${me.stop?'':(()=>{const pv=qpPend(me)||me,ns=qpScoreAt(pv),gp=qpGreenPush(pv),sp=QKPOT[ns]||[0,0,false];let nr=-1;for(let j=ns+1;j<QKPOT.length;j++)if(QKPOT[j][2]){nr=j;break}return `<div class="qpnow${sp[2]?' rb':''}"><b>Stop now:</b> ${gp?`🕷️ greens push you ${gp} ahead: scores space ${sp[0]}`:`scores the next space, ${sp[0]}`} · ⭐ ${sp[1]} · 🪙 ${sp[0]}${sp[2]?` · ${QPRB} ruby!`:nr>0?` · next ${QPRB} in ${nr-ns} space${nr-ns===1?'':'s'}`:''}</div>`})()}<div class="qpinfo"><button class="qpbagbtn" data-a="qpbag" aria-label="See your bag and the odds">Bag: ${qpBagSum(me)} <small>odds ›</small></button><span class="qpdr"><b class="qpdrop">💧 Droplet: space ${(QKPOT[me.drop]||[0])[0]}</b>${me.rat?` <b class="qprat">🐀 ${me.rat} rat tail${me.rat===1?'':'s'}: start on ${(QKPOT[me.start]||[0])[0]}</b>`:''}</span><span class="rlab">${me.stop?'':`${risk}% chance the next chip explodes it`}</span><span>${me.flask?'🧪 flask ready':'🧪 flask empty'}</span><span class="qprbn">${QPRB} ${qpRubies(V,r-1)}</span></div>
         ${A?(A.t==='blue'?`<div class="qpask"><b>Crow skull: place one of these?</b><div class="qpaskc">${A.cs.map(c=>qpChipEl(c,{btn:true,attr:` data-a="qpans" data-k="${c}"`})).join('')}</div><button class="btn sm" data-a="qpans" data-k="">None, put them back</button></div>`
+          :A.t==='second'?`<div class="qpask"><b>🔄 A Second Chance</b><span class="rlab">You've placed 5 chips. Keep this pot, or put them all back and start over (once)?</span><div class="lr"><button class="btn primary" data-a="qpans" data-k="keep">Keep going</button><button class="btn" data-a="qpans" data-k="over">Start over</button></div></div>`
+          :A.t==='strong'?`<div class="qpask"><b>💪 Strong Ingredient: place one of these?</b><span class="rlab">You stopped without exploding, so you may add 1 more chip. The rest go back in the bag.</span><div class="qpaskc">${A.cs.map(c=>qpChipEl(c,{btn:true,attr:` data-a="qpans" data-k="${c}"`})).join('')}</div><button class="btn sm" data-a="qpans" data-k="">None, put them back</button></div>`
           :A.t==='yruby'?`<div class="qpask"><b>Mandrake: pay 1 ruby to move it 3 more spaces?</b><div class="lr"><button class="btn primary" data-a="qpans" data-k="yes">Pay ${QPRB} 1</button><button class="btn" data-a="qpans" data-k="no">No thanks</button></div></div>`
           :A.t==='ha'?`<div class="qpask"><b>🍄 Place your set-aside chip</b><span class="rlab">The toadstool chip has to be used this round.</span><div class="qpaskc">${(me.ha||[]).map(c=>qpChipEl(c,{btn:true,attr:` data-a="qpans" data-k="${c}"`})).join('')}</div></div>`
           :A.t==='r2'?`<div class="qpask"><b>🍄 Red chips set aside</b><span class="rlab">Tap one to place it now, or save the rest for a later round.</span><div class="qpaskc">${(me.aside||[]).concat(me.saved||[]).map(c=>qpChipEl(c,{btn:true,attr:` data-a="qpans" data-k="place:${c}"`})).join('')}</div><div class="lr"><button class="btn" data-a="qpans" data-k="save">Save the rest</button></div></div>`
@@ -8811,9 +8841,11 @@ function qpPlayUI(){const X=QKX(),P=act(),g=qpG(),sc=P.map(qkTot),hi=Math.max(..
       out+=`<div class="qpme" style="${pc(V.color)}"><div class="gpon"><b>${S.lk||qpHumans().length<2?'Your turn to score':esc(nm(V))}</b></div><div class="qpwallet${QKX().herb?' w3':''}"><div class="qpw"><span class="qpwi" aria-hidden="true">🪙</span><b class="num">${canBuy?coins-spent:coins}</b><small>${canBuy&&spent?`coins left (of ${coins})`:'coins'}</small></div><div class="qpw rb"><span class="qpwi">${QPRB}</span><b class="num">${rub}</b><small>rubies</small></div>${QKX().herb?`<div class="qpw pn"><span class="qpwi">${qpWChips(V,r)}</span><b class="num">${qkPennies(V)}</b><small>penn${qkPennies(V)===1?'y':'ies'}</small></div>`:''}</div>`;
       out+=qpWitchUI(g,V,me);
       if(me.ex&&!qkWid(V,r,'full'))out+=`<div class="qpsec"><b>💥 Your pot exploded: pick one</b><div class="seg"><button data-a="qpch" data-k="vp" aria-pressed="${R.ch!=='coins'}">${(QKPOT[R.s]||[0,0])[1]} points</button><button data-a="qpch" data-k="coins" aria-pressed="${R.ch==='coins'}">🪙 ${(QKPOT[R.s]||[0])[0]} coins to shop</button></div></div>`;
+      if(me.sch>0)out+=`<div class="qpsec"><b>😈 Schadenfreude: pick ${me.sch>1?me.sch+' free 2-chips':'a free 2-chip'}</b> <span class="rlab">The player to your right exploded.</span><div class="qpshop">${qpChips(2).map(c=>`<button class="qpbuy" data-a="qpsch" data-k="${c}">${qpChipEl(c)}</button>`).join('')}</div></div>`;
+      if((me.gift||[]).length)out+=`<div class="qpsec"><b>Free chips</b> <span class="rlab">Going in your bag: ${me.gift.map(c=>qpChipEl(c)).join(' ')}</span></div>`;
       if(canBuy){out+=`<div class="qpsec"><b>Shop</b> <span class="rlab">${QKX().shop==='two'?'Up to 2 chips of different colors':'One of each color'} · ${coins-spent} of ${coins} left</span><div class="qpshop">${qpShop().map(([k,vs])=>vs.map(v=>{const c=k+v,ok=qpAvail(r,k),sel=me.buy.includes(c),can=sel||ok&&!me.buy.some(x=>x[0]===k)&&me.buy.length<qpBuyMax()&&spent+QPPRICE[c]<=coins;return `<button class="qpbuy${sel?' sel':''}" data-a="${sel?'qpunbuy':can?'qpbuy':'qpnobuy'}" data-k="${c}" ${can?'':'aria-disabled="true"'} aria-pressed="${sel}">${qpChipEl(c)}<small class="num">${QPPRICE[c]}</small></button>`}).join('')).join('')}</div>${r<2?`<small class="rlab">${r<1?'Yellow from round 2, purple from round 3.':'Purple from round 3.'}</small>`:''}</div>`}
       else if(r>=8)out+=`<div class="qpsec"><b>Last round</b> <span class="rlab">No shopping: every 5 coins is a point, and every 2 rubies is a point.</span></div>`;
-      if(r<8)out+=`<div class="qpsec"><b>Rubies</b> <span class="rlab">${qkWid(V,r,'endprice')?'1 ruby each (witch)':'2 rubies each'}</span><div class="lr"><button class="btn sm" data-a="qpruby" data-k="drop" ${rub<(qkWid(V,r,'endprice')?1:2)?'disabled':''}>💧 Move droplet (${me.rubs.drop})</button><button class="btn sm" data-a="qpruby" data-k="flask" ${rub<(qkWid(V,r,'endprice')?1:2)||me.flask||me.rubs.flask?'disabled':''}>🧪 Refill flask${me.rubs.flask?' ✓':''}</button>${me.rubs.drop||me.rubs.flask?`<button class="btn sm" data-a="qpruby" data-k="undo">↶ Undo</button>`:''}</div></div>`;
+      if(r<8)out+=`<div class="qpsec"><b>Rubies</b> <span class="rlab">${qkWid(V,r,'endprice')?'1 ruby each (witch)':'2 rubies each'}</span><div class="lr"><button class="btn sm${rub<(qkWid(V,r,'endprice')?1:2)?'':' qprblit'}" data-a="qpruby" data-k="drop" ${rub<(qkWid(V,r,'endprice')?1:2)?'disabled':''}>💧 Move droplet (${me.rubs.drop})</button><button class="btn sm${rub<(qkWid(V,r,'endprice')?1:2)||me.flask||me.rubs.flask?'':' qprblit'}" data-a="qpruby" data-k="flask" ${rub<(qkWid(V,r,'endprice')?1:2)||me.flask||me.rubs.flask?'disabled':''}>🧪 Refill flask${me.rubs.flask?' ✓':''}</button>${me.rubs.drop||me.rubs.flask?`<button class="btn sm" data-a="qpruby" data-k="undo">↶ Undo</button>`:''}</div></div>`;
       if(qpBook('purple')==='p2'&&R.pu)out+=`<div class="qpsec"><b>Ghost’s breath (set 2): trade in purple chips?</b><div class="seg">${[0,1,2,3].filter(n=>n<=R.pu).map(n=>`<button data-a="qppt" data-k="${n}" aria-pressed="${(+R.pt||0)===n}">${n?'Trade '+n:'Keep'}</button>`).join('')}</div></div>`;
       if(qpBook('green')==='g4'&&R.gl)out+=`<div class="qpsec"><b>Spider (set 4): pay rubies to move the droplet?</b><div class="seg">${Array.from({length:R.gl+1},(_,n)=>`<button data-a="qpg4" data-k="${n}" aria-pressed="${(+R.g4||0)===n}">${n?n+' '+QPRB:'No'}</button>`).join('')}</div></div>`;
       out+=`<details class="qpsec qpadj"><summary><b>Adjust</b> <span class="rlab">for fortune cards or book effects the app doesn’t do</span></summary><div class="lr"><button class="btn sm" data-a="qpadj" data-k="ruby">+1 ${QPRB}</button><button class="btn sm" data-a="qpadj" data-k="-ruby">−1 ${QPRB}</button><button class="btn sm" data-a="qpadj" data-k="vp">+1 point</button><button class="btn sm" data-a="qpadj" data-k="-vp">−1 point</button><button class="btn sm" data-a="qpadj" data-k="drop">+1 💧</button><button class="btn sm" data-a="qpadj" data-k="white">Remove a white 1</button></div>
@@ -8867,10 +8899,18 @@ function qpWarnSheet(){const V=qpViewer(),w=qpUnspent(V);if(!w){QPWARN=null;retu
     ${w.buy?`<p class="qpsub">You have <b>🪙 ${w.left} coins</b> left, enough for ${w.buy===1?'another chip':'more chips'}. Coins don’t carry over to the next round.</p>`:''}
     ${w.rub>=2?`<p class="qpsub">You have <b>${QPRB} ${w.rub} rubies</b>: 2 can move your droplet or refill your flask. Rubies do carry over.</p>`:''}
     <div class="lr"><button class="btn primary" data-a="qpwarnx">Keep shopping</button><button class="btn" data-a="qpdone" data-k="sure">Done anyway</button></div></div></div>`}
-function qpModal(){if(QPINFO)return qpInfoSheet();if(QPWARN)return qpWarnSheet();const a=qpNeedHandoff();if(!a)return qpMyCard();const g=qpG();return `<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="qpp-h" style="${pc(a.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="qpp-h">${esc(nm(a))}</h2><p class="rlab">${g.phase==='brew'?'Your turn to brew.':'Your turn to score and shop.'}</p><button class="btn primary wide" data-a="qpshow" data-k="${a.id}">I’m ${esc(nm(a))}</button></div></div>`}
+let QPBAGV=0;
+/* your bag: every chip in it and the chance of drawing each */
+function qpBagSheet(){const g=qpG(),V=qpViewer(),L=g&&V&&g.pl[V.id];if(!L)return '';const n=L.bag.length,by={};L.bag.forEach(c=>{const k=c.split('#')[0];by[k]=(by[k]||0)+1});
+  const left=L.lim-L.ws,boom=L.bag.filter(c=>qpK(c)==='w'&&qpV(c)>left).length,order=Object.keys(QPCOL);
+  const rows=Object.keys(by).sort((a,b)=>order.indexOf(a[0])-order.indexOf(b[0])||+a.slice(1)-+b.slice(1)).map(k=>{const pct=Math.round(by[k]/n*100),bad=k[0]==='w'&&+k.slice(1)>left;return `<div class="qpbagrow${bad?' bad':''}">${qpChipEl(k)}<span><b>${QPCOL[k[0]][0]} ${k.slice(1)}</b> ×${by[k]}${bad?' · 💥 would explode':''}</span><span class="qpbagbar"><i style="width:${pct}%;background:${k[0]==='w'?(+k.slice(1)>left?'#e0512f':'#9aa3ad'):QPCOL[k[0]][1]}"></i></span><b class="num">${pct}%</b></div>`}).join('');
+  return `<div class="sheet-bg" data-a="qpbagx"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="qpbag-h" data-stop="1"><div class="rs-top"><div><h2 id="qpbag-h">Your bag</h2><small class="lp-sub">${n} chip${n===1?'':'s'} · whites so far ${L.ws} of ${L.lim}</small></div><button class="btn sm" data-a="qpbagx">Close</button></div><div class="rs-body">${n?`<p class="qpbagboom${boom?' bad':''}">${boom?`💥 ${Math.round(boom/n*100)}% chance the next chip explodes your pot`:'✅ No chip in your bag can explode your pot right now'}</p>${rows}`:'<p class="rlab">Your bag is empty.</p>'}</div></div></div>`}
+function qpModal(){if(QPBAGV)return qpBagSheet();if(QPINFO)return qpInfoSheet();if(QPWARN)return qpWarnSheet();const a=qpNeedHandoff();if(!a)return qpMyCard();const g=qpG();return `<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="qpp-h" style="${pc(a.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="qpp-h">${esc(nm(a))}</h2><p class="rlab">${g.phase==='brew'?'Your turn to brew.':'Your turn to score and shop.'}</p><button class="btn primary wide" data-a="qpshow" data-k="${a.id}">I’m ${esc(nm(a))}</button></div></div>`}
 function qpAct(a,b,k){const g=qpG();if(!g)return;
   if(a==='qpshow'){QPVIEW=k;return}
   if(a==='qpinfo'){QPINFO=QPINFO?null:'all';return}
+  if(a==='qpbag'){QPBAGV=1;return}
+  if(a==='qpbagx'){QPBAGV=0;return}
   if(a==='qpinfox'){QPINFO=null;return}
   if(a==='qpwarnx'){QPWARN=null;return}
   if(a==='qpnobuy'){toast('Not enough coins, or you already have that color. Press and hold to read about it.');return}
@@ -8881,7 +8921,7 @@ function qpAct(a,b,k){const g=qpG();if(!g)return;
   if(a==='qpdone'){if(k!=='sure'&&qpUnspent(V)&&(qpUnspent(V).buy||QKX().rubywarn!==false)){QPWARN=1;return}QPWARN=null}
   if(a==='qpdraw'){lkq('qpDraw',V.id);vibe(10);after();return}
   if(a==='qpstop'){lkq('qpStop',V.id);after();return}
-  if(a==='qpflask'){lkq('qpFlask',V.id);return}   if(a==='qpha'){lkq('qpHA',V.id,k);return}
+  if(a==='qpflask'){lkq('qpFlask',V.id);return}   if(a==='qpha'){lkq('qpHA',V.id,k);return}   if(a==='qpsch'){lkq('qpChoose',V.id,{t:'sch',v:k});return}
   if(a==='qpans'){lkq('qpAnswer',V.id,k||null);after();return}
   if(a==='qpwit'){if(!lkq('qpWitch',V.id,k,b.dataset.v||null))toast('That witch can’t be used right now.');return}
   if(a==='qpd6'){lkq('qpD6',V.id,k||null);return}
@@ -8919,6 +8959,7 @@ function qpFPUI(g,V,L){const r=g.r,id=qkCid(r),f=qkR(V,r).fp,b=(v,l,dis)=>`<butt
   if(id==='goodstart'){const mx=Math.min(3,L.rat+(+f||0));o=b(0,'Keep my rat tails');for(let k=1;k<=mx;k++)o+=b(k,`Trade ${k} 🐀 → ${k} 💎`)}
   if(id==='justtime')o=b('vp','4 points')+b('white','Remove a white 1-chip',!L.bag.some(x=>x.startsWith('w1#'))&&f!=='white');
   if(id==='wisely')o=b('drop','💧 Move droplet 2')+b('purple','Take a purple chip');
+  if(id==='opport'){const up=(L.op||[]).filter(qpUp1);o=`<div class="rlab">You drew: ${(L.op||[]).map(c=>qpChipEl(c)).join(' ')} (they stay in your bag)</div>`+(up.length?`<div class="rlab" style="margin-top:6px">Tap one to trade it up a size:</div><div class="qpshop">${up.map(c=>`<button class="qpbuy${f==='up'&&L.fpw===c?' sel':''}" data-a="qpfc" data-k="up" data-v="${c}">${qpChipEl(c)}→${qpChipEl(qpUp1(c))}</button>`).join('')}</div>`:'<div class="rlab" style="margin-top:6px">None of them can go up a size.</div>')+b('green','Take a green 1-chip instead')+b('no','Nothing')}
   return `<div class="qpsec qpfpick"><b>Your choice</b><div class="lr" style="flex-wrap:wrap;gap:6px;margin-top:6px">${o}</div></div>`}
 /* a new round of brewing starts with your pot on screen, not the last round's results */
 let QPSCR='';function qpScrollFx(){if(S.game!=='quacks'||!qpOn()||S.screen!=='score'||!S.started)return;const g=qpG();if(!g||g.phase!=='brew')return;const V=qpViewer();if(!V)return;const L=g.pl[V.id];if(!L||L.sf===false)return;const k=g.r+':'+V.id;if(QPSCR===k)return;QPSCR=k;QPSCRT=0;const fit=n=>{if(QPSCRT)return;const el=document.querySelector('.qpme');if(!el)return;const tb=document.querySelector('#app .tabs'),top=tb?Math.max(0,tb.getBoundingClientRect().bottom):0,dy=el.getBoundingClientRect().top-top-6;if(Math.abs(dy)>4)window.scrollBy({top:dy,behavior:n?'auto':'smooth'});if(n<4)setTimeout(()=>fit(n+1),n?450:650)};setTimeout(()=>fit(0),80)}
@@ -8974,13 +9015,25 @@ function qkAwards(){const P=act(),out=[],add=(title,f,min,why)=>{const vals=P.ma
   add('Master brewer',p=>Math.max(0,...qkRows(p).map(x=>QKPOT[x.sp][0])),20,v=>`reached space ${v}`);
   add('Kaboom',qkBooms,2,v=>`blew up ${v} pots`);
   add('Steady hand',p=>qkRows(p).length&&!qkBooms(p)?1:0,1,()=>'never exploded');
-  add('Lucky roller',p=>qkRows(p).filter(x=>x.x.die||qkDieRollers(x.r).includes(p)).length,3,v=>`rolled the bonus die ${v} times`);return out}
+  add('Lucky roller',p=>qkRows(p).filter(x=>x.x.die||qkDieRollers(x.r).includes(p)).length,3,v=>`rolled the bonus die ${v} times`);
+  add('Ruby hoarder',p=>qkRubies(p,9),6,v=>`ended with ${v} rubies`);
+  add('Rat king',p=>{let t=0;for(let r=1;r<9;r++){const x=(qkRats(r)||[]).find(y=>y.p===p);if(x)t+=x.n}return t},6,v=>`got ${v} rat tails`);
+  add('Bowl filler',p=>qkRows(p).reduce((a,x)=>a+(qkParts(p,x.r)||{ov:0}).ov,0),2,v=>`scored ${v} points from the overflow bowl`);
+  add('Big round',p=>Math.max(0,...qkRows(p).map(x=>x.v)),15,v=>`scored ${v} points in one round`);
+  add('Ingredient fan',p=>qkRows(p).reduce((a,x)=>a+(qkB(p,x.r).vp||0),0),8,v=>`earned ${v} points from ingredient books`);
+  return out}
+/* round-by-round totals as a little line chart */
+function qkChart(){const P=act(),N=qkPlayed();if(N<2)return '';const tot=P.map(p=>{let t=0;return Array.from({length:N},(_,r)=>t+=qkPts(p,r))}),hi=Math.max(1,...tot.flat()),W=320,H=170,L=28,B=22,x=r=>L+(W-L-8)*r/(N-1),y=v=>H-B-(H-B-8)*v/hi;
+  const grid=[0,.5,1].map(f=>{const v=Math.round(hi*f);return `<line x1="${L}" x2="${W-8}" y1="${y(v)}" y2="${y(v)}" class="qkcg"/><text x="${L-4}" y="${y(v)+4}" text-anchor="end" class="qkct">${v}</text>`}).join('');
+  const xs=Array.from({length:N},(_,r)=>`<text x="${x(r)}" y="${H-6}" text-anchor="middle" class="qkct">${r+1}</text>`).join('');
+  const lines=P.map((p,i)=>`<g style="${pc(p.color)}"><polyline fill="none" stroke="var(--pc)" stroke-width="3" stroke-linejoin="round" points="${tot[i].map((v,r)=>x(r)+','+y(v)).join(' ')}"/><circle cx="${x(N-1)}" cy="${y(tot[i][N-1])}" r="4" fill="var(--pc)"/></g>`).join('');
+  return `<div class="panel qkchart"><b class="rlab">Points after each round</b><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Points after each round">${grid}${xs}${lines}</svg><div class="qkcleg">${P.map(p=>`<span style="${pc(p.color)}"><i></i>${esc(nm(p))}</span>`).join('')}</div></div>`}
 function qkRevSteps(){return Array.from({length:qkPlayed()},(_,r)=>({name:`Round ${r+1}`,f:p=>qkPts(p,r)}))}
 function qkResults(){const rk=ranking();
   return `<div class="bar"><button class="back" data-a="go" data-s="score">‹ Score sheet</button><h1>Results</h1></div>
   <div class="podium">${rk.list.map(({p,rank})=>`<div class="res ${rank===1?'win':''}" style="${pc(p.color)}"><div class="rtop"><span class="rank num">${rank}</span><span class="rname">${esc(nm(p))}</span><span class="rtot num">${total(p)}</span></div>
     <div class="rbreak crun"><span class="crh"><i>Round</i><i>Points</i><i>Total</i></span>${qkRows(p).map(x=>`<span><i>Round ${x.r+1}<small> · ${esc(qkWords(x))}</small></i><b class="num">+${x.v}</b><em class="num">${x.tot}</em></span>`).join('')}</div></div>`).join('')}</div>
-  ${rk.note?`<p class="hint">${rk.note}</p>`:''}${awardsHtml()}${photoBlock()}
+  ${rk.note?`<p class="hint">${rk.note}</p>`:''}${qkChart()}${awardsHtml()}${photoBlock()}
   <div class="actions"><div class="in">${S.demo?'<button class="btn" data-a="revstart">Watch the reveal again</button><button class="btn primary" data-a="demoexit">Exit sample</button>':'<button class="btn primary" data-a="rematch">Rematch, same players</button>'}</div></div>`}
 function qkGuide(){const X=QKX(),n=act().length;
   return guideSheet('The Quacks of Quedlinburg',[
@@ -10507,15 +10560,15 @@ function pzEnd(g,w){g.out=w;act().forEach(p=>{const R=ptR(p,g.r),h=g.h[p.id]||[]
 /* ---------------- computer players ---------------- */
 function pzBotStep(g,q){const pid=q.id,lv=q.bot,h=g.h[pid],spec=pzSpec(g.on[pid]);if(g.turn!==pid||g.phase!=='play')return;
   if(g.pass===pid){const ts=pzPassTo(g,pid);if(ts.length&&(lv!=='easy'||Math.random()<.6)){const t=ts.slice().sort((a,b)=>(g.made[b]?1:0)-(g.made[a]?1:0)||g.h[a].length-g.h[b].length)[0];pzPass(g,pid,t)}else pzTakeSkip(g,pid);return}
-  if(!g.drew){const t=pzTop(g);let take=false;if(t&&!pzS(t)){if(pzW(t))take=lv!=='easy'||Math.random()<.6;else if(!g.made[pid]){const a=pzNeed(h,spec),b=pzNeed(h.concat(t),spec);take=b<a&&(lv!=='easy'||Math.random()<.5)}
-      else take=Object.values(g.lay).some(gs=>gs.some(gr=>pzHitOk(gr,t)))&&lv!=='easy'}
+  if(!g.drew){const t=pzTop(g);let take=false;if(t&&!pzS(t)){if(pzW(t))take=lv!=='easy'||Math.random()<.6;else if(!g.made[pid]){const a=pzNeed(h,spec),b=pzNeed(h.concat(t),spec);take=b<a&&Math.random()<(lv==='easy'?.5:lv==='normal'?.7:.9)}
+      else take=Object.values(g.lay).some(gs=>gs.some(gr=>pzHitOk(gr,t)))&&lv!=='easy'&&Math.random()<(lv==='normal'?.5:.85)}
     pzDraw(g,pid,take?'disc':'deck');return}
-  if(!g.made[pid]){const s=pzSolve(h,spec);if(s&&(lv!=='easy'||Math.random()<.85)){pzLay(g,pid,s.map(gr=>gr.c));return}}
-  if(g.made[pid]){/* hit whatever fits, keeping one card to discard unless every card goes */for(const c of pzSort(h)){for(const o of g.ps){const gs=g.lay[o]||[];for(let i=0;i<gs.length;i++)if(pzHitOk(gs[i],c)&&(lv!=='easy'||Math.random()<.7)){if(pzHit(g,pid,c,o,i))return}}}}
+  if(!g.made[pid]){const s=pzSolve(h,spec);if(s&&Math.random()<(lv==='easy'?.7:lv==='normal'?.9:1)){pzLay(g,pid,s.map(gr=>gr.c));return}}
+  if(g.made[pid]){/* hit whatever fits, keeping one card to discard unless every card goes */for(const c of pzSort(h)){for(const o of g.ps){const gs=g.lay[o]||[];for(let i=0;i<gs.length;i++)if(pzHitOk(gs[i],c)&&Math.random()<(lv==='easy'?.55:lv==='normal'?.8:.95)){if(pzHit(g,pid,c,o,i))return}}}}
   /* discard: a Skip on whoever is closest to going out; otherwise the card that helps least */
   const opp=pzSkipOk(g,pid);const sk=h.find(pzS);
-  if(sk&&opp.length&&(lv!=='easy'||Math.random()<.6)){const tgt=opp.slice().sort((a,b)=>(g.made[b]?1:0)-(g.made[a]?1:0)||g.h[a].length-g.h[b].length)[lv==='easy'?Math.floor(Math.random()*opp.length):0];pzDiscard(g,pid,sk,tgt);return}
-  const noise=lv==='easy'?3:lv==='normal'?.8:.2;let best=null;const tried={};
+  if(sk&&opp.length&&(lv!=='easy'||Math.random()<.6)){const tgt=opp.slice().sort((a,b)=>(g.made[b]?1:0)-(g.made[a]?1:0)||g.h[a].length-g.h[b].length)[lv==='hard'||lv==='normal'&&Math.random()<.5?0:Math.floor(Math.random()*opp.length)];pzDiscard(g,pid,sk,tgt);return}
+  const noise=lv==='easy'?4:lv==='normal'?2:.8;let best=null;const tried={};
   h.forEach(d=>{const key=d.split('#')[0];if(tried[key])return;tried[key]=1;if(pzW(d)&&h.some(x=>!pzW(x)))return;if(d===g.got&&g.from==='disc'&&h.length>1)return;
     const rest=h.filter(x=>x!==d);let s;if(!g.made[pid])s=pzNeed(rest,spec)*10;else s=Object.values(g.lay).some(gs=>gs.some(gr=>pzHitOk(gr,d)))?5:0;
     s-=pzPts(d)/10;s+=(Math.random()*2-1)*noise*3;if(pzS(d))s-=4;if(!best||s<best.s)best={s,d}});
@@ -12643,7 +12696,7 @@ function render0(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}try{htPassFx()}catch(e){}try{qpPopFx()}catch(e){}try{qpPlopFx()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){try{glTick()}catch(e){}if(S.game==='hearts')htTick();if(S.game==='mextrain')mtTick();if(S.game==='chicken')cfTick();if(S.game==='quacks')qpTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
+  tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}try{htPassFx()}catch(e){}try{qpPopFx()}catch(e){}try{qpPlopFx()}catch(e){}try{qpMoveFx()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){try{glTick()}catch(e){}if(S.game==='hearts')htTick();if(S.game==='mextrain')mtTick();if(S.game==='chicken')cfTick();if(S.game==='quacks')qpTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -12859,7 +12912,7 @@ document.addEventListener('click',e=>{
   if(/^sbp(src|disc|build|show|deal)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
   if(/^mtp(tile|train|draw|pass|done|show|deal)$/.test(a)&&S.game==='mextrain'&&mtOn()&&S.started){mtAct(a,b,k);save();render();return}
   if((a==='dmflip'||a==='dmsort')&&(S.game==='mextrain'&&mtOn()||S.game==='chicken'&&cfOn())&&S.started){const CF=S.game==='chicken',G=CF?cfG():mtG(),V=CF?cfViewer():mtViewer();if(G&&V){if(a==='dmflip')dmFlip(G,V.id,b.dataset.t);else dmSortNow(G,V.id,b.dataset.v);vibe(6)}render();return}
-  if(/^qp(seen|show|info|infox|infoall|nobuy|warnx|card|draw|stop|flask|ans|ch|buy|unbuy|ruby|fp|pt|g4|adj|done|undone|wit|d6|fc|ha)$/.test(a)&&S.game==='quacks'&&qpOn()&&S.started){qpAct(a,b,k);save();render();return}
+  if(/^qp(seen|show|info|infox|infoall|nobuy|warnx|card|draw|stop|flask|ans|ch|buy|unbuy|ruby|fp|pt|g4|adj|done|undone|wit|d6|fc|ha|sch|bag|bagx)$/.test(a)&&S.game==='quacks'&&qpOn()&&S.started){qpAct(a,b,k);save();render();return}
   if(/^cfp(tile|spot|draw|pass|show|deal)$/.test(a)&&S.game==='chicken'&&cfOn()&&S.started){cfAct(a,b,k);save();render();return}
   if(a==='gplastok'){const V=gpViewer(),g=gpG();if(V&&g)GPLASTOK[(S.gameId||'')+':'+g.r+':'+V.id]=1;render();return}
   if(/^gp(cell|deck|disc|deal|pile|skip|bounce)$/.test(a)&&(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')&&gpOn()&&S.started){gpAct(a,b,k);save();render();return}
@@ -13612,6 +13665,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='ee0d35';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='784f0c';</script>
 </body>
 </html>
