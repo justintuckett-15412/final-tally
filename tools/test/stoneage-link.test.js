@@ -7,7 +7,7 @@ async function step(P){const st=await P.evaluate(()=>{const g=S.sag;if(!g||!S.lk
   if(!st||!st.mine||st.wait||st.ph==='done')return false;
   if(st.ph==='place'){if(st.sel)return tap(P,'sapplace');const locs=await P.evaluate(()=>[...document.querySelectorAll('.go[data-a="sapsel"]')].map(b=>b.dataset.k));
     const pick=['b0','b1','c0','field','hunt','tools','forest','clay','quarry','river'].find(l=>locs.includes(l))||locs[0];return pick?tap(P,'sapsel',pick):false}
-  if(st.ph==='act'){if(st.dc)return tap(P,'sapdie');if(st.roll){await tap(P,'saptool');return tap(P,'saptake')}if(st.pay){if(await tap(P,'sappay'))return true;return tap(P,'sapskip')}
+  if(st.ph==='act'){if(st.dc)return tap(P,'sapdie');if(st.roll){if(await tap(P,'saproll'))return true;await tap(P,'saptool');return tap(P,'saptake')}if(st.pay){if(await tap(P,'sappay'))return true;return tap(P,'sapskip')}
     if(st.pick){await tap(P,'sapadj','w:1');await tap(P,'sapadj','w:1');return tap(P,'sapchoose')}return tap(P,'sapres')}
   if(st.ph==='feed'){if(await tap(P,'sapfeed'))return true;return tap(P,'sapstarve')}return false}
 (async()=>{const browser=await chromium.launch();const H=await mk(browser,'host'),G=await mk(browser,'guest');const errs=[];[H,G].forEach(p=>p.on('pageerror',e=>errs.push(e.message)));

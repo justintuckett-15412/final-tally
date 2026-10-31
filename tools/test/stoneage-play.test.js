@@ -13,11 +13,13 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   r=await P.evaluate(()=>{const g=S.sag,[a,b,c]=g.ps,o={};o.a=saPlace(g,a,'quarry',1);o.b=saPlace(g,b,'quarry',1);o.c=saCanPlace(g,c,'quarry');o.hut2=saCanPlace(g,c,'hut');return o});
   ok('3 players: two players per resource spot',r.a&&r.b&&r.c===0,r);
   ok('the hut takes 2 people',r.hut2===2,r);
+  r=await P.evaluate(()=>{const g=S.sag,a=g.ps[0];g.phase='act';g.turn=a;g.todo={[a]:['forest']};g.pl={forest:{[a]:3}};g.roll=g.pay=g.pick=g.dc=null;const o={};o.res=saResolve(g,a,'forest');o.noDice=g.roll&&g.roll.dice===null;o.takeEarly=saTake(g,a);o.roll=saRoll(g,a);o.n=g.roll.dice.length;o.twice=saRoll(g,a);o.take=saTake(g,a);return o});
+  ok('gathering waits for a tap to roll, then rolls one die per person',r.res&&r.noDice&&!r.takeEarly&&r.roll&&r.n===3&&!r.twice&&r.take,r);
   /* tools go 1, 1+1, 1+1+1, 2+1+1 ... 4+4+4 */
   r=await P.evaluate(()=>{const M={tl:[],tu:[]},L=[];for(let i=0;i<13;i++){saAddTool(M);L.push(M.tl.join('/'))}return L});
   ok('tools grow like the rulebook',r[0]==='1'&&r[2]==='1/1/1'&&r[3]==='2/1/1'&&r[6]==='3/2/2'&&r[11]==='4/4/4'&&r[12]==='4/4/4',r);
   /* card costs and refilling: slot 0 (rightmost) costs 1; cards slide right */
-  r=await P.evaluate(()=>{const g=S.sag,before=g.slots.slice();g.slots[0]=null;g.slots[2]=null;g.phase='feed';g.fd={};saRoundEnd(g);return {before,after:g.slots.slice(),r:g.r,costs:[0,1,2,3].map(saCost)}});
+  r=await P.evaluate(()=>{const g=S.sag,r0=g.r,before=g.slots.slice();g.slots[0]=null;g.slots[2]=null;g.phase='feed';g.fd={};saRoundEnd(g);return {before,after:g.slots.slice(),r:g.r-r0,costs:[0,1,2,3].map(saCost)}});
   ok('card costs 1, 2, 3, 4 from the right',r.costs.join()==='1,2,3,4',r.costs);
   ok('cards slide right and new ones fill from the left',r.after[0]===r.before[1]&&r.after[1]===r.before[3]&&r.after[2]&&r.after[3]&&r.r===1,r);
   /* feeding: fields first, then food; short = resources or -10 */
