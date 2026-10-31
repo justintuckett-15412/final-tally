@@ -2154,6 +2154,8 @@ let THEMESET=false;
 function scaleFor(w,h){if(SET&&SET.scale==='off')return 1;const big=SET&&SET.scale==='big',z=big?Math.min(w/540,h/600):Math.min(w/600,h/720);return Math.max(1,Math.min(z,big?2.2:1.6))}
 function applyScale(){try{const r=document.documentElement,z=scaleFor(window.innerWidth,window.innerHeight),v=z>1.01?String(Math.round(z*100)/100):'';if(r.style.zoom!==v)r.style.zoom=v}catch(e){}}
 addEventListener('resize',()=>{applyScale()});
+/* turning a device sideways (or back): redraw so the two-column layout comes and goes */
+let WIDERS=null;addEventListener('resize',()=>{clearTimeout(WIDERS);WIDERS=setTimeout(()=>{try{if(typeof S==='undefined'||S.screen!=='score'||!S.started||/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement||{}).tagName||''))return;const z=parseFloat(document.documentElement.style.zoom)||1,want=innerWidth>innerHeight&&innerWidth/z>=740;if(want!==document.body.classList.contains('qpwide')||want)render()}catch(e){}},250)});
 function applyTheme(){const r=document.documentElement,t=SET&&SET.theme;if(t==='light'||t==='dark'){if(r.dataset.theme!==t)r.dataset.theme=t;THEMESET=true}else if(THEMESET){r.removeAttribute('data-theme');THEMESET=false}}
 let SET={reveal:'auto',revv:2,cb:false,sound:true,me:'',look:'art',lookv:2,awake:true,big:false,tipsDone:false,timer:0},SETBACK='home';
 try{Object.assign(SET,JSON.parse(localStorage.getItem(SKEY))||{})}catch(e){}

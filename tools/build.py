@@ -22,7 +22,7 @@ for s in (152,167,180,192,512):
     full.resize((s,s),Image.LANCZOS).save(f'{OUT}/icons/icon-{s}.png')
 pad=Image.new('RGB',(512,512),bg); pad.paste(full.resize((410,410),Image.LANCZOS),(51,51)); pad.save(f'{OUT}/icons/maskable-512.png')
 files+= [f'icons/icon-{s}.png' for s in (152,167,180,192,512)]+['icons/maskable-512.png']
-manifest={"id":"./","name":"Final Tally","short_name":"Final Tally","description":"Family game night scorekeeper.","start_url":"./","scope":"./","display":"standalone","orientation":"portrait","background_color":"#EDF0F3","theme_color":"#EDF0F3",
+manifest={"id":"./","name":"Final Tally","short_name":"Final Tally","description":"Family game night scorekeeper.","start_url":"./","scope":"./","display":"standalone","orientation":"any","background_color":"#EDF0F3","theme_color":"#EDF0F3",
  "icons":[{"src":"icons/icon-192.png","sizes":"192x192","type":"image/png"},{"src":"icons/icon-512.png","sizes":"512x512","type":"image/png"},{"src":"icons/maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}]}
 json.dump(manifest,open(f'{OUT}/manifest.webmanifest','w'),indent=1)
 json.dump({**manifest,'background_color':'#0F151C','theme_color':'#0F151C'},open(f'{OUT}/manifest-dark.webmanifest','w'),indent=1)
