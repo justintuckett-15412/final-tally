@@ -1495,6 +1495,12 @@ i.satl{display:inline-block;font-style:normal;min-width:16px;text-align:center;b
 .saeq{font-size:16px}.sapick{display:grid;gap:4px}.sapk{display:flex;align-items:center;justify-content:space-between;gap:8px}.sapk small{opacity:.75}
 .sapayh{display:flex;gap:10px;align-items:center}.sapayh>.sacard,.sapayh>.sahut{width:92px;flex:none}.satodo{display:flex;flex-wrap:wrap;gap:6px}
 .saico{vertical-align:-4px;object-fit:contain}.sacard .sabot img{display:inline-block;border-radius:6px;margin-bottom:1px}.sahb span{display:flex;gap:1px}
+.satile .sameeps:empty,.saslot .sameeps:empty,.sapile .sameeps:empty{display:none}.satile .sameeps,.saslot .sameeps,.sapile .sameeps{gap:3px;min-height:26px;background:rgba(255,253,246,.85);box-shadow:0 1px 3px rgba(0,0,0,.25);border-radius:10px;padding:2px 4px;align-self:flex-start}
+.sagath .satile .sameeps{gap:1px;padding:2px}.sagath .sameep,.sagath .saring{width:min(22px,calc((100cqw - 20px)/7))!important;height:min(22px,calc((100cqw - 20px)/7))!important}.satile{container-type:inline-size}
+.saring{width:22px!important;height:22px!important;border:2.5px dashed #26313b!important;opacity:.6;border-radius:50%;margin:0!important;box-sizing:border-box;flex:none}
+.sadock{position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:30;margin:10px 0;padding:10px 12px;border-radius:16px;border:3px solid var(--pc);background:var(--surface);box-shadow:0 6px 24px rgba(0,0,0,.28);max-height:62vh;overflow:auto;display:grid;gap:6px}
+.sadock.wait{border-width:2px;box-shadow:0 4px 14px rgba(0,0,0,.18)}.sadh{display:flex;align-items:center;gap:8px;font-size:15px}.sadpp{display:flex;flex-wrap:wrap;gap:4px}.sadgone{opacity:.22}
+.sadock .sapanel{margin:0;border:0;padding:0;background:none}
 </style>
 
 <div id="app"></div>
@@ -7274,7 +7280,7 @@ function saViewer(){const g=saG();if(!g)return null;if(S.lk&&!S.demo)return saMe
 const saIco=(k,sz=18)=>`<img class="saico" src="art/trail/sa-${({w:'wood',c:'clay',s:'stone',g:'gold'})[k]||k}.png" width="${sz}" height="${sz}" alt="${({w:'wood',c:'clay',s:'stone',g:'gold',food:'food',tool:'tool'})[k]||k}">`;
 const saMeep=(c,sz=16)=>`<svg class="sameep" width="${sz}" height="${sz}" viewBox="0 0 40 40" style="${pc(c)}" aria-hidden="true"><path d="${MGSHAPE_M}" fill="var(--pc)" stroke="#26313b" stroke-width="2.4" stroke-linejoin="round"/></svg>`;
 const saColOf=id=>(act().find(p=>p.id===id)||{}).color||'gray';
-function saMeeps(g,loc,max){const o=g.pl[loc]||{},L=[];Object.entries(o).forEach(([id,n])=>{if(g.phase!=='place'&&!(g.phase==='act'&&((g.todo[id]||[]).includes(loc)||g.roll&&g.roll.pid===id&&g.roll.loc===loc||g.pay&&g.pay.pid===id&&g.pay.loc===loc)))return;for(let i=0;i<n;i++)L.push(saMeep(saColOf(id)))});
+function saMeeps(g,loc,max,sz=24){const o=g.pl[loc]||{},L=[];Object.entries(o).forEach(([id,n])=>{if(g.phase!=='place'&&!(g.phase==='act'&&((g.todo[id]||[]).includes(loc)||g.roll&&g.roll.pid===id&&g.roll.loc===loc||g.pay&&g.pay.pid===id&&g.pay.loc===loc)))return;for(let i=0;i<n;i++)L.push(saMeep(saColOf(id),sz))});
   const rest=max&&max<=7?Math.max(0,max-L.length):0;return L.join('')+'<i class="saring"></i>'.repeat(rest)}
 const saTopTxt=t=>t.food?`🍖 ${t.food} food`:t.res?SAK.filter(k=>t.res[k]).map(k=>`${SARI[k]} ${t.res[k]} ${SARN[k]}`).join(' '):t.pts?`⭐ ${t.pts} points`:t.ag?'🌾 +1 agriculture':t.tool?'🔨 +1 tool':t.one?`🔨 ${t.one} once`:t.draw?'🃏 +1 card':t.any?`🎁 ${t.any} of your choice`:t.roll?`🎲🎲 for ${SARN[t.roll]}`:t.dice?'🎲 everyone picks':'';
 function saCardEl(id,o={}){const c=saCard(id);if(!c.t)return '';const green=!!c.k,k=c.s?Object.keys(c.s)[0]:null;
@@ -7309,7 +7315,7 @@ function saPayCtx(g,V){const key=g.pay?`pay:${g.pay.loc}:${g.n}`:g.pick?`pick:${
     else if(g.fd&&g.fd[V.id]){let n=g.fd[V.id].short;for(const k of SAK){const t=Math.min(n,M[k]);o[k]=t;n-=t}}
     SAPAY={key,o:{...o}}}return SAPAY.o}
 function saPanel(g,V){if(!V)return '';const M=g.me[V.id],who=S.lk||saHumans().length<2?'':`${esc(nm(V))}: `;
-  if(g.phase==='place'&&g.turn===V.id){if(!SASEL)return `<p class="hint sahint">${who}tap a glowing spot to place people. You have <b>${g.left[V.id]}</b> left.</p>`;
+  if(g.phase==='place'&&g.turn===V.id){if(!SASEL)return `<p class="rlab" style="margin:4px 0 0">Tap a glowing spot on the board.</p>`;
     const max=saCanPlace(g,V.id,SASEL);if(!max)return '';const fixed=SASEL==='hut'||SASEL==='tools'||SASEL==='field'||SASEL[0]==='c'||SASEL[0]==='b';const n=fixed?(SASEL==='hut'?2:1):Math.min(Math.max(1,SAN),max);
     const nmL=SASEL[0]==='c'?`This card (costs ${saCost(+SASEL.slice(1))} resources)`:SASEL[0]==='b'?'This hut':SALOC[SASEL].n;
     return `<div class="sapanel"><b>${who}${nmL}</b>${fixed?`<span class="rlab">${SASEL==='hut'?'Takes 2 people. You get one more person from next round.':SASEL[0]==='c'||SASEL[0]==='b'?'One person. You decide whether to pay when you bring them home.':'One person.'}</span>`:`<div class="srow"><span class="rlab">How many people? (up to ${max})</span>${stepper('sapn',n,{min:1,max,label:'people'})}</div>${SALOC[SASEL].div?`<span class="rlab">About ${Math.floor(3.5*n/SALOC[SASEL].div)} ${SALOC[SASEL].r==='food'?'food':SARN[SALOC[SASEL].r]} before tools.</span>`:''}`}
@@ -7335,6 +7341,13 @@ function saPanel(g,V){if(!V)return '';const M=g.me[V.id],who=S.lk||saHumans().le
     return `<div class="sapanel bad"><b>${who}${F.short} short of food</b><span class="rlab">${can?`Pay ${F.short} resource${F.short>1?'s':''} instead, or go hungry and lose 10 points.`:`You don’t have ${F.short} resource${F.short>1?'s':''} to trade, so your tribe goes hungry: −10 points.`}</span>${can?saPicker(M,o,F.short):''}
       <div class="sheet-btns"><button class="btn" data-a="sapstarve">Go hungry (−10)</button>${can?`<button class="btn primary" data-a="sapfeed" ${saSum(o)===F.short?'':'disabled'}>Pay ${F.short}</button>`:''}</div></div>`}
   return ''}
+function saDock(g,V){if(!V||g.phase==='done')return '';const a=saActor(g),mine=a===V.id||g.phase==='feed'&&(g.fd||{})[V.id];const M=g.me[V.id];
+  const ph=g.phase==='place'?'Place your people':g.phase==='act'?'Bring your people home':'Feed your tribe';
+  const left=g.phase==='place'?(g.left[V.id]||0):0,placed=M.pp-left;
+  const people=g.phase==='place'?`<div class="sadpp">${Array.from({length:M.pp},(_,i)=>i<left?saMeep(V.color,30):`<span class="sadgone">${saMeep(V.color,30)}</span>`).join('')}</div><div class="rlab"><b>${left}</b> of ${M.pp} left to place${placed?` · ${placed} on the board`:''}</div>`:'';
+  if(!mine){const ap=act().find(p=>p.id===a);return `<div class="sadock wait" style="${pc(V.color)}"><div class="sadh">${saMeep(V.color,22)}<span><b>${esc(nm(V))}</b> · waiting for ${ap?botHead(ap)+esc(nm(ap)):'everyone'}</span></div>${g.phase==='place'?`<div class="rlab">You have <b>${left}</b> of ${M.pp} people left to place.</div>`:''}</div>`}
+  const body=saPanel(g,V);
+  return `<div class="sadock" style="${pc(V.color)}"><div class="sadh">${saMeep(V.color,22)}<span><b>${S.lk||saHumans().length<2?'Your turn':esc(nm(V))+'’s turn'}</b> · ${ph}</span></div>${people}${body}</div>`}
 function saPlayUI(){const g=saG(),P=act(),sc=P.map(total),hi=Math.max(...sc),lead=g&&hi>0&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="${g?g.phase==='done'?'Game over':`Round ${g.r+1}`:'Stone Age'}">${g?g.phase==='done'?'🏁':`🪨 ${g.r+1}`:'🪨'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&saActor(g)===q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${g&&g.me[q.id]?g.me[q.id].bld.length+' huts':''}</div></button>`).join('')}</div>`;
@@ -7343,9 +7356,9 @@ function saPlayUI(){const g=saG(),P=act(),sc=P.map(total),hi=Math.max(...sc),lea
   const phase=g.phase==='place'?'Placing people':g.phase==='act'?'Bringing people home':g.phase==='feed'?'Feeding':'';
   const status=g.phase==='done'?'<b>Game over.</b> Final scoring is added in.':ap?`${botHead(ap)}<b>${esc(nm(ap))}</b> ${V&&V.id===ap.id?'· your move':ap.bot?'is thinking…':'· their move'} <small class="rlab">${phase}</small>`:`<small class="rlab">${phase}</small>`;
   out+=`<div class="hfmin htstat"><span>${status}</span><span>${esc(g.msg||'')}</span></div>`;
-  out+=saPanel(g,V);
   out+=saBoard(g,V);
   out+=`<h4 class="sah">Villages</h4><div class="savills">${[...(V?[V]:[]),...P.filter(p=>!V||p.id!==V.id)].map(p=>saVillage(g,p,V)).join('')}</div>`;
+  out+=saDock(g,V);
   if(V&&g.me[V.id]&&g.me[V.id].cards.length)out+=`<h4 class="sah">${S.lk||saHumans().length<2?'Your':esc(nm(V))+'’s'} cards</h4><div class="samycards">${g.me[V.id].cards.map(id=>saCardEl(id,{cls:'sm'})).join('')}</div>`;
   if(g.phase==='done')out+=`<div class="panel htsum">${P.map(q=>`<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>green ${saGreen(q)} · sand cards ${saSand(q)} · resources ${saFv(q,'rs')||0}</small></span><span class="num"><b>${total(q)}</b></span></div>`).join('')}</div>
     <div class="actions"><div class="in">${saRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Waiting for the host…</span>`}</div></div>`;
