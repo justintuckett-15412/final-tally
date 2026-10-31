@@ -1539,6 +1539,8 @@ i.satl{display:inline-block;font-style:normal;min-width:16px;text-align:center;b
 .sadock .sapanel{margin:0;border:0;padding:0;background:none}
 .sarollbtn{display:flex;align-items:center;justify-content:center;gap:10px;font-size:18px;min-height:54px}.sarollbtn .yzdie{flex:none}
 body:has(.sadock) .rxfab{display:none}.sadh>span{flex:1}.sadrx{flex:none;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font-size:19px;display:grid;place-items:center;padding:0}
+.safeed{display:grid;gap:4px;padding:8px 10px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,var(--surface))}.safrow{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px}.safrow small{grid-column:1/-1;opacity:.7;font-size:12px;margin-top:-2px}.safrow b{display:flex;align-items:center;gap:3px}.safok{color:var(--good,#2f8a3a);font-weight:700}
+.sarsum{display:grid;gap:4px;margin-top:6px}.sarrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 8px;border-left:5px solid var(--pc);border-radius:8px;background:var(--soft)}.sarrow>b{font-size:13px}.sachips{display:flex;flex-wrap:wrap;gap:4px;flex:1 1 100%}.sachip{display:inline-flex;align-items:center;gap:2px;font-size:12px;padding:1px 7px;border-radius:99px;background:var(--surface);border:1px solid var(--line)}
 </style>
 
 <div id="app"></div>
@@ -7126,8 +7128,9 @@ function saRound(g,first){if(!first){const keep=g.slots.filter(Boolean);const em
     g.r++;g.first=saNext(g,g.first)}
   g.turn=g.first;g.phase='place';g.pl={};g.todo={};g.roll=null;g.pay=null;g.pick=null;g.dc=null;g.fd=null;
   g.ps.forEach(id=>{const M=g.me[id];g.left[id]=M.pp;M.tu=M.tl.map(()=>0)});
+  g.rs0={};g.sp={};g.ps.forEach(id=>{const M=g.me[id];g.rs0[id]={w:M.w,c:M.c,s:M.s,g:M.g,food:M.food,ag:M.ag,tt:saTT(M),pp:M.pp,nc:M.cards.length,nb:M.bld.length,ex:M.ex,one:M.one.length}});
   g.msg=`Round ${g.r+1}. ${nmid(g.first)} places first.`;
-  gAnn(g,`Round ${g.r+1}`,`${nmid(g.first)} places first.`,'🪨');gLog(g,`Round ${g.r+1} · ${nmid(g.first)} goes first`,'🪨')}
+  gAnn(g,`Round ${g.r+1}`,`${nmid(g.first)} begins: ${nmid(g.first)} places people first.`,'🪨',4500);gLog(g,`Round ${g.r+1} · ${nmid(g.first)} goes first`,'🪨')}
 /* copy the village into the score sheet, so totals, the reveal and the results work like the tracker */
 function saSync(g){act().forEach(p=>{const M=g.me[p.id];if(!M)return;const x=saP(p);
   x.b=M.bld.map(id=>M.bp&&M.bp[id]!=null?M.bp[id]:saHutPts(saHut(id))||0);x.ag=M.ag;x.tl=saTT(M);x.pp=M.pp;x.hu=M.hu;x.ex=M.ex;
@@ -7194,7 +7197,7 @@ function saPayOk(g,o){const P=g.pay;if(!P)return false;const M=g.me[P.pid];if(!s
   if(h.c){const need={};[...h.c].forEach(x=>need[x]=(need[x]||0)+1);return SAK.every(k=>(o[k]||0)===(need[k]||0))}
   if(h.v){const kinds=SAK.filter(k=>o[k]>0).length;return n===h.v.n&&kinds===h.v.k}
   return n>=1&&n<=7}
-function saBuy(g,pid,o){const P=g.pay;if(!P||P.pid!==pid||g.phase!=='act'||!saPayOk(g,o))return false;const M=g.me[pid];SAK.forEach(k=>M[k]-=(o[k]||0));g.pay=null;g.n++;
+function saBuy(g,pid,o){const P=g.pay;if(!P||P.pid!==pid||g.phase!=='act'||!saPayOk(g,o))return false;const M=g.me[pid];SAK.forEach(k=>M[k]-=(o[k]||0));const sp=(g.sp=g.sp||{})[pid]=(g.sp||{})[pid]||{};SAK.forEach(k=>sp[k]=(sp[k]||0)+(o[k]||0));g.pay=null;g.n++;
   if(P.loc[0]==='b'){const i=+P.loc.slice(1),id=g.piles[i].shift(),h=saHut(id),pts=h.c?saHutPts(h):saVal(o);M.bld.push(id);(M.bp=M.bp||{})[id]=pts;M.pts+=pts;
     g.msg=`${nmid(pid)} built a hut for ${pts} points.`;gLog(g,`${nmid(pid)} built a hut: +${pts}`,'🛖');if(pts>=20)gFx(g,pid,'star');
     if(!g.piles[i].length){g.end='huts';gAnn(g,'A hut pile is empty',`This is the last round. Finish it, feed everyone, then final scoring.`,'🛖')}
@@ -7226,15 +7229,23 @@ function saDie(g,pid,j){const D=g.dc;j=+j;if(!D||saDcWho(g)!==pid||D.dice[j]==nu
   if(D.i>=D.order.length){g.dc=null;saActNext(g)}return true}
 
 /* ---------------- feeding ---------------- */
-function saFeedStart(g){g.phase='feed';g.turn=null;g.fd={};const notes=[];
-  g.ps.forEach(id=>{const M=g.me[id];M.food+=M.ag;if(M.food>=M.pp){M.food-=M.pp}else{const short=M.pp-M.food;M.food=0;g.fd[id]={short}}});
+function saFeedStart(g){g.phase='feed';g.turn=null;g.fd={};g.fok={};g.fdl={};const P=act();g.rsum={};
+  g.ps.forEach(id=>{const M=g.me[id],B=(g.rs0||{})[id];if(!B)return;const sp=(g.sp||{})[id]||{},o={};SAK.forEach(k=>{const v=M[k]-B[k]+(sp[k]||0);if(v)o[k]=v});const fo=M.food-B.food;if(fo)o.food=fo;
+    if(M.pp>B.pp)o.pp=M.pp-B.pp;if(M.ag>B.ag)o.ag=M.ag-B.ag;if(saTT(M)>B.tt)o.tool=saTT(M)-B.tt;if(M.one.length>B.one)o.one=M.one.slice(B.one);if(M.ex>B.ex)o.pts=M.ex-B.ex;
+    o.cards=M.cards.slice(B.nc);o.huts=M.bld.slice(B.nb).map(h=>(M.bp||{})[h]||0);o.spent=SAK.reduce((a,k)=>a+(sp[k]||0),0);g.rsum[id]=o});
+  g.ps.forEach(id=>{const M=g.me[id],f0=M.food;M.food+=M.ag;const L=g.fdl[id]={pp:M.pp,ag:M.ag,food0:f0};
+    if(M.food>=M.pp){M.food-=M.pp;L.eat=Math.max(0,M.pp-M.ag);L.food1=M.food;L.ok=1;const p=P.find(q=>q.id===id);if(p&&!p.bot)g.fok[id]=1}
+    else{const short=M.pp-M.food;L.eat=f0;M.food=0;L.food1=0;L.short=short;g.fd[id]={short}}});
   g.msg=Object.keys(g.fd).length?`Feeding: ${Object.keys(g.fd).map(nmid).join(', ')} ${Object.keys(g.fd).length===1?'is':'are'} short of food.`:'Everyone is fed.';
-  if(!Object.keys(g.fd).length)saRoundEnd(g)}
+  saFeedDone(g)}
+const saFeedDone=g=>{if(g.phase==='feed'&&!Object.keys(g.fd||{}).length&&!Object.keys(g.fok||{}).length)saRoundEnd(g)};
+function saFeedOk(g,pid){if(g.phase!=='feed'||!(g.fok||{})[pid])return false;delete g.fok[pid];g.n++;saFeedDone(g);return true}
 function saFeed(g,pid,o){const F=g.fd&&g.fd[pid];if(g.phase!=='feed'||!F)return false;const M=g.me[pid];
-  if(o==='starve'){M.hu++;M.pts-=10;delete g.fd[pid];g.msg=`${nmid(pid)}’s tribe went hungry: −10 points.`;gLog(g,`${nmid(pid)} went hungry: −10`,'😖');gFx(g,pid,'boom')}
-  else{if(saSum(o)!==F.short||!saHas(M,o))return false;SAK.forEach(k=>M[k]-=(o[k]||0));delete g.fd[pid];g.msg=`${nmid(pid)} traded ${F.short} resource${F.short===1?'':'s'} for food.`}
-  g.n++;saSync(g);if(!Object.keys(g.fd).length)saRoundEnd(g);return true}
-function saRoundEnd(g){g.fd=null;saSync(g);if(g.end==='huts'){saGameOver(g);return}saRound(g,false)}
+  const L=(g.fdl||{})[pid]||{};
+  if(o==='starve'){M.hu++;M.pts-=10;delete g.fd[pid];L.starved=1;g.msg=`${nmid(pid)}’s tribe went hungry: −10 points.`;gLog(g,`${nmid(pid)} went hungry: −10`,'😖');gFx(g,pid,'boom')}
+  else{if(saSum(o)!==F.short||!saHas(M,o))return false;SAK.forEach(k=>M[k]-=(o[k]||0));delete g.fd[pid];L.paid={...o};g.msg=`${nmid(pid)} traded ${F.short} resource${F.short===1?'':'s'} for food.`}
+  g.n++;saSync(g);saFeedDone(g);return true}
+function saRoundEnd(g){g.fd=null;g.fok=null;saSync(g);if(g.end==='huts'){saGameOver(g);return}saRound(g,false)}
 function saGameOver(g){g.phase='done';g.turn=null;g.roll=g.pay=g.pick=g.dc=null;saSync(g);S.hr=1;
   const P=act(),sc=P.map(p=>total(p)),hi=Math.max(...sc),w=P.filter((p,i)=>sc[i]===hi);
   gAnn(g,'Game over!',`${g.end==='huts'?'A hut pile ran out.':'Not enough Civilization cards to refill.'} Final scoring is in.`,'🏁');gLog(g,`Game over · ${w.map(nm).join(' and ')} lead${w.length===1?'s':''} with ${hi}`,'🏁',1);
@@ -7273,9 +7284,10 @@ function saPlaceOptions(g,pid,lv){const M=g.me[pid],left=g.left[pid],L=saLeftRou
     else if(saIsCard(loc)){const i=+loc.slice(1),id=g.slots[i];if(resN>=saCost(i)){const plan=saBotPayPlan(g,pid,loc);opts.push({loc,n:1,per:saCardVal(g,pid,id)-(plan?saVal(plan):99)*.45})}}
     else if(loc[0]==='b'){const plan=saBotPayPlan(g,pid,loc);if(plan){const h=saHut(g.piles[+loc.slice(1)][0]);const pts=h.c?saHutPts(h):saVal(plan);opts.push({loc,n:1,per:pts-saVal(plan)*.45+4+(lv==='hard'?2:0)})}}}
   return opts}
-function saBotPlace(g,q){const pid=q.id,lv=q.bot;let O=saPlaceOptions(g,pid,lv);if(!O.length){saPlaceNext(g,pid);return}
+function saBotPlace(g,q){const pid=q.id,lv=q.bot;let O=saPlaceOptions(g,pid,lv);
   if(lv==='easy')O.forEach(o=>o.per+=Math.random()*5);else if(lv==='normal')O.forEach(o=>o.per+=Math.random()*1.5);
-  O.sort((a,b)=>b.per-a.per);for(const o of O)if(saPlace(g,pid,o.loc,o.n))return;for(const o of O)if(saPlace(g,pid,o.loc,1))return;saPlaceNext(g,pid)}
+  O.sort((a,b)=>b.per-a.per);for(const o of O)if(saPlace(g,pid,o.loc,o.n))return;for(const o of O)if(saPlace(g,pid,o.loc,1))return;
+  /* nothing worth doing: still place somewhere legal (a card you can't afford is fine; you just won't buy it) */for(const l of saLocs(g)){const m=saCanPlace(g,pid,l);if(m&&saPlace(g,pid,l,l==='hut'?2:1))return}saPlaceNext(g,pid)}
 function saBotAct(g,q){const pid=q.id,M=g.me[pid];
   if(g.roll&&g.roll.pid===pid&&!g.roll.dice){saRoll(g,pid);return}
   if(g.roll&&g.roll.pid===pid){const R=g.roll,div=saRollDiv(R),base=saRollSum(g),need=div-base%div;
@@ -7297,11 +7309,12 @@ function saBotFeed(g,q){const pid=q.id,M=g.me[pid],F=g.fd[pid];if(!F)return;
     if(saVal(o)*(q.bot==='easy'?.3:.4)<10&&saFeed(g,pid,o))return}saFeed(g,pid,'starve')}
 /* whose move it is right now (for bots, buzzing and the link bar) */
 function saActor(g){if(!g)return null;if(g.phase==='place')return g.turn;if(g.phase==='act'){if(g.dc)return saDcWho(g);if(g.roll)return g.roll.pid;if(g.pay)return g.pay.pid;if(g.pick)return g.pick.pid;return g.turn}
-  if(g.phase==='feed'){const ids=Object.keys(g.fd||{});const P=act();return (P.find(p=>ids.includes(p.id)&&!p.bot)||P.find(p=>ids.includes(p.id))||{}).id||null}return null}
+  if(g.phase==='feed'){const ids=[...Object.keys(g.fd||{}),...Object.keys(g.fok||{})];const P=act();return (P.find(p=>ids.includes(p.id)&&!p.bot)||P.find(p=>ids.includes(p.id))||{}).id||null}return null}
 let SABOTT=null,SASEL=null,SAN=1,SAPAY=null,SAVIEW=null;
 function saTick(){if(S.game!=='stoneage'||!saOn()||!S.started||S.finished||S.screen!=='score'||S.demo)return;if(!saRes())return;if(lkqRun()){save();render();return}
   const g=saG();if(!g||saStale(g)){saDeal();save();render();return}
   if(g.phase==='done'||SABOTT||glHold())return;
+  if(gAnnBusy(g)){const ms=(g.ann.ms||GLMS)*(window.__htfast?.3:1)-(Date.now()-g.ann.at);SABOTT=setTimeout(()=>{SABOTT=null;render()},Math.max(60,ms+40));return}
   let q=null;if(g.phase==='feed'){q=act().find(p=>p.bot&&(g.fd||{})[p.id])}else{const a=saActor(g);q=act().find(p=>p.id===a&&p.bot)}
   if(!q)return;const sp=g.phase==='place'?650:g.roll?900:g.dc?800:600;
   SABOTT=setTimeout(()=>{SABOTT=null;const g2=saG();if(!g2||g2.phase==='done')return render();
@@ -7314,7 +7327,7 @@ const saMe=()=>S.lk&&S.lk.me&&!S.demo?act().find(p=>p.id===S.lk.me)||null:null;
 const saHumans=()=>act().filter(p=>!p.bot);
 /* the person this phone acts for right now: linked = this phone's player; pass-and-play = whoever has to move (nothing is hidden) */
 function saViewer(){const g=saG();if(!g)return null;if(S.lk&&!S.demo)return saMe();const a=saActor(g),P=act();const t=P.find(p=>p.id===a&&!p.bot);if(t)return t;
-  if(g.phase==='feed'){const h=P.find(p=>!p.bot&&(g.fd||{})[p.id]);if(h)return h}
+  if(g.phase==='feed'){const h=P.find(p=>!p.bot&&((g.fd||{})[p.id]||(g.fok||{})[p.id]));if(h)return h}
   const H=saHumans();return H.length===1?H[0]:(H.find(p=>p.id===SAVIEW)||H[0]||null)}
 
 /* ---------------- drawing the board ---------------- */
@@ -7350,7 +7363,7 @@ function saVillage(g,p,V){const M=g.me[p.id];if(!M)return '';const fd=(g.fd||{})
     <div class="savr sm"><span>🔨 ${M.tl.length?M.tl.map((v,i)=>`<i class="satl${M.tu[i]?' used':''}">${v}</i>`).join(''):'none'}${M.one.length?` · once ${M.one.map(v=>`<i class="satl one">${v}</i>`).join('')}`:''}</span><span>🃏 ${M.cards.length}</span><span>🛖 ${M.bld.length}</span>${M.hu?`<span>😖 ${M.hu}</span>`:''}${fd?`<span class="sashort">short ${fd.short} food</span>`:''}</div></div>`}
 /* the resource picker used for paying, choosing and feeding */
 function saPicker(M,o,lim){return `<div class="sapick">${SAK.map(k=>`<div class="sapk"><span>${saIco(k,24)} <small>${SARN[k]} (${M?M[k]:'∞'})</small></span><div class="step"><button data-a="sapadj" data-k="${k}:-1" ${(o[k]||0)<=0?'disabled':''} aria-label="One less ${SARN[k]}">−</button><span class="n num">${o[k]||0}</span><button data-a="sapadj" data-k="${k}:1" ${M&&(o[k]||0)>=M[k]||lim&&saSum(o)>=lim?'disabled':''} aria-label="One more ${SARN[k]}">+</button></div></div>`).join('')}</div>`}
-function saPayCtx(g,V){const key=g.pay?`pay:${g.pay.loc}:${g.n}`:g.pick?`pick:${g.n}`:g.fd&&g.fd[V.id]?`feed:${g.r}`:null;if(!key)return null;
+function saPayCtx(g,V){const key=g.pay?`pay:${g.pay.loc}:${g.n}:${V.id}`:g.pick?`pick:${g.n}:${V.id}`:g.fd&&g.fd[V.id]?`feed:${g.r}:${V.id}`:null;if(!key)return null;
   if(!SAPAY||SAPAY.key!==key){const M=g.me[V.id];let o={w:0,c:0,s:0,g:0};
     if(g.pay)o=saBotPayPlan(g,V.id,g.pay.loc)||o;
     else if(g.fd&&g.fd[V.id]){let n=g.fd[V.id].short;for(const k of SAK){const t=Math.min(n,M[k]);o[k]=t;n-=t}}
@@ -7379,11 +7392,28 @@ function saPanel(g,V){if(!V)return '';const M=g.me[V.id],who=S.lk||saHumans().le
     if(g.pay)return `<p class="hint sahint">${esc(nmid(g.pay.pid))} is deciding whether to buy…</p>`;
     if(g.pick&&g.pick.pid===V.id){const o=saPayCtx(g,V),n=g.pick.n;return `<div class="sapanel"><b>${who}take ${n} resource${n>1?'s':''} of your choice</b>${saPicker(null,o,n)}<div class="sheet-btns"><button class="btn primary" data-a="sapchoose" ${saSum(o)===n?'':'disabled'}>Take them</button></div></div>`}
     if(g.turn===V.id){const T=g.todo[V.id]||[];return `<div class="sapanel"><b>${who}bring your people home</b><span class="rlab">Tap a spot (in any order).</span><div class="satodo">${T.map(l=>`<button class="btn" data-a="sapres" data-k="${l}">${saIsCard(l)?'🃏 Card':l[0]==='b'?'🛖 Hut':SALOC[l].ic+' '+SALOC[l].n}</button>`).join('')}</div></div>`}}
+  if(g.phase==='feed'&&(g.fok||{})[V.id]){return saFeedCard(g,V)+`<div class="sheet-btns"><button class="btn primary" data-a="sapfok">${g.end==='huts'?'On to final scoring':`On to round ${g.r+2}`} ›</button></div>`}
   if(g.phase==='feed'&&g.fd&&g.fd[V.id]){const F=g.fd[V.id],o=saPayCtx(g,V),can=saResN(M)>=F.short;
-    return `<div class="sapanel bad"><b>${who}${F.short} short of food</b><span class="rlab">${can?`Pay ${F.short} resource${F.short>1?'s':''} instead, or go hungry and lose 10 points.`:`You don’t have ${F.short} resource${F.short>1?'s':''} to trade, so your tribe goes hungry: −10 points.`}</span>${can?saPicker(M,o,F.short):''}
-      <div class="sheet-btns"><button class="btn" data-a="sapstarve">Go hungry (−10)</button>${can?`<button class="btn primary" data-a="sapfeed" ${saSum(o)===F.short?'':'disabled'}>Pay ${F.short}</button>`:''}</div></div>`}
+    return saFeedCard(g,V)+`<div class="sapanel bad"><b>${who}${F.short} short of food</b><span class="rlab">${can?`Pay ${F.short} resource${F.short>1?'s':''} instead, or go hungry and lose 10 points.`:`You don’t have ${F.short} resource${F.short>1?'s':''} to trade, so your tribe goes hungry: −10 points.`}</span>${can?saPicker(M,o,F.short):''}
+      <div class="sheet-btns"><button class="btn" data-a="sapstarve">Go hungry (−10)</button>${can?`<button class="btn primary" data-a="sapfeed" ${saSum(o)===F.short&&saHas(M,o)?'':'disabled'}>Pay ${F.short}</button>`:''}</div></div>`}
   return ''}
-function saDock(g,V){if(!V||g.phase==='done')return '';const a=saActor(g),mine=a===V.id||g.phase==='feed'&&(g.fd||{})[V.id];const M=g.me[V.id];
+function saRoundSum(g){const S_=g.rsum||{},P=act().filter(p=>S_[p.id]);if(!P.length)return '';
+  const chip=t=>`<span class="sachip">${t}</span>`;
+  return `<div class="sarsum"><b>What everyone got in round ${g.r+1}</b>${P.map(p=>{const o=S_[p.id],L=(g.fdl||{})[p.id]||{},c=[];
+    if(o.food)c.push(chip(`${o.food>0?'+':''}${o.food} ${saIco('food',15)}`));SAK.forEach(k=>{if(o[k])c.push(chip(`+${o[k]} ${saIco(k,15)}`))});
+    if(o.pp)c.push(chip(`+${o.pp} 👥 person`));if(o.ag)c.push(chip(`+${o.ag} 🌾 field`));if(o.tool)c.push(chip(`+${o.tool} 🔨 tool`));if(o.one)c.push(chip(`🔨 once ${o.one.join(', ')}`));
+    o.huts.forEach(v=>c.push(chip(`🛖 hut +${v}`)));o.cards.forEach(id=>{const d=saCard(id);c.push(chip(`🃏 ${d.k?SACULT[d.k]:saSandNm(d.s)}`))});if(o.pts)c.push(chip(`⭐ +${o.pts}`));
+    if(L.short&&L.starved)c.push(chip('😖 hungry −10'));else if(L.short)c.push(chip(`paid ${L.short} for food`));
+    return `<div class="sarrow" style="${pc(p.color)}">${saMeep(p.color,16)}<b>${esc(nm(p))}</b><span class="sachips">${c.join('')||'<small class="rlab">nothing new</small>'}</span></div>`}).join('')}</div>`}
+function saFeedCard(g,V){const L=(g.fdl||{})[V.id];if(!L)return '';const fi=saIco('food',20);
+  const row=(a,b,c)=>`<div class="safrow"><span>${a}</span><b class="num">${b}</b>${c?`<small>${c}</small>`:''}</div>`;
+  return `<div class="safeed"><b>End of round ${g.r+1}: feed your people</b>
+    ${row(`👥 ${L.pp} people eat`,`${L.pp} ${fi}`)}
+    ${row(`🌾 Fields give (agriculture ${L.ag})`,`−${Math.min(L.ag,L.pp)}`,L.ag>L.pp?`${L.ag-L.pp} extra food saved`:'')}
+    ${row(`${fi} From your food`,`−${L.eat}`,`${L.food0} → ${L.food1}`)}
+    ${L.short?row('Still hungry',`${L.short}`,'pay resources or lose 10'):`<div class="safok">✓ Everyone is fed. ${L.food1} food left for next round.</div>`}
+    ${L.paid?`<div class="safok">Paid ${SAK.filter(k=>L.paid[k]).map(k=>`${L.paid[k]} ${saIco(k,16)}`).join(' ')} for food.</div>`:''}${L.starved?'<div class="sashort">Went hungry: −10 points.</div>':''}</div>`+saRoundSum(g)}
+function saDock(g,V){if(!V||g.phase==='done')return '';const a=saActor(g),mine=a===V.id||g.phase==='feed'&&((g.fd||{})[V.id]||(g.fok||{})[V.id]);const M=g.me[V.id];
   const ph=g.phase==='place'?'Place your people':g.phase==='act'?'Bring your people home':'Feed your tribe';
   const left=g.phase==='place'?(g.left[V.id]||0):0,placed=M.pp-left;
   const people=g.phase==='place'?`<div class="sadpp">${Array.from({length:M.pp},(_,i)=>i<left?saMeep(V.color,30):`<span class="sadgone">${saMeep(V.color,30)}</span>`).join('')}</div><div class="rlab"><b>${left}</b> of ${M.pp} left to place${placed?` · ${placed} on the board`:''}</div>`:'';
@@ -7420,7 +7450,8 @@ function saAct(a,b,k){const g=saG();if(!g)return;const V=saViewer();if(!V)return
   if(a==='sapchoose'){const o=SAPAY&&SAPAY.o;if(o)lkq('saChoose',pid,{...o});return}
   if(a==='sapdie'){lkq('saDie',pid,+k);return}
   if(a==='sapfeed'){const o=SAPAY&&SAPAY.o;if(!o||!lkq('saFeed',pid,{...o}))toast('Pick the resources to pay.');return}
-  if(a==='sapstarve'){lkq('saFeed',pid,'starve');return}}
+  if(a==='sapstarve'){lkq('saFeed',pid,'starve');return}
+  if(a==='sapfok'){lkq('saFeedOk',pid);return}}
 
 /* =====================================================================
    PHASE 10
@@ -10641,7 +10672,7 @@ const LKQF={
   mtPass:pid=>{const g=mtG();return !!g&&mtPass(g,pid)},
    mtBuilt:pid=>{const g=mtG();return !!g&&mtBuilt(g,pid)},
    saPlace:(pid,l,n)=>{const g=saG();return !!g&&saPlace(g,pid,l,n)},saResolve:(pid,l)=>{const g=saG();return !!g&&saResolve(g,pid,l)},saRoll:pid=>{const g=saG();return !!g&&saRoll(g,pid)},saTool:(pid,t,i)=>{const g=saG();return !!g&&saTool(g,pid,t,i)},saTake:pid=>{const g=saG();return !!g&&saTake(g,pid)},
-   saBuy:(pid,o)=>{const g=saG();return !!g&&saBuy(g,pid,o)},saSkip:pid=>{const g=saG();return !!g&&saSkip(g,pid)},saChoose:(pid,o)=>{const g=saG();return !!g&&saChoose(g,pid,o)},saDie:(pid,j)=>{const g=saG();return !!g&&saDie(g,pid,j)},saFeed:(pid,o)=>{const g=saG();return !!g&&saFeed(g,pid,o)},
+   saBuy:(pid,o)=>{const g=saG();return !!g&&saBuy(g,pid,o)},saSkip:pid=>{const g=saG();return !!g&&saSkip(g,pid)},saChoose:(pid,o)=>{const g=saG();return !!g&&saChoose(g,pid,o)},saDie:(pid,j)=>{const g=saG();return !!g&&saDie(g,pid,j)},saFeed:(pid,o)=>{const g=saG();return !!g&&saFeed(g,pid,o)},saFeedOk:pid=>{const g=saG();return !!g&&saFeedOk(g,pid)},
   cfPlay:(pid,t,k)=>{const g=cfG();return !!g&&cfPlay(g,pid,t,k)},
   cfDraw:pid=>{const g=cfG();return !!g&&cfDraw(g,pid)},
   cfPass:pid=>{const g=cfG();return !!g&&cfPass(g,pid)},
@@ -13639,7 +13670,7 @@ function rematchSheet(){if(!REMATCH)return '';const seq=turnSeq(),nx=seq.length>
     <div class="rmopts">${opt('next','Next in turn order',`${esc(nm(nx))} goes first, same seats`)}${opt('loser','Last place goes first',`${esc(nm(lo))} goes first, same seats`)}${opt('shuffle','Shuffle the seats','New turn order picked at random')}</div>
     <div class="sheet-btns"><button class="btn" data-a="rematchx">Cancel</button></div></div></div>`}
 function tourFor(){if(SET.toursOff)return null;const CG=S.game==='carc';
-  return S.screen==='home'?'home':S.screen==='live'?(CG?'carclive':'ttrlive'):S.screen==='score'&&S.demo!=='link'?(CG?'carcfinal':HFE()?'hfscore':S.game==='munchkin'?(S.mkfight?'mkfight':'mkscore'):S.game==='nerts'?'nxscore':S.game==='pad'||S.game==='darts'||S.game==='pool'||S.game==='catan'?null:'ttrscore'):null}
+  return S.screen==='home'?'home':S.screen==='live'?(CG?'carclive':'ttrlive'):S.screen==='score'&&S.demo!=='link'?(CG?'carcfinal':HFE()?'hfscore':S.game==='munchkin'?(S.mkfight?'mkfight':'mkscore'):S.game==='nerts'?'nxscore':S.game==='pad'||S.game==='darts'||S.game==='pool'||S.game==='catan'||playingOn()?null:'ttrscore'):null}
 function tourWhich(){const id=tourFor();return id&&!(SET.tours||{})[id]?id:null}
 function tourEl(st){let el=null;for(const q of st.s.split(',')){const e=document.querySelector(q);if(e&&e.getClientRects().length){el=e;break}}return el&&st.up?(el.closest(st.up)||el):el}
 function tourSteps(id){return TOURS[id].st.filter(st=>tourEl(st))}
@@ -13767,7 +13798,7 @@ document.addEventListener('click',e=>{
   if(/^fcp(deck|take|card|disc|out|group|ungroup|arr|show|deal|lastok|sort|discpile)$/.test(a)&&S.game==='crowns'&&fcOn()&&S.started){fcAct(a,b,k);save();render();return}
   if(/^sbp(src|disc|build|show|deal|pass)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
   if(/^mtp(tile|train|draw|pass|done|show|deal)$/.test(a)&&S.game==='mextrain'&&mtOn()&&S.started){mtAct(a,b,k);save();render();return}
-  if(/^sap(sel|n|place|res|roll|tool|take|adj|pay|skip|choose|die|feed|starve)$/.test(a)&&S.game==='stoneage'&&saOn()&&S.started){saAct(a,b,k);save();render();return}
+  if(/^sap(sel|n|place|res|roll|tool|take|adj|pay|skip|choose|die|feed|starve|fok)$/.test(a)&&S.game==='stoneage'&&saOn()&&S.started){saAct(a,b,k);save();render();return}
   if((a==='dmflip'||a==='dmsort')&&(S.game==='mextrain'&&mtOn()||S.game==='chicken'&&cfOn())&&S.started){const CF=S.game==='chicken',G=CF?cfG():mtG(),V=CF?cfViewer():mtViewer();if(G&&V){if(a==='dmflip')dmFlip(G,V.id,b.dataset.t);else dmSortNow(G,V.id,b.dataset.v);vibe(6)}render();return}
   if(a==='bigv'){SET.bigv={...(SET.bigv||{})};SET.bigv[S.game]=!SET.bigv[S.game];saveSet();window.scrollTo(0,0);render();return}
   if(/^qp(seen|show|info|infox|infoall|nobuy|warnx|card|draw|stop|flask|ans|ch|buy|unbuy|ruby|fp|pt|g4|adj|done|undone|wit|d6|fc|ha|sch|bag|bagx|lastok|focus|lm)$/.test(a)&&S.game==='quacks'&&qpOn()&&S.started){qpAct(a,b,k);save();render();return}
@@ -14539,6 +14570,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='1589f2';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='e4f956';</script>
 </body>
 </html>

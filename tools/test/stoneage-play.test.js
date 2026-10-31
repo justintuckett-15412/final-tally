@@ -27,10 +27,11 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   ok('cards slide right and new ones fill from the left',r.after[0]===r.before[1]&&r.after[1]===r.before[3]&&r.after[2]&&r.after[3]&&r.r===1,r);
   /* feeding: fields first, then food; short = resources or -10 */
   r=await P.evaluate(()=>{const g=S.sag,[a,b,c]=g.ps;const A=g.me[a],B=g.me[b],C=g.me[c];A.food=2;A.ag=1;A.pp=5;A.w=3;B.food=0;B.ag=0;B.pp=5;C.food=9;C.ag=0;C.pp=5;g.phase='act';g.todo={};g.roll=g.pay=g.pick=g.dc=null;saFeedStart(g);
-    const o={short:JSON.stringify(g.fd),cfood:C.food};o.badPay=saFeed(g,a,{w:1,c:0,s:0,g:0});o.pay=saFeed(g,a,{w:2,c:0,s:0,g:0});o.aw=A.w;o.starve=saFeed(g,b,'starve');o.bpts=B.pts;o.bhu=B.hu;o.next=g.phase;return o});
+    const o={short:JSON.stringify(g.fd),cfood:C.food};o.badPay=saFeed(g,a,{w:1,c:0,s:0,g:0});o.pay=saFeed(g,a,{w:2,c:0,s:0,g:0});o.aw=A.w;o.starve=saFeed(g,b,'starve');o.bpts=B.pts;o.bhu=B.hu;o.waits=g.phase==='feed'&&!!g.fok[c];o.card=JSON.stringify(g.fdl[c]);o.ok=saFeedOk(g,c);o.next=g.phase;return o});
   ok('feeding: fields, then food, then the shortfall',r.short===JSON.stringify({[await P.evaluate(()=>S.sag.ps[0])]:{short:2},[await P.evaluate(()=>S.sag.ps[1])]:{short:5}})&&r.cfood===4,r);
   ok('feeding: pay the exact shortfall in resources',!r.badPay&&r.pay&&r.aw===1,r);
-  ok('feeding: going hungry is −10 and the round moves on',r.starve&&r.bpts===-10&&r.bhu===1&&r.next==='place',r);
+  ok('feeding: going hungry is −10',r.starve&&r.bpts===-10&&r.bhu===1,r);
+  ok('feeding: a fed person sees their feeding card and taps to go on',r.waits&&r.ok&&r.next==='place'&&r.card.includes('"eat":5'),r);
   /* huts: fixed cost, n-of-k kinds, 1 to 7 */
   r=await P.evaluate(()=>{const g=S.sag,a=g.ps[0],M=g.me[a];Object.assign(M,{w:5,c:5,s:5,g:5});const o={};
     const try_=(hut,pay)=>{g.piles[0][0]='h'+SAHUTS.findIndex(h=>JSON.stringify(h)===JSON.stringify(hut));g.pay={pid:a,loc:'b0'};return saPayOk(g,pay)};
