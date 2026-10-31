@@ -47,9 +47,9 @@ const N=+(process.env.N||6);
       if(Date.now()-lastT>45e3){const st=await page.evaluate(()=>({btns:[...new Set([...document.querySelectorAll('[data-a]')].filter(b=>!b.disabled&&b.offsetParent).map(b=>b.dataset.a+(b.dataset.k?':'+b.dataset.k:'')))].join(' '),g:JSON.stringify({r:S.qpg.r,ph:S.qpg.phase,ann:S.qpg.ann&&S.qpg.ann.t,annq:(S.qpg.annq||[]).length,brewAnn:!!S.qpg.brewAnn,pl:Object.fromEntries(S.qpg.ps.map(id=>{const L=S.qpg.pl[id];return [nmid(id),{stop:L.stop,ask:L.ask,done:L.done,sf:L.sf,sr:L.sr,ex:L.ex,d6:(L.d6||[]).length}]}))})}));bad.push('STUCK '+JSON.stringify(st).slice(0,900));break}
       // a person tapping: anything Quacks-ish that is enabled
       await page.evaluate(()=>{const vis=[...document.querySelectorAll('#app [data-a], .sheet [data-a], .glann [data-a]')].filter(b=>!b.disabled&&b.getAttribute('aria-disabled')!=='true'&&b.offsetParent);
-        const A=b=>b.dataset.a;const want=['qplastok','qpseen','qpans','qpfc','qpfp','qpdraw','qpstop','qpflask','qpwit','qpch','qpbuy','qprub','qpdone','qpd6','qpbowl','qpup','qpha','finish','revstart','lpclose','qpshow'];
+        const A=b=>b.dataset.a;const want=['qplm','qplastok','qpseen','qpans','qpfc','qpfp','qpdraw','qpstop','qpflask','qpwit','qpch','qpbuy','qprub','qpdone','qpd6','qpbowl','qpup','qpha','finish','revstart','lpclose','qpshow'];
         const c=vis.filter(b=>want.some(w=>A(b)===w||A(b).startsWith(w)));if(!c.length)return;
-        const pri=c.filter(b=>['qplastok','qpseen','qpans','qpfc','finish','revstart','lpclose','qpshow'].includes(A(b)));
+        const pri=c.filter(b=>['qplm','qplastok','qpseen','qpans','qpfc','finish','revstart','lpclose','qpshow'].includes(A(b)));
         const weight=b=>A(b)==='qpdraw'?6:A(b)==='qpstop'?1.2:A(b)==='qpdone'?1:A(b)==='qpbuy'?3:2;
         let pick;if(pri.length&&Math.random()<.8)pick=pri[Math.floor(Math.random()*pri.length)];else{const tot=c.reduce((a,b)=>a+weight(b),0);let x=Math.random()*tot;for(const b of c){x-=weight(b);if(x<=0){pick=b;break}}pick=pick||c[0]}
         (window.__clk=window.__clk||[]).push(A(pick)+':'+(pick.dataset.k||'')+':'+(pick.dataset.v||'')+'@'+(S.qpg&&S.qpg.r)+(S.qpg&&S.qpg.phase));if(window.__clk.length>8)window.__clk.shift();pick.click()});

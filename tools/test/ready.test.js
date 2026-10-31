@@ -10,7 +10,7 @@ const until=async(p,fn,ms=8000,arg=null)=>{const t=Date.now();while(Date.now()-t
     const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove();return [P[0].id,P[1].id]});
   await H.evaluate(()=>lkHostStart());await W(3000);const code=await H.evaluate(()=>S.lk.code);
   await H.evaluate(id=>lkPick(id),ids[0]);await G.evaluate(c=>lkJoin(c),code);await W(4000);await G.evaluate(id=>lkPick(id),ids[1]);await W(2000);
-  const ready=async p=>{for(let t=0;t<30;t++){const b=await btns(p);if(b.includes('qpseen:sf'))return tap(p,'qpseen','sf');const fc=b.find(x=>x.startsWith('qpfc:'));if(fc)await tap(p,'qpfc',fc.split(':')[1]);await W(300)}return false};
+  const ready=async p=>{for(let t=0;t<30;t++){const b=await btns(p);if(b.includes('qpseen:sf'))return tap(p,'qpseen','sf');if(b.includes('qplm'))await tap(p,'qplm');const fc=b.find(x=>x.startsWith('qpfc:'));if(fc)await tap(p,'qpfc',fc.split(':')[1]);await W(300)}return false};
   ok('guest taps Ready',await ready(G));await W(1500);
   ok('guest sees the waiting card',await G.evaluate(()=>/Waiting for .* to tap Ready/.test(document.body.innerText)));
   ok('guest cannot draw yet',!(await btns(G)).includes('qpdraw'));

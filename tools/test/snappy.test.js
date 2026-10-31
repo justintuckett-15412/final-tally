@@ -10,7 +10,7 @@ const until=async(p,fn,ms=8000,arg=null)=>{const t=Date.now();while(Date.now()-t
   await H.evaluate(()=>lkHostStart());await W(3000);const code=await H.evaluate(()=>S.lk.code);
   await H.evaluate(id=>lkPick(id),ids[0]);await G.evaluate(c=>lkJoin(c),code);await W(4000);await G.evaluate(id=>lkPick(id),ids[1]);await W(2000);
   // clear the fortune cards, then let the guest draw twice (chance moves: wait for the host)
-  for(let t=0;t<40;t++){for(const p of [H,G]){const b=await btns(p);const fc=b.find(x=>x.startsWith('qpfc:'));if(fc)await tap(p,'qpfc',fc.split(':')[1]);const m=b.find(x=>x.startsWith('qpseen'));if(m)await tap(p,'qpseen',m.split(':')[1])}
+  for(let t=0;t<40;t++){for(const p of [H,G]){const b=await btns(p);if(b.includes('qplm'))await tap(p,'qplm');const fc=b.find(x=>x.startsWith('qpfc:'));if(fc)await tap(p,'qpfc',fc.split(':')[1]);const m=b.find(x=>x.startsWith('qpseen'));if(m)await tap(p,'qpseen',m.split(':')[1])}
     if((await btns(G)).includes('qpdraw'))break;await W(300)}
   await W(1500);const pot0=await G.evaluate(id=>S.qpg.pl[id].pot.length,ids[1]);
   await tap(G,'qpdraw');await W(60);

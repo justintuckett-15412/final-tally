@@ -10,7 +10,7 @@ const tap=(p,a,k)=>p.evaluate(([a,k])=>{const b=[...document.querySelectorAll(k!
     await H.evaluate(()=>lkHostStart());await W(3000);const code=await H.evaluate(()=>S.lk.code);
     await H.evaluate(id=>lkPick(id),ids[0]);await G.evaluate(c=>lkJoin(c),code);await W(4000);await G.evaluate(id=>lkPick(id),ids[1]);await W(2000);
     const n={host:0,guest:0};
-    for(let t=0;t<60;t++){for(const [k,p] of [['host',H],['guest',G]]){const b=await btns(p);const fc=b.find(x=>x.startsWith('qpfc:'));if(fc)await tap(p,'qpfc',fc.split(':')[1]);const m=b.find(x=>x.startsWith('qpseen'));if(m)await tap(p,'qpseen',m.split(':')[1]);
+    for(let t=0;t<60;t++){for(const [k,p] of [['host',H],['guest',G]]){const b=await btns(p);if(b.includes('qplm'))await tap(p,'qplm');const fc=b.find(x=>x.startsWith('qpfc:'));if(fc)await tap(p,'qpfc',fc.split(':')[1]);const m=b.find(x=>x.startsWith('qpseen'));if(m)await tap(p,'qpseen',m.split(':')[1]);
         if(b.includes('qpdraw')&&n[k]<3){await tap(p,'qpdraw');n[k]++}else if(b.includes('qpstop')&&n[k]>=3)await tap(p,'qpstop');const a=b.find(x=>x.startsWith('qpans'));if(a)await tap(p,'qpans',a.split(':')[1])}
       if(await H.evaluate(()=>S.qpg.phase==='eval'))break;await W(700)}
     await W(6000);
