@@ -7,8 +7,8 @@ REPO="$(cd ../.. && pwd)"
 export NODE_PATH="${NODE_PATH:-$(npm root -g)}"
 PORT=8765; export BASE="http://localhost:$PORT/"
 if ! curl -s -o /dev/null "$BASE"; then (cd "$REPO" && setsid nohup python3 -m http.server $PORT >/tmp/ft-test-server.log 2>&1 </dev/null &); sleep 1; fi
-TESTS="scoring lobby features endlink effects announce newgame snappy snappy-cards witches quacks-fixes turquoise pot quacks-holds hf-untake react-replay past-open quacks-view wake book-prices book-play fortune quacks-extras hint again quacks-end layout ready smoke-link buy-link draw-once hf-need sb-pass ready-all rg-fore stoneage stoneage-play stoneage-link stoneage-ui stoneage-exp stoneage-link-exp stoneage-lp dominion dominion-cards dominion-ui dominion-link dominion-lp dominion-intrigue dominion-seaside dominion-alchemy dominion-possession-link dominion-picker dominion-prosperity"
-[ "$1" = "all" ] && TESTS="$TESTS dominion-fuzz dominion-audit dominion-audit-heavy dominion-link-full dominion-link-intrigue dominion-link-seaside dominion-link-alchemy dominion-link-prosperity stoneage-fuzz stoneage-link-full fullgame fullgame-herb audit audit-bots audit-score fuzz linkfuzz rgfuzz rgfuzz-link allfuzz allfuzz-link"
+TESTS="scoring lobby features endlink effects announce newgame snappy snappy-cards witches quacks-fixes turquoise pot quacks-holds hf-untake react-replay past-open quacks-view wake book-prices book-play fortune quacks-extras hint again quacks-end layout ready smoke-link buy-link draw-once hf-need sb-pass ready-all rg-fore stoneage stoneage-play stoneage-link stoneage-ui stoneage-exp stoneage-link-exp stoneage-lp dominion dominion-cards dominion-ui dominion-link dominion-lp dominion-intrigue dominion-seaside dominion-alchemy dominion-possession-link dominion-picker dominion-prosperity dominion-cornucopia"
+[ "$1" = "all" ] && TESTS="$TESTS dominion-fuzz dominion-audit dominion-audit-heavy dominion-link-full dominion-link-intrigue dominion-link-seaside dominion-link-alchemy dominion-link-prosperity dominion-link-cornucopia stoneage-fuzz stoneage-link-full fullgame fullgame-herb audit audit-bots audit-score fuzz linkfuzz rgfuzz rgfuzz-link allfuzz allfuzz-link"
 for t in $TESTS; do
   case $t in
     audit) f=audit.js; env="";; audit-bots) f=audit.js; env="ALLBOT=1 T=60000";; audit-score) f=audit.js; env="SCORE=1 T=15000";;
@@ -23,6 +23,7 @@ for t in $TESTS; do
     dominion-link-seaside) f=dominion-link.test.js; env="FULL=1 SEA=1";;
     dominion-link-alchemy) f=dominion-link.test.js; env="FULL=1 ALC=1";;
     dominion-link-prosperity) f=dominion-link.test.js; env="FULL=1 PROS=1";;
+    dominion-link-cornucopia) f=dominion-link.test.js; env="FULL=1 CG=1";;
     stoneage-link-full) f=stoneage-link.test.js; env="FULL=1";;
     fullgame) f=fullgame.js; env="";; fullgame-herb) f=fullgame.js; env="HERB=1";; *) f=$t.test.js; env="";;
   esac

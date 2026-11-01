@@ -7,7 +7,7 @@ const typeIn=async(p,sel,v)=>{await p.focus(sel);await p.fill(sel,String(v));awa
   const errs=[];P.on('pageerror',e=>errs.push(e.message));
   ok('Dominion: on the home screen',await P.evaluate(()=>!!document.querySelector('[data-a="dnstart"][data-k="0"]')));
   await P.evaluate(()=>document.querySelector('[data-a="dnstart"][data-k="0"]').click());await W(500);
-  ok('Dominion: setup screen with six sets',await P.evaluate(()=>S.game==='dominion'&&document.querySelectorAll('[data-a="dnset"]').length===7));
+  ok('Dominion: setup screen with six sets',await P.evaluate(()=>S.game==='dominion'&&document.querySelectorAll('[data-a="dnset"]').length===8));
   await tap(P,'dnset','allies');await W(150);
   ok('Dominion: set toggle remembered',await P.evaluate(()=>S.dnx.sets.allies===0&&JSON.parse(localStorage.getItem(KEY+'.dnx')).sets.allies===0));
   await P.evaluate(()=>{S.players.forEach((p,i)=>{p.on=i<3;p.name=['Justin','Brad','Kim'][i]||''});save();const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove()});await W(400);

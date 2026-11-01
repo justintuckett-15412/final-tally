@@ -9,10 +9,10 @@ const N=+(process.env.N||80);
   const res=await P.evaluate(async ([N,HEAVY])=>{
     const bad={},note=(k,x)=>{if(!bad[k])bad[k]={n:0,ex:JSON.stringify(x).slice(0,400)};bad[k].n++};
     const rnd=a=>a[Math.floor(Math.random()*a.length)];
-    const TRICK=['kingscourt','tiara','crystalball','warchest','watchtower','mint','hoard','bank','charlatan','clerk','forge','vault','rabble','bishop','investment','peddler','quarry','grandmarket','collection','anvil','possession','throne','golem','outpost','pirate','sailor','masquerade','diplomat','haven','nativev','island','tactician','corsair','blockade','monkey','treasury','herbalist','alchemist','vassal','library','scryingpool','minion','torturer','seawitch','treasuremap','courtier','lurker','swindler','smugglers','bridge','conspirator','apothecary','university','embargo'];
-    const count=g=>Object.values(g.sup).reduce((a,v)=>a+v,0)+g.trash.length+g.ps.reduce((a,id)=>a+dnAll(g.me[id]).length,0);
+    const TRICK=['youngwitch','ferryman','joust','farmhands','farrier','herald','infirmary','stonemason','hornofplenty','merchantguild','butcher','footpad','jester','advisor','shop','remake','hamlet','plaza','journeyman','huntingparty','carnival','menagerie','baker','soothsayer','fairgrounds','candlestick','kingscourt','tiara','crystalball','warchest','watchtower','mint','hoard','bank','charlatan','clerk','forge','vault','rabble','bishop','investment','peddler','quarry','grandmarket','collection','anvil','possession','throne','golem','outpost','pirate','sailor','masquerade','diplomat','haven','nativev','island','tactician','corsair','blockade','monkey','treasury','herbalist','alchemist','vassal','library','scryingpool','minion','torturer','seawitch','treasuremap','courtier','lurker','swindler','smugglers','bridge','conspirator','apothecary','university','embargo'];
+    const count=g=>Object.values(g.sup).reduce((a,v)=>a+v,0)+Object.values(g.ns||{}).reduce((a,v)=>a+v,0)+g.trash.length+g.ps.reduce((a,id)=>a+dnAll(g.me[id]).length,0);
     let games=0,turns=0,poss=0,outp=0,plays={};
-    for(let t=0;t<N;t++){S=dnFresh();S.dnx.play=1;S.dnx.ks={base:1,intrigue:1,seaside:1,alchemy:1,prosperity:1};S.dnx.pc=['auto','on','off'][t%3];
+    for(let t=0;t<N;t++){S=dnFresh();S.dnx.play=1;S.dnx.ks={base:1,intrigue:1,seaside:1,alchemy:1,prosperity:1,cornucopia:1};S.dnx.pc=['auto','on','off'][t%3];
       const pick=TRICK.slice().sort(()=>Math.random()-.5).slice(0,6);S.dnx.kd=dnKdRandom(pick.filter(k=>DNK.includes(k)));
       const n=2+t%5;S.players.forEach((p,i)=>{p.on=i<n;p.name='P'+i;p.bot=i<n?(i===0&&t%3!==0?null:rnd(['easy','normal','hard'])):null});
       S.started=true;S.screen='score';dnDeal();const g=S.dng;if(HEAVY){g.ps.forEach(id=>{const M=g.me[id];M.dk.push(...HEAVY);M.dk=dnShuf(M.dk)});if(HEAVY.some(k=>DNMANT.includes(k)))g.manT=1;if(HEAVY.includes("charlatan"))g.chl=1}const T0=count(g);let steps=0,lastTurn=g.turn,lastPoss=null,lastExtra=0,hist=[];
@@ -20,12 +20,13 @@ const N=+(process.env.N||80);
         const turnBefore=g.turn,possBefore=g.poss?{...g.poss}:null,extraBefore=g.extra,opBefore=g.op,qLen=(g.possQ||[]).length;
         if(!q.bot){const me=dnAsP(g,a),M=g.me[me];
           if(g.ask&&g.ask.p===me){const Q=g.ask;let ans;
-            if(Q.k==='pick'){const idx=M.h.map((k,i)=>i).filter(i=>!Q.f||dnIs(M.h[i],Q.f));const k2=Q.min+Math.floor(Math.random()*(Math.min(Q.max,idx.length)-Q.min+1));ans=idx.sort(()=>Math.random()-.5).slice(0,k2)}
+            if(Q.k==='pick'){const idx=M.h.map((k,i)=>i).filter(i=>dnPOK(g,Q,M,M.h[i]));const k2=Q.min+Math.floor(Math.random()*(Math.min(Q.max,idx.length)-Q.min+1));ans=idx.sort(()=>Math.random()-.5).slice(0,k2)}
             else if(Q.k==='gain')ans=Q.opt&&(Math.random()<.2||!Q.ok.length)?'':rnd(Q.ok);else if(Q.k==='opts')ans=Q.opts.map(o=>o[0]).sort(()=>Math.random()-.5).slice(0,Q.n);else if(Q.k==='tpick')ans=rnd(Q.cs);
             else if(Q.k==='order')ans=Q.cs.map((c,i)=>i).sort(()=>Math.random()-.5);else if(Q.k==='pos')ans=Math.floor(Math.random()*(M.dk.length+1));else if(Q.k==='name')ans=rnd(dnNameable(g));else if(Q.k==='opts'&&false)0;
-            else if(Q.k==='look'){const o=Q.cs.map((c,i)=>i).sort(()=>Math.random()-.5);ans={t:o[0],d:o[1]}}else if(Q.k==='yn')ans=Math.random()<.5;else if(Q.k==='disc')ans=Math.random()<.3?-1:Math.floor(Math.random()*M.ds.length);
-            else if(Q.k==='ban')ans=Q.cs.findIndex(k=>dnIs(k,'T')&&(k!=='copper'||Q.cop));else if(Q.k==='sentry')ans={ch:Q.cs.map(()=>rnd(['t','d','k'])),top:0};
+            else if(Q.k==='look'){const o=Q.cs.map((c,i)=>i).sort(()=>Math.random()-.5);ans={t:o[0],d:o[1]}}else if(Q.k==='yn')ans=Math.random()<.5;else if(Q.k==='disc')ans=Math.random()<.3&&!Q.must?-1:Math.floor(Math.random()*M.ds.length);
+            else if(Q.k==='ban')ans=Q.adv?Math.floor(Math.random()*Q.cs.length):Q.cs.findIndex(k=>dnIs(k,'T')&&(k!=='copper'||Q.cop));else if(Q.k==='sentry')ans={ch:Q.cs.map(()=>rnd(['t','d','k'])),top:0};
             if(!dnAns(g,a,ans))note('human answer refused',{k:Q.k,then:Q.then,ans})}
+          else if(g.turn===me&&(M.cf||0)>0&&Math.random()<.15){if(!dnCof(g,a,1+Math.floor(Math.random()*M.cf)))note('coffers refused',M.cf)}
           else if(g.turn===me){if(g.ph==='action'){const ai=M.h.map((k,i)=>i).filter(i=>dnIs(M.h[i],'A'));if(ai.length&&Math.random()<.85){const i=rnd(ai);plays[M.h[i]]=1;if(!dnPlay(g,a,i))note('legal play refused',M.h)}else dnEndAct(g,a)}
             else if(g.manT&&!g.bought&&M.h.some(k=>dnIs(k,'T'))&&Math.random()<.85){if(Math.random()<.3){if(!dnPlayAllT(g,a))note('play all refused',M.h)}else{const ti=M.h.map((k,i)=>i).filter(i=>dnIs(M.h[i],'T'));if(!dnPlayT(g,a,rnd(ti)))note('treasure play refused',M.h)}}
             else{const can=Object.keys(g.sup).filter(k=>g.sup[k]>0&&dnAfford(g,k,g.co,g.po||0)&&dnBuyOk(g,k));if(can.length&&Math.random()<.85){const k=rnd(can);if(!dnBuy(g,a,k))note('legal buy refused',k)}else dnEndTurn(g,a)}}
@@ -38,7 +39,7 @@ const N=+(process.env.N||80);
         if(g.phase==='play'&&!g.ask&&!g.k.length)for(const id of g.ps){const M=g.me[id];if(M.aside.length)note('cards left set aside',{c:M.aside,msg:g.msg});if((M.tt||[]).length)note('top-deck list left over',M.tt);if((M.ptr||[]).length&&!(g.poss&&g.poss.who===id))note('possession trash not returned',M.ptr)}
         if(g.poss&&(g.turn!==g.poss.who||g.poss.by===g.poss.who))note('possession state wrong',g.poss);
         if(g.phase==='play'&&(g.turn!==turnBefore||g.extra&&!extraBefore||g.poss&&!possBefore)){/* a new turn started: check the previous player's hand */
-          const prev=turnBefore,PM=g.me[prev];const want=opBefore&&!extraBefore&&!possBefore?3:5,avail=PM.h.length+PM.dk.length+PM.ds.length;
+          const prev=turnBefore,PM=g.me[prev];const want=(opBefore&&!extraBefore&&!possBefore?3:5)+(g.lfx||0),avail=PM.h.length+PM.dk.length+PM.ds.length;
           {const dupe=g.turn===prev;if(!dupe&&PM.h.length!==Math.min(want,avail))note('hand after clean-up isn’t 5 (or 3 after Outpost)',{h:PM.h.length,want,avail,msg:g.msg});}
           if(!g.poss&&!g.extra){/* normal successor */const base=possBefore?possBefore.next:prev;if(g.turn!==dnOthers(g,base)[0]&&g.turn!==base)note('wrong player next',{prev,turn:g.turn,base})}
           if(g.me[g.turn].du.length)note('durations still waiting at turn start',g.me[g.turn].du)}
