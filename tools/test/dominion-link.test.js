@@ -8,14 +8,16 @@ async function step(P){const st=await P.evaluate(()=>{const g=S.dng;if(!g||!S.lk
   if(st.sheet){if(await tap(P,'[data-a="dnpbuy"]')||await tap(P,'[data-a="dnpgain"]'))return true;return tap(P,'[data-a="dnpclose"]')}
   if(st.ask==='pick'){for(let j=0;j<6;j++){if(await P.evaluate(()=>!document.querySelector('[data-a="dnpok"]').disabled))break;await P.evaluate(()=>{const b=document.querySelector('[data-a="dnphand"]:not(.sel):not(.dim)');if(b)b.click()});await W(40)}return tap(P,'[data-a="dnpok"]')}
   if(st.ask==='gain')return tap(P,'.dnsup .dnc.go');
-  if(st.ask)return tap(P,'[data-a="dnpyn"],[data-a="dnpdisc"],[data-a="dnpban"],[data-a="dnpsenok"]');
+  if(st.ask==='opts'){await P.evaluate(()=>{const Q=dnG().ask;[...document.querySelectorAll('[data-a="dnpopt"]')].slice(0,Q.n).forEach(b=>{const k=b.dataset.k;const x=document.querySelector(`[data-a="dnpopt"][data-k="${k}"]`);if(x)x.click()})});await W(40);return tap(P,'[data-a="dnpoptok"]')||true}
+  if(st.ask==='order'){await P.evaluate(()=>{const n=dnG().ask.cs.length;for(let i=0;i<n;i++){const b=document.querySelector(`[data-a="dnpord"][data-k="${i}"]`);if(b)b.click()}});await W(40);return tap(P,'[data-a="dnpordok"]')}
+  if(st.ask)return tap(P,'[data-a="dnpyn"],[data-a="dnpdisc"],[data-a="dnpban"],[data-a="dnpsenok"],[data-a="dnptp"],[data-a="dnppos"],[data-a="dnpname"]');
   if(st.gp==='action'){if(await P.evaluate(()=>DNHSEL!=null))return tap(P,'[data-a="dnpplay"]')||tap(P,'[data-a="dnpendact"]');if(await tap(P,'.dnhand.mine .dnc.go'))return true;return tap(P,'[data-a="dnpendact"]')}
   const k=await P.evaluate(()=>{const c=[...document.querySelectorAll('.dnsup .dnc.go')].map(b=>b.dataset.k).filter(k=>k!=='curse'&&k!=='copper').sort((a,b)=>dnC(b).c-dnC(a).c);return c[0]||null});
   if(k)return P.evaluate(k=>{document.querySelector(`[data-a="dnppile"][data-k="${k}"]`).click();return true},k);
   await tap(P,'[data-a="dnpend"]');return tap(P,'[data-a="dnpend"]')}
 (async()=>{const browser=await chromium.launch();const H=await mk(browser,'host'),G=await mk(browser,'guest');const errs=[];[H,G].forEach(p=>p.on('pageerror',e=>errs.push(e.message)));
-  const ids=await H.evaluate(()=>{window.__htfast=1;switchGame('dominion');resetScores();Object.assign(DNX(),{play:1,kd:['village','smithy','militia','market','cellar','moat','remodel','workshop','witch','lab']});const P=S.players;P.forEach((p,i)=>{p.on=i<3;p.name=['Justin','Kim','Duke Bot'][i]||'';if(i===2)p.bot='normal';else delete p.bot});save();
-    const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove();return [P[0].id,P[1].id]});
+  const ids=await H.evaluate((INTR)=>{window.__htfast=1;switchGame('dominion');resetScores();Object.assign(DNX(),{play:1,kd:INTR?['masquerade','torturer','swindler','minion','courtier','pawn','patrol','secretp','wishing','diplomat']:['village','smithy','militia','market','cellar','moat','remodel','workshop','witch','lab']});const P=S.players;P.forEach((p,i)=>{p.on=i<3;p.name=['Justin','Kim','Duke Bot'][i]||'';if(i===2)p.bot='normal';else delete p.bot});save();
+    const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove();return [P[0].id,P[1].id]},!!process.env.INTR);
   await G.evaluate(()=>{window.__htfast=1});
   await H.evaluate(()=>lkHostStart());await W(3000);const code=await H.evaluate(()=>S.lk.code);
   await H.evaluate(id=>lkPick(id),ids[0]);await G.evaluate(c=>lkJoin(c),code);await W(4000);await G.evaluate(id=>lkPick(id),ids[1]);await W(2500);

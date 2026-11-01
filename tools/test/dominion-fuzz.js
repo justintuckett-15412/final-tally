@@ -8,18 +8,18 @@ const N=+(process.env.N||30);
     const rnd=a=>a[Math.floor(Math.random()*a.length)];
     const count=g=>Object.values(g.sup).reduce((a,v)=>a+v,0)+g.trash.length+g.ps.reduce((a,id)=>a+dnAll(g.me[id]).length,0);
     let games=0,turns=0,ends={prov:0,piles:0},cardsSeen={};
-    for(let t=0;t<N;t++){S=dnFresh();S.dnx.play=1;S.dnx.kd=dnKdRandom([]);const n=2+t%5;S.players.forEach((p,i)=>{p.on=i<n;p.name='P'+i;p.bot=i<n?(t%2&&i===0?null:rnd(['easy','normal','hard'])):null});
+    for(let t=0;t<N;t++){S=dnFresh();S.dnx.play=1;S.dnx.ks={base:t%3!==1?1:0,intrigue:t%3!==0?1:0};S.dnx.kd=dnKdRandom([]);const n=2+t%5;S.players.forEach((p,i)=>{p.on=i<n;p.name='P'+i;p.bot=i<n?(t%2&&i===0?null:rnd(['easy','normal','hard'])):null});
       S.started=true;S.screen='score';dnDeal();const g=S.dng,T0=count(g);g.kd.forEach(k=>cardsSeen[k]=1);let steps=0;
       while(g.phase==='play'&&steps<20000){steps++;const a=dnActor(g),q=act().find(p=>p.id===a);
         if(!q.bot){/* random human */const M=g.me[a];
           if(Math.random()<.15){const before=JSON.stringify(g),o=g.ps.find(x=>x!==a);const f=rnd([()=>dnPlay(g,o,0),()=>dnBuy(g,o,'copper'),()=>dnEndTurn(g,o),()=>dnAns(g,o,[]),()=>dnBuy(g,a,'province')&&g.co<0,()=>dnAns(g,a,[99]),()=>dnPlay(g,a,99)]);const r=f();if(!r&&JSON.stringify(g)!==before)note('rejected move changed the game',f.toString())}
           if(g.ask&&g.ask.p===a){const Q=g.ask;let ans;
             if(Q.k==='pick'){const idx=M.h.map((k,i)=>i).filter(i=>!Q.f||dnIs(M.h[i],Q.f));const n=Q.min+Math.floor(Math.random()*(Math.min(Q.max,idx.length)-Q.min+1));ans=idx.sort(()=>Math.random()-.5).slice(0,n)}
-            else if(Q.k==='gain')ans=rnd(dnGainOpts(g,Q.max,Q.f));else if(Q.k==='yn')ans=Math.random()<.5;else if(Q.k==='disc')ans=Math.random()<.3?-1:Math.floor(Math.random()*M.ds.length);
+            else if(Q.k==='gain')ans=rnd(Q.ok);else if(Q.k==='opts')ans=Q.opts.map(o=>o[0]).sort(()=>Math.random()-.5).slice(0,Q.n);else if(Q.k==='tpick')ans=rnd(Q.cs);else if(Q.k==='order')ans=Q.cs.map((c,i)=>i).sort(()=>Math.random()-.5);else if(Q.k==='pos')ans=Math.floor(Math.random()*(M.dk.length+1));else if(Q.k==='name')ans=rnd(dnNameable(g));else if(Q.k==='yn')ans=Math.random()<.5;else if(Q.k==='disc')ans=Math.random()<.3?-1:Math.floor(Math.random()*M.ds.length);
             else if(Q.k==='ban')ans=Q.cs.findIndex(k=>dnIs(k,'T')&&k!=='copper');else if(Q.k==='sentry')ans={ch:Q.cs.map(()=>rnd(['t','d','k'])),top:0};
             if(!dnAns(g,a,ans))note('human answer refused',{Q,ans})}
           else if(g.turn===a){if(g.ph==='action'){const ai=M.h.map((k,i)=>i).filter(i=>dnIs(M.h[i],'A'));if(ai.length&&Math.random()<.8){if(!dnPlay(g,a,rnd(ai)))note('legal play refused',M.h)}else dnEndAct(g,a)}
-            else{const can=Object.keys(g.sup).filter(k=>g.sup[k]>0&&dnC(k).c<=g.co);if(can.length&&Math.random()<.85){const k=rnd(can);if(!dnBuy(g,a,k))note('legal buy refused',k)}else dnEndTurn(g,a)}}
+            else{const can=Object.keys(g.sup).filter(k=>g.sup[k]>0&&dnCost(g,k)<=g.co);if(can.length&&Math.random()<.85){const k=rnd(can);if(!dnBuy(g,a,k))note('legal buy refused',k)}else dnEndTurn(g,a)}}
           else note('human actor has nothing to do',{a,turn:g.turn})}
         else dnBotStep(g,q);
         if(count(g)!==T0)note('cards lost or made up',{T0,now:count(g),last:g.msg});
