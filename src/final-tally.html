@@ -595,7 +595,7 @@ body.bigview .bigv .htstat{margin:0}body.bigview .bigs.rowp{display:flex;gap:18p
 .glburst .puff{position:absolute;left:-60px;top:-60px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(90,90,90,.75),rgba(90,90,90,0) 65%);animation:gbpuff 1.6s ease-out both}.glburst .puff.p2{animation-delay:.15s;left:-40px;top:-80px}@keyframes gbpuff{0%{transform:scale(.3);opacity:0}30%{opacity:1}100%{transform:scale(1.8) translateY(-30px);opacity:0}}
 .glburst .ring{position:absolute;left:-50px;top:-50px;width:100px;height:100px;border-radius:50%;border:4px solid #f5c400;animation:gbring .9s ease-out both}@keyframes gbring{0%{transform:scale(.2);opacity:1}100%{transform:scale(1.6);opacity:0}}
 .glburst i{position:absolute;left:-8px;top:-10px;font-style:normal;font-size:20px;color:#f5c400;text-shadow:0 0 8px rgba(245,196,0,.9);animation:gbspark 1.1s ease-out both;--a:0deg}@keyframes gbspark{0%{transform:rotate(var(--a)) translateY(0) scale(.4);opacity:0}20%{opacity:1}100%{transform:rotate(var(--a)) translateY(-80px) scale(1);opacity:0}}
-.sheet-bg.glrdy,.sheet-bg.glres,.sheet-bg.gllast{z-index:45}.glres .sheet,.gllast .sheet,.glrdy .sheet{text-align:center}.glres .sheet .tqannic,.gllast .sheet .tqannic,.glrdy .sheet .tqannic{display:block;font-size:44px}.glresl{text-align:left;display:grid;gap:6px;margin:10px 0 4px}.glresr{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:color-mix(in srgb,var(--pc,#888) 10%,var(--surface));border-left:5px solid var(--pc,#888)}.glresr .dot{width:10px;height:10px;border-radius:50%;background:var(--pc,#888)}.glresd{font-weight:800;font-size:18px;min-width:3.2em;text-align:right}.glrest{color:var(--muted);min-width:3em;text-align:right}.glresh{display:flex;justify-content:flex-end;gap:22px;font-size:12px;margin:0 12px 10px}
+.sheet-bg.glrdy,.sheet-bg.glres,.sheet-bg.gllast,.sheet-bg.dnsbg{z-index:45}.glres .sheet,.gllast .sheet,.glrdy .sheet{text-align:center}.glres .sheet .tqannic,.gllast .sheet .tqannic,.glrdy .sheet .tqannic{display:block;font-size:44px}.glresl{text-align:left;display:grid;gap:6px;margin:10px 0 4px}.glresr{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:color-mix(in srgb,var(--pc,#888) 10%,var(--surface));border-left:5px solid var(--pc,#888)}.glresr .dot{width:10px;height:10px;border-radius:50%;background:var(--pc,#888)}.glresd{font-weight:800;font-size:18px;min-width:3.2em;text-align:right}.glrest{color:var(--muted);min-width:3em;text-align:right}.glresh{display:flex;justify-content:flex-end;gap:22px;font-size:12px;margin:0 12px 10px}
 .qpround .sheet{max-height:94vh;overflow:auto;width:min(600px,96vw)}.qpround .qpres{margin:10px 0}
 .qrpop{animation:qrpop .45s cubic-bezier(.3,1.6,.5,1) both}@keyframes qrpop{from{transform:scale(.4);opacity:0}}
 .qrruby{background:color-mix(in srgb,#d6334a 14%,var(--surface));box-shadow:0 0 0 2px rgba(214,51,74,.45),0 0 16px rgba(214,51,74,.45)}
@@ -1900,6 +1900,10 @@ function glWaitCard(){try{if(!S.lk||S.demo||!glOn())return '';const g=GLG(),me=S
   else if(['golf','skyjo','gnome'].includes(S.game)&&g.phase==='flip'&&g.need&&!(g.need[me]>0)){w=H.filter(p=>g.need[p.id]>0);what='flip'}
   if(!w||!w.length)return '';const k='w:'+S.game+':'+g.r+':'+what;if(!glWaitAt[k])glWaitAt[k]=Date.now();
   return `<div class="qpwait" role="status" style="animation-delay:-${Date.now()-glWaitAt[k]}ms"><b>✋ ${what==='pass'?'Cards passed':what==='bid'?'Bid in':'Cards flipped'}</b><span>Waiting for ${esc(w.map(nm).join(', ').replace(/, ([^,]*)$/,' and $1'))}…</span></div>`}catch(e){return ''}}
+/* Dominion: at the start of your turn, scroll so your hand sits right above the turn box */
+let DNTSC='';function dnTurnScroll(){if(S.game!=='dominion'||!S.started||!dnOn()||S.screen!=='score')return;const g=dnG(),V=dnViewer();if(!g||!V||g.phase!=='play'||g.turn!==V.id)return;const key=g.tno+':'+V.id;if(DNTSC===key)return;
+  const el=document.querySelector('#app .dnhand.mine'),dk=document.querySelector('#app .dndock');if(!el)return;DNTSC=key;const z=parseFloat(document.documentElement.style.zoom)||1,dH=dk?dk.offsetHeight*z:0,r=el.getBoundingClientRect();
+  const want=innerHeight-dH-(dk?14:8);const dy=(r.bottom*z)-want;if(Math.abs(dy)>4)window.scrollBy({top:dy/z,behavior:'smooth'})}
 /* your turn: bring your hand into view */
 let GLSCAT=0;function glTurnScroll(){try{if(S.game==='quacks'||!glOn()||document.body.classList.contains('bigview'))return;const me=rxMe();if(!me||TBK!==S.game+me||GLSCAT===TBAT||Date.now()-TBAT>1500)return;GLSCAT=TBAT;
   const el=document.querySelector('#app :is(.unhands,.fchand,.gpme,.sbme,.mtme)');if(!el)return;const act0=[...document.querySelectorAll('#app .actions')].find(e=>getComputedStyle(e).position==='fixed'),aH=act0?act0.offsetHeight:0,r=el.getBoundingClientRect(),z=parseFloat(document.documentElement.style.zoom)||1;
@@ -1997,7 +2001,6 @@ function home(){
   <button class="btn wide stats-btn" data-a="opensettings">Settings <span class="pill">${SET.reveal==='auto'?'Auto reveal':'Tap-through reveal'}${SET.sound?' · sounds on':''}${window.FTSYNC&&window.FTSYNC.status().fid?' · synced':''}${OFST&&OFST.total&&OFST.have>=OFST.total?' · offline ready':''}</span></button>
   <div class="sec hbk"><div class="prow"><button class="btn" style="flex:1" data-a="backup">💾 Back up everything</button><label class="btn" style="flex:1">Restore a backup<input type="file" accept=".json,application/json" id="restore-in" hidden></label></div>
     <p class="hint">${BKMSG?esc(BKMSG)+' ':''}${(()=>{const l=bkLast();if(!l)return 'No backup yet. Save one to your phone or computer now and then.';const d=Math.floor((Date.now()-new Date(l))/864e5);return `Last backup: ${d<1?'today':d===1?'yesterday':d+' days ago'}.`})()}</p></div>
-  <button class="btn wide stats-btn samples-btn" data-a="go" data-s="samples">Sample games <span class="pill">${DEMOS.length+CDEMOS.length+HDEMOS.length+CADEMOS.length+NDEMOS.length+PDEMOS.length+DDEMOS.length+PLDEMOS.length+HTDEMOS.length+SDDEMOS.length+RGDEMOS.length+OHDEMOS.length+UNDEMOS.length+MKDEMOS.length+FCDEMOS.length+SBDEMOS.length+GNDEMOS.length+SKDEMOS.length+WSDEMOS.length+WYDEMOS.length+PTDEMOS.length+RKDEMOS.length+YZDEMOS.length+MTDEMOS.length+CTDEMOS.length+GFDEMOS.length+TPDEMOS.length+QKDEMOS.length+1}</span></button>
   <div class="soon"><img src="art/more-games.png" alt="" width="900" height="494"><p>More games will be added here.</p></div>
   <button class="btn wide stats-btn" data-a="shareapp">📲 Share the app <span class="pill">QR code</span></button>
   <p class="hint appver">Version ${esc(window.FT_BUILD||'dev')} · <button class="link-btn" data-a="appupdate" ${UPDBUSY?'disabled':''}>${UPDBUSY?esc(UPDBUSY):'Check for updates'}</button></p>${shareSheet()}`;
@@ -2489,7 +2492,7 @@ function settingsScreen(){
     ${SET.sound?`<div class="prow"><button class="btn" style="flex:1" data-a="test" data-k="win">Play the win sound</button><button class="btn" style="flex:1" data-a="test" data-k="lose">Play the lose sound</button></div>
     <div class="prow" style="display:block"><div class="rtext"><b>Who uses this device?</b><div class="rlab">At the reveal it cheers if this person wins and plays the sad trombone if they don\u2019t. Set to nobody, it always cheers for the winner. In a linked game it uses the player you picked there instead.</div></div>
     <div class="lr" style="margin-top:8px"><button data-a="setme" data-k="" aria-pressed="${!SET.me}">Nobody in particular</button>${names.map(n=>`<button data-a="setme" data-k="${esc(n)}" aria-pressed="${SET.me.toLowerCase()===n.toLowerCase()}">${esc(n)}</button>`).join('')}</div>
-    ${S.demo?'<p class="hint">In a sample game, pick one of the sample players to hear what their phone would play.</p>':''}</div>`:''}</div></div>
+    </div>`:''}</div></div>
   <div class="sec"><div class="sec-h"><h3>Screen &amp; buttons</h3></div><div class="panel">
     <div class="prow"><div class="rtext"><b>Keep the screen on during games</b><div class="rlab">Stops the phone from dimming or locking while you score and reveal.</div></div>${sw('setawake','',SET.awake!==false,'Keep the screen on')}</div>
     <div class="prow"><div class="rtext"><b>Color-blind labels</b><div class="rlab">Shifts player colors to a color-blind-safe set (red becomes red-orange, green becomes teal-green, purple becomes pink-purple) and adds a short tag (Rd, Bl, Gn, Yl, Bk, Wh, Pu) next to each one. Only changes this device.</div></div>${sw('setcb','',!!SET.cb,'Color-blind labels')}</div>
@@ -2981,84 +2984,18 @@ window.ftOpenSync=function(code){SYNCPRE=String(code||'').toUpperCase().replace(
 window.ftPing=()=>{const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return;if(S.screen==='settings'||S.screen==='home')render()};
 
 /* ---------- sample games ---------- */
-const DEMOS=[
- {id:'missing',title:'USA · The missing route',blurb:'Scored as they played, but Dad forgot to tap a 6-space route. The app says he should have 10 trains left; he really has 4. Without it, Mom wins. Open Dad\'s Claimed routes, tap ✗ Doesn\'t match and enter 4 to see it find the route.',map:'usa',preset:'classic',rules:{live:true},
-  players:[
-   {name:'Dad',color:'red',routes:{6:3,5:2,4:1,3:1},tickets:[[21,1,'Los Angeles – New York'],[11,1,'Denver – Pittsburgh'],[9,1,'Seattle – Los Angeles']],x:{lpath:30}},
-   {name:'Mom',color:'blue',routes:{6:2,5:3,4:2,3:2,2:1},tickets:[[20,1,'Vancouver – Montréal'],[13,1,'Calgary – Phoenix'],[12,0,'Boston – Miami'],[8,1,'Sault St. Marie – Nashville']],x:{lpath:38}},
-   {name:'Emma',color:'green',routes:{5:4,4:4,3:1,1:1},tickets:[[17,1,'Portland – Nashville'],[5,1,'Kansas City – Houston']],x:{lpath:27}},
-   {name:'Jack',color:'yellow',routes:{4:5,3:4,2:3},tickets:[[7,1,'Chicago – New Orleans'],[8,1,'Duluth – Houston'],[10,0,'Toronto – Miami']],x:{lpath:20}}]},
- {id:'usa',title:'USA · Family night',blurb:'Mega Game with Mystery Train and a 15-point head start for Jack. Dad leads all game, right up to the final Globetrotter round.',map:'usa',preset:'mega',rules:{mystery:true,handicap:true},
-  players:[
-   {name:'Dad',color:'red',routes:{5:3,4:4,3:2,2:3},tickets:[[20,1,'Seattle – New York'],[13,1,'Vancouver – Santa Fe'],[11,1,'Dallas – New York'],[9,0,'Chicago – Santa Fe']],x:{lpath:33,mystery:{tycoon:true}}},
-   {name:'Mom',color:'blue',routes:{4:3,3:4,2:3,1:4},tickets:[[11,1,'Kansas City – Boston'],[9,1,'Montréal – Atlanta'],[8,1,'Duluth – Houston'],[7,1,'Chicago – Boston'],[6,1,'New York – Atlanta'],[5,0,'Chicago – New York']],x:{lpath:34,mystery:{agent:true}}},
-   {name:'Emma',color:'green',routes:{5:3,4:2,3:2,2:1},tickets:[[17,1,'Portland – Nashville'],[12,1,'Los Angeles – Calgary'],[8,0,'Helena – Los Angeles']],x:{lpath:26,mystery:{insp:8}}},
-   {name:'Jack',color:'yellow',hs:15,routes:{4:2,3:3,2:3,1:2},tickets:[[10,1,'Toronto – Miami'],[6,1,'Nashville – New York'],[4,1,'Denver – El Paso']],x:{lpath:16}}]},
- {id:'nlights',title:'Northern Lights · Bonus cards',blurb:'4 players and 4 bonus cards. Lena leads going into the bonus cards, but each card gets its own reveal round.',map:'nlights',nl:['A','E','H','J'],
-  players:[
-   {name:'Lena',color:'red',routes:{4:4,3:4,2:4,1:2},tickets:[[13,1],[10,1],[9,1]],x:{lpath:22,nlb:{A:1,H:1,J:1}}},
-   {name:'Erik',color:'blue',routes:{4:3,3:3,2:2,1:2},tickets:[[12,1],[8,1],[6,0]],x:{lpath:25,nlb:{A:3,H:2,J:3}}},
-   {name:'Sofie',color:'green',routes:{5:2,4:2,3:3,2:2},tickets:[[11,1],[7,1]],x:{lpath:18,nlb:{A:2,H:2,J:1}}},
-   {name:'Nils',color:'yellow',routes:{4:2,3:2,2:3,1:4},tickets:[[9,1],[5,1],[5,1],[4,1]],x:{lpath:12,nlb:{A:0,H:0,J:2}}}]},
- {id:'monsters',title:'USA · Alvin & Dexter, kids rules',blurb:'No penalty for failed tickets. Owen\'s biggest ticket ends where Dexter is parked, so it only counts half, and that costs him the win.',map:'usa',rules:{monsters:true,nofail:true},
-  players:[
-   {name:'Owen',color:'red',routes:{6:2,5:2,4:2,3:2,2:2,1:3},tickets:[[20,1,'Vancouver – Montréal',1],[9,0,'Seattle – Los Angeles'],[13,0,'Calgary – Phoenix']],x:{lpath:24,monsters:{alvin:1,dexter:0}}},
-   {name:'Ruby',color:'blue',routes:{5:3,4:3,3:3,2:2},tickets:[[11,1,'Winnipeg – Little Rock'],[10,1,'Toronto – Miami'],[17,0,'San Francisco – Atlanta']],x:{lpath:20,monsters:{alvin:3,dexter:1}}},
-   {name:'Leo',color:'green',routes:{4:3,3:3,2:2,1:2},tickets:[[12,1,'Boston – Miami'],[8,1,'Sault St. Marie – Nashville'],[6,1,'New York – Atlanta']],x:{lpath:15,monsters:{alvin:0,dexter:2}}}]},
- {id:'europe',title:'Europe · 1912 depots',blurb:'3 players finish tied on points. The tiebreaker goes to whoever completed more tickets.',map:'europe',rules:{depots:true},
-  players:[
-   {name:'Grandpa',color:'black',routes:{8:1,6:3,5:1,4:2,2:2},tickets:[[21,1,'Madrid – Angora'],[10,0,'London – Roma'],[7,0,'Paris – Zagrab']],x:{stations:1,depots:2,lpath:24}},
-   {name:'Lily',color:'red',routes:{4:4,3:4,2:3,1:2},tickets:[[12,1,'Berlin – Moskva'],[8,1,'Paris – Wien'],[8,1,'Barcelona – Munchen'],[6,1,'Roma – Athina'],[5,1,'Frankfurt – Kobenhavn']],x:{stations:3,depots:4,lpath:15}},
-   {name:'Ben',color:'blue',routes:{6:2,5:2,3:3,1:2},tickets:[[20,1,'London – Angora'],[11,1,'Athina – Wilno'],[4,0,'Lisboa – Cadiz']],x:{stations:3,depots:1,lpath:26}}]},
- {id:'japan',title:'Japan · Bullet Train showdown',blurb:'5 players. Zoe leads until the Bullet Train round, where skipping the Bullet Trains costs her 20.',map:'japan',
-  players:[
-   {name:'Ava',color:'red',routes:{3:2,2:3,1:2},tickets:[[12,1],[7,1]],x:{bullet:9}},
-   {name:'Noah',color:'blue',routes:{4:1,3:2,2:2},tickets:[[10,1],[9,1],[6,0]],x:{bullet:6}},
-   {name:'Mia',color:'green',routes:{4:2,2:3},tickets:[[14,1]],x:{bullet:6}},
-   {name:'Leo',color:'yellow',routes:{3:3,1:3},tickets:[[8,1],[9,0]],x:{bullet:3}},
-   {name:'Zoe',color:'black',routes:{5:2,4:2,2:1},tickets:[[16,1],[11,1]],x:{bullet:0}}]},
- {id:'world',title:'Rails & Sails · World',blurb:'Josh builds the most routes but skips his harbors, and Sam pays for swapping pieces mid-game.',map:'world',
-  players:[
-   {name:'Sam',color:'blue',routes:{8:1,6:2,4:3,2:2},tickets:[[15,1],[12,1],[20,1],[9,0]],x:{harbors:[1,1,0],exchange:4}},
-   {name:'Kate',color:'green',routes:{5:3,4:2,3:4,1:3},tickets:[[30,1],[11,1],[8,1],[8,1]],x:{harbors:[2,1,-1]}},
-   {name:'Josh',color:'yellow',routes:{8:2,7:2,6:1,5:2,4:2},tickets:[[25,1],[14,1],[18,0]],x:{harbors:[-1,-1,-1]}}]},
- {id:'nederland',title:'Nederland · tolls and a loan',blurb:'4 players. Ivy\'s loan costs her the toll bonus, and two players tie for third.',map:'nederland',
-  players:[
-   {name:'Ruth',color:'red',routes:{4:3,3:4,2:2},tickets:[[29,1],[17,0]],x:{tolls:{left:9}}},
-   {name:'Owen',color:'blue',routes:{6:2,4:2,3:2,2:2},tickets:[[26,1],[18,0]],x:{tolls:{left:9}}},
-   {name:'Ivy',color:'green',routes:{5:3,4:3,3:3,1:2},tickets:[[34,1],[22,1]],x:{tolls:{left:0,loans:1}}},
-   {name:'Cole',color:'yellow',routes:{4:2,3:3,2:3},tickets:[[20,1],[17,1],[19,1]],x:{tolls:{left:4}}}]}
-];
-function loadDemo(id){
-  const d=DEMOS.find(x=>x.id===id);if(!d)return;
-  if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}
-  S=fresh();CALC=null;setMap(d.map);
-  if(d.preset){const pr=M().presets.find(x=>x.id===d.preset);S.preset=d.preset;['longest','globe','depots'].forEach(k=>S.rules[k]=pr.on.includes(k))}
-  Object.assign(S.rules,d.rules||{});if(d.nl)S.nl=[...d.nl];
-  S.players=d.players.map(pp=>{const p=newPlayer(pp.name,pp.color,true);p.routes={...pp.routes};p.tickets=pp.tickets.map(([v,dn,name,mon])=>({v,done:!!dn,...(name?{name}:{}),...(mon?{mon:true}:{})}));p.hs=pp.hs||0;p.x=JSON.parse(JSON.stringify(pp.x||{}));return p});
-  while(S.players.length<6)S.players.push(newPlayer('',ALLC.find(c=>!S.players.some(p=>p.color===c)),false));
-  Object.assign(S,{demo:d.id,started:true,screen:'score',active:0,hideTotals:true});UNDO=[];KP='';WARN=null;REV=null;
-}
 function exitDemo(){LINKT.forEach(clearTimeout);LINKT=[];let real=null;try{real=JSON.parse(localStorage.getItem(KEY+'.real'));localStorage.removeItem(KEY+'.real')}catch(e){}
   S=real&&real.players?real:fresh();CURG=S.game||'ttr';try{localStorage.setItem('finaltally.cur',CURG)}catch(e){}S.screen='home';UNDO=[];KP='';WARN=null;REV=null}
 function demoBar(){if(S.editing&&S.screen!=='home'){const g=H.games.find(x=>x.id===S.editing);
     return `<div class="demo-bar"><div><b>Editing a saved game</b>${g?' · '+esc(g.mapName)+', '+new Date(g.date).toLocaleDateString():''}<br><span>Fix anything, then finish. The history and stats update.</span></div><div class="demo-btns"><button class="btn sm" data-a="editdone">Done</button></div></div>`}
   if(S.demo==='link'&&S.screen!=='home')return `<div class="demo-bar"><div><b>Linked game preview</b><br><span>One phone pretending to be four. Nothing is saved.</span></div><div class="demo-btns"><button class="btn sm" data-a="demoexit">Exit preview</button></div></div>`;
-  if(!S.demo||S.screen==='home')return '';const d=DEMOS.find(x=>x.id===S.demo)||CDEMOS.find(x=>x.id===S.demo)||HDEMOS.find(x=>x.id===S.demo)||NDEMOS.find(x=>x.id===S.demo)||CADEMOS.find(x=>x.id===S.demo)||DDEMOS.find(x=>x.id===S.demo)||PLDEMOS.find(x=>x.id===S.demo)||HTDEMOS.find(x=>x.id===S.demo)||SDDEMOS.find(x=>x.id===S.demo)||RGDEMOS.find(x=>x.id===S.demo)||OHDEMOS.find(x=>x.id===S.demo)||UNDEMOS.find(x=>x.id===S.demo)||MKDEMOS.find(x=>x.id===S.demo)||FCDEMOS.find(x=>x.id===S.demo)||SBDEMOS.find(x=>x.id===S.demo)||GNDEMOS.find(x=>x.id===S.demo)||SKDEMOS.find(x=>x.id===S.demo)||WSDEMOS.find(x=>x.id===S.demo)||WYDEMOS.find(x=>x.id===S.demo)||DNDEMOS.find(x=>x.id===S.demo)||SADEMOS.find(x=>x.id===S.demo)||PTDEMOS.find(x=>x.id===S.demo)||RKDEMOS.find(x=>x.id===S.demo)||YZDEMOS.find(x=>x.id===S.demo)||MTDEMOS.find(x=>x.id===S.demo)||CTDEMOS.find(x=>x.id===S.demo)||GFDEMOS.find(x=>x.id===S.demo)||TPDEMOS.find(x=>x.id===S.demo)||QKDEMOS.find(x=>x.id===S.demo)||PDEMOS.find(x=>x.id===S.demo);
-  return `<div class="demo-bar"><div><b>Sample game</b> · ${esc(d?d.title:'')}<br><span>${S.screen==='score'?(d&&d.tip?esc(d.tip)+' ':'Look through each player, then tap Finish to watch the reveal. '):''}Not saved to your history.</span></div><div class="demo-btns"><button class="btn sm" data-a="opensettings" aria-label="Settings">Settings</button><button class="btn sm" data-a="demoexit">Exit sample</button></div></div>`}
+  return ''}
 /* ---------- linked game preview (simulated phones) ---------- */
 let LINKT=[];
 const L=()=>S.link;
 const fmtCode=c=>String(c).replace(/^(\d{3})(\d{3})$/,'$1 $2');
 const seatOf=p=>L()&&L().seats[p.id];
 const hostSeats=()=>act().filter(p=>{const s=seatOf(p);return s&&s.phone!=='own'});
-function startLinkPreview(){
-  loadDemo('usa');S.demo='link';S.screen='lobby';
-  const P=act(),phones=['host','own','own','none'];
-  S.link={code:String(100000+Math.floor(Math.random()*900000)),view:'host',confirm:false,seats:{}};
-  P.forEach((p,i)=>S.link.seats[p.id]={phone:phones[i],ready:false});
-  linkTimers();
-}
 function linkTimers(){LINKT.forEach(clearTimeout);LINKT=[];const P=act();
   [[P[1],4000],[P[2],11000]].forEach(([p,ms])=>LINKT.push(setTimeout(()=>{if(S.demo!=='link'||S.screen==='reveal')return;const s=seatOf(p);if(s&&!s.ready&&!s.held){s.ready=true;toast(`${nm(p)} is done scoring`);if(['lobby','score'].includes(S.screen))render()}},ms)))}
 function toast(msg){document.querySelectorAll('.toast').forEach(x=>x.remove());const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
@@ -3085,12 +3022,6 @@ function playerPhone(p){const s=seatOf(p),host=act().find(q=>seatOf(q).phone==='
   ${s.ready?`<div class="empty-state"><img class="wait-img" src="wait/secret-${IMGC.includes(p.color)?p.color:'red'}.png" alt="" width="400" height="368"><h2>You're done ✓</h2><p>Waiting for ${esc(nm(host))} to start the reveal. Your score stays hidden until then.</p>${waitLoader('')}<button class="btn" data-a="lunready" data-k="${p.id}">Edit my scorecard</button></div>`
     :`<div class="empty-state"><h2>Scoring…</h2><p>${esc(nm(p))} fills in their own routes and tickets here, with the same Rules button and scorecard you use.</p><button class="btn primary" data-a="lready" data-k="${p.id}">I'm done</button></div>`}
   <p class="hint">This is a preview: tap the buttons to act as ${esc(nm(p))}, then switch back to your phone.</p>`}
-function samplesScreen(){return `<div class="bar"><h1>Sample games</h1></div>${demoList()}`}
-function demoList(){const h='<h4 class="demo-h">',raw=demoList0(),parts=raw.split(h),head=parts.shift(),last=parts.pop(),key=t=>t.split('</h4>')[0].replace(/^The /,'').toLowerCase();
-  parts.sort((a,b)=>key(a).localeCompare(key(b)));return head+parts.map(x=>h+x).join('')+h+last}
-function demoList0(){return `<div class="sec"><div class="sec-h"><h3>See it in action</h3></div><h4 class="demo-h">Ticket to Ride</h4><div class="demos">${DEMOS.map(d=>`<button class="demo" data-a="demo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Carcassonne</h4><div class="demos">${CDEMOS.map(d=>`<button class="demo" data-a="cdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Hand and Foot</h4><div class="demos">${HDEMOS.map(d=>`<button class="demo" data-a="hdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Canasta</h4><div class="demos">${CADEMOS.map(d=>`<button class="demo" data-a="cademo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Hearts</h4><div class="demos">${HTDEMOS.map(d=>`<button class="demo" data-a="htdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Spades</h4><div class="demos">${SDDEMOS.map(d=>`<button class="demo" data-a="sddemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Rage</h4><div class="demos">${RGDEMOS.map(d=>`<button class="demo" data-a="rgdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Munchkin</h4><div class="demos">${MKDEMOS.map(d=>`<button class="demo" data-a="mkdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">UNO</h4><div class="demos">${UNDEMOS.map(d=>`<button class="demo" data-a="undemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Oh Hell</h4><div class="demos">${OHDEMOS.map(d=>`<button class="demo" data-a="ohdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Five Crowns</h4><div class="demos">${FCDEMOS.map(d=>`<button class="demo" data-a="fcdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Skip-Bo</h4><div class="demos">${SBDEMOS.map(d=>`<button class="demo" data-a="sbdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Gnoming A Round</h4><div class="demos">${GNDEMOS.map(d=>`<button class="demo" data-a="gndemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Skyjo</h4><div class="demos">${SKDEMOS.map(d=>`<button class="demo" data-a="skdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Wingspan</h4><div class="demos">${WSDEMOS.map(d=>`<button class="demo" data-a="wsdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Wyrmspan</h4><div class="demos">${WYDEMOS.map(d=>`<button class="demo" data-a="wydemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Stone Age</h4><div class="demos">${SADEMOS.map(d=>`<button class="demo" data-a="sademo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Dominion</h4><div class="demos">${DNDEMOS.map(d=>`<button class="demo" data-a="dndemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Phase 10</h4><div class="demos">${PTDEMOS.map(d=>`<button class="demo" data-a="ptdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Rook</h4><div class="demos">${RKDEMOS.map(d=>`<button class="demo" data-a="rkdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Yahtzee</h4><div class="demos">${YZDEMOS.map(d=>`<button class="demo" data-a="yzdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Mexican Train</h4><div class="demos">${MTDEMOS.map(d=>`<button class="demo" data-a="mtdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Catan</h4><div class="demos">${CTDEMOS.map(d=>`<button class="demo" data-a="ctdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Golf</h4><div class="demos">${GFDEMOS.map(d=>`<button class="demo" data-a="gfdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Tripoley</h4><div class="demos">${TPDEMOS.map(d=>`<button class="demo" data-a="tpdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">The Quacks of Quedlinburg</h4><div class="demos">${QKDEMOS.map(d=>`<button class="demo" data-a="qkdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Nerts</h4><div class="demos">${NDEMOS.map(d=>`<button class="demo" data-a="ndemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Darts</h4><div class="demos">${DDEMOS.map(d=>`<button class="demo" data-a="ddemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Pool</h4><div class="demos">${PLDEMOS.map(d=>`<button class="demo" data-a="pldemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Score pad</h4><div class="demos">${PDEMOS.map(d=>`<button class="demo" data-a="pdemo" data-k="${d.id}"><b>${esc(d.title)}</b><span>${esc(d.blurb)}</span></button>`).join('')}</div><h4 class="demo-h">Playing on several phones</h4><div class="demos"><button class="demo linkdemo" data-a="linkpreview"><img class="link-art" src="art/linked.jpg" alt="" width="720" height="480"><b>Linked game preview</b><span>See how a game works across 4 phones: game code, players scoring on their own phones, ready-ups, and the host starting the reveal.</span></button></div>
-  <p class="hint">Sample games are filled in and ready to reveal. They don't affect your game in progress or your history.</p></div>`}
-
 /* ---------- ticket decks (from the published ticket lists) ---------- */
 const T_CLASSIC=[['Boston','Miami',12],['Calgary','Phoenix',13],['Calgary','Salt Lake City',7],['Chicago','New Orleans',7],['Chicago','Santa Fe',9],['Dallas','New York',11],['Denver','El Paso',4],['Denver','Pittsburgh',11],['Duluth','El Paso',10],['Duluth','Houston',8],['Helena','Los Angeles',8],['Kansas City','Houston',5],['Los Angeles','Chicago',16],['Los Angeles','Miami',20,19],['Los Angeles','New York',21,20],['Montréal','Atlanta',9],['Montréal','New Orleans',13],['New York','Atlanta',6],['Portland','Nashville',17],['Portland','Phoenix',11],['Sault St. Marie','Nashville',8],['Sault St. Marie','Oklahoma City',9,8],['San Francisco','Atlanta',17],['Seattle','Los Angeles',9],['Seattle','New York',22,20],['Toronto','Miami',10],['Vancouver','Montréal',20],['Vancouver','Santa Fe',13],['Winnipeg','Houston',12],['Winnipeg','Little Rock',11]];
 const T_1910=[['Calgary','Nashville',14],['Chicago','Atlanta',5],['Chicago','Boston',7],['Chicago','New York',5],['Denver','Saint Louis',6],['Duluth','Dallas',7],['Houston','Washington',10],['Kansas City','Boston',11],['Las Vegas','New York',19],['Las Vegas','Miami',21],['Los Angeles','Atlanta',15],['Los Angeles','Calgary',12],['Los Angeles','Oklahoma City',9],['Montréal','Dallas',13],['Montréal','Raleigh',7],['Nashville','New York',6],['New York','Miami',10],['Omaha','New Orleans',8],['Phoenix','Boston',19],['Pittsburgh','New Orleans',8],['Portland','Houston',16],['Portland','Pittsburgh',19],['Saint Louis','Miami',8],['Salt Lake City','Chicago',11],['Salt Lake City','Kansas City',7],['San Francisco','Sault St. Marie',17],['San Francisco','Washington',21],['Sault St. Marie','Miami',12],['Seattle','Las Vegas',10],['Seattle','Oklahoma City',14],['Toronto','Charleston',6],['Vancouver','Denver',11],['Vancouver','Duluth',13],['Washington','Atlanta',4],['Winnipeg','Santa Fe',10]];
@@ -4383,13 +4314,6 @@ function caHomeCard(){const st=gamePeek('canasta');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/canasta-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart caart&quot; aria-hidden=&quot;true&quot;>C</div>'"><div><h2>Canasta</h2><div class="meta">Card game · teams · house rules</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="canasta">Resume game</button><button class="btn" data-a="gnew" data-k="canasta">New game</button><button class="btn" data-a="gabandon" data-k="canasta" aria-label="Abandon this game">${ABANDON==='canasta'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="hfstart" data-g="canasta" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="hfstart" data-g="canasta" data-k="0">Score a game</button></div>`}</div>`}
-const CADEMOS=[{id:'cafam',title:'Family night · Canasta',tip:'Each team\u2019s meld minimum follows its own score: below zero, 50, 90 or 120. Tap Finish to watch the reveal.',blurb:'Mom & Dad vs. Grandma & Grandpa, playing to 5,000. A round with no melds turns Grandpa\u2019s red 3s into minus points, and all four red 3s pay 800 later on.'}];
-function caDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}
-  S=hfFresh('canasta');S.hx=JSON.parse(JSON.stringify(CADEF));S.demo=id;const [a,b]=S.players;a.mem=['Mom','Dad'];b.mem=['Grandma','Grandpa'];a.color='blue';b.color='red';
-  const R=(cl,dt,c5,out,l5,r3p,b3p,b3)=>({cl,dt,wb:0,c:{j:c5[0],t:c5[1],a:c5[2],h:c5[3],l:c5[4]},out,l:{j:l5[0],t:l5[1],a:l5[2],h:l5[3],l:l5[4]},r3:0,b3:b3||0,r3p,b3p:b3p||0});const Z=[0,0,0,0,0];
-  a.hf=[R(1,1,[1,3,4,14,10],true,Z,1,3),R(1,0,[1,2,3,11,9],false,[0,1,1,2,3],0),R(1,1,[2,4,5,18,12],true,Z,4,0),R(0,1,[1,3,3,13,10],false,[1,0,1,3,2],1,0,1),R(1,1,[2,3,4,16,12],true,Z,0)];
-  b.hf=[R(0,0,[0,0,0,0,0],false,[1,1,2,4,5],2),R(1,1,[1,3,4,15,11],true,Z,1),R(1,0,[1,2,2,11,8],false,[0,1,1,3,4],0),R(2,1,[2,4,4,17,13],true,Z,2),R(1,1,[1,2,3,12,10],false,[1,1,0,2,3],1,0,1)];
-  Object.assign(S,{started:true,screen:'score',hr:4,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
 const CAW=[[/Hand and Foot/g,'Canasta'],[/hand and foot/g,'hand'],[/hand or foot/g,'hand'],[/hands and feet/g,'hands'],[/Clean books/g,'Natural canastas'],[/clean books/g,'natural canastas'],[/Clean book/g,'Natural canasta'],[/clean book/g,'natural canasta'],
   [/Dirty books/g,'Mixed canastas'],[/dirty books/g,'mixed canastas'],[/Dirty book/g,'Mixed canasta'],[/dirty book/g,'mixed canasta'],[/Dirty only/g,'Mixed only'],[/Wild books/g,'Wild canastas'],[/Wild book/g,'Wild canasta'],[/wild books/g,'wild canastas'],[/Book club/g,'Canasta club'],
   [/Books/g,'Canastas'],[/books/g,'canastas'],[/A book/g,'A canasta'],[/a book/g,'a canasta'],[/\bbook\b/g,'canasta'],[/\bBook\b/g,'Canasta'],[/Clean \(no wilds\)/g,'Natural (no wilds)'],[/, dirty /g,', mixed '],[/no wild cards/g,'no wild cards'],[/some wild cards/g,'some wild cards']];
@@ -4398,36 +4322,6 @@ function hfHomeCard(){const st=gamePeek('hf');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/hf-icon.png" alt="" width="84" height="84"><div><h2>Hand and Foot</h2><div class="meta">Card game · teams · house rules</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="hf">Resume game</button><button class="btn" data-a="gnew" data-k="hf">New game</button><button class="btn" data-a="gabandon" data-k="hf" aria-label="Abandon this game">${ABANDON==='hf'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="hfstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="hfstart" data-k="0">Score a game</button></div>`}</div>`}
-const HDEMOS=[{id:'hfam',title:'Family night · Hand and Foot',tip:'Look through each team and round, then tap Finish to watch the reveal.',blurb:'Two teams playing to 5,000. Mom & Dad lead after two rounds, then Ben & Lily go out three rounds running and a red 3 gets stuck in Dad’s foot.'},
- {id:'hf3s',title:'Stuck with 3s',tip:'Check each team’s meld minimums at the top: they change with each team’s own score. Then tap Finish.',blurb:'Grandma & Grandpa vs. Aunt Sue & Uncle Bob. Meld minimums climb separately for each team, there are four perfect grabs, and two red 3s stuck in Grandpa’s foot hand the game away.'},
- {id:'hfsolo',title:'Everyone alone · point totals',tip:'This game adds up points instead of counting each card. Switch “By card / Point totals” to see both ways.',blurb:'Three players, each on their own, four set rounds with minimums of 50, 90, 120 and 150, scored by typing point totals. Emma leads from start to finish.'},
- {id:'hfwild',title:'Other house rules',tip:'Open Rules at the top to see this game’s house rules, then compare them on the House rules screen.',blurb:'Three teams playing to 7,500 with jokers, wild books, red 3s laid down for points, black 3s melded when going out, and cards added to any finished book. Mom & Dad come from behind in the last round.'}];
-function hfDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}
-  S=hfFresh();S.hx=JSON.parse(JSON.stringify(HFDEF));S.demo=id;const X=S.hx;
-  const R=(cl,dt,c,out,l,r3,b3,x)=>Object.assign({cl,dt,wb:0,c:{t:c[0],a:c[1],h:c[2],l:c[3]},out,l:{t:l[0],a:l[1],h:l[2],l:l[3]},r3,b3},x||{});
-  const Z=[0,0,0,0];let hr=3;
-  if(id==='hf3s'){const [a,b]=S.players;a.mem=['Grandma','Grandpa'];b.mem=['Aunt Sue','Uncle Bob'];a.color='red';b.color='green';
-    a.hf=[R(2,1,[4,3,14,12],true,Z,0,0,{gr:[true,false]}),R(2,1,[3,4,13,10],true,Z,0,0,{gr:[true,true]}),R(1,1,[3,2,10,9],false,[1,1,2,3],0,1),R(1,1,[4,3,12,11],false,[0,1,3,4],2,0)];
-    b.hf=[R(1,0,[1,2,9,8],false,[1,1,3,5],0,0),R(1,1,[2,3,10,9],false,[1,0,2,4],1,0),R(2,2,[5,4,15,12],true,Z,0,0),R(2,1,[4,4,14,10],true,Z,0,0,{gr:[false,true]})]}
-  else if(id==='hfsolo'){Object.assign(X,{teams:false,end:'rounds',rounds:4,mins:[50,90,120,150],count:'totals',countL:'totals',grab:false});
-    const [a,b,c]=S.players;S.players.forEach((q,i)=>q.on=i<3);a.name='Mom';a.color='purple';b.name='Emma';b.color='green';c.name='Jack';c.color='yellow';
-    const T=(cl,dt,ct,out,lt,r3,b3)=>({cl,dt,wb:0,c:{},l:{},ct,lt,out,r3,b3});
-    a.hf=[T(1,1,310,false,45,0,0),T(1,1,365,false,30,0,0),T(2,1,480,true,0,0,0),T(1,2,420,false,55,0,1)];
-    b.hf=[T(2,1,455,true,0,0,0),T(2,1,430,true,0,0,0),T(1,2,415,false,25,0,0),T(2,1,300,true,0,0,0)];
-    c.hf=[T(1,0,240,false,85,1,0),T(1,1,330,false,40,0,0),T(1,1,350,false,60,0,0),T(1,1,385,false,35,0,0)]}
-  else if(id==='hfwild'){Object.assign(X,{target:7500,jokers:true,wildBook:true,r3play:true,b3meld:true,addOn:'any'});
-    const [a,b,c]=S.players;S.players.forEach((q,i)=>q.on=i<3);a.mem=['Mom','Dad'];b.mem=['Ben','Lily'];c.mem=['Grandma','Grandpa'];a.color='red';b.color='blue';c.color='green';
-    const W=(cl,dt,wb,c5,out,l5,r3,b3,r3p,b3p,gr)=>({cl,dt,wb,c:{j:c5[0],t:c5[1],a:c5[2],h:c5[3],l:c5[4]},out,l:{j:l5[0],t:l5[1],a:l5[2],h:l5[3],l:l5[4]},r3,b3,r3p,b3p,...(gr?{gr}:{})});
-    const Z5=[0,0,0,0,0];
-    a.hf=[W(1,1,0,[1,3,3,12,10],false,[0,1,1,3,4],0,0,1,0),W(2,1,1,[3,6,4,13,9],true,Z5,0,0,2,3),W(1,1,0,[0,3,2,11,10],false,[1,1,0,4,5],1,0,0,0),W(2,2,0,[2,4,4,15,12],true,Z5,0,0,1,4,[true,false])];
-    b.hf=[W(2,1,0,[1,4,4,14,12],true,Z5,0,0,2,3,[false,true]),W(1,1,0,[1,3,2,10,9],false,[0,1,1,2,3],0,1,1,0),W(1,2,1,[3,7,3,12,11],true,Z5,0,0,1,0),W(1,1,0,[1,3,3,11,10],false,[1,0,1,3,6],0,0,0,0)];
-    c.hf=[W(1,0,0,[0,2,3,9,8],false,[1,1,1,4,5],1,0,0,0),W(1,2,0,[2,4,4,13,10],false,[0,0,1,2,4],0,0,1,0),W(2,1,0,[1,4,3,14,12],false,[0,1,0,2,3],0,0,2,0,[true,false]),W(1,2,0,[1,4,4,13,11],false,[0,1,1,3,4],0,1,1,0)]}
-  else{const [a,b]=S.players;a.mem=['Mom','Dad'];b.mem=['Ben','Lily'];
-    a.hf=[R(2,1,[3,4,12,10],true,Z,0,0),R(1,2,[5,2,14,9],false,[1,1,3,4],0,0),R(1,1,[4,3,11,12],false,[2,1,4,6],0,1),R(1,2,[6,3,15,10],false,[0,2,5,7],1,0)];
-    b.hf=[R(1,0,[2,2,8,9],false,[1,2,4,5],0,0),R(2,1,[4,5,13,11],true,Z,0,0),R(2,1,[3,4,16,8],true,Z,0,0),R(1,2,[5,4,14,12],true,Z,0,0)];
-    a.hf[0].gr=[true,false];b.hf[2].gr=[false,true]}
-  Object.assign(S,{started:true,screen:'score',hr,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 function hfRecPlayers(rk,changed){const X=S.game==='pool'?{teams:PLM().teams}:HX(),out=[];
   rk.list.forEach(({p,rank})=>{const names=X.teams?(p.mem||[]).map(x=>x.trim()).filter(Boolean):[p.name.trim()].filter(Boolean),base={color:p.color,total:total(p),rank,done:0,hs:0,tix:[]};
     if(!names.length){out.push({rid:null,name:nm(p),...base});return}
@@ -4573,19 +4467,6 @@ function nxRecords(G){const NG=G.filter(g=>g.game==='nerts'&&g.state&&g.state.pl
     ${hiC.v?card('Most in the center',`<span class="num">${hiC.v}</span>`,`${esc(hiC.n)} · one hand`,hiC.c):''}
     ${calls.v?card('Most Nerts calls',`<span class="num">${calls.v}</span>`,`${esc(calls.n)} · ${calls.v} of ${calls.of} hands`,calls.c):''}
     ${avg[0]?card('Best average hand',`<span class="num">${avg[0].a}</span>`,`${esc(avg[0].name)} · points per hand`,avg[0].color):''}</div></div>`}
-const NDEMOS=[{id:'nfam',title:'Family night · Nerts',tip:'Every player is on one screen. Press and hold a name at the top for their hand-by-hand history, then tap Finish.',blurb:'Four players racing to 100. Lily leads most of the way, but Dad calls Nerts on the last hand to pass her.'},
- {id:'nopen',title:'Until we stop · six players',tip:'This game has no set end. Tap Finish after any hand.',blurb:'Six cousins play eight quick hands with no target. One hand ends with everyone stuck, so nobody calls Nerts and everyone pays for cards left.'}];
-function nxDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}
-  S=nxFresh();S.nx={...NXDEF};S.demo=id;const H_=(c,n,call)=>call?{c,n:0,call:true}:{c,n};
-  if(id==='nopen'){S.nx.end='open';const names=['Ava','Ben','Cole','Dani','Eli','Faye'];S.players.forEach((p,i)=>{p.on=i<6;p.name=names[i]||''});const P=act();
-    const D=[[[14,0,1],[9,4],[11,3],[6,7],[12,2],[8,5]],[[10,3],[15,0,1],[9,5],[8,4],[11,2],[7,6]],[[12,2],[8,6],[16,0,1],[10,3],[9,4],[11,3]],[[9,5],[12,2],[10,4],[13,0,1],[8,6],[10,3]],
-      [[11,4],[10,5],[9,6],[12,3],[10,4],[8,7]],[[13,0,1],[11,2],[8,5],[9,4],[12,3],[10,4]],[[10,3],[9,4],[11,2],[8,5],[15,0,1],[12,2]],[[12,2],[14,0,1],[10,3],[9,5],[11,3],[13,2]]];
-    P.forEach((p,k)=>{p.nt=D.map(h=>{const [c,n,call]=h[k];return H_(c,n,call)})});S.hr=7}
-  else{const names=['Dad','Mom','Lily','Ben'];S.players.forEach((p,i)=>{p.on=i<4;p.name=names[i]||''});const P=act();
-    const D=[[[9,3],[8,2],[11,0,1],[7,4]],[[12,0,1],[9,2],[8,3],[8,3]],[[9,2],[8,3],[12,0,1],[9,2]],[[10,2],[11,0,1],[8,3],[9,2]],[[13,0,1],[9,2],[9,2],[8,3]],[[9,3],[8,3],[12,0,1],[10,2]],[[11,1],[9,3],[9,2],[12,0,1]],[[10,2],[8,2],[11,2],[12,0,1]],[[16,0,1],[9,2],[10,2],[8,3]]];
-    P.forEach((p,k)=>{p.nt=D.map(h=>{const [c,n,call]=h[k];return H_(c,n,call)})});S.hr=D.length-1}
-  Object.assign(S,{started:true,screen:'score',active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    SCORE PAD
    Any game: type each player's points each round. Optional game name,
@@ -4676,16 +4557,6 @@ function pxHomeCard(){const st=gamePeek('pad');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/pad-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart pxart&quot; aria-hidden=&quot;true&quot;>±</div>'"><div><h2>Score pad</h2><div class="meta">Any game · rounds · totals</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">${esc((st.px&&st.px.name)||'Game')} in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="pad">Resume game</button><button class="btn" data-a="gnew" data-k="pad">New game</button><button class="btn" data-a="gabandon" data-k="pad" aria-label="Abandon this game">${ABANDON==='pad'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="pad">Score a game</button>`}</div>`}
-const PDEMOS=[{id:'pgolf',title:'Golf, the card game · low score wins',tip:'Low score wins here. Tap + on a score to make it negative.',blurb:'Four players, nine rounds of Golf. Grandpa starts in last place, but two negative rounds pull him into the lead.'},
- {id:'prummy',title:'Rummy to 500',tip:'Press and hold a name for their round-by-round history.',blurb:'Three players racing to 500. Dad leads after three rounds, but Mom\u2019s big finish takes it.'}];
-function pxDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}
-  S=pxFresh();S.demo=id;
-  if(id==='pgolf'){S.px={name:'Golf',end:'rounds',rounds:9,target:100,low:true};const names=['Grandpa','Mom','Ben','Lily'];S.players.forEach((p,i)=>{p.on=i<4;p.name=names[i]||''});const P=act();
-    const D=[[12,8,5,9],[9,6,7,4],[7,5,4,8],[-2,7,6,5],[6,4,8,6],[5,9,3,7],[-4,6,5,4],[3,5,6,9],[2,4,7,6]];P.forEach((p,k)=>{p.pd=D.map(h=>h[k])});S.hr=8}
-  else{S.px={name:'Rummy',end:'points',target:500,rounds:10,low:false};const names=['Mom','Dad','Emma'];S.players.forEach((p,i)=>{p.on=i<3;p.name=names[i]||''});const P=act();
-    const D=[[85,40,-15],[60,95,30],[-20,70,110],[115,35,55],[70,60,80],[95,-10,65],[105,85,70]];P.forEach((p,k)=>{p.pd=D.map(h=>h[k])});S.hr=D.length-1}
-  Object.assign(S,{started:true,screen:'score',active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    DARTS
    One section with several games. Every dart is stored in S.dturns as
@@ -4898,19 +4769,6 @@ function dtRecords(G){const DG=G.filter(g=>g.game==='darts'&&g.state&&g.state.dt
 function dtSaveExtra(){const X=DX(),D=DS();if(X.g!=='x01')return null;const P=act();
   return {hi:P.map(p=>({name:nm(p),color:p.color,v:D.st[p.id].hi,n180:D.st[p.id].hist.filter(h=>h.tp===180).length})),co:P.filter(p=>D.st[p.id].co).map(p=>({name:nm(p),color:p.color,v:D.st[p.id].co})),
     avg:P.filter(p=>D.st[p.id].darts>=9).map(p=>({name:nm(p),color:p.color,v:(X.start-D.st[p.id].rem)/D.st[p.id].darts*3}))}}
-const DDEMOS=[{id:'d501',title:'501 · family night',tip:'Tap darts on the pad or switch to the dartboard. Press and hold a name for their turns.',blurb:'Dad and Emma are both close to finishing. It\u2019s Dad\u2019s throw.'},
- {id:'dcricket',title:'Cricket',tip:'The table shows marks: / is one hit, X two, Ⓧ closed.',blurb:'Three players mid-game. Ben has closed 20 and 19 and is scoring on them.'},
- {id:'dkiller',title:'Killer',tip:'Each player’s number is shown under their name.',blurb:'Four players, three lives each. Three of them are already killers.'}];
-function dtDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=dtFresh();S.demo=id;S.dx=JSON.parse(JSON.stringify(DXDEF));const X=S.dx;
-  const D=(n,m)=>({n,m:m||1}),put=(names)=>{S.players.forEach((p,i)=>{p.on=i<names.length;p.name=names[i]||''});return act()};
-  if(id==='dcricket'){X.g='cricket';const [b,l,m]=put(['Ben','Lily','Mom']);
-    S.dturns=[{pid:b.id,d:[D(20,3),D(20),D(5)]},{pid:l.id,d:[D(19,2),D(3),D(19)]},{pid:m.id,d:[D(18),D(18),D(1)]},{pid:b.id,d:[D(19,3),D(20,2),D(7)]},{pid:l.id,d:[D(17,3),D(2),D(16)]},{pid:m.id,d:[D(25),D(18),D(15,2)]},{pid:b.id,d:[D(20),D(19),D(12)]}].map(t=>({...t,done:true}))}
-  else if(id==='dkiller'){X.g='killer';const P=put(['Dad','Mom','Ben','Lily']);S.dkill={[P[0].id]:20,[P[1].id]:6,[P[2].id]:14,[P[3].id]:11};
-    S.dturns=[{pid:P[0].id,d:[D(20,2),D(1),D(6,2)]},{pid:P[1].id,d:[D(6),D(6,2),D(20)]},{pid:P[2].id,d:[D(14),D(9),D(11)]},{pid:P[3].id,d:[D(8),D(11,2),D(14,2)]}].map(t=>({...t,done:true}))}
-  else{X.g='x01';X.start=501;const [d,e]=put(['Dad','Emma']);
-    S.dturns=[[d,[[20,3],[20],[5]]],[e,[[20],[20,3],[20]]],[d,[[20,3],[20,3],[1]]],[e,[[19,3],[19],[3]]],[d,[[20],[20],[20]]],[e,[[20,3],[20,3],[20,3]]],[d,[[19],[3],[19,3]]],[e,[[17,3],[0],[0]]],[d,[[20,3],[20,3],[20]]],[e,[[17,3],[0],[0]]]].map(([p,ds])=>({pid:p.id,d:ds.map(([n,m])=>D(n,m)),done:true}))}
-  Object.assign(S,{started:true,screen:'score',active:0,hideTotals:false});DST=null;UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    POOL
    Rack games (8-Ball, 9-Ball, One Pocket, Bank Pool): each rack has a winner
@@ -5048,16 +4906,6 @@ function plHomeCard(){const st=gamePeek('pool');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/pool-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart plart&quot; aria-hidden=&quot;true&quot;>🎱</div>'"><div><h2>Pool</h2><div class="meta">${Object.keys(PGAMES).length} games · 8-Ball, 9-Ball, Cutthroat and more</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">${esc(st.plx?PGAMES[st.plx.g].n:'Game')} in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="pool">Resume game</button><button class="btn" data-a="gnew" data-k="pool">New game</button><button class="btn" data-a="gabandon" data-k="pool" aria-label="Abandon this game">${ABANDON==='pool'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="pool">Play pool</button>`}</div>`}
-const PLDEMOS=[{id:'p8',title:'8-Ball · family night',tip:'Tap a special shot first (like Break and run), then the winner. Tap a rack in the list to fix it.',blurb:'Dad and Ben trade racks all evening. Ben breaks and runs one, and Dad sinks the 8 on the break.'},
- {id:'pcut',title:'Cutthroat · three players',tip:'Tap balls as they drop. When a player’s balls are all down, they’re out.',blurb:'Mom, Lily and Ben in rack 3. Lily is down to one ball.'},
- {id:'psp',title:'Straight Pool to 50',tip:'Tap +1 for each ball, then next player when they miss.',blurb:'Grandpa is on a run with 41 points.'}];
-function plDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=plFresh();S.demo=id;S.plx={...PLX};const X=S.plx;
-  const put=names=>{S.players.forEach((p,i)=>{p.on=i<names.length;p.name=names[i]||''});return act()};
-  if(id==='pcut'){X.g='cut';const [m,l,b]=put(['Mom','Lily','Ben']);S.pk=[{w:m.id,sunk:[1,2,3,4,5,6,7,8,9,10]},{w:b.id,sunk:[1,2,3,4,5,11,12,13,14,15]},{sunk:[6,7,8,9,11,12,1]}];S.pr=2}
-  else if(id==='psp'){X.g='sp';const [g,e]=put(['Grandpa','Emma']);S.pk=[[g,9],[e,4],[g,12],[e,0,1],[g,14],[e,7],[g,6],[e,3]].map(([p,b,f])=>({pid:p.id,b,f:!!f,done:true}));S.pk.push({pid:g.id,b:0})}
-  else{X.g='b8';const [d,b]=put(['Dad','Ben']);S.pk=[[d],[b,'run'],[b],[d,'brk8'],[d],[b,'scr8'],[d]].map(([p,t])=>({w:p.id,tag:t||''}));S.pr=S.pk.length}
-  Object.assign(S,{started:true,screen:'score',active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    TOURNAMENTS
    A tournament lives inside a game night / weekend event (e.t). Matches are
@@ -5628,13 +5476,6 @@ function htHomeCard(){const st=gamePeek('hearts');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/hearts-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart htart&quot; aria-hidden=&quot;true&quot;>♥&#xFE0E;</div>'"><div><h2>Hearts</h2><div class="meta">Play on the phone, or score real cards · low score wins</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="hearts">Resume game</button><button class="btn" data-a="gnew" data-k="hearts">New game</button><button class="btn" data-a="gabandon" data-k="hearts" aria-label="Abandon this game">${ABANDON==='hearts'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="htstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="htstart" data-k="0">Score a game</button></div>`}</div>`}
-const HTDEMOS=[{id:'htfam',title:'Family night · Hearts',tip:'Low score wins. Press and hold a name for their hand-by-hand history.',blurb:'Four players to 100. Ben shoots the moon in hand 5, and Mom stays low all night.'}];
-function htDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=htFresh();S.htx={...HTDEF};S.demo=id;
-  const names=['Dad','Mom','Ben','Lily'];S.players.forEach((p,i)=>{p.on=i<4;p.name=names[i]||''});const P=act();
-  const D=[[[5,1],[2],[4],[2]],[[1],[3],[6],[3,1]],[[7],[0],[2,1],[4]],[[2,1],[1],[6],[4]],[0,0,'m',0],[[4],[2],[0],[7,1]],[[3,1],[0],[5],[5]],[[6],[1],[2,1],[4]],[[3],[2,1],[1],[7]],[[6],[1],[4],[2,1]]];
-  P.forEach((p,k)=>{p.ht=D.map(h=>{const x=h[k];return x==='m'?{h:13,q:true,moon:true}:x===0?{h:0,set:1}:{h:x[0],q:!!x[1]}})});
-  Object.assign(S,{started:true,screen:'score',hr:D.length-1,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    SPADES
    Partners (or everyone alone) bid tricks each hand. p.sd[r] = {b:[..],
@@ -5880,13 +5721,6 @@ function sdHomeCard(){const st=gamePeek('spades');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/spades-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart sdart&quot; aria-hidden=&quot;true&quot;>♠&#xFE0E;</div>'"><div><h2>Spades</h2><div class="meta">Play on the phone, or score real cards · bids and bags</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="spades">Resume game</button><button class="btn" data-a="gnew" data-k="spades">New game</button><button class="btn" data-a="gabandon" data-k="spades" aria-label="Abandon this game">${ABANDON==='spades'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="sdstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="sdstart" data-k="0">Score a game</button></div>`}</div>`}
-const SDDEMOS=[{id:'sdfam',title:'Family night · Spades',tip:'Each partner has a bid and tricks. Press and hold a team for their hand-by-hand history.',blurb:'Mom & Dad vs. Ben & Lily, playing to 500. Ben makes a nil, Mom & Dad bag out and still win.'}];
-function sdDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=sdFresh();S.sdx={...SDDEF};S.demo=id;const [a,b]=S.players;a.mem=['Mom','Dad'];b.mem=['Ben','Lily'];
-  const H_=(b1,b2,t1,t2)=>({b:[b1,b2],t:[t1,t2]});
-  a.sd=[H_(3,2,4,2),H_(4,3,4,4),H_(2,3,3,3),H_(4,2,4,3),H_(3,3,5,5),H_(4,4,4,4),H_(3,3,4,3),H_(4,3,5,3),H_(4,3,4,4),H_(3,4,4,4)];
-  b.sd=[H_(3,3,3,4),H_(2,2,3,2),H_('nil',5,0,7),H_(2,2,3,3),H_(2,3,1,2),H_(2,3,2,3),H_(2,3,3,3),H_(2,2,2,3),H_(2,3,2,3),H_(3,2,3,2)];
-  Object.assign(S,{started:true,screen:'score',hr:9,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    RAGE
    Everyone alone. Hands shrink each round (10 down to 1 by default).
@@ -6177,14 +6011,6 @@ function rgHomeCard(){const st=gamePeek('rage');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/rage-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart rgart&quot; aria-hidden=&quot;true&quot;>!</div>'"><div><h2>Rage</h2><div class="meta">Card game · bid your tricks</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="rage">Resume game</button><button class="btn" data-a="gnew" data-k="rage">New game</button><button class="btn" data-a="gabandon" data-k="rage" aria-label="Abandon this game">${ABANDON==='rage'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="rgstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="rgstart" data-k="0">Score a game</button></div>`}</div>`}
-const RGDEMOS=[{id:'rgfam',title:'Family night · Rage',tip:'Set bids, then tricks. Tap Bonus or Mad for whoever won those cards. Press and hold a name for their round-by-round history.',blurb:'Four players, 10 cards down to 1, then the forehead round. Lily calls her bids perfectly, Dad keeps winning the Mad Rage card.'}];
-function rgDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=rgFresh();S.rgx={...RGDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  // [bid,tricks,bonus,mad] per player for each round (10 cards down to 1)
-  const D=[[[3,2,0,0],[2,3,0,1],[3,3,1,0],[2,2,0,0]],[[2,2,0,0],[3,4,0,1],[2,1,0,0],[2,2,1,0]],[[2,3,1,0],[1,0,0,0],[3,3,0,0],[2,2,0,1]],[[1,1,0,0],[2,3,0,1],[2,1,0,0],[2,2,1,0]],
-    [[2,2,0,0],[0,1,0,1],[1,1,0,0],[2,2,1,0]],[[1,1,0,0],[1,2,1,1],[1,1,0,0],[1,1,0,0]],[[1,2,0,0],[0,0,0,0],[1,1,0,1],[1,1,1,0]],[[0,0,0,0],[1,1,0,1],[1,1,0,0],[1,1,1,0]],[[0,0,0,0],[1,0,0,0],[1,1,0,0],[0,1,1,1]],[[0,0,0,0],[0,1,0,1],[0,0,0,0],[0,0,0,0]],[[1,1,0,0],[1,0,0,0],[0,0,0,0],[0,0,0,0]]];
-  D.forEach((row,r)=>row.forEach(([b,t,bo,md],i)=>{(P[i].rg=P[i].rg||[])[r]={b,t,bo,md}}));
-  Object.assign(S,{started:true,screen:'score',hr:10,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* ---------- "our usual rules": a saved house-rule set per card game ---------- */
 const UG={hf:{get:()=>S.hx,set:v=>S.hx=v,def:()=>HFDEF,keep:()=>hfKeep()},canasta:{get:()=>S.hx,set:v=>S.hx=v,def:()=>CADEF,keep:()=>hfKeep()},
   nerts:{get:()=>S.nx,set:v=>S.nx=v,def:()=>NXDEF,keep:()=>nxKeep()},hearts:{get:()=>S.htx,set:v=>S.htx=v,def:()=>HTDEF,keep:()=>htKeep()},
@@ -6410,13 +6236,6 @@ function fcHomeCard(){const st=gamePeek('crowns');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/crowns-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart fcart&quot; aria-hidden=&quot;true&quot;>♛&#xFE0E;</div>'"><div><h2>Five Crowns</h2><div class="meta">Card game · low score wins</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="crowns">Resume game</button><button class="btn" data-a="gnew" data-k="crowns">New game</button><button class="btn" data-a="gabandon" data-k="crowns" aria-label="Abandon this game">${ABANDON==='crowns'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="fcstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="fcstart" data-k="0">Score a game</button></div>`}</div>`}
-const FCDEMOS=[{id:'fcfam',title:'Family night · Five Crowns',tip:'Low score wins. Switch between typing totals and tapping cards. Press and hold a name for their history.',blurb:'Four players, 3 cards up to 13. Mom goes out five times, and Ben gets stuck with a joker when the Kings go wild.'}];
-function fcDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=fcFresh();S.fcx={...FCDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  const D=[[0,8,12,5],[14,0,9,7],[0,22,10,15],[18,6,0,11],[9,13,26,0],[0,17,30,21],[0,24,9,33],[25,0,41,18],[12,36,0,29],[0,31,47,22],[28,45,73,0]];
-  D.forEach((row,r)=>row.forEach((v,i)=>{(P[i].fc=P[i].fc||[])[r]=v===0?{v:null,c:{},out:true}:{v,c:{},out:false}}));
-  P[2].fc[10]={v:null,c:{'4':1,'9':1,j:1},out:false};
-  Object.assign(S,{started:true,screen:'score',hr:10,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    SKIP-BO
    Each hand: pick who emptied their stock pile, enter cards left in
@@ -6511,12 +6330,6 @@ function sbHomeCard(){const st=gamePeek('skipbo');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/skipbo-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart sbart&quot; aria-hidden=&quot;true&quot;>12</div>'"><div><h2>Skip-Bo</h2><div class="meta">Card game · empty your stock pile</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="skipbo">Resume game</button><button class="btn" data-a="gnew" data-k="skipbo">New game</button><button class="btn" data-a="gabandon" data-k="skipbo" aria-label="Abandon this game">${ABANDON==='skipbo'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="sbstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="sbstart" data-k="0">Score a game</button></div>`}</div>`}
-const SBDEMOS=[{id:'sbfam',title:'Family night · Skip-Bo',tip:'Tap who emptied their stock pile, then type everyone else’s cards left. Press and hold a name for their history.',blurb:'Three players racing to 500. Lily wins the first two hands, then Dad catches a monster hand with 41 cards left on the table.'}];
-function sbDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=sbFresh();S.sbx={...SBDEF};S.demo=id;S.players.forEach((p,i)=>p.on=i<3);const P=S.players.slice(0,3);['Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  const D=[[2,[9,0,null]],[2,[14,6,null]],[0,[null,18,23]],[1,[3,null,12]],[0,[null,7,4]],[2,[11,5,null]],[0,[null,15,20]]];
-  D.forEach(([wi,ls],r)=>P.forEach((p,i)=>{(p.sb=p.sb||[])[r]={won:i===wi,left:i===wi?0:ls[i]}}));
-  Object.assign(S,{started:true,screen:'score',hr:6,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    GNOMING A ROUND
    3x3 grid of cards per player each round. Low score wins.
@@ -6638,14 +6451,6 @@ function gnHomeCard(){const st=gamePeek('gnome');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/gnome-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart gnart&quot; aria-hidden=&quot;true&quot;>⛳&#xFE0E;</div>'"><div><h2>Gnoming A Round</h2><div class="meta">Card game · mini-golf · low score wins</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="gnome">Resume game</button><button class="btn" data-a="gnew" data-k="gnome">New game</button><button class="btn" data-a="gabandon" data-k="gnome" aria-label="Abandon this game">${ABANDON==='gnome'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gpstart" data-g="gnome" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="gpstart" data-g="gnome" data-k="0">Score a game</button></div>`}</div>`}
-const GNDEMOS=[{id:'gnfam',title:'Family night · Gnoming A Round',tip:'Round 9 is filled in card by card; tap any card to change it. Earlier rounds were typed. Press and hold a name for their history.',blurb:'Four players, a full front nine. Ben goes out first and gets punished, Mom builds two sets with one Mulligan.'}];
-function gnDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=gnFresh();S.gnx={...GNDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  const D=[[12,18,9,15],[7,11,14,4],[-3,9,6,10],[14,5,11,8],[2,16,-1,9],[9,3,12,13],[6,10,8,-2],[11,7,15,6]],O=[2,3,0,1,2,1,3,0];
-  D.forEach((row,r)=>row.forEach((v,i)=>{(P[i].gn=P[i].gn||[])[r]={g:Array(9).fill(null),v:Math.abs(v),s:v<0?-1:1,out:O[r]===i}}));
-  const G=[[5,5,'M',-2,4,7,6,8,7],[8,3,3,6,-1,'H',4,4,7],[7,7,7,5,6,-3,8,'H',3],[-4,6,6,5,5,5,3,-1,8]];
-  G.forEach((g,i)=>{P[i].gn[8]={g,v:null,s:1,out:i===2}});
-  Object.assign(S,{started:true,screen:'score',hr:8,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null;GNSEL=null}
-
 /* =====================================================================
    SKYJO
    12 cards in 4 columns of 3. A column of 3 matching cards is removed.
@@ -6754,14 +6559,6 @@ function skHomeCard(){const st=gamePeek('skyjo');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/skyjo-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart skart&quot; aria-hidden=&quot;true&quot;>12</div>'"><div><h2>Skyjo</h2><div class="meta">Card game · low score wins</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="skyjo">Resume game</button><button class="btn" data-a="gnew" data-k="skyjo">New game</button><button class="btn" data-a="gabandon" data-k="skyjo" aria-label="Abandon this game">${ABANDON==='skyjo'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gpstart" data-g="skyjo" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="gpstart" data-g="skyjo" data-k="0">Score a game</button></div>`}</div>`}
-const SKDEMOS=[{id:'skfam',title:'Family night · Skyjo',tip:'The last round is filled in card by card; matching columns are cleared. Press and hold a name for their history.',blurb:'Four players until someone hits 100. Dad ends a round too early and gets doubled; Lily clears three columns in the final round.'}];
-function skDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=skFresh();S.skx={...SKDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  const D=[[14,9,22,17],[8,21,11,3],[19,6,-2,12],[11,15,24,9],[5,18,13,20],[16,12,9,14]],O=[1,3,2,0,0,1];
-  D.forEach((row,r)=>row.forEach((v,i)=>{(P[i].sk=P[i].sk||[])[r]={g:Array(12).fill(null),v:Math.abs(v),s:v<0?-1:1,out:O[r]===i}}));
-  const G=[[3,0,5,9,4,2,5,11,1,7,-1,6],[12,5,8,10,9,7,11,4,6,3,10,8],[4,2,7,0,6,9,1,3,8,2,5,4],[7,-1,2,10,7,0,2,10,7,-2,2,10]];
-  G.forEach((g,i)=>{P[i].sk[6]={g,v:null,s:1,out:i===3}});
-  Object.assign(S,{started:true,screen:'score',hr:6,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null;SKSEL=null}
-
 /* =====================================================================
    WINGSPAN
    Four end-of-round goals, then the final count.
@@ -6856,12 +6653,6 @@ function wsHomeCard(){const st=gamePeek('wingspan'),h=st?(st.hr||0):0;
   return `<div class="game"><div class="gtop"><img class="gart" src="art/wingspan-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart wsart&quot; aria-hidden=&quot;true&quot;>🐦</div>'"><div><h2>Wingspan</h2><div class="meta">Board game · high score wins</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: ${h>=4?'final count':`round ${h+1}`}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="wingspan">Resume game</button><button class="btn" data-a="gnew" data-k="wingspan">New game</button><button class="btn" data-a="gabandon" data-k="wingspan" aria-label="Abandon this game">${ABANDON==='wingspan'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="wingspan">Score a game</button>`}</div>`}
-const WSDEMOS=[{id:'wsfam',title:'Family night · Wingspan',tip:'All four round goals are in and the final count is filled out. Tap a round to see how placements and ties were scored.',blurb:'Four players on the placement side. Mom and Dad tie for 1st in round 2 and split the points, then tie at the end. Leftover food decides it.'}];
-function wsDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=wsFresh();S.wsx={...WSDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  const G=[[3,2,1,0],[4,4,2,1],[5,0,6,3],[4,3,3,5]],F=[[36,7,12,3,5,3],[40,9,14,4,5,1],[30,4,10,6,8,2],[34,6,9,2,11,0]];
-  P.forEach((p,i)=>{p.ws={g:G.map(r=>r[i]),f:{birds:F[i][0],bonus:F[i][1],eggs:F[i][2],food:F[i][3],tuck:F[i][4],left:F[i][5]}}});
-  Object.assign(S,{started:true,screen:'score',hr:4,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    WYRMSPAN
    Four end-of-round objectives (friendly ties), then the final count.
@@ -6954,13 +6745,6 @@ function wyHomeCard(){const st=gamePeek('wyrmspan'),h=st?(st.hr||0):0;
   return `<div class="game"><div class="gtop"><img class="gart" src="art/wyrmspan-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart wyart&quot; aria-hidden=&quot;true&quot;>🐉</div>'"><div><h2>Wyrmspan</h2><div class="meta">Board game · high score wins</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: ${h>=4?'final count':`round ${h+1}`}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="wyrmspan">Resume game</button><button class="btn" data-a="gnew" data-k="wyrmspan">New game</button><button class="btn" data-a="gabandon" data-k="wyrmspan" aria-label="Abandon this game">${ABANDON==='wyrmspan'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="wyrmspan">Score a game</button>`}</div>`}
-const WYDEMOS=[{id:'wyfam',title:'Family night · Wyrmspan',tip:'All four round objectives are in and the final count is filled out. Tap a round to see how friendly ties were scored.',blurb:'Four players. Mom and Lily tie for 1st in round 3 and both score 6, so Dad still takes 2nd. Mom wins by a single point.'}];
-function wyDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=wyFresh();S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  const G=[[2,2,1,0],[3,1,1,2],[4,2,0,4],[1,3,2,2]],K=['guild','dragons','abil','eggs','cache','tuck','coins','items','vis'];
-  const F=[[6,28,5,9,4,3,2,7,9],[3,34,8,6,5,2,1,5,11],[1,30,6,11,7,6,3,9,10],[7,25,4,12,3,8,0,4,8]];
-  P.forEach((p,i)=>{const f={};K.forEach((k,j)=>f[k]=F[i][j]);p.wy={g:G.map(r=>r[i]),f}});
-  Object.assign(S,{started:true,screen:'score',hr:4,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    STONE AGE
    Live tracker during the game, then the final scoring from the rulebook.
@@ -7114,13 +6898,6 @@ function saHomeCard(){const st=gamePeek('stoneage'),h=st?(st.hr||0):0;
   return `<div class="game"><div class="gtop"><img class="gart" src="art/stoneage-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart&quot; aria-hidden=&quot;true&quot;>🪨</div>'"><div><h2>Stone Age</h2><div class="meta">Board game · high score wins</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: ${h>=1?'final scoring':`round ${st.sar||1}`}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="stoneage">Resume game</button><button class="btn" data-a="gnew" data-k="stoneage">New game</button><button class="btn" data-a="gabandon" data-k="stoneage" aria-label="Abandon this game">${ABANDON==='stoneage'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="sastart" data-k="1">🪨 Play</button><button class="btn" style="flex:1" data-a="sastart" data-k="0">Score a game</button></div>`}</div>`}
-const SADEMOS=[{id:'safam',title:'Family night · Stone Age',tip:'The live sheet and final scoring are filled out. Switch between During the game and Final scoring to see how the cards multiply.',blurb:'Four players. Dad built the most, but Lily’s farmers and green cards carry her past him.'}];
-function saDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=saFresh();S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  const L=[{b:[10,11,13,12,14],ag:5,tl:7,pp:8,hu:0,ex:3,f:{g1:4,g2:1,fa:2,tm:3,bu:2,sh:1,rs:4}},{b:[12,14,15,13,11,16,10],ag:3,tl:9,pp:7,hu:1,ex:0,f:{g1:3,g2:0,fa:0,tm:2,bu:4,sh:2,rs:2}},
-    {b:[11,12,13],ag:6,tl:5,pp:9,hu:0,ex:6,f:{g1:5,g2:0,fa:3,tm:1,bu:0,sh:4,rs:6}},{b:[13,12,10,14],ag:8,tl:6,pp:8,hu:0,ex:2,f:{g1:6,g2:2,fa:5,tm:0,bu:1,sh:2,rs:3}}];
-  P.forEach((p,i)=>{p.sa={...L[i],pb:''}});
-  S.sax={...SADEF};Object.assign(S,{started:true,screen:'score',hr:1,sar:14,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* ================= Stone Age on the phone =================
    S.sax = {play, exp (Stone Age: The Expansion), bonus (acorn huts with the expansion), mix ('none'|'fit'|'jewel', pieces in the regular game)}.
    g.x = what this game uses: {J jewelry + merchant track + trading, ms merchant spot, s5 5th card space, leaf, fit (outhouse only), acorn}
@@ -7784,7 +7561,7 @@ function dnKPicker(rep){const kd=dnKd(),ks=dnKs(),multi=rep==='*',sel=multi?DNKS
   return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet dnkpsheet" role="dialog" aria-modal="true" aria-labelledby="dnkp-h" data-stop="1">
     <div class="rs-top"><div><h2 id="dnkp-h">${multi?'Choose 10 kingdom cards':'Replace '+esc(dnNm(rep))}</h2><small class="lp-sub">${multi?`${sel.length} of 10 chosen`:'Tap the card to use instead'} · from the sets that are on</small></div><button class="btn sm" data-a="lpclose">Close</button></div>
     <div class="prow"><input class="numin dnkq" data-dnkq="1" type="search" placeholder="Search cards…" value="${esc(DNKQ)}" aria-label="Search cards" style="flex:1;width:auto"><div class="seg" style="flex:0 0 auto">${[['az','A–Z'],['cost','Cost']].map(([v,l])=>`<button data-a="dnksort" data-k="${v}" aria-pressed="${DNKSORT===v}">${l}</button>`).join('')}</div></div>
-    <div class="rs-body"><div class="dnsup dnkpgrid">${pool.map(k=>`<span class="dnkpi" data-nm="${esc((dnNm(k)+' '+setOf(k)).toLowerCase())}" style="${q&&!(dnNm(k)+' '+setOf(k)).toLowerCase().includes(q)?'display:none':''}">${dnCardEl(k,{btn:1,lp:'dnc:'+k,cls:sel.includes(k)?'sel':k===rep?'dim':'',attr:` data-a="dnkpick" data-k="${k}"`})}</span>`).join('')}</div></div>
+    <div class="rs-body"><div class="dnsup dnkpgrid">${pool.map(k=>`<span class="dnkpi" data-nm="${esc((dnNm(k)+' '+setOf(k)).toLowerCase())}" style="${q&&!(dnNm(k)+' '+setOf(k)).toLowerCase().includes(q)?'display:none':''}">${dnCardEl(k,{btn:1,lazy:1,lp:'dnc:'+k,cls:sel.includes(k)?'sel':k===rep?'dim':'',attr:` data-a="dnkpick" data-k="${k}"`})}</span>`).join('')}</div></div>
     ${multi?`<div class="sheet-btns"><button class="btn" data-a="dnkclr">Clear</button><button class="btn" data-a="dnkfill" ${sel.length<10?'':'disabled'}>🎲 Fill the rest</button><button class="btn primary" data-a="dnkdone" ${sel.length===10?'':'disabled'}>Use these 10</button></div>`:''}</div></div>`}
 function dnKdSetup(){const kd=dnSortKd(dnKd()),ks=dnKs();
   return `<div class="sec"><div class="sec-h"><h3>Card sets</h3></div><div class="panel hfpanel">${DNKSETS.map(([k,l,L])=>`<div class="prow"><img src="art/dn-set-${k}.jpg" alt="" width="34" height="34" style="border-radius:8px" onerror="this.remove()"><div class="rtext"><b>${l}</b><small>${L.length} kingdom cards</small></div>${S.started?`<span class="rlab">${ks[k]?'On':'Off'}</span>`:`<button class="sw" role="switch" aria-checked="${!!ks[k]}" data-a="dnks" data-k="${k}" aria-label="${l}"><i></i></button>`}</div>`).join('')}</div>
@@ -7795,11 +7572,6 @@ function dnKdSetup(){const kd=dnSortKd(dnKd()),ks=dnKs();
     ${S.started?'':`<p class="hint">Events aren’t Kingdom cards: on your turn you can buy one (it uses a Buy) to do what it says. Rulebook: they’re shuffled in with the randomizers, at most 2.${ks.empires?' Landmarks are picked the same way: they don’t get bought, they give extra ways to score.':''}</p><div class="prow"><button class="btn" style="flex:1" data-a="dnevr">🎲 Random Events</button><button class="btn" style="flex:1" data-a="dnevp">✋ ${DNEVP?'Done picking':'Pick Events'}</button><button class="btn" style="flex:1" data-a="dnevn">No Events</button></div>${DNEVP?`<div class="dnsup">${DNEVALL().map(k=>dnCardEl(k,{btn:1,cls:dnEv().includes(k)?'sel':'',attr:` data-a="dnevt" data-k="${k}"`})).join('')}</div>`:''}`}</div>`:''}
   <div class="sec"><div class="sec-h"><h3>Kingdom cards</h3></div><div class="dnsup dnkd">${kd.map(k=>dnCardEl(k,{btn:!S.started,lp:S.started?null:'dnkp:'+k,attr:` data-a="dnkswap" data-k="${k}"`})).join('')}</div>
   ${S.started?'':`<p class="hint">Tap a card to swap it for a random one. Press and hold a card to pick its replacement yourself.</p><div class="prow"><button class="btn" style="flex:1" data-a="dnkrand">🎲 New random 10</button><button class="btn" style="flex:1" data-a="dnkall">✋ Choose all 10</button>${ks.base?`<button class="btn" style="flex:1" data-a="dnkfirst">First Game set</button>`:''}</div>`}</div>`}
-const DNDEMOS=[{id:'dnfam',title:'Family night · Dominion',tip:'The final count is filled in. Press and hold a name to see how it adds up.',blurb:'Four players with Prosperity and Intrigue. Dad’s Colonies race Mom’s Dukes and Duchies.'}];
-function dnDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=dnFresh();S.dnx=JSON.parse(JSON.stringify(DNDEF));S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  const F=[{es:3,du:7,pr:2,dke:3,cu:1,tu:19},{es:2,du:1,pr:3,co:2,vt:6,tu:19},{es:3,du:2,pr:4,ga:2,dk:34,f2:1,cu:2,tu:18},{es:4,du:3,pr:3,vt:9,te:1,tn:4,tu:18}];
-  P.forEach((p,i)=>{p.dn={f:{...F[i]}}});Object.assign(S,{started:true,screen:'score',hr:0,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* ================= Dominion on the phone (base set and Intrigue, 2nd edition) =================
    Every player has a deck (dk, top = last), hand (h), discard pile (ds) and play area (pl). Supply piles in g.sup.
    A turn: Action phase (play Actions while you have Actions left), Buy phase (all Treasures are played for you, then buy),
@@ -8646,7 +8418,7 @@ function dnStep(g,T){const p=T.p,M=g.me[p];if(!M)return;
     case 'cellar':g.A++;if(M.h.length)dnAsk(g,{p,k:'pick',min:0,max:M.h.length,then:'cellar',why:'Discard any number of cards, then draw that many.'});break;
     case 'chapel':if(M.h.length)dnAsk(g,{p,k:'pick',min:0,max:4,then:'trash',why:'Trash up to 4 cards from your hand.'});break;
     case 'moat':dnDraw(g,p,2);break;
-    case 'harbinger':dnDraw(g,p,1);g.A++;if(M.ds.length)dnAsk(g,{p,k:'disc',then:'harb',why:'You may put a card from your discard pile onto your deck.'});break;
+    case 'harbinger':dnDraw(g,p,1);g.A++;if(!M.ds.length)g.msg+=' Your discard pile is empty, so there’s nothing to put back.';else dnAsk(g,{p,k:'disc',then:'harb',why:'You may put a card from your discard pile onto your deck.'});break;
     case 'merchant':dnDraw(g,p,1);g.A++;g.mer++;break;
     case 'vassal':{g.co+=2;const t=dnTop(g,p);if(!t)break;dnDs(g,p,[t]);g.msg+=` Discarded ${dnAn(t)}.`;if(dnIs(t,'A'))dnAsk(g,{p,k:'yn',c:t,then:'vassal',why:`You discarded ${dnAn(t)}. Play it?`});break}
     case 'village':dnDraw(g,p,1);g.A+=2;break;
@@ -9472,7 +9244,7 @@ function dnTick(){if(S.game!=='dominion'||!dnOn()||!S.started||S.finished||S.scr
 const DNCOL={T:'#ecc94b',V:'#7cc47f',C:'#a88bd0',R:'#8cbbe8',A:'#d9dde2',D:'#f2a55a',Z:'#5fb37a',G:'#b9c2cc'};
 const dnCol=k=>{const t=dnC(k).t;if(t==='TD')return `linear-gradient(135deg,${DNCOL.T} 50%,${DNCOL.D} 50%)`;if(t.includes('D')&&t.includes('R'))return `linear-gradient(135deg,${DNCOL.D} 50%,${DNCOL.R} 50%)`;if(t.includes('D'))return DNCOL.D;if(t==='TV')return `linear-gradient(135deg,${DNCOL.T} 50%,${DNCOL.V} 50%)`;if(t==='AV')return `linear-gradient(135deg,${DNCOL.A} 50%,${DNCOL.V} 50%)`;return t.includes('R')?DNCOL.R:t.includes('A')?DNCOL.A:DNCOL[t[0]]||DNCOL.A};
 function dnCardEl(k,o={}){if(o.cnt>1)o={...o,attr:(o.attr||'')+` data-cnt="${o.cnt}"`};const C=dnC(k),tag=o.btn?'button':'span',cls=['dnc'];if(dnIs(k,'K'))cls.push('dnk');if(o.cls)cls.push(o.cls);if(o.big)cls.push('dnbigc');
-  return `<${tag} class="${cls.join(' ')}" style="--dc:${dnCol(k)}"${o.big?'':` data-lp="${o.lp||'dnc:'+k}"`}${o.attr||''} aria-label="${esc(C.n)}, costs ${o.cost!=null?o.cost:C.c}${C.p?' and a Potion':''}${C.d?` and ${C.d} debt`:''}${o.n!=null?`, ${o.n} left`:''}${o.lab?', '+o.lab:''}">${o.n!=null?`<span class="dnn num">${o.n}</span>`:''}${o.cnt>1?`<span class="dnn num dncnt">×${o.cnt}</span>`:''}${o.emb?`<span class="dnemb" title="Embargo tokens"><img src="art/dn-embtok.jpg" alt="Embargo" width="16" height="16" style="vertical-align:middle;border-radius:50%" onerror="this.outerHTML='🚫'">${o.emb>1?o.emb:''}</span>`:''}<img class="dnim" src="art/dn-${DNPIMG[String(k).split('~')[0]]||String(k).split('~')[0]}.jpg" alt="" loading="lazy" onerror="this.outerHTML='<span class=&quot;dni&quot;>${DNIC[k]||'🃏'}</span>'"><b>${esc(C.n)}</b>${o.big?`<span class="dnx">${esc(C.x||'')}</span><small class="dnty">${dnTypeNm(k)}</small>`:''}${o.tag?`<span class="dntag">${esc(o.tag)}</span>`:''}${o.tk&&o.tk.length?`<span class="dntoks">${o.tk.map(([l,c])=>`<i style="${pc(c)}">${l}</i>`).join('')}</span>`:''}${C.t==='Z'||C.d&&!C.c?'':`<span class="dnco num${o.cost!=null&&o.cost<C.c?' cheap':''}" aria-hidden="true">${o.cost!=null?o.cost:C.c}${C.o?'<sup>+</sup>':''}</span>`}${C.d?`<span class="dndebt num" aria-hidden="true">${C.d}</span>`:''}${C.p?'<span class="dnpo" aria-hidden="true"><img src="art/dn-potionicon.jpg" alt="" onerror="this.outerHTML=\'⚗\'"></span>':''}</${tag}>`}
+  return `<${tag} class="${cls.join(' ')}" style="--dc:${dnCol(k)}"${o.big?'':` data-lp="${o.lp||'dnc:'+k}"`}${o.attr||''} aria-label="${esc(C.n)}, costs ${o.cost!=null?o.cost:C.c}${C.p?' and a Potion':''}${C.d?` and ${C.d} debt`:''}${o.n!=null?`, ${o.n} left`:''}${o.lab?', '+o.lab:''}">${o.n!=null?`<span class="dnn num">${o.n}</span>`:''}${o.cnt>1?`<span class="dnn num dncnt">×${o.cnt}</span>`:''}${o.emb?`<span class="dnemb" title="Embargo tokens"><img src="art/dn-embtok.jpg" alt="Embargo" width="16" height="16" style="vertical-align:middle;border-radius:50%" onerror="this.outerHTML='🚫'">${o.emb>1?o.emb:''}</span>`:''}<img class="dnim" src="art/dn-${DNPIMG[String(k).split('~')[0]]||String(k).split('~')[0]}.jpg" alt=""${o.lazy?' loading="lazy"':' decoding="sync"'} onerror="this.outerHTML='<span class=&quot;dni&quot;>${DNIC[k]||'🃏'}</span>'"><b>${esc(C.n)}</b>${o.big?`<span class="dnx">${esc(C.x||'')}</span><small class="dnty">${dnTypeNm(k)}</small>`:''}${o.tag?`<span class="dntag">${esc(o.tag)}</span>`:''}${o.tk&&o.tk.length?`<span class="dntoks">${o.tk.map(([l,c])=>`<i style="${pc(c)}">${l}</i>`).join('')}</span>`:''}${C.t==='Z'||C.d&&!C.c?'':`<span class="dnco num${o.cost!=null&&o.cost<C.c?' cheap':''}" aria-hidden="true">${o.cost!=null?o.cost:C.c}${C.o?'<sup>+</sup>':''}</span>`}${C.d?`<span class="dndebt num" aria-hidden="true">${C.d}</span>`:''}${C.p?'<span class="dnpo" aria-hidden="true"><img src="art/dn-potionicon.jpg" alt="" onerror="this.outerHTML=\'⚗\'"></span>':''}</${tag}>`}
 /* the hand in a steady order: Actions, Treasures, Victory cards, the rest; by cost then name. stack = one card per name with a count */
 const dnHRank=k=>dnIs(k,'A')&&!dnIs(k,'U')?0:dnIs(k,'T')?1:dnIs(k,'V')?2:3;
 function dnHandOrder(h,stack){const L=h.map((k,i)=>[k,i]).sort((a,b)=>dnHRank(a[0])-dnHRank(b[0])||dnC(a[0]).c-dnC(b[0]).c||dnNm(a[0]).localeCompare(dnNm(b[0]))||a[1]-b[1]);
@@ -9492,11 +9264,15 @@ function dnSupply(g,V){const HV=dnHV(g,V),mine=V&&dnActor(g)===V.id,Q=mine?g.ask
   <p class="hint"><img class="dnpimg" src="art/dn-trash.jpg" alt="" onerror="this.remove()">${g.trash.length} in the trash · press and hold any card to read it</p>`}
 function dnLpSheet(k){if(!DNC[k]&&!String(k).includes('~'))return '';const g=dnG(),left=g&&g.sup&&g.sup[k]!=null?`${g.sup[k]} left in the Supply`:'';
   return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet" role="dialog" aria-modal="true" aria-label="${esc(dnNm(k))}" data-stop="1"><div class="rs-top"><div><h2>${esc(dnNm(k))}</h2><small class="lp-sub">${dnTypeNm(k)} · costs ${dnC(k).c}${left?' · '+left:''}</small></div><button class="btn sm" data-a="lpclose">Close</button></div><div class="rs-body"><div class="dnbig">${dnCardEl(k,{big:1})}</div>${dnIs(k,'K')?'<p class="hint">Attack: a Moat in your hand protects you (the app reveals it for you).</p>':''}${g&&g.bane&&(k==='youngwitch'||k===g.bane)?`<p class="hint">This game’s Bane: <b>${esc(dnNm(g.bane))}</b>. A Bane in your hand is revealed for you when a Young Witch is played.</p>`:''}${g&&g.fm&&k==='ferryman'?`<p class="hint">This game: gaining a Ferryman also gains <b>${esc(dnAn(g.fm))}</b> (${(g.ns||{})[g.fm]||0} left).</p>`:''}${dnIs(k,'R')&&['trail','tunnel','weaver'].includes(k)?'<p class="hint">When this is discarded (not in Clean-up), the app asks if you want to use it.</p>':''}${DNKN.includes(k)||k==='knights'?'<p class="hint">Knights: a shuffled pile of 10 different Knights. Only the top one can be bought or gained.</p>':''}${DNRU.includes(k)||k==='ruins'?'<p class="hint">Ruins: a shuffled pile; only the top card can be gained.</p>':''}${g&&g.fm===k?'<p class="hint">This pile isn’t in the Supply: you only get one by gaining a Ferryman.</p>':''}${dnC(k).o?'<p class="hint">Overpay: when you buy this you may pay extra; the app asks how much.</p>':''}</div></div></div>`}
+/* tapping an Action in your hand: the card big, with Play and Cancel (like buying) */
+function dnPlaySheet(g,V){const i=DNHSEL;if(i==null||DNPILE||!V||g.ask||g.k.length||g.ph!=='action'||dnActor(g)!==V.id)return '';const HV=dnHV(g,V),M=HV&&g.me[HV.id],k=M&&M.h[i];if(!k||g.turn!==HV.id||!dnIs(k,'A')||g.A<1)return '';
+  return `<div class="sheet-bg dnsbg" data-a="dnphand" data-k="-1"><div class="sheet dnsheet" role="dialog" aria-modal="true" aria-label="${esc(dnNm(k))}" data-stop="1"><div class="dnbig">${dnCardEl(k,{big:1})}</div><p class="rlab" style="text-align:center">${g.A} Action${g.A===1?'':'s'} left</p>
+    <div class="sheet-btns"><button class="btn" data-a="dnphand" data-k="-1">Cancel</button><button class="btn primary" data-a="dnpplay" data-k="${i}">Play ${esc(dnNm(k))}</button></div></div></div>`}
 function dnPileSheet(g,V){const k=DNPILE;if(!k)return '';if(String(k).startsWith('ev:')){const e=k.slice(3),HV=dnHV(g,V),mine=V&&dnActor(g)===V.id&&!g.ask&&!g.k.length&&HV&&g.turn===HV.id,okE=mine&&(g.ph==='buy'||g.manT||g.ph==='action')&&dnEvOk(g,HV.id,e)&&!(g.ph==='action'&&!g.manT&&dnBuyPreview(g)<dnC(e).c);
-    return `<div class="sheet-bg" data-a="dnpclose"><div class="sheet dnsheet" role="dialog" aria-modal="true" aria-label="${esc(dnNm(e))}" data-stop="1"><div class="dnbig">${dnCardEl(e,{big:1})}</div><p class="rlab" style="text-align:center">Event: buying it uses a Buy. You don’t get a card.${DNEV1.includes(e)?' Once per turn.':''}${e==='inheritance'?' Once per game.':''}</p>
+    return `<div class="sheet-bg dnsbg" data-a="dnpclose"><div class="sheet dnsheet" role="dialog" aria-modal="true" aria-label="${esc(dnNm(e))}" data-stop="1"><div class="dnbig">${dnCardEl(e,{big:1})}</div><p class="rlab" style="text-align:center">Event: buying it uses a Buy. You don’t get a card.${DNEV1.includes(e)?' Once per turn.':''}${e==='inheritance'?' Once per game.':''}</p>
       <div class="sheet-btns"><button class="btn" data-a="dnpclose">Close</button>${okE?`<button class="btn primary" data-a="dnpbuyev" data-k="${e}">Buy for ${dnC(e).c}</button>`:''}</div></div></div>`}const HV=dnHV(g,V),mine=V&&dnActor(g)===V.id,Q=mine?g.ask:null;
   const canGain=Q&&Q.k==='gain'&&Q.ok.includes(k);const canBuy=mine&&!Q&&!g.k.length&&HV&&g.turn===HV.id&&g.sup[k]>0&&g.B>0&&dnBuyOk(g,k)&&(!g.manT||g.ph==='buy'||dnCost(g,k)<=g.co)&&dnAfford(g,k,g.ph==='buy'?g.co:dnBuyPreview(g),g.ph==='buy'?g.po||0:dnPoPreview(g));
-  return `<div class="sheet-bg" data-a="dnpclose"><div class="sheet dnsheet" role="dialog" aria-modal="true" aria-label="${esc(dnNm(k))}" data-stop="1">
+  return `<div class="sheet-bg dnsbg" data-a="dnpclose"><div class="sheet dnsheet" role="dialog" aria-modal="true" aria-label="${esc(dnNm(k))}" data-stop="1">
     <div class="dnbig">${dnCardEl(dnPT(g,k),{big:1})}</div><p class="rlab" style="text-align:center">${g.sup[k]!=null?`${g.sup[k]} left in the Supply`:g.ns&&g.ns[k]!=null?`${g.ns[k]} left (not in the Supply)`:''}</p>
     ${canBuy&&g.ph==='action'&&g.A>0&&HV&&dnHasAct(g,HV.id)?'<p class="hint" style="text-align:center">Buying now ends your Action phase. You won’t be able to play the Actions still in your hand.</p>':''}<div class="sheet-btns"><button class="btn" data-a="dnpclose">Close</button>${canGain?`<button class="btn primary" data-a="dnpgain" data-k="${k}">${Q.verb||'Gain'} ${esc(dnNm(k))}${Q.who&&Q.who!==V.id?` for ${esc(nmid(Q.who))}`:''}</button>`:canBuy?`<button class="btn primary" data-a="dnpbuy" data-k="${k}">Buy for ${dnCost(g,k)}${dnCostP(k)?' + ⚗':''}</button>`:''}</div></div></div>`}
 /* coins you'd have after playing all your Treasures (for the Buy button during the Action phase) */
@@ -9541,7 +9317,7 @@ let DNRECAP=null,DNPEEK=null;
 /* tap a player: their points and what's in their deck (everything gained and trashed is public) */
 function dnPeekSheet(g){const q=DNPEEK&&act().find(p=>p.id===DNPEEK),M=q&&g.me[q.id];if(!M)return '';const all=dnAll(M),c={};all.forEach(k=>c[k]=(c[k]||0)+1);
   const keys=Object.keys(c).sort((a,b)=>dnHRank(a)-dnHRank(b)||dnC(a).c-dnC(b).c||dnNm(a).localeCompare(dnNm(b)));
-  return `<div class="sheet-bg" data-a="dnppeekx"><div class="sheet dnpeek" role="dialog" aria-modal="true" aria-label="${esc(nm(q))}" data-stop="1" style="${pc(q.color)}">
+  return `<div class="sheet-bg dnsbg" data-a="dnppeekx"><div class="sheet dnpeek" role="dialog" aria-modal="true" aria-label="${esc(nm(q))}" data-stop="1" style="${pc(q.color)}">
     <div class="rs-top"><div><h2>${botHead(q)}${esc(nm(q))}</h2><small class="lp-sub">${dnVP(M)} points · ${all.length} cards · ${M.tn} turn${M.tn===1?'':'s'}${M.debt?` · ${M.debt} debt`:''}${M.vp?` · ${M.vp} VP tokens`:''}${M.cf?` · ${M.cf} Coffers`:''}${M.pt?` · ${M.pt} Pirate coins`:''}</small></div><button class="btn sm" data-a="dnppeekx">Close</button></div>
     <p class="rlab">Their whole deck (hand, deck, discard and in play):</p><div class="dnhand sm">${keys.map(k=>dnCardEl(k,{cnt:c[k]})).join('')}</div>
     <p class="hint">In hand ${M.h.length} · deck ${M.dk.length} · discard ${M.ds.length}</p></div></div>`}
@@ -9559,8 +9335,8 @@ function dnDock(g,V){if(!V||g.phase!=='play')return '';const a=dnActor(g),mine=a
   let body='';
   if(g.ask)body=dnAskUI(g,V);
   else if(g.ph==='action'){const i=DNHSEL,k=i!=null?M.h[i]:null;
-    body=k?`<div class="dnsel">${dnCardEl(k,{big:1})}</div><div class="prow">${dnIs(k,'A')&&g.A>0?`<button class="btn primary" style="flex:1" data-a="dnpplay" data-k="${i}">Play ${esc(dnNm(k))}</button>`:`<span class="rlab" style="flex:1">${dnIs(k,'A')?'No Actions left.':'Treasures are played for you in the Buy phase.'}</span>`}<button class="btn" data-a="dnphand" data-k="-1">Back</button></div>`
-      :`<div class="rlab">Tap an Action to play it (press and hold to read it first). Buying a card or playing a Treasure ends your Action phase.${g.manT?' You play your Treasures yourself in this game.':''}</div><div class="prow"><button class="btn primary" style="flex:1" data-a="dnpendact">Buy phase ›</button></div>`}
+    body=k&&!(dnIs(k,'A')&&g.A>0)?`<div class="dnsel">${dnCardEl(k,{big:1})}</div><div class="prow"><span class="rlab" style="flex:1">${dnIs(k,'A')?'No Actions left.':'Treasures are played for you in the Buy phase.'}</span><button class="btn" data-a="dnphand" data-k="-1">Back</button></div>`
+      :`<div class="rlab">Tap an Action to see it big, then tap Play. Buying a card or playing a Treasure ends your Action phase.${g.manT?' You play your Treasures yourself in this game.':''}</div><div class="prow"><button class="btn primary" style="flex:1" data-a="dnpendact">Buy phase ›</button></div>`}
   else if(g.manT&&!g.bought&&M.h.some(k=>dnIs(k,'T')))body=`<div class="rlab">Tap Treasures in your hand to play them (the order can matter), then tap a card in the Supply to buy it.</div><div class="prow"><button class="btn" style="flex:1" data-a="dnpallt">Play all Treasures</button><button class="btn${g.co>=3?'':' primary'}" style="flex:1" data-a="dnpend">${DNENDOK===g.n?'Tap again to end your turn':'End turn'}</button></div>`;
   else if(g.nob)body=`<div class="rlab">Mission turn: you can’t buy cards (Events are OK).</div><div class="prow"><button class="btn primary" style="flex:1" data-a="dnpend">End turn</button></div>`;
   else body=`<div class="rlab">Tap a card in the Supply to buy it${g.B>1?` (${g.B} buys left)`:''}.</div><div class="prow"><button class="btn${g.co>=3?'':' primary'}" style="flex:1" data-a="dnpend">${DNENDOK===g.n?'Tap again to end your turn':'End turn'}</button></div>`;
@@ -9598,7 +9374,7 @@ function dnPlayUI(){const g=dnG(),P=act(),sc=P.map(p=>g&&g.me&&g.me[p.id]?dnVP(g
   if(!DNPILE&&!LPTIP)out+=dnIsResp(g,V)&&!dnNeedHandoff()?dnRespSheet(g,V):dnDock(g,V);
   if(g.phase==='done')out+=`<div class="panel htsum">${P.map(q=>{const M=g.me[q.id];return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${M.tn} turns · ${dnAll(M).length} cards</small><br><small class="dnparts">${dnParts(q).filter(x=>x.v).map(x=>`${esc(x.l)}: ${x.v}`).join(' · ')||'No points'}</small></span><span class="num"><b>${total(q)}</b></span></div>`}).join('')}<p class="hint">Tap a player at the top to see their whole deck. “Rematch” on the next screen keeps this kingdom.</p></div>
     <div class="actions"><div class="in">${dnRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Waiting for the host…</span>`}</div></div>`;
-  out+=dnPileSheet(g,V)+dnPeekSheet(g);
+  out+=dnPileSheet(g,V)+dnPlaySheet(g,V)+dnPeekSheet(g);
   const h=dnNeedHandoff();if(h)out+=`<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="dnh-h" style="${pc(h.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="dnh-h">${esc(nm(h))}</h2><p class="rlab">${g.ask&&g.turn!==h.id?esc(g.ask.why||'You need to make a choice.'):'It’s your turn. Everyone else, look away.'}</p><button class="btn primary wide" data-a="dnpshow" data-k="${h.id}">I’m ${esc(nm(h))}, show my cards</button></div></div>`;
   return out}
 function dnAct(a,b,k){const g=dnG();if(!g)return;
@@ -9611,7 +9387,7 @@ function dnAct(a,b,k){const g=dnG();if(!g)return;
   const V=dnViewer();if(!V)return;const pid=V.id,mine=dnActor(g)===pid;
   if(a==='dnphand'){const i=+k;if(i<0){DNHSEL=null;return}const Q=mine?g.ask:null;if(Q&&Q.k==='pick'){const M=g.me[Q.p];if(!dnPOK(g,Q,M,M.h[i])){toast(Q.xf&&dnIs(M.h[i],Q.xf)?'Pick a card that isn’t a Treasure.':Q.np?'You already have a copy of that in play.':Q.nr&&dnIs(M.h[i],'W')?'Not a Reward.':`Pick ${Q.f==='A'?'an Action':Q.f==='T'?'a Treasure':Q.f==='AT'?'an Action or a Treasure':'a Victory card'}.`);return}
       if(DNSEL.includes(i))DNSEL=DNSEL.filter(x=>x!==i);else{if(Q.max===1)DNSEL=[i];else if(DNSEL.length<Q.max)DNSEL.push(i);else toast(`Up to ${Q.max}.`)}return}
-    {const me=dnAsP(g,pid),M2=g.me[me];if(mine&&!g.ask&&!g.k.length&&g.turn===me&&g.ph==='action'&&g.A>0&&dnIs(M2.h[i],'A')){if(lkq('dnPlay',pid,i)){vibe(12);DNHSEL=null}else toast('You can’t play that now.');return}}
+    {const me=dnAsP(g,pid),M2=g.me[me];if(mine&&!g.ask&&!g.k.length&&g.turn===me&&g.ph==='action'&&g.A>0&&dnIs(M2.h[i],'A')){DNHSEL=i;vibe(8);return}}
     if(g.manT&&mine&&!g.ask&&g.turn===dnAsP(g,pid)&&g.ph==='buy'&&!g.bought){const M=g.me[dnAsP(g,pid)];if(dnIs(M.h[i],'T')){if(lkq('dnPlayT',pid,i))vibe(10);return}}
     DNHSEL=DNHSEL===i?null:i;return}
   if(!mine){toast(`Waiting for ${nmid(dnActor(g))}.`);return}
@@ -9753,15 +9529,6 @@ function ptHomeCard(){const st=gamePeek('phase10');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/phase10-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart ptart&quot; aria-hidden=&quot;true&quot;>10</div>'"><div><h2>Phase 10</h2><div class="meta">Card game · phases, then low score</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="phase10">Resume game</button><button class="btn" data-a="gnew" data-k="phase10">New game</button><button class="btn" data-a="gabandon" data-k="phase10" aria-label="Abandon this game">${ABANDON==='phase10'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="ptstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="ptstart" data-k="0">Score a game</button></div>`}</div>`}
-const PTDEMOS=[{id:'ptfam',title:'Family night · Phase 10',tip:'The last hand is open. Ben and Lily both finish Phase 10 in it, so the lower total wins. Press and hold a name for their history.',blurb:'Four players, official rules. Dad gets stuck on the run of 9; Ben and Lily both finish in the same hand and the lower score takes it.'}];
-function ptDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=ptFresh();S.ptx=JSON.parse(JSON.stringify(PTDEF));S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  /* per hand: [made flags], who went out, leftover [lo,hi,sk,wd] per player */
-  const H=[[[1,1,1,1],2,[[2,1,0,0],[3,0,0,0],[0,0,0,0],[1,2,0,0]]],[[1,1,1,1],0,[[0,0,0,0],[2,2,0,0],[1,1,0,0],[2,1,0,0]]],[[1,1,1,1],3,[[1,0,1,0],[0,2,0,0],[3,1,0,0],[0,0,0,0]]],[[0,1,1,1],1,[[5,2,0,1],[0,0,0,0],[2,0,0,0],[1,1,0,0]]],
-    [[1,1,1,1],2,[[2,2,0,0],[1,0,0,0],[0,0,0,0],[0,1,0,0]]],[[1,0,1,1],3,[[1,1,0,0],[4,3,0,1],[2,0,0,0],[0,0,0,0]]],[[1,0,1,1],0,[[0,0,0,0],[3,2,1,0],[1,1,0,0],[2,0,0,0]]],[[0,1,1,1],2,[[3,2,0,1],[2,1,0,0],[0,0,0,0],[1,1,0,0]]],
-    [[1,1,1,1],3,[[1,1,0,0],[2,0,0,0],[1,0,0,0],[0,0,0,0]]],[[1,0,1,1],2,[[2,1,0,0],[3,3,1,0],[0,0,0,0],[0,1,0,0]]]];
-  H.forEach(([m,o,L],r)=>P.forEach((p,i)=>{(p.pt=p.pt||[])[r]={lo:L[i][0],hi:L[i][1],sk:L[i][2],wd:L[i][3],made:!!m[i],out:o===i}}));
-  Object.assign(S,{started:true,screen:'score',hr:9,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    ROOK
    Two teams of partners. Each hand: who won the bid, the bid, and the
@@ -10016,11 +9783,6 @@ function rkHomeCard(){const st=gamePeek('rook');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/rook-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart rkart&quot; aria-hidden=&quot;true&quot;>🐦‍⬛</div>'"><div><h2>Rook</h2><div class="meta">Play on the phone, or score real cards · partners</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="rook">Resume game</button><button class="btn" data-a="gnew" data-k="rook">New game</button><button class="btn" data-a="gabandon" data-k="rook" aria-label="Abandon this game">${ABANDON==='rook'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="rkstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="rkstart" data-k="0">Score a game</button></div>`}</div>`}
-const RKDEMOS=[{id:'rkfam',title:'Family night · Rook',tip:'Both teams pass 300 in the last hand, so the higher total wins. Press and hold a team for their history.',blurb:'Mom & Dad against Ben & Lily, official rules. Mom & Dad get set on a bid of 90; in the last hand both teams pass 300 and the higher total takes it.'}];
-function rkDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=rkFresh();S.rkx={...RKDEF};S.demo=id;const P=S.players.slice(0,2);P[0].mem=['Mom','Dad'];P[1].mem=['Ben','Lily'];
-  S.rk=[[0,80,85],[1,75,80],[0,90,70],[1,85,90],[0,75,85],[1,100,85],[0,95,100],[1,80,95]].map(([bt,bid,took])=>({bt,bid,took}));
-  Object.assign(S,{started:true,screen:'score',hr:7,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    YAHTZEE
    One phone passed around: tap the five dice, see what every open box
@@ -10242,13 +10004,6 @@ function yzHomeCard(){const st=gamePeek('yahtzee');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/yahtzee-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart yzart&quot; aria-hidden=&quot;true&quot;>🎲</div>'"><div><h2>Yahtzee</h2><div class="meta">Play with dice on the phone, or score real dice</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="yahtzee">Resume game</button><button class="btn" data-a="gnew" data-k="yahtzee">New game</button><button class="btn" data-a="gabandon" data-k="yahtzee" aria-label="Abandon this game">${ABANDON==='yahtzee'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="yzstart" data-k="1">🎲 Play</button><button class="btn" style="flex:1" data-a="yzstart" data-k="0">Score a game</button></div>`}</div>`}
-const YZDEMOS=[{id:'yzfam',title:'Family night · Yahtzee',tip:'Lily is on her last box with the dice already entered. Tap a gold box to score it, or press and hold a name to see a whole card.',blurb:'Four players, official rules. Ben rolls two Yahtzees for a 100-point bonus; Mom just misses the upper bonus.'}];
-function yzDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=yzFresh();S.yzx={...YZDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  const G=[{u1:3,u2:6,u3:9,u4:12,u5:15,u6:17,k3:22,k4:0,fh:25,ss:30,ls:40,yz:0,ch:23},{u1:2,u2:8,u3:9,u4:16,u5:15,u6:18,k3:26,k4:19,fh:25,ss:30,ls:0,yz:0,ch:21},
-    {u1:3,u2:4,u3:12,u4:8,u5:20,u6:18,k3:24,k4:22,fh:25,ss:30,ls:40,yz:50,ch:19},{u1:4,u2:6,u3:9,u4:12,u5:10,u6:24,k3:21,k4:0,fh:25,ss:30,ls:40,yz:50}];
-  P.forEach((p,i)=>{p.yz={c:[{...G[i]}],yb:[i===2?1:0]}});
-  Object.assign(S,{started:true,screen:'score',hr:12,yzt:3,yzd:[6,5,6,2,3],active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    MEXICAN TRAIN (dominoes)
    One round per double, counting down (12|12 ... 0|0 for a double-12 set).
@@ -10347,12 +10102,6 @@ function mtHomeCard(){const st=gamePeek('mextrain');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/mextrain-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart mtart&quot; aria-hidden=&quot;true&quot;>🁣</div>'"><div><h2>Mexican Train</h2><div class="meta">Dominoes · low score wins</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="mextrain">Resume game</button><button class="btn" data-a="gnew" data-k="mextrain">New game</button><button class="btn" data-a="gabandon" data-k="mextrain" aria-label="Abandon this game">${ABANDON==='mextrain'?'Tap again to abandon':ABANDON==='chicken'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="mtstart" data-k="1">🁫 Play</button><button class="btn" style="flex:1" data-a="mtstart" data-k="0">Score a game</button></div>`}</div>`}
-const MTDEMOS=[{id:'mtfam',title:'Family night · Mexican Train',tip:'The last round, the 0|0, is open. Press and hold a name to see every round.',blurb:'Four players, double-12. Ben goes out three times; Dad gets caught with a fistful of high dominoes in round 4.'}];
-function mtDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=mtFresh();S.mtx={...MTDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  const D=[[0,24,11,17],[18,0,9,22],[13,31,0,8],[7,52,14,0],[0,16,21,11],[12,9,0,19],[21,0,6,14],[9,18,0,25],[0,12,15,7],[16,11,8,0],[5,0,13,10],[11,14,0,9]];
-  D.forEach((row,r)=>row.forEach((v,i)=>{(P[i].mt=P[i].mt||[])[r]={v:v||null,out:v===0,db:false}}));
-  Object.assign(S,{started:true,screen:'score',hr:12,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* ================= Mexican Train on the phone =================
    Dominoes are ids like '5-9#37' (low end first). The round's double sits in the station.
    Every player has a train, plus the shared Mexican train ('mx'). A train's end is the number the next domino must match.
@@ -10907,16 +10656,6 @@ function ctHomeCard(){const st=gamePeek('catan'),x=(st&&st.ctx)||ctSaved(),ck=x.
   return `<div class="game"><div class="gtop"><img class="gart" src="art/catan-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart ctart&quot; aria-hidden=&quot;true&quot;>⬢</div>'"><div><h2>Catan</h2><div class="meta">${ck?'Cities &amp; Knights':x.mode==='sf'?'Seafarers':x.mode==='tb'?'Traders &amp; Barbarians':'Live tracker'}${x.mode==='tb'?'':` · first to ${ck?x.goalCK||13:x.mode==='sf'?x.goalSF||12:x.goal||10}`}</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="catan">Resume game</button><button class="btn" data-a="gnew" data-k="catan">New game</button><button class="btn" data-a="gabandon" data-k="catan" aria-label="Abandon this game">${ABANDON==='catan'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="catan">Track a game</button>`}</div>`}
-const CTDEMOS=[{id:'ctfam',title:'Family night · Catan',tip:'Lily just hit 10. Tap Finish & reveal, or press and hold a name to see their points.',blurb:'Four players. Dad holds Longest Road, Ben grabbed Largest Army, and Lily sneaks to 10 with two hidden victory point cards.'},
-  {id:'ctck',title:'Cities & Knights · barbarians at the gate',tip:'The ship is one step away. Tap Ship moves to see the attack.',blurb:'Four players, first to 13. Mom runs the science metropolis, Dad has the Merchant, and Lily’s knights are all asleep.'}];
-function ctDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=ctFresh();S.ctx={...CTDEF,mode:id==='ctck'?'ck':'base'};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  if(id==='ctck'){const D=[{s:2,c:3,met:['science'],def:1,kn:[{l:2,a:true},{l:1,a:true}]},{s:3,c:2,mer:true,lr:true,kn:[{l:1,a:true}]},{s:1,c:3,met:['trade'],pvp:1,kn:[{l:3,a:true},{l:1,a:false}]},{s:4,c:2,kn:[{l:1,a:false},{l:2,a:false}]}];
-    D.forEach((d,i)=>P[i].ct={s:d.s,c:d.c,k:0,vp:0,lr:!!d.lr,la:false,r7:0,met:d.met||[],def:d.def||0,mer:!!d.mer,pvp:d.pvp||0,kn:d.kn});S.ctb=CTBAR-1}
-  else{const D=[{s:3,c:2,k:1,vp:0},{s:4,c:1,k:0,vp:1,lr:true},{s:2,c:2,k:4,vp:0},{s:2,c:3,k:2,vp:2}];
-    D.forEach((d,i)=>P[i].ct={s:d.s,c:d.c,k:d.k,vp:d.vp,lr:!!d.lr,la:false,r7:0})}
-  const seq=[8,6,5,9,7,10,4,6,8,3,11,6,9,5,8,7,10,6,4,9,8,12,5,6,7,8,9,2,6,10,5,8];S.ctr=seq.map((n,j)=>({n,pid:P[j%4].id}));
-  Object.assign(S,{started:true,screen:'score',hr:0,active:0,cta:seq.length%4,hideTotals:false});CTATK=false;if(id!=='ctck')ctArmy();UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    GOLF (card game)
    Each hole, every player has a grid (4, 6, 8 or 9 cards). Matching lines
@@ -11038,14 +10777,6 @@ function gfHomeCard(){const st=gamePeek('golf');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/golf-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart gfart&quot; aria-hidden=&quot;true&quot;>⛳&#xFE0E;</div>'"><div><h2>Golf</h2><div class="meta">Card game · many versions · low score wins</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hole ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="golf">Resume game</button><button class="btn" data-a="gnew" data-k="golf">New game</button><button class="btn" data-a="gabandon" data-k="golf" aria-label="Abandon this game">${ABANDON==='golf'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gpstart" data-g="golf" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="gpstart" data-g="golf" data-k="0">Score a game</button></div>`}</div>`}
-const GFDEMOS=[{id:'gffam',title:'Family night · Golf',tip:'Hole 9 is filled in card by card; matching rows and columns cancel. Press and hold a name for their history.',blurb:'Four players, 9-card golf over a front nine. Dad goes out early on the last hole and takes the +10.'}];
-function gfDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=gfFresh();S.gfx={...GFDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  const D=[[12,18,9,15],[7,4,14,11],[3,19,6,10],[14,5,11,8],[2,16,-1,9],[9,3,12,13],[6,10,8,-2],[11,7,15,6]],O=[2,1,0,3,2,1,3,0];
-  D.forEach((row,r)=>row.forEach((v,i)=>{(P[i].gf=P[i].gf||[])[r]={g:Array(9).fill(null),v:Math.abs(v),s:v<0?-1:1,out:O[r]===i}}));
-  const G=[['K','K','K','4','2','7','A','2','9'],['5','Q','3','5','8','J','5','A','4'],['7','7','7','3','Jk','10','7','6','2'],['2','A','Q','Jk','A','6','3','A','K']];
-  G.forEach((g,i)=>{P[i].gf[8]={g,v:null,s:1,out:i===1}});
-  Object.assign(S,{started:true,screen:'score',hr:8,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null;GFSEL=null}
-
 /* =====================================================================
    TRIPOLEY
    The app is the bank. Each hand everyone antes into 9 pens; pay cards,
@@ -11160,12 +10891,6 @@ function tpHomeCard(){const st=gamePeek('tripoley');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/tripoley-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart tpart&quot; aria-hidden=&quot;true&quot;>♥&#xFE0E;</div>'"><div><h2>Tripoley</h2><div class="meta">Card game · chips · the app is the bank</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="tripoley">Resume game</button><button class="btn" data-a="gnew" data-k="tripoley">New game</button><button class="btn" data-a="gabandon" data-k="tripoley" aria-label="Abandon this game">${ABANDON==='tripoley'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="tqstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="tqstart" data-k="0">Score a game</button></div>`}</div>`}
-const TPDEMOS=[{id:'tpfam',title:'Family night · Tripoley',tip:'Tap who claimed each pen, the poker bets and winner, then who went out first. The app moves the chips.',blurb:'Five players with 50 chips each. The King-Queen pen sits in the dead hand for three hands and grows, until Grandma finally collects it.'}];
-function tpDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=tpFresh();S.tpx={...TPDEF};S.demo=id;const P=S.players.slice(0,5);['Mom','Dad','Ben','Lily','Grandma'].forEach((n,i)=>P[i].name=n);const id_=i=>P[i].id;
-  const mk=(pens,bets,pw,out,left)=>({pens:Object.fromEntries(Object.entries(pens).map(([k,v])=>[k,k==='T89'?v.map(id_):id_(v)])),bets:Object.fromEntries(bets.map((b,i)=>[id_(i),b])),pw:pw.map(id_),out:id_(out),left:Object.fromEntries(left.map((c,i)=>[id_(i),c]))});
-  S.tph=[mk({A:1,K:3,J:0,T:4,T89:[2]},[2,3,0,1,0],[1],3,[4,2,0,0,6]),mk({A:4,Q:2,J:2,T:0},[1,0,4,0,2],[2],0,[0,5,3,7,1]),mk({K:0,Q:3,J:1,T:2,T89:[0,4]},[3,1,0,2,0],[0],2,[2,4,0,3,5]),mk({A:2,K:4,Q:4,KQ:4,J:3,T:1},[0,2,1,0,5],[4],4,[6,1,3,2,0])];
-  Object.assign(S,{started:true,screen:'score',hr:3,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    THE QUACKS OF QUEDLINBURG (+ The Herb Witches, The Alchemists)
    9 rounds. Each round: scoring space in the pot, exploded or not.
@@ -12121,19 +11846,6 @@ function qkHomeCard(){const st=gamePeek('quacks');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/quacks-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart qkart&quot; aria-hidden=&quot;true&quot;>⚗&#xFE0E;</div>'"><div><h2>The Quacks of Quedlinburg</h2><div class="meta">Board game · Herb Witches · Alchemists</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="quacks">Resume game</button><button class="btn" data-a="gnew" data-k="quacks">New game</button><button class="btn" data-a="gabandon" data-k="quacks" aria-label="Abandon this game">${ABANDON==='quacks'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="qpstart" data-k="1">⚗️ Play</button><button class="btn" style="flex:1" data-a="qpstart" data-k="0">Score a game</button></div>`}</div>`}
-const QKDEMOS=[{id:'qkfam',title:'Family night · Quacks',tip:'Each round, tap the scoring space and whether the pot exploded. The furthest pot rolls the bonus die. Round 9 adds leftover coins, rubies and witch pennies.',blurb:'Four players with both expansions. Ben blows up three pots but keeps taking the coins, and Lily rides the bonus die to a late lead.'}];
-function qkDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=qkFresh();S.qkx={...QKDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  const ix=(c,k)=>{const i=QKPOT.findIndex(s=>s[0]===c);return i+(k||0)};
-  // [space coins, second-of-pair?, exploded, choice, other pts, essence]
-  const D=[[[10,0,0],[9,0,0],[12,0,1,'coins'],[11,0,0]],[[13,0,0],[14,0,0],[15,1,1,'coins'],[13,0,0]],[[16,0,0],[15,0,1,'vp'],[17,1,0],[18,0,0]],[[18,1,0],[17,0,0],[19,0,1,'coins'],[19,1,0]],
-    [[20,0,0],[19,0,0],[21,0,0],[22,0,0]],[[21,1,0],[22,1,1,'vp'],[20,1,0],[23,1,0]],[[23,0,0],[23,1,0],[24,0,0],[24,1,0]],[[25,0,1,'vp'],[26,1,0],[25,1,0],[27,0,0]],[[27,1,0],[28,0,0],[26,0,0],[29,1,0]]];
-  const ES=[[2,1,0,2],[1,2,3,1],[3,1,1,2],[2,2,0,3],[1,3,2,2],[2,1,3,1],[3,2,1,2],[1,1,2,3],[5,4,3,6]],XP=[[0,2,0,1],[1,0,0,2],[2,1,0,0],[0,3,1,2],[3,0,2,1],[1,2,0,3],[2,1,1,0],[0,4,2,1],[3,2,1,4]];
-  D.forEach((row,r)=>row.forEach(([c,k,ex,ch],i)=>{(P[i].qk=P[i].qk||[])[r]={s:ix(c,k),ex:!!ex,ch:ch||'vp',die:null,xp:XP[r][i],es:ES[r][i],ov:0,rub:r===8?[3,5,2,4][i]:0,pen:r===8?[1,2,0,3][i]:3}}));
-  const BK=[[0,0,0,0],[0,0,0,0],[1,0,0,0],[1,1,0,1],[1,2,0,1],[2,1,1,1],[2,2,1,2],[2,2,1,3],[3,2,1,3]],GL=[[1,0,0,1],[0,1,0,0],[1,1,0,2],[0,0,1,1],[2,0,0,1],[0,1,1,0],[1,0,0,2],[0,1,1,1],[1,1,0,2]],PU=[[0,0,0,0],[0,0,0,0],[0,1,0,1],[1,1,0,1],[1,2,0,2],[2,1,1,2],[2,2,1,3],[3,2,1,3],[3,2,1,3]];
-  for(let r=0;r<9;r++)P.forEach((q,i)=>Object.assign(q.qk[r],{bk:BK[r][i],gl:GL[r][i],pu:PU[r][i]}));
-  for(let r=0;r<9;r++)qkDieRollers(r).forEach((q,j)=>{q.qk[r].die=['vp2','ruby','vp1','drop'][(r+j)%4]});
-  Object.assign(S,{started:true,screen:'score',hr:8,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null;QKSEL=null}
-
 /* =====================================================================
    OH HELL (University Games rule sheet)
    13 rounds: 1 card each in round 1 up to 13 in round 13. Trump turned up in rounds 1-12, none in 13.
@@ -12358,15 +12070,6 @@ function ohHomeCard(){const st=gamePeek('ohell');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/ohell-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart ohart&quot; aria-hidden=&quot;true&quot;>♠</div>'"><div><h2>Oh Hell</h2><div class="meta">Play on the phone, or score real cards · bid exactly</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: round ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="ohell">Resume game</button><button class="btn" data-a="gnew" data-k="ohell">New game</button><button class="btn" data-a="gabandon" data-k="ohell" aria-label="Abandon this game">${ABANDON==='ohell'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="ohstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="ohstart" data-k="0">Score a game</button></div>`}</div>`}
-const OHDEMOS=[{id:'ohfam',title:'Family night · Oh Hell',tip:'Set bids, then tricks won. Tap the trump suit each round. Press and hold a name for their round-by-round history.',blurb:'Four players, 13 rounds from 1 card up to 13. Mom nails her zero bids, Ben keeps overbidding.'}];
-function ohDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=ohFresh();S.ohx={...OHDEF};S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  // [bid,tricks] per player for rounds 1-13 (tricks add up to the cards dealt)
-  const D=[[[0,0],[0,0],[1,1],[0,0]],[[0,0],[1,1],[1,0],[0,1]],[[1,1],[1,1],[1,0],[1,1]],[[0,0],[2,2],[2,1],[1,1]],[[1,1],[2,2],[2,1],[1,1]],[[0,0],[2,2],[3,2],[2,2]],
-    [[1,1],[2,2],[3,2],[2,2]],[[1,1],[3,3],[3,2],[2,2]],[[2,2],[3,2],[3,3],[2,2]],[[2,2],[3,3],[4,3],[2,2]],[[2,3],[3,3],[4,3],[2,2]],[[3,3],[3,3],[4,3],[3,3]],[[3,3],[4,3],[4,4],[3,3]]];
-  D.forEach((row,r)=>row.forEach(([b,t],i)=>{(P[i].oh=P[i].oh||[])[r]={b,t}}));
-  S.ohtr=['s','h','c','d','s','h','h','c','d','s','c','h','n'];
-  Object.assign(S,{started:true,screen:'score',hr:12,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* =====================================================================
    UNO (every version)
    Official scoring: whoever goes out scores the cards left in everyone else's hands. First to the target wins.
@@ -12530,13 +12233,6 @@ function unHomeCard(){const st=gamePeek('uno');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/uno-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart unart&quot; aria-hidden=&quot;true&quot;>1</div>'"><div><h2>UNO</h2><div class="meta">Card game · Classic, Flip, No Mercy, Attack!, DOS, All Wild!</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress: hand ${(st.hr||0)+1}${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="uno">Resume game</button><button class="btn" data-a="gnew" data-k="uno">New game</button><button class="btn" data-a="gabandon" data-k="uno" aria-label="Abandon this game">${ABANDON==='uno'?'Tap again to abandon':'🗑'}</button></div>`
       :`<div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="unstart" data-k="1">🃏 Play</button><button class="btn" style="flex:1" data-a="unstart" data-k="0">Score a game</button></div>`}</div>`}
-const UNDEMOS=[{id:'unfam',title:'Family night · UNO',tip:'Tap who went out, then type what everyone else had left. Press and hold a name for their history.',blurb:'Four players racing to 500 in classic UNO. Ben gets caught holding two Wild Draw Fours, and Lily sneaks out for the win.'}];
-function unDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=unFresh();S.unx=JSON.parse(JSON.stringify(UNDEF));S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  // per hand: [winner index, hand totals for the other players by index]
-  const D=[[3,[34,21,12,0]],[0,[0,48,115,9]],[1,[27,0,8,62]],[3,[41,55,23,0]],[2,[12,30,0,6]],[0,[0,74,19,40]],[3,[28,36,61,0]],[1,[33,0,7,14]],[3,[52,48,99,0]]];
-  D.forEach(([wi,vals],r)=>P.forEach((p,i)=>{(p.un=p.un||[])[r]={won:i===wi,v:i===wi?0:vals[i],num:null,c:{},ko:false}}));
-  Object.assign(S,{started:true,screen:'score',hr:8,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null}
-
 /* ================= UNO on the phone: Classic, Flip and Show ’Em No Mercy =================
    Card ids: face + '#' + serial. Flip cards carry both faces, light~dark. A face is a color letter (x = wild) + a kind:
    0-9, S skip, R reverse, D1/D2/D4/D5 draw, F flip, E skip everyone, A discard all,
@@ -14697,108 +14393,12 @@ function mkHomeCard(){const st=gamePeek('munchkin');
   return `<div class="game"><div class="gtop"><img class="gart" src="art/munchkin-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart mkart&quot; aria-hidden=&quot;true&quot;>⚔</div>'"><div><h2>Munchkin</h2><div class="meta">Card game · levels, gear, combat helper</div></div></div>
     ${st&&st.started&&!st.finished?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="munchkin">Resume game</button><button class="btn" data-a="gnew" data-k="munchkin">New game</button><button class="btn" data-a="gabandon" data-k="munchkin" aria-label="Abandon this game">${ABANDON==='munchkin'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="munchkin">Start a game</button>`}</div>`}
-const MKDEMOS=[{id:'mkfam',title:'Family night · Munchkin',tip:'Tap + and − for levels and gear, ⚔ to fight a monster, 🎲 to run away. Press and hold a name for their level history.',blurb:'Four players mid-game: Ben the Elf Wizard is one kill from winning, Dad is a Dwarf Warrior with a mountain of gear.'}];
-function mkDemo(id){if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}S=mkFresh();S.mkx=mkDefs();S.demo=id;const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);
-  const D=[[7,6,['Halfling'],['Cleric'],'f'],[8,11,['Dwarf'],['Warrior'],'m'],[9,5,['Elf'],['Wizard'],'m'],[6,8,[],['Thief'],'f']];
-  D.forEach(([lv,gear,races,classes,sex],i)=>{P[i].mk={lv:1,gear,races,classes,sex};S.mklog=S.mklog||[];for(let k=1;k<lv;k++){P[i].mk.lv++;S.mklog.push({pid:P[i].id,d:1,why:k%3?'Killed a monster':'Helped kill a monster'})}});
-  S.mklog.push({pid:P[3].id,d:-1,why:'Bad Stuff'});P[3].mk.lv=5;
-  P[1].mk.items=[{n:'Horned Helmet',b:1,t:'head',on:true},{n:'Mithril Armor',b:3,t:'armor',big:true,on:true},{n:'Huge Rock',b:3,t:'hand2',big:true,on:true},{n:'Boots of Butt-Kicking',b:2,t:'foot',on:true},{n:'Pony',b:1,t:'steed',on:true}];P[1].mk.gear=1;
-  P[2].mk.items=[{n:'Pointy Hat of Power',b:3,t:'head',on:true},{n:'Staff of Napalm',b:5,t:'hand1',on:true},{n:'Sneaky Bastard Sword',b:2,t:'hand1',on:true},{n:'Cloak of Obscurity',b:4,t:'armor',on:false}];P[2].mk.gear=0;
-  Object.assign(S,{started:true,screen:'score',mkturn:2,mkstep:0,active:0,hideTotals:false});UNDO=[];KP='';WARN=null;REV=null;MKEDIT=null;MKDIE=null}
-
 function cHomeCard(){const st=gamePeek('carc'),m='Carcassonne';
   return `<div class="game"><div class="gtop"><img class="gart" src="art/carc-icon.png" alt="" width="84" height="84" onerror="this.style.visibility='hidden'"><div><h2>Carcassonne</h2><div class="meta">3 editions · ${CEXP.length} expansions · house rules</div></div></div>
     ${st&&st.started?`<div class="rlab">Game in progress${st.touched?` · last changed ${ago(st.touched)}`:''}</div><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="gresume" data-k="carc">Resume game</button><button class="btn" data-a="gnew" data-k="carc">New game</button><button class="btn" data-a="gabandon" data-k="carc" aria-label="Abandon this game">${ABANDON==='carc'?'Tap again to abandon':'🗑'}</button></div>`
       :`<button class="btn primary wide" data-a="gnew" data-k="carc">Score a game</button>`}</div>`}
 
 /* ---------- sample game ---------- */
-const CDEMOS=[
- {id:'carc',title:'Big Box night',blurb:'4 players with the Big Box plus Princess & Dragon, Abbey & Mayor and Hills & Sheep. The lead changes six times, and a robber on the score track decides it.'},
- {id:'cbase',title:'Family night · base game',blurb:'3 players, 3rd edition with the River and the Abbot. Shows a shared city (both score in full), the abbot called home early, and how fields score at the end.'},
- {id:'cclassic',title:'Old rules · early 1st edition',blurb:'2 players with the small city rule (a 2-tile city is worth 2) and classic farmers (4 per city won). The fields flip the game at the end.'},
- {id:'cictb',title:'Inns, Cathedrals, Traders & Builders',blurb:'5 players. Inns and cathedrals double up, a pig adds a point per city, and trade goods ties pay everyone tied. It ends in a tie for first.'},
- {id:'ccircus',title:'Circus & sheep',blurb:'4 players with Under the Big Top and Hills & Sheep. The big top scores three times, an acrobat pyramid pays out, ringmasters earn extra, and flocks are herded home.'},
- {id:'call',title:'Everything on',blurb:'6 players with every expansion and mini switched on: inns and cathedrals, mage and witch, the fairy, robbers, bazaars, towers and thieves, the big top, sheep, barns, castles, gold, trade goods, wonders, seasons, bets and more. Every scoring calculator gets used.'},
- {id:'cpieces',title:'Did every piece get scored?',blurb:'3 players with Inns & Cathedrals, Traders & Builders and Abbey & Mayor. Final scoring is almost done, but one piece is still on the board. Shows the piece checklist and the warning before the reveal.',
-  tip:'Scroll to “Every piece scored?” at the bottom. Mom is all back. Emma’s two farmers and her pig all came off one merged field. Dad still has his wagon out. Tap Finish to see the warning, then go back, score Dad’s road with the wagon (3 tiles) and check it off. Try picking Mom in a road or field too: she’s all back, so you’ll get a gentle reminder.'},
- {id:'cckr',title:'Barns, the Count, King & Robber',blurb:'4 players with Abbey & Mayor and Count, King & Robber. Barns score farmers early, the Count sneaks a meeple into a city, and the King and Robber tiles pay off at the end.'}];
-function cDemo(id){id=id||'carc';if(!S.demo)try{localStorage.setItem(KEY+'.real',JSON.stringify(S))}catch(e){}
-  if(id==='carc')return cDemoBigBox();
-  S=cFresh();S.demo=id;S.clog=[];S.cend={};
-  const setup=(ed,exp,people,off)=>{S.cx.ed=ed;S.cx.exp=Object.fromEntries(exp.map(k=>[k,true]));S.cx.off=off||{};S.players.forEach((p,i)=>{p.on=i<people.length;p.name=people[i]||'';if(people[i]&&i<CARC_COLORS.length)p.color=CARC_COLORS[i]});return act()};
-  const ids=a=>a.map(p=>p.id),cnt=o=>Object.fromEntries(o.map(([p,n])=>[p.id,n]));
-  const D=(kind,o,fin,note)=>{openCalc(kind,fin);Object.assign(CALC,o);let {out,txt}=cCalcPts(CALC);if(note)txt+=' · '+note;const g=uid();Object.keys(out).forEach(pid=>{if(out[pid])S.clog.unshift({id:uid(),g,pid,cat:kind,pts:out[pid],txt,fin:!!fin})});CALC=null};
-  if(id==='cbase'){const [m,d,e]=setup('3',[],['Mom','Dad','Emma']);
-    D('road',{tiles:4,who:ids([d])});D('city',{tiles:4,pen:1,who:ids([e])});D('mon',{who:ids([m])});D('city',{tiles:2,who:ids([d])});
-    D('city',{tiles:6,pen:2,who:ids([e,m])},0,'shared: both score in full');D('custom',{pts:6,note:'Abbot called home early · garden + 5 tiles around',who:ids([m])});D('road',{tiles:3,who:ids([d])});
-    D('mon',{who:ids([e])});D('city',{tiles:5,pen:2,who:ids([d])});D('road',{tiles:6,who:ids([m])});
-    D('city',{tiles:3,pen:1,who:ids([e])},1);D('mon',{tiles:7,who:ids([d])},1);D('road',{tiles:2,who:ids([m])},1);
-    D('field',{cities:3,who:ids([d])},1);D('field',{cities:2,who:ids([m])},1);D('field',{cities:1,who:ids([e,m])},1)}
-  else if(id==='cclassic'){const [g,sm]=setup('0',[],['Grandpa','Sam']);
-    D('city',{tiles:2,who:ids([g])},0,'small city rule');D('road',{tiles:5,who:ids([sm])});D('mon',{who:ids([g])});D('city',{tiles:2,pen:1,who:ids([sm])},0,'small city rule');D('city',{tiles:5,pen:1,who:ids([sm])});
-    D('city',{tiles:3,who:ids([g])});D('mon',{who:ids([sm])});D('road',{tiles:4,who:ids([g])});D('city',{tiles:4,pen:2,who:ids([g])});
-    D('city',{tiles:3,who:ids([sm])},1);D('mon',{tiles:6,who:ids([g])},1);D('road',{tiles:2,who:ids([sm])},1);
-    D('field',{cities:5,who:ids([g])},1,'4 each, classic farmers');D('field',{cities:2,who:ids([sm])},1,'4 each, classic farmers')}
-  else if(id==='cictb'){const [a,l,mi,n,z]=setup('2',['ic','tb'],['Ava','Leo','Mia','Noah','Zoe']);
-    D('road',{tiles:4,inn:true,who:ids([l])});D('city',{tiles:5,pen:2,cath:true,who:ids([a])});D('mon',{who:ids([mi])});D('city',{tiles:3,pen:1,who:ids([n])});D('road',{tiles:3,who:ids([z])});
-    D('city',{tiles:4,pen:1,who:ids([l])});D('city',{tiles:6,pen:1,who:ids([a,z])},0,'tied 1 to 1, both score');D('road',{tiles:6,inn:true,who:ids([mi])});D('mon',{who:ids([n])});
-    D('city',{tiles:6,pen:1,cath:true,who:ids([z])});D('road',{tiles:2,who:ids([l])});
-    D('road',{tiles:3,who:ids([mi])},1);D('city',{tiles:2,pen:1,who:ids([n])},1);D('mon',{tiles:5,who:ids([l])},1);
-    D('field',{cities:4,who:ids([n]),pigs:ids([n])},1);D('field',{cities:4,who:ids([a])},1);D('field',{cities:3,who:ids([z])},1);D('field',{cities:1,who:ids([mi])},1);
-    S.cend.goods={[a.id]:{wine:3,grain:1,cloth:0},[l.id]:{wine:3,grain:0,cloth:1},[mi.id]:{wine:0,grain:4,cloth:0},[n.id]:{wine:1,grain:2,cloth:2},[z.id]:{wine:0,grain:1,cloth:2}}}
-  else if(id==='ccircus'){const [j,el,o,r]=setup('2',['bt','hs'],['Jack','Ella','Owen','Ruby']);
-    D('city',{tiles:4,pen:1,who:ids([j]),ring:j.id,ringN:2});D('sheep',{sheep:7,who:ids([el])});D('circus',{animal:5,counts:cnt([[j,1],[el,2],[r,1]])});
-    D('mon',{vine:2,who:ids([o])});D('acro',{counts:cnt([[r,2],[o,1]])},0,'scored by Ruby, 5 per acrobat');D('road',{tiles:5,who:ids([r])});D('sheep',{sheep:9,who:ids([el,o])},0,'two shepherds share the flock');
-    D('circus',{animal:7,counts:cnt([[j,2],[o,1],[r,1]])});D('road',{tiles:3,who:ids([j])});D('city',{tiles:3,pen:2,who:ids([el])});D('mon',{vine:1,who:ids([r])});
-    D('circus',{animal:3,counts:cnt([[el,2],[r,1],[j,1]])},1);D('ring',{ring:o.id,ringN:3},1);D('road',{tiles:2,who:ids([j])},1);D('mon',{tiles:6,who:ids([el])},1);
-    D('field',{cities:3,who:ids([r])},1);D('field',{cities:2,who:ids([j])},1);S.cend.acro={[el.id]:1}}
-  else if(id==='call'){const [d,m,b,l,g,u]=setup('2',CEXP.map(e=>e.id),['Dad','Mom','Ben','Lily','Grandma','Uncle Bob']);
-    const B=(k,o,fin,note)=>D('bonus',{bk:k,cnt:1,mul:0,...o},fin,note);
-    D('road',{tiles:4,inn:true,who:ids([d])});D('city',{tiles:5,pen:2,cath:true,who:ids([m])});D('mon',{vine:1,who:ids([b])});
-    D('sheep',{sheep:8,who:ids([l])});D('circus',{animal:5,counts:cnt([[d,1],[m,1],[b,2],[g,1]])});D('city',{tiles:4,pen:1,who:ids([g]),fairy:g.id});
-    D('road',{tiles:6,mw:'mage',who:ids([u])});D('fairy',{who:ids([g])});D('msg',{who:ids([b])});D('rob',{thief:l.id,pts:12});
-    D('acro',{counts:cnt([[u,2],[d,1]])});D('city',{tiles:3,pen:1,who:ids([u]),ring:u.id,ringN:2});D('ransom',{thief:d.id,victim:m.id});
-    D('thieft',{pts:4,counts:cnt([[b,1],[g,1]])});D('bump',{who:ids([l])});D('xfer',{from:b.id,to:m.id,pts:6},0,'bazaar auction');
-    D('field',{ftype:'barnNow',cities:2,who:ids([g])});D('city',{tiles:2,besi:true,who:ids([d])});D('road',{tiles:5,bath:4,who:ids([m])});
-    D('road',{tiles:3,sv:'highway',who:ids([b])});D('road',{tiles:4,gcath:true,who:ids([l])});D('mon',{who:ids([u])});
-    D('city',{tiles:6,pen:2,mw:'witch',who:ids([d,b])},0,'shared');
-    B('bcb:0',{pts:10,who:ids([l])});B('cat:0',{who:ids([b])});B('bs:0',{mul:1,who:ids([g])});B('wt:0',{cnt:3,who:ids([m])});B('fruit:0',{mul:2,who:ids([u])});B('fruit:1',{mul:2,who:ids([u])});
-    B('cig:0',{who:ids([d])});B('cig:1',{cnt:2,who:ids([g])});B('pr:0',{mul:0,who:ids([b])});B('pr:1',{cnt:2,who:ids([b])});B('gc:0',{cnt:5,who:ids([l])});
-    B('seasons:0',{cnt:2,who:ids([m])});B('seasons:3',{cnt:3,who:ids([d])});B('won:0',{cnt:2,who:ids([g])});B('won:4',{cnt:3,who:ids([b])});B('won:7',{cnt:2,who:ids([u])});B('won:8',{mul:2,who:ids([l])});
-    B('bets:0',{pts:8,who:ids([d])});B('sign:0',{mul:1,cnt:2,who:ids([m])});B('gifts:0',{cnt:3,who:ids([u])});B('lab:0',{cnt:3,who:ids([b])});
-    D('road',{tiles:3,who:ids([g])},1);D('city',{tiles:4,pen:1,who:ids([l])},1);D('mon',{tiles:7,who:ids([m])},1);D('circus',{animal:7,counts:cnt([[g,2],[l,1]])},1);D('ring',{ring:u.id,ringN:2},1);
-    D('field',{cities:4,who:ids([d]),pigs:ids([d]),sty:true},1);D('field',{ftype:'barnEnd',cities:3,who:ids([g])},1);D('field',{cities:3,fcast:1,who:ids([m,b])},1);D('field',{cities:2,fbes:1,who:ids([u])},1);
-    B('cig:2',{cnt:5,who:ids([g])},1);B('gc:1',{cnt:3,who:ids([l])},1);B('won:2',{mul:2,cnt:4,who:ids([d])},1);B('won:3',{mul:0,cnt:2,who:ids([m])},1);B('won:5',{cnt:1,who:ids([b])},1);
-    B('won:6',{cnt:2,who:ids([g])},1);B('sign:1',{cnt:2,who:ids([l])},1);B('hansa:0',{cnt:4,who:ids([b])},1);B('hansa:1',{pts:6,who:ids([m])});B('hansa:2',{pts:6,who:ids([u])});B('mog:0',{cnt:6,who:ids([l])},1);
-    Object.assign(S.cend,{goods:{[d.id]:{wine:3,grain:1,cloth:2},[m.id]:{wine:2,grain:3,cloth:1},[b.id]:{wine:1,grain:1,cloth:3},[l.id]:{wine:3,grain:0,cloth:0},[g.id]:{wine:0,grain:2,cloth:2},[u.id]:{wine:1,grain:3,cloth:0}},
-      gold:{[d.id]:2,[m.id]:5,[b.id]:1,[l.id]:7,[g.id]:3,[u.id]:4},king:{pid:m.id,n:10},baron:{pid:u.id,n:8},robbers:{[l.id]:1,[b.id]:1},watch:{[d.id]:1,[u.id]:2},stolen:3,acro:{[g.id]:1},fruit:{[u.id]:2},gifts:{[d.id]:1}})}
-  else if(id==='cpieces'){const [m,d,e]=setup('3',['ic','tb','am'],['Mom','Dad','Emma']);
-    D('city',{tiles:5,pen:2,cath:true,who:ids([m])},0,'large meeple');D('road',{tiles:4,inn:true,who:ids([d])});D('mon',{who:ids([e])});D('city',{tiles:4,pen:1,who:ids([d])},0,'won with the mayor');
-    D('road',{tiles:5,who:ids([e])},0,'wagon moved on to a monastery');D('custom',{pts:5,note:'Abbot called home early · 4 tiles around',who:ids([m])});D('city',{tiles:6,pen:2,who:ids([e,d])},0,'shared');
-    D('field',{ftype:'barnJoin',cities:2,who:ids([m])},0,'farmers came home');D('road',{tiles:3,who:ids([m])});D('city',{tiles:3,pen:1,who:ids([e])});
-    D('city',{tiles:3,pen:1,who:ids([m])},1);D('mon',{tiles:6,who:ids([e])},1,'abbot');D('mon',{tiles:5,who:ids([d])},1,'abbot');
-    D('field',{cities:4,who:ids([e]),pigs:ids([e])},1,'2 farmers in one merged field, scored once');D('field',{ftype:'barnEnd',cities:3,who:ids([d])},1);D('field',{cities:2,who:ids([m])},1);
-    const all=Object.fromEntries(backList().map(x=>[x.id,true]));
-    S.cend.back={[m.id]:{...all},[e.id]:{...all},[d.id]:{...all,wagon:false}};
-    S.cend.goods={[m.id]:{wine:2,grain:1,cloth:0},[d.id]:{wine:1,grain:3,cloth:1},[e.id]:{wine:2,grain:0,cloth:3}}}
-  else if(id==='cckr'){const [d,m,b,l]=setup('2',['am','ckr'],['Dad','Mom','Ben','Lily']);
-    D('city',{tiles:5,pen:2,who:ids([m])},0,'won with the mayor');D('road',{tiles:4,who:ids([b])});D('mon',{who:ids([d])},0,'abbey');D('city',{tiles:6,pen:1,who:ids([l,m])},0,'Lily joined from the city of Carcassonne');
-    D('mon',{who:ids([b])},0,'shrine won the challenge');D('road',{tiles:5,who:ids([d])},0,'wagon moved on');D('field',{ftype:'barnNow',cities:2,who:ids([b])});D('city',{tiles:3,who:ids([l])});
-    D('city',{tiles:4,pen:1,who:ids([d])});D('field',{ftype:'barnJoin',cities:3,who:ids([m])});D('road',{tiles:4,who:ids([l])});
-    D('field',{ftype:'barnEnd',cities:4,who:ids([d])},1);D('field',{cities:3,who:ids([b])},1);D('field',{cities:2,who:ids([l])},1);D('mon',{tiles:5,who:ids([l])},1);D('road',{tiles:3,who:ids([m])},1);
-    S.cend.king={pid:m.id,n:9};S.cend.baron={pid:b.id,n:7}}
-  S.started=true;S.screen='score';S.hideTotals=true;S.rules.live=true;UNDO=[];REV=null;WARN=null}
-function cDemoBigBox(){
-  S=cFresh();S.demo='carc';S.cx.exp={...S.cx.exp,pd:true,am:true,hs:true};
-  const names=['Grandma','Ben','Lily','Uncle Bob'];S.players.forEach((p,i)=>{if(i<4){p.name=names[i]}});const [g,b,l,u]=S.players;
-  const E=(pid,cat,pts,txt,fin)=>({id:uid(),g:uid(),pid:pid.id,cat,pts,txt,fin:!!fin});
-  S.clog=[E(g,'city',22,'City · 8 tiles · 3 coats of arms'),E(b,'road',4,'Road · 4 tiles'),E(l,'mon',12,'Finished monastery · 1 vineyard'),E(u,'city',16,'City · 4 tiles · 1 coat of arms · cathedral'),E(b,'city',16,'City · 4 tiles · 1 coat of arms · cathedral'),
-    E(g,'road',6,'Road · 3 tiles · inn'),E(l,'city',10,'City · 4 tiles · 1 coat of arms'),E(u,'mon',9,'Finished monastery'),E(b,'sheep',9,'Flock herded home · 9 sheep'),E(g,'fairy',1,'Fairy at the start of the turn'),E(l,'msg',2,'Messenger: took 2 points'),E(u,'road',5,'Road · 5 tiles'),E(b,'mon',9,'Finished monastery'),E(g,'city',8,'City · 3 tiles · 1 coat of arms'),E(l,'road',8,'Road · 4 tiles · inn'),E(l,'fairy',3,'Fairy +3'),
-    E(g,'road',3,'Unfinished road · 3 tiles',1),E(b,'city',5,'Unfinished city · 4 tiles · 1 coat of arms',1),E(l,'mon',6,'Unfinished monastery · 6 tiles',1),E(u,'mon',4,'Unfinished monastery · 4 tiles',1),
-    E(g,'field',9,'Field · 3 finished cities',1),E(b,'field',12,'Barn · 3 finished cities',1),E(l,'field',6,'Field · 2 finished cities',1),E(u,'field',15,'Field · 5 finished cities',1)].reverse();
-  S.cend={goods:{[g.id]:{wine:4,grain:0,cloth:1},[b.id]:{wine:1,grain:0,cloth:2},[l.id]:{wine:2,grain:0,cloth:0},[u.id]:{wine:0,grain:0,cloth:3}},gold:{[g.id]:2,[b.id]:3,[l.id]:5,[u.id]:1},robbers:{[u.id]:1}};
-  S.started=true;S.screen='score';S.hideTotals=true;S.rules.live=true;UNDO=[];REV=null;WARN=null}
-
 /* ---------- trophies ---------- */
 function easter(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=(h+l-7*m+114)%31+1;return [mo,da]}
 function nthDow(y,mo,dow,n){const d=new Date(y,mo-1,1);let c=0;for(let i=1;i<=31;i++){d.setDate(i);if(d.getMonth()!==mo-1)break;if(d.getDay()===dow&&++c===n)return i}return 0}
@@ -15741,7 +15341,7 @@ function render(){if(LKOPTR||!lkqOn())return render0();const o=lkOptState();if(!
 function render0(){
   const CG=S.game==='carc';
   const HG2=HFE(),NG2=S.game==='nerts',PG2=S.game==='pad',DG2=S.game==='darts',LG2=S.game==='pool',TG2=S.game==='hearts',SG2=S.game==='spades',RG2=S.game==='rage',OH2=S.game==='ohell',UN2=S.game==='uno',MK2=S.game==='munchkin',FC2=S.game==='crowns',SB2=S.game==='skipbo',GN2=S.game==='gnome',SK2=S.game==='skyjo',WS2=S.game==='wingspan',WY2=S.game==='wyrmspan',DN2=S.game==='dominion',SA2=S.game==='stoneage',PT2=S.game==='phase10',RK2=S.game==='rook',YZ2=S.game==='yahtzee',MT2=S.game==='mextrain',CF2=S.game==='chicken',CT2=S.game==='catan',GF2=S.game==='golf',TP2=S.game==='tripoley',QK2=S.game==='quacks';
-  const v={home,lkwho:lkWhoScreen,lkwait:lkWaitScreen,map:CF2?cfSetup:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:CT2?ctSetup:MT2?mtSetup:YZ2?yzSetup:RK2?rkSetup:PT2?ptSetup:SA2?saSetup:DN2?dnSetup:WY2?wySetup:WS2?wsSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:MK2?mkSetup:UN2?unSetup:OH2?ohSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:mapScreen,rules:CF2?cfSetup:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:CT2?ctSetup:MT2?mtSetup:YZ2?yzSetup:RK2?rkSetup:PT2?ptSetup:SA2?saSetup:DN2?dnSetup:WY2?wySetup:WS2?wsSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:MK2?mkSetup:UN2?unSetup:OH2?ohSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:rulesScreen,players:CF2?nxPlayers:QK2?nxPlayers:TP2?nxPlayers:GF2?nxPlayers:CT2?nxPlayers:MT2?nxPlayers:YZ2?nxPlayers:RK2?(rkPlayOn()?nxPlayers:sdPlayers):PT2?nxPlayers:SA2?nxPlayers:DN2?nxPlayers:WY2?nxPlayers:WS2?nxPlayers:SK2?nxPlayers:GN2?nxPlayers:SB2?(sbOn()?nxPlayers:sdPlayers):FC2?nxPlayers:MK2?nxPlayers:UN2?nxPlayers:OH2?nxPlayers:RG2?nxPlayers:SG2?(sdPlayOn()?nxPlayers:sdPlayers):TG2?nxPlayers:LG2?plPlayers:DG2?dtPlayers:PG2?pxPlayers:NG2?nxPlayers:HG2?hfPlayers:playersScreen,score:CF2?cfScore:QK2?qkScore:TP2?tpScore:GF2?gfScore:CT2?ctScore:MT2?mtScore:YZ2?yzScore:RK2?rkScore:PT2?ptScore:SA2?saScore:DN2?dnScore:WY2?wyScore:WS2?wsScore:SK2?skScore:GN2?gnScore:SB2?sbScore:FC2?fcScore:MK2?mkScore:UN2?unScore:OH2?ohScore:RG2?rgScore:SG2?sdScore:TG2?htScore:LG2?plPlay:DG2?dtPlay:PG2?pxScore:NG2?nxScore:HG2?hfScore:CG?cFinal:scoring,results,reveal:revealScreen,stats:statsScreen,profile:profileScreen,event:eventScreen,recap:recapScreen,settings:settingsScreen,live:CG?cLive:liveScreen,lobby:lobbyScreen,samples:samplesScreen,tsetup:tSetup}[S.screen]||home;
+  const v={home,lkwho:lkWhoScreen,lkwait:lkWaitScreen,map:CF2?cfSetup:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:CT2?ctSetup:MT2?mtSetup:YZ2?yzSetup:RK2?rkSetup:PT2?ptSetup:SA2?saSetup:DN2?dnSetup:WY2?wySetup:WS2?wsSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:MK2?mkSetup:UN2?unSetup:OH2?ohSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:mapScreen,rules:CF2?cfSetup:QK2?qkSetup:TP2?tpSetup:GF2?gfSetup:CT2?ctSetup:MT2?mtSetup:YZ2?yzSetup:RK2?rkSetup:PT2?ptSetup:SA2?saSetup:DN2?dnSetup:WY2?wySetup:WS2?wsSetup:SK2?skSetup:GN2?gnSetup:SB2?sbSetup:FC2?fcSetup:MK2?mkSetup:UN2?unSetup:OH2?ohSetup:RG2?rgSetup:SG2?sdSetup:TG2?htSetup:LG2?plSetup:DG2?dtSetup:PG2?pxSetup:NG2?nxSetup:HG2?hfSetup:CG?cSetup:rulesScreen,players:CF2?nxPlayers:QK2?nxPlayers:TP2?nxPlayers:GF2?nxPlayers:CT2?nxPlayers:MT2?nxPlayers:YZ2?nxPlayers:RK2?(rkPlayOn()?nxPlayers:sdPlayers):PT2?nxPlayers:SA2?nxPlayers:DN2?nxPlayers:WY2?nxPlayers:WS2?nxPlayers:SK2?nxPlayers:GN2?nxPlayers:SB2?(sbOn()?nxPlayers:sdPlayers):FC2?nxPlayers:MK2?nxPlayers:UN2?nxPlayers:OH2?nxPlayers:RG2?nxPlayers:SG2?(sdPlayOn()?nxPlayers:sdPlayers):TG2?nxPlayers:LG2?plPlayers:DG2?dtPlayers:PG2?pxPlayers:NG2?nxPlayers:HG2?hfPlayers:playersScreen,score:CF2?cfScore:QK2?qkScore:TP2?tpScore:GF2?gfScore:CT2?ctScore:MT2?mtScore:YZ2?yzScore:RK2?rkScore:PT2?ptScore:SA2?saScore:DN2?dnScore:WY2?wyScore:WS2?wsScore:SK2?skScore:GN2?gnScore:SB2?sbScore:FC2?fcScore:MK2?mkScore:UN2?unScore:OH2?ohScore:RG2?rgScore:SG2?sdScore:TG2?htScore:LG2?plPlay:DG2?dtPlay:PG2?pxScore:NG2?nxScore:HG2?hfScore:CG?cFinal:scoring,results,reveal:revealScreen,stats:statsScreen,profile:profileScreen,event:eventScreen,recap:recapScreen,settings:settingsScreen,live:CG?cLive:liveScreen,lobby:lobbyScreen,tsetup:tSetup}[S.screen]||home;
   if(S.active>=act().length)S.active=0;
   if(S.started&&!S.finished&&!S.demo&&['live','score'].includes(S.screen)){const now=Date.now();if(S.lastTick)S.playMs=(S.playMs||0)+Math.min(Math.max(0,now-S.lastTick),10*60e3);S.lastTick=now}
   applyTheme();applyScale();document.documentElement.classList.toggle('big',!!SET.big);document.documentElement.classList.toggle('cb',!!SET.cb);wake(needWake());
@@ -15777,7 +15377,7 @@ function render0(){
   if(S.screen==='reveal'&&REV&&REV.phase==='final'&&!wasFinal){const w=ranking().list[0];confetti(w.p.color);finalSound()}
   if(S.screen!=='reveal'){clearTimeout(AUTOT);AUTOT=null}
   const sh=document.querySelector('.sheet .btn.primary');if(sh)sh.focus({preventScroll:true});
-  try{qpWideFx()}catch(e){}try{qpFocusFx()}catch(e){}try{bigFx()}catch(e){}try{ktDock()}catch(e){}try{glFx()}catch(e){}try{glTurnScroll()}catch(e){}tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}try{htPassFx()}catch(e){}try{qpPopFx()}catch(e){}try{qpPlopFx()}catch(e){}try{qpMoveFx()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){try{glTick()}catch(e){}if(S.game==='hearts')htTick();if(S.game==='mextrain')mtTick();if(S.game==='stoneage')saTick();if(S.game==='dominion')dnTick();if(S.game==='chicken')cfTick();if(S.game==='quacks')qpTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
+  try{qpWideFx()}catch(e){}try{qpFocusFx()}catch(e){}try{bigFx()}catch(e){}try{ktDock()}catch(e){}try{glFx()}catch(e){}try{glTurnScroll()}catch(e){}try{dnTurnScroll()}catch(e){}tourApply();navSync();try{document.querySelectorAll('.tabs').forEach(tabEdges)}catch(e){}try{hoAfter()}catch(e){}try{htPassFx()}catch(e){}try{qpPopFx()}catch(e){}try{qpPlopFx()}catch(e){}try{qpMoveFx()}catch(e){}if(S.game==='yahtzee')yzBotTick();if(!dealBusy()){try{glTick()}catch(e){}if(S.game==='hearts')htTick();if(S.game==='mextrain')mtTick();if(S.game==='stoneage')saTick();if(S.game==='dominion')dnTick();if(S.game==='chicken')cfTick();if(S.game==='quacks')qpTick();if(S.game==='spades')sdTick();if(S.game==='ohell')ohTick();if(S.game==='rook')rkTick();if(S.game==='rage')rgTick();if(S.game==='uno')unTick();if(S.game==='golf'||S.game==='skyjo'||S.game==='gnome')gpTick();if(S.game==='skipbo')sbTick();if(S.game==='crowns')fcTick();if(S.game==='phase10')pzTick();hpTick();nrTick();tqTick();}
 }
 
 /* ---------- phone back gesture / back button: step back inside the app instead of closing it ---------- */
@@ -15831,7 +15431,6 @@ const TOURS={
  home:{n:'Welcome to Final Tally',st:[
   {s:'.hsearch',t:'Find a game',x:'Type a game\u2019s name to jump straight to it.'},
   {s:'.hcats',t:'Pick a game',x:'Games are grouped into board games, card games, darts and pool, and a score pad for anything else. Tap a group to open it. A game in progress picks up right where you left off.'},
-  {s:'.samples-btn',t:'Try a sample first',x:'Sample games are finished games you can tap through, all the way to the big reveal. Nothing gets saved.'},
   {s:'.stats-btn[data-a=go]',t:'Stats & history',x:'Every finished game is saved: wins, records, streaks, playing styles and a trophy case.'},
   {s:'.stats-btn[data-a=opensettings]',t:'Settings',x:'Sounds, reveal style, color-blind labels and bigger buttons. You can replay this walkthrough from there too.'},
   {s:'.hbk',t:'Back up everything',x:'Save one file with every game, player and house rule. Restore it on another phone or tablet to bring everything over.'}]},
@@ -16066,12 +15665,9 @@ document.addEventListener('click',e=>{
     case 'gagain':{switchGame(k);S.screen='results';setTimeout(()=>{const x=document.createElement('button');x.dataset.a='rematch';x.hidden=true;document.body.appendChild(x);x.click();x.remove()},30);break}
     case 'gnew':switchGame(k);clearPlayers();delete S.tmatch;if(k==='carc'){S.clog=[];S.cend={};S.started=false;S.finished=false;S.gameId=null;S.gameDate=null;S.endBy=null;S.screen='map'}else{resetScores();S.started=false;S.screen='map'}window.scrollTo(0,0);break;
     case 'gresume':switchGame(k);S.screen=S.finished?'results':S.rules.live?'live':'score';if(S.game==='carc'&&!S.finished)S.screen='live';window.scrollTo(0,0);break;
-    case 'cdemo':cDemo(b.dataset.k);window.scrollTo(0,0);break;
-    case 'hdemo':hfDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'ureset':{const G=UG[k];if(!G)break;G.set(usualBase(k));G.keep();toast('Back to your usual rules.');break}
     case 'usave':{const G=UG[k];if(!G||S.demo)break;try{localStorage.setItem(KEY+'.usual.'+k,JSON.stringify(G.get()))}catch(e){}toast('Saved as your usual rules.');break}
     case 'ustd':{const G=UG[k];if(!G)break;G.set(JSON.parse(JSON.stringify(G.def())));G.keep();toast('Back to the app\u2019s default rules.');break}
-    case 'qkdemo':qkDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'qkshop':{QKX().shop=b.dataset.v;qkKeep();break}
     case 'qkset':{const X=QKX();X.set=+b.dataset.v;const keep={black:(X.bk||{}).black||'base',turquoise:(X.bk||{}).turquoise};X.bk={...qkSetBooks(X.set),...keep};if(!keep.turquoise)delete X.bk.turquoise;qkKeep();break}
     case 'qkwrand':{const X=QKX();X.wit={};['s','c','g'].forEach(t=>{const o=QKWITCH[t][1];X.wit[t]=o[Math.floor(Math.random()*o.length)][0]});qkKeep();toast('New witches turned up.');break}
@@ -16094,7 +15690,6 @@ document.addEventListener('click',e=>{
     case 'qkxp':case 'qkes':case 'qkov':case 'qkrub':case 'qkpen':{const q=act()[+k],R=qkR(q,qkCur()),f={qkxp:'xp',qkes:'es',qkov:'ov',qkrub:'rub',qkpen:'pen'}[a];snap();const lim={xp:[-20,99],es:[0,30],ov:[0,99],rub:[0,40],pen:[0,3]}[f];R[f]=Math.max(lim[0],Math.min(lim[1],(R[f]??(f==='pen'?3:0))+d));break}
     case 'qkhand':{S.hr=+b.dataset.v;QKSEL=null;LPTIP=null;window.scrollTo(0,0);break}
     case 'qknext':{S.hr=qkCur()+1;QKSEL=null;window.scrollTo(0,0);break}
-    case 'tpdemo':tpDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'tpst':{const X=TPX();X[k]=Math.max(0,X[k]+(+b.dataset.d));tpKeep();break}
     case 'tpset':TPX()[k]=b.dataset.v;tpKeep();break;
     case 'tptg':{const X=TPX();X[k]=!X[k];tpKeep();break}
@@ -16111,7 +15706,6 @@ document.addEventListener('click',e=>{
     case 'tpbet':{const H=tpH(tpCur());snap();H.bets=H.bets||{};H.bets[k]=Math.max(0,(+H.bets[k]||0)+d);break}
     case 'tphand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'tpnext':{S.hr=tpCur()+1;window.scrollTo(0,0);break}
-    case 'gfdemo':gfDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'gfst':{const X=GFX();X[k]=X[k]+(+b.dataset.d);gfKeep();break}
     case 'gfset':{const X=GFX();X[k]=k==='size'?+b.dataset.v:b.dataset.v;gfKeep();GFSEL=null;break}
     case 'gftg':{const X=GFX();X[k]=!X[k];gfKeep();break}
@@ -16123,7 +15717,6 @@ document.addEventListener('click',e=>{
     case 'gfout':{const q=act()[+b.dataset.i],r=gfCur(),R=gfR(q,r);snap();const on=!R.out;act().forEach(o=>{const x=(o.gf||[])[r];if(x)x.out=false});R.out=on;break}
     case 'gfhand':{S.hr=+b.dataset.v;GFSEL=null;LPTIP=null;window.scrollTo(0,0);break}
     case 'gfnext':{S.hr=gfCur()+1;GFSEL=null;window.scrollTo(0,0);break}
-    case 'ctdemo':ctDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'ctst':{const X=CTX();if(k==='tbAdj'){const g=ctGoal()+(+b.dataset.d);if(g>=5&&g<=25)X.tbAdj=(X.tbAdj||0)+(+b.dataset.d)}else X[k]=Math.max(5,Math.min(25,(+X[k]||0)+(+b.dataset.d)));ctKeep();break}
     case 'cttbs':{const X=CTX();X.tbs=b.dataset.v;ctKeep();break}
     case 'cthm':case 'ctboot':case 'ctrich':{const f={cthm:'hm',ctboot:'boot',ctrich:'rich'}[a],q=act()[+b.dataset.i],on=!ctP(q)[f];snap();act().forEach(o=>ctP(o)[f]=false);ctP(q)[f]=on;break}
@@ -16154,7 +15747,6 @@ document.addEventListener('click',e=>{
       if(v==='lose'){const vul=P.filter(p=>ctP(p).c-ctP(p).met.length>0),lo=Math.min(...vul.map(ctStr));vul.filter(p=>ctStr(p)===lo).forEach(p=>{const C=ctP(p);C.c--;C.s=Math.min(CTMAX.s,C.s+1)})}
       P.forEach(p=>ctP(p).kn.forEach(x=>x.a=false));S.ctb=0;CTATK=false;toast('Knights go idle. The ship heads back out.');break}
     case 'ctroll':{const P=act(),cur=P[(S.cta||0)%P.length]||P[0],n=+b.dataset.v;snap();ctRolls().push({n,pid:cur.id});S.cta=(P.indexOf(cur)+1)%P.length;toast(`${nm(cur)} rolled ${n}${n===7?': move the robber!':''}`);break}
-    case 'mtdemo':mtDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'mtset':{const X=MTX();X.set=+b.dataset.v;mtKeep();break}
     case 'qkplaymode':{if(S.started)break;QKX().play=k==='1'?1:0;if(QKX().play){QKX().alch=false;QKX().tubes=false;while(act().length>4){const l=[...act()].pop();l.on=false}}qkKeep();break}
     case 'qpstart':{switchGame('quacks');resetScores();clearPlayers();S.started=false;S.screen='map';const X=QKX();X.play=k==='1'?1:0;if(X.play){X.alch=false;X.tubes=false;while(act().length>4){const l=[...act()].pop();l.on=false}}qkKeep();window.scrollTo(0,0);break}
@@ -16209,7 +15801,6 @@ document.addEventListener('click',e=>{
     case 'htplaymode':{if(S.started)break;HTX().play=k==='1';if(HTX().play&&act().length>6)toast('Playing on the phone works for 3 to 6 players.');htKeep();break}
     case 'yzstart':{switchGame('yahtzee');resetScores();clearPlayers();S.started=false;S.screen='map';YZX().roller=k==='1';yzKeep();window.scrollTo(0,0);break}
     case 'yzplaymode':{if(S.started)break;YZX().roller=k==='1';yzKeep();break}
-    case 'yzdemo':yzDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'yzset':YZX()[k]=b.dataset.v;yzKeep();break;
     case 'yzst':{const X=YZX();X[k]=Math.max(0,Math.min(500,(+X[k]||0)+(+b.dataset.d)));yzKeep();break}
     case 'yzadd':{if((S.yzd||[]).length<5){S.yzd=[...(S.yzd||[]),+b.dataset.v];if(S.yzd.length===5&&yzIsY(S.yzd))setTimeout(()=>yzCheer(yzTurnP()),60)}break}
@@ -16232,7 +15823,6 @@ document.addEventListener('click',e=>{
       if(o[k]===0)yzSnd('scratch');else if(!ub0&&yzUB(q,c))setTimeout(()=>{yzSnd('bonus');toast(`${nm(q)} made the upper bonus! +35`)},250);else if(k==='ls')yzSnd('straight');
       const P=act();S.yzd=[];S.yzr=null;if(yzMe()&&!yzShared()){toast(`${nm(q)}: ${YZB.find(x=>x[0]===k)[1]} ${o[k]}`);window.scrollTo(0,0);break}let n=1;while(n<=P.length&&yzFilled(P[(S.yzt+n)%P.length])>=yzNeed())n++;S.yzt=(S.yzt+(n>P.length?1:n))%P.length;{const nx=P[S.yzt];if(nx&&nx!==q&&!nx.bot&&!S.lk&&yzFilled(nx)<yzNeed()){let pv=null;for(let j=1;j<=P.length;j++){const z=P[(S.yzt-j+P.length*2)%P.length];if(!z.bot){pv=z;break}}if(pv!==nx)YZPASS=nx.id}}S.hr=Math.min(...P.map(yzFilled));
       toast(`${nm(q)}: ${YZB.find(x=>x[0]===k)[1]} ${o[k]}${yzMul(c)>1?` ×${yzMul(c)}`:''}`);window.scrollTo(0,0);break}
-    case 'rkdemo':rkDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'rkpre':{const p=RKPRE.find(x=>x[0]===k);if(p)Object.assign(RKX(),p[2]);rkKeep();break}
     case 'rkst':{const X=RKX(),lim={last:[0,50],min:[5,rkAll()],target:[50,2000]}[k]||[0,9999];X[k]=Math.max(lim[0],Math.min(lim[1],(+X[k]||0)+(+b.dataset.d)));if(X.min>rkAll())X.min=rkAll();rkKeep();break}
     case 'rktg':{const X=RKX();X[k]=!X[k];if(X.min>rkAll())X.min=rkAll();rkKeep();break}
@@ -16243,7 +15833,6 @@ document.addEventListener('click',e=>{
     case 'rkbid':{const H=rkH(rkCur()),X=RKX();snap();H.bid=Math.max(X.min,Math.min(rkAll(),(H.bid??X.min)+(+b.dataset.d)));break}
     case 'rkhand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'rknext':{S.hr=rkCur()+1;window.scrollTo(0,0);break}
-    case 'ptdemo':ptDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'ptset':{const X=PTX(),v=b.dataset.v;X[k]=v;if(k==='set')X.goal=ptList().length;ptKeep();break}
     case 'ptst':{const X=PTX();X.goal=Math.max(1,Math.min(ptList().length,ptGoal()+(+b.dataset.d)));ptKeep();break}
     case 'ptadd':{const X=PTX(),all=X.goal>=X.custom.length;X.custom.push('');if(all)X.goal=X.custom.length;ptKeep();setTimeout(()=>{const l=[...document.querySelectorAll('[data-ptph]')].pop();if(l)l.focus()},30);break}
@@ -16254,7 +15843,6 @@ document.addEventListener('click',e=>{
     case 'ptout':{const q=act()[+b.dataset.i],r=ptCur(),R=ptR(q,r);snap();const on=!R.out;act().forEach(o=>{const x=(o.pt||[])[r];if(x)x.out=false});R.out=on;if(on){R.made=true;PTV.forEach(([kk])=>R[kk]=0)}break}
     case 'pthand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'ptnext':{S.hr=ptCur()+1;window.scrollTo(0,0);break}
-    case 'sademo':saDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'sahand':{S.hr=+b.dataset.v?1:0;LPTIP=null;window.scrollTo(0,0);break}
     case 'sanext':{S.hr=1;window.scrollTo(0,0);break}
     case 'saround':{snap();S.sar=(S.sar||1)+1;toast(`Round ${S.sar}. Pass the first player token.`);break}
@@ -16262,16 +15850,12 @@ document.addEventListener('click',e=>{
     case 'sares':{const [i,v]=k.split(':'),q=act()[+i];if(!q)break;const x=saP(q);x.pb=+v?String((+x.pb||0)+(+v)):'';break}
     case 'saadd':{const q=act()[+k];if(!q)break;const x=saP(q),v=+x.pb||0;if(v>0){snap();x.b.push(v);x.pb='';toast(`+${v} points for ${nm(q)}`)}break}
     case 'sadel':{const [i,j]=k.split(':'),q=act()[+i];if(!q)break;snap();saP(q).b.splice(+j,1);break}
-    case 'dndemo':dnDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'dnset':{const X=DNX();X.sets[k]=X.sets[k]?0:1;dnKeep();break}
-    case 'wydemo':wyDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'wyhand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'wynext':{S.hr=Math.min(4,wyCur()+1);window.scrollTo(0,0);break}
-    case 'wsdemo':wsDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'wsset':WSX()[k]=b.dataset.v;wsKeep();break;
     case 'wshand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'wsnext':{S.hr=Math.min(4,wsCur()+1);window.scrollTo(0,0);break}
-    case 'skdemo':skDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'skst':{const X=SKX();X[k]=Math.max(0,X[k]+(+b.dataset.d));skKeep();break}
     case 'skset':SKX()[k]=b.dataset.v;skKeep();break;
     case 'sktg':{const X=SKX();X[k]=!X[k];skKeep();break}
@@ -16283,7 +15867,6 @@ document.addEventListener('click',e=>{
     case 'skout':{const q=act()[+b.dataset.i],r=skCur(),R=skR(q,r);snap();const on=!R.out;act().forEach(o=>{const x=(o.sk||[])[r];if(x)x.out=false});R.out=on;break}
     case 'skhand':{S.hr=+b.dataset.v;SKSEL=null;LPTIP=null;window.scrollTo(0,0);break}
     case 'sknext':{S.hr=skCur()+1;SKSEL=null;window.scrollTo(0,0);break}
-    case 'gndemo':gnDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'gnst':{const X=GNX();X[k]=Math.max(0,X[k]+(+b.dataset.d));gnKeep();break}
     case 'gnset':GNX()[k]=b.dataset.v;gnKeep();break;
     case 'gntg':{const X=GNX();X[k]=!X[k];gnKeep();break}
@@ -16296,13 +15879,11 @@ document.addEventListener('click',e=>{
     case 'gnout':{const q=act()[+b.dataset.i],r=gnCur(),R=gnR(q,r);snap();const on=!R.out;act().forEach(o=>{const x=(o.gn||[])[r];if(x)x.out=false});R.out=on;break}
     case 'gnhand':{S.hr=+b.dataset.v;GNSEL=null;LPTIP=null;window.scrollTo(0,0);break}
     case 'gnnext':{S.hr=gnCur()+1;GNSEL=null;window.scrollTo(0,0);break}
-    case 'sbdemo':sbDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'sbst':{const X=SBX();X[k]=Math.max(0,X[k]+(+b.dataset.d));sbKeep();break}
     case 'sbset':{const X=SBX(),v=b.dataset.v;if(k==='teams'){X.teams=v==='true';S.players.forEach((p,i)=>p.on=i<(X.teams?2:3))}else X[k]=v;sbKeep();break}
     case 'sbwin':{const q=act()[+b.dataset.i],r=sbCur();snap();act().forEach(o=>{const R=sbR(o,r);R.won=o===q?!R.won:false;if(R.won)R.left=0;else if(o===q)R.left=null});break}
     case 'sbhand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'sbnext':{const r=sbCur();act().forEach(q=>{const R=sbR(q,r);if(!R.won&&(R.left===null||R.left===undefined))R.left=0});S.hr=r+1;window.scrollTo(0,0);break}
-    case 'fcdemo':fcDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'fcst':{const X=FCX();X[k]=Math.max(0,X[k]+(+b.dataset.d));fcKeep();break}
     case 'fcset':FCX()[k]=b.dataset.v;fcKeep();break;
     case 'fctg':{const X=FCX();X[k]=!X[k];fcKeep();break}
@@ -16313,7 +15894,6 @@ document.addEventListener('click',e=>{
     case 'fchand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'fcnext':{S.hr=fcCur()+1;window.scrollTo(0,0);break}
     case 'fctie':{FCTIE=false;if(b.dataset.v==='round'){S.fctb={ps:fcLowTie().map(p=>p.id)};S.hr=11;window.scrollTo(0,0)}else{S.fcshare=true;const w=checks();if(w.length){WARN=w;break}startReveal()}break}
-    case 'mkdemo':mkDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'mkst':{const X=MKX();X[k]=Math.max(1,X[k]+(+b.dataset.d));if(k==='start'&&X.start>=X.target)X.target=X.start+1;mkKeep();break}
     case 'mkset':{const X=MKX();X[k]=b.dataset.v==='1';mkKeep();break}
     case 'mktg':{const X=MKX();X[k]=!X[k];if(k==='epic'){X.target=X.epic?20:10;if(X.start>=X.target)X.start=1}mkKeep();break}
@@ -16415,7 +15995,6 @@ document.addEventListener('click',e=>{
       if(a==='mkdealf')D.first=k;else if(a==='mkdeal')D.n=Math.max(0,Math.min(trs,Math.min(D.n,trs)+d));else D.n=k==='half'?Math.floor(trs/2):k==='all'?trs:+k;break}
     case 'mkrun':case 'mkroll':{const F=S.mkfight,X=MKX(),who=F?act().find(p=>p.id===F.who):mkTurnP();if(!who)break;const bon=mkRunB(who)+(F&&mkHas(who,'Wizard')?(+(F.pw||{}).f||0):0),n=F?Math.max(1,(F.mons||[]).length):1,rolls=Array.from({length:n},(_,i)=>{const m=F&&F.mons[i];if(m&&+m.np&&mkLv(who)<=+m.np)return {v:'✓',ok:true,free:true};const v=1+Math.floor(Math.random()*6);return {v,ok:v+bon>=X.runNeed}});
       MKBSI=false;MKVS=null;MKDIE={rolls,v:rolls[0].v,b:bon,ok:rolls.every(r=>r.ok),who,fight:!!F};if(F){snap();(S.mkruns||(S.mkruns=[])).push({pid:who.id,ok:MKDIE.ok});mkEv(MKDIE.ok?`🏃 ${nm(who)} ran away safely.`:`🏃 ${nm(who)} got caught by ${MKDIE.rolls.filter(r=>!r.ok).length>1?MKDIE.rolls.filter(r=>!r.ok).length+' monsters':'the monster'}: Bad Stuff!`);mkFightOver(F);S.mkfight=null}if(rolls.some(r=>!r.free))playDie();break}
-    case 'undemo':unDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'unver':{const X=UNX();if(X.play&&!UNPV.includes(k))break;X.ver=k;unKeep();break}
     case 'unset':{const X=UNX();X[k]=b.dataset.v;unKeep();break}
     case 'unst':{const X=UNX();X[k]=Math.max(1,X[k]+(+b.dataset.d));unKeep();break}
@@ -16429,7 +16008,6 @@ document.addEventListener('click',e=>{
     case 'unc':{const [i,id]=String(k).split('.'),q=act()[+i],R=unR(q,unCur());snap();R.c=R.c||{};R.c[id]=Math.max(0,Math.min(30,(+R.c[id]||0)+d));break}
     case 'unhand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'unnext':{const r=unCur();act().forEach(q=>{const R=unR(q,r);if(!R.won&&!R.ko&&(R.v===null||R.v===undefined))R.v=0});S.hr=r+1;window.scrollTo(0,0);break}
-    case 'ohdemo':ohDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'ohst':{const X=OHX();X[k]=Math.max(0,X[k]+(+b.dataset.d));ohKeep();break}
     case 'ohset':OHX()[k]=b.dataset.v;ohKeep();break;
     case 'ohstart':{switchGame('ohell');resetScores();clearPlayers();S.started=false;S.screen='map';OHX().play=k==='1';ohKeep();window.scrollTo(0,0);break}
@@ -16442,7 +16020,6 @@ document.addEventListener('click',e=>{
     case 'ohrebid':S.ohbid=ohCur();window.scrollTo(0,0);break;
     case 'ohhand':{S.hr=+b.dataset.v;S.ohbid=null;LPTIP=null;window.scrollTo(0,0);break}
     case 'ohnext':{const r=ohCur();S.ohbid=null;act().forEach(q=>{const R=ohR(q,r);if(R.b===null||R.b===undefined)R.b=0;if(R.t===null||R.t===undefined)R.t=0});S.hr=r+1;window.scrollTo(0,0);break}
-    case 'rgdemo':rgDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'rgst':{const X=RGX();X[k]=Math.max(0,X[k]+(+b.dataset.d));rgKeep();break}
     case 'rgset':RGX()[k]=b.dataset.v;rgKeep();break;
     case 'rgamigo':{const X=RGX(),am=['outOne','changeFlip','wild2nd','amigoDeck','wildNum'],on=am.every(q=>X[q]);am.forEach(q=>X[q]=!on);rgKeep();break}
@@ -16486,7 +16063,6 @@ document.addEventListener('click',e=>{
     case 'rgbo':case 'rgmd':{const q=act()[+b.dataset.i],R=rgR(q,rgCur()),f=a==='rgbo'?'bo':'md';snap();R[f]=((+R[f]||0)+1)%3;break}
     case 'rghand':{S.hr=+b.dataset.v;S.rgbid=null;LPTIP=null;window.scrollTo(0,0);break}
     case 'rgnext':{const r=rgCur();S.rgbid=null;act().forEach(q=>{const R=rgR(q,r);if(R.b===null||R.b===undefined)R.b=0;if(R.t===null||R.t===undefined)R.t=0});S.hr=r+1;window.scrollTo(0,0);break}
-    case 'sddemo':sdDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'sdst':{const X=SDX();X[k]=X[k]+(+b.dataset.d);sdKeep();break}
     case 'sdset':{const X=SDX();if(k==='teams'){X.teams=b.dataset.v==='true';S.players.forEach((p,i)=>p.on=i<(X.teams&&!X.play?2:4))}else X[k]=b.dataset.v;sdKeep();break}
     case 'sdstart':{switchGame('spades');resetScores();clearPlayers();S.started=false;S.screen='map';SDX().play=k==='1';S.players.forEach((p,i)=>p.on=i<(SDX().teams&&!SDX().play?2:4));sdKeep();window.scrollTo(0,0);break}
@@ -16497,7 +16073,6 @@ document.addEventListener('click',e=>{
     case 'sdnil':{const [i,j]=k.split('.').map(Number),q=act()[i],R=sdR(q,sdCur());snap();R.b[j]=R.b[j]===b.dataset.v?0:b.dataset.v;break}
     case 'sdhand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'sdnext':{const r=sdCur(),w=sdW();act().forEach(q=>{const R=sdR(q,r);for(let j=0;j<w;j++){if(R.b[j]===null||R.b[j]===undefined)R.b[j]=0;if(R.t[j]===null||R.t[j]===undefined)R.t[j]=0}});S.hr=r+1;window.scrollTo(0,0);break}
-    case 'htdemo':htDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'htst':{const X=HTX();X[k]=Math.max(0,X[k]+(+b.dataset.d));htKeep();break}
     case 'htset':HTX()[k]=b.dataset.v;htKeep();break;
     case 'httg':{const X=HTX();X[k]=!X[k];htKeep();break}
@@ -16509,8 +16084,6 @@ document.addEventListener('click',e=>{
     case 'htms':{const mb=htMoonBy(htCur());if(mb){const R=htR(mb,htCur());R.ms=R.ms==='self'?'others':'self'}break}
     case 'hthand':{S.hr=+b.dataset.v;LPTIP=null;window.scrollTo(0,0);break}
     case 'htnext':{const r=htCur();act().forEach(q=>{htR(q,r).set=1});S.hr=r+1;window.scrollTo(0,0);toast(htPass(S.hr));break}
-    case 'ndemo':nxDemo(b.dataset.k);window.scrollTo(0,0);break;
-    case 'pldemo':plDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'noop':return;
     case 'plset':{const v=b.dataset.v,X=PX2();X[k]=v==='true'?true:v==='false'?false:v;plKeep();break}
     case 'pltg':{const X=PX2();X[k]=!X[k];plKeep();break}
@@ -16536,7 +16109,6 @@ document.addEventListener('click',e=>{
     case 'spedf':{const t=S.pk[PSED];t.f=!t.f;break}
     case 'spdel':S.pk.splice(PSED,1);PSED=null;break;
     case 'spedx':if(e.target.closest('[data-stop]')&&!e.target.closest('button'))return;PSED=null;break;
-    case 'ddemo':dtDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'dxset':{const X=DX(),v=b.dataset.v;X[k]=k==='start'||k==='shR'?+v:v==='true'?true:v==='false'?false:v;if(k==='shR'&&X.shR)X.shR=+v;dxKeep();DST=null;break}
     case 'dxtg':{const X=DX();X[k]=!X[k];dxKeep();DST=null;break}
     case 'dxst':{const X=DX(),d2=+b.dataset.d;if(k==='hiN'){if(d2>0&&X.hiT.length<12)X.hiT.push('20');if(d2<0&&X.hiT.length>3)X.hiT.pop()}else X[k]=Math.max(1,X[k]+d2);dxKeep();DST=null;break}
@@ -16557,8 +16129,6 @@ document.addEventListener('click',e=>{
     case 'dthrow':dThrow(b.dataset.n,b.dataset.m);break;
     case 'dundo':{const T=S.dturns||[];const t=T[T.length-1];if(!t)break;t.done=false;t.bust=false;t.d.pop();if(!t.d.length)T.pop();DST=null;save();break}
     case 'dnext':{const D=DS();if(D.over||!D.cur)break;const T=S.dturns||(S.dturns=[]);let t=T[T.length-1];if(!t||t.done||t.pid!==D.cur){t={pid:D.cur,d:[]};T.push(t)}while(t.d.length<3)t.d.push({n:0,m:1});t.done=true;DST=null;save();window.scrollTo(0,0);break}
-    case 'cademo':caDemo(b.dataset.k);window.scrollTo(0,0);break;
-    case 'pdemo':pxDemo(b.dataset.k);window.scrollTo(0,0);break;
     case 'pxst':{const X=PX();X[k]=Math.max(1,X[k]+(+b.dataset.d));pxKeep();break}
     case 'pxset':{const v=b.dataset.v;PX()[k]=v==='true'?true:v==='false'?false:v;pxKeep();break}
     case 'pxpick':PX().name=b.dataset.v;pxKeep();break;
@@ -16734,8 +16304,6 @@ document.addEventListener('click',e=>{
       if(ro.color&&seat.color!==ro.color){const o=S.players.find(x=>x!==seat&&x.color===ro.color);if(o)o.color=seat.color;seat.color=ro.color}
       break}
     case 'go':MEEPLESHEET=false;COLPICK=null;LPTIP=null;if(b.dataset.s==='home'&&(S.demo||S.editing)){exitDemo();window.scrollTo(0,0);break}S.screen=b.dataset.s;window.scrollTo(0,0);break;
-    case 'demo':loadDemo(k);window.scrollTo(0,0);break;
-    case 'linkpreview':startLinkPreview();window.scrollTo(0,0);break;
     case 'lview':{const q=act().find(x=>x.id===k);S.link.view=seatOf(q).phone==='host'?'host':k;S.link.confirm=false;window.scrollTo(0,0);if(S.screen==='reveal'&&REV&&REV.phase==='final'){setTimeout(()=>{const w=ranking().list.filter(x=>x.rank===1).map(x=>x.p);if(w.includes(q))confetti(q.color);finalSound()},60)}break}
     case 'lscore':S.active=act().findIndex(x=>x.id===k);S.screen='score';window.scrollTo(0,0);break;
     case 'ldone':{const q=act().find(x=>x.id===k);seatOf(q).ready=true;const nx=hostSeats().find(x=>!seatOf(x).ready);if(nx){S.active=act().indexOf(nx)}else S.screen='lobby';window.scrollTo(0,0);toast(`${nm(q)} marked done`);break}

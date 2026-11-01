@@ -1,0 +1,20 @@
+// Dominion: at the start of your turn the screen scrolls so your hand sits right above the turn box;
+// Harbinger offers the discard pile (and says so when it's empty); cards on the play screen aren't lazy-loaded (no flashing).
+const {mk,W,ok,done,chromium}=require('./link.js');
+(async()=>{const browser=await chromium.launch();const P=await mk(browser,'p');const errs=[];P.on('pageerror',e=>errs.push(e.message));
+  await P.evaluate(()=>{window.__htfast=1;document.querySelector('[data-a="dnstart"][data-k="1"]').click()});await W(400);
+  await P.evaluate(()=>{DNX().kd=['harbinger','village','smithy','market','militia','lab','cellar','chapel','moat','witch'];DNX().ev=[];DNX().evm='none';DNX().pc='off';S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i];p.bot=i===1?'normal':null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
+  const ids=await P.evaluate(()=>act().map(p=>p.id));
+  await P.evaluate(([a])=>{const g=dnG();const M=g.me[a];M.h=['harbinger','copper','copper','estate','copper'];M.ds=['gold','estate'];M.dk=Array(8).fill('copper');Object.assign(g,{turn:a,ph:'action',A:1,B:1,co:0,k:[],ask:null,bought:0});DNVIEW=a;window.scrollTo(0,document.documentElement.scrollHeight);DNTSC='';render()},ids);await W(900);
+  const pos=await P.evaluate(()=>{const h=document.querySelector('.dnhand.mine').getBoundingClientRect(),d=document.querySelector('.dndock').getBoundingClientRect();return {gap:d.top-h.bottom,top:scrollY}});
+  ok('Turn start: your hand sits just above the turn box',pos.gap>=0&&(pos.gap<=30||pos.top===0),pos);
+  ok('Cards on the play screen load straight away',await P.evaluate(()=>!document.querySelector('.dnhand img.dnim[loading="lazy"],.dnsup img.dnim[loading="lazy"]')));
+  await P.evaluate(()=>{document.querySelector('.dnhand.mine [data-lp="dnc:harbinger"]').click();render();document.querySelector('.dnsheet [data-a="dnpplay"]').click()});await W(400);
+  ok('Harbinger: the discard pile is offered',await P.evaluate(()=>dnG().ask&&dnG().ask.k==='disc'&&document.querySelectorAll('[data-a="dnpdisc"]').length===3));
+  await P.evaluate(()=>document.querySelector('[data-a="dnpdisc"][data-k="0"]').click());await W(300);
+  ok('Harbinger: the Gold goes on the deck',await P.evaluate(()=>{const M=dnG().me[dnG().turn];return M.dk[M.dk.length-1]==='gold'}));
+  await P.evaluate(([a])=>{const g=dnG();const M=g.me[a];M.h=['harbinger'];M.ds=[];M.pl=[];Object.assign(g,{ph:'action',A:1,k:[],ask:null});render()},ids);await W(200);
+  await P.evaluate(()=>{document.querySelector('.dnhand.mine [data-lp="dnc:harbinger"]').click();render();document.querySelector('.dnsheet [data-a="dnpplay"]').click()});await W(300);
+  ok('Harbinger with an empty discard pile says so',await P.evaluate(()=>/discard pile is empty/.test(dnG().msg)));
+  ok('No page errors',!errs.length,errs.slice(0,3));
+  await done(browser)})();

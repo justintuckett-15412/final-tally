@@ -39,9 +39,9 @@ const typeIn=async(p,sel,v)=>{await p.focus(sel);await p.fill(sel,String(v));awa
   await P.evaluate(()=>{const b=document.querySelector('[data-a="go"][data-s="results"]');if(b)b.click()});await W(400);
   ok('Dominion: results breakdown',await P.evaluate(()=>S.screen==='results'&&document.body.textContent.includes('Gardens (2 × 3)')&&document.body.textContent.includes('Dukes (1 × 2 Duchies)')));
   await P.screenshot({path:'/tmp/dn-results.png'});
-  await P.evaluate(()=>{dnDemo('dnfam');render()});await W(300);
+  await P.evaluate(()=>{S=dnFresh();S.dnx=JSON.parse(JSON.stringify(DNDEF));const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);const F=[{es:3,du:7,pr:2,dke:3,cu:1,tu:19},{es:2,du:1,pr:3,co:2,vt:6,tu:19},{es:3,du:2,pr:4,ga:2,dk:34,f2:1,cu:2,tu:18},{es:4,du:3,pr:3,vt:9,te:1,tn:4,tu:18}];P.forEach((p,i)=>{p.dn={f:{...F[i]}}});Object.assign(S,{started:true,screen:'score',hr:0,active:0,hideTotals:false});render()});await W(300);
   const demo=await P.evaluate(()=>act().map(q=>[nm(q),total(q)]));
-  ok('Dominion sample totals',JSON.stringify(demo)==='[["Mom",56],["Dad",49],["Ben",39],["Lily",44]]',demo);
+  ok('Dominion family-night totals',JSON.stringify(demo)==='[["Mom",56],["Dad",49],["Ben",39],["Lily",44]]',demo);
   await P.screenshot({path:'/tmp/dn-score.png'});
   await P.evaluate(()=>{const b=document.createElement('button');b.dataset.a='rules';document.body.appendChild(b);b.click();b.remove()});await W(300);
   ok('Dominion: quick guide opens',await P.evaluate(()=>document.body.textContent.includes('Each Duke is worth 1 per Duchy')));

@@ -2,7 +2,7 @@
 const {mk,W,ok,done,chromium}=require('./link.js');
 (async()=>{const browser=await chromium.launch();const P=await mk(browser,'p');const errs=[];P.on('pageerror',e=>errs.push(e.message));
   const R=await P.evaluate(()=>{const out=[];const t=(name,f)=>{try{const r=f();out.push([name,!!r.ok,r.ok?'':JSON.stringify(r)])}catch(e){out.push([name,false,e.message])}};
-    const fresh=(n=2)=>{S=dnFresh();S.dnx.play=1;S.dnx.kd=dnKdRandom([]);S.players.forEach((p,i)=>{p.on=i<n;p.name=['Ann','Bob','Cy','Di','Ed','Flo'][i];p.bot=null});S.started=true;dnDeal();const g=S.dng;const [a,b,c]=g.ps;
+    const fresh=(n=2)=>{S=dnFresh();S.dnx.play=1;S.dnx.ev=[];S.dnx.evm='none';S.dnx.kd=dnKdRandom([]);S.players.forEach((p,i)=>{p.on=i<n;p.name=['Ann','Bob','Cy','Di','Ed','Flo'][i];p.bot=null});S.started=true;dnDeal();const g=S.dng;const [a,b,c]=g.ps;
       g.ps.forEach(id=>{const M=g.me[id];M.h=[];M.dk=[];M.ds=[];M.pl=[];M.tn=1});Object.assign(g,{turn:a,ph:'action',A:1,B:1,co:0,mer:0,silv:0,k:[],ask:null,phase:'play',manT:0,chl:0,fp:0});delete g.sup.platinum;delete g.sup.colony;return {g,a,b,c,A:g.me[a],B:g.me[b],C:c&&g.me[c]}};
     const play=(g,a,k)=>dnPlay(g,a,g.me[a].h.indexOf(k));
     t('Village: +1 card +2 actions',()=>{const {g,a,A}=fresh();A.h=['village','estate'];A.dk=['copper','gold'];play(g,a,'village');return {ok:g.A===2&&g.co===3&&A.h.join()==='estate',A:g.A,h:A.h}});

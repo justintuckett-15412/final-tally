@@ -60,9 +60,9 @@ const typeIn=async(p,sel,v)=>{await p.focus(sel);await p.fill(sel,String(v));awa
   ok('Stone Age: results breakdown has farmers line',await P.evaluate(()=>document.body.textContent.includes('Farmers (2 × 3 agriculture)')));
   await P.screenshot({path:'/tmp/sa-results.png',fullPage:false});
   // sample game
-  await P.evaluate(()=>{saDemo('safam');render()});await W(300);
+  await P.evaluate(()=>{S=saFresh();const P=S.players.slice(0,4);['Mom','Dad','Ben','Lily'].forEach((n,i)=>P[i].name=n);const L=[{b:[10,11,13,12,14],ag:5,tl:7,pp:8,hu:0,ex:3,f:{g1:4,g2:1,fa:2,tm:3,bu:2,sh:1,rs:4}},{b:[12,14,15,13,11,16,10],ag:3,tl:9,pp:7,hu:1,ex:0,f:{g1:3,g2:0,fa:0,tm:2,bu:4,sh:2,rs:2}},{b:[11,12,13],ag:6,tl:5,pp:9,hu:0,ex:6,f:{g1:5,g2:0,fa:3,tm:1,bu:0,sh:4,rs:6}},{b:[13,12,10,14],ag:8,tl:6,pp:8,hu:0,ex:2,f:{g1:6,g2:2,fa:5,tm:0,bu:1,sh:2,rs:3}}];P.forEach((p,i)=>{p.sa={...L[i],pb:''}});S.sax={...SADEF};Object.assign(S,{started:true,screen:'score',hr:1,sar:14,active:0,hideTotals:false});render()});await W(300);
   const demo=await P.evaluate(()=>act().map(q=>[nm(q),total(q)]));
-  ok('Stone Age sample: Lily 154, Dad 152, Mom 133, Ben 132',JSON.stringify(demo)==='[["Mom",133],["Dad",152],["Ben",132],["Lily",154]]',demo);
+  ok('Stone Age family night: Lily 154, Dad 152, Mom 133, Ben 132',JSON.stringify(demo)==='[["Mom",133],["Dad",152],["Ben",132],["Lily",154]]',demo);
   await P.screenshot({path:'/tmp/sa-final.png',fullPage:false});
   await P.evaluate(()=>{S.hr=0;render()});await W(200);await P.screenshot({path:'/tmp/sa-live.png',fullPage:false});
   await P.evaluate(()=>{const b=document.createElement('button');b.dataset.a='rules';document.body.appendChild(b);b.click();b.remove()});await W(300);

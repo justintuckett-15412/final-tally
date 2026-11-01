@@ -1,5 +1,5 @@
 // Dominion screen cleanup: sorted and stacked hand, Supply rows with faded unaffordable cards and the end-of-game counter,
-// one tap to play an Action, this turn's ticker and "while you waited", tapping a player to see their deck, game-over breakdown.
+// tap an Action to see it big then Play, this turn's ticker and "while you waited", tapping a player to see their deck, game-over breakdown.
 const {mk,W,ok,done,chromium}=require('./link.js');
 (async()=>{const browser=await chromium.launch();const P=await mk(browser,'p');const errs=[];P.on('pageerror',e=>errs.push(e.message));
   await P.evaluate(()=>{window.__htfast=1;document.querySelector('[data-a="dnstart"][data-k="1"]').click()});await W(400);
@@ -13,7 +13,13 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   ok('Supply: Provinces left and piles-empty counter',await P.evaluate(()=>/Provinces left · 0 of 3 piles empty/.test(document.querySelector('.dnends').textContent)));
   await P.screenshot({path:'/tmp/dnui2-hand.png',fullPage:true});
   await P.evaluate(()=>document.querySelector('.dnhand.mine [data-lp="dnc:village"]').click());await W(300);
-  ok('One tap plays an Action',await P.evaluate(([a])=>dnG().me[a].pl.includes('village')&&dnG().A===2,ids));
+  ok('Tapping an Action shows it big with Play and Cancel, and doesn’t play it yet',await P.evaluate(([a])=>!dnG().me[a].pl.includes('village')&&!!document.querySelector('.dnsheet [data-a="dnpplay"]')&&!!document.querySelector('.dnsheet [data-a="dnphand"][data-k="-1"]'),ids));
+  await P.screenshot({path:'/tmp/dnui2-playsheet.png'});
+  ok('…and the Play button is on top (not under the turn box)',await P.evaluate(()=>{const b=document.querySelector('.dnsheet [data-a="dnpplay"]');const r=b.getBoundingClientRect();const el=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return b.contains(el)}));
+  await P.evaluate(()=>document.querySelector('.dnsheet [data-a="dnphand"][data-k="-1"]').click());await W(200);
+  ok('Cancel closes it',await P.evaluate(()=>!document.querySelector('.dnsheet')));
+  await P.evaluate(()=>document.querySelector('.dnhand.mine [data-lp="dnc:village"]').click());await W(200);await P.evaluate(()=>document.querySelector('.dnsheet [data-a="dnpplay"]').click());await W(300);
+  ok('Play plays it',await P.evaluate(([a])=>dnG().me[a].pl.includes('village')&&dnG().A===2,ids));
   ok('This turn’s ticker shows the play',await P.evaluate(()=>/played Village/.test((document.querySelector('.dntick')||{}).textContent||'')));
   // Kim's turn then back to Justin: "while you waited"
   await P.evaluate(([a,k])=>{const g=dnG();dnEndTurn(g,a);const K=g.me[k];K.h=['militia','copper','copper','copper','copper'];g.A=1;g.ph='action';dnPlay(g,k,0);if(g.ask)dnAns(g,a,[0,1]);dnEndTurn(g,k);DNVIEW=a;render()},ids);await W(400);
