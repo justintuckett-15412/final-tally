@@ -75,7 +75,7 @@ const click=(p,sel)=>p.evaluate(sel=>{const b=[...document.querySelectorAll(sel)
   await P.close();P=await mk(browser,'q');P.on('pageerror',e=>errs.push(e.message));
   await P.evaluate(()=>{window.__htfast=1;document.querySelector('[data-a="dnstart"][data-k="1"]').click()});await W(400);
   ok('C&G: set switch on the setup screen',await P.evaluate(()=>!!document.querySelector('[data-a="dnks"][data-k="cornucopia"]')));
-  await P.evaluate(()=>{DNX().kd=['youngwitch','ferryman','joust','farrier','baker','plaza','hornofplenty','menagerie','remake','shop'];DNX().pc='off';S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i]||'';p.bot=null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
+  await P.evaluate(()=>{DNX().ev=[];DNX().evm='none';DNX().kd=['youngwitch','ferryman','joust','farrier','baker','plaza','hornofplenty','menagerie','remake','shop'];DNX().pc='off';S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i]||'';p.bot=null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
   const ids=await P.evaluate(()=>act().map(p=>p.id));
   await P.evaluate(([a,b])=>{const g=dnG();g.me[a].h=['copper','gold','gold','farrier','province'];g.me[a].cf=2;Object.assign(g,{turn:a,ph:'buy',A:0,B:1,co:0,k:[],ask:null,bought:0});DNVIEW=a;render()},ids);await W(250);
   ok('UI: Bane tag on the Bane pile',await P.evaluate(()=>{const g=dnG();return !!document.querySelector(`[data-a="dnppile"][data-k="${g.bane}"] .dntag`)}));

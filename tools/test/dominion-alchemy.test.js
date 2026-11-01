@@ -5,7 +5,7 @@ const click=(p,sel)=>p.evaluate(sel=>{const b=[...document.querySelectorAll(sel)
 (async()=>{const browser=await chromium.launch();const P=await mk(browser,'p');const errs=[];P.on('pageerror',e=>errs.push(e.message));
   await P.evaluate(()=>{window.__htfast=1;document.querySelector('[data-a="dnstart"][data-k="1"]').click()});await W(400);
   ok('Alchemy: set switch',await P.evaluate(()=>!!document.querySelector('[data-a="dnks"][data-k="alchemy"]')));
-  await P.evaluate(()=>{DNX().kd=['possession','familiar','golem','university','herbalist','apothecary','smithy','village','market','chapel'];S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i]||'';p.bot=null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
+  await P.evaluate(()=>{DNX().ev=[];DNX().evm='none';DNX().kd=['possession','familiar','golem','university','herbalist','apothecary','smithy','village','market','chapel'];S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i]||'';p.bot=null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
   ok('Alchemy: Potion pile in the Supply, flask on costs',await P.evaluate(()=>!!document.querySelector('[data-a="dnppile"][data-k="potion"]')||!!dnG()&&dnG().sup.potion===16));
   const ids=await P.evaluate(()=>act().map(p=>p.id));
   // Justin plays Possession (pass-and-play): set up and show Justin

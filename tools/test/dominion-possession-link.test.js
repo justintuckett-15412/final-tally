@@ -3,7 +3,7 @@
 process.env.LAT=process.env.LAT||'120';process.env.JIT=process.env.JIT||'120';
 const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
 (async()=>{const browser=await chromium.launch();const H=await mk(browser,'host'),G=await mk(browser,'guest');const errs=[];[H,G].forEach(p=>p.on('pageerror',e=>errs.push(e.message)));
-  const ids=await H.evaluate(()=>{window.__htfast=1;switchGame('dominion');resetScores();Object.assign(DNX(),{play:1,kd:['possession','familiar','golem','university','herbalist','apothecary','smithy','village','market','chapel']});S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i]||'';delete p.bot});save();
+  const ids=await H.evaluate(()=>{window.__htfast=1;switchGame('dominion');resetScores();Object.assign(DNX(),{play:1,ev:[],evm:'none',kd:['possession','familiar','golem','university','herbalist','apothecary','smithy','village','market','chapel']});S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i]||'';delete p.bot});save();
     const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove();return [S.players[0].id,S.players[1].id]});
   await G.evaluate(()=>{window.__htfast=1});
   await H.evaluate(()=>lkHostStart());await W(3000);const code=await H.evaluate(()=>S.lk.code);

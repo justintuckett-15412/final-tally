@@ -54,7 +54,7 @@ const click=(p,sel)=>p.evaluate(sel=>{const b=[...document.querySelectorAll(sel)
   await P.close();P=await mk(browser,'q');P.on('pageerror',e=>errs.push(e.message));
   await P.evaluate(()=>{window.__htfast=1;document.querySelector('[data-a="dnstart"][data-k="1"]').click()});await W(400);
   ok('Hinterlands: set switch on the setup screen',await P.evaluate(()=>!!document.querySelector('[data-a="dnks"][data-k="hinterlands"]')));
-  await P.evaluate(()=>{DNX().kd=['inn','cartographer','scheme','trail','tunnel','guarddog','margrave','village','smithy','market'];DNX().pc='off';S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i]||'';p.bot=null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
+  await P.evaluate(()=>{DNX().ev=[];DNX().evm='none';DNX().kd=['inn','cartographer','scheme','trail','tunnel','guarddog','margrave','village','smithy','market'];DNX().pc='off';S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i]||'';p.bot=null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
   const ids=await P.evaluate(()=>act().map(p=>p.id));
   // Cartographer on screen: Discard / Keep only, then order
   await P.evaluate(([a])=>{const g=dnG();g.me[a].h=['cartographer'];g.me[a].dk=['estate','gold','curse','silver','copper'];Object.assign(g,{turn:a,ph:'action',A:1,B:1,co:0,k:[],ask:null,bought:0});DNVIEW=a;render()},ids);await W(150);

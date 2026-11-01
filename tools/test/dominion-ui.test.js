@@ -10,7 +10,7 @@ const click=(p,sel)=>p.evaluate(sel=>{const b=[...document.querySelectorAll(sel)
   const before=await P.evaluate(()=>dnKd().slice());await click(P,'[data-a="dnkswap"]');await W(150);
   ok('Dominion play: tapping a card swaps it',await P.evaluate(b=>{const k=dnKd();return k.length===10&&new Set(k).size===10&&k.filter(x=>!b.includes(x)).length===1},before));
   await P.screenshot({path:'/tmp/dnp-setup.png',fullPage:true});
-  await P.evaluate(()=>{DNX().kd=['village','smithy','militia','market','cellar','moat','remodel','workshop','festival','lab'];S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Bot'][i]||'';p.bot=i===1?'normal':null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
+  await P.evaluate(()=>{DNX().ev=[];DNX().evm='none';DNX().kd=['village','smithy','militia','market','cellar','moat','remodel','workshop','festival','lab'];S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Bot'][i]||'';p.bot=i===1?'normal':null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
   ok('Dominion play: dealt, 5 cards each',await P.evaluate(()=>{const g=dnG();return !!g&&g.ps.every(id=>dnAll(g.me[id]).length>=10)&&g.me[act()[0].id].h.length+g.me[act()[0].id].pl.length>=5}));
   ok('Dominion play: Supply drawn with 17 piles',await P.evaluate(()=>document.querySelectorAll('[data-a="dnppile"]').length===17));
   let myTurns=0,shots=0,answered=0;

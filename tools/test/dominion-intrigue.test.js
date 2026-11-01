@@ -18,7 +18,7 @@ const click=(p,sel)=>p.evaluate(sel=>{const b=[...document.querySelectorAll(sel)
   await click(P,'[data-a="dnks"][data-k="intrigue"]');await W(150);
   ok('Intrigue: can’t turn both off',await P.evaluate(()=>dnKs().intrigue===1));
   await click(P,'[data-a="dnks"][data-k="base"]');await click(P,'[data-a="dnks"][data-k="seaside"]');await click(P,'[data-a="dnks"][data-k="alchemy"]');await W(150);
-  await P.evaluate(()=>{DNX().kd=['pawn','nobles','wishing','patrol','secretp','lurker','courtier','bridge','torturer','smithy'];S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Bot'][i]||'';p.bot=i===1?'normal':null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
+  await P.evaluate(()=>{DNX().ev=[];DNX().evm='none';DNX().kd=['pawn','nobles','wishing','patrol','secretp','lurker','courtier','bridge','torturer','smithy'];S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Bot'][i]||'';p.bot=i===1?'normal':null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
   const setHand=(h,dk)=>P.evaluate(([h,dk])=>{const g=dnG(),me=act()[0].id;g.me[me].h=h;if(dk)g.me[me].dk=dk;Object.assign(g,{turn:me,ph:'action',A:1,B:1,co:0,br:0,np:0,k:[],ask:null});DNHSEL=null;render()},[h,dk]);
   const playUI=async k=>{await P.evaluate(k=>{const b=[...document.querySelectorAll('.dnhand.mine [data-a="dnphand"]')].find(b=>b.dataset.lp==='dnc:'+k);b.click()},k);await W(80);await click(P,'[data-a="dnpplay"]');await W(150)};
   await setHand(['pawn','estate'],['gold','gold']);await playUI('pawn');

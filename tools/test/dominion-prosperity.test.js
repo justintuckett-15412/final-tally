@@ -7,7 +7,7 @@ const click=(p,sel)=>p.evaluate(sel=>{const b=[...document.querySelectorAll(sel)
   ok('Prosperity: set switch',await P.evaluate(()=>!!document.querySelector('[data-a="dnks"][data-k="prosperity"]')));
   ok('Prosperity: Platinum and Colony choice',await P.evaluate(()=>document.querySelectorAll('[data-a="dnpc"]').length===3));
   await click(P,'[data-a="dnpc"][data-k="on"]');await W(100);
-  await P.evaluate(()=>{DNX().kd=['bank','grandmarket','warchest','monument','kingscourt','village','smithy','crystalball','hoard','workersv'];S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i]||'';p.bot=null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
+  await P.evaluate(()=>{DNX().ev=[];DNX().evm='none';DNX().kd=['bank','grandmarket','warchest','monument','kingscourt','village','smithy','crystalball','hoard','workersv'];S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i]||'';p.bot=null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
   ok('Prosperity: Platinum and Colony in the Supply',await P.evaluate(()=>!!document.querySelector('[data-a="dnppile"][data-k="platinum"]')&&!!document.querySelector('[data-a="dnppile"][data-k="colony"]')&&dnG().sup.colony===8));
   const ids=await P.evaluate(()=>act().map(p=>p.id));
   await P.evaluate(([a,b])=>{const g=dnG();g.me[a].h=['copper','gold','bank','silver','estate'];Object.assign(g,{turn:a,ph:'buy',A:0,B:1,co:1,k:[],ask:null,bought:0});DNVIEW=a;render()},ids);await W(200);
