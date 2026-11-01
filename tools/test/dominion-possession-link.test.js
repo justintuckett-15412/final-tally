@@ -1,0 +1,29 @@
+// Possession on linked phones: Kim's phone (a guest) plays Possession; Justin's possessed turn is run from Kim's phone,
+// which shows Justin's hand; Justin's phone waits; what Kim buys goes to Kim; both phones agree afterwards.
+process.env.LAT=process.env.LAT||'120';process.env.JIT=process.env.JIT||'120';
+const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
+(async()=>{const browser=await chromium.launch();const H=await mk(browser,'host'),G=await mk(browser,'guest');const errs=[];[H,G].forEach(p=>p.on('pageerror',e=>errs.push(e.message)));
+  const ids=await H.evaluate(()=>{window.__htfast=1;switchGame('dominion');resetScores();Object.assign(DNX(),{play:1,kd:['possession','familiar','golem','university','herbalist','apothecary','smithy','village','market','chapel']});S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i]||'';delete p.bot});save();
+    const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove();return [S.players[0].id,S.players[1].id]});
+  await G.evaluate(()=>{window.__htfast=1});
+  await H.evaluate(()=>lkHostStart());await W(3000);const code=await H.evaluate(()=>S.lk.code);
+  await H.evaluate(id=>lkPick(id),ids[0]);await G.evaluate(c=>lkJoin(c),code);await W(4000);await G.evaluate(id=>lkPick(id),ids[1]);await W(2500);
+  if(readyAll)await readyAll([H,G]);
+  const [J,K]=ids;
+  await H.evaluate(([J,K])=>{const g=dnG();g.me[K].h=['possession','gold','potion','estate','estate'];g.me[K].dk=Array(10).fill('estate');g.me[J].h=['smithy','gold','gold','gold','copper'];g.me[J].dk=Array(8).fill('estate');
+    Object.assign(g,{turn:K,ph:'action',A:1,B:1,co:0,po:0,k:[],ask:null,dnx:[],dkeep:[],poss:null,possQ:[]});g.n=(g.n||0)+1;save();render()},ids);await W(3000);
+  ok('Kim’s phone sees Kim’s turn',await G.evaluate(K=>dnG().turn===K&&dnActor(dnG())===K,K));
+  await G.evaluate(()=>{const g=dnG();const i=g.me[S.lk.me].h.indexOf('possession');lkq('dnPlay',S.lk.me,i)});await W(2500);
+  await G.evaluate(()=>{lkq('dnEndTurn',S.lk.me)});await W(3500);
+  ok('Justin’s possessed turn, run by Kim',await H.evaluate(([J,K])=>{const g=dnG();return g.turn===J&&g.poss&&g.poss.by===K&&dnActor(g)===K},ids));
+  ok('Kim’s phone shows Justin’s hand',await G.evaluate(()=>/Justin’s hand \(you’re in control\)/.test(document.body.textContent)));
+  ok('Justin’s phone waits for Kim',await H.evaluate(()=>/waiting for/.test((document.querySelector('.dndock')||{}).textContent||'')));
+  await G.screenshot({path:'/tmp/dnpl-guest.png'});
+  await G.evaluate(J=>{const g=dnG();lkq('dnPlay',S.lk.me,g.me[J].h.indexOf('smithy'))},J);await W(2500);
+  await G.evaluate(()=>lkq('dnBuy',S.lk.me,'province'));await W(3500);
+  ok('Province went to Kim, not Justin',await H.evaluate(([J,K])=>{const g=dnG();return dnAll(g.me[K]).includes('province')&&!dnAll(g.me[J]).includes('province')},ids));
+  ok('then Justin’s own turn',await H.evaluate(([J])=>{const g=dnG();return g.turn===J&&!g.poss&&dnActor(g)===J},ids));
+  const a=await H.evaluate(()=>JSON.stringify(dnG().me)),b=await G.evaluate(()=>JSON.stringify(dnG().me));
+  ok('both phones agree',a===b);
+  ok('no page errors',errs.length===0,errs.slice(0,3));
+  await done(browser)})();

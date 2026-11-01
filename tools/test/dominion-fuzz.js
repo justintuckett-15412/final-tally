@@ -7,19 +7,19 @@ const N=+(process.env.N||30);
     const bad={},note=(k,x)=>{if(!bad[k])bad[k]={n:0,ex:JSON.stringify(x).slice(0,300)};bad[k].n++};
     const rnd=a=>a[Math.floor(Math.random()*a.length)];
     const count=g=>Object.values(g.sup).reduce((a,v)=>a+v,0)+g.trash.length+g.ps.reduce((a,id)=>a+dnAll(g.me[id]).length,0);
-    let games=0,turns=0,ends={prov:0,piles:0},cardsSeen={};
-    for(let t=0;t<N;t++){S=dnFresh();S.dnx.play=1;S.dnx.ks={base:t%4===0?1:0,intrigue:t%4===1?1:0,seaside:t%4!==0&&t%4!==1?1:t%4===0?1:0};S.dnx.kd=dnKdRandom([]);const n=2+t%5;S.players.forEach((p,i)=>{p.on=i<n;p.name='P'+i;p.bot=i<n?(t%2&&i===0?null:rnd(['easy','normal','hard'])):null});
+    let possT=0,games=0,turns=0,ends={prov:0,piles:0},cardsSeen={};
+    for(let t=0;t<N;t++){S=dnFresh();S.dnx.play=1;S.dnx.ks={base:t%5===0?1:0,intrigue:t%5===1?1:0,seaside:t%5===2?1:0,alchemy:t%5>=3?1:0};if(t%5===4){S.dnx.ks.base=1}S.dnx.kd=dnKdRandom([]);const n=2+t%5;S.players.forEach((p,i)=>{p.on=i<n;p.name='P'+i;p.bot=i<n?(t%2&&i===0?null:rnd(['easy','normal','hard'])):null});
       S.started=true;S.screen='score';dnDeal();const g=S.dng,T0=count(g);g.kd.forEach(k=>cardsSeen[k]=1);let steps=0;
-      while(g.phase==='play'&&steps<20000){steps++;const a=dnActor(g),q=act().find(p=>p.id===a);
-        if(!q.bot){/* random human */const M=g.me[a];
+      while(g.phase==='play'&&steps<20000){steps++;let a=dnActor(g);const q=act().find(p=>p.id===a);
+        if(g.poss)possT++;if(!q.bot){/* random human */const M=g.me[dnAsP(g,a)];a=dnAsP(g,a);
           if(Math.random()<.15){const before=JSON.stringify(g),o=g.ps.find(x=>x!==a);const f=rnd([()=>dnPlay(g,o,0),()=>dnBuy(g,o,'copper'),()=>dnEndTurn(g,o),()=>dnAns(g,o,[]),()=>dnBuy(g,a,'province')&&g.co<0,()=>dnAns(g,a,[99]),()=>dnPlay(g,a,99)]);const r=f();if(!r&&JSON.stringify(g)!==before)note('rejected move changed the game',f.toString())}
           if(g.ask&&g.ask.p===a){const Q=g.ask;let ans;
             if(Q.k==='pick'){const idx=M.h.map((k,i)=>i).filter(i=>!Q.f||dnIs(M.h[i],Q.f));const n=Q.min+Math.floor(Math.random()*(Math.min(Q.max,idx.length)-Q.min+1));ans=idx.sort(()=>Math.random()-.5).slice(0,n)}
-            else if(Q.k==='gain')ans=rnd(Q.ok);else if(Q.k==='opts')ans=Q.opts.map(o=>o[0]).sort(()=>Math.random()-.5).slice(0,Q.n);else if(Q.k==='tpick')ans=rnd(Q.cs);else if(Q.k==='order')ans=Q.cs.map((c,i)=>i).sort(()=>Math.random()-.5);else if(Q.k==='pos')ans=Math.floor(Math.random()*(M.dk.length+1));else if(Q.k==='name')ans=rnd(dnNameable(g));else if(Q.k==='look'){const o=Q.cs.map((c,i)=>i).sort(()=>Math.random()-.5);ans={t:o[0],d:o[1]}}else if(Q.k==='yn')ans=Math.random()<.5;else if(Q.k==='disc')ans=Math.random()<.3?-1:Math.floor(Math.random()*M.ds.length);
+            else if(Q.k==='gain')ans=Q.opt&&(Math.random()<.2||!Q.ok.length)?'':rnd(Q.ok);else if(Q.k==='opts')ans=Q.opts.map(o=>o[0]).sort(()=>Math.random()-.5).slice(0,Q.n);else if(Q.k==='tpick')ans=rnd(Q.cs);else if(Q.k==='order')ans=Q.cs.map((c,i)=>i).sort(()=>Math.random()-.5);else if(Q.k==='pos')ans=Math.floor(Math.random()*(M.dk.length+1));else if(Q.k==='name')ans=rnd(dnNameable(g));else if(Q.k==='look'){const o=Q.cs.map((c,i)=>i).sort(()=>Math.random()-.5);ans={t:o[0],d:o[1]}}else if(Q.k==='yn')ans=Math.random()<.5;else if(Q.k==='disc')ans=Math.random()<.3?-1:Math.floor(Math.random()*M.ds.length);
             else if(Q.k==='ban')ans=Q.cs.findIndex(k=>dnIs(k,'T')&&k!=='copper');else if(Q.k==='sentry')ans={ch:Q.cs.map(()=>rnd(['t','d','k'])),top:0};
             if(!dnAns(g,a,ans))note('human answer refused',{Q,ans})}
           else if(g.turn===a){if(g.ph==='action'){const ai=M.h.map((k,i)=>i).filter(i=>dnIs(M.h[i],'A'));if(ai.length&&Math.random()<.8){if(!dnPlay(g,a,rnd(ai)))note('legal play refused',M.h)}else dnEndAct(g,a)}
-            else{const can=Object.keys(g.sup).filter(k=>g.sup[k]>0&&dnCost(g,k)<=g.co);if(can.length&&Math.random()<.85){const k=rnd(can);if(!dnBuy(g,a,k))note('legal buy refused',k)}else dnEndTurn(g,a)}}
+            else{const can=Object.keys(g.sup).filter(k=>g.sup[k]>0&&dnAfford(g,k,g.co,g.po||0));if(can.length&&Math.random()<.85){const k=rnd(can);if(!dnBuy(g,a,k))note('legal buy refused',k)}else dnEndTurn(g,a)}}
           else note('human actor has nothing to do',{a,turn:g.turn})}
         else dnBotStep(g,q);
         if(count(g)!==T0)note('cards lost or made up',{T0,now:count(g),last:g.msg});
@@ -30,9 +30,9 @@ const N=+(process.env.N||30);
       turns+=g.ps.reduce((a,id)=>a+g.me[id].tn,0);
       /* scoring matches the deck */
       act().forEach(p=>{if(total(p)!==dnVP(g.me[p.id]))note('score sheet total differs from the deck',{t:total(p),vp:dnVP(g.me[p.id])})})}
-    return {bad,games,turns,ends,seen:Object.keys(cardsSeen).length}},N);
+    return {bad,games,turns,ends,possT,seen:Object.keys(cardsSeen).length}},N);
   ok('Dominion fuzz: every game ended',res.games===N,res);
   ok('Dominion fuzz: no rule problems',Object.keys(res.bad).length===0,res.bad);
-  console.log('DBG',JSON.stringify({games:res.games,avgTurns:(res.turns/res.games).toFixed(1),ends:res.ends,seen:res.seen}));
+  console.log('DBG',JSON.stringify({possT:res.possT,games:res.games,avgTurns:(res.turns/res.games).toFixed(1),ends:res.ends,seen:res.seen}));
   ok('Dominion fuzz: no page errors',errs.length===0,errs.slice(0,3));
   await done(browser)})();

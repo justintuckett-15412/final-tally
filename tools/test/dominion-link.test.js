@@ -17,14 +17,14 @@ async function step(P){const st=await P.evaluate(()=>{const g=S.dng;if(!g||!S.lk
   if(k)return P.evaluate(k=>{document.querySelector(`[data-a="dnppile"][data-k="${k}"]`).click();return true},k);
   await tap(P,'[data-a="dnpend"]');return tap(P,'[data-a="dnpend"]')}
 (async()=>{const browser=await chromium.launch();const H=await mk(browser,'host'),G=await mk(browser,'guest');const errs=[];[H,G].forEach(p=>p.on('pageerror',e=>errs.push(e.message)));
-  const ids=await H.evaluate(([INTR,SEA])=>{window.__htfast=1;switchGame('dominion');resetScores();Object.assign(DNX(),{play:1,kd:SEA?['pirate','outpost','haven','lookout','corsair','seawitch','blockade','monkey','sailor','tidepools']:INTR?['masquerade','torturer','swindler','minion','courtier','pawn','patrol','secretp','wishing','diplomat']:['village','smithy','militia','market','cellar','moat','remodel','workshop','witch','lab']});const P=S.players;P.forEach((p,i)=>{p.on=i<3;p.name=['Justin','Kim','Duke Bot'][i]||'';if(i===2)p.bot='normal';else delete p.bot});save();
-    const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove();return [P[0].id,P[1].id]},[!!process.env.INTR,!!process.env.SEA]);
+  const ids=await H.evaluate(([INTR,SEA,ALC])=>{window.__htfast=1;switchGame('dominion');resetScores();Object.assign(DNX(),{play:1,kd:ALC?['possession','familiar','golem','university','herbalist','apothecary','scryingpool','alchemist','transmute','vineyard']:SEA?['pirate','outpost','haven','lookout','corsair','seawitch','blockade','monkey','sailor','tidepools']:INTR?['masquerade','torturer','swindler','minion','courtier','pawn','patrol','secretp','wishing','diplomat']:['village','smithy','militia','market','cellar','moat','remodel','workshop','witch','lab']});const P=S.players;P.forEach((p,i)=>{p.on=i<3;p.name=['Justin','Kim','Duke Bot'][i]||'';if(i===2)p.bot='normal';else delete p.bot});save();
+    const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove();return [P[0].id,P[1].id]},[!!process.env.INTR,!!process.env.SEA,!!process.env.ALC]);
   await G.evaluate(()=>{window.__htfast=1});
   await H.evaluate(()=>lkHostStart());await W(3000);const code=await H.evaluate(()=>S.lk.code);
   await H.evaluate(id=>lkPick(id),ids[0]);await G.evaluate(c=>lkJoin(c),code);await W(4000);await G.evaluate(id=>lkPick(id),ids[1]);await W(2500);
   if(readyAll)await readyAll([H,G]);
   ok('Dominion linked: host dealt the game',await H.evaluate(()=>!!S.dng&&S.dng.phase==='play'));
-  ok('Dominion linked: guest sees the same Supply',await G.evaluate(()=>!!S.dng&&document.querySelectorAll('[data-a="dnppile"]').length===17));
+  ok('Dominion linked: guest sees the same Supply',await G.evaluate(()=>!!S.dng&&document.querySelectorAll('[data-a="dnppile"]').length>=17));
   ok('Dominion linked: each phone shows only its own hand',await G.evaluate(()=>dnViewer()&&dnViewer().id===S.lk.me&&document.querySelectorAll('.dnhand.mine').length===1));
   let hm=0,gm=0,lastK='',same=0;
   for(let t=0;t<(process.env.FULL?9000:2500);t++){if(await step(H))hm++;if(await step(G))gm++;await W(60);
@@ -35,5 +35,6 @@ async function step(P){const st=await P.evaluate(()=>{const g=S.dng;if(!g||!S.lk
   ok('Dominion linked: both phones moved',hm>10&&gm>10,{hm,gm});
   ok(process.env.FULL?'Dominion linked: game reaches the end':'Dominion linked: 6 turns each',process.env.FULL?hs.ph==='done':hs.tn.every(n=>n>=6),hs.tn);
   ok('Dominion linked: both phones have the same decks',hs.d===gs.d);
+  console.log('DBG possessions',await H.evaluate(()=>(S.dng.lg||[]).filter(l=>/possesses/.test(l.t)).length));
   ok('Dominion linked: no page errors',errs.length===0,errs.slice(0,3));
   await done(browser)})();
