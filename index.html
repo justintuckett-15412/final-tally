@@ -1556,6 +1556,7 @@ body:has(.sadock) .rxfab{display:none}.sadh>span{flex:1}.sadrx{flex:none;width:3
 .dnc .dni{font-size:22px;line-height:1}.dnc .dnim{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:7px;border:1.5px solid rgba(0,0,0,.35);background:#fff}
 .dnc.dnbigc .dnim{width:150px;border-radius:10px}.dnpimg{width:22px;height:22px;border-radius:4px;vertical-align:middle;margin-right:3px}.dnc b{font-size:11.5px;line-height:1.1;overflow-wrap:anywhere}
 .dnordw{position:relative;display:inline-block}.dnordn{position:absolute;top:-6px;left:-6px;background:#e4a72a;color:#1d2329;border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font-size:13px;z-index:2}.dnopts{display:grid;gap:6px;margin:6px 0}.dnc .dnco.cheap{background:#7ed36f;border-color:#2c6b23}
+.dnemb{position:absolute;left:2px;top:2px;font-size:12px;background:rgba(255,255,255,.85);border-radius:8px;padding:0 3px;z-index:2}.dnmat{border-left:4px solid var(--pc,#e4a72a);padding:2px 8px;margin:4px 0;display:grid;gap:2px}
 .dnc .dnco{position:absolute;left:3px;bottom:3px;width:20px;height:20px;border-radius:50%;background:#f2c94c;border:1.5px solid #8a6a12;color:#3a2a00;font-size:12px;font-weight:800;display:grid;place-items:center}
 .dnc .dnn{position:absolute;right:3px;top:3px;font-size:11px;font-weight:700;background:rgba(255,255,255,.8);border-radius:8px;padding:0 4px}
 button.dnc{cursor:pointer}.dnc.sel{transform:translateY(-6px);outline:3px solid #e4a72a;outline-offset:1px}.dnc.go{outline:3px solid #e4a72a;outline-offset:1px}.dnc.dim{opacity:.45}.dnc.dnout{opacity:.35}
@@ -7725,7 +7726,7 @@ function dnSetup(){const X=DNX();
   return `<div class="bar"><h1>Dominion</h1></div><img class="hero hfhero" src="art/dominion-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<p class="hint" style="margin-top:14px">Score keeping for the real cards: at the end, count each player’s victory cards and tokens, and the app adds them up. Most points wins.</p>
   <div class="sec"><div class="sec-h"><h3>How you’re playing</h3></div><div class="panel hfpanel">${S.started?`<div class="rlab"><b>${dnOn()?'👑 Playing on the phone':'Scoring the real cards'}</b></div>`:`<div class="seg">${[[1,'👑 Play on the phone'],[0,'Score the real cards']].map(([v,t])=>`<button data-a="dnplaymode" data-k="${v}" aria-pressed="${!!X.play===!!v}">${t}</button>`).join('')}</div>`}</div>
-  <p class="hint">${dnOn()?'The phone deals and shuffles: play Actions, buy cards, and the Supply, decks and scoring are handled for you. Computer players, pass-and-play and linked phones all work. Base set and Intrigue (2nd edition), 2 to 6 players (5 and 6 use the Base Cards add-on).':'Count the real cards at the end and the app adds them up.'}</p></div>
+  <p class="hint">${dnOn()?'The phone deals and shuffles: play Actions, buy cards, and the Supply, decks and scoring are handled for you. Computer players, pass-and-play and linked phones all work. Base set, Intrigue (2nd edition) and Seaside, 2 to 6 players (5 and 6 use the Base Cards add-on).':'Count the real cards at the end and the app adds them up.'}</p></div>
   ${dnOn()?dnKdSetup():`<div class="sec"><div class="sec-h"><h3>Sets in this game</h3></div><div class="panel hfpanel">${DNSETS.map(([k,l])=>`<div class="prow"><div class="rtext"><b>${l}</b></div><button class="sw" role="switch" aria-checked="${!!X.sets[k]}" data-a="dnset" data-k="${k}" aria-label="${l}"><i></i></button></div>`).join('')}</div>
   <p class="hint">Only the scoring lines for these sets show up. Anything not listed goes in Other points.</p></div>`}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
@@ -7848,32 +7849,62 @@ const DNC={
   tradingp:{n:'Trading Post',c:5,t:'A',s:'i',x:'Trash 2 cards from your hand. If you did, gain a Silver to your hand.'},
   upgrade:{n:'Upgrade',c:5,t:'A',s:'i',x:'+1 Card, +1 Action. Trash a card from your hand. Gain a card costing exactly 1 more than it.'},
   harem:{n:'Harem',c:6,t:'TV',m:2,vp:2,s:'i',x:'+2 coins. Worth 2 points.'},
-  nobles:{n:'Nobles',c:6,t:'AV',vp:2,s:'i',x:'Choose one: +3 Cards; or +2 Actions. Worth 2 points.'}};
+  nobles:{n:'Nobles',c:6,t:'AV',vp:2,s:'i',x:'Choose one: +3 Cards; or +2 Actions. Worth 2 points.'},
+  /* Seaside (1st edition). D = Duration: stays in play until the Clean-up of your next turn */
+  embargo:{n:'Embargo',c:2,t:'A',s:'s',x:'+2 coins. Trash this card. Put an Embargo token on a Supply pile. When a player buys a card, they gain a Curse per Embargo token on that pile.'},
+  haven:{n:'Haven',c:2,t:'AD',s:'s',x:'+1 Card, +1 Action. Set aside a card from your hand face down. At the start of your next turn, put it into your hand.'},
+  lighthouse:{n:'Lighthouse',c:2,t:'AD',s:'s',x:'+1 Action. Now and at the start of your next turn: +1 coin. While this is in play, when another player plays an Attack, it doesn’t affect you.'},
+  nativev:{n:'Native Village',c:2,t:'A',s:'s',x:'+2 Actions. Choose one: set aside the top card of your deck face down on your Native Village mat; or put all the cards from your mat into your hand.'},
+  pearldiver:{n:'Pearl Diver',c:2,t:'A',s:'s',x:'+1 Card, +1 Action. Look at the bottom card of your deck. You may put it on top.'},
+  ambassador:{n:'Ambassador',c:3,t:'AK',s:'s',x:'Reveal a card from your hand. Return up to 2 copies of it from your hand to the Supply. Then each other player gains a copy of it.'},
+  fishingv:{n:'Fishing Village',c:3,t:'AD',s:'s',x:'+2 Actions, +1 coin. At the start of your next turn: +1 Action, +1 coin.'},
+  lookout:{n:'Lookout',c:3,t:'A',s:'s',x:'+1 Action. Look at the top 3 cards of your deck. Trash one of them. Discard one of them. Put the other one on top of your deck.'},
+  smugglers:{n:'Smugglers',c:3,t:'A',s:'s',x:'Gain a copy of a card costing up to 6 that the player to your right gained on their last turn.'},
+  warehouse:{n:'Warehouse',c:3,t:'A',s:'s',x:'+3 Cards, +1 Action. Discard 3 cards.'},
+  caravan:{n:'Caravan',c:4,t:'AD',s:'s',x:'+1 Card, +1 Action. At the start of your next turn, +1 Card.'},
+  cutpurse:{n:'Cutpurse',c:4,t:'AK',s:'s',x:'+2 coins. Each other player discards a Copper (or reveals a hand with no Copper).'},
+  island:{n:'Island',c:4,t:'AV',vp:2,s:'s',x:'Set aside this and another card from your hand. Return them to your deck at the end of the game. Worth 2 points.'},
+  navigator:{n:'Navigator',c:4,t:'A',s:'s',x:'+2 coins. Look at the top 5 cards of your deck. Either discard all of them, or put them back on top in any order.'},
+  pirateship:{n:'Pirate Ship',c:4,t:'AK',s:'s',x:'Choose one: each other player reveals their top 2 cards, trashes a revealed Treasure that you choose, discards the rest, and if anyone trashed a Treasure you take a Coin token; or +1 coin per Coin token you’ve taken with Pirate Ships this game.'},
+  salvager:{n:'Salvager',c:4,t:'A',s:'s',x:'+1 Buy. Trash a card from your hand. + coins equal to its cost.'},
+  seahag:{n:'Sea Hag',c:4,t:'AK',s:'s',x:'Each other player discards the top card of their deck, then gains a Curse on top of their deck.'},
+  treasuremap:{n:'Treasure Map',c:4,t:'A',s:'s',x:'Trash this and another Treasure Map from your hand. If you trash two Treasure Maps, gain 4 Golds onto your deck.'},
+  bazaar:{n:'Bazaar',c:5,t:'A',s:'s',x:'+1 Card, +2 Actions, +1 coin.'},
+  explorer:{n:'Explorer',c:5,t:'A',s:'s',x:'You may reveal a Province from your hand. If you do, gain a Gold to your hand. Otherwise, gain a Silver to your hand.'},
+  ghostship:{n:'Ghost Ship',c:5,t:'AK',s:'s',x:'+2 Cards. Each other player with 4 or more cards in hand puts cards from their hand on top of their deck until they have 3.'},
+  merchantship:{n:'Merchant Ship',c:5,t:'AD',s:'s',x:'Now and at the start of your next turn: +2 coins.'},
+  outpost:{n:'Outpost',c:5,t:'AD',s:'s',x:'You only draw 3 cards (instead of 5) in this turn’s Clean-up. Take an extra turn after this one. This can’t give you more than two turns in a row.'},
+  tactician:{n:'Tactician',c:5,t:'AD',s:'s',x:'Discard your hand. If you discarded any cards, then at the start of your next turn: +5 Cards, +1 Buy, +1 Action.'},
+  treasury:{n:'Treasury',c:5,t:'A',s:'s',x:'+1 Card, +1 Action, +1 coin. When you discard this from play, if you didn’t buy a Victory card this turn, it goes back on top of your deck.'},
+  wharf:{n:'Wharf',c:5,t:'AD',s:'s',x:'Now and at the start of your next turn: +2 Cards, +1 Buy.'}};
 const DNKB=['cellar','chapel','moat','harbinger','merchant','vassal','village','workshop','bureaucrat','gardens','militia','moneylender','poacher','remodel','smithy','throne','bandit','council','festival','lab','library','market','mine','sentry','witch','artisan'];
 const DNKI=['courtyard','lurker','pawn','masquerade','shanty','steward','swindler','wishing','baron','bridge','conspirator','diplomat','ironworks','mill','miningv','secretp','courtier','duke','minion','patrol','replace','torturer','tradingp','upgrade','harem','nobles'];
-const DNK=[...DNKB,...DNKI];
-const DNKSETS=[['base','Base set',DNKB],['intrigue','Intrigue',DNKI]];
+const DNKS=['embargo','haven','lighthouse','nativev','pearldiver','ambassador','fishingv','lookout','smugglers','warehouse','caravan','cutpurse','island','navigator','pirateship','salvager','seahag','treasuremap','bazaar','explorer','ghostship','merchantship','outpost','tactician','treasury','wharf'];
+const DNK=[...DNKB,...DNKI,...DNKS];
+const DNKSETS=[['base','Base set',DNKB],['intrigue','Intrigue',DNKI],['seaside','Seaside',DNKS]];
 const DNBASIC=['copper','silver','gold','estate','duchy','province','curse'];
 const DNPRESET={first:['cellar','market','merchant','militia','mine','moat','remodel','smithy','village','workshop']};
 const DNIC={copper:'🟤',silver:'⚪',gold:'🟡',estate:'🏠',duchy:'🏰',province:'🏯',curse:'💀',cellar:'🕳️',chapel:'⛪',moat:'🌊',harbinger:'🐎',merchant:'🐟',vassal:'🙇',village:'🏘️',workshop:'🔨',bureaucrat:'📜',gardens:'🌻',militia:'🛡️',moneylender:'💰',poacher:'🏹',remodel:'📐',smithy:'⚒️',throne:'👑',bandit:'🗡️',council:'🪑',festival:'🎪',lab:'⚗️',library:'📚',market:'🧺',mine:'⛏️',sentry:'💂',witch:'🧙',artisan:'🏺',
-  courtyard:'⛲',lurker:'🥷',pawn:'♟️',masquerade:'🎭',shanty:'🛖',steward:'🍽️',swindler:'🃏',wishing:'🪙',baron:'🎖️',bridge:'🌉',conspirator:'🤫',diplomat:'✉️',ironworks:'🔥',mill:'🌬️',miningv:'🏔️',secretp:'🚪',courtier:'🎩',duke:'🤴',minion:'🔪',patrol:'🛡️',replace:'🔁',torturer:'🗝️',tradingp:'🛒',upgrade:'🧱',harem:'💎',nobles:'👬'};
+  courtyard:'⛲',lurker:'🥷',pawn:'♟️',masquerade:'🎭',shanty:'🛖',steward:'🍽️',swindler:'🃏',wishing:'🪙',baron:'🎖️',bridge:'🌉',conspirator:'🤫',diplomat:'✉️',ironworks:'🔥',mill:'🌬️',miningv:'🏔️',secretp:'🚪',courtier:'🎩',duke:'🤴',minion:'🔪',patrol:'🛡️',replace:'🔁',torturer:'🗝️',tradingp:'🛒',upgrade:'🧱',harem:'💎',nobles:'👬',
+  embargo:'🚫',haven:'⚓',lighthouse:'🗼',nativev:'🛖',pearldiver:'🦪',ambassador:'🎁',fishingv:'🎣',lookout:'🔭',smugglers:'📦',warehouse:'🏚️',caravan:'🐪',cutpurse:'👛',island:'🏝️',navigator:'🧭',pirateship:'🏴‍☠️',salvager:'🤿',seahag:'🧜',treasuremap:'🗺️',bazaar:'🛍️',explorer:'⛵',ghostship:'👻',merchantship:'🚢',outpost:'🏰',tactician:'📋',treasury:'💰',wharf:'🛳️'};
 const dnC=k=>DNC[k]||{n:k,c:0,t:''};
 const dnIs=(k,t)=>dnC(k).t.includes(t);
 const dnNm=k=>dnC(k).n;
 const dnAn=k=>(/^[AEIOU]/.test(dnNm(k))?'an ':'a ')+dnNm(k);
 /* the cost right now (Bridge makes everything cheaper this turn) */
 const dnCost=(g,k)=>Math.max(0,dnC(k).c-((g&&g.br)||0));
-const DNTERM=new Set(['chapel','moat','vassal','workshop','bureaucrat','militia','moneylender','remodel','smithy','throne','bandit','council','library','mine','witch','artisan',
+const DNTERM=new Set(['ambassador','cutpurse','embargo','explorer','ghostship','island','merchantship','navigator','outpost','pirateship','salvager','seahag','smugglers','tactician','treasuremap','wharf','chapel','moat','vassal','workshop','bureaucrat','militia','moneylender','remodel','smithy','throne','bandit','council','library','mine','witch','artisan',
   'courtyard','steward','swindler','baron','bridge','diplomat','ironworks','courtier','patrol','replace','torturer','tradingp','masquerade']);
 const DNBV={witch:10,lab:8,market:7,festival:6,smithy:7,council:7,militia:7,library:6,sentry:6,artisan:7,bandit:5,mine:4,moneylender:5,remodel:4,poacher:5,throne:4,bureaucrat:4,village:4,merchant:5,vassal:4,harbinger:4,workshop:3,chapel:3,cellar:3,moat:4,gardens:0,
-  courtyard:5,lurker:3,pawn:3,masquerade:5,shanty:4,steward:5,swindler:5,wishing:4,baron:4,bridge:5,conspirator:5,diplomat:5,ironworks:5,mill:4,miningv:5,secretp:5,courtier:6,duke:0,minion:7,patrol:6,replace:6,torturer:8,tradingp:4,upgrade:5,harem:0,nobles:6};
+  courtyard:5,lurker:3,pawn:3,masquerade:5,shanty:4,steward:5,swindler:5,wishing:4,baron:4,bridge:5,conspirator:5,diplomat:5,ironworks:5,mill:4,miningv:5,secretp:5,courtier:6,duke:0,minion:7,patrol:6,replace:6,torturer:8,tradingp:4,upgrade:5,harem:0,nobles:6,
+  bazaar:6,caravan:6,cutpurse:5,embargo:1,explorer:4,fishingv:6,ghostship:6,haven:4,island:3,lighthouse:4,lookout:4,merchantship:6,nativev:3,navigator:4,outpost:4,pearldiver:3,pirateship:4,salvager:4,seahag:7,smugglers:5,tactician:5,treasuremap:1,treasury:6,warehouse:5,wharf:8,ambassador:6};
 const DNBOTS={easy:['Easy','Squire Bot'],normal:['Normal','Baron Bot'],hard:['Hard','Duke Bot']};
 const dnOn=()=>!!DNX().play;
 const dnG=()=>S.dng||null;
 const dnRes=()=>!S.lk||S.demo||lkHost();
 /* shuffles inside the game use Math.random so a linked phone's move that shuffles waits for the host */
 function dnShuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-const dnKs=()=>{const X=DNX();if(!X.ks)X.ks={base:1,intrigue:1};if(!X.ks.base&&!X.ks.intrigue)X.ks.base=1;return X.ks};
+const dnKs=()=>{const X=DNX();if(!X.ks)X.ks={base:1,intrigue:1,seaside:1};if(X.ks.seaside===undefined)X.ks.seaside=1;if(!DNKSETS.some(([k])=>X.ks[k]))X.ks.base=1;return X.ks};
 const dnPool=()=>DNKSETS.filter(([k])=>dnKs()[k]).flatMap(x=>x[2]);
 function dnKdRandom(keep){const P=dnPool(),pool=P.filter(k=>!(keep||[]).includes(k));const out=(keep||[]).filter(k=>P.includes(k));for(const k of dnShuf(pool)){if(out.length>=10)break;out.push(k)}return out}
 const dnKd=()=>{const X=DNX(),P=dnPool();if(!Array.isArray(X.kd)||X.kd.length!==10||X.kd.some(k=>!P.includes(k))){X.kd=dnKdRandom((X.kd||[]).filter(k=>P.includes(k)));dnKeep()}return X.kd};
@@ -7882,16 +7913,16 @@ const dnSortKd=kd=>kd.slice().sort((a,b)=>dnC(a).c-dnC(b).c||dnNm(a).localeCompa
 /* ---------------- setting up ---------------- */
 function dnDeal(){const P=act(),n=P.length,v=n===2?8:12,big=n>=5,kd=dnSortKd(dnKd());/* 5 or 6 players: both sets of Treasures, 15 or 18 Provinces */const sup={copper:(big?120:60)-7*n,silver:big?80:40,gold:big?60:30,estate:v,duchy:v,province:n===5?15:n===6?18:v,curse:10*(n-1)};
   kd.forEach(k=>sup[k]=dnIs(k,'V')?v:10);
-  const g={_atom:1,r:0,pe:big?4:3,ps:P.map(p=>p.id),turn:null,ph:'action',A:1,B:1,co:0,mer:0,silv:0,br:0,np:0,sup,kd,trash:[],me:{},k:[],ask:null,phase:'play',n:0,msg:'',win:null};
-  P.forEach(p=>{const M={dk:dnShuf([...Array(7).fill('copper'),...Array(3).fill('estate')]),h:[],ds:[],pl:[],aside:[],tn:0};g.me[p.id]=M;dnDraw(g,p.id,5)});
+  const g={_atom:1,r:0,pe:big?4:3,ps:P.map(p=>p.id),turn:null,ph:'action',A:1,B:1,co:0,mer:0,silv:0,br:0,np:0,sup,kd,trash:[],emb:{},gl:{},me:{},k:[],ask:null,phase:'play',n:0,msg:'',win:null};
+  P.forEach(p=>{const M={dk:dnShuf([...Array(7).fill('copper'),...Array(3).fill('estate')]),h:[],ds:[],pl:[],aside:[],du:[],nx:[],hav:[],nv:[],isl:[],pt:0,tn:0};g.me[p.id]=M;dnDraw(g,p.id,5)});
   const first=P[Math.floor(Math.random()*n)].id;S.dng=g;DNVIEW=null;DNSEL=[];DNPILE=null;
   gAnn(g,'Dominion',`${n} players. ${nmid(first)} goes first.`,'👑');gLog(g,`Kingdom: ${kd.map(dnNm).join(', ')}`,'👑');dnStartTurn(g,first)}
 const dnStale=g=>{const ids=act().map(p=>p.id);return !g.ps||g.ps.length!==ids.length||g.ps.some(id=>!ids.includes(id)||!g.me[id])};
 /* ---------------- moving cards ---------------- */
 function dnTop(g,pid){const M=g.me[pid];if(!M.dk.length){if(!M.ds.length)return null;M.dk=dnShuf(M.ds);M.ds=[];gLog(g,`${nmid(pid)} shuffles`,'🔀')}return M.dk.pop()}
 function dnDraw(g,pid,n){const M=g.me[pid];let got=0;for(let i=0;i<n;i++){const c=dnTop(g,pid);if(!c)break;M.h.push(c);got++}return got}
-function dnGain(g,pid,k,to){if(!(g.sup[k]>0))return false;g.sup[k]--;const M=g.me[pid];if(to==='h')M.h.push(k);else if(to==='dk')M.dk.push(k);else M.ds.push(k);return true}
-const dnAll=M=>[...M.dk,...M.h,...M.ds,...M.pl,...(M.aside||[])];
+function dnGain(g,pid,k,to){if(!(g.sup[k]>0))return false;g.sup[k]--;if(g.turn===pid){g.gl=g.gl||{};(g.gl[pid]=g.gl[pid]||[]).push(k)}const M=g.me[pid];if(to==='h')M.h.push(k);else if(to==='dk')M.dk.push(k);else M.ds.push(k);return true}
+const dnAll=M=>[...M.dk,...M.h,...M.ds,...M.pl,...(M.aside||[]),...(M.du||[]),...(M.hav||[]),...(M.nv||[]),...(M.isl||[])];
 const dnEmpty=g=>Object.keys(g.sup).filter(k=>g.sup[k]<=0).length;
 const dnVP=(M)=>{const all=dnAll(M),du=all.filter(x=>x==='duchy').length;return all.reduce((a,k)=>a+(k==='gardens'?Math.floor(all.length/10):k==='duke'?du:dnC(k).vp||0),0)};
 const dnOthers=(g,pid)=>{const i=g.ps.indexOf(pid);return g.ps.slice(i+1).concat(g.ps.slice(0,i))};
@@ -7900,7 +7931,14 @@ function dnTake(M,idx){const out=[];idx.slice().sort((a,b)=>b-a).forEach(i=>out.
 const dnTypes=k=>[['A','Action'],['K','Attack'],['R','Reaction'],['T','Treasure'],['V','Victory'],['C','Curse']].filter(([f])=>dnIs(k,f)).map(x=>x[1]);
 
 /* ---------------- a turn ---------------- */
-function dnStartTurn(g,pid){Object.assign(g,{turn:pid,ph:'action',A:1,B:1,co:0,mer:0,silv:0,br:0,np:0,k:[],ask:null});g.me[pid].tn++;DNSEL=[];DNPILE=null;dnAuto(g)}
+function dnStartTurn(g,pid,extra){Object.assign(g,{turn:pid,ph:'action',A:1,B:1,co:0,mer:0,silv:0,br:0,np:0,k:[],ask:null,op:0,bv:0,dnx:[],dkeep:[],extra:extra?1:0});const M=g.me[pid];M.tn++;g.gl=g.gl||{};g.gl[pid]=[];DNSEL=[];DNPILE=null;
+  if(extra){g.msg=`${nmid(pid)} takes an extra turn (Outpost).`;gLog(g,`${nmid(pid)} takes an Outpost turn`,'🏰')}
+  /* Duration cards from last turn: their effects happen now, then they're discarded in this turn's Clean-up */
+  if(M.du&&M.du.length){const nx=M.nx||[],said=[];M.pl.push(...M.du);M.du=[];M.nx=[];
+    nx.forEach(c=>{switch(c){case 'caravan':dnDraw(g,pid,1);break;case 'fishingv':g.A++;g.co++;break;case 'lighthouse':g.co++;break;case 'merchantship':g.co+=2;break;case 'tactician':dnDraw(g,pid,5);g.B++;g.A++;break;case 'wharf':dnDraw(g,pid,2);g.B++;break}if(c!=='haven'&&c!=='outpost')said.push(dnNm(c))});
+    if(M.hav&&M.hav.length){M.h.push(...M.hav);said.push(`Haven (${M.hav.length} card${M.hav.length===1?'':'s'} back to hand)`);M.hav=[]}
+    if(said.length)g.msg=(g.msg?g.msg+' ':'')+`From last turn: ${said.join(', ')}.`}
+  dnAuto(g)}
 const dnHasAct=(g,pid)=>g.me[pid].h.some(k=>dnIs(k,'A'));
 function dnAuto(g){if(g.phase!=='play'||g.ask||g.k.length)return;if(g.ph==='action'&&(g.A<1||!dnHasAct(g,g.turn)))dnToBuy(g)}
 function dnPlayTreasure(g,pid,i){const M=g.me[pid],k=M.h[i];if(!k||!dnIs(k,'T'))return false;M.h.splice(i,1);M.pl.push(k);g.co+=dnC(k).m;if(k==='silver'&&!g.silv){g.silv=1;g.co+=g.mer}return true}
@@ -7911,19 +7949,25 @@ function dnPlay(g,pid,i){if(g.phase!=='play'||g.turn!==pid||g.ph!=='action'||g.a
   M.h.splice(i,1);M.pl.push(k);g.A--;g.n++;g.msg=`${nmid(pid)} played ${dnNm(k)}.`;gLog(g,`${nmid(pid)} played ${dnNm(k)}`,DNIC[k]);g.last={p:pid,c:k};dnPush(g,{t:'eff',p:pid,c:k});dnRun(g);return true}
 function dnEndAct(g,pid){if(g.phase!=='play'||g.turn!==pid||g.ph!=='action'||g.ask||g.k.length)return false;g.n++;dnToBuy(g);return true}
 function dnBuy(g,pid,k){if(g.phase!=='play'||g.turn!==pid||g.ask||g.k.length||!(g.sup[k]>0)||g.B<1)return false;const c=dnCost(g,k);if(c>(g.ph==='action'?dnBuyPreview(g):g.co))return false;if(g.ph==='action')dnToBuy(g);
-  g.co-=c;g.B--;dnGain(g,pid,k,'ds');g.n++;g.msg=`${nmid(pid)} bought ${dnAn(k)}.`;gLog(g,`${nmid(pid)} bought ${dnAn(k)}`,DNIC[k]);pst('dnbuy',pid);
+  g.co-=c;g.B--;dnGain(g,pid,k,'ds');if(dnIs(k,'V'))g.bv=1;g.n++;g.msg=`${nmid(pid)} bought ${dnAn(k)}.`;{const e=(g.emb||{})[k]||0;let got=0;for(let i=0;i<e;i++)if(dnGain(g,pid,'curse','ds'))got++;if(got){g.msg+=` Embargo: +${got} Curse${got>1?'s':''}.`;gLog(g,`${nmid(pid)} gained ${got} Curse${got>1?'s':''} from an Embargo`,'🚫')}}gLog(g,`${nmid(pid)} bought ${dnAn(k)}`,DNIC[k]);pst('dnbuy',pid);
   if(k==='province'){gAnn(g,`${nmid(pid)} bought a Province`,`${g.sup.province} left.`,'🏯');gFx(g,pid,'star')}
   if(g.B<1)dnCleanup(g);return true}
 function dnEndTurn(g,pid){if(g.phase!=='play'||g.turn!==pid||g.ask||g.k.length)return false;if(g.ph==='action')dnToBuy(g);g.n++;dnCleanup(g);return true}
-function dnCleanup(g){const pid=g.turn,M=g.me[pid];M.ds.push(...M.h,...M.pl);M.h=[];M.pl=[];g.br=0;dnDraw(g,pid,5);
+function dnCleanup(g){const pid=g.turn,M=g.me[pid];M.du=M.du||[];M.nx=M.nx||[];
+  /* Durations played this turn stay in play (with any Throne Room that played them) */
+  (g.dnx||[]).forEach(c=>M.nx.push(c));[...new Set(g.dnx||[])].forEach(c=>{const i=M.pl.indexOf(c);if(i>=0)M.du.push(M.pl.splice(i,1)[0])});(g.dkeep||[]).forEach(c=>{const i=M.pl.indexOf(c);if(i>=0)M.du.push(M.pl.splice(i,1)[0])});
+  /* Treasury goes back on the deck if no Victory card was bought */
+  const tre=[];if(!g.bv){let i;while((i=M.pl.indexOf('treasury'))>=0)tre.push(M.pl.splice(i,1)[0])}
+  M.ds.push(...M.h,...M.pl);M.h=[];M.pl=[];M.dk.push(...tre);if(tre.length)gLog(g,`${nmid(pid)} put ${tre.length===1?'a Treasury':tre.length+' Treasuries'} back on their deck`,'💰');g.br=0;dnDraw(g,pid,g.op?3:5);
   const empt=Object.keys(g.sup).filter(k=>g.sup[k]<=0);
   const pe=g.pe||3;if(g.sup.province<=0||empt.length>=pe){dnGameOver(g,g.sup.province<=0?'The Provinces are gone.':`${pe===4?'Four':'Three'} piles are empty: ${empt.map(dnNm).join(', ')}.`);return}
   if(empt.length===pe-1&&!g.warn2){g.warn2=1;gAnn(g,`${pe===4?'Three':'Two'} piles are empty`,`${empt.map(dnNm).join(', ')}. One more and the game ends.`,'⚠️')}
   if(g.sup.province<=2&&!g.warnP){g.warnP=1;gAnn(g,`${g.sup.province} Province${g.sup.province===1?'':'s'} left`,'The game ends when they’re gone.','⚠️')}
+  if(g.op&&!g.extra){dnStartTurn(g,pid,1);return}
   dnStartTurn(g,dnOthers(g,pid)[0])}
 function dnGameOver(g,why){g.phase='done';g.ask=null;g.k=[];const P=act();
   P.forEach(p=>{const M=g.me[p.id];if(!M)return;const all=dnAll(M),cnt=k=>all.filter(x=>x===k).length;const x=dnP(p);
-    x.f={es:cnt('estate'),du:cnt('duchy'),pr:cnt('province'),cu:cnt('curse'),ga:cnt('gardens'),dk:all.length,dke:cnt('duke'),f1:cnt('mill'),f2:cnt('harem')+cnt('nobles'),tu:M.tn}});
+    x.f={es:cnt('estate'),du:cnt('duchy'),pr:cnt('province'),cu:cnt('curse'),ga:cnt('gardens'),dk:all.length,dke:cnt('duke'),f1:cnt('mill'),f2:cnt('harem')+cnt('nobles')+cnt('island'),tu:M.tn}});
   const sc=P.map(p=>({p,v:total(p),t:g.me[p.id].tn})).sort((a,b)=>b.v-a.v||a.t-b.t);const w=sc[0];g.win=w.p.id;
   S.dnx=S.dnx||{};S.dnx.sets={base:1,intrigue:1,seaside:0,prosperity:0,menagerie:0,allies:0};
   g.msg=`${why} Game over!`;gLog(g,`${why} ${nm(w.p)} wins with ${w.v} points`,'🏆',1);gAnn(g,`${nm(w.p)} wins!`,`${why} ${sc.map(x=>`${nm(x.p)} ${x.v}`).join(' · ')}`,'🏆');gFx(g,w.p.id,'star')}
@@ -7990,7 +8034,34 @@ function dnStep(g,T){const p=T.p,M=g.me[p];if(!M)return;
     case 'torturer':dnDraw(g,p,3);dnAttack(g,p,'tort');break;
     case 'tradingp':{const n=Math.min(2,M.h.length);if(n)dnAsk(g,{p,k:'pick',min:n,max:n,then:'tp',why:'Trash 2 cards from your hand. If you do, gain a Silver to your hand.'});break}
     case 'upgrade':dnDraw(g,p,1);g.A++;dnPick(g,p,{min:1,max:1,then:'upg',why:'Trash a card from your hand. Gain a card costing exactly 1 more.'});break;
-    case 'nobles':dnOpts(g,p,[['card','+3 Cards'],['act','+2 Actions']],1,'nobles','Choose one.');break}
+    case 'nobles':dnOpts(g,p,[['card','+3 Cards'],['act','+2 Actions']],1,'nobles','Choose one.');break;
+    /* Seaside */
+    case 'embargo':{g.co+=2;const i=M.pl.lastIndexOf('embargo');if(i>=0){M.pl.splice(i,1);g.trash.push('embargo')}dnAsk(g,{p,k:'gain',ok:[...DNBASIC,...g.kd],then:'emb',verb:'Embargo',why:'Put an Embargo token on a Supply pile. Anyone who buys from it gains a Curse.'});break}
+    case 'haven':dnDraw(g,p,1);g.A++;g.dnx.push('haven');dnPick(g,p,{min:1,max:1,then:'hav',why:'Set aside a card from your hand. It comes back into your hand next turn.'});break;
+    case 'lighthouse':g.A++;g.co++;g.dnx.push('lighthouse');break;
+    case 'nativev':g.A+=2;dnOpts(g,p,[['set','Put the top card of your deck on your mat'],['take',`Take the ${(M.nv||[]).length} card${(M.nv||[]).length===1?'':'s'} on your mat into your hand`]],1,'nv','Native Village: choose one.');break;
+    case 'pearldiver':{dnDraw(g,p,1);g.A++;if(M.dk.length>1)dnAsk(g,{p,k:'yn',c:M.dk[0],then:'pearl',why:`The bottom card of your deck is ${dnAn(M.dk[0])}. Put it on top?`});break}
+    case 'ambassador':dnPick(g,p,{min:1,max:1,keep:1,then:'amb',why:'Reveal a card from your hand. You return up to 2 of it to the Supply, then everyone else gains one.'});break;
+    case 'fishingv':g.A+=2;g.co++;g.dnx.push('fishingv');break;
+    case 'lookout':{g.A++;const cs=[];for(let i=0;i<3;i++){const t=dnTop(g,p);if(t)cs.push(t)}if(cs.length===1){g.trash.push(cs[0]);g.msg+=` Trashed ${dnAn(cs[0])}.`}else if(cs.length){M.aside.push(...cs);dnAsk(g,{p,k:'look',cs,why:'Lookout: pick one card to trash and one to discard. The other goes back on top.'})}break}
+    case 'smugglers':{const rp=dnOthers(g,p).slice(-1)[0],L=[...new Set(((g.gl||{})[rp]||[]))].filter(k=>g.sup[k]>0&&dnCost(g,k)<=6);if(L.length)dnAsk(g,{p,k:'gain',ok:L,to:'ds',why:`Gain a copy of a card ${nmid(rp)} gained on their last turn (costing up to 6).`});else g.msg+=` ${nmid(rp)} didn’t gain anything you can copy.`;break}
+    case 'warehouse':{dnDraw(g,p,3);g.A++;const n=Math.min(3,M.h.length);if(n)dnAsk(g,{p,k:'pick',min:n,max:n,then:'disc',why:'Warehouse: discard 3 cards.'});break}
+    case 'caravan':dnDraw(g,p,1);g.A++;g.dnx.push('caravan');break;
+    case 'cutpurse':g.co+=2;dnAttack(g,p,'cut');break;
+    case 'island':{const i=M.pl.lastIndexOf('island');if(i>=0){M.pl.splice(i,1);M.isl.push('island')}dnPick(g,p,{min:1,max:1,then:'isl',why:'Set aside a card from your hand on your Island mat until the end of the game.'});break}
+    case 'navigator':{g.co+=2;const cs=[];for(let i=0;i<5;i++){const t=dnTop(g,p);if(t)cs.push(t)}if(cs.length){M.aside.push(...cs);dnOpts(g,p,[['disc','Discard all of them'],['keep','Put them back in an order I choose']],1,'nav',`The top cards: ${cs.map(dnNm).join(', ')}.`,{cs})}break}
+    case 'pirateship':dnOpts(g,p,[['atk','Attack: each player trashes a Treasure you pick'],['coin',`+${M.pt||0} coin${M.pt===1?'':'s'} (your Coin tokens)`]],1,'pir','Pirate Ship: choose one.');break;
+    case 'salvager':g.B++;dnPick(g,p,{min:1,max:1,then:'salv',why:'Trash a card from your hand for coins equal to its cost.'});break;
+    case 'seahag':dnAttack(g,p,'hag');break;
+    case 'treasuremap':{const i=M.pl.lastIndexOf('treasuremap');if(i<0)break;const j=M.h.indexOf('treasuremap');M.pl.splice(i,1);g.trash.push('treasuremap');if(j>=0){M.h.splice(j,1);g.trash.push('treasuremap');let n=0;for(let q=0;q<4;q++)if(dnGain(g,p,'gold','dk'))n++;g.msg+=` Two Treasure Maps! ${n} Gold${n===1?'':'s'} onto the deck.`;gLog(g,`${nmid(p)} found the treasure: ${n} Golds`,'🗺️');gAnn(g,'Treasure found!',`${nmid(p)} gained ${n} Golds.`,'🗺️')}else g.msg+=' Only one map: it’s trashed.';break}
+    case 'bazaar':dnDraw(g,p,1);g.A+=2;g.co++;break;
+    case 'explorer':{const pr=M.h.includes('province');if(dnGain(g,p,pr?'gold':'silver','h'))g.msg+=pr?' Revealed a Province: Gold to hand.':' Silver to hand.';break}
+    case 'ghostship':dnDraw(g,p,2);dnAttack(g,p,'ghost');break;
+    case 'merchantship':g.co+=2;g.dnx.push('merchantship');break;
+    case 'outpost':if(!g.extra)g.op=1;g.dnx.push('outpost');g.msg+=g.extra?' No extra turn: this is already an extra turn.':' Extra turn after this one, with a 3-card hand.';break;
+    case 'tactician':if(M.h.length){g.msg+=` Discarded ${M.h.length} cards.`;M.ds.push(...M.h);M.h=[];g.dnx.push('tactician')}else g.msg+=' No cards to discard, so no bonus.';break;
+    case 'treasury':dnDraw(g,p,1);g.A++;g.co++;break;
+    case 'wharf':dnDraw(g,p,2);g.B++;g.dnx.push('wharf');break}
     break}
   case 'askp':dnPick(g,p,{min:T.min,max:T.max,f:T.f,then:T.then,why:T.why});break;
   case 'artgain':dnAskGain(g,p,{max:5,to:'h',why:'Gain a card to your hand costing up to 5.'});break;
@@ -7998,6 +8069,7 @@ function dnStep(g,T){const p=T.p,M=g.me[p];if(!M)return;
   case 'gain':dnAskGain(g,p,{max:T.max,exact:T.exact,f:T.f,to:T.to,then:T.then,who:T.who,why:T.why});break;
   case 'react':{if(!T.d&&M.h.includes('diplomat')&&M.h.length>=5){dnAsk(g,{p,k:'yn',then:'dipl',T,why:`${nmid(T.by)} played an Attack. Reveal Diplomat to draw 2 cards, then discard 3?`});break}
     if(M.h.includes('moat')){gLog(g,`${nmid(p)} revealed a Moat and is safe`,'🌊');g.msg+=` ${nmid(p)} revealed a Moat.`;break}
+    if((M.du||[]).includes('lighthouse')){g.msg+=` ${nmid(p)}’s Lighthouse protects them.`;break}
     dnPush(g,{t:T.a,p,by:T.by,x:T.x});break}
   case 'bur':{const v=M.h.filter(k=>dnIs(k,'V'));if(!v.length){g.msg+=` ${nmid(p)} has no Victory cards.`;gLog(g,`${nmid(p)} showed a hand with no Victory cards`,'📜');break}
     if(new Set(v).size===1){M.h.splice(M.h.indexOf(v[0]),1);M.dk.push(v[0]);g.msg+=` ${nmid(p)} put ${dnAn(v[0])} on their deck.`;break}
@@ -8017,6 +8089,14 @@ function dnStep(g,T){const p=T.p,M=g.me[p];if(!M)return;
     dnAskGain(g,T.by,{exact:c,to:'ds',who:p,then:'swin',why:`${nmid(p)} trashed ${dnAn(t)} (cost ${c}). Pick a card costing exactly ${c} for them to gain.`,none:` Nothing costs ${c}, so they gain nothing.`});break}
   case 'tort':dnOpts(g,p,[['disc','Discard 2 cards'],['curse','Gain a Curse to your hand']],1,'tort',`${nmid(T.by)}’s Torturer: choose one.`);break;
   case 'minh':if(M.h.length>=5){M.ds.push(...M.h);M.h=[];dnDraw(g,p,4);g.msg+=` ${nmid(p)} discarded their hand and drew 4.`}break;
+  case 'cut':{const i=M.h.indexOf('copper');if(i>=0){M.h.splice(i,1);M.ds.push('copper');g.msg+=` ${nmid(p)} discarded a Copper.`}else g.msg+=` ${nmid(p)} has no Copper.`;break}
+  case 'hag':{const t=dnTop(g,p);if(t)M.ds.push(t);if(dnGain(g,p,'curse','dk')){g.msg+=` ${nmid(p)} gets a Curse on their deck.`;gLog(g,`${nmid(p)} gained a Curse`,'💀')}break}
+  case 'ghost':{const n=M.h.length-3;if(n>0)dnAsk(g,{p,k:'pick',min:n,max:n,then:'gs',why:`${nmid(T.by)}’s Ghost Ship: put ${n} card${n===1?'':'s'} from your hand on top of your deck.`});break}
+  case 'amb':if(dnGain(g,p,T.x,'ds'))g.msg+=` ${nmid(p)} gains ${dnAn(T.x)}.`;break;
+  case 'pir':{const cs=[];for(let i=0;i<2;i++){const t=dnTop(g,p);if(t)cs.push(t)}const tr=cs.filter(k=>dnIs(k,'T'));if(!tr.length){M.ds.push(...cs);if(cs.length)g.msg+=` ${nmid(p)} revealed ${cs.map(dnNm).join(' and ')}.`;break}
+    if(new Set(tr).size===1){cs.splice(cs.indexOf(tr[0]),1);g.trash.push(tr[0]);M.ds.push(...cs);g.pirhit=1;g.msg+=` ${nmid(p)} lost ${dnAn(tr[0])}.`;gLog(g,`${nmid(T.by)}’s Pirate Ship took ${nmid(p)}’s ${dnNm(tr[0])}`,'🏴‍☠️');break}
+    M.aside.push(...cs);dnAsk(g,{p:T.by,k:'ban',cs,v:p,cop:1,why:`${nmid(p)} revealed ${cs.map(dnNm).join(' and ')}. Pick the Treasure they trash.`});break}
+  case 'pirdone':if(g.pirhit){M.pt=(M.pt||0)+1;g.msg+=` ${nmid(p)} takes a Coin token (${M.pt}).`;gLog(g,`${nmid(p)} took a Pirate Ship coin (${M.pt})`,'🏴‍☠️')}g.pirhit=0;break;
   case 'spos':dnAsk(g,{p,k:'pos',c:T.c,n:M.dk.length,why:`Where in your deck should the ${dnNm(T.c)} go?`});break;
   }}
 function dnGainOpts(g,max,f){return [...DNBASIC,...g.kd].filter(k=>g.sup[k]>0&&dnCost(g,k)<=max&&(!f||dnIs(k,f)))}
@@ -8034,16 +8114,22 @@ function dnAns(g,pid,ans){const Q=g.ask;if(!Q||Q.p!==pid||g.phase!=='play')retur
       case 'top':M.dk.push(cs[0]);g.msg=`${nmid(pid)} put ${pid===g.turn?'a card':dnAn(cs[0])} onto their deck.`;break;
       case 'remodel':g.trash.push(cs[0]);g.msg=`${nmid(pid)} trashed ${dnAn(cs[0])}.`;dnPush(g,{t:'gain',p:pid,max:dnCost(g,cs[0])+2,to:'ds',why:`Gain a card costing up to ${dnCost(g,cs[0])+2}.`});break;
       case 'mine':if(cs.length){g.trash.push(cs[0]);g.msg=`${nmid(pid)} trashed ${dnAn(cs[0])}.`;dnPush(g,{t:'gain',p:pid,max:dnCost(g,cs[0])+3,f:'T',to:'h',why:`Gain a Treasure to your hand costing up to ${dnCost(g,cs[0])+3}.`})}break;
-      case 'throne':if(cs.length){const c=cs[0];M.pl.push(c);g.msg=`${nmid(pid)} played ${dnNm(c)} twice.`;gLog(g,`${nmid(pid)} played ${dnNm(c)} twice`,'👑');dnPush(g,{t:'eff',p:pid,c},{t:'eff',p:pid,c})}break;
+      case 'throne':if(cs.length){const c=cs[0];M.pl.push(c);if(dnIs(c,'D'))(g.dkeep=g.dkeep||[]).push('throne');g.msg=`${nmid(pid)} played ${dnNm(c)} twice.`;gLog(g,`${nmid(pid)} played ${dnNm(c)} twice`,'👑');dnPush(g,{t:'eff',p:pid,c},{t:'eff',p:pid,c})}break;
       case 'mill':M.ds.push(...cs);if(cs.length===2){g.co+=2;g.msg=`${nmid(pid)} discarded 2 cards for +2 coins.`}else g.msg=cs.length?`${nmid(pid)} discarded ${dnAn(cs[0])}.`:`${nmid(pid)} kept their cards.`;break;
       case 'masq':g.mq=g.mq||{};g.mq[pid]=cs[0];M.aside.push(cs[0]);g.msg=`${nmid(pid)} picked a card to pass.`;break;
       case 'sp':M.aside.push(cs[0]);dnPush(g,{t:'spos',p:pid,c:cs[0]});break;
       case 'court':{const ty=dnTypes(cs[0]);g.msg=`${nmid(pid)} revealed ${dnAn(cs[0])} (${ty.join(', ')}).`;dnOpts(g,pid,[['act','+1 Action'],['buy','+1 Buy'],['coin','+3 coins'],['gold','Gain a Gold']],ty.length,'court',`${dnNm(cs[0])} has ${ty.length} type${ty.length===1?'':'s'}: choose ${ty.length===1?'one':ty.length+' different'}.`);break}
       case 'replace':g.trash.push(cs[0]);g.msg=`${nmid(pid)} trashed ${dnAn(cs[0])}.`;dnPush(g,{t:'gain',p:pid,max:dnCost(g,cs[0])+2,to:'ds',then:'repl',why:`Gain a card costing up to ${dnCost(g,cs[0])+2}. Action or Treasure: it goes on your deck. Victory: everyone else gains a Curse.`});break;
       case 'tp':g.trash.push(...cs);g.msg=`${nmid(pid)} trashed ${cs.map(dnNm).join(' and ')}.`;if(cs.length===2&&dnGain(g,pid,'silver','h'))g.msg+=' Gained a Silver to hand.';break;
+      case 'hav':M.hav.push(cs[0]);g.msg=`${nmid(pid)} set a card aside for next turn.`;break;
+      case 'isl':M.isl.push(cs[0]);g.msg=`${nmid(pid)} set ${dnAn(cs[0])} aside on their Island.`;break;
+      case 'gs':cs.forEach(c=>M.dk.push(c));g.msg=`${nmid(pid)} put ${cs.length} card${cs.length===1?'':'s'} back on their deck.`;break;
+      case 'salv':g.trash.push(cs[0]);g.co+=dnCost(g,cs[0]);g.msg=`${nmid(pid)} trashed ${dnAn(cs[0])} for +${dnCost(g,cs[0])}.`;break;
+      case 'amb':{const k=cs[0],have=M.h.filter(x=>x===k).length,n=Math.min(2,have);g.msg=`${nmid(pid)} revealed ${dnAn(k)}.`;dnOpts(g,pid,Array.from({length:n+1},(_,i)=>[String(i),i?`Return ${i}`:'Return none']).reverse(),1,'amb',`Return up to ${n} ${dnNm(k)} to the Supply. Then everyone else gains one.`,{c:k});break}
       case 'upg':g.trash.push(cs[0]);g.msg=`${nmid(pid)} trashed ${dnAn(cs[0])}.`;dnPush(g,{t:'gain',p:pid,exact:dnCost(g,cs[0])+1,to:'ds',why:`Gain a card costing exactly ${dnCost(g,cs[0])+1}.`});break}
     dnRun(g);return true}
-  if(Q.k==='gain'){if(!Q.ok.includes(ans)||!(g.sup[ans]>0))return false;g.ask=null;g.n++;const who=Q.who||pid;
+  if(Q.k==='gain'){if(!Q.ok.includes(ans)||!(g.sup[ans]>0)&&Q.then!=='emb')return false;g.ask=null;g.n++;const who=Q.who||pid;
+    if(Q.then==='emb'){g.emb=g.emb||{};g.emb[ans]=(g.emb[ans]||0)+1;g.msg=`${nmid(pid)} put an Embargo token on ${dnNm(ans)}.`;gLog(g,`${nmid(pid)} embargoed ${dnNm(ans)}`,'🚫');dnRun(g);return true}
     if(Q.then==='lurkt'){g.sup[ans]--;g.trash.push(ans);g.msg=`${nmid(pid)} trashed ${dnAn(ans)} from the Supply.`;gLog(g,`${nmid(pid)} trashed ${dnAn(ans)} from the Supply`,'🥷');dnRun(g);return true}
     let to=Q.to;if(Q.then==='repl'&&(dnIs(ans,'A')||dnIs(ans,'T')))to='dk';
     dnGain(g,who,ans,to);g.msg=`${nmid(who)} gained ${dnAn(ans)}${to==='h'?' to their hand':to==='dk'?' onto their deck':''}.`;gLog(g,`${nmid(who)} gained ${dnAn(ans)}`,DNIC[ans]);
@@ -8055,22 +8141,30 @@ function dnAns(g,pid,ans){const Q=g.ask;if(!Q||Q.p!==pid||g.phase!=='play')retur
     else if(Q.then==='vassal'){if(y){const i=M.ds.lastIndexOf(Q.c);if(i>=0){M.ds.splice(i,1);M.pl.push(Q.c);g.msg=`${nmid(pid)} played the ${dnNm(Q.c)} from Vassal.`;gLog(g,`${nmid(pid)} played ${dnNm(Q.c)} with Vassal`,DNIC[Q.c]);dnPush(g,{t:'eff',p:pid,c:Q.c})}}}
     else if(Q.then==='lib'){const i=M.aside.lastIndexOf(Q.c);if(!y&&i>=0){M.aside.splice(i,1);M.h.push(Q.c)}dnPush(g,{t:'lib',p:pid})}
     else if(Q.then==='baron'){if(y){const i=M.h.indexOf('estate');M.h.splice(i,1);M.ds.push('estate');g.co+=4;g.msg=`${nmid(pid)} discarded an Estate for +4.`}else if(dnGain(g,pid,'estate','ds'))g.msg=`${nmid(pid)} gained an Estate.`}
+    else if(Q.then==='pearl'){if(y&&M.dk.length&&M.dk[0]===Q.c){M.dk.push(M.dk.shift());g.msg=`${nmid(pid)} put the bottom card on top.`}}
     else if(Q.then==='mv'){if(y){const i=M.pl.lastIndexOf('miningv');if(i>=0){M.pl.splice(i,1);g.trash.push('miningv');g.co+=2;g.msg=`${nmid(pid)} trashed the Mining Village for +2.`}}}
     else if(Q.then==='dipl'){const T=Q.T;if(y){dnDraw(g,pid,2);g.msg=`${nmid(pid)} revealed a Diplomat: drew 2, discards 3.`;gLog(g,`${nmid(pid)} revealed a Diplomat`,'✉️');dnPush(g,{t:'askp',p:pid,min:3,max:3,then:'disc',why:'Diplomat: discard 3 cards.'},{...T,d:1})}else dnPush(g,{...T,d:1})}
     dnRun(g);return true}
   if(Q.k==='disc'){const i=+ans;if(i!==-1&&!(i>=0&&i<M.ds.length))return false;g.ask=null;g.n++;if(i>=0){const c=M.ds.splice(i,1)[0];M.dk.push(c);g.msg=`${nmid(pid)} put ${dnAn(c)} onto their deck.`}dnRun(g);return true}
-  if(Q.k==='ban'){const i=+ans,c=Q.cs[i];if(!c||!dnIs(c,'T')||c==='copper')return false;g.ask=null;g.n++;Q.cs.forEach(k=>{const j=M.aside.indexOf(k);if(j>=0)M.aside.splice(j,1)});const rest=Q.cs.slice();rest.splice(i,1);g.trash.push(c);M.ds.push(...rest);g.msg=`${nmid(pid)} trashed ${dnAn(c)}.`;gLog(g,`${nmid(pid)} lost ${dnAn(c)} to the Bandit`,'🗡️');dnRun(g);return true}
+  if(Q.k==='ban'){const i=+ans,c=Q.cs[i];if(!c||!dnIs(c,'T')||c==='copper'&&!Q.cop)return false;const vid=Q.v||pid,VM=g.me[vid];g.ask=null;g.n++;Q.cs.forEach(k=>{const j=VM.aside.indexOf(k);if(j>=0)VM.aside.splice(j,1)});const rest=Q.cs.slice();rest.splice(i,1);g.trash.push(c);VM.ds.push(...rest);
+    if(Q.v){g.pirhit=1;g.msg=`${nmid(vid)} lost ${dnAn(c)} to the Pirate Ship.`;gLog(g,`${nmid(pid)}’s Pirate Ship took ${nmid(vid)}’s ${dnNm(c)}`,'🏴‍☠️')}else{g.msg=`${nmid(pid)} trashed ${dnAn(c)}.`;gLog(g,`${nmid(pid)} lost ${dnAn(c)} to the Bandit`,'🗡️')}dnRun(g);return true}
   if(Q.k==='sentry'){const ch=ans&&ans.ch;if(!Array.isArray(ch)||ch.length!==Q.cs.length||ch.some(x=>!['t','d','k'].includes(x)))return false;g.ask=null;g.n++;
     Q.cs.forEach(k=>{const j=M.aside.indexOf(k);if(j>=0)M.aside.splice(j,1)});const keep=[],said=[];
     Q.cs.forEach((k,i)=>{if(ch[i]==='t'){g.trash.push(k);said.push('trashed '+dnAn(k))}else if(ch[i]==='d'){M.ds.push(k);said.push('discarded '+dnAn(k))}else keep.push(i)});
     const top=keep.length===2&&keep.includes(+ans.top)?+ans.top:keep[keep.length-1];keep.filter(i=>i!==top).forEach(i=>M.dk.push(Q.cs[i]));if(top!=null&&keep.length)M.dk.push(Q.cs[top]);
     if(keep.length)said.push(`put ${keep.length} back`);g.msg=`${nmid(pid)} ${said.join(', ')}.`;dnRun(g);return true}
+  if(Q.k==='look'){const t=+(ans&&ans.t),d=+(ans&&ans.d);if(!(t>=0&&t<Q.cs.length)||!(d>=0&&d<Q.cs.length)||t===d)return false;g.ask=null;g.n++;Q.cs.forEach(k=>{const j=M.aside.indexOf(k);if(j>=0)M.aside.splice(j,1)});
+    g.trash.push(Q.cs[t]);M.ds.push(Q.cs[d]);Q.cs.forEach((k,i)=>{if(i!==t&&i!==d)M.dk.push(k)});g.msg=`${nmid(pid)} trashed ${dnAn(Q.cs[t])} and discarded ${dnAn(Q.cs[d])}.`;dnRun(g);return true}
   if(Q.k==='opts'){const a=Array.isArray(ans)?ans:[ans];const keys=Q.opts.map(o=>o[0]);if(a.length!==Q.n||new Set(a).size!==a.length||a.some(x=>!keys.includes(x)))return false;g.ask=null;g.n++;const said=a.map(x=>Q.opts.find(o=>o[0]===x)[1]);g.msg=`${nmid(pid)} chose ${said.join(' and ')}.`;
     switch(Q.then){
       case 'pawn':case 'court':case 'nobles':case 'steward':a.forEach(x=>{if(x==='card')dnDraw(g,pid,Q.then==='nobles'?3:Q.then==='steward'?2:1);else if(x==='act')g.A+=Q.then==='nobles'?2:1;else if(x==='buy')g.B++;else if(x==='coin')g.co+=Q.then==='court'?3:Q.then==='steward'?2:1;else if(x==='gold'){if(dnGain(g,pid,'gold','ds'))g.msg+=' Gained a Gold.'}
         else if(x==='trash'){const n=Math.min(2,M.h.length);if(n)dnPush(g,{t:'askp',p:pid,min:n,max:n,then:'trash',why:'Steward: trash 2 cards from your hand.'})}});break;
       case 'lurk':if(a[0]==='ts'){dnAskGain(g,pid,{max:99,f:'A',then:'lurkt',verb:'Trash',why:'Pick an Action card in the Supply to trash.',none:' No Action cards left in the Supply.'})}
         else{const cs=[...new Set(g.trash.filter(k=>dnIs(k,'A')))];if(cs.length)dnAsk(g,{p:pid,k:'tpick',cs,why:'Pick an Action card from the trash to gain.'});else g.msg+=' No Actions in the trash.'}break;
+      case 'nv':if(a[0]==='set'){const t=dnTop(g,pid);if(t){M.nv.push(t);g.msg=`${nmid(pid)} put a card on their Native Village mat.`}}else{g.msg=`${nmid(pid)} took ${M.nv.length} card${M.nv.length===1?'':'s'} from their mat.`;M.h.push(...M.nv);M.nv=[]}break;
+      case 'amb':{const n=+a[0],k=Q.c;for(let i=0;i<n;i++){const j=M.h.indexOf(k);if(j>=0){M.h.splice(j,1);g.sup[k]=(g.sup[k]||0)+1}}g.msg=`${nmid(pid)} returned ${n} ${dnNm(k)} to the Supply.`;dnAttack(g,pid,'amb',k);break}
+      case 'nav':Q.cs.forEach(k=>{const j=M.aside.indexOf(k);if(j>=0)M.aside.splice(j,1)});if(a[0]==='disc'){M.ds.push(...Q.cs);g.msg=`${nmid(pid)} discarded the top ${Q.cs.length}.`}else if(Q.cs.length>1){M.aside.push(...Q.cs);dnAsk(g,{p:pid,k:'order',cs:Q.cs,then:'nav',why:'Put them back: tap them in order, the first one goes on top.'})}else M.dk.push(...Q.cs);break;
+      case 'pir':if(a[0]==='coin'){g.co+=M.pt||0}else{g.pirhit=0;dnPush(g,{t:'pirdone',p:pid});dnAttack(g,pid,'pir')}break;
       case 'minion':if(a[0]==='coin')g.co+=2;else{M.ds.push(...M.h);M.h=[];dnDraw(g,pid,4);dnAttack(g,pid,'minh')}break;
       case 'tort':if(a[0]==='curse'){if(dnGain(g,pid,'curse','h')){g.msg=`${nmid(pid)} took a Curse into their hand.`;gLog(g,`${nmid(pid)} gained a Curse`,'💀')}else g.msg=`${nmid(pid)} chose a Curse, but there are none left.`}
         else{const n=Math.min(2,M.h.length);if(n)dnPush(g,{t:'askp',p:pid,min:n,max:n,then:'disc',why:'Torturer: discard 2 cards.'})}break}
@@ -8101,7 +8195,7 @@ function dnBotWant(g,pid,max,lv,f,ok){const M=g.me[pid],PL=g.sup.province,all=dn
   const term=all.filter(k=>DNTERM.has(k)).length,acts=all.filter(k=>dnIs(k,'A')).length;
   const gardensOk=g.kd.includes('gardens')&&(g.kd.includes('workshop')||g.kd.includes('ironworks')||g.kd.includes('festival')||g.kd.includes('market'));
   let best=null,bv=0;g.kd.forEach(k=>{if(!has(k))return;let v=DNBV[k]||0;if(k==='gardens')v=gardensOk&&lv==='hard'?6:PL<=3?3:0;
-    if(k==='harem')v=PL<=5?7:5;if(k==='duke')v=PL<=5&&dnCnt(M,'duchy')>=2?6:0;
+    if(k==='harem')v=PL<=5?7:5;if(k==='island')v=PL<=5?6:3;if(k==='treasuremap')v=dnCnt(M,'treasuremap')===1?5:0;if(k==='duke')v=PL<=5&&dnCnt(M,'duchy')>=2?6:0;
     if(DNTERM.has(k)&&term>=Math.max(1,Math.floor(all.length/9)))v-=6;if(dnIs(k,'A')&&acts>=all.length/3)v-=4;
     if(k==='chapel')v=0;if((k==='witch'||k==='torturer')&&!g.sup.curse)v-=4;if((k==='village'||k==='shanty'||k==='miningv')&&term<2)v-=3;if(k==='moat'&&!g.kd.some(x=>dnIs(x,'K')))v-=2;if(k==='diplomat'&&!g.kd.some(x=>dnIs(x,'K')))v-=1;
     if(lv==='hard'&&(k==='witch'||k==='torturer'))v+=3;if(dnCnt(M,k)>=2&&!['harem','duke','nobles'].includes(k))v-=2;v+=cst(k)*.15;if(v>bv){bv=v;best=k}});
@@ -8110,10 +8204,10 @@ function dnBotWant(g,pid,max,lv,f,ok){const M=g.me[pid],PL=g.sup.province,all=dn
   if(has('estate')&&PL<=(lv==='hard'&&max<3?3:2))return 'estate';
   if(has('gardens')&&PL<=2)return 'gardens';
   return null}
-const DNPLAYORDER=['village','miningv','shanty','festival','lab','market','sentry','poacher','merchant','harbinger','wishing','upgrade','mill','secretp','lurker','pawn','cellar','throne','conspirator'];
+const DNPLAYORDER=['bazaar','fishingv','lighthouse','caravan','haven','pearldiver','treasury','warehouse','lookout','nativev','village','miningv','shanty','festival','lab','market','sentry','poacher','merchant','harbinger','wishing','upgrade','mill','secretp','lurker','pawn','cellar','throne','conspirator'];
 function dnBotPlayPick(g,pid){const M=g.me[pid],h=M.h;for(const k of DNPLAYORDER){const i=h.indexOf(k);if(i<0)continue;if(k==='throne'&&!h.some((x,j)=>j!==i&&dnIs(x,'A')))continue;if(k==='cellar'&&!h.some(x=>dnIs(x,'V')&&!dnIs(x,'A')||x==='curse'))continue;
     if(k==='shanty'&&h.some((x,j)=>j!==i&&(x==='village'||x==='miningv')))continue;if(k==='conspirator'&&g.np<2&&h.some((x,j)=>j!==i&&dnIs(x,'A')&&!DNPLAYORDER.includes(x))&&g.A>1)continue;return i}
-  let bi=-1,bv=-99;h.forEach((k,i)=>{if(!dnIs(k,'A'))return;let v=DNBV[k]||1;if(k==='library')v=7-h.length;if(k==='moneylender'&&!h.includes('copper'))v=0;if(k==='mine'&&!h.some(x=>dnIs(x,'T')))v=0;if(k==='remodel'&&!h.length)v=0;if(k==='baron'&&h.includes('estate'))v=7;if(v>bv){bv=v;bi=i}});return bi}
+  let bi=-1,bv=-99;h.forEach((k,i)=>{if(!dnIs(k,'A'))return;let v=DNBV[k]||1;if(k==='library')v=7-h.length;if(k==='moneylender'&&!h.includes('copper'))v=0;if(k==='mine'&&!h.some(x=>dnIs(x,'T')))v=0;if(k==='remodel'&&!h.length)v=0;if(k==='baron'&&h.includes('estate'))v=7;if(k==='treasuremap')v=h.filter(x=>x==='treasuremap').length>=2?9:-1;if(k==='explorer'&&h.includes('province'))v=6;if(k==='island')v=h.some(x=>x==='curse'||dnIs(x,'V')&&!dnIs(x,'A'))?5:2;if(v>bv){bv=v;bi=i}});return bi}
 function dnBotAns(g,q){const Q=g.ask,pid=q.id,M=g.me[pid],lv=q.bot,PL=g.sup.province;const ix=(pred)=>M.h.map((k,i)=>[k,i]).filter(([k])=>pred(k)).map(x=>x[1]);
   const lowest=(n,f)=>M.h.map((k,i)=>[k,i]).filter(([k])=>!f||dnIs(k,f)).sort((a,b)=>dnKeepV(a[0])-dnKeepV(b[0])).slice(0,n).map(x=>x[1]);
   const junk=k=>k==='curse'||k==='estate'&&PL>2;
@@ -8129,16 +8223,22 @@ function dnBotAns(g,q){const Q=g.ask,pid=q.id,M=g.me[pid],lv=q.bot,PL=g.sup.prov
       case 'upg':{const e=ix(k=>k==='estate')[0],c=ix(k=>k==='curse')[0],cp=ix(k=>k==='copper')[0];a=[e!=null?e:c!=null?c:cp!=null?cp:lowest(1)[0]];break}
       case 'tp':a=lowest(Q.min);break;
       case 'sp':a=lowest(1);break;
+      case 'hav':{const ac=g.A<1?ix(k=>dnIs(k,'A')):[];a=[ac[0]!=null?ac[0]:lowest(1)[0]];break}
+      case 'isl':{const v=ix(k=>k==='curse'||dnIs(k,'V')&&!dnIs(k,'A')&&!dnIs(k,'T'));a=[v[0]!=null?v[0]:lowest(1)[0]];break}
+      case 'gs':a=lowest(Q.min);break;
+      case 'salv':{const gi=M.h.indexOf('gold');a=[gi>=0&&PL<=3?gi:lowest(1)[0]];break}
+      case 'amb':a=lowest(1);break;
       case 'court':{let bi=0,bn=0;M.h.forEach((k,i)=>{const n=dnTypes(k).length;if(n>bn){bn=n;bi=i}});a=[bi];break}
       case 'mine':{const s=M.h.indexOf('silver'),c=M.h.indexOf('copper');a=s>=0&&g.sup.gold?[s]:c>=0&&g.sup.silver?[c]:[];break}
       case 'throne':{let bi=-1,bv=0;M.h.forEach((k,i)=>{if(dnIs(k,'A')&&k!=='throne'&&(DNBV[k]||1)>bv){bv=DNBV[k]||1;bi=i}});a=bi>=0?[bi]:[];break}}
     a=a.filter(i=>i!=null&&i>=0);if(a.length<Q.min)a=[...new Set([...a,...lowest(Q.min+a.length,Q.f)])].slice(0,Q.min);if(a.length>Q.max)a=a.slice(0,Q.max);
     if(!dnAns(g,pid,a))dnAns(g,pid,lowest(Q.min,Q.f));return}
-  if(Q.k==='gain'){let w;if(Q.then==='swin')w=Q.ok.slice().sort((a,b)=>dnKeepV(a)-dnKeepV(b))[0];else if(Q.then==='lurkt')w=Q.ok.slice().sort((a,b)=>(DNBV[b]||0)-(DNBV[a]||0))[0];
+  if(Q.k==='gain'){let w;if(Q.then==='emb')w=g.sup.province>0?'province':Q.ok.slice().sort((a,b)=>(DNBV[b]||0)-(DNBV[a]||0))[0];else if(Q.then==='swin')w=Q.ok.slice().sort((a,b)=>dnKeepV(a)-dnKeepV(b))[0];else if(Q.then==='lurkt')w=Q.ok.slice().sort((a,b)=>(DNBV[b]||0)-(DNBV[a]||0))[0];
     else w=dnBotWant(g,pid,Q.max!=null?Q.max:Q.exact,lv,Q.f,Q.ok)||Q.ok.slice().sort((a,b)=>dnC(b).c-dnC(a).c).find(k=>k!=='curse')||Q.ok[0];dnAns(g,pid,w);return}
   if(Q.k==='yn'){let y=true;if(Q.then==='lib')y=g.A<1;else if(Q.then==='mv'){const pv=dnBuyPreview(g);y=(pv<8&&pv+2>=8)||(pv<6&&pv+2>=6)}dnAns(g,pid,y);return}
   if(Q.k==='disc'){let bi=-1,bv=2.5;M.ds.forEach((k,i)=>{const v=dnKeepV(k);if(v>bv){bv=v;bi=i}});dnAns(g,pid,bi);return}
-  if(Q.k==='ban'){const i=Q.cs.indexOf('silver');dnAns(g,pid,i>=0?i:Q.cs.findIndex(k=>dnIs(k,'T')&&k!=='copper'));return}
+  if(Q.k==='ban'){if(Q.v){const o=['gold','harem','silver','copper'].map(k=>Q.cs.indexOf(k)).find(i=>i>=0);dnAns(g,pid,o!=null&&o>=0?o:Q.cs.findIndex(k=>dnIs(k,'T')));return}const i=Q.cs.indexOf('silver');dnAns(g,pid,i>=0?i:Q.cs.findIndex(k=>dnIs(k,'T')&&k!=='copper'));return}
+  if(Q.k==='look'){const o=Q.cs.map((k,i)=>i).sort((x,y)=>dnKeepV(Q.cs[x])-dnKeepV(Q.cs[y]));dnAns(g,pid,{t:o[0],d:o[1]});return}
   if(Q.k==='sentry'){const ch=Q.cs.map(k=>k==='curse'||k==='estate'&&PL>2||k==='copper'&&lv==='hard'&&dnMoney(M)>7?'t':dnIs(k,'V')&&!dnIs(k,'A')&&!dnIs(k,'T')||k==='copper'?'d':'k');const keep=ch.map((x,i)=>x==='k'?i:-1).filter(i=>i>=0);
     let top=keep[0];if(keep.length===2)top=dnKeepV(Q.cs[keep[0]])>=dnKeepV(Q.cs[keep[1]])?keep[0]:keep[1];dnAns(g,pid,{ch,top});return}
   if(Q.k==='opts'){const pv=g.turn===pid?dnBuyPreview(g):0,actsInHand=M.h.some(k=>dnIs(k,'A'));let a;
@@ -8150,6 +8250,10 @@ function dnBotAns(g,q){const Q=g.ask,pid=q.id,M=g.me[pid],lv=q.bot,PL=g.sup.prov
       case 'lurk':a=[g.trash.some(k=>dnIs(k,'A')&&(DNBV[k]||0)>=4)?'gt':'ts'];break;
       case 'minion':a=[pv>=4||M.h.length>=5?'coin':'hand'];break;
       case 'tort':a=[M.h.length>=2||!g.sup.curse?'disc':'curse'];break;
+      case 'nv':a=[(M.nv||[]).length>=3?'take':'set'];break;
+      case 'amb':a=[Q.opts[0][0]];break;
+      case 'nav':{const avg=Q.cs.reduce((x,k)=>x+dnKeepV(k),0)/Q.cs.length;a=[avg<2.5?'disc':'keep'];break}
+      case 'pir':a=[(M.pt||0)>=2?'coin':'atk'];break;
       default:a=Q.opts.slice(0,Q.n).map(o=>o[0])}
     if(!dnAns(g,pid,a))dnAns(g,pid,Q.opts.slice(0,Q.n).map(o=>o[0]));return}
   if(Q.k==='tpick'){dnAns(g,pid,Q.cs.slice().sort((a,b)=>(DNBV[b]||0)-(DNBV[a]||0))[0]);return}
@@ -8177,11 +8281,11 @@ function dnTick(){if(S.game!=='dominion'||!dnOn()||!S.started||S.finished||S.scr
 const DNCOL={T:'#ecc94b',V:'#7cc47f',C:'#a88bd0',R:'#8cbbe8',A:'#d9dde2'};
 const dnCol=k=>{const t=dnC(k).t;if(t==='TV')return `linear-gradient(135deg,${DNCOL.T} 50%,${DNCOL.V} 50%)`;if(t==='AV')return `linear-gradient(135deg,${DNCOL.A} 50%,${DNCOL.V} 50%)`;return t.includes('R')?DNCOL.R:t.includes('A')?DNCOL.A:DNCOL[t[0]]||DNCOL.A};
 function dnCardEl(k,o={}){const C=dnC(k),tag=o.btn?'button':'span',cls=['dnc'];if(dnIs(k,'K'))cls.push('dnk');if(o.cls)cls.push(o.cls);if(o.big)cls.push('dnbigc');
-  return `<${tag} class="${cls.join(' ')}" style="--dc:${dnCol(k)}"${o.big?'':` data-lp="dnc:${k}"`}${o.attr||''} aria-label="${esc(C.n)}, costs ${o.cost!=null?o.cost:C.c}${o.n!=null?`, ${o.n} left`:''}${o.lab?', '+o.lab:''}">${o.n!=null?`<span class="dnn num">${o.n}</span>`:''}<img class="dnim" src="art/dn-${k}.jpg" alt="" loading="lazy" onerror="this.outerHTML='<span class=&quot;dni&quot;>${DNIC[k]||'🃏'}</span>'"><b>${esc(C.n)}</b>${o.big?`<span class="dnx">${esc(C.x||'')}</span><small class="dnty">${dnTypeNm(k)}</small>`:''}<span class="dnco num${o.cost!=null&&o.cost<C.c?' cheap':''}" aria-hidden="true">${o.cost!=null?o.cost:C.c}</span></${tag}>`}
+  return `<${tag} class="${cls.join(' ')}" style="--dc:${dnCol(k)}"${o.big?'':` data-lp="dnc:${k}"`}${o.attr||''} aria-label="${esc(C.n)}, costs ${o.cost!=null?o.cost:C.c}${o.n!=null?`, ${o.n} left`:''}${o.lab?', '+o.lab:''}">${o.n!=null?`<span class="dnn num">${o.n}</span>`:''}${o.emb?`<span class="dnemb" title="Embargo tokens"><img src="art/dn-embtok.jpg" alt="Embargo" width="16" height="16" style="vertical-align:middle;border-radius:50%" onerror="this.outerHTML='🚫'">${o.emb>1?o.emb:''}</span>`:''}<img class="dnim" src="art/dn-${k}.jpg" alt="" loading="lazy" onerror="this.outerHTML='<span class=&quot;dni&quot;>${DNIC[k]||'🃏'}</span>'"><b>${esc(C.n)}</b>${o.big?`<span class="dnx">${esc(C.x||'')}</span><small class="dnty">${dnTypeNm(k)}</small>`:''}<span class="dnco num${o.cost!=null&&o.cost<C.c?' cheap':''}" aria-hidden="true">${o.cost!=null?o.cost:C.c}</span></${tag}>`}
 const dnTypeNm=k=>dnTypes(k).join(' – ')||'Card';
 function dnSupply(g,V){const mine=V&&dnActor(g)===V.id,Q=mine?g.ask:null,buying=mine&&!Q&&g.turn===V.id&&!g.k.length;
   const pile=k=>{const n=g.sup[k],can=Q&&Q.k==='gain'?Q.ok.includes(k):buying&&n>0&&g.B>0&&dnCost(g,k)<=g.co&&g.ph==='buy';
-    return dnCardEl(k,{btn:1,n,cost:dnCost(g,k),attr:` data-a="dnppile" data-k="${k}"`,cls:(n<=0?'dnout ':'')+(can?'go':'')})};
+    return dnCardEl(k,{btn:1,n,cost:dnCost(g,k),emb:(g.emb||{})[k]||0,attr:` data-a="dnppile" data-k="${k}"`,cls:(n<=0?'dnout ':'')+(can?'go':'')})};
   return `<h4 class="sah">Supply</h4><div class="dnsup">${DNBASIC.map(pile).join('')}</div><div class="dnsup">${g.kd.map(pile).join('')}</div>
   <p class="hint">${Object.keys(g.sup).filter(k=>g.sup[k]<=0).length} empty pile${dnEmpty(g)===1?'':'s'} · <img class="dnpimg" src="art/dn-trash.jpg" alt="" onerror="this.remove()">${g.trash.length} in the trash · tap a card to read it</p>`}
 function dnLpSheet(k){if(!DNC[k])return '';const g=dnG(),left=g&&g.sup&&g.sup[k]!=null?`${g.sup[k]} left in the Supply`:'';
@@ -8200,11 +8304,13 @@ function dnAskUI(g,V){const Q=g.ask,M=g.me[V.id];let out=`<div class="rlab dnwhy
   else if(Q.k==='yn'){const lb={lib:['Set it aside','Keep it in hand'],vassal:['Play it','Leave it'],money:['Yes, trash a Copper','No'],baron:['Discard an Estate (+4)','Gain an Estate'],mv:['Trash it for +2','Keep it'],dipl:['Reveal Diplomat','No']}[Q.then]||['Yes','No'];
     if(Q.c)out+=`<div class="dnhand">${dnCardEl(Q.c,{big:1})}</div>`;out+=`<div class="prow"><button class="btn primary" style="flex:1" data-a="dnpyn" data-k="1">${lb[0]}</button><button class="btn" style="flex:1" data-a="dnpyn" data-k="0">${lb[1]}</button></div>`}
   else if(Q.k==='disc')out+=`<div class="dnhand">${M.ds.map((k,i)=>dnCardEl(k,{btn:1,attr:` data-a="dnpdisc" data-k="${i}"`})).join('')}</div><button class="btn wide" data-a="dnpdisc" data-k="-1">Don’t put one back</button>`;
-  else if(Q.k==='ban')out+=`<div class="dnhand">${Q.cs.map((k,i)=>dnCardEl(k,{btn:dnIs(k,'T')&&k!=='copper',attr:` data-a="dnpban" data-k="${i}"`,cls:dnIs(k,'T')&&k!=='copper'?'go':'dim'})).join('')}</div>`;
+  else if(Q.k==='ban')out+=`<div class="dnhand">${Q.cs.map((k,i)=>{const okk=dnIs(k,'T')&&(k!=='copper'||Q.cop);return dnCardEl(k,{btn:okk,attr:` data-a="dnpban" data-k="${i}"`,cls:okk?'go':'dim'})}).join('')}</div>`;
   else if(Q.k==='sentry'){if(!DNSN||DNSN.n!==g.n)DNSN={n:g.n,ch:Q.cs.map(()=>'k'),top:0};const keep=DNSN.ch.map((x,i)=>x==='k'?i:-1).filter(i=>i>=0);
     out+=Q.cs.map((k,i)=>`<div class="dnsen">${dnCardEl(k)}<div class="seg">${[['t','Trash'],['d','Discard'],['k','Keep']].map(([v,l])=>`<button data-a="dnpsen" data-k="${i}:${v}" aria-pressed="${DNSN.ch[i]===v}">${l}</button>`).join('')}</div></div>`).join('');
     if(keep.length===2)out+=`<div class="rlab">Which one goes on top (you draw it first)?</div><div class="seg">${keep.map(i=>`<button data-a="dnpsentop" data-k="${i}" aria-pressed="${DNSN.top===i}">${esc(dnNm(Q.cs[i]))}</button>`).join('')}</div>`;
     out+=`<button class="btn primary wide" data-a="dnpsenok">Done</button>`}
+  else if(Q.k==='look'){if(!DNLK||DNLK.n!==g.n)DNLK={n:g.n,t:null,d:null};const step=DNLK.t==null?'t':'d';
+    out+=`<div class="rlab"><b>${step==='t'?'Tap the card to trash':'Now tap the card to discard'}</b></div><div class="dnhand">${Q.cs.map((k,i)=>`<span class="dnordw">${dnCardEl(k,{btn:i!==DNLK.t,cls:i===DNLK.t?'dim':'go',attr:` data-a="dnplook" data-k="${i}"`})}${i===DNLK.t?'<b class="dnordn">🗑</b>':''}</span>`).join('')}</div>${DNLK.t!=null?'<button class="btn wide" data-a="dnplookclr">Start over</button>':''}`}
   else if(Q.k==='opts'){if(!DNOPT||DNOPT.n!==g.n)DNOPT={n:g.n,s:[]};const sel=DNOPT.s;
     out+=`<div class="dnopts">${Q.opts.map(([k,l])=>`<button class="btn${sel.includes(k)?' primary':''}" data-a="dnpopt" data-k="${k}" aria-pressed="${sel.includes(k)}">${esc(l)}</button>`).join('')}</div>`;
     if(Q.n>1)out+=`<button class="btn primary wide" data-a="dnpoptok" ${sel.length===Q.n?'':'disabled'}>${sel.length===Q.n?'Done':`Pick ${Q.n-sel.length} more`}</button>`}
@@ -8227,7 +8333,13 @@ function dnDock(g,V){if(!V||g.phase!=='play')return '';const a=dnActor(g),mine=a
   else body=`<div class="rlab">Tap a card in the Supply to buy it${g.B>1?` (${g.B} buys left)`:''}.</div><div class="prow"><button class="btn${g.co>=3?'':' primary'}" style="flex:1" data-a="dnpend">${DNENDOK===g.n?'Tap again to end your turn':'End turn'}</button></div>`;
   const ph=g.ask?(g.turn===V.id?'Choose':'Respond'):g.ph==='action'?'Action phase':'Buy phase';
   return `<div class="sadock dndock" style="${pc(V.color)}"><div class="sadh"><span><b>${S.lk||dnHumans().length<2?(g.turn===V.id?'Your turn':'Your move'):esc(nm(V))+(g.turn===V.id?'’s turn':'')}</b> · ${ph}</span><button class="sadrx" data-a="rxopen" aria-label="Reactions">😀</button></div>${ctr}${body}</div>`}
-let DNHSEL=null,DNENDOK=-1;
+let DNHSEL=null,DNENDOK=-1,DNLK=null;
+/* cards waiting for next turn (Durations), Haven, Native Village and Island mats */
+function dnMats(M,mine){const L=[];if((M.du||[]).length)L.push(`<div class="dnmat"><span class="rlab"><img class="dnpimg" src="art/dn-dur.jpg" alt="" onerror="this.remove()">Next turn</span><div class="dnhand sm">${M.du.map(k=>dnCardEl(k)).join('')}</div></div>`);
+  if((M.hav||[]).length)L.push(`<div class="dnmat"><span class="rlab">⚓ Haven</span><span class="rlab">${mine?M.hav.map(dnNm).join(', '):M.hav.length+' face down'}</span></div>`);
+  if((M.nv||[]).length)L.push(`<div class="dnmat"><span class="rlab">🛖 Native Village mat</span>${mine?`<div class="dnhand sm">${M.nv.map(k=>dnCardEl(k)).join('')}</div>`:`<span class="rlab">${M.nv.length} face down</span>`}</div>`);
+  if((M.isl||[]).length)L.push(`<div class="dnmat"><span class="rlab">🏝️ Island</span><div class="dnhand sm">${M.isl.map(k=>dnCardEl(k)).join('')}</div></div>`);
+  return L.join('')}
 function dnPlayUI(){const g=dnG(),P=act(),sc=P.map(p=>g&&g.me&&g.me[p.id]?dnVP(g.me[p.id]):0),hi=Math.max(...sc),lead=g&&g.phase==='done'&&sc.filter(v=>v===hi).length===1?P[sc.indexOf(hi)]:null;
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="${g&&g.phase==='done'?'Game over':'Dominion'}">${g&&g.phase==='done'?'🏁':'👑'}${g&&g.turn&&g.me[g.turn]&&g.phase!=='done'?` <span class="num">${g.me[g.turn].tn}</span>`:''}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>
   <div class="tabs hftabs nxtabs" role="list">${P.map((q,k)=>`<button class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${!!g&&dnActor(g)===q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}${q===lead?' 👑':''}</div><div class="ts num">${sc[k]}</div><div class="tr num">${g&&g.me&&g.me[q.id]?dnAll(g.me[q.id]).length+' cards':''}</div></button>`).join('')}</div>`;
@@ -8238,10 +8350,10 @@ function dnPlayUI(){const g=dnG(),P=act(),sc=P.map(p=>g&&g.me&&g.me[p.id]?dnVP(g
   if(g.phase==='play'&&tp){const T=g.me[tp.id];out+=`<div class="dnplay" style="${pc(tp.color)}"><div class="rlab"><b>${esc(nm(tp))}</b> in play · ${g.ph==='action'?'Action':'Buy'} phase · ${g.A} action${g.A===1?'':'s'}, ${g.B} buy${g.B===1?'':'s'}, ${g.co} coin${g.co===1?'':'s'}</div><div class="dnhand sm">${T.pl.map(k=>dnCardEl(k)).join('')||'<span class="rlab">Nothing played yet</span>'}</div></div>`}
   if(V&&g.me[V.id]){const M=g.me[V.id],Q=dnActor(g)===V.id?g.ask:null,pick=Q&&Q.k==='pick',acting=dnActor(g)===V.id&&!g.ask&&g.turn===V.id&&g.ph==='action';
     out+=`<h4 class="sah">${S.lk||dnHumans().length<2?'Your':esc(nm(V))+'’s'} hand</h4><div class="dnhand mine" style="${pc(V.color)}">${M.h.map((k,i)=>dnCardEl(k,{btn:1,attr:` data-a="dnphand" data-k="${i}"`,cls:(pick&&DNSEL.includes(i))||(!pick&&DNHSEL===i&&acting)?'sel':pick&&Q.f&&!dnIs(k,Q.f)?'dim':acting&&dnIs(k,'A')&&g.A>0?'go':''})).join('')||'<span class="rlab">No cards in hand</span>'}</div>
-    <p class="hint dnpiles"><img class="dnpimg" src="art/dn-deck.jpg" alt="" onerror="this.remove()">Deck <b class="num">${M.dk.length}</b> · Discard <b class="num">${M.ds.length}</b>${M.ds.length?` (top: ${esc(dnNm(M.ds[M.ds.length-1]))})`:''} · ${dnAll(M).length} cards in all · <img class="dnpimg" src="art/dn-vp.jpg" alt="" onerror="this.remove()">${dnVP(M)} points</p>`}
+    <p class="hint dnpiles"><img class="dnpimg" src="art/dn-deck.jpg" alt="" onerror="this.remove()">Deck <b class="num">${M.dk.length}</b> · Discard <b class="num">${M.ds.length}</b>${M.ds.length?` (top: ${esc(dnNm(M.ds[M.ds.length-1]))})`:''} · ${dnAll(M).length} cards in all · <img class="dnpimg" src="art/dn-vp.jpg" alt="" onerror="this.remove()">${dnVP(M)} points${M.pt?` · <img class="dnpimg" src="art/dn-pcoin.jpg" alt="" onerror="this.remove()">${M.pt} Pirate coin${M.pt===1?'':'s'}`:''}</p>${dnMats(M,true)}`}
   else if(!S.lk&&dnHumans().length>1&&g.phase==='play')out+=`<p class="hint" style="text-align:center">Hands are hidden until the right person has the phone.</p>`;
   out+=dnSupply(g,V);
-  out+=`<div class="dnothers">${P.filter(p=>!V||p.id!==V.id).map(p=>{const M=g.me[p.id];return M?`<div class="dno" style="${pc(p.color)}"><b>${botHead(p)}${esc(nm(p))}</b><span class="num">${M.h.length} in hand · deck ${M.dk.length} · discard ${M.ds.length}</span></div>`:''}).join('')}</div>`;
+  out+=`<div class="dnothers">${P.filter(p=>!V||p.id!==V.id).map(p=>{const M=g.me[p.id];return M?`<div class="dno" style="${pc(p.color)}"><b>${botHead(p)}${esc(nm(p))}</b><span class="num">${M.h.length} in hand · deck ${M.dk.length} · discard ${M.ds.length}${M.pt?` · <img class="dnpimg" src="art/dn-pcoin.jpg" alt="Pirate coins" onerror="this.remove()">${M.pt}`:''}</span></div>${dnMats(M,false)}`:''}).join('')}</div>`;
   if(!DNPILE&&!LPTIP)out+=dnDock(g,V);
   if(g.phase==='done')out+=`<div class="panel htsum">${P.map(q=>{const M=g.me[q.id];return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${M.tn} turns · ${dnAll(M).length} cards</small></span><span class="num"><b>${total(q)}</b></span></div>`}).join('')}</div>
     <div class="actions"><div class="in">${dnRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Waiting for the host…</span>`}</div></div>`;
@@ -8277,7 +8389,9 @@ function dnAct(a,b,k){const g=dnG();if(!g)return;
   if(a==='dnpordclr'){if(DNORD)DNORD.o=[];return}
   if(a==='dnpordok'){if(DNORD&&done(lkq('dnAns',pid,DNORD.o.slice())))DNORD=null;return}
   if(a==='dnppos'){done(lkq('dnAns',pid,+k));return}
-  if(a==='dnpname'){done(lkq('dnAns',pid,k));return}}
+  if(a==='dnpname'){done(lkq('dnAns',pid,k));return}
+  if(a==='dnplook'){const Q=g.ask;if(!Q||Q.k!=='look')return;if(!DNLK||DNLK.n!==g.n)DNLK={n:g.n,t:null,d:null};const i=+k;if(DNLK.t==null){DNLK.t=i;if(Q.cs.length===1)done(lkq('dnAns',pid,{t:i,d:i}));return}if(i===DNLK.t)return;if(done(lkq('dnAns',pid,{t:DNLK.t,d:i})))DNLK=null;return}
+  if(a==='dnplookclr'){DNLK=null;return}}
 
 /* =====================================================================
    PHASE 10
@@ -15411,6 +15525,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='f855dd';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='5c6a24';</script>
 </body>
 </html>
