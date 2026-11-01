@@ -7088,6 +7088,8 @@ function ciTurnStart(g){const t=g.turn,p=t.p,M=g.me[p];
   if(t.ch==='queen'){const kg=ciOwner(g,g.ch[4]);if(kg&&kg!==p&&(ciLeft(g,p)===kg||ciRight(g,p)===kg)&&g.kill!==g.ch[4]){M.gold+=3;g.msg+=' Next to the '+ciN(g.ch[4])+': +3 gold.';gLog(g,`${nmid(p)} (Queen) sits next to the ${ciN(g.ch[4])}: +3 gold`,'👸')}}
   if(t.ch==='emperor')ciAsk(g,{p,k:'opt',then:'emp',opts:g.ps.filter(x=>x!==p).map(x=>[x,nmid(x)]),why:'Emperor: give the Crown to another player. They give you one gold or one district card.'})}
 function ciAsk(g,a){g.ask=a}
+/* back out of a power or purple ability you started but don't want (nothing has happened yet) */
+function ciCancel(g,pid){const Q=g.ask;if(!Q||Q.p!==pid||!Q.can)return false;g.ask=null;g.n++;g.msg='Cancelled.';return true}
 function ciOk(g,pid){return g.phase==='turn'&&!g.ask&&g.turn&&g.turn.p===pid&&!g.turn.end}
 /* Ball Room: while its owner has the Crown, other players must thank them before doing anything, or miss the turn */
 function ciBal(g){const t=g.turn,cw=g.crown;if(t&&cw&&cw!==t.p&&ciHas(g.me[cw],'ballroom')){t.bal=1;g.msg+=` Ball Room: thank ${nmid(cw)} first!`}}
@@ -7135,14 +7137,14 @@ function ciPower(g,pid,how){if(!ciOk(g,pid))return false;const t=g.turn,M=g.me[p
       if(top.length===1&&top[0]!==pid&&mx>0){g.me[top[0]].gold--;M.gold++;g.msg=`${nmid(top[0])} has the most gold and gives the Abbot 1.`;gLog(g,`${nmid(top[0])} gave the Abbot 1 gold`,'🙏')}else g.msg='No single richest player: the Abbot gets nothing extra.';return true}
     case 'artist':{const ok=M.city.map((d,i)=>[d,i]).filter(([d])=>!d.bt);if(!ok.length||!M.gold)return false;ciAsk(g,{p:pid,k:'dist',then:'art',min:0,max:Math.min(2,M.gold),ok:ok.map(([d,i])=>[pid,i]),why:'Artist: put one gold on one or two of your districts. Each is worth 1 more.'});break}
     default:return false}
-  g.n++;return true}
+  if(g.ask&&g.ask.p===pid)g.ask.can=1;g.n++;return true}
 /* purple district abilities you can use during your turn */
 function ciUse(g,pid,k){if(!ciOk(g,pid))return false;const t=g.turn,M=g.me[pid];if(!ciHas(M,k)||t.hosp)return false;if(ciForgot(g,pid))return true;
   if(k==='laboratory'){if(t.lab||!M.h.length)return false;ciAsk(g,{p:pid,k:'hand',min:1,max:1,then:'lab',why:'Laboratory: discard a card from your hand for 2 gold.'})}
   else if(k==='smithy'){if(t.smi||M.gold<2||!g.deck.length)return false;t.smi=1;M.gold-=2;const cs=ciDraw(g,3);M.h.push(...cs);g.msg=`${nmid(pid)} used the Smithy: paid 2 gold, drew ${cs.length}.`;gLog(g,`${nmid(pid)} used the Smithy`,'⚒️')}
   else if(k==='museum'){if(t.mus||!M.h.length)return false;ciAsk(g,{p:pid,k:'hand',min:1,max:1,then:'mus',why:'Museum: put a card from your hand under the Museum (1 point each at the end).'})}
   else if(k==='armory'){const ok=[];g.ps.forEach(x=>{if(x===pid)return;g.me[x].city.forEach((d,i)=>ok.push([x,i]))});if(!ok.length)return false;ciAsk(g,{p:pid,k:'dist',then:'arm',min:0,max:1,ok,why:'Armory: destroy your Armory to destroy any district in another player’s city.'})}
-  else return false;g.n++;return true}
+  else return false;if(g.ask&&g.ask.p===pid)g.ask.can=1;g.n++;return true}
 /* what the Warlord may destroy, with the price */
 function ciWlOpts(g,pid){const M=g.me[pid],o=[],bish=ciOwner(g,'bishop'),bishAlive=bish&&g.kill!=='bishop'&&(g.me[bish].shown||[]).includes('bishop');
   g.ps.forEach(x=>{if(ciDone(g,x)||(x===bish&&bishAlive))return;const W=g.me[x];W.city.forEach((d,i)=>{if(d.k==='keep')return;const cost=Math.max(0,ciVal(d)-1+(x!==pid&&ciHas(W,'greatwall')&&d.k!=='greatwall'?1:0));if(cost<=M.gold)o.push([x,i,cost])})});return o}
@@ -7178,7 +7180,7 @@ function ciAns(g,pid,ans){const Q=g.ask;if(!Q||Q.p!==pid||g.phase==='done')retur
     case 'bew':g.bew=ans;g.msg=`${nmid(pid)} bewitched a character.`;gLog(g,`The Witch cast a spell`,'🧙');ciFinishTurn(g);break;
     case 'kill':g.kill=ans;t.pw=1;g.msg=`The Assassin murders the ${ciN(ans)}.`;gAnn(g,`The ${ciN(ans)} is murdered`,'Whoever has it misses their turn.','🗡️');gLog(g,`The Assassin named the ${ciN(ans)}`,'🗡️');break;
     case 'rob':g.rob=ans;t.pw=1;g.msg=`The Thief will rob the ${ciN(ans)}.`;gAnn(g,`The Thief targets the ${ciN(ans)}`,'Whoever has it loses all their gold when called.','💰');gLog(g,`The Thief named the ${ciN(ans)}`,'💰');break;
-    case 'mag':if(ans==='re'){ciAsk(g,{p:pid,k:'hand',min:1,max:M.h.length,then:'mag2',why:'Pick the cards to put at the bottom of the deck. You draw the same number.'});break}
+    case 'mag':if(ans==='re'){ciAsk(g,{p:pid,k:'hand',min:1,max:M.h.length,then:'mag2',can:1,why:'Pick the cards to put at the bottom of the deck. You draw the same number.'});break}
       {const O=g.me[ans],x=M.h;M.h=O.h;O.h=x;t.pw=1;g.msg=`${nmid(pid)} swapped hands with ${nmid(ans)}.`;gLog(g,`The Magician swapped hands with ${nmid(ans)}`,'🎩')}break;
     case 'mag2':{const cs=ans.slice().sort((a,b)=>b-a).map(i=>M.h.splice(i,1)[0]);ciBottom(g,cs);const nw=ciDraw(g,cs.length);M.h.push(...nw);t.pw=1;g.msg=`${nmid(pid)} swapped ${cs.length} card${cs.length===1?'':'s'} with the deck.`;gLog(g,`The Magician swapped ${cs.length} cards with the deck`,'🎩');break}
     case 'wiz1':ciAsk(g,{p:pid,k:'cards',cs:g.me[ans].h.slice(),from:ans,min:1,max:1,then:'wiz2',why:`Wizard: ${nmid(ans)}’s hand. Take one card.`});break;
@@ -7389,6 +7391,7 @@ function ciAskUI(g,V){const Q=g.ask,M=g.me[Q.p];let out=`<div class="rlab dnwhy"
   else if(Q.k==='cards'){out+=`<div class="cihand cipick">${Q.cs.map((k,i)=>ciCard(k,{btn:1,cls:CISEL.includes(i)?'sel':'go',attr:` data-a="cipsel" data-k="${i}"`})).join('')}</div><div class="prow"><button class="btn primary" style="flex:1" data-a="cipok" ${CISEL.length>=Q.min&&CISEL.length<=Q.max?'':'disabled'}>Done</button></div>`}
   else if(Q.k==='dist'){const by={};Q.ok.forEach(([x,j],i)=>{(by[x]=by[x]||[]).push([j,i])});
     out+=Object.entries(by).map(([x,L])=>`<div class="rlab"><b>${esc(nmid(x))}</b></div><div class="cihand cipick">${L.map(([j,i])=>{const d=g.me[x].city[j];return ciCard(d.k,{btn:1,bt:d.bt,cls:CISEL.includes(i)?'sel':'go',tag:Q.cost?`${Q.cost[i]} gold`:'',attr:` data-a="cipsel" data-k="${i}"`})}).join('')}</div>`).join('')+`<div class="prow">${Q.min===0?`<button class="btn" style="flex:1" data-a="cipskip">Skip</button>`:''}<button class="btn primary" style="flex:1" data-a="cipok" ${CISEL.length>=Math.max(1,Q.min)&&CISEL.length<=Q.max?'':'disabled'}>Done</button></div>`}
+  if(Q.can)out+=`<div class="prow"><button class="btn" style="flex:1" data-a="cipcancel">✖ Cancel</button></div>`;
   return out}
 /* tap a card in your hand: see it big, with Build */
 function ciBuildSheet(g,V){const i=CIHSEL;if(i==null||!V||g.ask||g.phase!=='turn'||!g.turn||g.turn.p!==V.id)return '';const k=g.me[V.id].h[i];if(!k)return '';const why=ciBuildOk(g,V.id,k);
@@ -7419,6 +7422,7 @@ function ciUiAct(a,b,k){const g=ciG();if(!g)return;
   if(a==='cipuse'){if(!done(lkq('ciUse',pid,k)))toast('You can’t use that now.');return}
   if(a==='cipans'){done(lkq('ciAns',pid,k));return}
   if(a==='cipok'){done(lkq('ciAns',pid,CISEL.slice()));return}
+  if(a==='cipcancel'){CISEL=[];done(lkq('ciCancel',pid));return}
   if(a==='cipskip'){done(lkq('ciAns',pid,[]));return}
   if(a==='cipend'){const t=g.turn,M=g.me[pid];if(t&&ciMaxB(t)>t.b&&M.h.some(x=>!ciBuildOk(g,pid,x))&&CIENDOK!==g.n){CIENDOK=g.n;toast('You can still build. Tap again to end your turn.');return}
     if(t&&(CICH[t.ch]||{}).c&&!t.inc&&ciIncN(g,pid,t.ch)>0)lkq('ciIncome',pid);if(done(lkq('ciEnd',pid)))CIENDOK=-1;return}}
@@ -13086,7 +13090,7 @@ const LKQF={
   mtPass:pid=>{const g=mtG();return !!g&&mtPass(g,pid)},
    mtBuilt:pid=>{const g=mtG();return !!g&&mtBuilt(g,pid)},
    dnPlay:(pid,i)=>{const g=dnG();return !!g&&dnPlay(g,pid,i)},dnPlayT:(pid,i)=>{const g=dnG();return !!g&&dnPlayT(g,pid,i)},dnCof:(pid,n)=>{const g=dnG();return !!g&&dnCof(g,pid,n)},dnBuyEv:(pid,k)=>{const g=dnG();return !!g&&dnBuyEv(g,pid,k)},dnPlayAllT:pid=>{const g=dnG();return !!g&&dnPlayAllT(g,pid)},dnEndAct:pid=>{const g=dnG();return !!g&&dnEndAct(g,pid)},dnEndTurn:pid=>{const g=dnG();return !!g&&dnEndTurn(g,pid)},dnBuy:(pid,k)=>{const g=dnG();return !!g&&dnBuy(g,pid,k)},dnAns:(pid,v)=>{const g=dnG();return !!g&&dnAns(g,pid,v)},
-   ciPick:(pid,k)=>{const g=ciG();return !!g&&ciPick(g,pid,k)},ciAct:(pid,c)=>{const g=ciG();return !!g&&ciAct(g,pid,c)},ciIncome:pid=>{const g=ciG();return !!g&&ciIncome(g,pid)},ciBuild:(pid,i)=>{const g=ciG();return !!g&&ciBuild(g,pid,i)},ciPower:pid=>{const g=ciG();return !!g&&ciPower(g,pid)},ciUse:(pid,k)=>{const g=ciG();return !!g&&ciUse(g,pid,k)},ciEnd:pid=>{const g=ciG();return !!g&&ciEnd(g,pid)},ciAns:(pid,v)=>{const g=ciG();return !!g&&ciAns(g,pid,v)},ciThank:pid=>{const g=ciG();return !!g&&ciThank(g,pid)},
+   ciPick:(pid,k)=>{const g=ciG();return !!g&&ciPick(g,pid,k)},ciAct:(pid,c)=>{const g=ciG();return !!g&&ciAct(g,pid,c)},ciIncome:pid=>{const g=ciG();return !!g&&ciIncome(g,pid)},ciBuild:(pid,i)=>{const g=ciG();return !!g&&ciBuild(g,pid,i)},ciPower:pid=>{const g=ciG();return !!g&&ciPower(g,pid)},ciUse:(pid,k)=>{const g=ciG();return !!g&&ciUse(g,pid,k)},ciEnd:pid=>{const g=ciG();return !!g&&ciEnd(g,pid)},ciAns:(pid,v)=>{const g=ciG();return !!g&&ciAns(g,pid,v)},ciThank:pid=>{const g=ciG();return !!g&&ciThank(g,pid)},ciCancel:pid=>{const g=ciG();return !!g&&ciCancel(g,pid)},
    saPlace:(pid,l,n)=>{const g=saG();return !!g&&saPlace(g,pid,l,n)},saResolve:(pid,l)=>{const g=saG();return !!g&&saResolve(g,pid,l)},saRoll:pid=>{const g=saG();return !!g&&saRoll(g,pid)},saTool:(pid,t,i)=>{const g=saG();return !!g&&saTool(g,pid,t,i)},saTake:(pid,jw)=>{const g=saG();return !!g&&saTake(g,pid,jw)},
    saBuy:(pid,o,t,x)=>{const g=saG();return !!g&&saBuy(g,pid,o,t,x)},saSkip:pid=>{const g=saG();return !!g&&saSkip(g,pid)},saChoose:(pid,o)=>{const g=saG();return !!g&&saChoose(g,pid,o)},saDie:(pid,j)=>{const g=saG();return !!g&&saDie(g,pid,j)},saFeed:(pid,o)=>{const g=saG();return !!g&&saFeed(g,pid,o)},saFeedOk:pid=>{const g=saG();return !!g&&saFeedOk(g,pid)},saMamSend:(pid,k)=>{const g=saG();return !!g&&saMamSend(g,pid,k)},saMamPick:(pid,f)=>{const g=saG();return !!g&&saMamPick(g,pid,f)},
   cfPlay:(pid,t,k)=>{const g=cfG();return !!g&&cfPlay(g,pid,t,k)},
@@ -16899,6 +16903,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='486098';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='ba6299';</script>
 </body>
 </html>
