@@ -6950,9 +6950,9 @@ const CIDI={
   temple:{n:'Temple',c:1,k:'b',q:3},church:{n:'Church',c:2,k:'b',q:3},monastery:{n:'Monastery',c:3,k:'b',q:3},cathedral:{n:'Cathedral',c:5,k:'b',q:2},
   tavern:{n:'Tavern',c:1,k:'g',q:5},market:{n:'Market',c:2,k:'g',q:4},tradingpost:{n:'Trading Post',c:2,k:'g',q:3},docks:{n:'Docks',c:3,k:'g',q:3},harbor:{n:'Harbor',c:4,k:'g',q:3},townhall:{n:'Town Hall',c:5,k:'g',q:2},
   watchtower:{n:'Watchtower',c:1,k:'r',q:3},prison:{n:'Prison',c:2,k:'r',q:3},battlefield:{n:'Battlefield',c:3,k:'r',q:3},fortress:{n:'Fortress',c:5,k:'r',q:2},
-  hauntedcity:{n:'Haunted City',c:2,k:'p',q:1,chk:1,x:'For the five-colors bonus, the Haunted City counts as the color of your choice, unless you built it in the last round of the game.'},
+  hauntedcity:{n:'Haunted City',c:2,k:'p',q:1,x:'For the five-colors bonus at the end of the game, the Haunted City counts as the color of your choice.'},
   keep:{n:'Keep',c:3,k:'p',q:2,x:'The Keep cannot be destroyed by the Warlord.'},
-  laboratory:{n:'Laboratory',c:5,k:'p',q:1,chk:1,x:'Once during your turn, you may discard a district card from your hand and receive one gold.'},
+  laboratory:{n:'Laboratory',c:5,k:'p',q:1,x:'Once during your turn, you may discard a district card from your hand and receive two gold.'},
   smithy:{n:'Smithy',c:5,k:'p',q:1,x:'Once during your turn, you may pay two gold to draw three district cards.'},
   graveyard:{n:'Graveyard',c:5,k:'p',q:1,x:'When the Warlord destroys a district, you may pay one gold to take the destroyed district into your hand. Not if you are the Warlord.'},
   observatory:{n:'Observatory',c:5,k:'p',q:1,x:'If you choose to draw cards when you take an action, draw 3, keep one, and put the other 2 on the bottom of the deck.'},
@@ -6963,15 +6963,15 @@ const CIDI={
   dragongate:{n:'Dragon Gate',c:6,k:'p',q:1,v:8,x:'Costs six gold to build, but is worth eight points at the end of the game.'},
   imperialtreasury:{n:'Imperial Treasury',c:4,k:'p',q:1,b:1,x:'At the end of the game, score one extra point for each gold you have.'},
   maproom:{n:'Map Room',c:5,k:'p',q:1,b:1,x:'At the end of the game, score one extra point for each card in your hand.'},
-  wishingwell:{n:'Wishing Well',c:5,k:'p',q:1,b:1,x:'At the end of the game, score one extra point for each other special (purple) district in your city.'},
+  wishingwell:{n:'Wishing Well',c:5,k:'p',q:1,b:1,x:'At the end of the game, score one extra point for each special (purple) district in your city, including the Wishing Well.'},
   quarry:{n:'Quarry',c:5,k:'p',q:1,b:1,x:'You may build a district identical to one already in your city, but only one duplicate at a time.'},
   museum:{n:'Museum',c:4,k:'p',q:1,b:1,x:'Once on your turn, you may put a district card from your hand face down under the Museum. Each card there is worth one extra point at the end.'},
   poorhouse:{n:'Poor House',c:5,k:'p',q:1,b:1,x:'If you have no gold at the end of your turn, take one gold.'},
   factory:{n:'Factory',c:6,k:'p',q:1,b:1,x:'You pay one gold less to build any other special (purple) district.'},
   park:{n:'Park',c:6,k:'p',q:1,b:1,x:'If you have no cards in your hand at the end of your turn, draw two cards.'},
-  hospital:{n:'Hospital',c:6,k:'p',q:1,b:1,x:'Even if you are murdered, you still take an action on your turn (but you may not build or use your character’s power).'},
+  hospital:{n:'Hospital',c:6,k:'p',q:1,b:1,x:'Even if you are murdered, you still take your turn (gold or cards, and your character’s power), but you may not build or use district abilities.'},
   throneroom:{n:'Throne Room',c:6,k:'p',q:1,b:1,x:'Every time the Crown changes players, take one gold.'},
-  ballroom:{n:'Ball Room',c:6,k:'p',q:1,b:1,chk:1,x:'When you have the Crown, the other players must say “Thank you, your excellency” when their character is called. (The app shows the reminder; the penalty is up to you.)'},
+  ballroom:{n:'Ball Room',c:6,k:'p',q:1,b:1,x:'While you have the Crown, each other player must say “Thank you, Your Majesty” at the start of their turn. If they forget, they miss the turn.'},
   belltower:{n:'Bell Tower',c:5,k:'p',q:1,b:1,x:'When you build it, you may announce that the game ends after the round in which a player builds a seventh district. If it is later destroyed, the normal end returns.'},
   armory:{n:'Armory',c:3,k:'p',q:1,b:1,x:'During your turn, you may destroy the Armory to destroy any district in another player’s city.'},
   lighthouse:{n:'Lighthouse',c:3,k:'p',q:1,b:1,x:'When you build it, look through the District Deck, take one card into your hand, then shuffle the deck.'}};
@@ -7038,13 +7038,12 @@ function ciNext(g){const max=g.ch[9]?9:8;let guard=0;
     if(!own){gLog(g,`No one is the ${ciN(key)}`,'🤷');continue}
     g.me[own].shown.push(key);const M=g.me[own];
     if(g.kill===key){g.msg=`The ${ciN(key)} (${nmid(own)}) was murdered and misses the turn.`;gAnn(g,`${nmid(own)} was the ${ciN(key)}`,'Murdered! Their turn is skipped.','🗡️');gLog(g,`${nmid(own)} was the murdered ${ciN(key)}`,'🗡️');
-      if(ciHas(M,'hospital')){g.turn=ciT(own,key);g.turn.hosp=1;g.msg+=' The Hospital lets them still take an action.';return}continue}
+      if(ciHas(M,'hospital')){g.turn=ciT(own,key);g.turn.hosp=1;ciBal(g);g.msg+=' The Hospital lets them still take an action and use their character, but not build.';return}continue}
     gLog(g,`${nmid(own)} is the ${ciN(key)}`,CIIC[key]);g.msg=`${nmid(own)} is the ${ciN(key)}.`;
     if(g.rob===key){const th=ciOwner(g,'thief');const n=M.gold;if(th&&n){g.me[th].gold+=n;M.gold=0}g.msg+=` Robbed: the Thief takes ${n} gold.`;gAnn(g,`${nmid(own)} was robbed`,`The Thief takes ${n} gold.`,'💰');gLog(g,`The Thief took ${n} gold from ${nmid(own)}`,'💰')}
     if(key==='king')ciCrown(g,own,'King');
     if(key==='taxcollector'){const r1=ciOwner(g,g.ch[1]);if(r1&&r1!==own&&(g.bt[r1]||0)>0&&g.me[r1].gold>0){g.me[r1].gold--;M.gold++;gLog(g,`${nmid(r1)} pays the Tax Collector 1 gold`,'🧾')}}
-    {const cw=g.crown;if(cw&&cw!==own&&ciHas(g.me[cw],'ballroom'))g.msg+=` (Ball Room: “Thank you, your excellency!”)`}
-    g.turn=ciT(own,key);if(g.bew===key){g.turn.bw=1;g.msg+=' Bewitched: they take an action, then the Witch takes over.'}else ciTurnStart(g);return}
+    g.turn=ciT(own,key);ciBal(g);if(g.bew===key){g.turn.bw=1;g.msg+=' Bewitched: they take an action, then the Witch takes over.'}else ciTurnStart(g);return}
   ciRoundEnd(g)}
 const ciT=(p,ch)=>({p,ch,own:p,act:0,b:0,pw:0,inc:0,sp:0,lab:0,smi:0,mus:0,wd:0,ab:0,end:0});
 const ciMaxB=t=>t.ch==='architect'?3:t.ch==='navigator'?0:1;
@@ -7054,14 +7053,18 @@ function ciTurnStart(g){const t=g.turn,p=t.p,M=g.me[p];
   if(t.ch==='emperor')ciAsk(g,{p,k:'opt',then:'emp',opts:g.ps.filter(x=>x!==p).map(x=>[x,nmid(x)]),why:'Emperor: give the Crown to another player. They give you one gold or one district card.'})}
 function ciAsk(g,a){g.ask=a}
 function ciOk(g,pid){return g.phase==='turn'&&!g.ask&&g.turn&&g.turn.p===pid&&!g.turn.end}
+/* Ball Room: while its owner has the Crown, other players must thank them before doing anything, or miss the turn */
+function ciBal(g){const t=g.turn,cw=g.crown;if(t&&cw&&cw!==t.p&&ciHas(g.me[cw],'ballroom')){t.bal=1;g.msg+=` Ball Room: thank ${nmid(cw)} first!`}}
+function ciThank(g,pid){const t=g.turn;if(!t||t.p!==pid||!t.bal||g.ask)return false;t.bal=0;g.n++;g.msg=`${nmid(pid)}: “Thank you, Your Majesty!”`;gLog(g,`${nmid(pid)} thanked ${nmid(g.crown)}`,'👑');return true}
+function ciForgot(g,pid){const t=g.turn;if(!t||!t.bal)return false;t.bal=0;g.n++;g.msg=`${nmid(pid)} forgot to thank ${nmid(g.crown)} and misses the turn.`;gAnn(g,`${nmid(pid)} forgot to say thank you`,'Ball Room: the turn is missed.','👑');gLog(g,g.msg,'👑');t.act=1;ciEnd(g,pid,'force');return true}
 /* step 1: the action */
-function ciAct(g,pid,c){if(!ciOk(g,pid))return false;const t=g.turn,M=g.me[pid];if(t.act)return false;g.n++;
+function ciAct(g,pid,c){if(!ciOk(g,pid))return false;const t=g.turn,M=g.me[pid];if(t.act)return false;if(ciForgot(g,pid))return true;g.n++;
   if(c==='gold'){M.gold+=2;g.msg=`${nmid(pid)} took 2 gold.`;gLog(g,`${nmid(pid)} took 2 gold`,'🪙');ciAfterAct(g);return true}
   if(c!=='cards')return false;const n=ciHas(M,'observatory')?3:2,cs=ciDraw(g,n);if(!cs.length){g.msg='The district deck is empty.';ciAfterAct(g);return true}
   if(ciHas(M,'library')||cs.length===1){M.h.push(...cs);g.msg=`${nmid(pid)} drew ${cs.length} card${cs.length===1?'':'s'}.`;gLog(g,`${nmid(pid)} drew ${cs.length} district card${cs.length===1?'':'s'}`,'🃏');ciAfterAct(g);return true}
   ciAsk(g,{p:pid,k:'cards',cs,min:1,max:1,then:'keep',why:`Keep one of these. The other${cs.length>2?'s go':' goes'} to the bottom of the deck.`});return true}
 function ciAfterAct(g){const t=g.turn;t.act=1;
-  if(t.hosp){g.msg+=' (Hospital: no building or power.)';ciEnd(g,t.p,'force');return}
+  if(t.hosp)g.msg+=' (Hospital: no building or district abilities.)';
   if(t.bw&&!t.res){const w=ciOwner(g,g.ch[1]);gLog(g,`${nmid(t.p)}’s turn ends: the Witch takes over as the ${ciN(t.ch)}`,'🧙');g.msg+=` Bewitched: ${nmid(w)} takes over the ${ciN(t.ch)}.`;
     if(!w){ciEnd(g,t.p,'force');return}t.res=1;t.p=w;gAnn(g,`The Witch takes over`,`${nmid(w)} plays the rest of the ${ciN(t.ch)}’s turn.`,'🧙');ciTurnStart(g);if(g.ask)return}
   const p=t.p,M=g.me[p];
@@ -7071,7 +7074,7 @@ function ciAfterAct(g){const t=g.turn;t.act=1;
   if(t.ch==='witch'&&!t.res){const o=Object.entries(g.ch).filter(([r,k])=>+r!==1&&!g.dr.fu.includes(k)).map(([r,k])=>[k,`${r}. ${ciN(k)}`]);ciAsk(g,{p,k:'opt',then:'bew',opts:o,why:'Witch: name a character to bewitch. Your turn ends now; you take over that character’s turn after its player takes an action.'})}}
 /* income for the character's color (School of Magic counts too) */
 const ciIncN=(g,p,ch)=>{const c=(CICH[ch]||{}).c;if(!c)return 0;return g.me[p].city.filter(d=>CIDI[d.k].k===c||d.k==='schoolofmagic').length};
-function ciIncome(g,pid){if(!ciOk(g,pid))return false;const t=g.turn;if(t.inc||!(CICH[t.ch]||{}).c||t.hosp)return false;const n=ciIncN(g,pid,t.ch);g.me[pid].gold+=n;t.inc=1;g.n++;g.msg=`${nmid(pid)} collected ${n} gold for ${CICOL[CICH[t.ch].c][0].toLowerCase()} districts.`;gLog(g,`${nmid(pid)}: +${n} gold income`,'🪙');return true}
+function ciIncome(g,pid){if(!ciOk(g,pid))return false;const t=g.turn;if(t.inc||!(CICH[t.ch]||{}).c)return false;if(ciForgot(g,pid))return true;const n=ciIncN(g,pid,t.ch);g.me[pid].gold+=n;t.inc=1;g.n++;g.msg=`${nmid(pid)} collected ${n} gold for ${CICOL[CICH[t.ch].c][0].toLowerCase()} districts.`;gLog(g,`${nmid(pid)}: +${n} gold income`,'🪙');return true}
 /* building cost (the Factory takes one off other purple districts) */
 const ciCost=(g,p,k)=>{const d=CIDI[k];return Math.max(0,d.c-(d.k==='p'&&k!=='factory'&&ciHas(g.me[p],'factory')?1:0))};
 const ciDupN=c=>c.length-new Set(c.map(d=>d.k)).size;
@@ -7085,7 +7088,7 @@ function ciPlace(g,pid,k,free){const t=g.turn,M=g.me[pid],c=ciCost(g,pid,k);M.go
   ciCheckDone(g,pid)}
 function ciCheckDone(g,pid){if(!g.first&&ciDone(g,pid)){g.first=pid;gAnn(g,`${nmid(pid)} completed their city!`,'The game ends after this round. +4 points for finishing first.','🏰');gLog(g,`${nmid(pid)} built their ${ciEndN(g)}th district: last round`,'🏰');gFx(g,pid,'star')}}
 /* the character's power (most characters ask a question) */
-function ciPower(g,pid,how){if(!ciOk(g,pid))return false;const t=g.turn,M=g.me[pid],ch=t.ch;if(t.pw||t.hosp)return false;
+function ciPower(g,pid,how){if(!ciOk(g,pid))return false;const t=g.turn,M=g.me[pid],ch=t.ch;if(t.pw)return false;if(ciForgot(g,pid))return true;
   const inGame=Object.entries(g.ch).filter(([r,k])=>!g.dr.fu.includes(k));
   switch(ch){
     case 'assassin':if(inGame.length<2)return false;ciAsk(g,{p:pid,k:'opt',then:'kill',opts:inGame.filter(([r])=>+r!==1).map(([r,k])=>[k,`${r}. ${ciN(k)}`]),why:'Assassin: name a character to murder. That character misses its whole turn.'});break;
@@ -7098,8 +7101,8 @@ function ciPower(g,pid,how){if(!ciOk(g,pid))return false;const t=g.turn,M=g.me[p
     default:return false}
   g.n++;return true}
 /* purple district abilities you can use during your turn */
-function ciUse(g,pid,k){if(!ciOk(g,pid))return false;const t=g.turn,M=g.me[pid];if(!ciHas(M,k)||t.hosp)return false;
-  if(k==='laboratory'){if(t.lab||!M.h.length)return false;ciAsk(g,{p:pid,k:'hand',min:1,max:1,then:'lab',why:'Laboratory: discard a card from your hand for 1 gold.'})}
+function ciUse(g,pid,k){if(!ciOk(g,pid))return false;const t=g.turn,M=g.me[pid];if(!ciHas(M,k)||t.hosp)return false;if(ciForgot(g,pid))return true;
+  if(k==='laboratory'){if(t.lab||!M.h.length)return false;ciAsk(g,{p:pid,k:'hand',min:1,max:1,then:'lab',why:'Laboratory: discard a card from your hand for 2 gold.'})}
   else if(k==='smithy'){if(t.smi||M.gold<2||!g.deck.length)return false;t.smi=1;M.gold-=2;const cs=ciDraw(g,3);M.h.push(...cs);g.msg=`${nmid(pid)} used the Smithy: paid 2 gold, drew ${cs.length}.`;gLog(g,`${nmid(pid)} used the Smithy`,'⚒️')}
   else if(k==='museum'){if(t.mus||!M.h.length)return false;ciAsk(g,{p:pid,k:'hand',min:1,max:1,then:'mus',why:'Museum: put a card from your hand under the Museum (1 point each at the end).'})}
   else if(k==='armory'){const ok=[];g.ps.forEach(x=>{if(x===pid)return;g.me[x].city.forEach((d,i)=>ok.push([x,i]))});if(!ok.length)return false;ciAsk(g,{p:pid,k:'dist',then:'arm',min:0,max:1,ok,why:'Armory: destroy your Armory to destroy any district in another player’s city.'})}
@@ -7112,14 +7115,14 @@ function ciDipOpts(g,pid){const M=g.me[pid],bish=ciOwner(g,'bishop'),bishAlive=b
 /* end the turn: Warlord and Diplomat first, then Alchemist, Poor House, Park, Tax Collector */
 function ciEnd(g,pid,how){const t=g.turn;if(!t)return false;
   if(!how){if(!ciOk(g,pid)||!t.act)return false;g.n++;t.end=1}
-  if(how!=='force'&&!t.hosp){
+  if(how!=='force'){
     if(t.ch==='warlord'&&!t.wl){t.wl=1;const o=ciWlOpts(g,t.p);if(o.length){ciAsk(g,{p:t.p,k:'dist',then:'wl',min:0,max:1,ok:o.map(x=>[x[0],x[1]]),cost:o.map(x=>x[2]),why:'Warlord: destroy a district by paying one less than its cost (or skip).'});return true}}
     if(t.ch==='diplomat'&&!t.dp){t.dp=1;const o=ciDipOpts(g,t.p);if(o.length&&g.me[t.p].city.length){ciAsk(g,{p:t.p,k:'dist',then:'dip1',min:0,max:1,ok:g.me[t.p].city.map((d,i)=>[t.p,i]),why:'Diplomat: pick one of your districts to swap (or skip).'});return true}}}
   ciFinishTurn(g);return true}
 function ciFinishTurn(g){const t=g.turn;if(!t)return;const p=t.p,M=g.me[p];
   if(t.ch==='alchemist'&&t.sp&&!t.hosp){M.gold+=t.sp;g.msg+=` Alchemist: ${t.sp} gold back.`;gLog(g,`${nmid(p)}’s Alchemist got ${t.sp} gold back`,'⚗️')}
-  if(ciHas(M,'poorhouse')&&M.gold===0){M.gold=1;gLog(g,`${nmid(p)}’s Poor House: +1 gold`,'🏚️')}
-  if(ciHas(M,'park')&&!M.h.length){const cs=ciDraw(g,2);M.h.push(...cs);if(cs.length)gLog(g,`${nmid(p)}’s Park: +${cs.length} cards`,'🌳')}
+  if(ciHas(M,'poorhouse')&&M.gold===0&&!t.hosp){M.gold=1;gLog(g,`${nmid(p)}’s Poor House: +1 gold`,'🏚️')}
+  if(ciHas(M,'park')&&!M.h.length&&!t.hosp){const cs=ciDraw(g,2);M.h.push(...cs);if(cs.length)gLog(g,`${nmid(p)}’s Park: +${cs.length} cards`,'🌳')}
   {const tc=ciOwner(g,g.ch[2]==='taxcollector'?'taxcollector':'_');if(tc&&tc!==p&&g.kill!=='taxcollector'&&(g.call>2)&&t.b>0&&M.gold>0){M.gold--;g.me[tc].gold++;gLog(g,`${nmid(p)} pays the Tax Collector 1 gold`,'🧾')}}
   if(t.bw&&!t.res&&t.act){/* the bewitched player's half ended without a Witch to take over */}
   g.turn=null;ciNext(g)}
@@ -7151,7 +7154,7 @@ function ciAns(g,pid,ans){const Q=g.ask;if(!Q||Q.p!==pid||g.phase==='done')retur
     case 'empg':if(ans==='gold'&&M.gold){M.gold--;g.me[Q.to].gold++;g.msg=`${nmid(pid)} gave the Emperor 1 gold.`}else if(ans==='card')ciAsk(g,{p:pid,k:'hand',min:1,max:1,then:'empc',to:Q.to,why:'Pick the district card to give the Emperor.'});break;
     case 'empc':{const k=M.h.splice(ans[0],1)[0];g.me[Q.to].h.push(k);g.msg=`${nmid(pid)} gave the Emperor a card.`;break}
     case 'art':{let n=0;ans.forEach(i=>{const [x,j]=Q.ok[i],d=g.me[x].city[j];if(d&&!d.bt&&M.gold>0){d.bt=1;M.gold--;n++}});t.pw=1;g.msg=n?`${nmid(pid)} beautified ${n} district${n===1?'':'s'}.`:`${nmid(pid)} beautified nothing.`;if(n)gLog(g,g.msg,'🎨');break}
-    case 'lab':{const k=M.h.splice(ans[0],1)[0];ciBottom(g,[k]);M.gold++;t.lab=1;g.msg=`${nmid(pid)} used the Laboratory: discarded a card for 1 gold.`;gLog(g,`${nmid(pid)} used the Laboratory`,'🧪');break}
+    case 'lab':{const k=M.h.splice(ans[0],1)[0];ciBottom(g,[k]);M.gold+=2;t.lab=1;g.msg=`${nmid(pid)} used the Laboratory: discarded a card for 2 gold.`;gLog(g,`${nmid(pid)} used the Laboratory`,'🧪');break}
     case 'mus':{M.h.splice(ans[0],1);M.mus=(M.mus||0)+1;t.mus=1;g.msg=`${nmid(pid)} put a card under the Museum (${M.mus}).`;gLog(g,`${nmid(pid)} added to the Museum`,'🏛️');break}
     case 'arm':if(ans.length){const [x,j]=Q.ok[ans[0]],ai=M.city.findIndex(d=>d.k==='armory');if(ai<0)break;const d=g.me[x].city.splice(j,1)[0];M.city.splice(ai,1);ciBottom(g,['armory',d.k]);g.msg=`${nmid(pid)} destroyed the Armory to destroy ${nmid(x)}’s ${ciN(d.k)}.`;gAnn(g,`${nmid(x)}’s ${ciN(d.k)} destroyed`,'By the Armory.','💥');gLog(g,g.msg,'💥');ciAfterDestroy(g,x,d.k)}break;
     case 'wl':if(!ans.length){g.msg=`${nmid(pid)} destroyed nothing.`;ciEnd(g,pid,'cont');break}{const [x,j]=Q.ok[ans[0]],cost=Q.cost[ans[0]],d=g.me[x].city[j];if(!d||M.gold<cost){ciEnd(g,pid,'cont');break}M.gold-=cost;g.me[x].city.splice(j,1);ciBottom(g,[d.k]);g.msg=`The Warlord destroyed ${nmid(x)}’s ${ciN(d.k)} for ${cost} gold.`;gAnn(g,`${nmid(x)}’s ${ciN(d.k)} destroyed`,`The Warlord paid ${cost} gold.`,'⚔️');gLog(g,g.msg,'⚔️');ciAfterDestroy(g,x,d.k,pid);if(!g.ask)ciEnd(g,pid,'cont')}break;
@@ -7170,9 +7173,9 @@ function ciAfterDestroy(g,owner,k,wl){if(k==='belltower'&&g.bell){g.bell=0;gLog(
 
 /* ---------------- scoring ---------------- */
 function ciScore(g,p){const M=g.me[p],L=[],city=M.city;const dist=city.reduce((a,d)=>a+ciPtsOf(d),0);L.push({k:'dist',l:`Districts (${city.length})`,v:dist});
-  const cols=new Set(city.filter(d=>d.k!=='hauntedcity'||d.r===g.round).map(d=>CIDI[d.k].k));const hc=city.some(d=>d.k==='hauntedcity'&&d.r<g.round);const five=cols.size>=5||hc&&cols.size>=4&&['y','b','g','r','p'].filter(c=>!cols.has(c)).length===1;
+  const cols=new Set(city.filter(d=>d.k!=='hauntedcity').map(d=>CIDI[d.k].k));const hc=city.some(d=>d.k==='hauntedcity');const five=cols.size>=5||hc&&cols.size>=4&&['y','b','g','r','p'].filter(c=>!cols.has(c)).length===1;
   L.push({k:'five',l:'All five colors',v:five?3:0});const done=city.length>=ciEndN(g);L.push({k:'first',l:'First to finish',v:g.first===p?4:0});L.push({k:'done',l:'Finished city',v:done&&g.first!==p?2:0});
-  let x=0;if(ciHas(M,'imperialtreasury'))x+=M.gold;if(ciHas(M,'maproom'))x+=M.h.length;if(ciHas(M,'wishingwell'))x+=city.filter(d=>CIDI[d.k].k==='p'&&d.k!=='wishingwell').length;if(ciHas(M,'museum'))x+=M.mus||0;
+  let x=0;if(ciHas(M,'imperialtreasury'))x+=M.gold;if(ciHas(M,'maproom'))x+=M.h.length;if(ciHas(M,'wishingwell'))x+=city.filter(d=>CIDI[d.k].k==='p').length;if(ciHas(M,'museum'))x+=M.mus||0;
   L.push({k:'xtra',l:'Special district bonuses',v:x});return L}
 function ciOver(g){g.phase='done';g.ask=null;g.turn=null;const P=act();P.forEach(p=>{const M=g.me[p.id];if(!M)return;const L=ciScore(g,p.id),v=k=>(L.find(x=>x.k===k)||{}).v||0;
   const x=ciP(p);x.f={dist:v('dist'),five:v('five')?1:0,first:v('first')?1:0,done:v('done')?1:0,xtra:v('xtra'),nd:M.city.length}});
@@ -7210,7 +7213,7 @@ function ciBotStep(g,q){const pid=q.id,M=g.me[pid],lv=q.bot,rnd=a=>a[Math.floor(
     if(s.t==='disc'){let mi=0;vals.forEach((v,i)=>{if(v<vals[mi])mi=i});k=o[mi]}else{let mi=0;vals.forEach((v,i)=>{if(v>vals[mi])mi=i});k=o[mi]}ciPick(g,pid,k);return}
   if(g.phase!=='turn'||!g.turn||g.turn.p!==pid)return;const t=g.turn;
   if(!t.act){const can=M.h.some(k=>!ciHas(M,k)&&ciCost(g,pid,k)<=M.gold+2+(t.ch==='merchant'?1:0)+ciIncN(g,pid,t.ch));ciAct(g,pid,M.h.length<2||(!can&&M.h.length<4&&M.gold>=4)?'cards':'gold');return}
-  if(t.hosp){ciEnd(g,pid);return}
+  if(t.bal){ciThank(g,pid);return}
   if(!t.pw&&['assassin','thief','abbot'].includes(t.ch)){if(ciPower(g,pid))return}
   if(!t.pw&&t.ch==='magician'&&M.h.length<=1&&g.ps.some(x=>x!==pid&&g.me[x].h.length>=3)){if(ciPower(g,pid))return}
   if(!t.pw&&t.ch==='wizard'&&lv!=='easy'){if(ciPower(g,pid))return}
@@ -7336,11 +7339,12 @@ function ciDock(g,V){if(!V||g.phase==='done')return '';const a=ciActor(g),mine=a
     body=`<div class="rlab">${s.t==='disc'?'Pick a character to put face down (nobody gets it this round).':'Pick your character in secret.'}${D.fu.length?` Face up and out: ${D.fu.map(ciN).join(', ')}.`:''}${(M.ch||[]).length?` You already have: ${M.ch.map(ciN).join(', ')}.`:''}</div>
       <div class="cihand cipick">${o.map(k=>k==='fd'?`<button class="cic cich cifd" data-a="cipick" data-k="fd"><span class="cii">❓</span><b>The face-down card</b></button>`:ciCard(k,{btn:1,cls:'go',attr:` data-a="cipick" data-k="${k}"`})).join('')}</div>${o.includes('fd')?'<p class="hint">Last player: you may take the face-down card instead (you don’t see it first).</p>':''}`}
   else if(g.phase==='turn'&&g.turn){const t=g.turn,ch=t.ch;head=`${CIIC[ch]} ${ciN(ch)}${t.bw&&!t.res?' (bewitched)':t.res?' (Witch)':''}`;
-    if(!t.act)body=`<div class="rlab">${t.hosp?'Murdered, but the Hospital lets you take an action.':t.bw?'You’re bewitched: take an action, then the Witch takes over your turn.':'First take an action:'}</div><div class="prow"><button class="btn primary" style="flex:1" data-a="cipact" data-k="gold">🪙 Take 2 gold</button><button class="btn primary" style="flex:1" data-a="cipact" data-k="cards">🃏 Draw ${ciHas(M,'observatory')?3:2}, keep ${ciHas(M,'library')?'all':'1'}</button></div>`;
+    if(t.bal)body=`<div class="rlab">Ball Room: ${esc(nmid(g.crown))} has the Crown. Thank them before you do anything else, or you miss your turn.</div><div class="prow"><button class="btn primary" style="flex:1" data-a="cipthank">👑 Thank you, Your Majesty!</button></div><div class="prow"><button class="btn" style="flex:1" data-a="cipact" data-k="gold">🪙 Take 2 gold</button><button class="btn" style="flex:1" data-a="cipact" data-k="cards">🃏 Draw cards</button></div>`;
+    else if(!t.act)body=`<div class="rlab">${t.hosp?'Murdered, but the Hospital lets you take an action and use your character (no building).':t.bw?'You’re bewitched: take an action, then the Witch takes over your turn.':'First take an action:'}</div><div class="prow"><button class="btn primary" style="flex:1" data-a="cipact" data-k="gold">🪙 Take 2 gold</button><button class="btn primary" style="flex:1" data-a="cipact" data-k="cards">🃏 Draw ${ciHas(M,'observatory')?3:2}, keep ${ciHas(M,'library')?'all':'1'}</button></div>`;
     else{const btns=[],inc=(CICH[ch]||{}).c&&!t.inc?ciIncN(g,V.id,ch):-1,left=ciMaxB(t)-t.b;
       if(inc>=0)btns.push(`<button class="btn" data-a="cipinc">Collect ${inc} gold (${CICOL[CICH[ch].c][0].toLowerCase()})</button>`);
       const pl={assassin:'🗡️ Murder a character',thief:'💰 Rob a character',magician:'🎩 Swap cards',wizard:'🔮 Take a card from a hand',abbot:'🙏 Take 1 gold from the richest',artist:'🎨 Beautify districts'}[ch];if(pl&&!t.pw)btns.push(`<button class="btn" data-a="cippow">${pl}</button>`);
-      [['laboratory','🧪 Laboratory',!t.lab&&M.h.length],['smithy','⚒️ Smithy (2 gold: 3 cards)',!t.smi&&M.gold>=2],['museum','🏛️ Museum',!t.mus&&M.h.length],['armory','💥 Armory',1]].forEach(([k,l,ok])=>{if(ciHas(M,k)&&ok)btns.push(`<button class="btn" data-a="cipuse" data-k="${k}">${l}</button>`)});
+      [['laboratory','🧪 Laboratory',!t.lab&&M.h.length],['smithy','⚒️ Smithy (2 gold: 3 cards)',!t.smi&&M.gold>=2],['museum','🏛️ Museum',!t.mus&&M.h.length],['armory','💥 Armory',1]].forEach(([k,l,ok])=>{if(ciHas(M,k)&&ok&&!t.hosp)btns.push(`<button class="btn" data-a="cipuse" data-k="${k}">${l}</button>`)});
       body=`<div class="rlab">${ch==='navigator'?'The Navigator can’t build.':left>0?`Tap a card in your hand to build it (${left} more this turn).`:'You’ve built all you can this turn.'}${ch==='warlord'?' At the end of your turn you can destroy a district.':ch==='diplomat'?' At the end of your turn you can swap a district.':''}</div>${btns.length?`<div class="ciact">${btns.join('')}</div>`:''}<div class="prow"><button class="btn${left>0&&M.h.some(k=>!ciBuildOk(g,V.id,k))?'':' primary'}" style="flex:1" data-a="cipend">${CIENDOK===g.n?'Tap again to end your turn':'End turn'}</button></div>`}}
   return `<div class="sadock cidock" style="${pc(V.color)}"><div class="sadh"><span><b>${S.lk||ciHumans().length<2?'Your turn':esc(nm(V))}</b> · ${head} · 🪙 ${M.gold}</span><button class="sadrx" data-a="rxopen" aria-label="Reactions">😀</button></div>${body}</div>`}
 function ciAskUI(g,V){const Q=g.ask,M=g.me[Q.p];let out=`<div class="rlab dnwhy">${esc(Q.why||'')}</div>`;
@@ -7372,6 +7376,7 @@ function ciUiAct(a,b,k){const g=ciG();if(!g)return;
   if(a==='cipsel'){const i=+k,Q=g.ask;if(!Q)return;if(CISEL.includes(i))CISEL=CISEL.filter(x=>x!==i);else if(Q.max===1)CISEL=[i];else if(CISEL.length<Q.max)CISEL.push(i);return}
   if(a==='cippick'||a==='cipick'){done(lkq('ciPick',pid,k));return}
   if(a==='cipact'){done(lkq('ciAct',pid,k));return}
+  if(a==='cipthank'){done(lkq('ciThank',pid));return}
   if(a==='cipinc'){done(lkq('ciIncome',pid));return}
   if(a==='cipbuild'){if(!done(lkq('ciBuild',pid,+k)))toast('You can’t build that now.');return}
   if(a==='cippow'){if(!done(lkq('ciPower',pid)))toast('Nothing to do with that right now.');return}
@@ -7380,7 +7385,7 @@ function ciUiAct(a,b,k){const g=ciG();if(!g)return;
   if(a==='cipok'){done(lkq('ciAns',pid,CISEL.slice()));return}
   if(a==='cipskip'){done(lkq('ciAns',pid,[]));return}
   if(a==='cipend'){const t=g.turn,M=g.me[pid];if(t&&ciMaxB(t)>t.b&&M.h.some(x=>!ciBuildOk(g,pid,x))&&CIENDOK!==g.n){CIENDOK=g.n;toast('You can still build. Tap again to end your turn.');return}
-    if(t&&(CICH[t.ch]||{}).c&&!t.inc&&!t.hosp&&ciIncN(g,pid,t.ch)>0)lkq('ciIncome',pid);if(done(lkq('ciEnd',pid)))CIENDOK=-1;return}}
+    if(t&&(CICH[t.ch]||{}).c&&!t.inc&&ciIncN(g,pid,t.ch)>0)lkq('ciIncome',pid);if(done(lkq('ciEnd',pid)))CIENDOK=-1;return}}
 
 /* ================= Stone Age on the phone =================
    S.sax = {play, exp (Stone Age: The Expansion), bonus (acorn huts with the expansion), mix ('none'|'fit'|'jewel', pieces in the regular game)}.
@@ -13045,7 +13050,7 @@ const LKQF={
   mtPass:pid=>{const g=mtG();return !!g&&mtPass(g,pid)},
    mtBuilt:pid=>{const g=mtG();return !!g&&mtBuilt(g,pid)},
    dnPlay:(pid,i)=>{const g=dnG();return !!g&&dnPlay(g,pid,i)},dnPlayT:(pid,i)=>{const g=dnG();return !!g&&dnPlayT(g,pid,i)},dnCof:(pid,n)=>{const g=dnG();return !!g&&dnCof(g,pid,n)},dnBuyEv:(pid,k)=>{const g=dnG();return !!g&&dnBuyEv(g,pid,k)},dnPlayAllT:pid=>{const g=dnG();return !!g&&dnPlayAllT(g,pid)},dnEndAct:pid=>{const g=dnG();return !!g&&dnEndAct(g,pid)},dnEndTurn:pid=>{const g=dnG();return !!g&&dnEndTurn(g,pid)},dnBuy:(pid,k)=>{const g=dnG();return !!g&&dnBuy(g,pid,k)},dnAns:(pid,v)=>{const g=dnG();return !!g&&dnAns(g,pid,v)},
-   ciPick:(pid,k)=>{const g=ciG();return !!g&&ciPick(g,pid,k)},ciAct:(pid,c)=>{const g=ciG();return !!g&&ciAct(g,pid,c)},ciIncome:pid=>{const g=ciG();return !!g&&ciIncome(g,pid)},ciBuild:(pid,i)=>{const g=ciG();return !!g&&ciBuild(g,pid,i)},ciPower:pid=>{const g=ciG();return !!g&&ciPower(g,pid)},ciUse:(pid,k)=>{const g=ciG();return !!g&&ciUse(g,pid,k)},ciEnd:pid=>{const g=ciG();return !!g&&ciEnd(g,pid)},ciAns:(pid,v)=>{const g=ciG();return !!g&&ciAns(g,pid,v)},
+   ciPick:(pid,k)=>{const g=ciG();return !!g&&ciPick(g,pid,k)},ciAct:(pid,c)=>{const g=ciG();return !!g&&ciAct(g,pid,c)},ciIncome:pid=>{const g=ciG();return !!g&&ciIncome(g,pid)},ciBuild:(pid,i)=>{const g=ciG();return !!g&&ciBuild(g,pid,i)},ciPower:pid=>{const g=ciG();return !!g&&ciPower(g,pid)},ciUse:(pid,k)=>{const g=ciG();return !!g&&ciUse(g,pid,k)},ciEnd:pid=>{const g=ciG();return !!g&&ciEnd(g,pid)},ciAns:(pid,v)=>{const g=ciG();return !!g&&ciAns(g,pid,v)},ciThank:pid=>{const g=ciG();return !!g&&ciThank(g,pid)},
    saPlace:(pid,l,n)=>{const g=saG();return !!g&&saPlace(g,pid,l,n)},saResolve:(pid,l)=>{const g=saG();return !!g&&saResolve(g,pid,l)},saRoll:pid=>{const g=saG();return !!g&&saRoll(g,pid)},saTool:(pid,t,i)=>{const g=saG();return !!g&&saTool(g,pid,t,i)},saTake:(pid,jw)=>{const g=saG();return !!g&&saTake(g,pid,jw)},
    saBuy:(pid,o,t,x)=>{const g=saG();return !!g&&saBuy(g,pid,o,t,x)},saSkip:pid=>{const g=saG();return !!g&&saSkip(g,pid)},saChoose:(pid,o)=>{const g=saG();return !!g&&saChoose(g,pid,o)},saDie:(pid,j)=>{const g=saG();return !!g&&saDie(g,pid,j)},saFeed:(pid,o)=>{const g=saG();return !!g&&saFeed(g,pid,o)},saFeedOk:pid=>{const g=saG();return !!g&&saFeedOk(g,pid)},saMamSend:(pid,k)=>{const g=saG();return !!g&&saMamSend(g,pid,k)},saMamPick:(pid,f)=>{const g=saG();return !!g&&saMamPick(g,pid,f)},
   cfPlay:(pid,t,k)=>{const g=cfG();return !!g&&cfPlay(g,pid,t,k)},
