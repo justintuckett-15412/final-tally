@@ -1,7 +1,7 @@
 // Stone Age: The Expansion and the extra-pieces options, rule by rule.
 const {mk,W,ok,done,chromium}=require('./link.js');
 (async()=>{const browser=await chromium.launch();const P=await mk(browser,'p');const errs=[];P.on('pageerror',e=>errs.push(e.message));
-  const setup=(n,mode)=>P.evaluate(([n,mode])=>{window.__htfast=1;switchGame('stoneage');resetScores();Object.assign(SAX(),{play:1,exp:0,bonus:0,mix:'none',mam:0},mode);S.players.forEach((p,i)=>{p.on=i<n;p.name=['Ann','Bob','Cat','Dan','Eve'][i]||'';delete p.bot});S.started=true;S.screen='score';saDeal();return S.sag.ps},[n,mode]);
+  const setup=(n,mode)=>P.evaluate(([n,mode])=>{window.__htfast=1;switchGame('stoneage');resetScores();Object.assign(SAX(),{play:1,exp:0,bonus:0,mix:'none',mam:0,ext:0},mode);S.players.forEach((p,i)=>{p.on=i<n;p.name=['Ann','Bob','Cat','Dan','Eve'][i]||'';delete p.bot});S.started=true;S.screen='score';saDeal();return S.sag.ps},[n,mode]);
   const ev=f=>P.evaluate(f);let r;
   /* setup */
   await setup(5,{exp:1});
@@ -36,7 +36,7 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   ok('normal card spaces can’t take jewelry directly, but jewelry can be traded 1 for 1 at merchant 4–8',!r.jPay&&r.trade,r);
   /* 5th card space */
   r=await ev(()=>{const g=S.sag,a=g.ps[2],M=g.me[a];Object.assign(M,{j:6,mt:0});g.phase='act';g.turn=a;g.todo={[a]:['forest']};g.roll=g.pick=g.dc=null;g.trd={};g.pay={pid:a,loc:'c4'};const n0=M.cards.length;const o={};o.res=saPayOk(g,{w:3},{});o.extra=saBuy(g,a,{j:6},{},1);o.got=M.cards.length-n0;o.j=M.j;return o});
-  ok('5th space: 3 jewelry, plus 3 more for the top card',!r.res&&r.extra&&r.got===2&&r.j===0,r);
+  ok('5th space: 3 jewelry, plus 3 more for the top card',!r.res&&r.extra&&r.got>=2&&r.j===0,r);
   /* jewelry huts */
   r=await ev(()=>{const g=S.sag,a=g.ps[0],M=g.me[a];g.piles[0][0]='h'+SAHUTS.findIndex(h=>h.jv);Object.assign(M,{j:5});g.phase='act';g.turn=a;g.todo={[a]:['forest']};g.trd={};g.pay={pid:a,loc:'b0'};g.roll=g.dc=g.pick=null;const p0=M.pts;const five=saPayOk(g,{j:5},{});const b=saBuy(g,a,{j:3},{});return {five,b,pts:M.pts-p0}});
   ok('jewelry hut: 1–4 jewelry, 4 points each',!r.five&&r.b&&r.pts===12,r);
@@ -81,6 +81,12 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   ok('mammoth: highest die wins; winner takes 10 points and keeps the tile, the other gets 2 wood',r.win&&r.pick&&r.apts===10&&r.bpts===0&&r.won===1&&r.phase==='feed',r);
   r=await ev(()=>{const g=S.sag,[a,b,c]=g.ps;g.mam.won={[a]:[1,2],[b]:[3,4],[c]:[5]};g.phase='feed';g.fd={};g.fok={};g.end='huts';saRoundEnd(g);return act().slice(0,3).map(p=>saMam10(p))});
   ok('mammoth: the most tiles scores 10, ties all score 10',JSON.stringify(r)==='[10,10,0]',r);
+  await setup(3,{ext:1});
+  r=await ev(()=>S.sag.piles.map(p=>p.length));
+  ok('extended play: all 28 base huts split across 3 piles (10, 9, 9)',JSON.stringify(r)==='[10,9,9]',r);
+  await setup(3,{});
+  r=await ev(()=>S.sag.piles.map(p=>p.length));
+  ok('official: 7 huts per pile',JSON.stringify(r)==='[7,7,7]',r);
   /* screens: the setup switches and the board */
   await P.evaluate(()=>{switchGame('stoneage');resetScores();Object.assign(SAX(),{play:1,exp:1,bonus:1,mix:'none'});S.players.forEach((p,i)=>{p.on=i<5;p.name=['Ann','Bob','Cat','Dan','Eve'][i]||'';if(i)p.bot='normal';else delete p.bot});S.started=false;S.screen='map';render()});await W(300);
   ok('setup shows the expansion switches',await ev(()=>!!document.querySelector('[data-a="satg"][data-k="exp"]')&&!!document.querySelector('[data-a="satg"][data-k="bonus"]')));

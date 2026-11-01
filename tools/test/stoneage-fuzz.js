@@ -28,7 +28,7 @@ const N=+(process.env.N||40);
       const cards=[...g.deck,...g.slots.filter(Boolean),...g.ps.flatMap(id=>g.me[id].cards)];const NC=g.x.leaf?45:36;if(g.nc!==NC||cards.length!==NC||new Set(cards).size!==NC)note('cards lost or duplicated',{n:cards.length,NC});
       if(g.slots.length!==(g.x.s5?5:4))note('wrong number of card spaces',g.slots.length);
       {const all=[...g.piles.flat(),...g.ps.flatMap(id=>g.me[id].bld)];if(all.some(h=>{const H=saHut(h);return H.A&&!g.x.acorn||H.L&&!(g.x.leaf||g.x.fit&&H.O)}))note('hut from the wrong set',all)}
-      const huts=[...g.piles.flat(),...g.ps.flatMap(id=>g.me[id].bld)];if(huts.length!==7*n||new Set(huts).size!==huts.length)note('huts lost or duplicated',huts.length);
+      const huts=[...g.piles.flat(),...g.ps.flatMap(id=>g.me[id].bld)];if(huts.some(h=>saHut(h).X))note('the removed duplicate hut is in play',huts);if((g.ext?false:huts.length!==7*n)||new Set(huts).size!==huts.length)note('huts lost or duplicated',huts.length);
       if(g.piles.length!==n)note('wrong number of hut piles',g.piles.length);
       if(g.phase==='place'&&g.slots.some(x=>!x))note('empty card space during placing',g.slots)}
     const tryBad=(g,pid)=>{/* illegal moves must change nothing */const before=KEY(g);const other=g.ps.find(x=>x!==pid);
@@ -46,8 +46,8 @@ const N=+(process.env.N||40);
       if(g.phase==='feed'&&(g.fok||{})[pid])return saFeedOk(g,pid);
       if(g.phase==='feed'&&(g.fd||{})[pid]){const F=g.fd[pid];if(saResN(M)>=F.short&&Math.random()<.7){const o={w:0,c:0,s:0,g:0};let k=F.short;for(const r of SAK){const t=Math.min(k,M[r]);o[r]=t;k-=t}return saFeed(g,pid,o)}return saFeed(g,pid,'starve')}}
     const stats={games:0,rounds:0,ends:{},steps:0,starved:0,maxRounds:0,scores:[]};
-    const MODES=[{exp:0,mix:'none'},{exp:0,mix:'fit',mam:1},{exp:0,mix:'jewel'},{exp:1,bonus:0,mam:1},{exp:1,bonus:1},{exp:0,mix:'none',mam:1}];stats.modes={};
-    for(let G=0;G<N;G++){const mode=MODES[G%MODES.length],ex=!!mode.exp;const n=2+(Math.floor(G/MODES.length)+G)%(ex?4:3);switchGame('stoneage');resetScores();Object.assign(SAX(),{play:1,exp:0,bonus:0,mix:'none',mam:0},mode);stats.modes[JSON.stringify(mode)]=(stats.modes[JSON.stringify(mode)]||0)+1;
+    const MODES=[{exp:0,mix:'none',ext:1},{exp:0,mix:'fit',mam:1},{exp:0,mix:'jewel'},{exp:1,bonus:0,mam:1},{exp:1,bonus:1},{exp:0,mix:'none',mam:1}];stats.modes={};
+    for(let G=0;G<N;G++){const mode=MODES[G%MODES.length],ex=!!mode.exp;const n=2+(Math.floor(G/MODES.length)+G)%(ex?4:3);switchGame('stoneage');resetScores();Object.assign(SAX(),{play:1,exp:0,bonus:0,mix:'none',mam:0,ext:0},mode);stats.modes[JSON.stringify(mode)]=(stats.modes[JSON.stringify(mode)]||0)+1;
       S.players.forEach((p,i)=>{p.on=i<n;p.name='P'+i;if(i<n&&(G+i)%2)p.bot=['easy','normal','hard'][(G+i)%3];else delete p.bot});S.started=true;S.screen='score';saDeal();const g=S.sag;const human={};act().forEach(p=>human[p.id]=!p.bot);
       let steps=0,lastR=-1;check(g,'deal');
       while(g.phase!=='done'&&steps<6000){steps++;
