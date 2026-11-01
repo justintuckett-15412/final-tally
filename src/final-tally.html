@@ -1534,6 +1534,12 @@ button.dnc{cursor:pointer}.dnc.sel{transform:translateY(-6px);outline:3px solid 
 .dnbigc .dnco{width:30px;height:30px;font-size:16px;left:6px;bottom:6px}
 .dnbig{display:flex;justify-content:center;margin:6px 0}.dnsel{display:flex;justify-content:center}.dnsel .dnbigc{width:170px;min-height:200px}
 .dnctr{display:flex;gap:10px;justify-content:space-around;font-size:15px}
+.dnrespbg{align-items:flex-end;z-index:60}
+.dnresp{text-align:left;max-height:88vh;overflow:auto;border-top:6px solid var(--pc,var(--accent))}
+.dnrhead{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.dnrhead h2{margin:2px 0;font-size:20px}
+.dnrsrc .dnc{width:76px}
+.dnrbody .dnhand.mine{margin-bottom:6px}
 .dnphs{display:flex;justify-content:center;align-items:center;gap:6px;font-size:12px;font-weight:700;margin:2px 0 6px;color:var(--muted,#888)}
 .dnphs span{padding:2px 9px;border-radius:999px;border:1px solid currentColor;opacity:.6}
 .dnphs span.on{background:var(--accent,#f5c518);color:#1d2329;border-color:transparent;opacity:1}
@@ -8167,7 +8173,7 @@ function dnTake(M,idx){const out=[];idx.slice().sort((a,b)=>b-a).forEach(i=>out.
 const dnTypes=k=>[['A','Action'],['D','Duration'],['K','Attack'],['R','Reaction'],['T','Treasure'],['V','Victory'],['C','Curse'],['W','Reward'],['U','Ruins'],['S','Shelter'],['L','Looter'],['N','Knight'],['M','Command']].filter(([f])=>dnIs(k,f)).map(x=>x[1]);
 
 /* ---------------- a turn ---------------- */
-function dnStartTurn(g,pid,extra,poss){Object.assign(g,{prevT:g.turn||null,d2:[],turn:pid,poss:poss||null,cuDone:0,po:0,ph:'action',A:1,B:1,co:0,mer:0,silv:0,br:0,np:0,k:[],ask:null,op:0,bv:0,dnx:[],dkeep:[],sail:0,corsHit:0,pc:0,qy:0,bought:0,buying:0,wcn:[],fx:0,bg:0,mg:0,cfu:0,xr:0,fgc:0,hag:0,sch:0,ga:0,cldr:[],knt:0,extra:extra?1:0});
+function dnStartTurn(g,pid,extra,poss){Object.assign(g,{prevT:g.turn||null,d2:[],turn:pid,poss:poss||null,cuDone:0,po:0,ph:'action',A:1,B:1,co:0,mer:0,silv:0,br:0,np:0,k:[],ask:null,op:0,bv:0,dnx:[],dkeep:[],sail:0,corsHit:0,pc:0,qy:0,bought:0,buying:0,wcn:[],fx:0,bg:0,mg:0,cfu:0,xr:0,fgc:0,hag:0,sch:0,ga:0,cldr:[],knt:0,atk:null,extra:extra?1:0});
   /* effects that last "until your next turn" end now */
   g.monk=(g.monk||[]).filter(e=>e.o!==pid);g.cors=(g.cors||[]).filter(e=>e.o!==pid);g.blk=(g.blk||[]).filter(e=>e.o!==pid);const M=g.me[pid];if(!poss)M.tn++;g.gl=g.gl||{};g.gl[pid]=[];
   if(poss){g.msg=`${nmid(poss.by)} possesses ${nmid(pid)}: ${nmid(poss.by)} plays this turn and gains whatever ${nmid(pid)} would.`;gLog(g,`${nmid(poss.by)} possesses ${nmid(pid)}`,'👁️');gAnn(g,`${nmid(poss.by)} possesses ${nmid(pid)}`,`${nmid(poss.by)} makes every choice this turn. Anything gained goes to ${nmid(poss.by)}.`,'👁️')}DNSEL=[];DNPILE=null;
@@ -8200,7 +8206,7 @@ function dnTreasureFx(g,pid,k){const M=g.me[pid];g.co+=dnC(k).m||0;if(k==='curse
     case 'spoils':{const i=M.pl.lastIndexOf('spoils');if(i>=0){M.pl.splice(i,1);g.ns.spoils=(g.ns.spoils||0)+1}break}
     case 'counterfeit':g.B++;if(M.h.some(x=>dnIs(x,'T')))g.k.push({t:'askp',p:pid,min:0,max:1,f:'T',then:'cfeit',why:'Counterfeit: you may play a Treasure from your hand twice. If you do, trash it.'});break;
     case 'foolsgold':if(g.fgc)g.co+=3;g.fgc=(g.fgc||0)+1;break;
-    case 'cauldron':g.B++;g.cldr=g.cldr||[];g.cldr.push({aff:[]});dnAttack(g,pid,'cldon');break;
+    case 'cauldron':g.atk={p:pid,c:'cauldron'};g.B++;g.cldr=g.cldr||[];g.cldr.push({aff:[]});dnAttack(g,pid,'cldon');break;
     case 'coronet':g.k.push({t:'coro',p:pid});break;
     case 'warchest':{const L=dnOthers(g,pid)[0];g.k.push({t:'wcname',p:L,by:pid});break}}
   if(k==='tiara'&&M.h.some(x=>dnIs(x,'T')))g.k.push({t:'askp',p:pid,min:0,max:1,f:'T',then:'tiara',why:'Tiara: you may play a Treasure from your hand twice.'});if(k==='potion')g.po=(g.po||0)+1;if(k==='philstone')g.co+=Math.floor((M.dk.length+M.ds.length)/5);if(k==='silver'&&!g.silv){g.silv=1;g.co+=g.mer}if(k==='astrolabe'){g.B++;g.dnx.push('astrolabe')}
@@ -8274,7 +8280,7 @@ const dnPick=(g,p,o)=>{const M=g.me[p];if(!M.h.length)return false;if((o.f||o.nr
 const dnOpts=(g,p,opts,n,then,why,x)=>dnAsk(g,{p,k:'opts',opts,n:Math.min(n,opts.length),then,why,...(x||{})});
 function dnStep(g,T){const p=T.p,M=g.me[p];if(!M)return;
   switch(T.t){
-  case 'eff':{const c=T.c;if(!T.uq&&p===g.turn&&dnIs(c,'K')&&M.pl.filter(x=>x==='urchin').length-(c==='urchin'?1:0)>0&&(g.ns||{}).mercenary>0){dnPush(g,{t:'urq',p},{...T,uq:1});break}if(p===g.turn)g.np=(g.np||0)+1;switch(c){
+  case 'eff':{const c=T.c;if(dnIs(c,'K')&&p===g.turn)g.atk={p,c};if(!T.uq&&p===g.turn&&dnIs(c,'K')&&M.pl.filter(x=>x==='urchin').length-(c==='urchin'?1:0)>0&&(g.ns||{}).mercenary>0){dnPush(g,{t:'urq',p},{...T,uq:1});break}if(p===g.turn)g.np=(g.np||0)+1;switch(c){
     case 'cellar':g.A++;if(M.h.length)dnAsk(g,{p,k:'pick',min:0,max:M.h.length,then:'cellar',why:'Discard any number of cards, then draw that many.'});break;
     case 'chapel':if(M.h.length)dnAsk(g,{p,k:'pick',min:0,max:4,then:'trash',why:'Trash up to 4 cards from your hand.'});break;
     case 'moat':dnDraw(g,p,2);break;
@@ -8503,8 +8509,8 @@ function dnStep(g,T){const p=T.p,M=g.me[p];if(!M)return;
   case 'react':{if(!T.bg&&M.h.includes('beggar')){dnAsk(g,{p,k:'yn',c:'beggar',then:'beg',T,why:`${nmid(T.by)} played an Attack. Discard your Beggar to gain 2 Silvers (one onto your deck)?`});break}
     if(!T.g2&&M.h.includes('guarddog')){dnAsk(g,{p,k:'yn',c:'guarddog',then:'gdog',T,why:`${nmid(T.by)} played an Attack. Play your Guard Dog first?`});break}
     if(!T.d&&M.h.includes('diplomat')&&M.h.length>=5){dnAsk(g,{p,k:'yn',then:'dipl',T,why:`${nmid(T.by)} played an Attack. Reveal Diplomat to draw 2 cards, then discard 3?`});break}
-    if(M.h.includes('moat')){gLog(g,`${nmid(p)} revealed a Moat and is safe`,'🌊');g.msg+=` ${nmid(p)} revealed a Moat.`;break}
-    if((M.du||[]).includes('lighthouse')){g.msg+=` ${nmid(p)}’s Lighthouse protects them.`;break}
+    if(M.h.includes('moat')){gLog(g,`${nmid(p)} revealed a Moat and is safe`,'🌊');gAnn(g,`${nmid(p)} revealed a Moat`,`Safe from ${nmid(T.by)}’s attack.`,'🌊');g.msg+=` ${nmid(p)} revealed a Moat.`;break}
+    if((M.du||[]).includes('lighthouse')){gAnn(g,`${nmid(p)}’s Lighthouse`,`Safe from ${nmid(T.by)}’s attack.`,'🗼');g.msg+=` ${nmid(p)}’s Lighthouse protects them.`;break}
     dnPush(g,T.a==='scry'?{t:'scry',p:T.by,by:T.by,v:p}:{t:T.a,p,by:T.by,x:T.x});break}
   case 'bur':{const v=M.h.filter(k=>dnIs(k,'V'));if(!v.length){g.msg+=` ${nmid(p)} has no Victory cards.`;gLog(g,`${nmid(p)} showed a hand with no Victory cards`,'📜');break}
     if(new Set(v).size===1){M.h.splice(M.h.indexOf(v[0]),1);M.dk.push(v[0]);g.msg+=` ${nmid(p)} put ${dnAn(v[0])} on their deck.`;break}
@@ -8570,7 +8576,7 @@ function dnStep(g,T){const p=T.p,M=g.me[p];if(!M)return;
     if(dnIs(t,'V')){if(dnGain(g,p,'curse','ds')){g.msg+=` ${nmid(p)} gains a Curse.`;gLog(g,`${nmid(p)} gained a Curse from the Jester`,'💀')}}
     else if(g.sup[t]>0)dnOpts(g,T.by,[['them',`${nmid(p)} gains ${dnAn(t)}`],['me',`I gain ${dnAn(t)}`]],1,'jest',`Jester: ${nmid(p)} discarded ${dnAn(t)}. Who gains a copy?`,{c:t,v:p,show:1});break}
   case 'sooth':if(dnGain(g,p,'curse','ds')){dnDraw(g,p,1);g.msg+=` ${nmid(p)} gains a Curse and draws a card.`;gLog(g,`${nmid(p)} gained a Curse`,'💀')}break;
-  case 'yw':if(g.bane&&M.h.includes(g.bane)){g.msg+=` ${nmid(p)} revealed a Bane (${dnNm(g.bane)}).`;gLog(g,`${nmid(p)} revealed a Bane and is safe`,'🧄');break}if(dnGain(g,p,'curse','ds')){g.msg+=` ${nmid(p)} gains a Curse.`;gLog(g,`${nmid(p)} gained a Curse`,'💀')}break;
+  case 'yw':if(g.bane&&M.h.includes(g.bane)){g.msg+=` ${nmid(p)} revealed a Bane (${dnNm(g.bane)}).`;gLog(g,`${nmid(p)} revealed a Bane and is safe`,'🧄');gAnn(g,`${nmid(p)} revealed a Bane`,`Safe from the Young Witch’s Curse.`,'🧄');break}if(dnGain(g,p,'curse','ds')){g.msg+=` ${nmid(p)} gains a Curse.`;gLog(g,`${nmid(p)} gained a Curse`,'💀')}break;
   case 'fhq':if(M.h.some(k=>dnIs(k,'A')||dnIs(k,'T')))dnAsk(g,{p,k:'pick',min:0,max:1,f:'AT',then:'fh',why:'Farmhands: you may set aside an Action or Treasure from your hand. You play it at the start of your next turn.'});break;
   case 'fhp':{const c=T.c;if(!M.pl.includes(c))break;if(dnIs(c,'A'))dnPush(g,{t:'eff',p,c});else if(dnIs(c,'T'))dnTreasureFx(g,p,c);break}
   case 'herop':{if(!M.ds.length||!(T.n>0))break;if(M.ds.length<=T.n){g.msg+=` Herald: ${M.ds.length===1?'the only discard goes':'the whole discard pile goes'} onto the deck.`;M.dk.push(...M.ds);M.ds=[];break}
@@ -8680,27 +8686,27 @@ function dnAns(g,pid,ans){pid=dnAsP(g,pid);const Q=g.ask;if(!Q||Q.p!==pid||g.pha
     else if(Q.then==='sail'){if(y&&g.sail>0){const c=Q.c;let from=null;if(Q.to==='h'){const i=M.h.lastIndexOf(c);if(i>=0){M.h.splice(i,1);from=1}}else if(Q.to==='dk'){if(M.dk[M.dk.length-1]===c){M.dk.pop();from=1}}else{const i=M.ds.lastIndexOf(c);if(i>=0){M.ds.splice(i,1);from=1}}
       if(from){g.sail--;M.pl.push(c);g.msg=`${nmid(pid)} played the ${dnNm(c)} with Sailor.`;gLog(g,`${nmid(pid)} played ${dnNm(c)} with Sailor`,'👒');if(dnIs(c,'A'))dnPush(g,{t:'eff',p:pid,c});else if(dnIs(c,'T'))dnTreasureFx(g,pid,c)}}}
     else if(Q.then==='clerk'){if(y){const i=M.h.indexOf('clerk');if(i>=0){M.h.splice(i,1);M.pl.push('clerk');g.msg=`${nmid(pid)} played a Clerk.`;dnPush(g,{t:'eff',p:pid,c:'clerk'},{t:'clerkq',p:pid})}}}
-    else if(Q.then==='beg'){const T=Q.T;const i=M.h.indexOf('beggar');if(y&&i>=0){M.h.splice(i,1);dnDs(g,pid,['beggar']);const a1=dnGain(g,pid,'silver','dk'),a2=dnGain(g,pid,'silver','ds');g.msg=`${nmid(pid)} discarded a Beggar for ${(a1?1:0)+(a2?1:0)} Silver${a1&&a2?'s':''}.`;gLog(g,`${nmid(pid)} answered with a Beggar`,'🥣');dnPush(g,{...T})}else dnPush(g,{...T,bg:1})}
+    else if(Q.then==='beg'){const T=Q.T;const i=M.h.indexOf('beggar');if(y&&i>=0){M.h.splice(i,1);dnDs(g,pid,['beggar']);const a1=dnGain(g,pid,'silver','dk'),a2=dnGain(g,pid,'silver','ds');g.msg=`${nmid(pid)} discarded a Beggar for ${(a1?1:0)+(a2?1:0)} Silver${a1&&a2?'s':''}.`;gLog(g,`${nmid(pid)} answered with a Beggar`,'🥣');gAnn(g,`${nmid(pid)} discarded a Beggar`,'They gain 2 Silvers.','🥣');dnPush(g,{...T})}else dnPush(g,{...T,bg:1})}
     else if(Q.then==='culq'){const i=M.h.indexOf('cultist');if(y&&i>=0){M.h.splice(i,1);M.pl.push('cultist');g.msg=`${nmid(pid)} plays another Cultist.`;gLog(g,`${nmid(pid)} played another Cultist`,'🕯️');dnPush(g,{t:'eff',p:pid,c:'cultist'})}}
     else if(Q.then==='urq'){const i=M.pl.indexOf('urchin');if(y&&i>=0){M.pl.splice(i,1);dnTr(g,pid,'urchin');if(dnGain(g,pid,'mercenary','ds','ns')){g.msg=`${nmid(pid)} trashed an Urchin and gained a Mercenary.`;gLog(g,`${nmid(pid)}’s Urchin became a Mercenary`,'🗡️')}}}
     else if(Q.then==='hov'){const i=M.h.indexOf('hovel');if(y&&i>=0){M.h.splice(i,1);dnTr(g,pid,'hovel');g.msg=`${nmid(pid)} trashed the Hovel.`}}
-    else if(Q.then==='msq'){const i=M.h.indexOf('marketsquare');if(y&&i>=0){M.h.splice(i,1);dnDs(g,pid,['marketsquare']);if(dnGain(g,pid,'gold','ds')){g.msg=`${nmid(pid)} discarded a Market Square and gained a Gold.`;gLog(g,`${nmid(pid)}’s Market Square paid out a Gold`,'⛲')}dnPush(g,{t:'msq',p:pid,c:Q.tc})}}
+    else if(Q.then==='msq'){const i=M.h.indexOf('marketsquare');if(y&&i>=0){M.h.splice(i,1);dnDs(g,pid,['marketsquare']);if(dnGain(g,pid,'gold','ds')){g.msg=`${nmid(pid)} discarded a Market Square and gained a Gold.`;gLog(g,`${nmid(pid)}’s Market Square paid out a Gold`,'⛲');gAnn(g,`${nmid(pid)}’s Market Square`,'They gain a Gold.','⛲')}dnPush(g,{t:'msq',p:pid,c:Q.tc})}}
     else if(Q.then==='iron2'){const t=Q.c,j=M.aside.indexOf(t);if(j>=0){M.aside.splice(j,1);if(y)dnDs(g,pid,[t]);else M.dk.push(t)}const b=[];if(dnIs(t,'A')){g.A++;b.push('+1 Action')}if(dnIs(t,'T')){g.co++;b.push('+1 coin')}if(dnIs(t,'V')){dnDraw(g,pid,1);b.push('+1 Card')}g.msg=`${nmid(pid)} ${y?'discarded':'kept'} ${dnAn(t)}${b.length?': '+b.join(', '):''}.`}
     else if(Q.then==='scav'){if(y&&M.dk.length){M.ds.push(...M.dk);M.dk=[];g.msg=`${nmid(pid)} put their deck into their discard pile.`}dnPush(g,{t:'scav2',p:pid})}
-    else if(Q.then==='gdog'){const T=Q.T;const i=M.h.indexOf('guarddog');if(y&&i>=0){M.h.splice(i,1);M.pl.push('guarddog');g.msg=`${nmid(pid)} played a Guard Dog.`;gLog(g,`${nmid(pid)} played a Guard Dog`,'🐕');dnPush(g,{t:'eff',p:pid,c:'guarddog'},{...T})}else dnPush(g,{...T,g2:1})}
+    else if(Q.then==='gdog'){const T=Q.T;const i=M.h.indexOf('guarddog');if(y&&i>=0){M.h.splice(i,1);M.pl.push('guarddog');g.msg=`${nmid(pid)} played a Guard Dog.`;gLog(g,`${nmid(pid)} played a Guard Dog`,'🐕');gAnn(g,`${nmid(pid)} played a Guard Dog`,'They draw cards before the attack.','🐕');dnPush(g,{t:'eff',p:pid,c:'guarddog'},{...T})}else dnPush(g,{...T,g2:1})}
     else if(Q.then==='tun'){if(y&&dnGain(g,pid,'gold','ds')){g.msg=`${nmid(pid)} revealed a Tunnel and gained a Gold.`;gLog(g,`${nmid(pid)}’s Tunnel found a Gold`,'🕳️')}}
     else if(Q.then==='dplay'||Q.then==='gplay'||Q.then==='tplay'){if(y){const c=Q.c;let ok=false;if(Q.then==='dplay'){const i=M.ds.lastIndexOf(c);if(i>=0){M.ds.splice(i,1);ok=true}}else if(Q.then==='gplay')ok=dnRmG(M,c,Q.to);else{const i=g.trash.lastIndexOf(c);if(i>=0){g.trash.splice(i,1);ok=true}else{const j=(M.ptr||[]).lastIndexOf(c);if(j>=0){M.ptr.splice(j,1);ok=true}}}
       if(ok){M.pl.push(c);g.msg=`${nmid(pid)} played ${dnAn(c)}.`;gLog(g,`${nmid(pid)} played ${dnAn(c)}`,DNIC[c]);dnPush(g,{t:'eff',p:pid,c})}}}
     else if(Q.then==='jack'){const j=M.aside.indexOf(Q.c);if(j>=0){M.aside.splice(j,1);if(y){dnDs(g,pid,[Q.c]);g.msg=`${nmid(pid)} discarded ${dnAn(Q.c)}.`}else M.dk.push(Q.c)}}
-    else if(Q.then==='fg'){const i=M.h.indexOf('foolsgold');if(y&&i>=0){M.h.splice(i,1);dnTr(g,pid,'foolsgold');const ok=dnGain(g,pid,'gold','dk');g.msg=`${nmid(pid)} trashed a Fool’s Gold${ok?' and put a Gold on their deck':''}.`;gLog(g,`${nmid(pid)} cashed in a Fool’s Gold`,'🪨');dnPush(g,{t:'fgq',p:pid,by:''})}}
-    else if(Q.then==='trex'){if(y&&g.sup.silver>0&&dnRmG(M,Q.c,Q.to)){if(g.sup[Q.c]!=null)g.sup[Q.c]++;else if(g.ns&&g.ns[Q.c]!=null)g.ns[Q.c]++;g.sup.silver--;M.ds.push('silver');g.msg=`${nmid(pid)} exchanged the ${dnNm(Q.c)} for a Silver.`;gLog(g,`${nmid(pid)} traded ${dnAn(Q.c)} for a Silver`,'🔄')}}
+    else if(Q.then==='fg'){const i=M.h.indexOf('foolsgold');if(y&&i>=0){M.h.splice(i,1);dnTr(g,pid,'foolsgold');const ok=dnGain(g,pid,'gold','dk');g.msg=`${nmid(pid)} trashed a Fool’s Gold${ok?' and put a Gold on their deck':''}.`;gLog(g,`${nmid(pid)} cashed in a Fool’s Gold`,'🪨');gAnn(g,`${nmid(pid)} trashed a Fool’s Gold`,'A Gold goes on their deck.','🪨');dnPush(g,{t:'fgq',p:pid,by:''})}}
+    else if(Q.then==='trex'){if(y&&g.sup.silver>0&&dnRmG(M,Q.c,Q.to)){if(g.sup[Q.c]!=null)g.sup[Q.c]++;else if(g.ns&&g.ns[Q.c]!=null)g.ns[Q.c]++;g.sup.silver--;M.ds.push('silver');g.msg=`${nmid(pid)} exchanged the ${dnNm(Q.c)} for a Silver.`;gLog(g,`${nmid(pid)} traded ${dnAn(Q.c)} for a Silver`,'🔄');gAnn(g,`${nmid(pid)} revealed a Trader`,`They took a Silver instead of ${dnAn(Q.c)}.`,'🔄')}}
     else if(Q.then==='joust'){if(y){const i=M.h.indexOf('province');if(i>=0){M.h.splice(i,1);(M.ja=M.ja||[]).push('province');g.msg=`${nmid(pid)} set aside a Province.`;const rw=DNREW.filter(k=>(g.ns||{})[k]>0);
       if(rw.length)dnOpts(g,pid,rw.map(k=>[k,dnNm(k)]),1,'rew','Joust: pick a Reward to gain to your hand. Press and hold one to read it.',{cards:1})}}}
     else if(Q.then==='alch'){if(y){const i=M.pl.lastIndexOf('alchemist');if(i>=0){M.pl.splice(i,1);(M.tt=M.tt||[]).push('alchemist');g.msg=`${nmid(pid)} put an Alchemist back on their deck.`}}}
     else if(Q.then==='scry'){const VM=g.me[Q.v],j=VM.aside.indexOf(Q.c);if(j>=0){VM.aside.splice(j,1);if(y){VM.ds.push(Q.c);g.msg=`${nmid(Q.v)}’s ${dnNm(Q.c)} was discarded.`}else{VM.dk.push(Q.c);g.msg=`${nmid(Q.v)}’s ${dnNm(Q.c)} went back on top.`}}}
     else if(Q.then==='pearl'){if(y&&M.dk.length&&M.dk[0]===Q.c){M.dk.push(M.dk.shift());g.msg=`${nmid(pid)} put the bottom card on top.`}}
     else if(Q.then==='mv'){if(y){const i=M.pl.lastIndexOf('miningv');if(i>=0){M.pl.splice(i,1);dnTr(g,pid,'miningv');g.co+=2;g.msg=`${nmid(pid)} trashed the Mining Village for +2.`}}}
-    else if(Q.then==='dipl'){const T=Q.T;if(y){dnDraw(g,pid,2);g.msg=`${nmid(pid)} revealed a Diplomat: drew 2, discards 3.`;gLog(g,`${nmid(pid)} revealed a Diplomat`,'✉️');dnPush(g,{t:'askp',p:pid,min:3,max:3,then:'disc',why:'Diplomat: discard 3 cards.'},{...T,d:1})}else dnPush(g,{...T,d:1})}
+    else if(Q.then==='dipl'){const T=Q.T;if(y){dnDraw(g,pid,2);g.msg=`${nmid(pid)} revealed a Diplomat: drew 2, discards 3.`;gLog(g,`${nmid(pid)} revealed a Diplomat`,'✉️');gAnn(g,`${nmid(pid)} revealed a Diplomat`,'They draw 2 cards, then discard 3.','✉️');dnPush(g,{t:'askp',p:pid,min:3,max:3,then:'disc',why:'Diplomat: discard 3 cards.'},{...T,d:1})}else dnPush(g,{...T,d:1})}
     dnRun(g);return true}
   if(Q.k==='disc'){const i=+ans;if(i!==-1&&!(i>=0&&i<M.ds.length)||Q.must&&i===-1)return false;g.ask=null;g.n++;if(i>=0){const c=M.ds.splice(i,1)[0];M.dk.push(c);g.msg=`${nmid(pid)} put ${dnAn(c)} onto their deck.`}dnRun(g);return true}
   if(Q.k==='ban'&&Q.adv){const i=+ans,c=Q.cs[i];if(!c)return false;const VM=g.me[Q.v];g.ask=null;g.n++;Q.cs.forEach(k=>{const j=VM.aside.indexOf(k);if(j>=0)VM.aside.splice(j,1)});const rest=Q.cs.slice();rest.splice(i,1);VM.ds.push(c);VM.h.push(...rest);
@@ -8995,10 +9001,16 @@ function dnAskUI(g,V){const Q=g.ask,M=g.me[Q.p];let out=`<div class="rlab dnwhy"
     out+=`<div class="dnhand">${dnCardEl(Q.c)}</div><div class="dnopts">${ps.map(i=>`<button class="btn" data-a="dnppos" data-k="${i}">${i===0?'On top':i===n?'At the bottom':`${i+1}${['','','nd','rd'][i+1]||'th'} from the top`}</button>`).join('')}</div>`}
   else if(Q.k==='name')out+=`<div class="dnsup">${dnNameable(g).map(k=>dnCardEl(k,{btn:1,attr:` data-a="dnpname" data-k="${k}"`})).join('')}</div>`;
   return out}
+/* answering during someone else's turn: a popup that says what happened and what you're choosing */
+const dnIsResp=(g,V)=>!!(V&&g&&g.phase==='play'&&g.ask&&dnActor(g)===V.id&&g.ask.p!==g.turn);
+function dnRespSheet(g,V){const Q=g.ask,M=g.me[Q.p],tp=act().find(p=>p.id===g.turn),A=g.atk&&g.atk.p!==Q.p?g.atk:null,pick=Q.k==='pick';
+  return `<div class="sheet-bg dnrespbg"><div class="sheet dnresp" role="dialog" aria-modal="true" aria-labelledby="dnr-h" style="${pc(V.color)}">
+    <div class="dnrhead">${A?`<div class="dnrsrc">${dnCardEl(A.c)}</div>`:''}<div class="dnrtxt"><span class="rlab">${A?'⚔️ Attack · your response':'🔔 Your response'}</span><h2 id="dnr-h">${A?`${esc(nmid(A.p))} played ${esc(dnNm(A.c))}`:`During ${esc(tp?nm(tp):'their')}’s turn`}</h2><p class="rlab">${esc(tp?nm(tp):'They')} is waiting for you.</p></div></div>
+    <div class="dnrbody">${M&&M.h.length?`<h4 class="sah">Your hand</h4><div class="dnhand mine sm">${M.h.map((k,i)=>dnCardEl(k,pick?{btn:1,attr:` data-a="dnphand" data-k="${i}"`,cls:DNSEL.includes(i)?'sel':!dnPOK(g,Q,M,k)?'dim':''}:{})).join('')}</div>`:''}${dnAskUI(g,V)}</div></div></div>`}
 function dnDock(g,V){if(!V||g.phase!=='play')return '';const a=dnActor(g),mine=a===V.id,HV=dnHV(g,V),M=g.me[HV.id];
   const phs=g.turn===HV.id?`<div class="dnphs" aria-label="Turn order">${[['action','1 Actions'],['buy','2 Buy'],['cu','3 Clean-up']].map(([k,l])=>`<span class="${g.ph===k?'on':g.ph==='buy'&&k==='action'?'done':''}">${l}</span>`).join('<i>›</i>')}</div>`:'';
   const ctr=g.turn===HV.id?phs+`<div class="dnctr"><span><b class="num">${g.A}</b> Action${g.A===1?'':'s'}</span><span><b class="num">${g.B}</b> Buy${g.B===1?'':'s'}</span><span class="dncoin"><b class="num">${g.ph==='buy'?g.co:g.co}</b> coin${g.co===1?'':'s'}${g.ph==='action'&&dnBuyPreview(g)!==g.co?` <small>(${dnBuyPreview(g)} with treasures)</small>`:''}</span>${g.sup.potion!=null?`<span><b class="num">${g.ph==='buy'?g.po||0:dnPoPreview(g)}</b> ⚗</span>`:''}${g.cof||M.cf?`<span><b class="num">${M.cf||0}</b> <img class="dnpimg" src="art/dn-coffers.jpg" alt="" onerror="this.outerHTML='🪙'">Coffers</span>`:''}</div>`:'';
-  if(!mine){const ap=act().find(p=>p.id===a);return `<div class="sadock wait dndock" style="${pc(V.color)}"><div class="sadh"><span><b>${esc(nm(V))}</b> · waiting for ${ap?botHead(ap)+esc(nm(ap)):'everyone'}</span><button class="sadrx" data-a="rxopen" aria-label="Reactions">😀</button></div></div>`}
+  if(!mine){const ap=act().find(p=>p.id===a);const resp=g.ask&&g.ask.p!==g.turn&&ap,A=g.atk;return `<div class="sadock wait dndock" style="${pc(V.color)}"><div class="sadh"><span><b>${esc(nm(V))}</b> · ${resp?`waiting for ${botHead(ap)}${esc(nm(ap))} to respond${A&&A.p!==ap.id?` to ${A.p===V.id?'your':esc(nmid(A.p))+'’s'} ${esc(dnNm(A.c))}`:''}`:`waiting for ${ap?botHead(ap)+esc(nm(ap)):'everyone'}`}</span><button class="sadrx" data-a="rxopen" aria-label="Reactions">😀</button></div></div>`}
   let body='';
   if(g.ask)body=dnAskUI(g,V);
   else if(g.ph==='action'){const i=DNHSEL,k=i!=null?M.h[i]:null;
@@ -9033,7 +9045,7 @@ function dnPlayUI(){const g=dnG(),P=act(),sc=P.map(p=>g&&g.me&&g.me[p.id]?dnVP(g
   else if(!S.lk&&dnHumans().length>1&&g.phase==='play')out+=`<p class="hint" style="text-align:center">Hands are hidden until the right person has the phone.</p>`;
   out+=dnSupply(g,V);
   out+=`<div class="dnothers">${P.filter(p=>!V||p.id!==V.id).map(p=>{const M=g.me[p.id];return M?`<div class="dno" style="${pc(p.color)}"><b>${botHead(p)}${esc(nm(p))}</b><span class="num">${M.h.length} in hand · deck ${M.dk.length} · discard ${M.ds.length}${M.vp?` · <img class="dnpimg" src="art/dn-vptok.jpg" alt="VP tokens" onerror="this.remove()">${M.vp}`:''}${M.pt?` · <img class="dnpimg" src="art/dn-pcoin.jpg" alt="Pirate coins" onerror="this.remove()">${M.pt}`:''}${M.cf?` · <img class="dnpimg" src="art/dn-coffers.jpg" alt="Coffers" onerror="this.outerHTML='🪙'">${M.cf}`:''}</span></div>${dnMats(M,false)}`:''}).join('')}</div>`;
-  if(!DNPILE&&!LPTIP)out+=dnDock(g,V);
+  if(!DNPILE&&!LPTIP)out+=dnIsResp(g,V)&&!dnNeedHandoff()?dnRespSheet(g,V):dnDock(g,V);
   if(g.phase==='done')out+=`<div class="panel htsum">${P.map(q=>{const M=g.me[q.id];return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${M.tn} turns · ${dnAll(M).length} cards</small></span><span class="num"><b>${total(q)}</b></span></div>`}).join('')}</div>
     <div class="actions"><div class="in">${dnRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Waiting for the host…</span>`}</div></div>`;
   out+=dnPileSheet(g,V);
