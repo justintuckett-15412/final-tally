@@ -3,9 +3,9 @@
 const {mk,W,ok,done,chromium}=require('./link.js');
 const G=+(process.env.N||3);
 (async()=>{const browser=await chromium.launch();const P=await mk(browser,'p');const errs=[];P.on('pageerror',e=>errs.push(e.message));
-  const MODES=[{exp:0,mix:'none'},{exp:1,bonus:1},{exp:0,mix:'jewel'},{exp:0,mix:'fit'}];
+  const MODES=[{exp:0,mix:'none'},{exp:1,bonus:1,mam:1},{exp:0,mix:'jewel'},{exp:0,mix:'fit',mam:1}];
   for(let gi=0;gi<G;gi++){const humans=gi%3===2?2:1,mode=MODES[gi%MODES.length],n=mode.exp?2+gi%4:2+gi%3;
-    await P.evaluate(([n,h,mode])=>{window.__htfast=1;switchGame('stoneage');resetScores();Object.assign(SAX(),{play:1,exp:0,bonus:0,mix:'none'},mode);S.players.forEach((p,i)=>{p.on=i<n;p.name=['Ann','Bob','Cat','Dan'][i]||'';if(i>=h&&i<n)p.bot='normal';else delete p.bot});S.started=true;S.finished=false;S.screen='score';delete S.sag;save();render()},[n,humans,mode]);
+    await P.evaluate(([n,h,mode])=>{window.__htfast=1;switchGame('stoneage');resetScores();Object.assign(SAX(),{play:1,exp:0,bonus:0,mix:'none',mam:0},mode);S.players.forEach((p,i)=>{p.on=i<n;p.name=['Ann','Bob','Cat','Dan'][i]||'';if(i>=h&&i<n)p.bot='normal';else delete p.bot});S.started=true;S.finished=false;S.screen='score';delete S.sag;save();render()},[n,humans,mode]);
     let stuck=0,taps=0,lastN=-1,why='';
     for(let t=0;t<6000;t++){await W(25);
       const st=await P.evaluate(()=>{const g=S.sag;if(!g)return {wait:1};document.querySelectorAll('.sheet-bg [data-a="glok"],.sheet-bg [data-a="rulesclose"]').forEach(b=>b.click());
@@ -13,7 +13,7 @@ const G=+(process.env.N||3);
         if(!mine)return {n:g.n,bot:1};
         /* what a person could tap right now, in the turn card or on glowing spots */
         const B=[...document.querySelectorAll('.sadock [data-a], .satile.go, .saslot.go, .sapile.go')].filter(b=>!b.disabled&&b.dataset.a!=='rxopen'&&b.getAttribute('aria-disabled')!=='true');
-        const pick=(re)=>B.filter(b=>re.test(b.dataset.a));let opts=pick(/^sap(place|roll|take|pay|choose|die|feed|fok|res)$/);
+        const pick=(re)=>B.filter(b=>re.test(b.dataset.a));let opts=pick(/^sap(place|roll|take|pay|choose|die|feed|fok|res|msend|mpick)$/);
         if(!opts.length)opts=pick(/^sap(sel|adj|tool|skip|starve|jw|x)$/);if(!opts.length)opts=B.filter(b=>b.dataset.a!=='sapsel'||b.dataset.k);
         if(!opts.length)return {n:g.n,none:1,ph:g.phase,roll:!!g.roll,pay:!!g.pay,pick:!!g.pick,dc:!!g.dc,fd:JSON.stringify(g.fd||{}),html:(document.querySelector('.sadock')||{}).innerText||'no dock'};
         /* fill the pay picker sensibly half the time */

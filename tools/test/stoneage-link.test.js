@@ -8,11 +8,11 @@ async function step(P){const st=await P.evaluate(()=>{const g=S.sag;if(!g||!S.lk
   if(st.ph==='place'){if(st.sel)return tap(P,'sapplace');const locs=await P.evaluate(()=>[...document.querySelectorAll('.go[data-a="sapsel"]')].map(b=>b.dataset.k));
     const pick=['b0','b1','c0','field','hunt','tools','forest','clay','quarry','river'].find(l=>locs.includes(l))||locs[0];return pick?tap(P,'sapsel',pick):false}
   if(st.ph==='act'){if(st.dc)return tap(P,'sapdie');if(st.roll){if(await tap(P,'saproll'))return true;if(Math.random()<.3)await tap(P,'sapjw');await tap(P,'saptool');return tap(P,'saptake')}if(st.pay){if(await tap(P,'sappay'))return true;return tap(P,'sapskip')}
-    if(st.pick){await tap(P,'sapadj','w:1');await tap(P,'sapadj','w:1');return tap(P,'sapchoose')}return tap(P,'sapres')}
+    if(st.pick){await tap(P,'sapadj','w:1');await tap(P,'sapadj','w:1');return tap(P,'sapchoose')}if(await tap(P,'sapmsend'))return true;if(await tap(P,'sapmpick'))return true;return tap(P,'sapres')}
   if(st.ph==='feed'){if(await tap(P,'sapfok'))return true;if(await tap(P,'sapfeed'))return true;return tap(P,'sapstarve')}return false}
 (async()=>{const browser=await chromium.launch();const H=await mk(browser,'host'),G=await mk(browser,'guest');const errs=[];[H,G].forEach(p=>p.on('pageerror',e=>errs.push(e.message)));
-  const ids=await H.evaluate((X)=>{window.__htfast=1;switchGame('stoneage');resetScores();Object.assign(SAX(),{play:1,exp:0,bonus:0,mix:'none'},X);const P=S.players;P.forEach((p,i)=>{p.on=i<3;p.name=['Justin','Kim','Rock Bot'][i]||'';if(i===2)p.bot='normal';else delete p.bot});save();
-    const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove();return [P[0].id,P[1].id]},process.env.EXP?{exp:1,bonus:1}:{});
+  const ids=await H.evaluate((X)=>{window.__htfast=1;switchGame('stoneage');resetScores();Object.assign(SAX(),{play:1,exp:0,bonus:0,mix:'none',mam:0},X);const P=S.players;P.forEach((p,i)=>{p.on=i<3;p.name=['Justin','Kim','Rock Bot'][i]||'';if(i===2)p.bot='normal';else delete p.bot});save();
+    const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove();return [P[0].id,P[1].id]},process.env.EXP?{exp:1,bonus:1,mam:1}:{});
   await G.evaluate(()=>{window.__htfast=1});
   await H.evaluate(()=>lkHostStart());await W(3000);const code=await H.evaluate(()=>S.lk.code);
   await H.evaluate(id=>lkPick(id),ids[0]);await G.evaluate(c=>lkJoin(c),code);await W(4000);await G.evaluate(id=>lkPick(id),ids[1]);await W(2500);

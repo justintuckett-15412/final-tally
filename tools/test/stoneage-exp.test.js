@@ -1,7 +1,7 @@
 // Stone Age: The Expansion and the extra-pieces options, rule by rule.
 const {mk,W,ok,done,chromium}=require('./link.js');
 (async()=>{const browser=await chromium.launch();const P=await mk(browser,'p');const errs=[];P.on('pageerror',e=>errs.push(e.message));
-  const setup=(n,mode)=>P.evaluate(([n,mode])=>{window.__htfast=1;switchGame('stoneage');resetScores();Object.assign(SAX(),{play:1,exp:0,bonus:0,mix:'none'},mode);S.players.forEach((p,i)=>{p.on=i<n;p.name=['Ann','Bob','Cat','Dan','Eve'][i]||'';delete p.bot});S.started=true;S.screen='score';saDeal();return S.sag.ps},[n,mode]);
+  const setup=(n,mode)=>P.evaluate(([n,mode])=>{window.__htfast=1;switchGame('stoneage');resetScores();Object.assign(SAX(),{play:1,exp:0,bonus:0,mix:'none',mam:0},mode);S.players.forEach((p,i)=>{p.on=i<n;p.name=['Ann','Bob','Cat','Dan','Eve'][i]||'';delete p.bot});S.started=true;S.screen='score';saDeal();return S.sag.ps},[n,mode]);
   const ev=f=>P.evaluate(f);let r;
   /* setup */
   await setup(5,{exp:1});
@@ -21,7 +21,7 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   r=await ev(()=>{const g=S.sag,a=g.ps[0];g.phase='act';g.turn=a;g.todo={[a]:['merch']};g.pl={merch:{[a]:2}};const M=g.me[a];const j0=M.j;saResolve(g,a,'merch');return {mt:M.mt,dj:M.j-j0}});
   ok('merchant: 2 steps on the track and 2 jewelry',r.mt===2&&r.dj===2,r);
   /* hunting for jewelry */
-  r=await ev(()=>{const g=S.sag,a=g.ps[0],M=g.me[a];g.phase='act';g.turn=a;g.todo={[a]:['forest']};g.roll={pid:a,loc:'hunt',n:3,dice:[6,6,5],used:[],uo:[]};const f0=M.food,j0=M.j;const bad=saTake(g,a,9);const okk=saTake(g,a,3);return {bad,okk,food:M.food-f0,j:M.j-j0}});
+  r=await ev(()=>{const g=S.sag,a=g.ps[0],M=g.me[a];g.phase='act';g.endAct=0;g.turn=a;g.todo={[a]:['forest']};g.roll={pid:a,loc:'hunt',n:3,dice:[6,6,5],used:[],uo:[]};const f0=M.food,j0=M.j;const bad=saTake(g,a,9);const okk=saTake(g,a,3);return {bad,okk,food:M.food-f0,j:M.j-j0}});
   ok('hunting: 17 pips = 8, split as 5 food and 3 jewelry',!r.bad&&r.okk&&r.food===5&&r.j===3,r);
   /* trading */
   r=await ev(()=>{const g=S.sag,a=g.ps[0],M=g.me[a];const id='h'+SAHUTS.findIndex(h=>h.c==='wwc');g.piles[0][0]=id;Object.assign(M,{w:0,c:1,s:4,g:0,j:0,mt:2});g.trd={};g.phase='act';g.turn=a;g.pay={pid:a,loc:'b0'};
@@ -67,6 +67,20 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   await setup(4,{exp:0,mix:'jewel'});
   r=await ev(()=>{const g=S.sag;return {J:g.x.J,slots:g.slots.length,nc:g.nc,vil:saVil(g).length,j:g.ps.map(id=>g.me[id].j),max:saMaxP()}});
   ok('all with jewelry: 45 cards and jewelry, but 4 card spaces, no merchant spot, 4 players max',r.J&&r.slots===4&&r.nc===45&&r.vil===3&&r.j.every(v=>v===1)&&r.max===4,r);
+  /* Mammoth Herd */
+  await setup(3,{mam:1});
+  r=await ev(()=>{const g=S.sag,[a,b,c]=g.ps,m=g.mam,on=m.on,loc=saResLoc(on),o={on,tiles:m.stack.length};o.pa=saPlace(g,a,loc,2);o.pb=saPlace(g,b,loc,1);o.pc=saCanPlace(g,c,loc)>0;
+    const other=['forest','clay','quarry','river'].find(l=>l!==loc);g.turn=a;g.pl[other]={[a]:1};g.left[b]=5;g.turn=b;o.p2=saPlace(g,b,other,1);g.left[c]=5;g.turn=c;o.p3=saCanPlace(g,c,other);return o});
+  ok('mammoth: 15 tiles left after the first, and all 3 players may gather on the herd’s resource',r.tiles===15&&r.pa&&r.pb&&r.pc,r);
+  ok('mammoth: other resource spots keep the 3-player limit',r.p2&&r.p3===0,r);
+  r=await ev(()=>{const g=S.sag,[a,b,c]=g.ps,m=g.mam,loc=saResLoc(m.on);m.cur=SAMAM.findIndex(t=>t.f.pts===10);m.on=SAMAM[m.cur].b;g.phase='act';g.turn=a;g.todo={[a]:[]};g.pl={};
+    const A=g.me[a],B=g.me[b];A.food=3;B.food=5;g.roll={pid:a,loc:saResLoc(m.on),n:3,dice:[1,1,1],used:[],uo:[]};const o={};o.take=saTake(g,a,0);o.ask=!!g.mh&&g.mh.max===3;o.tooMany=saMamSend(g,a,4);o.send=saMamSend(g,a,2);o.food=A.food;
+    m.hunt[b]=1;g.endAct=0;g.turn=c;g.todo={};const realR=Math.random;let i=0;const seq=[.99,.99,.5];Math.random=()=>seq[i++%3];g.endAct=1;saToFeed(g);Math.random=realR;o.win=g.mr&&g.mr.win;
+    const p0=A.pts,q0=B.pts;o.pick=saMamPick(g,a,true);o.apts=A.pts-p0;o.bpts=B.pts-q0;o.won=(m.won[a]||[]).length;o.phase=g.phase;return o});
+  ok('mammoth: after gathering there, send up to that many people, 1 food each',r.take&&r.ask&&!r.tooMany&&r.send&&r.food===1,r);
+  ok('mammoth: highest die wins; winner takes 10 points and keeps the tile, the other gets 2 wood',r.win&&r.pick&&r.apts===10&&r.bpts===0&&r.won===1&&r.phase==='feed',r);
+  r=await ev(()=>{const g=S.sag,[a,b,c]=g.ps;g.mam.won={[a]:[1,2],[b]:[3,4],[c]:[5]};g.phase='feed';g.fd={};g.fok={};g.end='huts';saRoundEnd(g);return act().slice(0,3).map(p=>saMam10(p))});
+  ok('mammoth: the most tiles scores 10, ties all score 10',JSON.stringify(r)==='[10,10,0]',r);
   /* screens: the setup switches and the board */
   await P.evaluate(()=>{switchGame('stoneage');resetScores();Object.assign(SAX(),{play:1,exp:1,bonus:1,mix:'none'});S.players.forEach((p,i)=>{p.on=i<5;p.name=['Ann','Bob','Cat','Dan','Eve'][i]||'';if(i)p.bot='normal';else delete p.bot});S.started=false;S.screen='map';render()});await W(300);
   ok('setup shows the expansion switches',await ev(()=>!!document.querySelector('[data-a="satg"][data-k="exp"]')&&!!document.querySelector('[data-a="satg"][data-k="bonus"]')));
