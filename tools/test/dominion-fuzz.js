@@ -8,7 +8,7 @@ const N=+(process.env.N||30);
     const rnd=a=>a[Math.floor(Math.random()*a.length)];
     const count=g=>Object.values(g.sup).reduce((a,v)=>a+v,0)+Object.values(g.ns||{}).reduce((a,v)=>a+v,0)+g.trash.length+g.ps.reduce((a,id)=>a+dnAll(g.me[id]).length,0);
     let possT=0,games=0,turns=0,ends={prov:0,piles:0},cardsSeen={};
-    for(let t=0;t<N;t++){S=dnFresh();S.dnx.play=1;S.dnx.ks={base:t%7===0||t%7===6?1:0,intrigue:t%7===1?1:0,seaside:t%7===2?1:0,alchemy:t%7===3||t%7===4?1:0,prosperity:t%7===4?1:0,cornucopia:t%7>=5?1:0};if(t%6===4){S.dnx.ks.base=1}S.dnx.kd=dnKdRandom([]);const n=2+t%5;S.players.forEach((p,i)=>{p.on=i<n;p.name='P'+i;p.bot=i<n?(t%2&&i===0?null:rnd(['easy','normal','hard'])):null});
+    for(let t=0;t<N;t++){S=dnFresh();S.dnx.play=1;S.dnx.ks={base:t%8===0||t%8===6?1:0,intrigue:t%8===1?1:0,seaside:t%8===2?1:0,alchemy:t%8===3||t%8===4?1:0,prosperity:t%8===4?1:0,cornucopia:t%8===5||t%8===6?1:0,hinterlands:t%8===7||t%8===0?1:0};if(t%6===4){S.dnx.ks.base=1}S.dnx.kd=dnKdRandom([]);const n=2+t%5;S.players.forEach((p,i)=>{p.on=i<n;p.name='P'+i;p.bot=i<n?(t%2&&i===0?null:rnd(['easy','normal','hard'])):null});
       S.started=true;S.screen='score';dnDeal();const g=S.dng,T0=count(g);g.kd.forEach(k=>cardsSeen[k]=1);let steps=0;
       while(g.phase==='play'&&steps<20000){steps++;let a=dnActor(g);const q=act().find(p=>p.id===a);
         if(g.poss)possT++;if(!q.bot){/* random human */const M=g.me[dnAsP(g,a)];a=dnAsP(g,a);
@@ -16,7 +16,7 @@ const N=+(process.env.N||30);
           if(g.ask&&g.ask.p===a){const Q=g.ask;let ans;
             if(Q.k==='pick'){const idx=M.h.map((k,i)=>i).filter(i=>dnPOK(g,Q,M,M.h[i]));const n=Q.min+Math.floor(Math.random()*(Math.min(Q.max,idx.length)-Q.min+1));ans=idx.sort(()=>Math.random()-.5).slice(0,n)}
             else if(Q.k==='gain')ans=Q.opt&&(Math.random()<.2||!Q.ok.length)?'':rnd(Q.ok);else if(Q.k==='opts')ans=Q.opts.map(o=>o[0]).sort(()=>Math.random()-.5).slice(0,Q.n);else if(Q.k==='tpick')ans=rnd(Q.cs);else if(Q.k==='order')ans=Q.cs.map((c,i)=>i).sort(()=>Math.random()-.5);else if(Q.k==='pos')ans=Math.floor(Math.random()*(M.dk.length+1));else if(Q.k==='name')ans=rnd(dnNameable(g));else if(Q.k==='opts'&&false)0;else if(Q.k==='look'){const o=Q.cs.map((c,i)=>i).sort(()=>Math.random()-.5);ans={t:o[0],d:o[1]}}else if(Q.k==='yn')ans=Math.random()<.5;else if(Q.k==='disc')ans=Math.random()<.3&&!Q.must?-1:Math.floor(Math.random()*M.ds.length);
-            else if(Q.k==='ban')ans=Q.adv?Math.floor(Math.random()*Q.cs.length):Q.cs.findIndex(k=>dnIs(k,'T')&&(k!=='copper'||Q.cop));else if(Q.k==='sentry')ans={ch:Q.cs.map(()=>rnd(['t','d','k'])),top:0};
+            else if(Q.k==='ban')ans=Q.adv?Math.floor(Math.random()*Q.cs.length):Q.cs.findIndex(k=>dnIs(k,'T')&&(k!=='copper'||Q.cop));else if(Q.k==='sentry')ans={ch:Q.cs.map(()=>rnd(Q.nt?['d','k']:['t','d','k'])),top:0};else if(Q.k==='dpick')ans=M.ds.map((k,i)=>i).filter(i=>dnIs(M.ds[i],'A')&&Math.random()<.5);
             if(!dnAns(g,a,ans))note('human answer refused',{Q,ans})}
           else if(g.turn===a){if(g.ph==='action'){const ai=M.h.map((k,i)=>i).filter(i=>dnIs(M.h[i],'A'));if(ai.length&&Math.random()<.8){if(!dnPlay(g,a,rnd(ai)))note('legal play refused',M.h)}else dnEndAct(g,a)}
             else if(g.manT&&!g.bought&&M.h.some(k=>dnIs(k,'T'))&&Math.random()<.85){if(Math.random()<.3){if(!dnPlayAllT(g,a))note('play all refused',M.h)}else{const ti=M.h.map((k,i)=>i).filter(i=>dnIs(M.h[i],'T'));if(!dnPlayT(g,a,rnd(ti)))note('treasure play refused',M.h)}}
