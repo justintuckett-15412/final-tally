@@ -10,7 +10,7 @@ const click=(p,sel)=>p.evaluate(sel=>{const b=[...document.querySelectorAll(sel)
       g.ps.forEach(id=>{const M=g.me[id];M.h=[];M.dk=[];M.ds=[];M.pl=[];M.tn=1;M.cf=0});Object.assign(g,{turn:a,ph:'action',A:1,B:1,co:0,mer:0,silv:0,k:[],ask:null,phase:'play',manT:1,chl:0,fp:0,bought:0,br:0,hag:0,sch:0,ga:0,cldr:[],xr:0,fgc:0,knt:0});return {g,a,b,c,A:g.me[a],B:g.me[b],C:c&&g.me[c]}};
     const play=(g,a,k)=>dnPlay(g,a,g.me[a].h.indexOf(k));
     const K2=k=>[k,...KD.filter(x=>x!==k)].slice(0,10);
-    t('Set: 35 kingdom cards',()=>({ok:DNKD.length===35&&DNKSETS.some(x=>x[0]==='darkages')&&DNK.length===233}));
+    t('Set: 35 kingdom cards',()=>({ok:DNKD.length===35&&DNKSETS.some(x=>x[0]==='darkages')&&DNK.length===257}));
     t('Setup: Ruins pile with Looters (10 per other player), Knights pile, 20 Rats, Spoils/Madman/Mercenary piles',()=>{const {g}=fresh(3);return {ok:g.sup.ruins===20&&g.rp.length===20&&g.sup.knights===10&&g.kp.length===10&&g.sup.rats===20&&g.ns.spoils===15&&g.ns.madman===10&&g.ns.mercenary===10}});
     t('Setup: Shelters replace the Estates',()=>{S=dnFresh();S.dnx.play=1;S.dnx.kd=KD;S.dnx.ks={base:1,darkages:1};S.dnx.sh='on';S.players.forEach((p,i)=>{p.on=i<2;p.bot=null});S.started=true;dnDeal();const M=S.dng.me[S.dng.ps[0]];const all=dnAll(M);return {ok:S.dng.sh===1&&all.includes('hovel')&&all.includes('necropolis')&&all.includes('overgrownestate')&&!all.includes('estate')&&all.length===10&&S.dng.sup.estate===8}});
     t('Knights pile shows and gives the top Knight',()=>{const {g,a,A}=fresh();const top=g.kp[g.kp.length-1];Object.assign(g,{ph:'buy',co:5,B:2});dnBuy(g,a,'knights');return {ok:A.ds.includes(top)&&g.sup.knights===9&&g.kp.length===9}});

@@ -3,7 +3,7 @@
 const {mk,W,ok,done,chromium}=require('./link.js');
 (async()=>{const browser=await chromium.launch();const P=await mk(browser,'p');const errs=[];P.on('pageerror',e=>errs.push(e.message));
   await P.evaluate(()=>{window.__htfast=1;document.querySelector('[data-a="dnstart"][data-k="1"]').click()});await W(400);
-  await P.evaluate(()=>{DNX().kd=['village','smithy','market','militia','lab','cellar','chapel','moat','witch','mine'];DNX().pc='off';S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i];p.bot=i===1?'normal':null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
+  await P.evaluate(()=>{DNX().kd=['village','smithy','market','militia','lab','cellar','chapel','moat','witch','mine'];DNX().pc='off';DNX().ev=[];DNX().evm='none';S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i];p.bot=i===1?'normal':null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
   const ids=await P.evaluate(()=>act().map(p=>p.id));
   await P.evaluate(([a,k])=>{const g=dnG();g.me[a].h=['copper','estate','village','copper','copper'];g.me[a].dk=Array(8).fill('copper');Object.assign(g,{turn:a,ph:'action',A:1,B:1,co:0,k:[],ask:null});render()},ids);await W(300);
   const hand=await P.evaluate(()=>[...document.querySelectorAll('.dnhand.mine [data-a="dnphand"]')].map(b=>b.dataset.lp.slice(4)+(b.dataset.cnt?'x'+b.dataset.cnt:'')));
