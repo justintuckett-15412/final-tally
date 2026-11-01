@@ -2,7 +2,7 @@
 const {mk,W,ok,done,chromium}=require('./link.js');
 (async()=>{const browser=await chromium.launch();const P=await mk(browser,'p');const errs=[];P.on('pageerror',e=>errs.push(e.message));
   const R=await P.evaluate(()=>{const out=[];const t=(name,f)=>{try{const r=f();out.push([name,!!r.ok,r.ok?'':JSON.stringify(r)])}catch(e){out.push([name,false,e.message])}};
-    const fresh=(n=2)=>{S=dnFresh();S.dnx.play=1;S.dnx.kd=dnKdRandom([]);S.players.forEach((p,i)=>{p.on=i<n;p.name=['Ann','Bob','Cy','Di'][i];p.bot=null});S.started=true;dnDeal();const g=S.dng;const [a,b,c]=g.ps;
+    const fresh=(n=2)=>{S=dnFresh();S.dnx.play=1;S.dnx.kd=dnKdRandom([]);S.players.forEach((p,i)=>{p.on=i<n;p.name=['Ann','Bob','Cy','Di','Ed','Flo'][i];p.bot=null});S.started=true;dnDeal();const g=S.dng;const [a,b,c]=g.ps;
       g.ps.forEach(id=>{const M=g.me[id];M.h=[];M.dk=[];M.ds=[];M.pl=[];M.tn=1});Object.assign(g,{turn:a,ph:'action',A:1,B:1,co:0,mer:0,silv:0,k:[],ask:null,phase:'play'});return {g,a,b,c,A:g.me[a],B:g.me[b],C:c&&g.me[c]}};
     const play=(g,a,k)=>dnPlay(g,a,g.me[a].h.indexOf(k));
     t('Village: +1 card +2 actions',()=>{const {g,a,A}=fresh();A.h=['village','estate'];A.dk=['copper','gold'];play(g,a,'village');return {ok:g.A===2&&g.co===3&&A.h.join()==='estate',A:g.A,h:A.h}});
@@ -41,6 +41,9 @@ const {mk,W,ok,done,chromium}=require('./link.js');
     t('Can’t buy what you can’t afford; can’t play out of turn',()=>{const {g,a,b,A}=fresh();A.h=['copper','village'];const before=JSON.stringify(g);const r1=dnBuy(g,a,'silver'),r2=dnPlay(g,b,0),r3=dnBuy(g,b,'copper');return {ok:!r1&&!r2&&!r3&&JSON.stringify(g)===before}});
     t('Clean-up: everything discarded, 5 drawn, next player',()=>{const {g,a,b,A}=fresh();A.h=['copper','estate'];A.dk=Array(6).fill('silver');dnEndTurn(g,a);return {ok:A.h.length===5&&A.ds.length===2&&g.turn===b,h:A.h.length}});
     t('Shuffle: empty deck shuffles the discard pile',()=>{const {g,a,A}=fresh();A.h=['smithy'];A.dk=['gold'];A.ds=['silver','silver','silver'];play(g,a,'smithy');return {ok:A.pl.length===4&&g.co===7&&A.ds.length===0&&A.dk.length===1,pl:A.pl}});
+    t('5 players: Base Cards supply',()=>{const {g}=fresh(5);const s=g.sup;return {ok:s.province===15&&s.estate===12&&s.curse===40&&s.copper===85&&s.silver===80&&s.gold===60&&g.pe===4,s}});
+    t('6 players: 18 Provinces, 50 Curses',()=>{const {g}=fresh(6);const s=g.sup;return {ok:s.province===18&&s.curse===50&&s.copper===78,s}});
+    t('5 players: three empty piles don’t end it, four do',()=>{const {g,a,b}=fresh(5);g.sup.curse=0;g.sup[g.kd[0]]=0;g.sup[g.kd[1]]=0;dnEndTurn(g,a);const mid=g.phase;g.sup[g.kd[2]]=0;dnEndTurn(g,b);return {ok:mid==='play'&&g.phase==='done',mid,ph:g.phase}});
     return out});
   R.forEach(([n,p,x])=>ok('Dominion: '+n,p,x));
   ok('Dominion cards: no page errors',errs.length===0,errs);

@@ -8,7 +8,7 @@ const N=+(process.env.N||30);
     const rnd=a=>a[Math.floor(Math.random()*a.length)];
     const count=g=>Object.values(g.sup).reduce((a,v)=>a+v,0)+g.trash.length+g.ps.reduce((a,id)=>a+dnAll(g.me[id]).length,0);
     let games=0,turns=0,ends={prov:0,piles:0},cardsSeen={};
-    for(let t=0;t<N;t++){S=dnFresh();S.dnx.play=1;S.dnx.kd=dnKdRandom([]);const n=2+t%3;S.players.forEach((p,i)=>{p.on=i<n;p.name='P'+i;p.bot=i<n?(t%2&&i===0?null:rnd(['easy','normal','hard'])):null});
+    for(let t=0;t<N;t++){S=dnFresh();S.dnx.play=1;S.dnx.kd=dnKdRandom([]);const n=2+t%5;S.players.forEach((p,i)=>{p.on=i<n;p.name='P'+i;p.bot=i<n?(t%2&&i===0?null:rnd(['easy','normal','hard'])):null});
       S.started=true;S.screen='score';dnDeal();const g=S.dng,T0=count(g);g.kd.forEach(k=>cardsSeen[k]=1);let steps=0;
       while(g.phase==='play'&&steps<20000){steps++;const a=dnActor(g),q=act().find(p=>p.id===a);
         if(!q.bot){/* random human */const M=g.me[a];
