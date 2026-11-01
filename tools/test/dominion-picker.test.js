@@ -7,7 +7,7 @@ const click=(p,sel)=>p.evaluate(sel=>{const b=[...document.querySelectorAll(sel)
   await P.evaluate(()=>{DNX().ks={base:1,intrigue:1,seaside:1,alchemy:1,prosperity:1};DNX().kd=['cellar','chapel','moat','village','smithy','market','lab','witch','festival','mine'];render()});await W(200);
   const hold=async sel=>{const el=await P.$(sel);const bx=await el.boundingBox();await P.mouse.move(bx.x+bx.width/2,bx.y+bx.height/2);await P.mouse.down();await W(700);await P.mouse.up();await W(250)};
   await P.evaluate(()=>document.querySelector('[data-lp="dnkp:smithy"]').scrollIntoView({block:'center'}));await hold('[data-lp="dnkp:smithy"]');
-  ok('Picker opens on press and hold',await P.evaluate(()=>/Replace Smithy/.test(document.body.textContent)&&document.querySelectorAll('.dnkpi').length===203));
+  ok('Picker opens on press and hold',await P.evaluate(()=>/Replace Smithy/.test(document.body.textContent)&&document.querySelectorAll('.dnkpi').length===233));
   ok('Holding didn’t swap the card',await P.evaluate(()=>dnKd().includes('smithy')));
   await P.fill('[data-dnkq]','wit');await P.dispatchEvent('[data-dnkq]','input');await W(150);
   ok('Search filters (Witch, Sea Witch, Young Witch, Witch’s Hut)',await P.evaluate(()=>[...document.querySelectorAll('.dnkpi')].filter(e=>e.style.display!=='none').length===4));

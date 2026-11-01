@@ -4,7 +4,8 @@ const {mk,W,ok,done,chromium}=require('./link.js');
 const click=(p,sel)=>p.evaluate(sel=>{const b=[...document.querySelectorAll(sel)].find(b=>!b.disabled&&b.offsetParent!==null);if(b){b.click();return true}return false},sel);
 (async()=>{const browser=await chromium.launch();const P=await mk(browser,'p');const errs=[];P.on('pageerror',e=>errs.push(e.message));
   await P.evaluate(()=>{window.__htfast=1;document.querySelector('[data-a="dnstart"][data-k="1"]').click()});await W(400);
-  ok('Intrigue: set switches on setup',await P.evaluate(()=>document.querySelectorAll('[data-a="dnks"]').length===8));
+  ok('Intrigue: set switches on setup',await P.evaluate(()=>document.querySelectorAll('[data-a="dnks"]').length===9));
+  await click(P,'[data-a="dnks"][data-k="adventures"]');await W(150);
   await click(P,'[data-a="dnks"][data-k="darkages"]');await W(150);
   await click(P,'[data-a="dnks"][data-k="hinterlands"]');await W(150);
   await click(P,'[data-a="dnks"][data-k="cornucopia"]');await W(150);
@@ -46,7 +47,7 @@ const click=(p,sel)=>p.evaluate(sel=>{const b=[...document.querySelectorAll(sel)
   await P.evaluate(()=>document.querySelector('[data-a="dnppile"][data-k="torturer"]').click());await W(100);
   ok('Intrigue UI: Lurker sheet says Trash',await P.evaluate(()=>/Trash Torturer/.test(document.querySelector('[data-a="dnpgain"]').textContent)));
   await click(P,'[data-a="dnpgain"]');await W(150);
-  ok('Intrigue UI: Torturer trashed from the Supply',await P.evaluate(()=>dnG().sup.torturer===9&&dnG().trash.includes('torturer')));
+  ok('Intrigue UI: Torturer trashed from the Supply',await P.evaluate(()=>dnG().sup.torturer===9&&dnG().trash.includes('torturer')),await P.evaluate(()=>({s:dnG().sup.torturer,t:dnG().trash,ask:dnG().ask&&dnG().ask.then,msg:dnG().msg})));
   await setHand(['bridge','copper']);await playUI('bridge');
   ok('Intrigue UI: Bridge shows cheaper costs',await P.evaluate(()=>!!document.querySelector('[data-a="dnppile"][data-k="province"] .dnco.cheap')&&document.querySelector('[data-a="dnppile"][data-k="province"] .dnco').textContent==='7'));
   await P.screenshot({path:'/tmp/dni-bridge.png'});

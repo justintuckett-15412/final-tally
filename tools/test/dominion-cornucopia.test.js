@@ -9,7 +9,7 @@ const click=(p,sel)=>p.evaluate(sel=>{const b=[...document.querySelectorAll(sel)
       g.ps.forEach(id=>{const M=g.me[id];M.h=[];M.dk=[];M.ds=[];M.pl=[];M.tn=1;M.cf=0});Object.assign(g,{turn:a,ph:'action',A:1,B:1,co:0,mer:0,silv:0,k:[],ask:null,phase:'play',manT:1,chl:0,fp:0,m0:g.manT,bought:0,bg:0,mg:0,fx:0});return {g,a,b,c,A:g.me[a],B:g.me[b],C:c&&g.me[c]}};
     const play=(g,a,k)=>dnPlay(g,a,g.me[a].h.indexOf(k));
     const CG=['advisor','baker','butcher','candlestick','carnival','fairgrounds','farmhands','farrier','ferryman','footpad'];
-    t('Set: 26 kingdom cards, set switch',()=>({ok:DNKC.length===26&&DNKSETS.some(x=>x[0]==='cornucopia')&&DNK.length===203}));
+    t('Set: 26 kingdom cards, set switch',()=>({ok:DNKC.length===26&&DNKSETS.some(x=>x[0]==='cornucopia')&&DNK.length===233}));
     t('Baker setup: everyone starts with 1 Coffers',()=>{S=dnFresh();S.dnx.play=1;S.dnx.kd=['baker','village','smithy','market','festival','lab','cellar','chapel','moat','witch'];S.dnx.ks={base:1,cornucopia:1};S.players.forEach((p,i)=>{p.on=i<3;p.bot=null});S.started=true;dnDeal();const g=S.dng;return {ok:g.ps.every(id=>g.me[id].cf===1)&&g.cof===1}});
     t('Young Witch setup: a Bane pile costing 2 or 3 joins the Supply',()=>{const {g}=fresh(2,['youngwitch','village','smithy','market','festival','lab','cellar','chapel','moat','witch']);return {ok:!!g.bane&&[2,3].includes(dnC(g.bane).c)&&g.kd.length===11&&g.kd.includes(g.bane)&&g.sup[g.bane]>0,bane:g.bane}});
     t('Ferryman setup: a 3 or 4 pile set aside, not in the Supply',()=>{const {g}=fresh(2,['ferryman','village','smithy','market','festival','lab','cellar','chapel','moat','witch']);return {ok:!!g.fm&&[3,4].includes(dnC(g.fm).c)&&g.sup[g.fm]==null&&g.ns[g.fm]===10&&!dnPiles(g).includes(g.fm),fm:g.fm}});

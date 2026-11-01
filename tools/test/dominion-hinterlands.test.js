@@ -9,7 +9,7 @@ const click=(p,sel)=>p.evaluate(sel=>{const b=[...document.querySelectorAll(sel)
       S.players.forEach((p,i)=>{p.on=i<n;p.name=['Ann','Bob','Cy','Di','Ed','Flo'][i];p.bot=null});S.started=true;dnDeal();const g=S.dng;const [a,b,c]=g.ps;
       g.ps.forEach(id=>{const M=g.me[id];M.h=[];M.dk=[];M.ds=[];M.pl=[];M.tn=1;M.cf=0});Object.assign(g,{turn:a,ph:'action',A:1,B:1,co:0,mer:0,silv:0,k:[],ask:null,phase:'play',manT:1,chl:0,fp:0,bought:0,br:0,hag:0,sch:0,ga:0,cldr:[],xr:0,fgc:0});return {g,a,b,c,A:g.me[a],B:g.me[b],C:c&&g.me[c]}};
     const play=(g,a,k)=>dnPlay(g,a,g.me[a].h.indexOf(k));
-    t('Set: 26 kingdom cards',()=>({ok:DNKH.length===26&&DNKSETS.some(x=>x[0]==='hinterlands')&&DNK.length===203}));
+    t('Set: 26 kingdom cards',()=>({ok:DNKH.length===26&&DNKSETS.some(x=>x[0]==='hinterlands')&&DNK.length===233}));
     t('Berserker: gain a cheaper card, others discard to 3',()=>{const {g,a,b,A,B}=fresh();A.h=['berserker'];B.h=['copper','copper','estate','estate','silver'];play(g,a,'berserker');const no=dnAns(g,a,'berserker');const yes=dnAns(g,a,'silver');const asked=g.ask&&g.ask.p===b&&g.ask.min===2;dnAns(g,b,[2,3]);return {ok:!no&&yes&&asked&&A.ds.includes('silver')&&B.h.length===3}});
     t('Berserker: gained with an Action in play → it plays',()=>{const {g,a,b,A,B}=fresh();A.pl=['village'];A.dk=[];Object.assign(g,{ph:'buy',co:5,B:2});dnBuy(g,a,'berserker');const played=A.pl.includes('berserker');return {ok:played&&g.ask&&g.ask.k==='gain'}});
     t('Berserker: gained with no Action in play → no play',()=>{const {g,a,A}=fresh();A.pl=['copper'];Object.assign(g,{ph:'buy',co:5,B:2});dnBuy(g,a,'berserker');return {ok:A.ds.includes('berserker')&&!A.pl.includes('berserker')&&!g.ask}});
