@@ -5,8 +5,8 @@ const tap=(p,a,k)=>p.evaluate(([a,k])=>{const b=[...document.querySelectorAll(k!
 const typeIn=async(p,sel,v)=>{await p.focus(sel);await p.fill(sel,String(v));await p.dispatchEvent(sel,'input')};
 (async()=>{const browser=await chromium.launch();const P=await mk(browser,'p');
   const errs=[];P.on('pageerror',e=>errs.push(e.message));
-  ok('Dominion: on the home screen',await P.evaluate(()=>!!document.querySelector('[data-a="gnew"][data-k="dominion"]')));
-  await P.evaluate(()=>document.querySelector('[data-a="gnew"][data-k="dominion"]').click());await W(500);
+  ok('Dominion: on the home screen',await P.evaluate(()=>!!document.querySelector('[data-a="dnstart"][data-k="0"]')));
+  await P.evaluate(()=>document.querySelector('[data-a="dnstart"][data-k="0"]').click());await W(500);
   ok('Dominion: setup screen with six sets',await P.evaluate(()=>S.game==='dominion'&&document.querySelectorAll('[data-a="dnset"]').length===6));
   await tap(P,'dnset','allies');await W(150);
   ok('Dominion: set toggle remembered',await P.evaluate(()=>S.dnx.sets.allies===0&&JSON.parse(localStorage.getItem(KEY+'.dnx')).sets.allies===0));
