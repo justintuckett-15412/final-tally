@@ -5,7 +5,7 @@ const click=(p,sel)=>p.evaluate(sel=>{const b=[...document.querySelectorAll(sel)
 (async()=>{const browser=await chromium.launch();const P=await mk(browser,'p');const errs=[];P.on('pageerror',e=>errs.push(e.message));
   await P.evaluate(()=>{window.__htfast=1;document.querySelector('[data-a="dnstart"][data-k="1"]').click()});await W(400);
   ok('Seaside: third set switch',await P.evaluate(()=>!!document.querySelector('[data-a="dnks"][data-k="seaside"]')));
-  await P.evaluate(()=>{DNX().kd=['lookout','caravan','embargo','nativev','wharf','outpost','merchantship','haven','pirateship','smithy'];S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Bot'][i]||'';p.bot=i===1?'normal':null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
+  await P.evaluate(()=>{DNX().kd=['lookout','caravan','blockade','nativev','wharf','outpost','merchantship','haven','pirate','smithy'];S.players.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Bot'][i]||'';p.bot=i===1?'normal':null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1500);
   const setHand=(h,dk)=>P.evaluate(([h,dk])=>{const g=dnG(),me=act()[0].id;g.me[me].h=h;if(dk)g.me[me].dk=dk;Object.assign(g,{turn:me,ph:'action',A:1,B:1,co:0,br:0,np:0,k:[],ask:null,dnx:[],dkeep:[]});DNHSEL=null;render()},[h,dk]);
   const playUI=async k=>{await P.evaluate(k=>{const b=[...document.querySelectorAll('.dnhand.mine [data-a="dnphand"]')].find(b=>b.dataset.lp==='dnc:'+k);b.click()},k);await W(80);await click(P,'[data-a="dnpplay"]');await W(150)};
   await setHand(['lookout','village'],['gold','estate','curse','copper']);await playUI('lookout');
@@ -20,12 +20,10 @@ const click=(p,sel)=>p.evaluate(sel=>{const b=[...document.querySelectorAll(sel)
   await P.screenshot({path:'/tmp/dns-dur.png'});
   for(let i=0;i<60&&await P.evaluate(()=>dnG().turn!==act()[0].id);i++)await W(200);
   ok('Seaside: Caravan pays out on the next turn',await P.evaluate(()=>/From last turn: Caravan/.test(dnG().msg)||dnG().me[act()[0].id].pl.includes('caravan')));
-  await setHand(['embargo']);await playUI('embargo');
-  await P.evaluate(()=>document.querySelector('[data-a="dnppile"][data-k="province"]').click());await W(100);
-  ok('Seaside UI: Embargo button on the sheet',await P.evaluate(()=>/Embargo Province/.test(document.querySelector('[data-a="dnpgain"]').textContent)));
-  await click(P,'[data-a="dnpgain"]');await W(150);
-  ok('Seaside UI: token shown on the Province pile',await P.evaluate(()=>!!document.querySelector('[data-a="dnppile"][data-k="province"] .dnemb')));
-  await P.screenshot({path:'/tmp/dns-emb.png'});
+  await setHand(['blockade']);await playUI('blockade');
+  await P.evaluate(()=>document.querySelector('[data-a="dnppile"][data-k="silver"]').click());await W(100);await click(P,'[data-a="dnpgain"]');await W(150);
+  ok('Seaside UI: Blockade card shown on its mat',await P.evaluate(()=>/Blockade \(into hand next turn\)/.test(document.body.textContent)));
+  await P.screenshot({path:'/tmp/dns-blk.png'});
   await P.evaluate(()=>{act()[0].bot='hard';render()});
   for(let i=0;i<400&&await P.evaluate(()=>dnG().phase!=='done');i++)await W(200);
   ok('Seaside: a full game ends',await P.evaluate(()=>dnG().phase==='done'));
