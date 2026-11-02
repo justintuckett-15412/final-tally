@@ -2,14 +2,16 @@
 // meeple rules, computer players finishing whole games, a turn through the screen, results/reveal, linked phones, and the scorer still working.
 process.env.LAT=process.env.LAT||'120';process.env.JIT=process.env.JIT||'120';
 const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
-const start=async(P,o)=>P.evaluate(o=>{window.__htfast=1;SET.toursOff=true;const b0=document.createElement('button');b0.dataset.a='ccstart';b0.dataset.k='1';b0.hidden=true;document.body.appendChild(b0);b0.click();b0.remove();
+const start=async(P,o)=>P.evaluate(o=>{window.__htfast=1;SET.toursOff=true;const b0=document.createElement('button');b0.dataset.a='ccstart';b0.dataset.k='1';b0.hidden=true;document.body.appendChild(b0);b0.click();b0.remove();CX().ed='2';CX().exp.river=!!o.river;CX().exp.abbot=!!o.abbot;
   S.players.forEach((p,i)=>{p.on=i<o.n;p.name=['Ann','Bob','Cy','Di','Ed'][i]||'';p.bot=(o.bots||[])[i]||null});save();const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove()},o);
 (async()=>{const browser=await chromium.launch();const errs=[];let P=await mk(browser,'cc');P.on('pageerror',e=>errs.push(e.message));
   await start(P,{n:2});await W(900);
   const R=await P.evaluate(()=>{const out=[];const t=(n,f)=>{try{const r=f();out.push([n,!!r.ok,r.ok?'':JSON.stringify(r).slice(0,400)])}catch(e){out.push([n,false,e.message+' '+(e.stack||'').split('\n')[1]])}};
-    t('72 tiles in 24 kinds; every tile’s 12 edge points are used exactly once; 4 start-tile copies',()=>{let n=0,bad=[];for(const k in CCT){n+=CCT[k][0];const u=CCT[k][1].flatMap(f=>f[1]).sort((a,b)=>a-b);if(u.join()!==[...Array(12).keys()].join())bad.push(k);
+    CX().ed='2';CX().exp.river=false;CX().exp.abbot=false;
+    t('72 base tiles in 24 kinds (+8 garden copies, +12 river); every tile’s 12 edge points are used exactly once; 4 start-tile copies',()=>{let n=0,bad=[];for(const k in CCT){if(!CCT[k][2]&&!CCT[k][3])n+=CCT[k][0];const u=CCT[k][1].flatMap(f=>f[1]).sort((a,b)=>a-b);if(u.join()!==[...Array(12).keys()].join())bad.push(k);
         CCT[k][1].forEach(f=>{if(f[0]==='f')(f[4]||[]).forEach(ci=>{if(CCT[k][1][ci][0]!=='c')bad.push(k+' field→'+ci)});if(['c','r'].includes(f[0])){const s=new Set(f[1].map(p=>p%3));if(f[0]==='r'&&[...s].some(x=>x!==1))bad.push(k+' road')}})}
-      return {ok:n===72&&!bad.length&&Object.keys(CCT).length===24&&CCT.D[0]===4&&ccBag().length===71,n,bad}});
+      const ab=ccBag({abbot:1}),gard=ab.filter(t=>CCT[t][2]).length,rv=ccBag({river:1,abbot:1});
+      return {ok:n===72&&!bad.length&&Object.keys(CCT).length===44&&CCT.D[0]===4&&ccBag().length===71&&ab.length===71&&gard===8&&rv.length===82&&rv[71]==='R12'&&rv.slice(72).every(t=>ccRiverT(t)),n,bad,gard}});
     const G=()=>{ccDeal();const g=S.ccg;g.ann=null;return g},put=(g,t,r,x,y,m)=>{g.bd[ccK(x,y)]={t,r,m:m||{}};g.order.push(ccK(x,y))};
     t('Edges must match: city to city, road to road, field to field; and touch the map',()=>{const g=G();return {ok:ccFits(g,'E',2,0,-1)&&!ccFits(g,'E',0,0,-1)&&ccFits(g,'U',1,1,0)&&!ccFits(g,'U',0,1,0)&&!ccFits(g,'B',0,5,5)&&!ccFits(g,'B',0,0,0)}});
     t('Finishing a 2-tile city: 4 points (2 with the small-city rule); the meeple comes back',()=>{const g=G(),[a]=g.ps;g.turn=a;g.cur='E';const ok1=ccPlay(g,a,{x:0,y:-1,r:2,f:0});const pts=g.sc[a],back=g.mee[a];
@@ -27,11 +29,20 @@ const start=async(P,o)=>P.evaluate(o=>{window.__htfast=1;SET.toursOff=true;const
     t('End of the game: unfinished city 1 per tile + shield; fields 3 per finished city (classic: 4 per city to the most farmers)',()=>{const g=G(),[a,b]=g.ps;
       put(g,'E',2,0,-1);/* closes D's city */g.bd['0,0'].m={2:a};/* farmer north of the road, next to the city */put(g,'F',1,1,-2,{0:b});/* open city with a shield */g.bag=[];ccEnd(g);
       const g2=G();put(g2,'E',2,0,-1);g2.bd['0,0'].m={2:a};g2.farm='classic';g2.bag=[];ccEnd(g2);return {ok:g.sc[a]===3&&g.sc[b]===2&&g2.sc[a]===4&&g.scl.every(e=>e.fin),sc:g.sc,sc2:g2.sc,scl:g.scl}});
-    t('Computer players finish 2-, 4- and 5-player games: every edge matches, meeples add up, the log matches the scores',()=>{const bad=[];for(const n of [2,4,5]){S.players.forEach((x,i)=>{x.on=i<n;x.bot=['easy','normal','hard','hard','normal'][i]});const g=G();let k=0;
+    t('River: starts at the spring, carries on from the end only, can’t turn the same way twice; the lake ends it',()=>{CX().exp.river=true;const g=G();CX().exp.river=false;const [a]=g.ps;g.turn=a;
+      const st=g.bd['0,0'].t==='R1'&&g.rv.out===2,first=g.bag[g.bag.length-1];/* curve R7 (N–W): from the spring heading south */g.cur='R7';const sp=ccSpots(g,'R7');const all=sp.every(s=>s.x===0&&s.y===1);
+      const s1=sp[0];ccPlay(g,a,{x:s1.x,y:s1.y,r:s1.r,f:null});const t1=g.rv.turn;g.turn=a;g.cur='R7';const sp2=ccSpots(g,'R7');const ok2=sp2.every(s=>{const ent=(g.rv.out+2)%4,out=ccWaterSides('R7',s.r).find(x=>x!==ent);return ccTurn(g.rv.out,out)!==t1});
+      return {ok:st&&ccRiverT(first)&&all&&sp.length>0&&t1!==0&&ok2&&sp2.length>0,t1,sp,sp2}});
+    t('Abbot: on the monastery of the tile just placed (not a garden by a meeple); 9 when surrounded; brought home early for what it’s worth',()=>{CX().exp.abbot=true;const g=G();CX().exp.abbot=false;const [a,b]=g.ps;g.turn=a;g.cur='B';
+      const e1=ccPlayCheck(g,a,{x:0,y:1,r:0,f:0,a:1});ccPlay(g,a,{x:0,y:1,r:0,f:0,a:1});const on=!!ccAbbotAt(g,a)&&g.ab[a]===0&&g.mee[a]===7;
+      g.turn=b;g.cur='Ug';const eg=ccPlayCheck(g,b,{x:1,y:0,r:1,f:3});g.turn=a;g.cur='B';const bringOk=ccPlay(g,a,{x:0,y:2,r:0,f:null,ret:1});const pts=g.sc[a],back=g.ab[a]===1&&!ccAbbotAt(g,a);
+      return {ok:!e1&&on&&/abbot/i.test(eg)&&bringOk&&pts===3&&back,e1,eg,pts,sc:g.sc}});
+    t('Computer players finish 2-, 4- and 5-player games: every edge matches, meeples add up, the log matches the scores',()=>{const bad=[];for(const n of [2,4,5]){const ra=n!==4;CX().exp.river=ra;CX().exp.abbot=ra;S.players.forEach((x,i)=>{x.on=i<n;x.bot=['easy','normal','hard','hard','normal'][i]});const g=G();CX().exp.river=false;CX().exp.abbot=false;let k=0;
         while(g.phase==='play'&&k++<200){const q=act().find(x=>x.id===g.turn);if(!ccBotStep(g,q)){bad.push('stuck '+n);break}}if(g.phase!=='done')bad.push('no end '+n);
         for(const kk of g.order){const T=g.bd[kk],[x,y]=kk.split(',').map(Number);for(let s=0;s<4;s++){const o=g.bd[ccK(x+CCDX[s],y+CCDY[s])];if(o&&ccSide(T.t,T.r,s)!==ccSide(o.t,o.r,(s+2)%4))bad.push('edge '+kk)}}
+        if(ra){const riv=g.order.filter(kk=>ccRiverT(g.bd[kk].t));if(riv.length!==12||g.order.slice(0,12).some(kk=>!ccRiverT(g.bd[kk].t)))bad.push('river order');if(g.bd[g.order[11]].t!=='R12')bad.push('lake');g.ps.forEach(p=>{const n=g.order.reduce((a,kk)=>a+Object.values(g.bd[kk].a||{}).filter(x=>x===p).length,0);if(n+g.ab[p]!==1)bad.push('abbot '+p)})}
         g.ps.forEach(p=>{const on=g.order.reduce((a,kk)=>a+Object.values(g.bd[kk].m).filter(x=>x===p).length,0);if(on+g.mee[p]!==7)bad.push('meeples '+p);const sum=g.scl.filter(e=>e.pid===p).reduce((a,e)=>a+e.pts,0);if(sum!==g.sc[p])bad.push('log '+p)});
-        if(g.order.length<60)bad.push('tiles '+g.order.length)}S.players.forEach(x=>x.bot=null);return {ok:!bad.length,bad:bad.slice(0,5)}});
+        if(g.order.length<(ra?72:60))bad.push('tiles '+g.order.length)}S.players.forEach(x=>x.bot=null);return {ok:!bad.length,bad:bad.slice(0,5)}});
     return out});
   R.forEach(([n,g,x])=>ok(n,g,x));
   // a turn through the screen against a computer player
