@@ -1744,6 +1744,37 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 .uwr.sel .uwt{transform:translateY(-6px);box-shadow:0 0 0 3px var(--pc,#e0a100),0 6px 10px rgba(0,0,0,.2)}.uwr.used{opacity:.25}.uwr.swap .uwt{background:#ffd9d4}
 .uwbad{color:#c0392b;font-weight:700}.uwbadw{color:#c0392b;text-decoration:underline wavy}
 .cpdock .uwrack{background:none;border:0;padding:4px 0}
+/* Worgle */
+.wgbg{align-items:stretch}
+.sheet.wgsheet{max-width:520px;width:100%;margin:0 auto;min-height:100%;border-radius:0;padding:10px 12px calc(12px + env(safe-area-inset-bottom));display:flex;flex-direction:column}
+.wgtop{display:flex;align-items:center;gap:8px}.wgtop h2{flex:1;text-align:center;margin:0;font-size:1.3rem}.wgtb{display:flex;gap:6px}
+.wgpad{padding:8px 4px}.wgpad h3{margin:16px 0 8px}
+.wgseg{margin:10px auto 4px;max-width:260px}
+.wgmsg{height:34px;display:flex;justify-content:center;align-items:center}.wgmsg span{background:var(--text,#1d232a);color:var(--bg,#fff);padding:5px 12px;border-radius:8px;font-weight:700}
+.wggrid{display:grid;gap:6px;justify-content:center;margin:4px auto 10px}
+.wgrow{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:min(320px,78vw)}
+.wgc{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:min(8vw,32px);font-weight:800;border:2px solid var(--line,#d3d6da);border-radius:6px;background:var(--surface,#fff);text-transform:uppercase}
+.wgc.typed{border-color:#8a8f96;animation:wgpop .1s}
+.wgc.wgG{background:#4f9a5a;border-color:#4f9a5a;color:#fff}.wgc.wgY{background:#e3b23c;border-color:#e3b23c;color:#fff}.wgc.wgX{background:#8a8f96;border-color:#8a8f96;color:#fff}
+.wgcb .wgc.wgG,.wgcb .wgk.wgG{background:#f5793a;border-color:#f5793a}.wgcb .wgc.wgY,.wgcb .wgk.wgY{background:#3d8fd6;border-color:#3d8fd6}
+.wgc.flip{animation:wgflip .5s both}
+.wgrow.shake{animation:wgshake .4s}
+@keyframes wgflip{0%{transform:rotateX(0);background:var(--surface,#fff);color:inherit;border-color:#8a8f96}49%{transform:rotateX(90deg);background:var(--surface,#fff);color:inherit;border-color:#8a8f96}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+@keyframes wgshake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@keyframes wgpop{50%{transform:scale(1.08)}}
+@media (prefers-reduced-motion:reduce){.wgc.flip,.wgrow.shake,.wgc.typed{animation:none}}
+.wgkb{margin-top:auto;display:grid;gap:7px;padding-top:8px}
+.wgkr{display:flex;gap:5px;justify-content:center}
+.wgk{flex:1 1 0;min-width:0;max-width:44px;height:54px;border:0;border-radius:6px;background:#d3d6da;color:#1d232a;font-weight:800;font-size:1rem;padding:0;cursor:pointer}
+.wgk.wide{flex:1.6 1 0;max-width:68px;font-size:.8rem}
+.wgk.wgG{background:#4f9a5a;color:#fff}.wgk.wgY{background:#e3b23c;color:#fff}.wgk.wgX{background:#8a8f96;color:#fff}
+.wgdone{text-align:center;display:grid;gap:10px;margin-top:6px}.wgdone b{font-size:1.15rem}
+.wgnums{display:grid;grid-template-columns:repeat(4,1fr);text-align:center}.wgnums b{display:block;font-size:1.8rem}.wgnums small{font-size:.75rem}
+.wgdist{display:grid;gap:4px}.wgdr{display:flex;align-items:center;gap:6px}.wgdr span{width:12px;font-weight:700}.wgdr i{font-style:normal;background:#8a8f96;color:#fff;text-align:right;padding:2px 6px;border-radius:3px;font-weight:700}.wgdr i.on{background:#4f9a5a}.wgcb .wgdr i.on{background:#f5793a}
+.wgfam{display:grid;gap:6px}.wgfr{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--surface,#fff)}.wgfr b{flex:1}.wgfs{font-weight:800}
+.wgmini{display:grid;gap:1px}.wgmini i{display:flex;gap:1px}.wgmini u{width:8px;height:8px;border-radius:1px;background:#8a8f96}.wgmini u.wgG{background:#4f9a5a}.wgmini u.wgY{background:#e3b23c}.wgcb .wgmini u.wgG{background:#f5793a}.wgcb .wgmini u.wgY{background:#3d8fd6}
+.wgex{display:flex;gap:4px;margin-top:10px}.wgex .wgc{width:40px;font-size:1.2rem}
+.wgchips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
 
 /* Catan on the phone */
 .cpboard{background:#3b8fc9}
@@ -2217,7 +2248,7 @@ function home(){
   return `<img class="hero home" src="art/hero-home.png" alt="" width="1200" height="355"><div class="brand"><img class="appicon" src="art/app-icon.jpg" alt="Final Tally" width="96" height="96"><div><h1>Final<br>Tally</h1><p>End-of-game scoring for the table.</p></div></div>
   ${(()=>{const REC={};const W=(k,n,html)=>{const h=hgAgain(k,html);REC[k]=h;return `<div class="hg" data-gn="${esc(n.toLowerCase())}">${h}</div>`};
     const TTR=ttrHomeCard(TS,TM);
-    const CATS=[['board','Board games','ttr-icon.png',[W('ttr','ticket to ride trains',TTR),W('carc','carcassonne tiles meeples',cHomeCard()),W('quacks','quacks of quedlinburg potion herb witches alchemists',qkHomeCard()),W('boggle','boggle big boggle word game words letters cubes',bgHomeCard()),W('scatter','scattergories categories lists letter word game',sgHomeCard()),W('wordtiles','word tiles crossword scrabble letters board',wtHomeCard()),W('upwords','upwords stacking stack word letters board',uwHomeCard()),W('wingspan','wingspan birds eggs bird cards',wsHomeCard()),W('wyrmspan','wyrmspan dragons caves eggs',wyHomeCard()),W('stoneage','stone age stoneage huts tools village',saHomeCard()),W('yahtzee','yahtzee yatzy dice triple',yzHomeCard()),W('catan','catan settlers seafarers knights',ctHomeCard()),W('tobago','tobago treasure island clues atv amulets',tgHomeCard())]],
+    const CATS=[['board','Board games','ttr-icon.png',[W('ttr','ticket to ride trains',TTR),W('carc','carcassonne tiles meeples',cHomeCard()),W('quacks','quacks of quedlinburg potion herb witches alchemists',qkHomeCard()),W('boggle','boggle big boggle word game words letters cubes',bgHomeCard()),W('scatter','scattergories categories lists letter word game',sgHomeCard()),W('wordtiles','word tiles crossword scrabble letters board',wtHomeCard()),W('upwords','upwords stacking stack word letters board',uwHomeCard()),W('worgle','worgle wordle daily word five letters guess puzzle',wgHomeCard()),W('wingspan','wingspan birds eggs bird cards',wsHomeCard()),W('wyrmspan','wyrmspan dragons caves eggs',wyHomeCard()),W('stoneage','stone age stoneage huts tools village',saHomeCard()),W('yahtzee','yahtzee yatzy dice triple',yzHomeCard()),W('catan','catan settlers seafarers knights',ctHomeCard()),W('tobago','tobago treasure island clues atv amulets',tgHomeCard())]],
       ['cards','Card games','hf-icon.png',[W('hf','hand and foot',hfHomeCard()),W('canasta','canasta',caHomeCard()),W('dominion','dominion deck building kingdom intrigue seaside prosperity',dnHomeCard()),W('citadels','citadels districts characters king assassin warlord',ciHomeCard()),W('nerts','nerts nertz pounce',nxHomeCard()),W('hearts','hearts',htHomeCard()),W('spades','spades',sdHomeCard()),W('rage','rage',rgHomeCard()),W('ohell','oh hell trick bidding',ohHomeCard()),W('uno','uno flip no mercy attack dos all wild',unHomeCard()),W('munchkin','munchkin deluxe levels combat',mkHomeCard()),W('crowns','five crowns',fcHomeCard()),W('skipbo','skip-bo skip bo',sbHomeCard()),W('gnome','gnoming a round mini golf',gnHomeCard()),W('skyjo','skyjo',skHomeCard()),W('phase10','phase 10 ten phases',ptHomeCard()),W('rook','rook bird kentucky discard partners bid',rkHomeCard()),W('golf','golf card game',gfHomeCard()),W('tripoley','tripoley chips',tpHomeCard())]],
       ['dom','Dominoes','mextrain-icon.png',[W('chicken','chicken foot dominoes domino',cfHomeCard()),W('mextrain','mexican train dominoes domino',mtHomeCard())]],
       ['dp','Darts and pool','darts-icon.png',[W('darts','darts 501 cricket',dtHomeCard()),W('pool','pool billiards 8-ball 9-ball',plHomeCard())]],
@@ -9007,6 +9038,101 @@ function uwGuide(){const X=UWX();
     ['Scoring',[['Flat words','Every tile only one high: 2 points a tile. A flat word with the Qu tile gets +2.'],['Stacked words','Any stack in the word: 1 point for every tile in the word and every tile under it.'],['Every word counts','Each word you make or change scores, including words across.'],['All 7 tiles',X.bonus?'+'+X.bonus+' for using all seven tiles in one turn.':'No bonus (house rule).']]],
     ['The end',[['When','All the tiles are played, or everyone passes in a row.'],['Leftovers','−5 for each tile left in your rack.']]],
     X.play?['On the phone',[['Placing','Tap a tile in your rack, then a square or a letter to stack on. Tap a placed tile to take it back. A small number on a tile is its stack height.'],['Checking','The score and the words appear as you place. Words not in the word list are shown in red'+(X.vote?'; tap Ask the table to let everyone vote.':'.')],['Zoom','Pinch the board or use ＋ − ⤢.']]]:null])}
+
+/* ================= Worgle: a daily five-letter word ================= */
+/* Each phone keeps its own results under KEY+'.worgle.'+id, so family sync shares everyone's without clashing. */
+const WGLEN=5,WGTRIES=6,WGSTART=Date.UTC(2026,10,2);
+let WGO=false,WGV='play',WGM='day',WGIN='',WGSHAKE=0,WGREV=-1,WGA=null,WGAP=null,WGMSG='',WGMSGT=null;
+function wgId(){let d='';try{d=localStorage.getItem('ft.wgdev')||'';if(!d){d=Math.random().toString(36).slice(2,10);localStorage.setItem('ft.wgdev',d)}}catch(e){d='local'}return d}
+const wgKey=id=>KEY+'.worgle.'+(id||wgId());
+function wgData(){let x=null;try{x=JSON.parse(localStorage.getItem(wgKey()))}catch(e){}x=x||{};x.me=x.me||'';x.set=x.set||{};x.days=x.days||{};return x}
+function wgSave(x){try{localStorage.setItem(wgKey(),JSON.stringify(x));window.ftDirty&&window.ftDirty()}catch(e){}}
+/* today, by this phone's clock */
+const wgDay=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const wgNum=day=>{const [y,m,d]=day.split('-').map(Number);return Math.round((Date.UTC(y,m-1,d)-WGSTART)/864e5)+1};
+/* word lists: answers are our own list; any 5-letter word in the Word Tiles dictionary can be guessed */
+function wgLoad(){if(WGA)return Promise.resolve(WGA);if(WGAP)return WGAP;
+  WGAP=Promise.all([fetch('art/wg-answers.txt').then(r=>{if(!r.ok)throw new Error('answers '+r.status);return r.text()}),wtDict()]).then(([t])=>{WGA=t.split('\n').map(w=>w.trim()).filter(w=>w.length===WGLEN);return WGA}).catch(e=>{WGAP=null;throw e});return WGAP}
+const wgAnswer=day=>{if(!WGA)return null;const n=wgNum(day)-1;return WGA[((n%WGA.length)+WGA.length)%WGA.length]};
+const wgValid=w=>!!WGA&&(WGA.includes(w)||!!(WTD&&WTD.s.has(w)));
+/* g = right spot, y = in the word, somewhere else, x = not in the word (repeated letters only count as often as they appear) */
+function wgMark(guess,ans){const r=Array(WGLEN).fill('x'),left={};for(let i=0;i<WGLEN;i++){if(guess[i]===ans[i])r[i]='g';else left[ans[i]]=(left[ans[i]]||0)+1}
+  for(let i=0;i<WGLEN;i++)if(r[i]!=='g'&&left[guess[i]]){r[i]='y';left[guess[i]]--}return r}
+/* hard mode: letters you've found must be used, and green ones stay put */
+function wgHardErr(gs,ans,w){for(const g of gs){const m=wgMark(g,ans);for(let i=0;i<WGLEN;i++)if(m[i]==='g'&&w[i]!==g[i])return `Letter ${i+1} must be ${g[i].toUpperCase()}.`;
+    const need={};m.forEach((c,i)=>{if(c!=='x')need[g[i]]=(need[g[i]]||0)+1});for(const l in need){const have=w.split('').filter(c=>c===l).length;if(have<need[l])return `Your guess must use ${l.toUpperCase()}.`}}return null}
+/* the game in play: today's or a practice word */
+function wgCur(x){if(WGM==='practice'){if(!x.pr||!x.pr.a){x.pr={a:WGA[Math.floor(Math.random()*WGA.length)],g:[],w:null};wgSave(x)}return {a:x.pr.a,e:x.pr}}
+  const day=wgDay();if(!x.days[day])x.days[day]={g:[],w:null};return {a:wgAnswer(day),e:x.days[day],day}}
+function wgSubmit(){const x=wgData(),c=wgCur(x),e=c.e,w=WGIN;if(e.w!=null)return;
+  if(w.length<WGLEN)return wgSay('Not enough letters.',1);if(!wgValid(w))return wgSay('Not in the word list.',1);
+  if(x.set.hard){const h=wgHardErr(e.g,c.a,w);if(h)return wgSay(h,1)}
+  e.g.push(w);if(!e.hard&&x.set.hard)e.hard=1;WGIN='';WGREV=e.g.length-1;
+  if(w===c.a){e.w=1;wgSay(['Genius!','Brilliant!','Great!','Nice!','Solid.','Phew!'][e.g.length-1]||'Got it!');vibe([20,40,20])}
+  else if(e.g.length>=WGTRIES){e.w=0;wgSay(c.a.toUpperCase());vibe(30)}else vibe(8);
+  if(WGM==='practice')x.pr=e;wgSave(x)}
+function wgSay(m,shake){WGMSG=m;if(shake){WGSHAKE=Date.now();vibe([10,30,10])}clearTimeout(WGMSGT);WGMSGT=setTimeout(()=>{WGMSG='';if(WGO)render()},shake?1600:2600)}
+function wgAct(a,b,k){const x=wgData();
+  if(a==='wgopen'){WGO=true;WGM=k==='practice'?'practice':'day';WGV=x.me?'play':'who';WGIN='';WGREV=-1;wgLoad().then(()=>{if(WGO)render()}).catch(()=>{wgSay('Couldn’t load the word list. Check your connection.')});return}
+  if(a==='wgclose'){WGO=false;WGIN='';return}
+  if(a==='wgview'){WGV=k;return}
+  if(a==='wgpick'||a==='wgname'){const n=(a==='wgpick'?k:((document.getElementById('wg-name')||{}).value||'')).trim().slice(0,24);if(!n){toast('Type your name.');return}x.me=n;wgSave(x);WGV='play';return}
+  if(a==='wghard'){const c=WGA&&wgCur(x);if(c&&c.e.g.length&&c.e.w==null){toast('Change this before your first guess.');return}x.set.hard=x.set.hard?0:1;wgSave(x);return}
+  if(a==='wgusual'){x.set={};wgSave(x);return}
+  if(a==='wgmode'){WGM=k==='practice'?'practice':'day';WGIN='';WGREV=-1;WGV='play';return}
+  if(a==='wgnew'){x.pr=null;WGM='practice';WGIN='';WGREV=-1;wgSave(x);return}
+  if(a==='wgcopy'){const t=wgShareText(x);(navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Copied. Paste it in your family chat.'),()=>toast('Couldn’t copy on this device.'));return}
+  if(a==='wgkey'){if(!WGA)return;const c=wgCur(x);if(c.e.w!=null)return;WGREV=-1;if(k==='enter'){wgSubmit();return}if(k==='back'){WGIN=WGIN.slice(0,-1);return}if(WGIN.length<WGLEN&&/^[a-z]$/.test(k))WGIN+=k;return}}
+/* ---------- results ---------- */
+function wgStats(x){const days=Object.keys(x.days).filter(d=>x.days[d].w!=null).sort();let cur=0,max=0,run=0,prev=null;const dist=Array(WGTRIES).fill(0);let wins=0;
+  days.forEach(d=>{const e=x.days[d];if(e.w){wins++;dist[e.g.length-1]++}const n=wgNum(d);run=e.w?(prev!=null&&n===prev+1?run+1:1):0;if(!e.w)run=0;max=Math.max(max,run);prev=n});
+  const today=wgNum(wgDay()),last=days.length?wgNum(days[days.length-1]):null;cur=last!=null&&(last===today||last===today-1)?run:0;
+  return {played:days.length,wins,pct:days.length?Math.round(wins/days.length*100):0,cur,max,dist}}
+const wgSq=(m)=>m.map(c=>c==='g'?(SET.cb?'🟧':'🟩'):c==='y'?(SET.cb?'🟦':'🟨'):'⬜').join('');
+function wgShareText(x){const day=wgDay(),e=x.days[day],a=wgAnswer(day);if(!e||e.w==null)return '';return `Worgle #${wgNum(day)} ${e.w?e.g.length:'X'}/${WGTRIES}${e.hard?'*':''}\n`+e.g.map(g=>wgSq(wgMark(g,a))).join('\n')}
+/* everyone in the family who plays on a synced phone */
+function wgFamily(){const out=[],pre=KEY+'.worgle.';try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(!k||!k.startsWith(pre))continue;let v=null;try{v=JSON.parse(localStorage.getItem(k))}catch(e){}if(v&&v.me)out.push({id:k.slice(pre.length),me:v.me,days:v.days||{}})}}catch(e){}return out}
+function wgBoard(x){const day=wgDay(),a=wgAnswer(day),mine=x.days[day],done=mine&&mine.w!=null,F=wgFamily().filter(f=>f.id!==wgId());
+  /* one row per name: a person on two phones shows their finished game */
+  const by={};F.forEach(f=>{const k=f.me.toLowerCase(),e=f.days[day];if(!by[k]||e&&e.w!=null&&!(by[k].e&&by[k].e.w!=null))by[k]={me:f.me,e}});const L=Object.values(by).sort((p,q)=>{const s=e=>!e||e.w==null?99:e.w?e.g.length:7;return s(p.e)-s(q.e)||p.me.localeCompare(q.me)});
+  if(!L.length)return `<p class="hint">${window.FTSYNC&&window.FTSYNC.status().fid?'Nobody else in the family has played on their phone yet.':'Turn on family sync in Settings to see how everyone else did.'}</p>`;
+  return `<div class="wgfam">${L.map(f=>{const e=f.e,st=!e||!e.g.length?'Not yet':e.w==null?'Playing…':e.w?`${e.g.length}/${WGTRIES}${e.hard?'*':''}`:`X/${WGTRIES}`;
+    return `<div class="wgfr"><b>${esc(f.me)}</b><span class="wgfs">${st}</span>${done&&e&&e.w!=null&&a?`<span class="wgmini">${e.g.map(g=>`<i>${wgMark(g,a).map(c=>`<u class="wg${c.toUpperCase()}"></u>`).join('')}</i>`).join('')}</span>`:e&&e.w!=null?'<span class="rlab">Finish yours to see</span>':''}</div>`}).join('')}</div>`}
+/* ---------- the screen ---------- */
+const WGROWS=['qwertyuiop','asdfghjkl','zxcvbnm'];
+function wgSheet(){const x=wgData();
+  const head=t=>`<div class="wgtop"><button class="btn sm" data-a="wgclose" aria-label="Close">✕</button><h2>${t}</h2><span class="wgtb"><button class="btn sm" data-a="wgview" data-k="${WGV==='rules'?'play':'rules'}" aria-label="How to play">?</button><button class="btn sm" data-a="wgview" data-k="${WGV==='stats'?'play':'stats'}" aria-label="Stats and family">📊</button></span></div>`;
+  const wrap=b=>`<div class="sheet-bg wgbg"><div class="sheet wgsheet${SET.cb?' wgcb':''}" role="dialog" aria-modal="true" aria-label="Worgle" data-stop="1">${b}</div></div>`;
+  if(WGV==='who'){const R=(H.roster||[]).map(r=>r.name).filter(Boolean).slice(0,12);
+    return wrap(`${head('Worgle')}<div class="wgpad"><h3>Who’s playing on this phone?</h3><p class="rlab">Your results show up for the family under this name.</p>${R.length?`<div class="wgchips">${R.map(n=>`<button class="btn" data-a="wgpick" data-k="${esc(n)}">${esc(n)}</button>`).join('')}</div>`:''}<div class="prow"><input id="wg-name" class="numin" style="flex:1;text-align:left" placeholder="Your name" value="${esc(x.me)}" autocomplete="off" maxlength="24"><button class="btn primary" data-a="wgname">Save</button></div></div>`)}
+  if(WGV==='rules')return wrap(`${head('How to play')}<div class="wgpad">
+    <p>Guess the five-letter word in ${WGTRIES} tries. Each guess has to be a real word. After each guess, the tiles change color:</p>
+    <div class="wgex"><span class="wgc wgG">C</span><span class="wgc">R</span><span class="wgc">A</span><span class="wgc">N</span><span class="wgc">E</span></div><p class="rlab"><b>${SET.cb?'Orange':'Green'}</b>: the letter is in the word, in that spot.</p>
+    <div class="wgex"><span class="wgc">P</span><span class="wgc wgY">I</span><span class="wgc">L</span><span class="wgc">O</span><span class="wgc">T</span></div><p class="rlab"><b>${SET.cb?'Blue':'Yellow'}</b>: the letter is in the word, in a different spot.</p>
+    <div class="wgex"><span class="wgc">V</span><span class="wgc">A</span><span class="wgc">G</span><span class="wgc wgX">U</span><span class="wgc">E</span></div><p class="rlab"><b>Gray</b>: the letter isn’t in the word.</p>
+    <p class="rlab">Everyone in the family gets the same word each day, with a new one at midnight. Practice words are unlimited and don’t count in your stats.</p>
+    <div class="panel hfpanel"><div class="prow"><div class="rtext"><b>Hard mode</b><div class="rlab">Letters you’ve found have to be used in later guesses, and green ones stay in place. Results get a *.</div></div><button class="sw" role="switch" aria-checked="${!!x.set.hard}" data-a="wghard" aria-label="Hard mode"><i></i></button></div></div>
+    ${x.set.hard?`<button class="btn wide" data-a="wgusual">Back to our usual rules</button>`:''}
+    <p class="rlab">Playing as <b>${esc(x.me||'?')}</b> · <button class="btn sm" data-a="wgview" data-k="who">Change name</button></p></div>`);
+  if(!WGA)return wrap(`${head('Worgle')}<div class="wgpad">${waitLoader('Finding today’s word…')}${WGMSG?`<p class="rlab">${esc(WGMSG)}</p>`:''}</div>`);
+  if(WGV==='stats'){const s=wgStats(x),mx=Math.max(1,...s.dist),e=x.days[wgDay()],won=e&&e.w?e.g.length:0;
+    return wrap(`${head('Stats')}<div class="wgpad"><div class="wgnums">${[[s.played,'Played'],[s.pct,'Win %'],[s.cur,'Streak'],[s.max,'Best streak']].map(([v,t])=>`<div><b class="num">${v}</b><small>${t}</small></div>`).join('')}</div>
+      <h3>Guesses</h3><div class="wgdist">${s.dist.map((n,i)=>`<div class="wgdr"><span>${i+1}</span><i class="${won===i+1?'on':''}" style="width:${Math.max(8,n/mx*100)}%">${n}</i></div>`).join('')}</div>
+      <h3>Today’s family board</h3>${wgBoard(x)}${e&&e.w!=null?`<button class="btn wide" data-a="wgcopy">📋 Copy my result</button>`:''}</div>`)}
+  const c=wgCur(x),e=c.e,a=c.a,done=e.w!=null,shake=Date.now()-WGSHAKE<500,K={};
+  e.g.forEach(g=>{const m=wgMark(g,a);g.split('').forEach((l,i)=>{const v=m[i];if(K[l]==='g'||(K[l]==='y'&&v==='x'))return;K[l]=v})});
+  let rows='';for(let r=0;r<WGTRIES;r++){const g=e.g[r],cur=!g&&r===e.g.length&&!done,w=g||(cur?WGIN:''),m=g?wgMark(g,a):null;
+    rows+=`<div class="wgrow${cur&&shake?' shake':''}">${Array.from({length:WGLEN},(_,i)=>`<span class="wgc${m?' wg'+m[i].toUpperCase():''}${w[i]&&!m?' typed':''}${m&&r===WGREV?' flip':''}" style="${m&&r===WGREV?`animation-delay:${i*.18}s`:''}" ${m?`aria-label="${w[i].toUpperCase()}, ${m[i]==='g'?'right spot':m[i]==='y'?'wrong spot':'not in the word'}"`:''}>${(w[i]||'').toUpperCase()}</span>`).join('')}</div>`}
+  const kb=WGROWS.map((row,ri)=>`<div class="wgkr">${ri===2?`<button class="wgk wide" data-a="wgkey" data-k="enter">Enter</button>`:''}${row.split('').map(l=>`<button class="wgk ${K[l]?'wg'+K[l].toUpperCase():''}" data-a="wgkey" data-k="${l}">${l.toUpperCase()}</button>`).join('')}${ri===2?`<button class="wgk wide" data-a="wgkey" data-k="back" aria-label="Delete">⌫</button>`:''}</div>`).join('');
+  const title=WGM==='practice'?'Practice':`Worgle #${wgNum(c.day)}`;
+  return wrap(`${head(title+(x.set.hard?' *':''))}<div class="wgseg seg"><button data-a="wgmode" data-k="day" aria-pressed="${WGM==='day'}">Today</button><button data-a="wgmode" data-k="practice" aria-pressed="${WGM==='practice'}">Practice</button></div>
+    <div class="wgmsg" aria-live="polite">${WGMSG?`<span>${esc(WGMSG)}</span>`:''}</div><div class="wggrid">${rows}</div>
+    ${done?`<div class="wgdone">${e.w?`<b>Solved in ${e.g.length}!</b>`:`<b>The word was ${esc(a.toUpperCase())}.</b>`}${WGM==='practice'?`<button class="btn primary wide" data-a="wgnew">Another practice word</button>`:`<button class="btn primary wide" data-a="wgview" data-k="stats">📊 Family board &amp; stats</button><p class="rlab">A new word at midnight.</p>`}</div>`:`<div class="wgkb">${kb}</div>`}`)}
+function wgHomeCard(){const x=wgData(),day=wgDay(),e=x.days[day],F=wgFamily().filter(f=>f.id!==wgId()&&f.days[day]&&f.days[day].w!=null).length;
+  return `<div class="game"><div class="gtop"><img class="gart" src="art/worgle-icon.png" alt="" width="84" height="84" onerror="this.outerHTML='<div class=&quot;gart nxart&quot; aria-hidden=&quot;true&quot;>🟩</div>'"><div><h2>Worgle</h2><div class="meta">A new five-letter word every day</div></div></div>
+    <div class="rlab">${e&&e.w!=null?(e.w?`Today: solved in ${e.g.length} ✓`:'Today: missed it'):e&&e.g.length?'Today: in progress':'Not played today'}${F?` · ${F} other${F===1?'':'s'} in the family played`:''}</div>
+    <div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" data-a="wgopen" data-k="day">🟩 Today’s word</button><button class="btn" style="flex:1" data-a="wgopen" data-k="practice">Practice</button></div></div>`}
+document.addEventListener('keydown',e=>{if(!WGO||WGV!=='play'||e.ctrlKey||e.metaKey||e.altKey||e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName))return;const k=e.key==='Enter'?'enter':e.key==='Backspace'?'back':/^[a-zA-Z]$/.test(e.key)?e.key.toLowerCase():null;if(!k)return;e.preventDefault();wgAct('wgkey',null,k);render()});
 
 /* ================= Catan on the phone (base game) =================
    Settings live in S.ctx (play, plus the tracker's own keys). S.cpg = the game:
@@ -18878,6 +19004,7 @@ function render0(){
   KEEPSC.forEach((q,i)=>{const el=document.querySelector(q);if(el&&keepSc[i])el.scrollTop=keepSc[i]});
   if(S.screen==='reveal'&&!RCWARMED){RCWARMED=true;setTimeout(()=>{try{const w=winMoment();rcWarm([w.src,...(w.layers||[]),...Object.values(loserMoments()).map(m=>m.img.u),...(LOOK()==='art'?act().flatMap(p=>['box','tank','hopper','caboose','engine'].map(k=>`train/${k}-${TCOL(p.color)}.png`)):[])])}catch(e){}},50)}else if(S.screen!=='reveal')RCWARMED=false;
   if(REMATCH)document.getElementById('app').insertAdjacentHTML('beforeend',rematchSheet());
+  if(WGO)document.getElementById('app').insertAdjacentHTML('beforeend',wgSheet());
   try{rgFx()}catch(e){}
   try{qpScrollFx()}catch(e){}
   try{if(!document.querySelector('#app .lkbar')&&!document.querySelector('#app .rxfab'))RXLIVE=[];rxFx()}catch(e){}
@@ -19120,6 +19247,7 @@ document.addEventListener('click',e=>{
   if(/^sbp(src|disc|build|show|deal|pass)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
   if(/^mtp(tile|train|draw|pass|done|show|deal)$/.test(a)&&S.game==='mextrain'&&mtOn()&&S.started){mtAct(a,b,k);save();render();return}
   if(/^dnp[a-z]+$/.test(a)&&S.game==='dominion'&&dnOn()&&S.started){dnAct(a,b,k);save();render();return}
+  if(/^wg[a-z]+$/.test(a)){wgAct(a,b,k);render();return}
   if(/^uwp[a-z]+$/.test(a)&&S.game==='upwords'&&uwOn()&&S.started){uwUiAct(a,b,k);save();render();return}
   if(/^wtp[a-z]+$/.test(a)&&S.game==='wordtiles'&&wtOn()&&S.started){wtUiAct(a,b,k);save();render();return}
   if(/^sgp[a-z]+$/.test(a)&&S.game==='scatter'&&sgOn()&&S.started){sgUiAct(a,b,k);save();render();return}
@@ -19933,6 +20061,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='1a9d50';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='9720f4';</script>
 </body>
 </html>
