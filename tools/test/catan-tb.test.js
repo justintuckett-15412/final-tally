@@ -1,4 +1,4 @@
-// Catan on the phone, Traders & Barbarians scenarios: Fishing on Catan, Rivers of Catan and Merchant Trains (more are added here as they're built).
+// Catan on the phone, Traders & Barbarians scenarios: Fishing on Catan, Rivers of Catan, Merchant Trains and Barbarian Attack (more are added here as they're built).
 process.env.LAT=process.env.LAT||'120';process.env.JIT=process.env.JIT||'120';
 const {mk,W,ok,done,chromium}=require('./link.js');
 (async()=>{const browser=await chromium.launch();let P=await mk(browser,'tb');const errs=[];P.on('pageerror',e=>errs.push(e.message));
@@ -31,6 +31,15 @@ const {mk,W,ok,done,chromium}=require('./link.js');
     t('Merchant Trains: +1 for a building with wagons on 2 edges; a wagon on your road counts double',()=>{const x=setup(fresh('caravans')),g=x.g,B=x.B,p=g.ps[0];const S0=g.mtStart[0];cpWagPlace0(g,S0.e);const f=cpWagSpots(g).find(e=>B.E[e].a===S0.front||B.E[e].b===S0.front);cpWagPlace0(g,f);
       g.b={};g.b[S0.front]=[p,0];const vp=cpWagVP(g,p)===1;g.rd={};g.rd[S0.e]=p;const len=cpRoadLen(g,p)===2;return {ok:vp&&len,vp,len}});
     t('Merchant Trains: bots finish 3 and 4 player games',()=>{const bad=[];for(const n of [3,4]){const {g}=fresh('caravans',n);act().forEach(p=>p.bot='normal');let i=0;while(g.phase!=='done'&&i++<30000){const q=act().find(p=>p.id===cpActor(g));cpBotStep(g,q)}if(g.phase!=='done')bad.push(n)}return {ok:!bad.length,bad}});
+    t('Barbarian Attack: castle and desert fixed, fixed numbers, 2 barbarians to start, 26 cards, goal 12; second piece is a city',()=>{const x=fresh('barb'),g=x.g;const at=(q,r)=>g.hx.find(h=>h[0]===q&&h[1]===r);const co=g.coast.map(h=>g.hx[h][3]).sort((a,b)=>a-b).join();
+      const ok1=at(-2,2)[2]==='c'&&at(2,-2)[2]==='d'&&co==='2,3,4,5,6,8,9,10,11,12'&&g.barb[g.hx.indexOf(at(0,2))]===1&&g.barb[g.hx.indexOf(at(-2,0))]===1&&g.barbS===34&&g.deck.length===26&&g.goal===12&&g.rob==null;setup(x);const city=g.ps.every(p=>Object.values(g.b).some(b=>b[0]===p&&b[1]));return {ok:ok1&&city,ok1,city}});
+    t('Barbarian Attack: building brings 3 barbarians; 3 on a hex conquer it (no production, no building)',()=>{const x=setup(fresh('barb')),g=x.g,B=x.B,p=g.ps[0];const n0=Object.values(g.barb).reduce((a,b)=>a+b,0);cpBaLand(g,p);const n1=Object.values(g.barb).reduce((a,b)=>a+b,0);
+      const h=g.coast.find(h=>!cpConq(g,h));g.barb[h]=3;const v=B.hv[h].find(v=>!g.b[v]);const noB=!cpVOk(g,p,v,'free');const M=g.me[g.b[B.hv[h].find(v=>g.b[v])]?.[0]||p];return {ok:n1>n0&&n1<=n0+3&&noB&&cpConq(g,h),n0,n1,noB}});
+    t('Barbarian Attack: cards play at once; knights move at the end of the turn and drive barbarians off for prisoners',()=>{const x=setup(fresh('barb')),g=x.g,B=x.B,[p,q]=g.ps;turn(g,p);Object.assign(g.me[p].r,{s:1,g:1,o:1});g.deck=['kh'];const bought=cpBuyDev(g,p)&&g.ask&&g.ask.k==='baknt';cpBaPick(g,p,g.ask.opts[0]);const onCastle=Object.keys(g.kt).length===1;
+      const h=g.coast.find(h=>g.barb[h]===1);const es=B.he[h];g.kt={};g.kt[es[0]]=p;g.kt[es[1]]=p;g.kt[es[2]]=q;turn(g,p);cpEnd(g,p);const asked=g.ask&&g.ask.k==='bamove';cpKnDone(g,p);const freed=g.barb[h]===0&&g.me[p].pri+g.me[q].pri===1;return {ok:bought&&onCastle&&asked&&freed,bought,onCastle,asked,freed}});
+    t('Barbarian Attack: 2 prisoners = 1 point; conquered buildings count nothing; a 7 steals from anyone',()=>{const x=setup(fresh('barb')),g=x.g,B=x.B,[p,q]=g.ps;g.me[p].pri=5;const pv=cpPriVP(g,p)===2;const v=Object.keys(g.b).map(Number).find(v=>g.b[v][0]===q&&B.V[v].h.filter(h=>cpLand(g,h)).every(h=>g.coast.includes(h)));let cq=true;if(v!=null){const before=cpVis(g,q);B.V[v].h.forEach(h=>{if(g.coast.includes(h))g.barb[h]=3});cq=cpVis(g,q)<before}
+      Object.assign(g.me[q].r,{w:1,b:0,s:0,g:0,o:0});g.ps.slice(2).forEach(z=>g.me[z].r={w:0,b:0,s:0,g:0,o:0});turn(g,p);g.t.rolled=0;Object.assign(g.me[p].r,{w:0,b:0,s:0,g:0,o:0});cpRoll(g,p,[3,4]);return {ok:pv&&cq&&g.me[p].r.w===1,pv,cq}});
+    t('Barbarian Attack: bots finish 3 and 4 player games',()=>{const bad=[];for(const n of [3,4]){const {g}=fresh('barb',n);act().forEach(p=>p.bot='normal');let i=0;while(g.phase!=='done'&&i++<30000){const q=act().find(p=>p.id===cpActor(g));cpBotStep(g,q)}if(g.phase!=='done')bad.push(n)}return {ok:!bad.length,bad}});
     return out});
   R.forEach(([n,g,x])=>ok(n,g,x));
   await P.close();P=await mk(browser,'tb2');P.on('pageerror',e=>errs.push(e.message));
