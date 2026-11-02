@@ -49,10 +49,10 @@ const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
   await P.evaluate(()=>{window.__htfast=1;S.screen='home';render()});await W(300);
   ok('Home: Catan card with Play and Track',await P.evaluate(()=>!!document.querySelector('[data-a="cpstart"][data-k="1"]')&&!!document.querySelector('[data-a="cpstart"][data-k="0"]')));
   await P.evaluate(()=>document.querySelector('[data-a="cpstart"][data-k="1"]').click());await W(300);
-  ok('Setup: play mode on, expansions marked as coming',await P.evaluate(()=>cpOn()&&document.querySelectorAll('[data-a="ctmode"][disabled]').length===3));
+  ok('Setup: play mode on, expansions marked as coming',await P.evaluate(()=>cpOn()&&document.querySelectorAll('[data-a="ctmode"][disabled]').length===2));
   await P.evaluate(()=>{S.players.forEach((p,i)=>{p.on=i<4;p.name=['Justin','Kim','Bo','Al'][i];p.bot=i?['easy','normal','hard'][i-1]:null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1200);
   const me=await P.evaluate(()=>act()[0].id);let moves=0,traded=0;
-  const tap=sel=>P.evaluate(sel=>{const b=[...document.querySelectorAll(sel)].find(b=>!b.disabled);if(b){b.click();return true}return false},sel);
+  const tap=sel=>P.evaluate(sel=>{const b=[...document.querySelectorAll(sel)].find(b=>!b.disabled&&b.getAttribute("aria-disabled")!=="true");if(b){b.click();return true}return false},sel);
   const svgTap=sel=>P.evaluate(sel=>{const L=[...document.querySelectorAll(sel)];if(!L.length)return false;L[Math.floor(Math.random()*L.length)].dispatchEvent(new MouseEvent('click',{bubbles:true}));return true},sel);
   for(let i=0;i<5000;i++){const st=await P.evaluate(me=>{const g=S.cpg;if(!g)return null;const Q=g.ask;return {a:cpActor(g),ph:g.phase,su:g.su&&g.su.step,ask:Q&&Q.k,disc:Q&&Q.k==='disc'&&Q.need[me],resp:Q&&Q.k==='offer'&&Q.p!==me&&Q.resp[me]==null,rolled:g.t&&g.t.rolled,road:g.t&&g.t.road,done:g.phase==='done'}},me);if(!st)continue;if(st.done)break;
     if(st.disc){await P.evaluate(n=>{const M=S.cpg.me[act()[0].id];let k=n;for(const r of CPR)while(k>0&&(CPDISC[r]||0)<M.r[r]){document.querySelector(`[data-a="cppdisc"][data-k="${r}:1"]`).click();k--}},st.disc);await tap('[data-a="cppdiscok"]');moves++;continue}
@@ -86,7 +86,7 @@ const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
   ok('Linked: host dealt the island',await H.evaluate(()=>!!S.cpg&&S.cpg.ps.length===3));
   ok('Linked: guest sees the same island',await H.evaluate(()=>JSON.stringify(S.cpg.hx))===await G.evaluate(()=>JSON.stringify(S.cpg&&S.cpg.hx)));
   const step=async Q=>{const st=await Q.evaluate(()=>{const g=S.cpg;if(!g||!S.lk)return null;const V=cpViewer();if(!V)return null;const A=g.ask;return {me:V.id,mine:cpActor(g)===V.id,ph:g.phase,su:g.su&&g.su.step,ask:A&&A.k,disc:A&&A.k==='disc'&&A.need[V.id],resp:A&&A.k==='offer'&&A.p!==V.id&&A.resp[V.id]==null,rolled:g.t&&g.t.rolled,road:g.t&&g.t.road,wait:lkqWaiting()}});
-    if(!st||st.wait||st.ph==='done')return false;const tp=sel=>Q.evaluate(sel=>{const b=[...document.querySelectorAll(sel)].find(b=>!b.disabled);if(b){b.click();return true}return false},sel);
+    if(!st||st.wait||st.ph==='done')return false;const tp=sel=>Q.evaluate(sel=>{const b=[...document.querySelectorAll(sel)].find(b=>!b.disabled&&b.getAttribute("aria-disabled")!=="true");if(b){b.click();return true}return false},sel);
     const sv=sel=>Q.evaluate(sel=>{const L=[...document.querySelectorAll(sel)];if(!L.length)return false;L[Math.floor(Math.random()*L.length)].dispatchEvent(new MouseEvent('click',{bubbles:true}));return true},sel);
     if(st.disc){await Q.evaluate(n=>{const g=S.cpg,M=g.me[cpViewer().id];let k=n;for(const r of CPR)while(k>0&&(CPDISC[r]||0)<M.r[r]){document.querySelector(`[data-a="cppdisc"][data-k="${r}:1"]`).click();k--}},st.disc);return tp('[data-a="cppdiscok"]')}
     if(st.resp)return tp('[data-a="cppans"][data-k="0"]');if(!st.mine)return false;
