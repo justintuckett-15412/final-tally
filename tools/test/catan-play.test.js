@@ -49,7 +49,7 @@ const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
   await P.evaluate(()=>{window.__htfast=1;S.screen='home';render()});await W(300);
   ok('Home: Catan card with Play and Track',await P.evaluate(()=>!!document.querySelector('[data-a="cpstart"][data-k="1"]')&&!!document.querySelector('[data-a="cpstart"][data-k="0"]')));
   await P.evaluate(()=>document.querySelector('[data-a="cpstart"][data-k="1"]').click());await W(300);
-  ok('Setup: play mode on, expansions marked as coming',await P.evaluate(()=>cpOn()&&document.querySelectorAll('[data-a="ctmode"][disabled]').length===2));
+  ok('Setup: play mode on, expansions marked as coming',await P.evaluate(()=>cpOn()&&document.querySelectorAll('[data-a="ctmode"][disabled]').length===1));
   await P.evaluate(()=>{S.players.forEach((p,i)=>{p.on=i<4;p.name=['Justin','Kim','Bo','Al'][i];p.bot=i?['easy','normal','hard'][i-1]:null});save();const b=document.createElement('button');b.dataset.a='start';document.body.appendChild(b);b.click();b.remove()});await W(1200);
   const me=await P.evaluate(()=>act()[0].id);let moves=0,traded=0;
   const tap=sel=>P.evaluate(sel=>{const b=[...document.querySelectorAll(sel)].find(b=>!b.disabled&&b.getAttribute("aria-disabled")!=="true");if(b){b.click();return true}return false},sel);
