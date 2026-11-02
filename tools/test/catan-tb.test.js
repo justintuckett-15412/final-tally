@@ -1,4 +1,4 @@
-// Catan on the phone, Traders & Barbarians scenarios: Fishing on Catan (more scenarios are added here as they're built).
+// Catan on the phone, Traders & Barbarians scenarios: Fishing on Catan and Rivers of Catan (more are added here as they're built).
 process.env.LAT=process.env.LAT||'120';process.env.JIT=process.env.JIT||'120';
 const {mk,W,ok,done,chromium}=require('./link.js');
 (async()=>{const browser=await chromium.launch();let P=await mk(browser,'tb');const errs=[];P.on('pageerror',e=>errs.push(e.message));
@@ -15,6 +15,15 @@ const {mk,W,ok,done,chromium}=require('./link.js');
       Object.assign(g.me[q].r,{w:2});const b=cpFishAct(g,p,3,q)&&cpSum(M.r)>=1;M.fish=[1,3];const w=M.r.w;const c=cpFishAct(g,p,4,'w')&&M.r.w===w+1&&!M.fish.length;M.fish=[3,3,1];const d=cpFishAct(g,p,7)&&M.dev.length===1&&M.fish.length===0;return {ok:a&&b&&c&&d,a,b,c,d}});
     t('Fishing: the old boot needs 1 more point and can be passed to someone with as many points',()=>{const x=setup(fresh('fish')),g=x.g,[p,q]=g.ps;g.boot=p;turn(g,p);g.ivp={[q]:2};const give=cpGiveBoot(g,p,q)&&g.boot===q;g.ivp={};g.ivp[q]=10-cpVis(g,q);turn(g,q);cpWin(g,q);const notYet=g.phase==='turn';g.ivp[q]+=1;cpWin(g,q);return {ok:give&&notYet&&g.phase==='done',give,notYet}});
     t('Fishing: bots finish 3 and 4 player games',()=>{const bad=[];for(const n of [3,4]){const {g}=fresh('fish',n);act().forEach(p=>p.bot='normal');let i=0;while(g.phase!=='done'&&i++<30000){const q=act().find(p=>p.id===cpActor(g));cpBotStep(g,q)}if(g.phase!=='done')bad.push(n)}return {ok:!bad.length,bad}});
+    t('Rivers: fixed river hexes, 2 swamps, no 2 token (the 12 also pays on 2), robber on a swamp, 7 bridge sites',()=>{const bad=[];for(let i=0;i<10;i++){const {g}=fresh('rivers');const at=(q,r)=>g.hx.find(h=>h[0]===q&&h[1]===r);
+      if(at(-1,-1)[2]!=='m'||at(-1,0)[2]!=='h'||at(-1,1)[2]!=='p'||at(-1,2)[2]!=='x'||at(1,-1)[2]!=='m'||at(1,0)[2]!=='h'||at(1,1)[2]!=='x')bad.push('rivers');if(g.hx.some(h=>h[3]===2)||g.hx.filter(h=>h[3]).length!==17)bad.push('numbers');
+      if(g.hx[g.dbl][3]!==12||g.hx[g.rob][2]!=='x'||g.site.length!==7||new Set(g.site).size!==7)bad.push('setup')}return {ok:!bad.length,bad}});
+    t('Rivers: no roads on crossings; a bridge costs 🧱🧱🪵, earns 3 gold, 3 each; river roads earn 1',()=>{const x=setup(fresh('rivers')),g=x.g,B=x.B,p=g.ps[0],M=x.M(p);turn(g,p);const noRoad=g.site.every(e=>!cpEOk(g,p,e));
+      const e=g.site[0],xe=B.E[e];g.b={};g.rd={};g.b[xe.a]=[p,0];Object.assign(M.r,{b:9,w:9,s:0,g:0,o:0});M.gold=0;const br=cpBuildBridge(g,p,e)&&M.gold===3&&g.rd[e]===p&&cpCount(g,p,'road')===0;
+      const re=B.V[xe.b].e.find(f=>f!==e&&cpEOk(g,p,f)&&cpRivE(g,f));const g0=M.gold;const rr=re==null||cpBuildRoad(g,p,re)&&M.gold===g0+1;return {ok:noRoad&&br&&rr,noRoad,br,rr}});
+    t('Rivers: 2 gold buys a resource (twice a turn); the bank pays gold at your rate; Wealthiest +1, Poor −2',()=>{const x=setup(fresh('rivers')),g=x.g,[p,q,r]=g.ps,M=x.M(p);turn(g,p);M.gold=6;const b=cpGoldBuy(g,p,'o')&&cpGoldBuy(g,p,'o')&&!cpGoldBuy(g,p,'o')&&M.gold===2;
+      M.r.w=4;const s=cpGoldSell(g,p,'w')&&M.gold===3;g.me[q].gold=1;g.me[r].gold=1;const w=cpWealth(g,p)===1&&cpWealth(g,q)===-2&&cpWealth(g,r)===-2;g.ps.forEach(z=>g.me[z].gold=2);const all=g.ps.every(z=>cpWealth(g,z)===-2);return {ok:b&&s&&w&&all,b,s,w,all}});
+    t('Rivers: bots finish 3 and 4 player games',()=>{const bad=[];for(const n of [3,4]){const {g}=fresh('rivers',n);act().forEach(p=>p.bot='normal');let i=0;while(g.phase!=='done'&&i++<30000){const q=act().find(p=>p.id===cpActor(g));cpBotStep(g,q)}if(g.phase!=='done')bad.push(n)}return {ok:!bad.length,bad}});
     return out});
   R.forEach(([n,g,x])=>ok(n,g,x));
   await P.close();P=await mk(browser,'tb2');P.on('pageerror',e=>errs.push(e.message));
