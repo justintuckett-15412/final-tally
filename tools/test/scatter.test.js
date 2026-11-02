@@ -1,0 +1,44 @@
+// Scattergories-style game: letters, answer checks, matches cancel, the extra-word bonus, challenges and votes, rounds, turn mode on one phone,
+// a round through the screen, two linked phones, and the score sheet.
+process.env.LAT=process.env.LAT||'120';process.env.JIT=process.env.JIT||'120';
+const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
+const start=async(P,o)=>P.evaluate(o=>{window.__htfast=1;SET.toursOff=true;switchGame('scatter');resetScores();Object.assign(SGX(),{play:1,mins:3,rounds:2,allit:1,hard:0},o.x||{});S.players.forEach((p,i)=>{p.on=i<o.n;p.name=['Ann','Bob','Cy','Di'][i];p.bot=(o.bots||[])[i]||null});save();const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove()},o);
+(async()=>{const browser=await chromium.launch();const errs=[];let P=await mk(browser,'sg');P.on('pageerror',e=>errs.push(e.message));
+  await start(P,{n:2});await W(800);
+  const R=await P.evaluate(()=>{const out=[];const t=(name,f)=>{try{const r=f();out.push([name,!!r.ok,r.ok?'':JSON.stringify(r)])}catch(e){out.push([name,false,e.message+' '+(e.stack||'').split('\n')[1]])}};const ids=act().map(p=>p.id);
+    t('Lists: 24 original lists of 12; the letter die has 20 letters (no Q U V X Y Z)',()=>({ok:SGLISTS.length>=20&&SGLISTS.every(l=>l.length===12)&&SGLET.length===20&&!SGLET.some(c=>'QUVXYZ'.includes(c))}));
+    t('Answers: must start with the letter; “a/an/the” skipped; bonus for each extra word with the letter',()=>({ok:sgStarts('The Pink Panther','P')&&!sgStarts('Apple','P')&&sgPts('Purple Penguin','P',1)===2&&sgPts('Purple Penguin','P',0)===1&&sgPts('Peter Piper Picked','P',1)===3&&sgPts('Pink lemonade','P',1)===1&&sgPts('a pear','P',1)===1}));
+    const g=sgG();sgRoll(g,ids[0]);g.L='P';g.list=0;
+    t('A round: matching answers cancel (ignoring case and plurals); same answer twice in your list counts once; wrong letter scores 0',()=>{const a=Array(12).fill('');a[0]='Pear';a[1]='Pan';a[2]='Peter';a[3]='Apple';a[4]='Pan';const b=Array(12).fill('');b[0]='pears';b[2]='Paul';
+      sgSubmit(g,ids[0],a);sgSubmit(g,ids[1],b);sgClose(g);const r=g.res[ids[0]];return {ok:r[0].st==='dup'&&r[1].st==='ok'&&r[2].st==='ok'&&r[3].st==='letter'&&r[4].st==='twice'&&sgRoundPts(g,ids[0])===2&&sgRoundPts(g,ids[1])===1,r:r.slice(0,5).map(x=>x.st)}});
+    t('Challenge: majority rejects an answer; a tie keeps it',()=>{sgChallenge(g,ids[1],'1:'+ids[0]);sgVote(g,ids[0],'1:'+ids[0],1);sgVote(g,ids[1],'1:'+ids[0],0);const tie=g.ov['1:'+ids[0]]===true;sgChallenge(g,ids[0],'2:'+ids[1]);sgVote(g,ids[0],'2:'+ids[1],0);sgVote(g,ids[1],'2:'+ids[1],0);return {ok:tie&&g.res[ids[1]][2].st==='out'&&sgRoundPts(g,ids[1])===0}});
+    t('Scoring writes the round; a new letter next round; the last round ends the game',()=>{const pts=sgRoundPts(g,ids[0]);const L1=g.L;sgNext(g,ids[0]);const a=g.phase==='ready'&&sgR(act()[0],0)===pts;sgRoll(g,ids[0]);const b=g.L!==L1&&g.list!==g.done[0].list;g.ps.forEach(p=>sgSubmit(g,p,[]));sgClose(g);sgNext(g,ids[0]);return {ok:a&&b&&g.phase==='done'}});
+    return out});
+  R.forEach(([n,g,x])=>ok(n,g,x));
+  await P.close();P=await mk(browser,'sg2');P.on('pageerror',e=>errs.push(e.message));await start(P,{n:1,x:{rounds:1}});await W(800);
+  await P.evaluate(()=>document.querySelector('[data-a="sgproll"]').click());await W(400);
+  const L=await P.evaluate(()=>S.sgg.L);await P.fill('[data-sga="0"]',L+'ineapple');await P.press('[data-sga="0"]','Enter');await P.keyboard.type(L+'urple '+L+'arrot');await W(200);
+  ok('From the screen: type answers; Enter jumps to the next box; kept on the phone',await P.evaluate(()=>{const a=sgLA(S.sgg,act()[0].id);return !!a[0]&&!!a[1]&&document.activeElement.dataset.sga==='1'}));
+  await P.evaluate(()=>{S.sgg.t0=Date.now()-S.sgg.dur*1000+1200});await W(3500);
+  ok('Time’s up: answers sent and checked, the bonus counted',await P.evaluate(()=>S.sgg.phase==='review'&&sgRoundPts(S.sgg,act()[0].id)===3&&!!document.querySelector('.sgans.ok')));
+  await P.evaluate(()=>document.querySelector('[data-a="sgpnext"]').click());await W(400);
+  ok('Game over with Finish & reveal',await P.evaluate(()=>S.sgg.phase==='done'&&!!document.querySelector('[data-a="finish"]')&&sgTot(act()[0])===3));
+  await P.close();P=await mk(browser,'sg3');P.on('pageerror',e=>errs.push(e.message));await start(P,{n:2,x:{rounds:1}});await W(800);
+  const seq=await P.evaluate(async()=>{document.querySelector('[data-a="sgproll"]').click();const g=S.sgg;if(!g.seq)return 'no turn mode';document.querySelectorAll('[data-a="sgpstart"]')[0].click();if(sgViewer().id!==act()[0].id)return 'viewer';sgLASet(g,act()[0].id,[g.L+'ig']);render();document.querySelector('[data-a="sgpdone"]').click();await new Promise(r=>setTimeout(r,300));
+    document.querySelectorAll('[data-a="sgpstart"]')[0].click();sgLASet(g,act()[1].id,[g.L+'IG']);render();document.querySelector('[data-a="sgpdone"]').click();await new Promise(r=>setTimeout(r,1500));return S.sgg.phase==='review'&&S.sgg.res[act()[0].id][0].st==='dup'?true:S.sgg.phase});
+  ok('One phone, two people: turns with the same list and letter; the same answer cancels',seq===true,seq);
+  const H=await mk(browser,'host'),G=await mk(browser,'guest');[H,G].forEach(p=>p.on('pageerror',e=>errs.push(e.message)));
+  const ids=await H.evaluate(()=>{window.__htfast=1;SET.toursOff=true;switchGame('scatter');resetScores();Object.assign(SGX(),{play:1,mins:3,rounds:2});const P=S.players;P.forEach((p,i)=>{p.on=i<2;p.name=['Justin','Kim'][i]||'';delete p.bot});save();const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove();return [P[0].id,P[1].id]});
+  await G.evaluate(()=>{window.__htfast=1;SET.toursOff=true});await H.evaluate(()=>lkHostStart());await W(3000);const code=await H.evaluate(()=>S.lk.code);
+  await H.evaluate(id=>lkPick(id),ids[0]);await G.evaluate(c=>lkJoin(c),code);await W(4000);await G.evaluate(id=>lkPick(id),ids[1]);await W(2500);await readyAll([H,G]);
+  await G.evaluate(()=>document.querySelector('[data-a="sgproll"]').click());await W(2500);
+  ok('Linked: the guest rolls; both phones show the same letter and list',await H.evaluate(()=>S.sgg.phase==='play'&&S.sgg.L+S.sgg.list)===await G.evaluate(()=>S.sgg.L+S.sgg.list));
+  await H.evaluate(()=>{const g=S.sgg;sgLASet(g,S.lk.me,[g.L+'ear',g.L+'izza']);render()});await G.evaluate(()=>{const g=S.sgg;sgLASet(g,S.lk.me,[g.L+'EARS',g.L+'otato '+g.L+'ie']);render()});
+  await G.evaluate(()=>document.querySelector('[data-a="sgpdone"]').click());await H.evaluate(()=>document.querySelector('[data-a="sgpdone"]').click());for(let i=0;i<40;i++){await W(250);if(await G.evaluate(()=>S.sgg.phase==='review'))break}
+  ok('Linked: both lists reach the host; the matching answer cancels; the bonus counts',await G.evaluate(()=>{const g=S.sgg,me=S.lk.me;return g.phase==='review'&&g.res[me][0].st==='dup'&&g.res[me][1].pts===2}));
+  await H.evaluate(()=>document.querySelector('[data-a="sgpnext"]').click());await W(1500);
+  ok('Linked: round scored on both phones',await G.evaluate(()=>S.sgg.phase==='ready'&&S.sgg.r===1&&act().every(p=>sgR(p,0)!==null)));
+  const SC=await mk(browser,'sheet');SC.on('pageerror',e=>errs.push(e.message));await SC.evaluate(()=>{SET.toursOff=true;switchGame('scatter');resetScores();SGX().play=0;SGX().rounds=3;S.players.forEach((p,i)=>{p.on=i<2;p.name=['A','B'][i]});save();const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove()});await W(600);
+  ok('Score sheet: points per round add up',await SC.evaluate(()=>{const I=document.querySelectorAll('[data-sgf]');const set=(el,v)=>{el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}))};set(I[0],'5');set(I[1],'7');set(I[3],'4');return I.length===6&&sgTot(act()[0])===12&&sgTot(act()[1])===4}));
+  ok('No page errors',!errs.length,errs.slice(0,3));
+  await done(browser)})();
