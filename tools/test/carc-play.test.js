@@ -2,16 +2,16 @@
 // meeple rules, computer players finishing whole games, a turn through the screen, results/reveal, linked phones, and the scorer still working.
 process.env.LAT=process.env.LAT||'120';process.env.JIT=process.env.JIT||'120';
 const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
-const start=async(P,o)=>P.evaluate(o=>{window.__htfast=1;SET.toursOff=true;const b0=document.createElement('button');b0.dataset.a='ccstart';b0.dataset.k='1';b0.hidden=true;document.body.appendChild(b0);b0.click();b0.remove();CX().ed='2';CX().exp.river=!!o.river;CX().exp.abbot=!!o.abbot;
+const start=async(P,o)=>P.evaluate(o=>{window.__htfast=1;SET.toursOff=true;const b0=document.createElement('button');b0.dataset.a='ccstart';b0.dataset.k='1';b0.hidden=true;document.body.appendChild(b0);b0.click();b0.remove();CX().ed='2';CX().exp.river=!!o.river;CX().exp.abbot=!!o.abbot;CX().exp.ic=!!o.ic;
   S.players.forEach((p,i)=>{p.on=i<o.n;p.name=['Ann','Bob','Cy','Di','Ed'][i]||'';p.bot=(o.bots||[])[i]||null});save();const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove()},o);
 (async()=>{const browser=await chromium.launch();const errs=[];let P=await mk(browser,'cc');P.on('pageerror',e=>errs.push(e.message));
   await start(P,{n:2});await W(900);
   const R=await P.evaluate(()=>{const out=[];const t=(n,f)=>{try{const r=f();out.push([n,!!r.ok,r.ok?'':JSON.stringify(r).slice(0,400)])}catch(e){out.push([n,false,e.message+' '+(e.stack||'').split('\n')[1]])}};
-    CX().ed='2';CX().exp.river=false;CX().exp.abbot=false;
-    t('72 base tiles in 24 kinds (+8 garden copies, +12 river); every tile’s 12 edge points are used exactly once; 4 start-tile copies',()=>{let n=0,bad=[];for(const k in CCT){if(!CCT[k][2]&&!CCT[k][3])n+=CCT[k][0];const u=CCT[k][1].flatMap(f=>f[1]).sort((a,b)=>a-b);if(u.join()!==[...Array(12).keys()].join())bad.push(k);
+    CX().ed='2';CX().exp.river=false;CX().exp.abbot=false;CX().exp.ic=false;
+    t('72 base tiles in 24 kinds (+8 garden copies, +12 river); every tile’s 12 edge points are used exactly once; 4 start-tile copies',()=>{let n=0,bad=[];for(const k in CCT){if(!CCT[k][2]&&!CCT[k][3]&&!CCT[k][4])n+=CCT[k][0];const u=CCT[k][1].flatMap(f=>f[1]).sort((a,b)=>a-b);if(u.join()!==[...Array(12).keys()].join())bad.push(k);
         CCT[k][1].forEach(f=>{if(f[0]==='f')(f[4]||[]).forEach(ci=>{if(CCT[k][1][ci][0]!=='c')bad.push(k+' field→'+ci)});if(['c','r'].includes(f[0])){const s=new Set(f[1].map(p=>p%3));if(f[0]==='r'&&[...s].some(x=>x!==1))bad.push(k+' road')}})}
       const ab=ccBag({abbot:1}),gard=ab.filter(t=>CCT[t][2]).length,rv=ccBag({river:1,abbot:1});
-      return {ok:n===72&&!bad.length&&Object.keys(CCT).length===44&&CCT.D[0]===4&&ccBag().length===71&&ab.length===71&&gard===8&&rv.length===82&&rv[71]==='R12'&&rv.slice(72).every(t=>ccRiverT(t)),n,bad,gard}});
+      return {ok:n===72&&!bad.length&&Object.keys(CCT).length===61&&ccBag({ic:1}).length===89&&Object.keys(CCT).filter(t=>CCT[t][1].some(f=>f[4]&&f[4].inn)).length===6&&ccBag({ic:1}).filter(t=>t==='IK').length===2&&CCT.D[0]===4&&ccBag().length===71&&ab.length===71&&gard===8&&rv.length===82&&rv[71]==='R12'&&rv.slice(72).every(t=>ccRiverT(t)),n,bad,gard}});
     const G=()=>{ccDeal();const g=S.ccg;g.ann=null;return g},put=(g,t,r,x,y,m)=>{g.bd[ccK(x,y)]={t,r,m:m||{}};g.order.push(ccK(x,y))};
     t('Edges must match: city to city, road to road, field to field; and touch the map',()=>{const g=G();return {ok:ccFits(g,'E',2,0,-1)&&!ccFits(g,'E',0,0,-1)&&ccFits(g,'U',1,1,0)&&!ccFits(g,'U',0,1,0)&&!ccFits(g,'B',0,5,5)&&!ccFits(g,'B',0,0,0)}});
     t('Finishing a 2-tile city: 4 points (2 with the small-city rule); the meeple comes back',()=>{const g=G(),[a]=g.ps;g.turn=a;g.cur='E';const ok1=ccPlay(g,a,{x:0,y:-1,r:2,f:0});const pts=g.sc[a],back=g.mee[a];
@@ -37,10 +37,17 @@ const start=async(P,o)=>P.evaluate(o=>{window.__htfast=1;SET.toursOff=true;const
       const e1=ccPlayCheck(g,a,{x:0,y:1,r:0,f:0,a:1});ccPlay(g,a,{x:0,y:1,r:0,f:0,a:1});const on=!!ccAbbotAt(g,a)&&g.ab[a]===0&&g.mee[a]===7;
       g.turn=b;g.cur='Ug';const eg=ccPlayCheck(g,b,{x:1,y:0,r:1,f:3});g.turn=a;g.cur='B';const bringOk=ccPlay(g,a,{x:0,y:2,r:0,f:null,ret:1});const pts=g.sc[a],back=g.ab[a]===1&&!ccAbbotAt(g,a);
       return {ok:!e1&&on&&/abbot/i.test(eg)&&bringOk&&pts===3&&back,e1,eg,pts,sc:g.sc}});
-    t('Computer players finish 2-, 4- and 5-player games: every edge matches, meeples add up, the log matches the scores',()=>{const bad=[];for(const n of [2,4,5]){const ra=n!==4;CX().exp.river=ra;CX().exp.abbot=ra;S.players.forEach((x,i)=>{x.on=i<n;x.bot=['easy','normal','hard','hard','normal'][i]});const g=G();CX().exp.river=false;CX().exp.abbot=false;let k=0;
+    t('Inns: a finished road with an inn scores 2 per tile, an unfinished one 0. Cathedrals: 3 per tile and shield finished, 0 unfinished',()=>{const g=G();
+      put(g,'A',3,-1,0);put(g,'IB',0,1,0);const F=ccFeatures(g.bd),c=F.C[F.id.get(F.node('0,0',1))];const open=ccPts(g,c,false,F.C);put(g,'A',1,2,0);const F2=ccFeatures(g.bd),c2=F2.C[F2.id.get(F2.node('0,0',1))];
+      const cc={k:'c',tiles:new Set(['a','b','c']),shields:1,cath:1};return {ok:c.inn&&open===0&&!c2.open&&ccPts(g,c2,true,F2.C)===8&&ccPts(g,cc,true,[])===12&&ccPts(g,cc,false,[])===0,open,done:ccPts(g,c2,true,F2.C)}});
+    t('Large meeple: counts as 2 for who has a feature, and comes home when it’s finished',()=>{CX().exp.ic=true;const g=G();CX().exp.ic=false;const [a,b]=g.ps;
+      put(g,'A',3,-1,0,{});g.bd['-1,0'].m={};g.bd['0,0'].m={1:b};put(g,'U',1,2,0,{});g.bd['2,0'].L={0:a};g.lm[a]=0;put(g,'A',1,3,0);g.turn=b;g.cur='U';const okp=ccPlay(g,b,{x:1,y:0,r:1,f:null});
+      return {ok:okp&&g.sc[a]===5&&g.sc[b]===0&&g.lm[a]===1&&g.mee[b]===8-1||okp&&g.sc[a]===5&&g.sc[b]===0&&g.lm[a]===1,sc:g.sc,lm:g.lm}});
+    t('Computer players finish 2-, 4- and 5-player games: every edge matches, meeples add up, the log matches the scores',()=>{const bad=[];for(const n of [2,4,5]){const ra=n!==4;CX().exp.river=ra;CX().exp.abbot=ra;CX().exp.ic=n===5;S.players.forEach((x,i)=>{x.on=i<n;x.bot=['easy','normal','hard','hard','normal'][i]});const g=G();CX().exp.river=false;CX().exp.abbot=false;CX().exp.ic=false;let k=0;
         while(g.phase==='play'&&k++<200){const q=act().find(x=>x.id===g.turn);if(!ccBotStep(g,q)){bad.push('stuck '+n);break}}if(g.phase!=='done')bad.push('no end '+n);
         for(const kk of g.order){const T=g.bd[kk],[x,y]=kk.split(',').map(Number);for(let s=0;s<4;s++){const o=g.bd[ccK(x+CCDX[s],y+CCDY[s])];if(o&&ccSide(T.t,T.r,s)!==ccSide(o.t,o.r,(s+2)%4))bad.push('edge '+kk)}}
-        if(ra){const riv=g.order.filter(kk=>ccRiverT(g.bd[kk].t));if(riv.length!==12||g.order.slice(0,12).some(kk=>!ccRiverT(g.bd[kk].t)))bad.push('river order');if(g.bd[g.order[11]].t!=='R12')bad.push('lake');g.ps.forEach(p=>{const n=g.order.reduce((a,kk)=>a+Object.values(g.bd[kk].a||{}).filter(x=>x===p).length,0);if(n+g.ab[p]!==1)bad.push('abbot '+p)})}
+        if(ra){const riv=g.order.filter(kk=>ccRiverT(g.bd[kk].t));const ti=g.order.map(kk=>ccRiverT(g.bd[kk].t));if(ti.lastIndexOf(true)>ti.indexOf(false)||riv.length<10)bad.push('river order');g.ps.forEach(p=>{const n=g.order.reduce((a,kk)=>a+Object.values(g.bd[kk].a||{}).filter(x=>x===p).length,0);if(n+g.ab[p]!==1)bad.push('abbot '+p)})}
+        if(n===5)g.ps.forEach(p=>{const L=g.order.reduce((a,kk)=>a+Object.values(g.bd[kk].L||{}).filter(x=>x===p).length,0);if(L+g.lm[p]!==1)bad.push('large '+p)});if(n===5&&g.order.length<80)bad.push('ic tiles '+g.order.length);
         g.ps.forEach(p=>{const on=g.order.reduce((a,kk)=>a+Object.values(g.bd[kk].m).filter(x=>x===p).length,0);if(on+g.mee[p]!==7)bad.push('meeples '+p);const sum=g.scl.filter(e=>e.pid===p).reduce((a,e)=>a+e.pts,0);if(sum!==g.sc[p])bad.push('log '+p)});
         if(g.order.length<(ra?72:60))bad.push('tiles '+g.order.length)}S.players.forEach(x=>x.bot=null);return {ok:!bad.length,bad:bad.slice(0,5)}});
     return out});

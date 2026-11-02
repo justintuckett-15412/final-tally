@@ -1846,6 +1846,7 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 .cclookprev svg{width:100%;max-width:360px;display:block;margin:6px auto;border-radius:8px}
 .ccdot.ab{fill:#f2c230}
 .ccabt{display:inline-block;margin-left:5px;font-weight:900;color:var(--pc,#888);font-size:.85rem}.ccabt.out{opacity:.3}
+.cclmt{display:inline-block;width:9px;height:13px;margin-left:4px;border-radius:4px 4px 1px 1px;background:var(--pc,#888);vertical-align:-1px}.cclmt.out{opacity:.3}
 </style>
 
 <div id="app"></div>
@@ -3873,7 +3874,7 @@ const cPart=(id,part)=>cOn(id)&&!(CX().off[id]||{})[part];
 const cSmall=()=>CX().small??CED[CX().ed].small;
 const cFarm=()=>CX().farm??CED[CX().ed].farm;
 function CM(){const n=CEXP.filter(e=>cOn(e.id)).length;
-  return {name:'Carcassonne',meta:`${CED[CX().ed].name}${n?` · ${n} expansion${n===1?'':'s'}`:''}`,min:ccOn()?1:2,max:ccOn()?5:8,colors:CARC_COLORS,lengths:[],pieces:0,piece:'Meeples',own:[],defaults:[],teams:false,tb:[]}}
+  return {name:'Carcassonne',meta:`${CED[CX().ed].name}${n?` · ${n} expansion${n===1?'':'s'}`:''}`,min:ccOn()?1:2,max:ccOn()?(cOn('ic')?6:5):8,colors:CARC_COLORS,lengths:[],pieces:0,piece:'Meeples',own:[],defaults:[],teams:false,tb:[]}}
 
 /* ---------- totals ---------- */
 const cLogPts=(p,f)=>(S.clog||[]).filter(e=>e.pid===p.id&&(!f||f(e))).reduce((a,e)=>a+e.pts,0);
@@ -10590,10 +10591,28 @@ const CCT={
   R10:[1,[['w',[4,7],63,63],['f',[5,6],86,86,[]],['f',[8,9,10,11,0,1,2,3],48,44,[]],['g',[],26,26]],'',1],
   R11:[1,[['w',[1,7],50,30],['r',[10],14,50,{to:[74,50]}],['c',[3,4,5],87,50],['f',[11,0],22,22,[]],['f',[8,9],22,78,[]],['f',[2],70,14,[2]],['f',[6],70,86,[2]]],'',1],
   R12:[1,[['w',[10],48,50,{lake:1}],['f',[0,1,2,3,4,5,6,7,8,9,11],80,80,[]]],'',1],
+  /* Inns & Cathedrals: {inn:1} road with an inn, {cath:1} city with a cathedral, {innAt:[x,y]} where the inn is drawn; x = a short road stub that only splits fields */
+  IA:[1,[['r',[10,7],37,63,{inn:1,innAt:[62,32]}],['f',[8,9],14,86,[]],['f',[11,0,1,2,3,4,5,6],80,62,[]]],'',0,'ic'],
+  IB:[1,[['r',[10,4],72,50,{inn:1,innAt:[46,28]}],['f',[11,0,1,2,3],18,22,[]],['f',[5,6,7,8,9],24,78,[]],['g',[],62,78]],'',0,'ic'],
+  IC:[1,[['r',[10],16,50,{inn:1,innAt:[60,24]}],['r',[4],84,50,{inn:1}],['r',[7],50,84],['f',[11,0,1,2,3],24,24,[]],['f',[8,9],18,82,[]],['f',[5,6],82,82,[]]],'',0,'ic'],
+  ID:[1,[['m',[],50,46],['r',[10],12,56],['r',[4],88,56],['f',[11,0,1,2,3],20,16,[]],['f',[5,6,7,8,9],50,86,[]]],'',0,'ic'],
+  IE:[1,[['r',[1,10],37,37],['r',[4,7],63,63],['f',[11,0],14,14,[]],['f',[2,3,8,9],50,50,[]],['f',[5,6],86,86,[]]],'',0,'ic'],
+  IF:[1,[['c',[0,1,2,9,10,11],24,24],['r',[4],78,50,{to:[44,50]}],['f',[3],86,28,[0]],['f',[5,6,7,8],64,80,[0]]],'',0,'ic'],
+  IG:[1,[['c',[0,1,2,9,10,11],24,24],['f',[3,4,5,6,7,8],72,72,[0]]],'',0,'ic'],
+  IH:[1,[['c',[0,1,2],50,13],['c',[3,4,5],87,50],['c',[6,7,8],50,87],['c',[9,10,11],13,50],['f',[],36,38,[0,1,2,3]],['g',[],60,60]],'',0,'ic'],
+  II:[1,[['c',[0,1,2],50,13],['c',[6,7,8],50,87],['r',[10],16,50],['r',[4],84,50],['x',[],0,0,{d:'M50,26 L50,50 L50,74'}],['f',[11],20,33,[0]],['f',[3],80,33,[0]],['f',[9],20,67,[1]],['f',[5],80,67,[1]]],'',0,'ic'],
+  IJ:[1,[['c',[0,1,2],50,13],['r',[7],50,80,{to:[50,24]}],['f',[8,9,10,11],22,60,[0]],['f',[3,4,5,6],78,60,[0]]],'',0,'ic'],
+  IK:[2,[['c',[0,1,2,3,4,5,6,7,8,9,10,11],50,72,{cath:1}]],'',0,'ic'],
+  IL:[1,[['c',[0,1,2,9,10,11],22,22,{s:1}],['r',[4,7],64,64,{inn:1,innAt:[84,84]}],['f',[5,6],90,72,[]],['f',[3,8],80,30,[0]]],'',0,'ic'],
+  IN:[1,[['c',[0,1,2,9,10,11],26,26],['r',[7],50,84,{to:[50,46],inn:1,innAt:[78,78]}],['f',[8],18,88,[0]],['f',[3,4,5,6],80,52,[0]]],'',0,'ic'],
+  IM:[1,[['c',[0,1,2],50,13],['r',[10,7],37,63,{inn:1,innAt:[72,64]}],['f',[8,9],14,86,[]],['f',[3,4,5,6,11],78,38,[0]]],'',0,'ic'],
+  IO:[1,[['c',[0,1,2],50,13],['c',[3,4,5],87,50],['c',[9,10,11],13,50],['f',[6,7,8],50,68,[0,1,2]]],'',0,'ic'],
+  IP:[1,[['c',[9,10,11],13,50],['c',[3,4,5],84,50,{s:1}],['f',[0,1,2,6,7,8],45,50,[0,1]]],'',0,'ic'],
+  IQ:[1,[['c',[3,4,5,6,7,8,9,10,11],50,66,{s:1}],['r',[1],50,16,{to:[50,30]}],['f',[0],16,10,[0]],['f',[2],84,10,[0]]],'',0,'ic'],
   X:[1,[['r',[1],50,16],['r',[4],84,50],['r',[7],50,84],['r',[10],16,50],['f',[2,3],82,18,[]],['f',[5,6],82,82,[]],['f',[8,9],18,82,[]],['f',[11,0],18,18,[]]]]};
 const CCSTART='D',CCMEEPLES=7,CCDX=[0,1,0,-1],CCDY=[-1,0,1,0];
 const CCNAME={c:'city',r:'road',f:'field',m:'monastery',g:'garden',w:'river'};
-const ccRiverT=t=>!!CCT[t][3],ccBaseOf=t=>CCT[t][2]||t;
+const ccRiverT=t=>!!CCT[t][3],ccBaseOf=t=>CCT[t][2]||t,ccExpT=t=>CCT[t][4]||'';
 const ccRotP=(p,r)=>(p+3*r)%12;
 const ccRotA=(x,y,r)=>{for(let i=0;i<r;i++)[x,y]=[100-y,x];return [x,y]};
 /* side s of a placed tile: its kind (c/r/f) */
@@ -10606,23 +10625,28 @@ const ccG=()=>S.ccg||null;
 const ccRes=()=>!S.lk||S.demo||lkHost();
 const ccStale=g=>{const ids=act().map(p=>p.id);return !g.ps||g.ps.length!==ids.length||g.ps.some(id=>!ids.includes(id))};
 /* which tiles are in the game: base (with garden copies when the Abbot is in), and the River in front */
-function ccBag(o={}){const b=[];for(const t in CCT){if(ccRiverT(t))continue;const base=ccBaseOf(t);if(CCT[t][2]&&!o.abbot)continue;let n=CCT[t][0]-(t===CCSTART?1:0);
+function ccBag(o={}){const b=[];for(const t in CCT){if(ccRiverT(t))continue;if(ccExpT(t)&&!o[ccExpT(t)])continue;const base=ccBaseOf(t);if(CCT[t][2]&&!o.abbot)continue;let n=CCT[t][0]-(t===CCSTART?1:0);
     if(!CCT[t][2]&&o.abbot&&CCT[t+'g'])n-=CCT[t+'g'][0];for(let i=0;i<n;i++)b.push(t)}
   const bag=wtShuf(b);if(o.river){const R=wtShuf(['R2','R3','R4','R5','R6','R7','R8','R9','R10','R11']);return [...bag,'R12',...R]}return bag}
 function ccDeal(){const P=act(),ps=P.map(p=>p.id);/* the youngest goes first: seats are in table order */
-  const river=cOn('river')?1:0,abbot=cOn('abbot')?1:0,st=river?'R1':CCSTART;
-  const g={_atom:1,id:String(Math.random()).slice(2,10),ps,turn:ps[0],phase:'play',bd:{[ccK(0,0)]:{t:st,r:0,m:{}}},order:[ccK(0,0)],bag:ccBag({river,abbot}),cur:null,mee:{},ab:{},sc:{},scl:[],last:null,lg:[],n:0,tno:0,small:cSmall()?1:0,farm:cFarm()==='classic'?'classic':'field',stat:{},river,abbot,rv:river?{k:ccK(0,0),out:ccWaterSides(st,0)[0],turn:0}:null};
-  ps.forEach(p=>{g.mee[p]=CCMEEPLES;g.ab[p]=abbot?1:0;g.sc[p]=0;g.stat[p]={best:0,bestW:'',tiles:0,feats:0}});ccDrawNext(g);S.ccg=g;CCPEND=null;
-  gAnn(g,'Carcassonne',`${P.length} players. ${nmid(ps[0])} goes first.`,'🏰');gLog(g,`Carcassonne: ${g.bag.length+1} tiles in the stack${river?', the River first':''}${abbot?', with the Abbot':''}`,'🏰')}
+  const river=cOn('river')?1:0,abbot=cOn('abbot')?1:0,ic=cOn('ic')?1:0,st=river?'R1':CCSTART;
+  const g={_atom:1,id:String(Math.random()).slice(2,10),ps,turn:ps[0],phase:'play',bd:{[ccK(0,0)]:{t:st,r:0,m:{}}},order:[ccK(0,0)],bag:ccBag({river,abbot,ic}),cur:null,mee:{},ab:{},lm:{},ic,sc:{},scl:[],last:null,lg:[],n:0,tno:0,small:cSmall()?1:0,farm:cFarm()==='classic'?'classic':'field',stat:{},river,abbot,rv:river?{k:ccK(0,0),out:ccWaterSides(st,0)[0],turn:0}:null};
+  ps.forEach(p=>{g.mee[p]=CCMEEPLES;g.ab[p]=abbot?1:0;g.lm[p]=ic?1:0;g.sc[p]=0;g.stat[p]={best:0,bestW:'',tiles:0,feats:0}});ccDrawNext(g);S.ccg=g;CCPEND=null;
+  gAnn(g,'Carcassonne',`${P.length} players. ${nmid(ps[0])} goes first.`,'🏰');gLog(g,`Carcassonne: ${g.bag.length+1} tiles in the stack${river?', the River first':''}${abbot?', with the Abbot':''}${ic?', with Inns & Cathedrals':''}`,'🏰')}
 /* draw the next tile; one that fits nowhere is set aside and another is drawn */
-function ccDrawNext(g){g.cur=null;while(g.bag.length){const t=g.bag.pop();if(ccSpots(g,t).length){g.cur=t;return true}gLog(g,'A tile that fits nowhere is set aside','♻️')}return false}
+function ccDrawNext(g){g.cur=null;let tries=0;while(g.bag.length){const t=g.bag.pop();if(ccSpots(g,t).length){g.cur=t;return true}
+    /* a river tile that can't go on yet waits under the next river tile */
+    if(ccRiverT(t)&&t!=='R12'&&tries++<12&&g.bag.length&&ccRiverT(g.bag[g.bag.length-1])&&g.bag[g.bag.length-1]!=='R12'){g.bag.splice(g.bag.length-1,0,t);continue}
+    gLog(g,'A tile that fits nowhere is set aside','♻️')}return false}
 /* every legal spot for tile t: [{x,y,r}] */
 function ccSpots(g,t,loose){if(ccRiverT(t)&&!loose){const L=ccSpots(g,t,true).filter(s=>ccFits(g,t,s.r,s.x,s.y));if(L.length)return L}const out=[],seen=new Set();for(const k of g.order){const [x,y]=k.split(',').map(Number);for(let s=0;s<4;s++){const nx=x+CCDX[s],ny=y+CCDY[s],nk=ccK(nx,ny);if(g.bd[nk]||seen.has(nk))continue;seen.add(nk);
   for(let r=0;r<4;r++)if(ccFits(g,t,r,nx,ny,loose))out.push({x:nx,y:ny,r})}}return out}
 function ccFits(g,t,r,x,y,loose){if(g.bd[ccK(x,y)])return false;let any=false;for(let s=0;s<4;s++){const o=g.bd[ccK(x+CCDX[s],y+CCDY[s])];if(!o)continue;any=true;if(ccSide(t,r,s)!==ccSide(o.t,o.r,(s+2)%4))return false}if(!any)return false;
   /* a river tile carries on from the open end of the river, and can't turn the same way twice in a row */
   if(ccRiverT(t)&&g.rv){const [ex,ey]=g.rv.k.split(',').map(Number);if(x!==ex+CCDX[g.rv.out]||y!==ey+CCDY[g.rv.out])return false;const ent=(g.rv.out+2)%4;if(ccSide(t,r,ent)!=='w')return false;
-    const out=ccWaterSides(t,r).find(s=>s!==ent);if(out!=null){const tn=ccTurn(g.rv.out,out);if(!loose&&tn&&tn===g.rv.turn)return false;/* never run back into the map */if(g.bd[ccK(x+CCDX[out],y+CCDY[out])])return false}}
+    const out=ccWaterSides(t,r).find(s=>s!==ent);if(out!=null){const tn=ccTurn(g.rv.out,out);if(!loose&&tn&&tn===g.rv.turn)return false;/* never run back into the map */const ox=x+CCDX[out],oy=y+CCDY[out];if(g.bd[ccK(ox,oy)])return false;
+      /* and keep the next square open: anything already beside it must show it a field */
+      if(!loose)for(let s2=0;s2<4;s2++){const nx=ox+CCDX[s2],ny=oy+CCDY[s2];if(nx===x&&ny===y)continue;const o=g.bd[ccK(nx,ny)];if(o&&ccSide(o.t,o.r,(s2+2)%4)!=='f')return false}}}
   return true}
 /* heading h (the side the water left by) and the next exit: 0 straight, 1 right, -1 left */
 const ccTurn=(h,out)=>out===h?0:out===(h+1)%4?1:-1;
@@ -10632,11 +10656,11 @@ function ccFeatures(bd){const id=new Map(),C=[],node=(k,i)=>k+'#'+i;
   const portOf=(k,p)=>{const T=bd[k],pp=((p-3*T.r)%12+12)%12;return CCT[T.t][1].findIndex(f=>f[1].includes(pp))};
   for(const k in bd){const T=bd[k],F=CCT[T.t][1];F.forEach((f,i)=>{const nk=node(k,i);if(id.has(nk))return;const comp={k:f[0],nodes:[],tiles:new Set(),open:false,shields:0,men:{},cityN:new Set()};const cid=C.length;C.push(comp);
     if(f[0]==='m'||f[0]==='g'){id.set(nk,cid);comp.nodes.push(nk);comp.tiles.add(k);comp.mk=k;return}
-    const st=[[k,i]];id.set(nk,cid);while(st.length){const [kk,ii]=st.pop();comp.nodes.push(node(kk,ii));comp.tiles.add(kk);const TT=bd[kk],FF=CCT[TT.t][1][ii];if(FF[4]&&FF[4].s)comp.shields++;
+    const st=[[k,i]];id.set(nk,cid);while(st.length){const [kk,ii]=st.pop();comp.nodes.push(node(kk,ii));comp.tiles.add(kk);const TT=bd[kk],FF=CCT[TT.t][1][ii];if(FF[4]&&FF[4].s)comp.shields++;if(FF[4]&&FF[4].inn)comp.inn=1;if(FF[4]&&FF[4].cath)comp.cath=1;
       const [x,y]=kk.split(',').map(Number);for(const p0 of FF[1]){const p=ccRotP(p0,TT.r),s=Math.floor(p/3),j=p%3,ok=ccK(x+CCDX[s],y+CCDY[s]),O=bd[ok];
         if(!O){if(f[0]==='c'||f[0]==='r')comp.open=true;continue}const q=((s+2)%4)*3+(2-j),oi=portOf(ok,q);if(oi<0)continue;const on=node(ok,oi);if(!id.has(on)){id.set(on,cid);st.push([ok,oi])}}}})}
   /* meeples, and which cities each field touches */
-  for(const k in bd){const T=bd[k];for(const i in T.m){const c=C[id.get(node(k,+i))];const pid=T.m[i];c.men[pid]=(c.men[pid]||0)+1}for(const i in (T.a||{})){const c=C[id.get(node(k,+i))];const pid=T.a[i];c.men[pid]=(c.men[pid]||0)+1;c.abbot=pid}
+  for(const k in bd){const T=bd[k];for(const i in T.m){const c=C[id.get(node(k,+i))];const pid=T.m[i];c.men[pid]=(c.men[pid]||0)+1}for(const i in (T.a||{})){const c=C[id.get(node(k,+i))];const pid=T.a[i];c.men[pid]=(c.men[pid]||0)+1;c.abbot=pid}for(const i in (T.L||{})){const c=C[id.get(node(k,+i))];const pid=T.L[i];c.men[pid]=(c.men[pid]||0)+2}
     CCT[T.t][1].forEach((f,i)=>{if(f[0]!=='f')return;const c=C[id.get(node(k,i))];(f[4]||[]).forEach(ci=>c.cityN.add(id.get(node(k,ci))))})}
   /* monasteries: closed when all 8 neighbours are there */
   C.forEach(c=>{if(c.k!=='m'&&c.k!=='g')return;const [x,y]=c.mk.split(',').map(Number);let n=0;for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)if((dx||dy)&&bd[ccK(x+dx,y+dy)])n++;c.around=n;c.open=n<8});
@@ -10644,11 +10668,11 @@ function ccFeatures(bd){const id=new Map(),C=[],node=(k,i)=>k+'#'+i;
 const ccCat=k=>k==='r'?'road':k==='c'?'city':k==='f'?'field':'mon';
 const ccOwners=c=>{const m=Math.max(0,...Object.values(c.men));return m?Object.keys(c.men).filter(p=>c.men[p]===m):[]};
 /* points for a feature: done = finished during the game */
-function ccPts(g,c,done,C){if(c.k==='w')return 0;if(c.k==='r')return c.tiles.size;if(c.k==='m'||c.k==='g')return done?9:1+c.around;
-  if(c.k==='c'){const n=c.tiles.size;if(done)return g.small&&n===2?2:2*n+2*c.shields;return n+c.shields}
+function ccPts(g,c,done,C){if(c.k==='w'||c.k==='x')return 0;if(c.k==='r')return c.inn?(done?2*c.tiles.size:0):c.tiles.size;if(c.k==='m'||c.k==='g')return done?9:1+c.around;
+  if(c.k==='c'){const n=c.tiles.size;if(c.cath)return done?3*n+3*c.shields:0;if(done)return g.small&&n===2?2:2*n+2*c.shields;return n+c.shields}
   if(c.k==='f')return 3*[...c.cityN].filter(ci=>!C[ci].open).length;return 0}
 /* can a meeple go on feature i of the tile just placed? */
-function ccFree(g,bd,k,i){const f=CCT[bd[k].t][1][i];if(f[0]==='w'||f[0]==='g')return false;const F=ccFeatures(bd),c=F.C[F.id.get(F.node(k,i))];return !Object.keys(c.men).length}
+function ccFree(g,bd,k,i){const f=CCT[bd[k].t][1][i];if(f[0]==='w'||f[0]==='g'||f[0]==='x')return false;const F=ccFeatures(bd),c=F.C[F.id.get(F.node(k,i))];return !Object.keys(c.men).length}
 /* the abbot goes only on the monastery or garden of the tile just placed */
 const ccAbbotOk=(g,t,i)=>{const f=CCT[t][1][i];return !!f&&(f[0]==='m'||f[0]==='g')};
 /* where a player's abbot is now: {k, i} */
@@ -10656,27 +10680,27 @@ function ccAbbotAt(g,pid){for(const k of g.order){const a=g.bd[k].a||{};for(cons
 function ccPlayCheck(g,pid,mv){if(g.phase!=='play'||g.turn!==pid||!g.cur||!mv)return 'Not your turn.';const x=+mv.x,y=+mv.y,r=((+mv.r%4)+4)%4;if(!ccFits(g,g.cur,r,x,y))return 'The tile doesn’t fit there.';
   if(mv.f!=null&&mv.f!==''){const f=+mv.f;if(!(f>=0&&f<CCT[g.cur][1].length))return 'No such spot.';if(mv.ret)return 'Bring your abbot home, or place a figure, not both.';
     if(mv.a){if(!g.abbot||!g.ab[pid])return 'Your abbot isn’t in your supply.';if(!ccAbbotOk(g,g.cur,f))return 'The abbot goes on a monastery or a garden.';return null}
-    if(g.mee[pid]<1)return 'No meeples left.';const bd={...g.bd,[ccK(x,y)]:{t:g.cur,r,m:{}}};if(!ccFree(g,bd,ccK(x,y),f))return CCT[g.cur][1][f][0]==='g'?'Only an abbot can go in a garden.':'Someone already has that '+CCNAME[CCT[g.cur][1][f][0]]+'.'}
+    if(mv.L){if(!g.ic||!g.lm[pid])return 'Your large meeple isn’t in your supply.'}else if(g.mee[pid]<1)return 'No meeples left.';const bd={...g.bd,[ccK(x,y)]:{t:g.cur,r,m:{}}};if(!ccFree(g,bd,ccK(x,y),f))return CCT[g.cur][1][f][0]==='g'?'Only an abbot can go in a garden.':'Someone already has that '+CCNAME[CCT[g.cur][1][f][0]]+'.'}
   if(mv.ret&&!ccAbbotAt(g,pid))return 'Your abbot isn’t on the map.';return null}
 /* play a turn: place the tile (and maybe a meeple), score what was finished, draw for the next player */
 function ccPlay(g,pid,mv){if(ccPlayCheck(g,pid,mv))return false;const x=+mv.x,y=+mv.y,r=((+mv.r%4)+4)%4,k=ccK(x,y),f=mv.f==null||mv.f===''?null:+mv.f;
-  const placedRiver=ccRiverT(g.cur),cur=g.cur;g.bd[k]={t:g.cur,r,m:{}};g.order.push(k);if(f!=null){if(mv.a){g.bd[k].a={[f]:pid};g.ab[pid]=0}else{g.bd[k].m[f]=pid;g.mee[pid]--}}g.stat[pid].tiles++;
+  const placedRiver=ccRiverT(g.cur),cur=g.cur;g.bd[k]={t:g.cur,r,m:{}};g.order.push(k);if(f!=null){if(mv.a){g.bd[k].a={[f]:pid};g.ab[pid]=0}else if(mv.L){g.bd[k].L={[f]:pid};g.lm[pid]=0}else{g.bd[k].m[f]=pid;g.mee[pid]--}}g.stat[pid].tiles++;
   if(placedRiver&&g.rv){const ent=(g.rv.out+2)%4,out=ccWaterSides(cur,r).find(s=>s!==ent);g.rv=out==null?{k,out:null,turn:0,done:1}:{k,out,turn:ccTurn(g.rv.out,out)}}
   const home=[];if(mv.ret){const A=ccAbbotAt(g,pid),F0=ccFeatures(g.bd),c=F0.C[F0.id.get(F0.node(A.k,A.i))],pts=ccPts(g,c,false,F0.C);delete g.bd[A.k].a[A.i];g.ab[pid]=1;g.sc[pid]+=pts;g.scl.push({pid,pts,cat:'mon',fin:false});home.push(`${nmid(pid)} brings the abbot home +${pts}`)}
   const F=ccFeatures(g.bd),done=[],seen=new Set();
   /* finished features touching the new tile (and monasteries around it) */
   const cands=new Set();CCT[g.cur][1].forEach((ff,i)=>cands.add(F.id.get(F.node(k,i))));for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){const kk=ccK(x+dx,y+dy),T=g.bd[kk];if(!T)continue;CCT[T.t][1].forEach((ff,i)=>{if(ff[0]==='m')cands.add(F.id.get(F.node(kk,i)))})}
-  const got=home;cands.forEach(ci=>{const c=F.C[ci];if(c.k==='f'||c.k==='w'||c.open||seen.has(ci))return;seen.add(ci);const own=ccOwners(c),pts=ccPts(g,c,true,F.C);
+  const got=home;cands.forEach(ci=>{const c=F.C[ci];if(c.k==='f'||c.k==='w'||c.k==='x'||c.open||seen.has(ci))return;seen.add(ci);const own=ccOwners(c),pts=ccPts(g,c,true,F.C);
     own.forEach(p=>{g.sc[p]+=pts;g.scl.push({pid:p,pts,cat:ccCat(c.k),fin:false});const St=g.stat[p];St.feats++;if(pts>St.best){St.best=pts;St.bestW=CCNAME[c.k]}});
     if(own.length)got.push(`${own.map(nmid).join(' & ')} +${pts} (${CCNAME[c.k]})`);
     /* meeples come home */
-    c.nodes.forEach(nk=>{const [kk,ii]=nk.split('#');const T=g.bd[kk];if(T.m[ii]!=null){g.mee[T.m[ii]]++;delete T.m[ii]}if(T.a&&T.a[ii]!=null){g.ab[T.a[ii]]=1;delete T.a[ii]}})});
-  g.last={p:pid,k,f,got};g.tno++;g.n++;gLog(g,`${nmid(pid)} places a ${placedRiver?'river ':''}tile${f!=null?(mv.a?' and the abbot on the ':' and a meeple on the ')+CCNAME[CCT[cur][1][f][0]]:''}${got.length?': '+got.join(', '):''}`,'🧩');
+    c.nodes.forEach(nk=>{const [kk,ii]=nk.split('#');const T=g.bd[kk];if(T.m[ii]!=null){g.mee[T.m[ii]]++;delete T.m[ii]}if(T.a&&T.a[ii]!=null){g.ab[T.a[ii]]=1;delete T.a[ii]}if(T.L&&T.L[ii]!=null){g.lm[T.L[ii]]=1;delete T.L[ii]}})});
+  g.last={p:pid,k,f,got};g.tno++;g.n++;gLog(g,`${nmid(pid)} places a ${placedRiver?'river ':''}tile${f!=null?(mv.a?' and the abbot on the ':mv.L?' and the large meeple on the ':' and a meeple on the ')+CCNAME[CCT[cur][1][f][0]]:''}${got.length?': '+got.join(', '):''}`,'🧩');
   if(got.length)gAnn(g,'Finished!',got.join(' · '),'🏰');
   const i=g.ps.indexOf(pid);g.turn=g.ps[(i+1)%g.ps.length];if(!ccDrawNext(g))ccEnd(g);return true}
 /* end of the game: unfinished roads, cities and monasteries, then fields */
 function ccEnd(g){g.phase='done';g.cur=null;const F=ccFeatures(g.bd),fin=[];
-  F.C.forEach(c=>{if(c.k==='f'||c.k==='w'||!c.open)return;const own=ccOwners(c);if(!own.length)return;const pts=ccPts(g,c,false,F.C);own.forEach(p=>{g.sc[p]+=pts;g.scl.push({pid:p,pts,cat:ccCat(c.k),fin:true})})});
+  F.C.forEach(c=>{if(c.k==='f'||c.k==='w'||c.k==='x'||!c.open)return;const own=ccOwners(c);if(!own.length)return;const pts=ccPts(g,c,false,F.C);own.forEach(p=>{g.sc[p]+=pts;g.scl.push({pid:p,pts,cat:ccCat(c.k),fin:true})})});
   if(g.farm==='classic'){/* each finished city goes to whoever has the most farmers in the fields touching it: 4 points */
     F.C.forEach((c,ci)=>{if(c.k!=='c'||c.open)return;const men={};F.C.forEach(f=>{if(f.k!=='f'||!f.cityN.has(ci))return;for(const p in f.men)men[p]=Math.max(men[p]||0,0)+f.men[p]});const m=Math.max(0,...Object.values(men));if(!m)return;Object.keys(men).filter(p=>men[p]===m).forEach(p=>{g.sc[p]+=4;g.scl.push({pid:p,pts:4,cat:'field',fin:true})})})}
   else F.C.forEach(c=>{if(c.k!=='f')return;const own=ccOwners(c),pts=ccPts(g,c,false,F.C);if(!pts)return;own.forEach(p=>{g.sc[p]+=pts;g.scl.push({pid:p,pts,cat:'field',fin:true})})});
@@ -10687,19 +10711,19 @@ function ccSyncLog(g){if(!g||!Array.isArray(g.scl))return false;const L=S.clog||
 
 /* ---------- computer players ---------- */
 /* value of the board for each player: points banked, plus what their meeples would score now (a little less, since it isn't banked) */
-function ccEval(g,bd,mee,ab){const F=ccFeatures(bd),v={};g.ps.forEach(p=>v[p]=g.sc[p]+mee[p]*1.5+((ab||g.ab||{})[p]?2:0));
+function ccEval(g,bd,mee,ab,lm){const F=ccFeatures(bd),v={};g.ps.forEach(p=>v[p]=g.sc[p]+mee[p]*1.5+((ab||g.ab||{})[p]?2:0)+((lm||g.lm||{})[p]?3:0));
   F.C.forEach(c=>{const own=ccOwners(c);if(!own.length)return;let pts=ccPts(g,c,!c.open,F.C),w=c.open?(c.k==='f'?.75:c.k==='m'?.85:.7):1;
-    if(c.k==='c'&&c.open)pts=pts*1.6;if((c.k==='m'||c.k==='g')&&c.open)pts=1+c.around+(8-c.around)*.6;own.forEach(p=>v[p]+=pts*w)});return v}
+    if(c.k==='c'&&c.open)pts=c.cath?c.tiles.size*1.8:pts*1.6;if(c.k==='r'&&c.open&&c.inn)pts=c.tiles.size*1.1;if((c.k==='m'||c.k==='g')&&c.open)pts=1+c.around+(8-c.around)*.6;own.forEach(p=>v[p]+=pts*w)});return v}
 function ccBotMove(g,lv){const pid=g.turn,t=g.cur;if(!t)return null;const spots=ccSpots(g,t),M=[];const late=g.bag.length<12;
   const A=g.abbot?ccAbbotAt(g,pid):null;
-  for(const s of spots){const k=ccK(s.x,s.y),bd={...g.bd,[k]:{t,r:s.r,m:{}}},F=ccFeatures(bd);const opts=[null];if(g.mee[pid]>0)CCT[t][1].forEach((f,i)=>{if(f[0]==='w'||f[0]==='g')return;const c=F.C[F.id.get(F.node(k,i))];if(!Object.keys(c.men).length&&!(f[0]==='f'&&(lv==='easy'||g.bag.length>55&&g.mee[pid]<4)))opts.push(i)});
+  for(const s of spots){const k=ccK(s.x,s.y),bd={...g.bd,[k]:{t,r:s.r,m:{}}},F=ccFeatures(bd);const opts=[null];CCT[t][1].forEach((f,i)=>{if(f[0]==='w'||f[0]==='g'||f[0]==='x')return;const c=F.C[F.id.get(F.node(k,i))];if(Object.keys(c.men).length)return;if(g.mee[pid]>0&&!(f[0]==='f'&&(lv==='easy'||g.bag.length>55&&g.mee[pid]<4)))opts.push(i);if(g.ic&&g.lm[pid]&&lv!=='easy'&&f[0]!=='f')opts.push('L'+i)});
     if(g.abbot&&g.ab[pid])CCT[t][1].forEach((f,i)=>{if(ccAbbotOk(g,t,i))opts.push('a'+i)});if(A&&lv!=='easy')opts.push('ret');
-    for(const o of opts){const isA=typeof o==='string'&&o[0]==='a',ret=o==='ret',f=isA?+o.slice(1):ret?null:o;
-      const b2={...bd,[k]:{t,r:s.r,m:f!=null&&!isA?{[f]:pid}:{},...(isA?{a:{[f]:pid}}:{})}},me={...g.mee},ab={...g.ab};if(f!=null&&!isA)me[pid]--;if(isA)ab[pid]=0;
+    for(const o of opts){const isA=typeof o==='string'&&o[0]==='a',isL=typeof o==='string'&&o[0]==='L',ret=o==='ret',f=isA||isL?+o.slice(1):ret?null:o;
+      const b2={...bd,[k]:{t,r:s.r,m:f!=null&&!isA&&!isL?{[f]:pid}:{},...(isA?{a:{[f]:pid}}:{}),...(isL?{L:{[f]:pid}}:{})}},me={...g.mee},ab={...g.ab},lm={...g.lm};if(f!=null&&!isA&&!isL)me[pid]--;if(isA)ab[pid]=0;if(isL)lm[pid]=0;
       let bonus=0;if(ret){const F0=ccFeatures(g.bd),c=F0.C[F0.id.get(F0.node(A.k,A.i))];bonus=ccPts(g,c,false,F0.C)-(1+c.around+(8-c.around)*.6)*.85+2+(g.bag.length<8?3:0);const T={...b2[A.k]};T.a={};b2[A.k]=T;ab[pid]=1}
       /* finished features give their meeples back */
       const F2=ccFeatures(b2);F2.C.forEach(c=>{if(c.k!=='f'&&!c.open)for(const p in c.men)me[p]+=c.men[p]});
-      const v=ccEval(g,b2,me,ab);const others=g.ps.filter(p=>p!==pid),best=others.length?Math.max(...others.map(p=>v[p])):0;M.push({mv:{x:s.x,y:s.y,r:s.r,f,...(isA?{a:1}:{}),...(ret?{ret:1}:{})},v:v[pid]-best*(lv==='hard'?1:.6)+(f!=null&&late?-1:0)+bonus})}}
+      const v=ccEval(g,b2,me,ab,lm);const others=g.ps.filter(p=>p!==pid),best=others.length?Math.max(...others.map(p=>v[p])):0;M.push({mv:{x:s.x,y:s.y,r:s.r,f,...(isA?{a:1}:{}),...(isL?{L:1}:{}),...(ret?{ret:1}:{})},v:v[pid]-best*(lv==='hard'?1:.6)+(f!=null&&late?-1:0)+bonus})}}
   if(!M.length)return null;M.sort((a,b)=>b.v-a.v);if(lv==='hard')return M[0].mv;if(lv==='normal')return M[Math.floor(Math.random()*Math.min(3,M.length))].mv;return M[Math.floor(Math.random()*Math.max(1,Math.ceil(M.length*.3)))].mv}
 function ccBotStep(g,q){if(g.phase!=='play'||g.turn!==q.id)return false;const mv=ccBotMove(g,q.bot);return mv?ccPlay(g,q.id,mv):false}
 /* ---------- Carcassonne: drawing tiles (our own simple style) ---------- */
@@ -10716,6 +10740,9 @@ function ccWater(f,paint){const d=ccLinePath(f);let o=`<path d="${d}" fill="none
   if(f[4]&&f[4].src)o+=`<ellipse cx="50" cy="56" rx="18" ry="13" fill="${paint?'url(#ccx-water)':'#5aa7e0'}" stroke="#2f6fa8" stroke-width="2.5"/><path d="M40,50 q5,-6 10,0 q5,-6 10,0" fill="none" stroke="#fff" stroke-width="2" opacity=".8"/>`;
   if(f[4]&&f[4].lake)o+=`<path d="M50,22 C78,18 86,44 80,62 C74,84 44,86 30,72 C16,58 22,24 50,22Z" fill="${paint?'url(#ccx-water)':'#5aa7e0'}" stroke="#2f6fa8" stroke-width="2.5"/>`;return o}
 const ccGardenArt=(x,y,paint)=>`<g transform="translate(${x-13},${y-11})"><rect width="26" height="22" rx="3" fill="#9b6b3d" stroke="#5b3d22" stroke-width="1.5"/>${[4,10,16].map(yy=>`<path d="M3,${yy+1} h20" stroke="#5fa042" stroke-width="3.2" stroke-dasharray="3 2"/>`).join('')}</g>${paint?`<image href="art/cc-p-garden.webp" x="${x-16}" y="${y-14}" width="32" height="28" onerror="this.remove()"/>`:''}`;
+/* an inn by its lake, and a cathedral (drawn; painted pictures go on top when there are any) */
+const ccInnArt=(x,y,paint)=>`<g transform="translate(${x-14},${y-12})"><ellipse cx="10" cy="17" rx="10" ry="6" fill="#5aa7e0" stroke="#2f6fa8" stroke-width="1.5"/><rect x="13" y="6" width="13" height="10" fill="#f4ead2" stroke="#6b5a40" stroke-width="1.5"/><path d="M11,7 L19.5,0 L28,7Z" fill="#b5523b" stroke="#6b5a40" stroke-width="1.5"/></g>${paint?`<image href="art/cc-p-inn.webp" x="${x-15}" y="${y-14}" width="30" height="27" onerror="this.remove()"/>`:''}`;
+const ccCathArt=(x,y,paint)=>`<g transform="translate(${x-18},${y-20})"><rect x="8" y="14" width="20" height="20" fill="#efe4c8" stroke="#5b4a35" stroke-width="2"/><rect x="2" y="8" width="8" height="26" fill="#efe4c8" stroke="#5b4a35" stroke-width="2"/><rect x="26" y="8" width="8" height="26" fill="#efe4c8" stroke="#5b4a35" stroke-width="2"/><path d="M1,9 L6,0 L11,9Z M25,9 L30,0 L35,9Z M7,15 L18,6 L29,15Z" fill="#b5523b" stroke="#5b4a35" stroke-width="1.6"/><path d="M15,34 v-8 a3,3 0 0 1 6,0 v8" fill="#5b4a35"/></g>${paint?`<image href="art/cc-p-cath.webp" x="${x-20}" y="${y-22}" width="40" height="42" onerror="this.remove()"/>`:''}`;
 const ccShield=(x,y)=>`<path d="M${x-6},${y-7} h12 v6 q0,7 -6,10 q-6,-3 -6,-10z" fill="#2b63c4" stroke="#f3efe4" stroke-width="1.6"/>`;
 /* painted look: textures from art/, turned back so they line up across the whole map */
 const ccPaint=()=>(CX().look||'paint')==='paint';
@@ -10723,26 +10750,27 @@ function ccDefs(){if(!ccPaint())return '';let o='<defs>';for(let r=0;r<4;r++){fo
   o+=`<pattern id="ccx-water" patternUnits="userSpaceOnUse" width="60" height="60"><rect width="60" height="60" fill="#5aa7e0"/><image href="art/cc-water.jpg" width="60" height="60" preserveAspectRatio="none"/></pattern>`;
   o+=`<pattern id="ccx-wall" patternUnits="userSpaceOnUse" width="24" height="14"><image href="art/cc-wall.jpg" width="24" height="14" preserveAspectRatio="none"/></pattern></defs>`;return o}
 const ccUp=(r,x,y,inner)=>`<g transform="rotate(${-r*90} ${x} ${y})">${inner}</g>`;
-function ccTileInner(t,r=0){if(ccPaint())return ccTilePaint(t,r);const F=CCT[t][1];let roads='',cities='',extra='';const junction=F.filter(f=>f[0]==='r'&&f[1].length===1).length>=3;
-  let water='';F.forEach(f=>{if(f[0]==='w')water+=ccWater(f,0);if(f[0]==='g')extra+=ccGardenArt(f[2],f[3],0);if(f[0]==='r'){const d=ccLinePath(f);
+function ccTileInner(t,r=0){if(ccPaint())return ccTilePaint(t,r);const F=CCT[t][1];let roads='',cities='',extra='';const junction=F.filter(f=>f[0]==='r'&&f[1].length===1&&!(f[4]&&f[4].to)||f[0]==='x').length>=3&&!F.some(f=>f[0]==='m');
+  let water='';F.forEach(f=>{if(f[0]==='w')water+=ccWater(f,0);if(f[0]==='g')extra+=ccGardenArt(f[2],f[3],0);if(f[0]==='x')roads+=`<path d="${f[4].d}" fill="none" stroke="${CCCOL.roadE}" stroke-width="13"/><path d="${f[4].d}" fill="none" stroke="${CCCOL.road}" stroke-width="8"/>`;if(f[4]&&f[4].innAt)extra+=ccInnArt(f[4].innAt[0],f[4].innAt[1],0);if(f[4]&&f[4].cath)extra+=ccCathArt(50,44,0);if(f[0]==='r'){const d=ccLinePath(f);
       roads+=`<path d="${d}" fill="none" stroke="${CCCOL.roadE}" stroke-width="15" stroke-linecap="butt"/><path d="${d}" fill="none" stroke="${CCCOL.road}" stroke-width="10"/>`}
     if(f[0]==='c'){const s=[...new Set(f[1].map(p=>Math.floor(p/3)))].sort();cities+=`<g fill="${CCCOL.city}" stroke="${CCCOL.wall}" stroke-width="4">${ccCityPath(s)}</g>`;if(f[4]&&f[4].s)extra+=ccShield(f[2]+(f[2]<50?14:-14),f[3]+(f[3]<50?12:-12))}
     if(f[0]==='m')extra+=`<g><rect x="36" y="38" width="28" height="22" fill="${CCCOL.monW}" stroke="#6b5a40" stroke-width="2"/><path d="M33,40 L50,26 L67,40Z" fill="${CCCOL.mon}" stroke="#6b5a40" stroke-width="2"/><rect x="46" y="48" width="8" height="12" fill="#6b5a40"/><path d="M50,18 v8 M46,21 h8" stroke="#6b5a40" stroke-width="2"/></g>`});
   if(junction)extra+=`<rect x="41" y="41" width="18" height="18" rx="2" fill="#c9b48a" stroke="#6b5a40" stroke-width="2"/><path d="M42,46 L50,39 L58,46" fill="#b5523b" stroke="#6b5a40" stroke-width="1.5"/>`;
   return `<rect x="0" y="0" width="100" height="100" fill="${CCCOL.field}"/>${water}${roads}${cities}${extra}`}
-function ccTilePaint(t,r){const F=CCT[t][1];let roads='',cities='',extra='';const junction=F.filter(f=>f[0]==='r'&&f[1].length===1).length>=3;
-  let water='';F.forEach(f=>{if(f[0]==='w')water+=ccWater(f,1);if(f[0]==='g')extra+=ccUp(r,f[2],f[3],ccGardenArt(f[2],f[3],1));if(f[0]==='r'){const d=ccLinePath(f);
+function ccTilePaint(t,r){const F=CCT[t][1];let roads='',cities='',extra='';const junction=F.filter(f=>f[0]==='r'&&f[1].length===1&&!(f[4]&&f[4].to)||f[0]==='x').length>=3&&!F.some(f=>f[0]==='m');
+  let water='';F.forEach(f=>{if(f[0]==='w')water+=ccWater(f,1);if(f[0]==='g')extra+=ccUp(r,f[2],f[3],ccGardenArt(f[2],f[3],1));if(f[0]==='x')roads+=`<path d="${f[4].d}" fill="none" stroke="#8d7447" stroke-opacity=".55" stroke-width="14"/><path d="${f[4].d}" fill="none" stroke="url(#ccx-road-${r})" stroke-width="10"/>`;if(f[4]&&f[4].innAt)extra+=ccUp(r,f[4].innAt[0],f[4].innAt[1],ccInnArt(f[4].innAt[0],f[4].innAt[1],1));if(f[4]&&f[4].cath)extra+=ccUp(r,50,44,ccCathArt(50,44,1));if(f[0]==='r'){const d=ccLinePath(f);
       roads+=`<path d="${d}" fill="none" stroke="#8d7447" stroke-opacity=".55" stroke-width="17"/><path d="${d}" fill="none" stroke="url(#ccx-road-${r})" stroke-width="13"/>`}
     if(f[0]==='c'){const s=[...new Set(f[1].map(p=>Math.floor(p/3)))].sort();cities+=`<g fill="url(#ccx-city-${r})" stroke="url(#ccx-wall)" stroke-width="7">${ccCityPath(s)}</g>`;if(f[4]&&f[4].s){const x=f[2]+(f[2]<50?14:-14),y=f[3]+(f[3]<50?12:-12);extra+=ccUp(r,x,y,`<image href="art/cc-p-shield.webp" x="${x-9}" y="${y-10}" width="18" height="20"/>`)}}
     if(f[0]==='m')extra+=ccUp(r,50,50,`<image href="art/cc-p-mon.webp" x="20" y="18" width="60" height="62"/>`)});
   if(junction)extra+=ccUp(r,50,50,`<image href="art/cc-p-village.webp" x="31" y="32" width="38" height="36"/>`);
   return `<rect x="0" y="0" width="100" height="100" fill="url(#ccx-grass-${r})"/>${water}${roads}${cities}${extra}`}
-const ccMeep=(x,y,col,o={})=>{const z=ccPaint()?.72:.55,h=20*z;return `<g transform="translate(${x-h},${y-h}) scale(${z})"${o.cls?` class="${o.cls}"`:''}>${ccPaint()?`<path d="${MGSHAPE_M}" fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round"/>`:''}<path d="${MGSHAPE_M}" fill="var(--t-${col})" stroke="#1d232a" stroke-width="2.4" stroke-linejoin="round"/></g>`};
+const ccMeep=(x,y,col,o={})=>{const z=(ccPaint()?.72:.55)*(o.big?1.45:1),h=20*z;return `<g transform="translate(${x-h},${y-h}) scale(${z})"${o.cls?` class="${o.cls}"`:''}>${ccPaint()?`<path d="${MGSHAPE_M}" fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round"/>`:''}<path d="${MGSHAPE_M}" fill="var(--t-${col})" stroke="#1d232a" stroke-width="2.4" stroke-linejoin="round"/></g>`};
 /* the abbot: a meeple in a hooded robe with a gold halo */
 const ccAbbot=(x,y,col)=>`<g transform="translate(${x-13},${y-15}) scale(.66)"><circle cx="20" cy="8" r="8.5" fill="none" stroke="#f2c230" stroke-width="3"/><path d="M20 4c4 0 7 3 7 7v3l7 22H6l7-22v-3c0-4 3-7 7-7z" fill="var(--t-${col})" stroke="#fff" stroke-width="5" stroke-linejoin="round"/><path d="M20 4c4 0 7 3 7 7v3l7 22H6l7-22v-3c0-4 3-7 7-7z" fill="var(--t-${col})" stroke="#1d232a" stroke-width="2.2" stroke-linejoin="round"/><path d="M14 14q6 4 12 0" fill="none" stroke="#1d232a" stroke-width="1.8"/></g>`;
 function ccTileSvg(t,r,x,y,o={}){const colOf=pid=>(act().find(p=>p.id===pid)||{}).color||'gray';
   let m='';for(const i in (o.m||{})){const f=CCT[t][1][i];const [ax,ay]=ccRotA(f[2],f[3],r);m+=ccMeep(ax,ay,colOf(o.m[i]))}
   for(const i in (o.a||{})){const f=CCT[t][1][i];const [ax,ay]=ccRotA(f[2],f[3],r);m+=ccAbbot(ax,ay,colOf(o.a[i]))}
+  for(const i in (o.L||{})){const f=CCT[t][1][i];const [ax,ay]=ccRotA(f[2],f[3],r);m+=ccMeep(ax,ay,colOf(o.L[i]),{big:1})}
   return `<g transform="translate(${x*100},${y*100})"${o.cls?` class="${o.cls}"`:''}><g transform="rotate(${r*90} 50 50)">${ccTileInner(t,r)}</g><rect x="0" y="0" width="100" height="100" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1"/>${m}${o.after||''}</g>`}
 
 /* ---------- Carcassonne: the play screen ---------- */
@@ -10752,18 +10780,18 @@ function ccBoardEl(g,V){const mine=V&&g.phase==='play'&&g.turn===V.id&&g.cur,pen
   Object.keys(g.bd).forEach(k=>{const [x,y]=k.split(',').map(Number);x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)});x0--;y0--;x1++;y1++;
   const W=(x1-x0+1)*100,H=(y1-y0+1)*100;let o=`<svg class="ccboard${mine?' live':''}" viewBox="${x0*100-6} ${y0*100-6} ${W+12} ${H+12}" role="img" aria-label="The map: ${g.order.length} tiles">${ccDefs()}`;
   o+=`<rect x="${x0*100-6}" y="${y0*100-6}" width="${W+12}" height="${H+12}" fill="var(--cc-table,#e9dfc8)"/>`;
-  for(const k of g.order){const T=g.bd[k],[x,y]=k.split(',').map(Number);o+=ccTileSvg(T.t,T.r,x,y,{m:T.m,a:T.a,cls:g.last&&g.last.k===k?'cclast':''})}
+  for(const k of g.order){const T=g.bd[k],[x,y]=k.split(',').map(Number);o+=ccTileSvg(T.t,T.r,x,y,{m:T.m,a:T.a,L:T.L,cls:g.last&&g.last.k===k?'cclast':''})}
   if(mine){const spots=ccSpots(g,g.cur),seen=new Set();spots.forEach(s=>{const k=ccK(s.x,s.y);if(seen.has(k)||pend&&pend.x===s.x&&pend.y===s.y)return;seen.add(k);o+=`<rect class="ccspot" x="${s.x*100+4}" y="${s.y*100+4}" width="92" height="92" rx="8" data-a="ccpspot" data-k="${k}"/>`});
     if(pend){const F=CCT[g.cur][1],bd={...g.bd,[ccK(pend.x,pend.y)]:{t:g.cur,r:pend.r,m:{}}};let dots='';
-      F.forEach((f,i)=>{const okM=g.mee[V.id]>0&&ccFree(g,bd,ccK(pend.x,pend.y),i),okA=g.abbot&&g.ab[V.id]&&ccAbbotOk(g,g.cur,i);if(!okM&&!okA||pend.f===i)return;const [ax,ay]=ccRotA(f[2],f[3],pend.r);dots+=`<circle class="ccdot${okA&&!okM?' ab':''}" cx="${ax}" cy="${ay}" r="9" data-a="ccpmeep" data-k="${okA&&!okM?'a'+i:i}"><title>${CCNAME[f[0]]}</title></circle>`});
-      o+=ccTileSvg(g.cur,pend.r,pend.x,pend.y,{cls:'ccpend',m:pend.f!=null&&!pend.a?{[pend.f]:V.id}:{},a:pend.f!=null&&pend.a?{[pend.f]:V.id}:{},after:`<rect x="1" y="1" width="98" height="98" fill="none" stroke="var(--pc,#e0a100)" stroke-width="4" data-a="ccprot" data-k="1"/>${dots}`})}}
+      F.forEach((f,i)=>{const okM=(g.mee[V.id]>0||g.ic&&g.lm[V.id])&&ccFree(g,bd,ccK(pend.x,pend.y),i),okA=g.abbot&&g.ab[V.id]&&ccAbbotOk(g,g.cur,i);if(!okM&&!okA||pend.f===i)return;const [ax,ay]=ccRotA(f[2],f[3],pend.r);dots+=`<circle class="ccdot${okA&&!okM?' ab':''}" cx="${ax}" cy="${ay}" r="9" data-a="ccpmeep" data-k="${okA&&!okM?'a'+i:i}"><title>${CCNAME[f[0]]}</title></circle>`});
+      const pf=pend.f!=null&&!pend.a?{[pend.f]:V.id}:{};o+=ccTileSvg(g.cur,pend.r,pend.x,pend.y,{cls:'ccpend',m:pend.L?{}:pf,L:pend.L?pf:{},a:pend.f!=null&&pend.a?{[pend.f]:V.id}:{},after:`<rect x="1" y="1" width="98" height="98" fill="none" stroke="var(--pc,#e0a100)" stroke-width="4" data-a="ccprot" data-k="1"/>${dots}`})}}
   return o+'</svg>'}
 function ccScoreScr(){if(ccOn()&&S.started&&!S.demo)return ccPlayUI();return cLive()}
 function ccPlayUI(){const g=ccG(),P=act();
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="Carcassonne">${g&&g.phase==='done'?'🏁':'🏰'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>`;
   if(!g||ccStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(ccRes()?'Shuffling the tiles…':'Waiting for the host phone…')}</div>`;
   const V=ccViewer(),ap=P.find(p=>p.id===g.turn);
-  out+=`<div class="tabs hftabs nxtabs" role="list">${P.map(q=>`<div class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${g.turn===q.id&&g.phase!=='done'}"><div class="tn">${botHead(q)}${esc(nm(q))}</div><div class="ts num">${g.sc[q.id]||0}</div><div class="tr">${ccMeepRow(q,g.mee[q.id])}${g.abbot?`<span class="ccabt${g.ab[q.id]?'':' out'}" aria-label="${g.ab[q.id]?'Abbot ready':'Abbot on the map'}">✝</span>`:''}</div></div>`).join('')}</div>`;
+  out+=`<div class="tabs hftabs nxtabs" role="list">${P.map(q=>`<div class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${g.turn===q.id&&g.phase!=='done'}"><div class="tn">${botHead(q)}${esc(nm(q))}</div><div class="ts num">${g.sc[q.id]||0}</div><div class="tr">${ccMeepRow(q,g.mee[q.id])}${g.ic?`<span class="cclmt${g.lm[q.id]?'':' out'}" aria-label="${g.lm[q.id]?'Large meeple ready':'Large meeple on the map'}"></span>`:''}${g.abbot?`<span class="ccabt${g.ab[q.id]?'':' out'}" aria-label="${g.ab[q.id]?'Abbot ready':'Abbot on the map'}">✝</span>`:''}</div></div>`).join('')}</div>`;
   const lm=g.last,mk=g.phase==='done'?'win':ap&&ap.bot?'farm':lm&&lm.got&&lm.got.length&&g.tno>0&&Date.now()-(g.lastAt||0)<1e9?(/\(city\)/.test(lm.got.join())?'city':/monastery/.test(lm.got.join())?'mon':'road'):'place';
   out+=`<div class="hfmin htstat ccstat"><img class="ccpic" src="art/cc-m-${mk}.webp" alt="" width="96" height="66" onerror="this.remove()"><div><span>${g.phase==='done'?'<b>Game over.</b>':ap?`${botHead(ap)}<b>${esc(nm(ap))}</b> ${V&&V.id===ap.id&&!ap.bot?'· your turn':ap.bot?'is thinking…':'· their turn'}`:''}</span><span>${lm&&lm.got&&lm.got.length?esc(lm.got.join(' · '))+' · ':''}🧩 ${g.bag.length+(g.cur?1:0)} left</span></div></div>`;
   out+=zmBox('cc',ccBoardEl(g,V),'cczm');
@@ -10773,38 +10801,39 @@ function ccPlayUI(){const g=ccG(),P=act();
   return out}
 const ccMeepRow=(q,n)=>`<span class="ccmr" aria-label="${n} meeples left">${'<i></i>'.repeat(Math.max(0,n))}</span>`;
 function ccDock(g,V){if(g.phase!=='play'||!V||g.turn!==V.id||V.bot||!g.cur)return '';const pend=CCPEND,F=CCT[g.cur][1];
-  const tileBig=`<svg class="cccur" viewBox="-2 -2 104 104" aria-label="Your tile">${ccDefs()}${ccTileSvg(g.cur,pend?pend.r:CCROT,0,0,{m:pend&&pend.f!=null&&!pend.a?{[pend.f]:V.id}:{},a:pend&&pend.f!=null&&pend.a?{[pend.f]:V.id}:{}})}</svg>`;
+  const pf=pend&&pend.f!=null&&!pend.a?{[pend.f]:V.id}:{};const tileBig=`<svg class="cccur" viewBox="-2 -2 104 104" aria-label="Your tile">${ccDefs()}${ccTileSvg(g.cur,pend?pend.r:CCROT,0,0,{m:pend&&pend.L?{}:pf,L:pend&&pend.L?pf:{},a:pend&&pend.f!=null&&pend.a?{[pend.f]:V.id}:{}})}</svg>`;
   let body;if(!pend)body=`<div class="rlab">Tap a glowing square on the map to put your tile there. Then turn it until it fits the way you want.</div>`;
-  else{const bd={...g.bd,[ccK(pend.x,pend.y)]:{t:g.cur,r:pend.r,m:{}}},free=g.mee[V.id]>0?F.map((f,i)=>[f,i]).filter(([f,i])=>ccFree(g,bd,ccK(pend.x,pend.y),i)):[],abf=g.abbot&&g.ab[V.id]?F.map((f,i)=>[f,i]).filter(([f,i])=>ccAbbotOk(g,g.cur,i)):[],A=g.abbot?ccAbbotAt(g,V.id):null;
+  else{const bd={...g.bd,[ccK(pend.x,pend.y)]:{t:g.cur,r:pend.r,m:{}}},free=g.mee[V.id]>0||g.ic&&g.lm[V.id]?F.map((f,i)=>[f,i]).filter(([f,i])=>ccFree(g,bd,ccK(pend.x,pend.y),i)):[],abf=g.abbot&&g.ab[V.id]?F.map((f,i)=>[f,i]).filter(([f,i])=>ccAbbotOk(g,g.cur,i)):[],A=g.abbot?ccAbbotAt(g,V.id):null;
     let home='';if(A){const F0=ccFeatures(g.bd),c=F0.C[F0.id.get(F0.node(A.k,A.i))];home=`<button data-a="ccpmeep" data-k="ret" aria-pressed="${!!pend.ret}">✝ Bring the abbot home +${ccPts(g,c,false,F0.C)}</button>`}
     const where=f=>{const [ax,ay]=ccRotA(f[2],f[3],pend.r),v=ay<36?'top':ay>64?'bottom':'',h=ax<36?'left':ax>64?'right':'';return v&&h?v+' '+h:v||h||'middle'};
     const lab=(f,i)=>{const same=F.filter(x=>x[0]===f[0]);let t=CCNAME[f[0]][0].toUpperCase()+CCNAME[f[0]].slice(1);if(same.length>1){t+=', '+where(f);if(same.filter(x=>where(x)===where(f)).length>1)t+=' '+(same.indexOf(f)+1)}return t};
     const any=free.length||abf.length||home;body=`<div class="rlab">${any?'Add a meeple? Tap a dot on the map, or pick:':g.mee[V.id]>0?'Nothing free on this tile for a meeple.':'You have no meeples left.'}</div>
-      ${any?`<div class="lr ccmeeps"><button data-a="ccpmeep" data-k="" aria-pressed="${pend.f==null&&!pend.ret}">No meeple</button>${free.map(([f,i])=>`<button data-a="ccpmeep" data-k="${i}" aria-pressed="${pend.f===i&&!pend.a}">${lab(f,i)}</button>`).join('')}${abf.map(([f,i])=>`<button data-a="ccpmeep" data-k="a${i}" aria-pressed="${pend.f===i&&!!pend.a}">✝ Abbot on the ${CCNAME[f[0]]}</button>`).join('')}${home}</div>`:''}`}
+      ${any?`<div class="lr ccmeeps"><button data-a="ccpmeep" data-k="" aria-pressed="${pend.f==null&&!pend.ret}">No meeple</button>${free.map(([f,i])=>`<button data-a="ccpmeep" data-k="${i}" aria-pressed="${pend.f===i&&!pend.a}">${lab(f,i)}</button>`).join('')}${abf.map(([f,i])=>`<button data-a="ccpmeep" data-k="a${i}" aria-pressed="${pend.f===i&&!!pend.a}">✝ Abbot on the ${CCNAME[f[0]]}</button>`).join('')}${home}</div>
+      ${g.ic&&g.lm[V.id]&&free.length?`<div class="lr ccmeeps"><button data-a="ccpmeep" data-k="L" aria-pressed="${!!pend.L}" ${g.mee[V.id]>0?'':'disabled'}>⬆ Use my large meeple${pend.L?' (on)':''}</button></div>`:''}`:''}`}
   const spots=ccSpots(g,g.cur),rots=pend?spots.filter(s=>s.x===pend.x&&s.y===pend.y).length:0;
   return `<div class="sadock cpdock" style="${pc(V.color)}"><div class="sadh"><span><b>${S.lk||act().filter(p=>!p.bot).length<2?'You':esc(nm(V))}</b> · your tile</span><button class="sadrx" data-a="rxopen" aria-label="Reactions">😀</button></div>
     <div class="cctrow">${tileBig}<div style="flex:1;min-width:0">${body}</div></div>
-    <div class="prow ccbtns"><button class="btn" data-a="ccprot" data-k="1" ${pend&&rots<2?'disabled':''}>⟳ Turn</button>${pend?`<button class="btn" data-a="ccpback">↩ Undo</button>`:''}<button class="btn primary" style="flex:1" data-a="ccpplay" ${pend?'':'disabled'}>Done${pend&&pend.f!=null?(pend.a?' · abbot on':' · meeple on'):pend&&pend.ret?' · abbot home':''}</button></div></div>`}
+    <div class="prow ccbtns"><button class="btn" data-a="ccprot" data-k="1" ${pend&&rots<2?'disabled':''}>⟳ Turn</button>${pend?`<button class="btn" data-a="ccpback">↩ Undo</button>`:''}<button class="btn primary" style="flex:1" data-a="ccpplay" ${pend?'':'disabled'}>Done${pend&&pend.f!=null?(pend.a?' · abbot on':pend.L?' · large meeple on':' · meeple on'):pend&&pend.ret?' · abbot home':''}</button></div></div>`}
 let CCROT=0;
 function ccUiAct(a,b,k){const g=ccG();if(!g)return;const V=ccViewer();if(!V||g.turn!==V.id||g.phase!=='play'||!g.cur)return;
   const spots=ccSpots(g,g.cur);
   if(a==='ccpspot'){const [x,y]=k.split(',').map(Number),here=spots.filter(s=>s.x===x&&s.y===y);if(!here.length)return;const pick=here.find(s=>s.r===CCROT)||here[0];CCPEND={x,y,r:pick.r,f:null};vibe(8);return}
   if(a==='ccprot'){if(!CCPEND){CCROT=(CCROT+1)%4;return}const here=spots.filter(s=>s.x===CCPEND.x&&s.y===CCPEND.y).map(s=>s.r);if(here.length<2)return;const i=here.indexOf(CCPEND.r);CCPEND.r=here[(i+1)%here.length];CCROT=CCPEND.r;CCPEND.f=null;CCPEND.a=0;vibe(6);return}
-  if(a==='ccpmeep'){if(!CCPEND)return;const P0=CCPEND;if(k==='ret'){P0.ret=P0.ret?0:1;P0.f=null;P0.a=0}else if(k===''||k==null){P0.f=null;P0.a=0;P0.ret=0}else{const ab=k[0]==='a',i=ab?+k.slice(1):+k;if(P0.f===i&&!!P0.a===ab){P0.f=null;P0.a=0}else{P0.f=i;P0.a=ab?1:0;P0.ret=0}}vibe(6);return}
+  if(a==='ccpmeep'){if(!CCPEND)return;const P0=CCPEND;if(k==='L'){P0.L=P0.L?0:1;if(P0.a){P0.f=null;P0.a=0}return}if(g.mee[V.id]<1&&g.ic&&g.lm[V.id])P0.L=1;if(k==='ret'){P0.ret=P0.ret?0:1;P0.f=null;P0.a=0}else if(k===''||k==null){P0.f=null;P0.a=0;P0.ret=0}else{const ab=k[0]==='a',i=ab?+k.slice(1):+k;if(P0.f===i&&!!P0.a===ab){P0.f=null;P0.a=0}else{P0.f=i;P0.a=ab?1:0;P0.ret=0;if(ab)P0.L=0}}vibe(6);return}
   if(a==='ccpback'){CCPEND=null;return}
-  if(a==='ccpplay'){if(!CCPEND)return;const mv={...CCPEND};if(lkq('ccPlay',V.id,mv)){CCPEND=null;vibe([20,30,20])}else toast('That can’t be played.');return}}
+  if(a==='ccpplay'){if(!CCPEND)return;const mv={...CCPEND};if(mv.f==null||mv.a)delete mv.L;if(lkq('ccPlay',V.id,mv)){CCPEND=null;vibe([20,30,20])}else toast('That can’t be played.');return}}
 function ccTick(){if(S.game!=='carc'||!ccOn()||!S.started||S.finished||S.demo||!['live','score'].includes(S.screen))return;if(!ccRes())return;if(lkqRun()){save();render();return}
   const g=ccG();if(!g||ccStale(g)){ccDeal();save();render();return}if(ccSyncLog(g)){save()}if(g.phase!=='play'||CCBOTT)return;
   if(gAnnBusy(g)){const ms=(g.ann.ms||GLMS)*(window.__htfast?.3:1)-(Date.now()-g.ann.at);CCBOTT=setTimeout(()=>{CCBOTT=null;render()},Math.max(60,ms+40));return}
   const q=act().find(p=>p.id===g.turn&&p.bot);if(!q)return;
   CCBOTT=setTimeout(()=>{CCBOTT=null;const g2=ccG();if(g2&&g2.phase==='play'&&g2.turn===q.id){ccBotStep(g2,q);ccSyncLog(g2);save()}render()},900*htSpd())}
 function ccModeSec(){return `<div class="sec"><div class="sec-h"><h3>How you’re playing</h3></div><div class="panel hfpanel">${S.started?`<div class="rlab"><b>${ccOn()?'🏰 Playing on the phones':'Scoring a real board'}</b></div>`:`<div class="seg">${[[1,'🏰 Play on the phones'],[0,'Score a real board']].map(([v,t])=>`<button data-a="ccplaymode" data-k="${v}" aria-pressed="${(ccOn()?1:0)===v}">${t}</button>`).join('')}</div>`}</div>
-  <p class="hint">${ccOn()?'The phones hold the map, the tiles and the meeples, and do all the scoring. Base game with the River and the Abbot, 2 to 5 players. Computer players, one shared phone or linked phones all work. Expansions are coming next.':'Play with the real box and tap in points as features are finished.'}</p></div>`}
+  <p class="hint">${ccOn()?'The phones hold the map, the tiles and the meeples, and do all the scoring. Base game with the River, the Abbot and Inns &amp; Cathedrals, 2 to 5 players (6 with Inns &amp; Cathedrals). Computer players, one shared phone or linked phones all work. Expansions are coming next.':'Play with the real box and tap in points as features are finished.'}</p></div>`}
 function ccSetup(){const x=CX(),e=CED[x.ed];return `<div class="bar"><h1>Carcassonne</h1></div><img class="hero hfhero" src="art/carc-banner.jpg" alt="" width="1200" height="560">${steps(1)}${guideBtn()}${ccModeSec()}
   <div class="sec"><div class="sec-h"><h3>Rules edition</h3></div><div class="seg edseg">${[['0','1st (early)'],['1','1st'],['2','2nd'],['3','3rd']].map(([v,t])=>`<button data-a="ced" data-v="${v}" aria-pressed="${x.ed===v}" ${S.started?'disabled':''}>${t}</button>`).join('')}</div>
     <p class="hint"><b>${e.name}:</b> ${e.years}.</p><div class="panel">${ctgS('small',cSmall(),'Small city rule','A finished 2-tile city scores only 2 points (early 1st edition printings). Off: 4 points.')}${ctgS('farm',cFarm()==='classic','Classic farmers','Score fields city by city, 4 points to whoever has the most farmers next to each finished city. Off: 3 points per finished city in each field.')}</div>
     <p class="hint">These follow the edition you pick. Change them if your group plays it differently.</p></div>
-  <div class="sec"><div class="sec-h"><h3>In the box</h3></div><div class="panel">${[['river','The River','12 river tiles are placed first, from the spring to the lake.'],['abbot','The Abbot','Each player gets an abbot for monasteries and gardens. 8 base tiles have a garden.']].map(([id,t,sub])=>`<div class="prow"><div class="rtext"><b>${t}</b><div class="rlab">${sub}${x.ed==='3'?' In the 3rd edition box.':''}</div></div><button class="sw" role="switch" aria-checked="${cOn(id)}" data-a="cexp" data-k="${id}" ${S.started||x.ed==='3'?'disabled':''} aria-label="${t}"><i></i></button></div>`).join('')}</div><p class="hint">More of the Big Box is coming: Inns &amp; Cathedrals next.</p></div>
+  <div class="sec"><div class="sec-h"><h3>In the box</h3></div><div class="panel">${[['river','The River','12 river tiles are placed first, from the spring to the lake.'],['abbot','The Abbot','Each player gets an abbot for monasteries and gardens. 8 base tiles have a garden.'],['ic','Inns & Cathedrals','18 more tiles with inns and cathedrals, and a large meeple for each player.']].map(([id,t,sub])=>`<div class="prow"><div class="rtext"><b>${t}</b><div class="rlab">${sub}${x.ed==='3'&&id!=='ic'?' In the 3rd edition box.':''}</div></div><button class="sw" role="switch" aria-checked="${cOn(id)}" data-a="cexp" data-k="${id}" ${S.started||x.ed==='3'&&id!=='ic'?'disabled':''} aria-label="${t}"><i></i></button></div>`).join('')}</div><p class="hint">More of the Big Box is coming: Traders &amp; Builders next.</p></div>
   <div class="sec"><div class="sec-h"><h3>Tile look</h3></div><div class="seg">${[['paint','🎨 Painted'],['simple','Simple']].map(([v,t])=>`<button data-a="cclook" data-k="${v}" aria-pressed="${(x.look||'paint')===v}">${t}</button>`).join('')}</div><div class="cclookprev"><svg viewBox="-2 -2 304 104">${ccDefs()}${['D','J','B'].map((t,i)=>ccTileSvg(t,i===1?1:0,i,0,{})).join('')}</svg></div><p class="hint">You can change this any time, even during a game.</p></div>
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: players ›</button></div></div>`}
 function ccGuide(){return guideSheet('Carcassonne',[
@@ -10813,6 +10842,7 @@ function ccGuide(){return guideSheet('Carcassonne',[
   ['At the end',[['Unfinished','Roads 1 per tile, cities 1 per tile and 1 per coat of arms, monasteries 1 plus 1 per tile around it.'],['Fields',cFarm()==='classic'?'Each finished city: 4 points to whoever has the most farmers in fields touching it.':'Each field: 3 points per finished city it touches, to whoever has the most farmers there.']]],
   ...(cOn('river')?[['The River',[['First','The river tiles are placed before any others, starting from the spring and ending at the lake. Each one carries on from the end of the river.'],['Turns','The river can’t turn the same way twice in a row.'],['Scoring','The river never scores and no meeple goes on it, but the roads, cities, fields and monastery beside it work as usual.']]]]:[]),
   ...(cOn('abbot')?[['The Abbot',[['Placing','Instead of a meeple, you may put your abbot on the monastery or garden of the tile you just placed. Only an abbot can go in a garden.'],['Scoring','A monastery or garden with your abbot scores 9 when all 8 tiles around it are there; at the end, 1 plus 1 per tile around it.'],['Bringing it home','On a later turn, instead of placing a figure, you may bring your abbot home and score its monastery or garden right away, as if the game had ended.']]]]:[]),
+  ...(cOn('ic')?[['Inns & Cathedrals',[['Inns','A road with an inn by its lake scores 2 per tile when finished, but nothing if it’s unfinished at the end.'],['Cathedrals','A city with a cathedral scores 3 per tile and 3 per coat of arms when finished, but nothing if it’s unfinished at the end.'],['Large meeple','Placed instead of a normal meeple, it counts as 2 meeples when working out who has a road, city or field.']]]]:[]),
   ['On the phone',[['Placing','Tap a glowing square, then ⟳ Turn (or tap the tile) until it sits the way you want. Pick a meeple spot or none, then Done.'],['Zoom','Pinch the map or use ＋ − ⤢.']]]])}
 
 /* ================= Stone Age on the phone =================
@@ -19715,9 +19745,9 @@ document.addEventListener('click',e=>{
     case 'samix':{if(S.started&&saOn())break;SAX().mix=b.dataset.v;saKeep();break}
     case 'cpplaymode':{if(S.started)break;const X=CTX();X.play=k==='1'?1:0;if(X.play){if(X.mode!=='sf')X.mode='base';if(X.mode==='sf'){X.sfs=X.sfs in CPSF?X.sfs:'1';X.goalSF=CPSF[X.sfs].goal}while(act().length>(X.mode==='base'?6:4)){const l=[...act()].pop();l.on=false}}ctKeep();break}
     case 'cpsfs':{if(S.started&&cpOn())break;const X=CTX();X.sfs=b.dataset.v;X.goalSF=CPSF[X.sfs].goal;ctKeep();break}
-    case 'ccstart':{switchGame('carc');clearPlayers();delete S.tmatch;S.clog=[];S.cend={};delete S.ccg;S.started=false;S.finished=false;S.gameId=null;S.gameDate=null;S.endBy=null;S.screen='map';CX().play=k==='1'?1:0;if(CX().play)while(act().length>5){const l=[...act()].pop();l.on=false}window.scrollTo(0,0);break}
+    case 'ccstart':{switchGame('carc');clearPlayers();delete S.tmatch;S.clog=[];S.cend={};delete S.ccg;S.started=false;S.finished=false;S.gameId=null;S.gameDate=null;S.endBy=null;S.screen='map';CX().play=k==='1'?1:0;if(CX().play)while(act().length>(cOn('ic')?6:5)){const l=[...act()].pop();l.on=false}window.scrollTo(0,0);break}
     case 'cclook':{CX().look=k==='simple'?'simple':'paint';break}
-    case 'ccplaymode':{if(S.started)break;CX().play=k==='1'?1:0;if(CX().play)while(act().length>5){const l=[...act()].pop();l.on=false}break}
+    case 'ccplaymode':{if(S.started)break;CX().play=k==='1'?1:0;if(CX().play)while(act().length>(cOn('ic')?6:5)){const l=[...act()].pop();l.on=false}break}
     case 'cpstart':{switchGame('catan');resetScores();clearPlayers();S.started=false;S.screen='map';const X=CTX();X.play=k==='1'?1:0;if(X.play){if(X.mode!=='sf')X.mode='base';if(X.mode==='sf'){X.sfs=X.sfs in CPSF?X.sfs:'1';X.goalSF=CPSF[X.sfs].goal}while(act().length>(X.mode==='base'?6:4)){const l=[...act()].pop();l.on=false}}ctKeep();window.scrollTo(0,0);break}
     case 'tgplaymode':{if(S.started)break;TGX().play=k==='1'?1:0;tgKeep();if(TGX().play)while(act().length>4){const l=[...act()].pop();l.on=false}break}
     case 'tgstart':{switchGame('tobago');resetScores();clearPlayers();S.started=false;S.screen='map';TGX().play=k==='1'?1:0;tgKeep();while(act().length>4){const l=[...act()].pop();l.on=false}window.scrollTo(0,0);break}
@@ -20363,6 +20393,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='64afb6';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='a9b72c';</script>
 </body>
 </html>
