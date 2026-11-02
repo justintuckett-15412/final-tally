@@ -1656,6 +1656,8 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 .tgtc img{width:44px;height:44px;object-fit:contain}.tgtc.curse img{width:60px;height:60px}.tgtc{position:relative}.tgtc b{line-height:1}
 .tgzoom{position:absolute;right:6px;top:6px;display:flex;flex-direction:column;gap:4px}.tgzoom .btn{min-width:38px;min-height:38px;padding:0;font-size:18px;box-shadow:0 2px 6px rgba(0,0,0,.25)}.tgzoom .btn:disabled{opacity:.45}
 .tgring{fill:var(--pc);stroke:#fff;stroke-width:1.4;opacity:.95}.tgatv.now .tgring{stroke:#f5c518;stroke-width:2.4}
+.tggaze{stroke:#fff;stroke-width:2.4;stroke-dasharray:1 5;stroke-linecap:round;opacity:.9;pointer-events:none;filter:drop-shadow(0 0 1.5px rgba(0,0,0,.8))}
+.tgnext{fill:rgba(255,255,255,.18);stroke:#7fd3ff;stroke-width:2;stroke-dasharray:3 3;pointer-events:none}
 
 </style>
 
@@ -7667,6 +7669,9 @@ function tgSwapRose(g,pid,m,a,b){if(!g.xp||!tgMine(g,pid))return false;const M=g
   if(A.r.length!==B2.r.length||A.r.length>2||A.r.length===2&&(A.r[0]!==A.r[1]||B2.r[0]!==B2.r[1]))return false;if(A.r[0]===B2.r[0])return false;M.am--;[A.r,B2.r]=[B2.r,A.r];g.t.did=1;g.n++;gLog(g,`${nmid(pid)} swaps compass roses on the ${TGMAP[+m][0].toLowerCase()} map`,'🧿');g.msg=`${nmid(pid)} swapped two compass roses.`;return true}
 function tgEnd(g,pid){if(!tgMine(g,pid)||tgOnLava(g,pid))return false;g.n++;gLog(g,`${nmid(pid)} ends their turn`,'⏭️');tgNextTurn(g);return true}
 
+/* where a statue is looking: the spaces along its line of sight, and the last one that isn't lava or volcano (where the next amulet washes up) */
+function tgGaze(g,s){const C=g.b.c,idx={};C.forEach((c,i)=>idx[c[0]+','+c[1]]=i);const [dq,dr]=TGDIR[s[1]],path=[];let cur=s[0];
+  for(;;){const nx=idx[(C[cur][0]+dq)+','+(C[cur][1]+dr)];if(nx===undefined)break;cur=nx;path.push(nx)}const ok=path.filter(i=>C[i][2]!=='L'&&C[i][2]!=='V');return {path,spot:ok.length?ok[ok.length-1]:null}}
 /* ---------------- raising a treasure ---------------- */
 const tgCanRaise=(g,pid,m)=>{const Mp=g.maps[m];return tgMine(g,pid)&&Mp.cand&&Mp.cand.length===1&&g.pos[pid]===Mp.cand[0]};
 function tgTD(g){if(!g.td.length){g.tout=1;if(g.tdisc.length){g.td=tgShuf(g.tdisc);g.tdisc=[];gLog(g,'Treasure deck reshuffled','🔄')}}return g.td.length?g.td.pop():null}
@@ -7690,8 +7695,7 @@ function tgDistEnd(g){const D=g.dist,Mp=g.maps[D.m];for(let i=D.i;i<D.cards.leng
   Mp.c.forEach(e=>{if(e.k!=='raise')g.disc.push(e.k)});g.maps[D.m]={c:[],cand:null,mk:0,rm:[]};
   /* amulets wash ashore where the statues look, then the statues turn */
   const B=tgB(g),C=g.b.c,idx={};C.forEach((c,i)=>idx[c[0]+','+c[1]]=i);let put=0;
-  g.b.st.forEach(s=>{let cur=s[0];const [dq,dr]=TGDIR[s[1]],path=[];for(;;){const nx=idx[(C[cur][0]+dq)+','+(C[cur][1]+dr)];if(nx===undefined)break;cur=nx;path.push(nx)}
-    const ok2=path.filter(i=>C[i][2]!=='L'&&C[i][2]!=='V');cur=ok2.length?ok2[ok2.length-1]:null;if(cur==null){s[1]=(s[1]+5)%6;return}
+  g.b.st.forEach(s=>{let cur=tgGaze(g,s).spot;if(cur==null){s[1]=(s[1]+5)%6;return}
     const pile=TGAM-g.am.length-g.ps.reduce((a,p)=>a+g.me[p].am,0);if(!g.am.includes(cur)&&pile>0){g.am.push(cur);put++}s[1]=(s[1]+5)%6});
   if(put)gLog(g,`${put} amulet${put===1?'':'s'} wash${put===1?'es':''} ashore; the statues turn`,'🗿');
   const starter=D.last||D.raiser;g.dist=null;
@@ -7884,8 +7888,12 @@ function tgBoard(g,V){const B=tgB(g),C=g.b.c,R=20,s3=Math.sqrt(3),xy=c=>[R*s3*(c
   const em=(i,ch,sz,dx,dy)=>{const [x,y]=P[i];return `<text class="tge" x="${(x+(dx||0)).toFixed(1)}" y="${(y+(dy||0)).toFixed(1)}" font-size="${sz||17}" text-anchor="middle" dominant-baseline="central">${ch}</text>`};
   const im=(i,a,sz,dx,dy)=>{const [x,y]=P[i];return `<image class="tge" href="art/${a}.webp" x="${(x+(dx||0)-sz/2).toFixed(1)}" y="${(y+(dy||0)-sz/2).toFixed(1)}" width="${sz}" height="${sz}"/>`};
   g.b.hut.forEach(i=>o+=im(i,'tg-hut',R*1.55));g.b.palm.forEach(i=>o+=im(i,'tg-palm',R*1.55));
-  g.b.st.forEach(([i,d])=>{const [x,y]=P[i],[dq,dr]=TGDIR[d],v=[R*s3*(dq+dr/2),R*1.5*dr],L=Math.hypot(v[0],v[1]),ux=v[0]/L,uy=v[1]/L;
-    o+=`<line class="tgsight" x1="${(x+ux*9).toFixed(1)}" y1="${(y+uy*9).toFixed(1)}" x2="${(x+ux*R*1.05).toFixed(1)}" y2="${(y+uy*R*1.05).toFixed(1)}"/>`+im(i,'tg-statue',R*1.55)});
+  /* statues: a dotted line of sight to the coast, a ring where the next amulet washes up, and the head turned to face that way */
+  g.b.st.forEach(s0=>{const [i,d]=s0,[x,y]=P[i],{path,spot}=tgGaze(g,s0),end=path.length?P[path[path.length-1]]:null;
+    if(end)o+=`<line class="tggaze" x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${end[0].toFixed(1)}" y2="${end[1].toFixed(1)}"/>`;
+    if(spot!=null&&!g.am.includes(spot)){const [sx,sy]=P[spot];o+=`<circle class="tgnext" cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="${(R*.62).toFixed(1)}"><title>The next amulet washes up here</title></circle>`}});
+  g.b.st.forEach(([i,d])=>{const [x,y]=P[i],[dq,dr]=TGDIR[d],left=dq+dr/2<0,sz=R*1.55;
+    o+=`<image class="tge" href="art/tg-statue.webp" x="${(-sz/2).toFixed(1)}" y="${(-sz/2).toFixed(1)}" width="${sz}" height="${sz}" transform="translate(${x.toFixed(1)},${y.toFixed(1)})${left?' scale(-1,1)':''}"/>`});
   g.am.forEach(i=>o+=im(i,'tg-amulet',R*.95,-R*.4,R*.4));
   /* site markers (or possible spaces) */
   const slot=[[-.45,-.45],[.45,-.45],[-.45,.45],[.45,.45]];
@@ -17480,6 +17488,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='678bcb';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='52aa90';</script>
 </body>
 </html>
