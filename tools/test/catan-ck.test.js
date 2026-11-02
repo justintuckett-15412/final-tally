@@ -35,7 +35,7 @@ const {mk,W,ok,done,chromium}=require('./link.js');
     t('More than 4 progress cards: others discard at once; you before ending your turn',()=>{const x=setup(fresh()),g=x.g,[p,q]=g.ps;turn(g,p);g.me[q].prog=['ir','mi','cr','rb','sm'];ckHand(g);const a=g.ask&&g.ask.k==='pdisc'&&g.ask.need[q]===1;ckPDisc(g,q,['sm']);
       g.me[p].prog=['ir','mi','cr','rb','sm','ec'];cpEnd(g,p);const b=g.ask&&g.ask.need[p]===2;ckPDisc(g,p,['sm','ec']);return {ok:a&&b&&g.turn!==p&&g.me[q].prog.length===4,a,b}});
     t('Bots finish C&K games, with and without Seafarers islands',()=>{const bad=[];for(const sea of [0,'1','2','9']){const {g}=fresh(3,sea);act().forEach(p=>p.bot='normal');let i=0;while(g.phase!=='done'&&i++<30000){const q=act().find(p=>p.id===cpActor(g))||act()[0];cpBotStep(g,q)}if(g.phase!=='done')bad.push(sea);if(sea&&!g.sea)bad.push('no sea '+sea)}return {ok:!bad.length,bad}});
-    t('C&K + Seafarers: goal is the scenario’s + 2; ships; the pirate waits for the first attack',()=>{const x=fresh(3,'1'),g=x.g;return {ok:g.ck&&g.sea&&g.goal===16&&g.pir==null&&g.pirHome!=null}});
+    t('C&K + islands: a random map, goal 13 + 1, robber and pirate off the board',()=>{const x=fresh(3,'1'),g=x.g;return {ok:g.ck&&g.sea&&g.sc==='9'&&g.goal===14&&g.pir==null&&g.rob==null,sc:g.sc,goal:g.goal}});
     return out});
   R.forEach(([n,g,x])=>ok(n,g,x));
 
@@ -44,7 +44,7 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   await P.evaluate(()=>{window.__htfast=1;S.screen='home';render()});await W(300);
   await P.evaluate(()=>document.querySelector('[data-a="cpstart"][data-k="1"]').click());await W(300);
   ok('Setup: Cities & Knights can be picked in play mode',await P.evaluate(()=>{const b=document.querySelector('[data-a="ctmode"][data-v="ck"]');if(!b||b.disabled)return false;b.click();return true}));await W(300);
-  ok('Setup: the Seafarers islands switch shows 5 maps',await P.evaluate(()=>{const s=document.querySelector('[data-a="cttg"][data-k="ckSea"]');if(!s)return false;s.click();return true})&&(await W(300),await P.evaluate(()=>document.querySelectorAll('[data-a="cpsfs"]').length===5)));
+  ok('Setup: the Seafarers islands switch (a random map, no scenario picker)',await P.evaluate(()=>{const s=document.querySelector('[data-a="cttg"][data-k="ckSea"]');if(!s)return false;s.click();return true})&&(await W(300),await P.evaluate(()=>!document.querySelector('[data-a="cpsfs"]'))));
   await P.evaluate(()=>{S.players.forEach((p,i)=>{p.on=i<3;p.name=['Justin','Kim','Bo'][i];p.bot=i?'normal':null});save();const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove()});await W(600);
   ok('Game: C&K on Seafarers islands with the barbarian track',await P.evaluate(()=>S.cpg&&S.cpg.ck&&S.cpg.sea&&!!document.querySelector('.ckstrip')));
   const me=await P.evaluate(()=>act()[0].id);
