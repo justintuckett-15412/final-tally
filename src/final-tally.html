@@ -1801,7 +1801,7 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 .cclast>rect:last-of-type{stroke:#e0a100;stroke-width:4}
 .cctrow{display:flex;gap:10px;align-items:center;margin:4px 0 8px}
 .cccur{width:60px;height:60px;flex:0 0 60px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
-.ccmeeps{margin-top:4px;flex-wrap:wrap;gap:4px}.ccmeeps button{padding:4px 10px;font-size:.85rem;min-height:32px}
+.ccmeeps{margin-top:4px;flex-wrap:nowrap;overflow-x:auto;gap:5px;padding-bottom:2px;scrollbar-width:none}.ccmeeps::-webkit-scrollbar{display:none}.ccmeeps button{flex:0 0 auto;white-space:nowrap}.ccmeeps button{padding:4px 10px;font-size:.85rem;min-height:32px}
 .ccbtns .btn{white-space:nowrap}
 .ccboard{max-height:58vh}
 .ccmr{display:inline-flex;gap:2px;flex-wrap:wrap}.ccmr i{width:6px;height:9px;border-radius:3px 3px 1px 1px;background:var(--pc,#888);display:inline-block}
@@ -1812,6 +1812,12 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 .ccabt{display:inline-block;margin-left:5px;font-weight:900;color:var(--pc,#888);font-size:.85rem}.ccabt.out{opacity:.3}
 .cclmt{display:inline-block;width:9px;height:13px;margin-left:4px;border-radius:4px 4px 1px 1px;background:var(--pc,#888);vertical-align:-1px}.cclmt.out{opacity:.3}
 .ccgd{margin-left:4px;font-size:.72rem;letter-spacing:-.02em}.ccsp{margin-left:3px;font-size:.75rem}.ccsp.out{opacity:.3;filter:grayscale(1)}
+.ccgold{fill:rgba(242,194,48,.18);stroke:#c99a12;stroke-width:3;stroke-dasharray:6 5;cursor:pointer}.ccgold.on{fill:rgba(242,194,48,.45);stroke-dasharray:none}
+.ccmwdot{stroke:#fff;stroke-width:3;cursor:pointer}.ccmwdot.mage{fill:#6b3fb3}.ccmwdot.witch{fill:#ef8a1e}
+.ccstep{margin:6px 0 2px;padding:6px 8px;border-radius:8px;background:var(--surface-2,rgba(0,0,0,.04))}
+.ccbody{max-height:34vh;overflow-y:auto;overscroll-behavior:contain}
+.cccur{width:56px;height:56px;flex:0 0 56px}
+.ccstep{font-size:.85rem;padding:5px 8px}
 </style>
 
 <div id="app"></div>
@@ -10599,10 +10605,28 @@ const CCT={
   HV:[1,[['c',[0,1,2,3,4,5,9,10,11],50,34,{gd:'w'}],['r',[7],50,88],['f',[6],80,91,[0]],['f',[8],20,91,[0]]],'',0,'tb'],
   HW:[1,[['c',[0,1,2,9,10,11],24,24,{gd:'w'}],['r',[4],84,52,{to:[64,48]}],['f',[3],88,26,[0]],['f',[5,6,7,8],70,78,[0]]],'',0,'tb'],
   HX:[1,[['c',[0,1,2,3,4,5],76,24,{gd:'w'}],['c',[6,7,8,9,10,11],24,76],['f',[],50,50,[0,1]]],'',0,'tb'],
+  /* The Gold Mines: [.., {gold:1}] places gold. Mage & Witch: [.., {magic:1}] moves a magic figure. {q:[x,y]} bends a road's curve. */
+  GA:[1,[['r',[1,10],37,37],['r',[4,7],63,63],['f',[11,0],14,14,[]],['f',[2,3,8,9],50,50,[]],['f',[5,6],86,86,[]]],'',0,'gold',{gold:1}],
+  GB:[1,[['c',[0,1,2,9,10,11],22,22],['r',[4,7],64,64],['f',[5,6],87,87,[]],['f',[3,8],80,30,[0]]],'',0,'gold',{gold:1}],
+  GC:[1,[['c',[0,1,2,9,10,11],22,22],['m',[],42,60],['r',[4,7],80,80,{q:[78,78]}],['f',[5,6],93,93,[]],['f',[3,8],80,34,[0]]],'',0,'gold',{gold:1}],
+  GD:[1,[['c',[9,10,11],13,50],['c',[3,4,5],87,50],['r',[1,7],50,50],['f',[0],30,10,[0]],['f',[2],70,10,[1]],['f',[8],30,90,[0]],['f',[6],70,90,[1]]],'',0,'gold',{gold:1}],
+  GE:[1,[['m',[],50,52],['r',[10,7],20,80,{q:[24,76]}],['r',[1,4],80,20,{q:[76,24]}],['f',[8,9],9,93,[]],['f',[2,3],91,9,[]],['f',[11,0,5,6],26,26,[]]],'',0,'gold',{gold:1}],
+  GF:[1,[['r',[1,7],44,24],['r',[10,4],22,50],['f',[2,3],82,18,[]],['f',[5,6],82,82,[]],['f',[8,9],18,82,[]],['f',[11,0],18,18,[]]],'',0,'gold',{gold:1}],
+  GG:[1,[['c',[0,1,2,9,10,11],22,22],['m',[],64,62],['f',[3,4,5,6,7,8],86,88,[0]]],'',0,'gold',{gold:1}],
+  GH:[1,[['m',[],40,48],['r',[4,7],80,80,{q:[78,78]}],['f',[5,6],93,93,[]],['f',[11,0,1,2,3,8,9,10],18,18,[]]],'',0,'gold',{gold:1}],
+  MA:[1,[['c',[0,1,2],50,13],['r',[4],84,52],['r',[7],50,84],['r',[10],16,52],['f',[3,11],50,38,[0]],['f',[5,6],82,82,[]],['f',[8,9],18,82,[]]],'',0,'mw',{magic:1}],
+  MB:[1,[['c',[0,1,2,3,4,5,9,10,11],50,30],['r',[7],56,84,{to:[56,60]}],['f',[6],82,92,[0]],['f',[8],20,92,[0]]],'',0,'mw',{magic:1}],
+  MC:[1,[['c',[0,1,2,3,4,5,9,10,11],50,30],['r',[7],50,86,{to:[50,62]}],['f',[6],82,92,[0]],['f',[8],18,92,[0]]],'',0,'mw',{magic:1}],
+  MD:[1,[['c',[3,4,5],87,50],['c',[9,10,11],13,50],['f',[0,1,2,6,7,8],50,50,[0,1]]],'',0,'mw',{magic:1}],
+  ME:[1,[['c',[0,1,2,9,10,11],22,22],['r',[4,7],64,64],['f',[5,6],87,87,[]],['f',[3,8],82,30,[0]],['g',[],56,42]],'',0,'mw',{magic:1}],
+  MF:[1,[['c',[0,1,2,9,10,11],22,22],['r',[4,7],64,64],['f',[5,6],87,87,[]],['f',[3,8],80,30,[0]]],'',0,'mw',{magic:1}],
+  MG:[1,[['c',[3,4,5,9,10,11],26,50],['r',[1],50,14,{to:[50,34]}],['r',[7],50,86,{to:[50,66]}],['f',[0],22,10,[0]],['f',[2],78,10,[0]],['f',[8],22,90,[0]],['f',[6],78,90,[0]]],'',0,'mw',{magic:1}],
+  MH:[1,[['c',[0,1,2],50,13],['r',[4],78,50,{to:[50,26]}],['f',[3],86,28,[0]],['f',[5,6,7,8,9,10,11],30,66,[0]]],'',0,'mw',{magic:1}],
   X:[1,[['r',[1],50,16],['r',[4],84,50],['r',[7],50,84],['r',[10],16,50],['f',[2,3],82,18,[]],['f',[5,6],82,82,[]],['f',[8,9],18,82,[]],['f',[11,0],18,18,[]]]]};
 const CCSTART='D',CCMEEPLES=7,CCDX=[0,1,0,-1],CCDY=[-1,0,1,0];
 const CCNAME={c:'city',r:'road',f:'field',m:'monastery',g:'garden',w:'river'};
-const ccRiverT=t=>!!CCT[t][3],ccBaseOf=t=>CCT[t][2]||t,ccExpT=t=>CCT[t][4]||'';
+const ccRiverT=t=>!!CCT[t][3],ccBaseOf=t=>CCT[t][2]||t,ccExpT=t=>CCT[t][4]||'',ccFlag=(t,k)=>!!(CCT[t][5]&&CCT[t][5][k]);
+const ccAround=k=>{const [x,y]=k.split(',').map(Number),o=[];for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)if(dx||dy)o.push(ccK(x+dx,y+dy));return o};
 const ccRotP=(p,r)=>(p+3*r)%12;
 const ccRotA=(x,y,r)=>{for(let i=0;i<r;i++)[x,y]=[100-y,x];return [x,y]};
 /* side s of a placed tile: its kind (c/r/f) */
@@ -10619,10 +10643,10 @@ function ccBag(o={}){const b=[];for(const t in CCT){if(ccRiverT(t))continue;if(c
     if(!CCT[t][2]&&o.abbot&&CCT[t+'g'])n-=CCT[t+'g'][0];for(let i=0;i<n;i++)b.push(t)}
   const bag=wtShuf(b);if(o.river){const R=wtShuf(['R2','R3','R4','R5','R6','R7','R8','R9','R10','R11']);return [...bag,'R12',...R]}return bag}
 function ccDeal(){const P=act(),ps=P.map(p=>p.id);/* the youngest goes first: seats are in table order */
-  const river=cOn('river')?1:0,abbot=cOn('abbot')?1:0,ic=cOn('ic')?1:0,tb=cOn('tb')?1:0,st=river?'R1':CCSTART;
-  const g={_atom:1,id:String(Math.random()).slice(2,10),ps,turn:ps[0],phase:'play',bd:{[ccK(0,0)]:{t:st,r:0,m:{}}},order:[ccK(0,0)],bag:ccBag({river,abbot,ic,tb}),cur:null,mee:{},ab:{},lm:{},ic,tb,goodsOn:tb&&cPart('tb','goods')?1:0,buOn:tb&&cPart('tb','builder')?1:0,pgOn:tb&&cPart('tb','pig')?1:0,bu:{},pg:{},goods:{},dbl:0,sc:{},scl:[],last:null,lg:[],n:0,tno:0,small:cSmall()?1:0,farm:cFarm()==='classic'?'classic':'field',stat:{},river,abbot,rv:river?{k:ccK(0,0),out:ccWaterSides(st,0)[0],turn:0}:null};
-  ps.forEach(p=>{g.mee[p]=CCMEEPLES;g.ab[p]=abbot?1:0;g.lm[p]=ic?1:0;g.bu[p]=g.buOn?1:0;g.pg[p]=g.pgOn?1:0;g.goods[p]={w:0,g:0,c:0};g.sc[p]=0;g.stat[p]={best:0,bestW:'',tiles:0,feats:0}});ccDrawNext(g);S.ccg=g;CCPEND=null;
-  gAnn(g,'Carcassonne',`${P.length} players. ${nmid(ps[0])} goes first.`,'🏰');gLog(g,`Carcassonne: ${g.bag.length+1} tiles in the stack${river?', the River first':''}${abbot?', with the Abbot':''}${ic?', with Inns & Cathedrals':''}${tb?', with Traders & Builders':''}`,'🏰')}
+  const river=cOn('river')?1:0,abbot=cOn('abbot')?1:0,ic=cOn('ic')?1:0,tb=cOn('tb')?1:0,gold=cOn('gold')?1:0,mw=cOn('mw')?1:0,st=river?'R1':CCSTART;
+  const g={_atom:1,id:String(Math.random()).slice(2,10),ps,turn:ps[0],phase:'play',bd:{[ccK(0,0)]:{t:st,r:0,m:{}}},order:[ccK(0,0)],bag:ccBag({river,abbot,ic,tb,gold,mw}),goldOn:gold,mwOn:mw,gb:{},gold:{},mage:null,witch:null,cur:null,mee:{},ab:{},lm:{},ic,tb,goodsOn:tb&&cPart('tb','goods')?1:0,buOn:tb&&cPart('tb','builder')?1:0,pgOn:tb&&cPart('tb','pig')?1:0,bu:{},pg:{},goods:{},dbl:0,sc:{},scl:[],last:null,lg:[],n:0,tno:0,small:cSmall()?1:0,farm:cFarm()==='classic'?'classic':'field',stat:{},river,abbot,rv:river?{k:ccK(0,0),out:ccWaterSides(st,0)[0],turn:0}:null};
+  ps.forEach(p=>{g.mee[p]=CCMEEPLES;g.ab[p]=abbot?1:0;g.lm[p]=ic?1:0;g.bu[p]=g.buOn?1:0;g.pg[p]=g.pgOn?1:0;g.goods[p]={w:0,g:0,c:0};g.gold[p]=0;g.sc[p]=0;g.stat[p]={best:0,bestW:'',tiles:0,feats:0}});ccDrawNext(g);S.ccg=g;CCPEND=null;
+  gAnn(g,'Carcassonne',`${P.length} players. ${nmid(ps[0])} goes first.`,'🏰');gLog(g,`Carcassonne: ${g.bag.length+1} tiles in the stack${river?', the River first':''}${abbot?', with the Abbot':''}${ic?', with Inns & Cathedrals':''}${tb?', with Traders & Builders':''}${gold?', the Gold Mines':''}${mw?', Mage & Witch':''}`,'🏰')}
 /* draw the next tile; one that fits nowhere is set aside and another is drawn */
 function ccDrawNext(g){g.cur=null;let tries=0;while(g.bag.length){const t=g.bag.pop();if(ccSpots(g,t).length){g.cur=t;return true}
     /* a river tile that can't go on yet waits under the next river tile */
@@ -10651,6 +10675,7 @@ function ccFeatures(bd){const id=new Map(),C=[],node=(k,i)=>k+'#'+i;
         if(!O){if(f[0]==='c'||f[0]==='r')comp.open=true;continue}const q=((s+2)%4)*3+(2-j),oi=portOf(ok,q);if(oi<0)continue;const on=node(ok,oi);if(!id.has(on)){id.set(on,cid);st.push([ok,oi])}}}})}
   /* meeples, and which cities each field touches */
   for(const k in bd){const T=bd[k];for(const i in T.m){const c=C[id.get(node(k,+i))];const pid=T.m[i];c.men[pid]=(c.men[pid]||0)+1}for(const i in (T.a||{})){const c=C[id.get(node(k,+i))];const pid=T.a[i];c.men[pid]=(c.men[pid]||0)+1;c.abbot=pid}for(const i in (T.L||{})){const c=C[id.get(node(k,+i))];const pid=T.L[i];c.men[pid]=(c.men[pid]||0)+2}
+    if(T.mg!=null){const c=C[id.get(node(k,T.mg))];c.mage=1}if(T.wt!=null){const c=C[id.get(node(k,T.wt))];c.witch=1}
     for(const i in (T.b||{})){const c=C[id.get(node(k,+i))];(c.bu||(c.bu=[])).push([T.b[i],k])}for(const i in (T.p||{})){const c=C[id.get(node(k,+i))];(c.pigs||(c.pigs=new Set())).add(T.p[i])}
     CCT[T.t][1].forEach((f,i)=>{if(f[0]!=='f')return;const c=C[id.get(node(k,i))];(f[4]||[]).forEach(ci=>c.cityN.add(id.get(node(k,ci))))})}
   /* monasteries: closed when all 8 neighbours are there */
@@ -10659,7 +10684,8 @@ function ccFeatures(bd){const id=new Map(),C=[],node=(k,i)=>k+'#'+i;
 const ccCat=k=>k==='r'?'road':k==='c'?'city':k==='f'?'field':'mon';
 const ccOwners=c=>{const m=Math.max(0,...Object.values(c.men));return m?Object.keys(c.men).filter(p=>c.men[p]===m):[]};
 /* points for a feature: done = finished during the game */
-function ccPts(g,c,done,C){if(c.k==='w'||c.k==='x')return 0;if(c.k==='r')return c.inn?(done?2*c.tiles.size:0):c.tiles.size;if(c.k==='m'||c.k==='g')return done?9:1+c.around;
+function ccPts(g,c,done,C){const v=ccPts0(g,c,done,C);if(c.k!=='r'&&c.k!=='c')return v;return c.witch?Math.ceil(v/2):c.mage?v+c.tiles.size:v}
+function ccPts0(g,c,done,C){if(c.k==='w'||c.k==='x')return 0;if(c.k==='r')return c.inn?(done?2*c.tiles.size:0):c.tiles.size;if(c.k==='m'||c.k==='g')return done?9:1+c.around;
   if(c.k==='c'){const n=c.tiles.size;if(c.cath)return done?3*n+3*c.shields:0;if(done)return g.small&&n===2?2:2*n+2*c.shields;return n+c.shields}
   if(c.k==='f')return 3*[...c.cityN].filter(ci=>!C[ci].open).length;return 0}
 /* can a meeple go on feature i of the tile just placed? */
@@ -10668,6 +10694,20 @@ function ccFree(g,bd,k,i){const f=CCT[bd[k].t][1][i];if(f[0]==='w'||f[0]==='g'||
 const ccAbbotOk=(g,t,i)=>{const f=CCT[t][1][i];return !!f&&(f[0]==='m'||f[0]==='g')};
 /* where a player's abbot is now: {k, i} */
 function ccAbbotAt(g,pid){for(const k of g.order){const a=g.bd[k].a||{};for(const i in a)if(a[i]===pid)return {k,i:+i}}return null}
+/* where the mage / witch are: {k,i} or null */
+function ccMagicAt(bd,w){const key=w==='mage'?'mg':'wt';for(const k in bd)if(bd[k][key]!=null)return {k,i:bd[k][key]};return null}
+/* unfinished roads and cities a magic figure may go to (not the other figure's feature) */
+function ccMagicSpots(bd,w){const F=ccFeatures(bd),other=ccMagicAt(bd,w==='mage'?'witch':'mage'),oc=other?F.id.get(F.node(other.k,other.i)):-1,out=[];
+  for(const k in bd)CCT[bd[k].t][1].forEach((f,i)=>{if(f[0]!=='r'&&f[0]!=='c')return;const ci=F.id.get(F.node(k,i)),c=F.C[ci];if(!c.open||ci===oc)return;out.push({k,i})});return out}
+/* after a tile goes down: is a magic move needed? 'tile' = a magic tile, 'clash' = both in one feature */
+function ccMagicNeed(g,bd,t){if(!g.mwOn)return null;if(ccFlag(t,'magic'))return 'tile';const M=ccMagicAt(bd,'mage'),W=ccMagicAt(bd,'witch');if(!M||!W)return null;const F=ccFeatures(bd);return F.id.get(F.node(M.k,M.i))===F.id.get(F.node(W.k,W.i))?'clash':null}
+function ccApplyMagic(bd,mw){const key=mw.w==='mage'?'mg':'wt';for(const k in bd)if(bd[k][key]!=null){bd[k]={...bd[k]};delete bd[k][key]}if(!mw.rm)bd[mw.k]={...bd[mw.k],[key]:+mw.i}}
+function ccMagicCheck(g,bd,t,mw){const need=ccMagicNeed(g,bd,t);if(!need)return mw?'No magic figure to move.':null;
+  if(!mw||!['mage','witch'].includes(mw.w))return need==='tile'?'Place the mage or the witch first.':'The mage and the witch are on the same feature: move one.';
+  const spots=ccMagicSpots(bd,mw.w),anySpot=spots.length||ccMagicSpots(bd,mw.w==='mage'?'witch':'mage').length;
+  if(mw.rm){if(anySpot)return 'There’s still a place for it.';return null}
+  if(!spots.some(s=>s.k===mw.k&&s.i===+mw.i))return 'It goes on an unfinished road or city, not with the other figure.';
+  if(need==='clash'){const b2={...bd};ccApplyMagic(b2,mw);if(ccMagicNeed(g,b2,'D')==='clash')return 'Move one of them off that feature.'}return null}
 function ccPlayCheck(g,pid,mv){if(g.phase!=='play'||g.turn!==pid||!g.cur||!mv)return 'Not your turn.';const x=+mv.x,y=+mv.y,r=((+mv.r%4)+4)%4;if(!ccFits(g,g.cur,r,x,y))return 'The tile doesn’t fit there.';
   if(mv.f!=null&&mv.f!==''){const f=+mv.f;if(!(f>=0&&f<CCT[g.cur][1].length))return 'No such spot.';if(mv.ret)return 'Bring your abbot home, or place a figure, not both.';
     if(mv.a){if(!g.abbot||!g.ab[pid])return 'Your abbot isn’t in your supply.';if(!ccAbbotOk(g,g.cur,f))return 'The abbot goes on a monastery or a garden.';return null}
@@ -10675,11 +10715,16 @@ function ccPlayCheck(g,pid,mv){if(g.phase!=='play'||g.turn!==pid||!g.cur||!mv)re
       if(mv.b&&kind!=='r'&&kind!=='c')return 'The builder goes on a road or a city.';if(mv.p&&kind!=='f')return 'The pig goes in a field.';const bd={...g.bd,[ccK(x,y)]:{t:g.cur,r,m:{}}},F=ccFeatures(bd),c=F.C[F.id.get(F.node(ccK(x,y),f))];
       if(!(c.men[pid]>0))return mv.b?'You need one of your meeples on that road or city first.':'You need one of your farmers in that field first.';return null}
     if(mv.L){if(!g.ic||!g.lm[pid])return 'Your large meeple isn’t in your supply.'}else if(g.mee[pid]<1)return 'No meeples left.';const bd={...g.bd,[ccK(x,y)]:{t:g.cur,r,m:{}}};if(!ccFree(g,bd,ccK(x,y),f))return CCT[g.cur][1][f][0]==='g'?'Only an abbot can go in a garden.':'Someone already has that '+CCNAME[CCT[g.cur][1][f][0]]+'.'}
-  if(mv.ret&&!ccAbbotAt(g,pid))return 'Your abbot isn’t on the map.';return null}
+  if(mv.ret&&!ccAbbotAt(g,pid))return 'Your abbot isn’t on the map.';
+  const bd={...g.bd,[ccK(x,y)]:{t:g.cur,r,m:{}}};
+  if(g.goldOn&&ccFlag(g.cur,'gold')){const nb=ccAround(ccK(x,y)).filter(kk=>bd[kk]);if(nb.length&&!nb.includes(mv.gk))return 'Choose a tile next to it for the second gold.'}
+  const me=ccMagicCheck(g,bd,g.cur,mv.mw);if(me)return me;return null}
 /* play a turn: place the tile (and maybe a meeple), score what was finished, draw for the next player */
 function ccPlay(g,pid,mv){if(ccPlayCheck(g,pid,mv))return false;const x=+mv.x,y=+mv.y,r=((+mv.r%4)+4)%4,k=ccK(x,y),f=mv.f==null||mv.f===''?null:+mv.f;
   const placedRiver=ccRiverT(g.cur),cur=g.cur;g.bd[k]={t:g.cur,r,m:{}};g.order.push(k);/* does this tile carry on a road or city with my builder on it? (before any new figure goes down) */
   let grow=false;if(g.buOn&&!g.dbl){const F0=ccFeatures(g.bd);CCT[g.cur][1].forEach((ff,i)=>{if(ff[0]!=='r'&&ff[0]!=='c')return;const c=F0.C[F0.id.get(F0.node(k,i))];if((c.bu||[]).some(([p,kk])=>p===pid&&kk!==k))grow=true})}
+  if(g.goldOn&&ccFlag(cur,'gold')){g.gb[k]=(g.gb[k]||0)+1;if(mv.gk&&g.bd[mv.gk])g.gb[mv.gk]=(g.gb[mv.gk]||0)+1;else g.gb[k]++}
+  if(mv.mw&&g.mwOn){ccApplyMagic(g.bd,mv.mw);gLog(g,mv.mw.rm?`The ${mv.mw.w} is set aside`:`${nmid(pid)} moves the ${mv.mw.w}`,mv.mw.w==='mage'?'🧙':'🧹')}
   if(f!=null){if(mv.b){g.bd[k].b={[f]:pid};g.bu[pid]=0}else if(mv.p){g.bd[k].p={[f]:pid};g.pg[pid]=0}else if(mv.a){g.bd[k].a={[f]:pid};g.ab[pid]=0}else if(mv.L){g.bd[k].L={[f]:pid};g.lm[pid]=0}else{g.bd[k].m[f]=pid;g.mee[pid]--}}g.stat[pid].tiles++;
   if(placedRiver&&g.rv){const ent=(g.rv.out+2)%4,out=ccWaterSides(cur,r).find(s=>s!==ent);g.rv=out==null?{k,out:null,turn:0,done:1}:{k,out,turn:ccTurn(g.rv.out,out)}}
   const home=[];if(mv.ret){const A=ccAbbotAt(g,pid),F0=ccFeatures(g.bd),c=F0.C[F0.id.get(F0.node(A.k,A.i))],pts=ccPts(g,c,false,F0.C);delete g.bd[A.k].a[A.i];g.ab[pid]=1;g.sc[pid]+=pts;g.scl.push({pid,pts,cat:'mon',fin:false});home.push(`${nmid(pid)} brings the abbot home +${pts}`)}
@@ -10688,7 +10733,10 @@ function ccPlay(g,pid,mv){if(ccPlayCheck(g,pid,mv))return false;const x=+mv.x,y=
   const cands=new Set();CCT[g.cur][1].forEach((ff,i)=>cands.add(F.id.get(F.node(k,i))));for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){const kk=ccK(x+dx,y+dy),T=g.bd[kk];if(!T)continue;CCT[T.t][1].forEach((ff,i)=>{if(ff[0]==='m')cands.add(F.id.get(F.node(kk,i)))})}
   const got=home;cands.forEach(ci=>{const c=F.C[ci];if(c.k==='f'||c.k==='w'||c.k==='x'||c.open||seen.has(ci))return;seen.add(ci);const own=ccOwners(c),pts=ccPts(g,c,true,F.C);
     own.forEach(p=>{g.sc[p]+=pts;g.scl.push({pid:p,pts,cat:ccCat(c.k),fin:false});const St=g.stat[p];St.feats++;if(pts>St.best){St.best=pts;St.bestW=CCNAME[c.k]}});
-    if(own.length)got.push(`${own.map(nmid).join(' & ')} +${pts} (${CCNAME[c.k]})`);
+    if(own.length)got.push(`${own.map(nmid).join(' & ')} +${pts} (${CCNAME[c.k]})${c.mage?' 🧙':''}${c.witch?' 🧹':''}`);
+    if(g.goldOn&&own.length){const tiles=c.k==='m'||c.k==='g'?[c.mk,...ccAround(c.mk)]:[...c.tiles];let n=tiles.reduce((a,kk)=>a+(g.gb[kk]||0),0);tiles.forEach(kk=>delete g.gb[kk]);
+      if(n){const ord=g.ps.slice(g.ps.indexOf(pid)).concat(g.ps.slice(0,g.ps.indexOf(pid))).filter(p=>own.includes(p)),tk={};let j=0;while(n-->0){const p=ord[j++%ord.length];g.gold[p]++;tk[p]=(tk[p]||0)+1}got.push(Object.keys(tk).map(p=>`${nmid(p)} takes ${tk[p]} gold`).join(', '))}}
+    if(c.mage||c.witch)c.nodes.forEach(nk=>{const [kk,ii]=nk.split('#'),T=g.bd[kk];if(T.mg==+ii)delete T.mg;if(T.wt==+ii)delete T.wt});
     if(c.k==='c'&&c.goods&&g.goodsOn){const G=g.goods[pid];const L=[];for(const t in c.goods){G[t]+=c.goods[t];L.push(c.goods[t]+' '+CCGOODS[t][1])}got.push(`${nmid(pid)} takes ${L.join(', ')}`)}
     /* meeples come home */
     c.nodes.forEach(nk=>{const [kk,ii]=nk.split('#');const T=g.bd[kk];if(T.m[ii]!=null){g.mee[T.m[ii]]++;delete T.m[ii]}if(T.a&&T.a[ii]!=null){g.ab[T.a[ii]]=1;delete T.a[ii]}if(T.L&&T.L[ii]!=null){g.lm[T.L[ii]]=1;delete T.L[ii]}if(T.b&&T.b[ii]!=null){g.bu[T.b[ii]]=1;delete T.b[ii]}})});
@@ -10704,11 +10752,13 @@ function ccEnd(g){g.phase='done';g.cur=null;const F=ccFeatures(g.bd),fin=[];
   if(g.farm==='classic'){/* each finished city goes to whoever has the most farmers in the fields touching it: 4 points */
     F.C.forEach((c,ci)=>{if(c.k!=='c'||c.open)return;const men={};F.C.forEach(f=>{if(f.k!=='f'||!f.cityN.has(ci))return;for(const p in f.men)men[p]=Math.max(men[p]||0,0)+f.men[p]});const m=Math.max(0,...Object.values(men));if(!m)return;Object.keys(men).filter(p=>men[p]===m).forEach(p=>{const pig=F.C.some(f=>f.k==='f'&&f.cityN.has(ci)&&f.pigs&&f.pigs.has(p)&&f.men[p]),v=4+(pig?1:0);g.sc[p]+=v;g.scl.push({pid:p,pts:v,cat:'field',fin:true})})})}
   else F.C.forEach(c=>{if(c.k!=='f')return;const own=ccOwners(c),pts=ccPts(g,c,false,F.C);if(!pts)return;own.forEach(p=>{const v=pts+(c.pigs&&c.pigs.has(p)?pts/3:0);g.sc[p]+=v;g.scl.push({pid:p,pts:v,cat:'field',fin:true})})});
+  if(g.goldOn){g.goldPts={};g.ps.forEach(p=>{const v=GOLDV(g.gold[p]);g.goldPts[p]=v;g.sc[p]+=v})}
   if(g.goodsOn){g.goodsWin={};for(const t of ['w','g','c']){const m=Math.max(0,...g.ps.map(p=>g.goods[p][t]));if(m>0)g.ps.forEach(p=>{if(g.goods[p][t]===m){g.sc[p]+=10;(g.goodsWin[p]=g.goodsWin[p]||[]).push(t)}})}}
   g.n++;const P=act().slice().sort((a,b)=>g.sc[b.id]-g.sc[a.id]);gAnn(g,'🏆 Game over',P.map(p=>`${nm(p)} ${g.sc[p.id]}`).join(' · '),'🏆');gLog(g,'The last tile is down: unfinished features and fields are scored','🏁',1);return true}
 const ccActor=g=>!g||g.phase!=='play'?null:g.turn;
 /* the scoring log, for the results screen, reveal and awards */
 function ccSyncLog(g){if(!g||!Array.isArray(g.scl))return false;let ch=false;if(g.goodsOn){const E=S.cend||(S.cend={}),want={};g.ps.forEach(p=>want[p]={wine:g.goods[p].w,grain:g.goods[p].g,cloth:g.goods[p].c});if(JSON.stringify(E.goods||{})!==JSON.stringify(want)){E.goods=want;ch=true}}
+  if(g.goldOn){const E=S.cend||(S.cend={}),want={};g.ps.forEach(p=>want[p]=g.gold[p]);if(JSON.stringify(E.gold||{})!==JSON.stringify(want)){E.gold=want;ch=true}}
   const L=S.clog||(S.clog=[]);if(L.length===g.scl.length&&L.every(e=>e.cc))return ch;S.clog=g.scl.map((e,i)=>({id:'cc'+i,g:'cc'+i,cc:1,pid:e.pid,pts:e.pts,cat:e.cat,fin:!!e.fin}));return true}
 
 /* ---------- computer players ---------- */
@@ -10728,7 +10778,13 @@ function ccBotMove(g,lv){const pid=g.turn,t=g.cur;if(!t)return null;const spots=
       /* finished features give their meeples back */
       const F2=ccFeatures(b2);F2.C.forEach(c=>{if(c.k!=='f'&&!c.open)for(const p in c.men)me[p]+=c.men[p]});
       const v=ccEval(g,b2,me,ab,lm);const others=g.ps.filter(p=>p!==pid),best=others.length?Math.max(...others.map(p=>v[p])):0;M.push({mv:{x:s.x,y:s.y,r:s.r,f,...(isA?{a:1}:{}),...(isL?{L:1}:{}),...(ret?{ret:1}:{})},v:v[pid]-best*(lv==='hard'?1:.6)+(f!=null&&late?-1:0)+bonus})}}
-  if(!M.length)return null;M.sort((a,b)=>b.v-a.v);if(lv==='hard')return M[0].mv;if(lv==='normal')return M[Math.floor(Math.random()*Math.min(3,M.length))].mv;return M[Math.floor(Math.random()*Math.max(1,Math.ceil(M.length*.3)))].mv}
+  if(!M.length)return null;M.forEach(m=>ccBotExtras(g,pid,m.mv));M.sort((a,b)=>b.v-a.v);if(lv==='hard')return M[0].mv;if(lv==='normal')return M[Math.floor(Math.random()*Math.min(3,M.length))].mv;return M[Math.floor(Math.random()*Math.max(1,Math.ceil(M.length*.3)))].mv}
+/* the extra choices on a move: where the second gold goes, and which magic figure moves where */
+function ccBotExtras(g,pid,mv){const k=ccK(mv.x,mv.y),bd={...g.bd,[k]:{t:g.cur,r:mv.r,m:{}}};
+  if(g.goldOn&&ccFlag(g.cur,'gold')){const nb=ccAround(k).filter(kk=>bd[kk]);if(nb.length){const mine=kk=>Object.values(bd[kk].m||{}).filter(p=>p===pid).length;nb.sort((a,b)=>mine(b)-mine(a));mv.gk=nb[0]}}
+  const need=ccMagicNeed(g,bd,g.cur);if(!need)return;const F=ccFeatures(bd);const val=s=>{const c=F.C[F.id.get(F.node(s.k,s.i))];const own=ccOwners(c);return own.includes(pid)?c.tiles.size:own.length?-c.tiles.size:0};
+  for(const w of ['mage','witch']){const sp=ccMagicSpots(bd,w);if(!sp.length)continue;sp.sort((a,b)=>w==='mage'?val(b)-val(a):val(a)-val(b));const cand={w,k:sp[0].k,i:sp[0].i};if(!ccMagicCheck(g,bd,g.cur,cand)){mv.mw=cand;return}}
+  for(const w of ['mage','witch']){const cand={w,rm:1};if(!ccMagicCheck(g,bd,g.cur,cand)){mv.mw=cand;return}}}
 function ccBotStep(g,q){if(g.phase!=='play'||g.turn!==q.id)return false;const mv=ccBotMove(g,q.bot);return mv?ccPlay(g,q.id,mv):false}
 /* ---------- Carcassonne: drawing tiles (our own simple style) ---------- */
 const CCCOL={field:'#86bb5c',field2:'#79ae50',road:'#f2e6c2',roadE:'#a8956a',city:'#d9a46a',wall:'#7a4a28',mon:'#b5523b',monW:'#f4ead2'};
@@ -10739,7 +10795,7 @@ function ccCityPath(sides){const n=sides.length,rot=k=>`transform="rotate(${k*90
   if(n===3){const m=[0,1,2,3].find(s=>!sides.includes(s));return two('M0,0 L100,0 L100,100 Q50,50 0,100Z','M100,100 Q50,50 0,100',(m+2)%4)}
   const [a,b]=sides;if((b-a)%2===0)return two('M100,0 L100,100 Q50,64 0,100 L0,0 Q50,36 100,0Z','M100,100 Q50,64 0,100 M0,0 Q50,36 100,0',a%2===1?0:1);
   const first=(a+1)%4===b?a:b;return two('M0,0 L100,0 Q30,30 0,100Z','M100,0 Q30,30 0,100',(first+1)%4)}
-function ccLinePath(f){const s=f[1].map(p=>Math.floor(p/3));if(s.length===2){const [p,q]=[CCMID[s[0]],CCMID[s[1]]];return Math.abs(s[0]-s[1])===2?`M${p} L${q}`:`M${p} Q50,50 ${q}`}const p=CCMID[s[0]],to=f[4]&&f[4].to||(f[4]&&f[4].src?[50,58]:[50,50]);return `M${p} L${to}`}
+function ccLinePath(f){const s=f[1].map(p=>Math.floor(p/3));if(s.length===2){const [p,q]=[CCMID[s[0]],CCMID[s[1]]];return Math.abs(s[0]-s[1])===2?`M${p} L${q}`:`M${p} Q${f[4]&&f[4].q?f[4].q:'50,50'} ${q}`}const p=CCMID[s[0]],to=f[4]&&f[4].to||(f[4]&&f[4].src?[50,58]:[50,50]);return `M${p} L${to}`}
 function ccWater(f,paint){const d=ccLinePath(f);let o=`<path d="${d}" fill="none" stroke="#2f6fa8" stroke-opacity=".5" stroke-width="20"/><path d="${d}" fill="none" stroke="${paint?'url(#ccx-water)':'#5aa7e0'}" stroke-width="16" stroke-linecap="round"/>`;
   if(f[4]&&f[4].src)o+=`<ellipse cx="50" cy="56" rx="18" ry="13" fill="${paint?'url(#ccx-water)':'#5aa7e0'}" stroke="#2f6fa8" stroke-width="2.5"/><path d="M40,50 q5,-6 10,0 q5,-6 10,0" fill="none" stroke="#fff" stroke-width="2" opacity=".8"/>`;
   if(f[4]&&f[4].lake)o+=`<path d="M50,22 C78,18 86,44 80,62 C74,84 44,86 30,72 C16,58 22,24 50,22Z" fill="${paint?'url(#ccx-water)':'#5aa7e0'}" stroke="#2f6fa8" stroke-width="2.5"/>`;return o}
@@ -10754,6 +10810,10 @@ const ccGoodsArt=(x,y,t,paint)=>`<g transform="translate(${x-9},${y-10})"><path 
 /* the builder (a figure with a hammer) and the pig, in the player's colour */
 const ccBuilder=(x,y,col)=>`<g transform="translate(${x-11},${y-14})"><path d="M11,2 a5,5 0 1 1 -0.1,0 Z" fill="var(--t-${col})" stroke="#fff" stroke-width="4"/><path d="M5,26 L8,12 H14 L17,26Z" fill="var(--t-${col})" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><circle cx="11" cy="7" r="5" fill="var(--t-${col})" stroke="#1d232a" stroke-width="1.6"/><path d="M5,26 L8,12 H14 L17,26Z" fill="var(--t-${col})" stroke="#1d232a" stroke-width="1.6" stroke-linejoin="round"/><path d="M16,10 l6,-6 M19,2 l5,5" stroke="#6b4a2a" stroke-width="2.4" stroke-linecap="round"/></g>`;
 const ccPig=(x,y,col)=>`<g transform="translate(${x-13},${y-9})"><ellipse cx="12" cy="10" rx="10" ry="7" fill="var(--t-${col})" stroke="#fff" stroke-width="4"/><ellipse cx="12" cy="10" rx="10" ry="7" fill="var(--t-${col})" stroke="#1d232a" stroke-width="1.6"/><circle cx="22" cy="8" r="4.5" fill="var(--t-${col})" stroke="#1d232a" stroke-width="1.6"/><ellipse cx="25" cy="9" rx="2" ry="1.6" fill="#f6b3c0" stroke="#1d232a" stroke-width="1"/><path d="M6,16 v3 M10,16 v3 M15,16 v3 M18,16 v3" stroke="#1d232a" stroke-width="1.6"/></g>`;
+const ccMage=(x,y)=>`<g transform="translate(${x-12},${y-16})"><path d="M12,0 L20,16 H4Z" fill="#6b3fb3" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/><path d="M12,0 L20,16 H4Z" fill="#6b3fb3" stroke="#1d232a" stroke-width="1.5" stroke-linejoin="round"/><path d="M3,30 L7,15 H17 L21,30Z" fill="#7d4fd0" stroke="#1d232a" stroke-width="1.5"/><circle cx="12" cy="8" r="1.6" fill="#ffd54a"/></g>`;
+const ccWitch=(x,y)=>`<g transform="translate(${x-12},${y-16})"><path d="M14,0 L19,15 H5Z" fill="#ef8a1e" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/><path d="M14,0 L19,15 H5Z M1,16 H23" fill="#ef8a1e" stroke="#1d232a" stroke-width="1.5" stroke-linejoin="round"/><path d="M3,30 L7,16 H17 L21,30Z" fill="#f29a2e" stroke="#1d232a" stroke-width="1.5"/></g>`;
+const ccGoldBars=n=>n?`<g transform="translate(70,4)">${Array.from({length:Math.min(n,4)},(_,j)=>`<path d="M${j*5},${18-j*3} l4,-6 h12 l4,6z" fill="#f2c230" stroke="#8a6a12" stroke-width="1.2"/>`).join('')}${n>4?`<text x="18" y="28" font-size="9" font-weight="800" fill="#8a6a12">${n}</text>`:''}</g>`:'';
+const ccSymbol=t=>ccFlag(t,'gold')?`<path d="M6,94 l3,-5 h10 l3,5z" fill="#f2c230" stroke="#8a6a12" stroke-width="1"/>`:ccFlag(t,'magic')?`<path d="M14,80 L19,94 H8Z" fill="#6b3fb3" stroke="#fff" stroke-width="1"/>`:'';
 const ccShield=(x,y)=>`<path d="M${x-6},${y-7} h12 v6 q0,7 -6,10 q-6,-3 -6,-10z" fill="#2b63c4" stroke="#f3efe4" stroke-width="1.6"/>`;
 /* painted look: textures from art/, turned back so they line up across the whole map */
 const ccPaint=()=>(CX().look||'paint')==='paint';
@@ -10782,9 +10842,10 @@ function ccTileSvg(t,r,x,y,o={}){const colOf=pid=>(act().find(p=>p.id===pid)||{}
   let m='';for(const i in (o.m||{})){const f=CCT[t][1][i];const [ax,ay]=ccRotA(f[2],f[3],r);m+=ccMeep(ax,ay,colOf(o.m[i]))}
   for(const i in (o.a||{})){const f=CCT[t][1][i];const [ax,ay]=ccRotA(f[2],f[3],r);m+=ccAbbot(ax,ay,colOf(o.a[i]))}
   for(const i in (o.L||{})){const f=CCT[t][1][i];const [ax,ay]=ccRotA(f[2],f[3],r);m+=ccMeep(ax,ay,colOf(o.L[i]),{big:1})}
+  if(o.mg!=null){const f=CCT[t][1][o.mg];const [ax,ay]=ccRotA(f[2],f[3],r);m+=ccMage(ax-12,ay-2)}if(o.wt!=null){const f=CCT[t][1][o.wt];const [ax,ay]=ccRotA(f[2],f[3],r);m+=ccWitch(ax-12,ay-2)}
   for(const i in (o.b||{})){const f=CCT[t][1][i];const [ax,ay]=ccRotA(f[2],f[3],r);m+=ccBuilder(ax+12,ay+4,colOf(o.b[i]))}
   for(const i in (o.p||{})){const f=CCT[t][1][i];const [ax,ay]=ccRotA(f[2],f[3],r);m+=ccPig(ax+12,ay+8,colOf(o.p[i]))}
-  return `<g transform="translate(${x*100},${y*100})"${o.cls?` class="${o.cls}"`:''}><g transform="rotate(${r*90} 50 50)">${ccTileInner(t,r)}</g><rect x="0" y="0" width="100" height="100" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1"/>${m}${o.after||''}</g>`}
+  return `<g transform="translate(${x*100},${y*100})"${o.cls?` class="${o.cls}"`:''}><g transform="rotate(${r*90} 50 50)">${ccTileInner(t,r)}${ccSymbol(t)}</g>${ccGoldBars(o.gold||0)}<rect x="0" y="0" width="100" height="100" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1"/>${m}${o.after||''}</g>`}
 
 /* ---------- Carcassonne: the play screen ---------- */
 let CCPEND=null,CCBOTT=null;
@@ -10793,23 +10854,26 @@ function ccBoardEl(g,V){const mine=V&&g.phase==='play'&&g.turn===V.id&&g.cur,pen
   Object.keys(g.bd).forEach(k=>{const [x,y]=k.split(',').map(Number);x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)});x0--;y0--;x1++;y1++;
   const W=(x1-x0+1)*100,H=(y1-y0+1)*100;let o=`<svg class="ccboard${mine?' live':''}" viewBox="${x0*100-6} ${y0*100-6} ${W+12} ${H+12}" role="img" aria-label="The map: ${g.order.length} tiles">${ccDefs()}`;
   o+=`<rect x="${x0*100-6}" y="${y0*100-6}" width="${W+12}" height="${H+12}" fill="var(--cc-table,#e9dfc8)"/>`;
-  for(const k of g.order){const T=g.bd[k],[x,y]=k.split(',').map(Number);o+=ccTileSvg(T.t,T.r,x,y,{m:T.m,a:T.a,L:T.L,b:T.b,p:T.p,cls:g.last&&g.last.k===k?'cclast':''})}
+  for(const k of g.order){const T=g.bd[k],[x,y]=k.split(',').map(Number);o+=ccTileSvg(T.t,T.r,x,y,{m:T.m,a:T.a,L:T.L,b:T.b,p:T.p,mg:T.mg,wt:T.wt,gold:(g.gb||{})[k],cls:g.last&&g.last.k===k?'cclast':''})}
   if(mine){const spots=ccSpots(g,g.cur),seen=new Set();spots.forEach(s=>{const k=ccK(s.x,s.y);if(seen.has(k)||pend&&pend.x===s.x&&pend.y===s.y)return;seen.add(k);o+=`<rect class="ccspot" x="${s.x*100+4}" y="${s.y*100+4}" width="92" height="92" rx="8" data-a="ccpspot" data-k="${k}"/>`});
     if(pend){const F=CCT[g.cur][1],bd={...g.bd,[ccK(pend.x,pend.y)]:{t:g.cur,r:pend.r,m:{}}};let dots='';
       F.forEach((f,i)=>{const okM=(g.mee[V.id]>0||g.ic&&g.lm[V.id])&&ccFree(g,bd,ccK(pend.x,pend.y),i),okA=g.abbot&&g.ab[V.id]&&ccAbbotOk(g,g.cur,i);if(!okM&&!okA||pend.f===i)return;const [ax,ay]=ccRotA(f[2],f[3],pend.r);dots+=`<circle class="ccdot${okA&&!okM?' ab':''}" cx="${ax}" cy="${ay}" r="9" data-a="ccpmeep" data-k="${okA&&!okM?'a'+i:i}"><title>${CCNAME[f[0]]}</title></circle>`});
-      const pf=pend.f!=null&&!pend.a?{[pend.f]:V.id}:{};o+=ccTileSvg(g.cur,pend.r,pend.x,pend.y,{cls:'ccpend',m:pend.L||pend.b||pend.p?{}:pf,L:pend.L?pf:{},b:pend.b?pf:{},p:pend.p?pf:{},a:pend.f!=null&&pend.a?{[pend.f]:V.id}:{},after:`<rect x="1" y="1" width="98" height="98" fill="none" stroke="var(--pc,#e0a100)" stroke-width="4" data-a="ccprot" data-k="1"/>${dots}`})}}
+      const pk=ccK(pend.x,pend.y),bdp={...g.bd,[pk]:{t:g.cur,r:pend.r,m:{}}};if(pend.mw)ccApplyMagic(bdp,pend.mw);
+      if(g.goldOn&&ccFlag(g.cur,'gold'))ccAround(pk).filter(kk=>g.bd[kk]).forEach(kk=>{const [gx,gy]=kk.split(',').map(Number);o+=`<rect class="ccgold${pend.gk===kk?' on':''}" x="${gx*100+6}" y="${gy*100+6}" width="88" height="88" rx="8" data-a="ccpgold" data-k="${kk}"/>`});
+      if(CCMW&&ccMagicNeed(g,{...g.bd,[pk]:{t:g.cur,r:pend.r,m:{}}},g.cur))ccMagicSpots({...g.bd,[pk]:{t:g.cur,r:pend.r,m:{}}},CCMW).forEach(sp=>{const T=sp.k===pk?{t:g.cur,r:pend.r}:g.bd[sp.k],f=CCT[T.t][1][sp.i],[ax,ay]=ccRotA(f[2],f[3],T.r),[tx,ty]=sp.k.split(',').map(Number);o+=`<circle class="ccmwdot ${CCMW}" cx="${tx*100+ax}" cy="${ty*100+ay}" r="10" data-a="ccpmw" data-k="${sp.k}#${sp.i}"/>`});
+      const pf=pend.f!=null&&!pend.a?{[pend.f]:V.id}:{};o+=ccTileSvg(g.cur,pend.r,pend.x,pend.y,{cls:'ccpend',mg:bdp[pk].mg,wt:bdp[pk].wt,gold:pend.gk?0:0,m:pend.L||pend.b||pend.p?{}:pf,L:pend.L?pf:{},b:pend.b?pf:{},p:pend.p?pf:{},a:pend.f!=null&&pend.a?{[pend.f]:V.id}:{},after:`<rect x="1" y="1" width="98" height="98" fill="none" stroke="var(--pc,#e0a100)" stroke-width="4" data-a="ccprot" data-k="1"/>${dots}`})}}
   return o+'</svg>'}
 function ccScoreScr(){if(ccOn()&&S.started&&!S.demo)return ccPlayUI();return cLive()}
 function ccPlayUI(){const g=ccG(),P=act();
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="Carcassonne">${g&&g.phase==='done'?'🏁':'🏰'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>`;
   if(!g||ccStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(ccRes()?'Shuffling the tiles…':'Waiting for the host phone…')}</div>`;
   const V=ccViewer(),ap=P.find(p=>p.id===g.turn);
-  out+=`<div class="tabs hftabs nxtabs" role="list">${P.map(q=>`<div class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${g.turn===q.id&&g.phase!=='done'}"><div class="tn">${botHead(q)}${esc(nm(q))}</div><div class="ts num">${g.sc[q.id]||0}</div><div class="tr">${ccMeepRow(q,g.mee[q.id])}${g.tb?`<span class="ccgd">${['w','g','c'].map(t=>(g.goods[q.id]||{})[t]?`${CCGOODS[t][0]}${g.goods[q.id][t]}`:'').join(' ')}</span>${g.buOn?`<span class="ccsp${g.bu[q.id]?'':' out'}" aria-label="${g.bu[q.id]?'Builder ready':'Builder on the map'}">🔨</span>`:''}${g.pgOn?`<span class="ccsp${g.pg[q.id]?'':' out'}" aria-label="${g.pg[q.id]?'Pig ready':'Pig on the map'}">🐖</span>`:''}`:''}${g.ic?`<span class="cclmt${g.lm[q.id]?'':' out'}" aria-label="${g.lm[q.id]?'Large meeple ready':'Large meeple on the map'}"></span>`:''}${g.abbot?`<span class="ccabt${g.ab[q.id]?'':' out'}" aria-label="${g.ab[q.id]?'Abbot ready':'Abbot on the map'}">✝</span>`:''}</div></div>`).join('')}</div>`;
+  out+=`<div class="tabs hftabs nxtabs" role="list">${P.map(q=>`<div class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}" aria-pressed="${g.turn===q.id&&g.phase!=='done'}"><div class="tn">${botHead(q)}${esc(nm(q))}</div><div class="ts num">${g.sc[q.id]||0}</div><div class="tr">${ccMeepRow(q,g.mee[q.id])}${g.goldOn&&g.gold[q.id]?`<span class="ccgd">🪙${g.gold[q.id]}</span>`:''}${g.tb?`<span class="ccgd">${['w','g','c'].map(t=>(g.goods[q.id]||{})[t]?`${CCGOODS[t][0]}${g.goods[q.id][t]}`:'').join(' ')}</span>${g.buOn?`<span class="ccsp${g.bu[q.id]?'':' out'}" aria-label="${g.bu[q.id]?'Builder ready':'Builder on the map'}">🔨</span>`:''}${g.pgOn?`<span class="ccsp${g.pg[q.id]?'':' out'}" aria-label="${g.pg[q.id]?'Pig ready':'Pig on the map'}">🐖</span>`:''}`:''}${g.ic?`<span class="cclmt${g.lm[q.id]?'':' out'}" aria-label="${g.lm[q.id]?'Large meeple ready':'Large meeple on the map'}"></span>`:''}${g.abbot?`<span class="ccabt${g.ab[q.id]?'':' out'}" aria-label="${g.ab[q.id]?'Abbot ready':'Abbot on the map'}">✝</span>`:''}</div></div>`).join('')}</div>`;
   const lm=g.last,mk=g.phase==='done'?'win':ap&&ap.bot?'farm':lm&&lm.got&&lm.got.length&&g.tno>0&&Date.now()-(g.lastAt||0)<1e9?(/\(city\)/.test(lm.got.join())?'city':/monastery/.test(lm.got.join())?'mon':'road'):'place';
   out+=`<div class="hfmin htstat ccstat"><img class="ccpic" src="art/cc-m-${mk}.webp" alt="" width="96" height="66" onerror="this.remove()"><div><span>${g.phase==='done'?'<b>Game over.</b>':ap?`${botHead(ap)}<b>${esc(nm(ap))}</b> ${V&&V.id===ap.id&&!ap.bot?(g.dbl?'· 🔨 builder: another tile':'· your turn'):ap.bot?'is thinking…':g.dbl?'· 🔨 another tile':'· their turn'}`:''}</span><span>${lm&&lm.got&&lm.got.length?esc(lm.got.join(' · '))+' · ':''}🧩 ${g.bag.length+(g.cur?1:0)} left</span></div></div>`;
   out+=zmBox('cc',ccBoardEl(g,V),'cczm');
   if(!LPTIP)out+=ccDock(g,V);
-  if(g.phase==='done')out+=`<div class="panel htsum">${P.slice().sort((a,b)=>(g.sc[b.id]||0)-(g.sc[a.id]||0)).map(q=>{const St=g.stat[q.id]||{};return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${St.best?`best: a ${St.best}-point ${esc(St.bestW)}`:''}${g.goodsWin&&g.goodsWin[q.id]?` · most ${g.goodsWin[q.id].map(t=>CCGOODS[t][0]).join('')} +${10*g.goodsWin[q.id].length}`:''}</small></span><span class="num"><b>${g.sc[q.id]}</b></span></div>`}).join('')}</div>
+  if(g.phase==='done')out+=`<div class="panel htsum">${P.slice().sort((a,b)=>(g.sc[b.id]||0)-(g.sc[a.id]||0)).map(q=>{const St=g.stat[q.id]||{};return `<div class="srow" style="${pc(q.color)}"><span class="rlab"><i class="dot"></i> <b>${esc(nm(q))}</b><br><small>${St.best?`best: a ${St.best}-point ${esc(St.bestW)}`:''}${g.goldPts&&g.goldPts[q.id]?` · gold ${g.gold[q.id]} → +${g.goldPts[q.id]}`:''}${g.goodsWin&&g.goodsWin[q.id]?` · most ${g.goodsWin[q.id].map(t=>CCGOODS[t][0]).join('')} +${10*g.goodsWin[q.id].length}`:''}</small></span><span class="num"><b>${g.sc[q.id]}</b></span></div>`}).join('')}</div>
     <div class="actions"><div class="in">${ccRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Waiting for the host…</span>`}</div></div>`;
   return out}
 const ccMeepRow=(q,n)=>`<span class="ccmr" aria-label="${n} meeples left">${'<i></i>'.repeat(Math.max(0,n))}</span>`;
@@ -10827,20 +10891,32 @@ function ccDock(g,V){if(g.phase!=='play'||!V||g.turn!==V.id||V.bot||!g.cur)retur
     const any=free.length||abf.length||home||ccSpecial(g,V,pend).length;body=`<div class="rlab">${any?'Add a meeple? Tap a dot on the map, or pick:':g.mee[V.id]>0?'Nothing free on this tile for a meeple.':'You have no meeples left.'}</div>
       ${any?`<div class="lr ccmeeps"><button data-a="ccpmeep" data-k="" aria-pressed="${pend.f==null&&!pend.ret}">No meeple</button>${free.map(([f,i])=>`<button data-a="ccpmeep" data-k="${i}" aria-pressed="${pend.f===i&&!pend.a}">${lab(f,i)}</button>`).join('')}${abf.map(([f,i])=>`<button data-a="ccpmeep" data-k="a${i}" aria-pressed="${pend.f===i&&!!pend.a}">✝ Abbot on the ${CCNAME[f[0]]}</button>`).join('')}${home}${ccSpecial(g,V,pend).map(([kk,lab,on])=>`<button data-a="ccpmeep" data-k="${kk}" aria-pressed="${on}">${lab}</button>`).join('')}</div>
       ${g.ic&&g.lm[V.id]&&free.length?`<div class="lr ccmeeps"><button data-a="ccpmeep" data-k="L" aria-pressed="${!!pend.L}" ${g.mee[V.id]>0?'':'disabled'}>⬆ Use my large meeple${pend.L?' (on)':''}</button></div>`:''}`:''}`}
+  let extra='';if(pend){const pk=ccK(pend.x,pend.y),bd={...g.bd,[pk]:{t:g.cur,r:pend.r,m:{}}};
+    if(g.goldOn&&ccFlag(g.cur,'gold')&&ccAround(pk).some(kk=>g.bd[kk]))extra+=`<div class="rlab ccstep">🪙 One gold goes on this tile. ${pend.gk?'The second goes on the highlighted tile (tap another to change).':'<b>Tap a tile next to it</b> for the second gold.'}</div>`;
+    const need=ccMagicNeed(g,bd,g.cur);if(need){const M=ccMagicAt(g.bd,'mage'),W=ccMagicAt(g.bd,'witch'),noSpot=!ccMagicSpots(bd,'mage').length&&!ccMagicSpots(bd,'witch').length;
+      extra+=`<div class="rlab ccstep">${need==='tile'?'🪄 Magic tile: place or move the mage or the witch onto an unfinished road or city.':'🪄 The mage and the witch would share a feature: move one of them.'}${pend.mw?` <b>${pend.mw.rm?'The '+pend.mw.w+' is set aside.':'The '+pend.mw.w+' is placed.'}</b>`:''}</div>
+      <div class="lr ccmeeps">${noSpot?['mage','witch'].filter(w=>ccMagicAt(g.bd,w)).map(w=>`<button data-a="ccpmwrm" data-k="${w}" aria-pressed="${!!(pend.mw&&pend.mw.rm&&pend.mw.w===w)}">Set the ${w} aside</button>`).join(''):['mage','witch'].map(w=>`<button data-a="ccpmwpick" data-k="${w}" aria-pressed="${CCMW===w}">${w==='mage'?'🧙 Mage':'🧹 Witch'}${(w==='mage'?M:W)?' (move)':''}</button>`).join('')}</div>${CCMW&&!noSpot?'<div class="rlab">Tap a purple or orange dot on the map.</div>':''}`}}
   const spots=ccSpots(g,g.cur),rots=pend?spots.filter(s=>s.x===pend.x&&s.y===pend.y).length:0;
   return `<div class="sadock cpdock" style="${pc(V.color)}"><div class="sadh"><span><b>${S.lk||act().filter(p=>!p.bot).length<2?'You':esc(nm(V))}</b> · your tile</span><button class="sadrx" data-a="rxopen" aria-label="Reactions">😀</button></div>
-    <div class="cctrow">${tileBig}<div style="flex:1;min-width:0">${body}</div></div>
-    <div class="prow ccbtns"><button class="btn" data-a="ccprot" data-k="1" ${pend&&rots<2?'disabled':''}>⟳ Turn</button>${pend?`<button class="btn" data-a="ccpback">↩ Undo</button>`:''}<button class="btn primary" style="flex:1" data-a="ccpplay" ${pend?'':'disabled'}>Done${pend&&pend.f!=null?(pend.a?' · abbot on':pend.L?' · large meeple on':pend.b?' · builder on':pend.p?' · pig in':' · meeple on'):pend&&pend.ret?' · abbot home':''}</button></div></div>`}
-let CCROT=0;
+    <div class="ccbody"><div class="cctrow">${tileBig}<div style="flex:1;min-width:0">${body.replace(/<div class="lr ccmeeps">[\s\S]*$/,'')}</div></div>${(body.match(/<div class="lr ccmeeps">[\s\S]*$/)||[''])[0]}${extra}</div>
+    <div class="prow ccbtns"><button class="btn" data-a="ccprot" data-k="1" ${pend&&rots<2?'disabled':''}>⟳ Turn</button>${pend?`<button class="btn" data-a="ccpback">↩ Undo</button>`:''}<button class="btn primary" style="flex:1" data-a="ccpplay" ${pend&&!ccPlayCheck(g,V.id,ccMv(pend))?'':'disabled'}>Done${pend&&pend.f!=null?(pend.a?' · abbot on':pend.L?' · large meeple on':pend.b?' · builder on':pend.p?' · pig in':' · meeple on'):pend&&pend.ret?' · abbot home':''}</button></div></div>`}
+let CCROT=0,CCMW=null;
+const ccMv=P0=>{const mv={...P0};if(mv.f==null||mv.a||mv.b||mv.p)delete mv.L;if(mv.f==null){delete mv.b;delete mv.p}delete mv.k;return mv};
 function ccUiAct(a,b,k){const g=ccG();if(!g)return;const V=ccViewer();if(!V||g.turn!==V.id||g.phase!=='play'||!g.cur)return;
   const spots=ccSpots(g,g.cur);
-  if(a==='ccpspot'){const [x,y]=k.split(',').map(Number),here=spots.filter(s=>s.x===x&&s.y===y);if(!here.length)return;const pick=here.find(s=>s.r===CCROT)||here[0];CCPEND={x,y,r:pick.r,f:null};vibe(8);return}
-  if(a==='ccprot'){if(!CCPEND){CCROT=(CCROT+1)%4;return}const here=spots.filter(s=>s.x===CCPEND.x&&s.y===CCPEND.y).map(s=>s.r);if(here.length<2)return;const i=here.indexOf(CCPEND.r);CCPEND.r=here[(i+1)%here.length];CCROT=CCPEND.r;CCPEND.f=null;CCPEND.a=0;vibe(6);return}
+  if(a==='ccpspot'){const [x,y]=k.split(',').map(Number),here=spots.filter(s=>s.x===x&&s.y===y);if(!here.length)return;const pick=here.find(s=>s.r===CCROT)||here[0];CCPEND={x,y,r:pick.r,f:null};CCMW=null;ccAutoGold(g);vibe(8);return}
+  if(a==='ccprot'){if(!CCPEND){CCROT=(CCROT+1)%4;return}const here=spots.filter(s=>s.x===CCPEND.x&&s.y===CCPEND.y).map(s=>s.r);if(here.length<2)return;const i=here.indexOf(CCPEND.r);CCPEND.r=here[(i+1)%here.length];CCROT=CCPEND.r;CCPEND.f=null;CCPEND.a=0;delete CCPEND.mw;vibe(6);return}
   if(a==='ccpmeep'&&CCPEND&&/^[bp]\d+$/.test(k||'')){const P0=CCPEND,w=k[0],i=+k.slice(1);if(P0.f===i&&P0[w]){P0.f=null;P0[w]=0}else{P0.f=i;P0.a=0;P0.L=0;P0.ret=0;P0.b=w==='b'?1:0;P0.p=w==='p'?1:0}vibe(6);return}
   if(a==='ccpmeep'&&CCPEND&&k!=='L'){CCPEND.b=0;CCPEND.p=0}
   if(a==='ccpmeep'){if(!CCPEND)return;const P0=CCPEND;if(k==='L'){P0.L=P0.L?0:1;if(P0.a){P0.f=null;P0.a=0}return}if(g.mee[V.id]<1&&g.ic&&g.lm[V.id])P0.L=1;if(k==='ret'){P0.ret=P0.ret?0:1;P0.f=null;P0.a=0}else if(k===''||k==null){P0.f=null;P0.a=0;P0.ret=0}else{const ab=k[0]==='a',i=ab?+k.slice(1):+k;if(P0.f===i&&!!P0.a===ab){P0.f=null;P0.a=0}else{P0.f=i;P0.a=ab?1:0;P0.ret=0;if(ab)P0.L=0}}vibe(6);return}
   if(a==='ccpback'){CCPEND=null;return}
-  if(a==='ccpplay'){if(!CCPEND)return;const mv={...CCPEND};if(mv.f==null||mv.a||mv.b||mv.p)delete mv.L;if(mv.f==null){delete mv.b;delete mv.p}if(lkq('ccPlay',V.id,mv)){CCPEND=null;vibe([20,30,20])}else toast('That can’t be played.');return}}
+  if(a==='ccpgold'){if(CCPEND){CCPEND.gk=k;vibe(6)}return}
+  if(a==='ccpmwpick'){CCMW=CCMW===k?null:k;return}
+  if(a==='ccpmw'){if(!CCPEND||!CCMW)return;const [kk,ii]=k.split('#');CCPEND.mw={w:CCMW,k:kk,i:+ii};CCMW=null;vibe(6);return}
+  if(a==='ccpmwrm'){if(CCPEND)CCPEND.mw={w:k,rm:1};return}
+  if(a==='ccpplay'){if(!CCPEND)return;const mv=ccMv(CCPEND);if(lkq('ccPlay',V.id,mv)){CCPEND=null;CCMW=null;vibe([20,30,20])}else toast(ccPlayCheck(g,V.id,mv)||'That can’t be played.');return}}
+/* the second gold defaults to the first neighbouring tile */
+function ccAutoGold(g){if(!CCPEND||!g.goldOn||!ccFlag(g.cur,'gold'))return;const nb=ccAround(ccK(CCPEND.x,CCPEND.y)).filter(kk=>g.bd[kk]);CCPEND.gk=nb[0]||null}
 function ccTick(){if(S.game!=='carc'||!ccOn()||!S.started||S.finished||S.demo||!['live','score'].includes(S.screen))return;if(!ccRes())return;if(lkqRun()){save();render();return}
   const g=ccG();if(!g||ccStale(g)){ccDeal();save();render();return}if(ccSyncLog(g)){save()}if(g.phase!=='play'||CCBOTT)return;
   if(gAnnBusy(g)){const ms=(g.ann.ms||GLMS)*(window.__htfast?.3:1)-(Date.now()-g.ann.at);CCBOTT=setTimeout(()=>{CCBOTT=null;render()},Math.max(60,ms+40));return}
@@ -10852,7 +10928,7 @@ function ccSetup(){const x=CX(),e=CED[x.ed];return `<div class="bar"><h1>Carcass
   <div class="sec"><div class="sec-h"><h3>Rules edition</h3></div><div class="seg edseg">${[['0','1st (early)'],['1','1st'],['2','2nd'],['3','3rd']].map(([v,t])=>`<button data-a="ced" data-v="${v}" aria-pressed="${x.ed===v}" ${S.started?'disabled':''}>${t}</button>`).join('')}</div>
     <p class="hint"><b>${e.name}:</b> ${e.years}.</p><div class="panel">${ctgS('small',cSmall(),'Small city rule','A finished 2-tile city scores only 2 points (early 1st edition printings). Off: 4 points.')}${ctgS('farm',cFarm()==='classic','Classic farmers','Score fields city by city, 4 points to whoever has the most farmers next to each finished city. Off: 3 points per finished city in each field.')}</div>
     <p class="hint">These follow the edition you pick. Change them if your group plays it differently.</p></div>
-  <div class="sec"><div class="sec-h"><h3>In the box</h3></div><div class="panel">${[['river','The River','12 river tiles are placed first, from the spring to the lake.'],['abbot','The Abbot','Each player gets an abbot for monasteries and gardens. 8 base tiles have a garden.'],['ic','Inns & Cathedrals','18 more tiles with inns and cathedrals, and a large meeple for each player.'],['tb','Traders & Builders','24 more tiles with wine, grain and cloth, plus a builder and a pig for each player.']].map(([id,t,sub])=>`<div class="prow"><div class="rtext"><b>${t}</b><div class="rlab">${sub}${x.ed==='3'&&!['ic','tb'].includes(id)?' In the 3rd edition box.':''}</div></div><button class="sw" role="switch" aria-checked="${cOn(id)}" data-a="cexp" data-k="${id}" ${S.started||x.ed==='3'&&!['ic','tb'].includes(id)?'disabled':''} aria-label="${t}"><i></i></button></div>`).join('')}</div><p class="hint">More of the Big Box is coming: the mini expansions next.</p></div>
+  <div class="sec"><div class="sec-h"><h3>In the box</h3></div><div class="panel">${[['river','The River','12 river tiles are placed first, from the spring to the lake.'],['abbot','The Abbot','Each player gets an abbot for monasteries and gardens. 8 base tiles have a garden.'],['ic','Inns & Cathedrals','18 more tiles with inns and cathedrals, and a large meeple for each player.'],['tb','Traders & Builders','24 more tiles with wine, grain and cloth, plus a builder and a pig for each player.'],['gold','The Gold Mines','8 tiles that place gold bars; finish features to take them.'],['mw','Mage & Witch','8 magic tiles that move the mage (+1 per tile) and the witch (half points).']].map(([id,t,sub])=>`<div class="prow"><div class="rtext"><b>${t}</b><div class="rlab">${sub}${x.ed==='3'&&!['ic','tb','gold','mw'].includes(id)?' In the 3rd edition box.':''}</div></div><button class="sw" role="switch" aria-checked="${cOn(id)}" data-a="cexp" data-k="${id}" ${S.started||x.ed==='3'&&!['ic','tb','gold','mw'].includes(id)?'disabled':''} aria-label="${t}"><i></i></button></div>`).join('')}</div><p class="hint">More of the Big Box is coming: the Flier, Crop Circles, Robbers, Messengers and Ferries.</p></div>
   <div class="sec"><div class="sec-h"><h3>Tile look</h3></div><div class="seg">${[['paint','🎨 Painted'],['simple','Simple']].map(([v,t])=>`<button data-a="cclook" data-k="${v}" aria-pressed="${(x.look||'paint')===v}">${t}</button>`).join('')}</div><div class="cclookprev"><svg viewBox="-2 -2 304 104">${ccDefs()}${['D','J','B'].map((t,i)=>ccTileSvg(t,i===1?1:0,i,0,{})).join('')}</svg></div><p class="hint">You can change this any time, even during a game.</p></div>
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: players ›</button></div></div>`}
 function ccGuide(){return guideSheet('Carcassonne',[
@@ -10863,6 +10939,8 @@ function ccGuide(){return guideSheet('Carcassonne',[
   ...(cOn('abbot')?[['The Abbot',[['Placing','Instead of a meeple, you may put your abbot on the monastery or garden of the tile you just placed. Only an abbot can go in a garden.'],['Scoring','A monastery or garden with your abbot scores 9 when all 8 tiles around it are there; at the end, 1 plus 1 per tile around it.'],['Bringing it home','On a later turn, instead of placing a figure, you may bring your abbot home and score its monastery or garden right away, as if the game had ended.']]]]:[]),
   ...(cOn('ic')?[['Inns & Cathedrals',[['Inns','A road with an inn by its lake scores 2 per tile when finished, but nothing if it’s unfinished at the end.'],['Cathedrals','A city with a cathedral scores 3 per tile and 3 per coat of arms when finished, but nothing if it’s unfinished at the end.'],['Large meeple','Placed instead of a normal meeple, it counts as 2 meeples when working out who has a road, city or field.']]]]:[]),
   ...(cOn('tb')?[['Traders & Builders',[['Goods','Whoever places the tile that finishes a city takes its wine, grain and cloth, even if they have no meeple there. At the end, the most of each kind scores 10 (ties all score).'],['Builder','Instead of a meeple, put your builder on the road or city of the tile you just placed, where you already have a meeple. When a later tile of yours carries that road or city on, you draw and place one more tile right away.'],['Pig','Instead of a meeple, put your pig in the field of the tile you just placed, where you already have a farmer. If you have that field at the end, each finished city next to it is worth 4 to you instead of 3.']]]]:[]),
+  ...(cOn('gold')?[['The Gold Mines',[['Placing','A gold tile gets one gold bar, and one more goes on any tile touching it (sides or corners).'],['Taking','When a road, city or monastery is finished, whoever has it takes the gold from all its tiles (a monastery: its tile and the 8 around it). Tied players take turns, starting with the player whose turn it is.'],['At the end','Gold left on the map is lost. Each bar is worth 1 point (1–3 bars), 2 (4–6), 3 (7–9) or 4 (10 or more).']]]]:[]),
+  ...(cOn('mw')?[['Mage & Witch',[['Magic tiles','After placing one, put the mage or the witch on any unfinished road or city (or move it there). They never share a feature; if they end up together, move one.'],['Mage','A feature with the mage scores 1 extra point per tile.'],['Witch','A feature with the witch scores half (rounded up).'],['After scoring','The figure leaves the map until the next magic tile. It also counts at the end.']]]]:[]),
   ['On the phone',[['Placing','Tap a glowing square, then ⟳ Turn (or tap the tile) until it sits the way you want. Pick a meeple spot or none, then Done.'],['Zoom','Pinch the map or use ＋ − ⤢.']]]])}
 
 /* ================= Stone Age on the phone =================
