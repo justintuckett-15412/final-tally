@@ -1981,7 +1981,9 @@ function setMap(k){
   while(act().length<m.min)S.players.find(p=>!p.on).on=true;
   S.active=0;
 }
-const slots=()=>{if(S.game==='carc'||S.game==='nerts'||S.game==='pad'||S.game==='darts'||S.game==='pool'||S.game==='hearts'||S.game==='spades'||S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='skipbo'||S.game==='gnome'||S.game==='skyjo'||S.game==='wingspan'||S.game==='wyrmspan'||S.game==='dominion'||S.game==='citadels'||S.game==='tobago'||S.game==='stoneage'||S.game==='phase10'||S.game==='rook'||S.game==='yahtzee'||S.game==='mextrain'||S.game==='chicken'||S.game==='catan'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks')while(S.players.length<8)S.players.push(newPlayer('',CARC_COLORS.find(c=>!S.players.some(p=>p.color===c))||'gray',false));return S.players.slice(0,Math.max(5,M().max))};
+const slots=()=>{if(S.game==='carc'||S.game==='nerts'||S.game==='pad'||S.game==='darts'||S.game==='pool'||S.game==='hearts'||S.game==='spades'||S.game==='rage'||S.game==='ohell'||S.game==='uno'||S.game==='munchkin'||S.game==='crowns'||S.game==='skipbo'||S.game==='gnome'||S.game==='skyjo'||S.game==='wingspan'||S.game==='wyrmspan'||S.game==='dominion'||S.game==='citadels'||S.game==='tobago'||S.game==='stoneage'||S.game==='phase10'||S.game==='rook'||S.game==='yahtzee'||S.game==='mextrain'||S.game==='chicken'||S.game==='catan'||S.game==='golf'||S.game==='tripoley'||S.game==='quacks')while(S.players.length<Math.max(8,M().max||8))S.players.push(newPlayer('',CARC_COLORS.find(c=>!S.players.some(p=>p.color===c))||'gray',false));return S.players.slice(0,plN(S.players))};
+/* the players screen shows only as many seats as the game allows (plus any seat already switched on) */
+const plN=L=>{const m=Math.min(L.length,M().max||8);let last=-1;L.forEach((p,i)=>{if(p.on)last=i});return Math.max(m,last+1)};
 
 /* ---------- screens ---------- */
 const playingOn=()=>{try{const g=S.game;return g==='hearts'&&htPlayOn()||g==='spades'&&sdPlayOn()||g==='ohell'&&ohPlayOn()||g==='rook'&&rkPlayOn()||g==='rage'&&rgPlayOn()||g==='uno'&&unPlayOn()||(g==='golf'||g==='skyjo'||g==='gnome')&&gpOn()||g==='skipbo'&&sbOn()||g==='crowns'&&fcOn()||g==='phase10'&&pzOn()||(g==='hf'||g==='canasta')&&hpOn()||g==='nerts'&&nrOn()||g==='tripoley'&&tqOn()||g==='mextrain'&&mtOn()||g==='stoneage'&&saOn()||g==='dominion'&&dnOn()||g==='citadels'&&ciOn()||g==='tobago'&&tgOn()||g==='catan'&&cpOn()||g==='chicken'&&cfOn()||g==='quacks'&&qpOn()||g==='yahtzee'&&yzRoller()}catch(e){return false}};
@@ -4516,7 +4518,7 @@ function nxSetup(){const X=NX();
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
 
 /* ---- players ---- */
-function nxPlayers(){const m=M(),n=act().length,sl=S.players.slice(0,8);
+function nxPlayers(){const m=M(),n=act().length,sl=(slots(),S.players.slice(0,plN(S.players.slice(0,Math.max(8,M().max||8)))));
   const rows=sl.map((p,i)=>`<div class="prow ${p.on?'':'off'}">
     <button class="swatch" style="background:var(--t-${p.color});${pc(p.color)}" data-a="colpick" data-i="${i}" aria-expanded="${COLPICK===i}" aria-label="Color ${CNAME[p.color]}, tap to choose a color"></button>
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="Player ${i+1}" aria-label="Player ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
@@ -4648,7 +4650,7 @@ function pxSetup(){const X=PX();
     X.end==='points'?(X.low?'The game ends when someone reaches the target at the end of a round. Lowest score wins.':'Keep going until someone reaches the target at the end of a round. Highest score wins.'):X.end==='rounds'?'Play a set number of rounds.':'Tap Finish after any round.')}
   ${sec('Who wins?',`<div class="seg">${[['false','Highest score'],['true','Lowest score']].map(([v,t])=>`<button data-a="pxset" data-k="low" data-v="${v}" aria-pressed="${String(X.low)===v}">${t}</button>`).join('')}</div>`,X.low?'For games like golf or Hearts where points are bad.':'Most games: more points is better.')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
-function pxPlayers(){const m=M(),n=act().length,sl=S.players.slice(0,8);
+function pxPlayers(){const m=M(),n=act().length,sl=(slots(),S.players.slice(0,plN(S.players.slice(0,Math.max(8,M().max||8)))));
   const rows=sl.map((p,i)=>`<div class="prow ${p.on?'':'off'}">
     <button class="swatch" style="background:var(--t-${p.color});${pc(p.color)}" data-a="colpick" data-i="${i}" aria-expanded="${COLPICK===i}" aria-label="Color ${CNAME[p.color]}, tap to choose a color"></button>
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="Player ${i+1}" aria-label="Player ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
@@ -4792,7 +4794,7 @@ function dtSetup(){const X=DX();
   ${opts}
   ${sec('Bull',seg('bull50',[['false','Outer 25, bullseye 50'],['true','Any bull is 50']]),'')}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: Players ›</button></div></div>`}
-function dtPlayers(){const m=M(),X=DX(),n=act().length,sl=S.players.slice(0,8);
+function dtPlayers(){const m=M(),X=DX(),n=act().length,sl=(slots(),S.players.slice(0,plN(S.players.slice(0,Math.max(8,M().max||8)))));
   const rows=sl.map((p,i)=>`<div class="prow ${p.on?'':'off'}">
     <button class="swatch" style="background:var(--t-${p.color});${pc(p.color)}" data-a="colpick" data-i="${i}" aria-expanded="${COLPICK===i}" aria-label="Color ${CNAME[p.color]}, tap to choose a color"></button>
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="Player ${i+1}" aria-label="Player ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
@@ -4969,7 +4971,7 @@ function plSetup(){const X=PX2();
     <p class="hint">Press and hold a game to see how it’s played, or <button class="link-btn" data-a="plhow">read the rules for ${esc(plName())}</button>.</p></div>
   ${opts}${X.g!=='cut'?sec('Players or teams',seg('teams',[['false','Singles'],['true','Teams of 2']]),X.teams?'Partners take turns shooting (scotch doubles) and share one score.':''):''}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: ${X.teams&&X.g!=='cut'?'Teams':'Players'} ›</button></div></div>`}
-function plPlayers(){const m=M(),X=PX2(),T=m.teams,n=act().length,sl=S.players.slice(0,8);
+function plPlayers(){const m=M(),X=PX2(),T=m.teams,n=act().length,sl=(slots(),S.players.slice(0,plN(S.players.slice(0,Math.max(8,M().max||8)))));
   const rows=sl.map((p,i)=>{p.mem=p.mem||['',''];return `<div class="prow ${p.on?'':'off'}">
     <button class="swatch" style="background:var(--t-${p.color});${pc(p.color)}" data-a="colpick" data-i="${i}" aria-expanded="${COLPICK===i}" aria-label="Color ${CNAME[p.color]}, tap to choose a color"></button>
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="${T?'Team name (optional)':'Player '+(i+1)}" aria-label="${T?'Team':'Player'} ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
@@ -5670,7 +5672,7 @@ function sdSetup(){const X=SDX();
   ${sec('Nil',tg('nil','Nil bids','Bid zero and take no tricks.')+(X.nil?row('Nil','won or lost',st('nilV',X.nilV,0,500,10,'points'))+tg('blind','Blind nil','Bid nil before looking at your cards.')+(X.blind?row('Blind nil','won or lost',st('blindV',X.blindV,0,1000,10,'points')):'')+tg('nilBags','A nil player’s tricks count as bags','Their tricks never help the partner’s bid.'):''),'')}
   ${X.play?sec('Playing the cards',tg('lead2c','Lowest club leads the first trick','Official rules: the player left of the dealer leads any card except a spade.'),'Spades are trump. You can’t lead a spade until one has been played, unless you only have spades.'):''}
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Next: ${X.teams&&!X.play?'Teams':'Players'} ›</button></div></div>`}
-function sdPlayers(){const m=M(),X=SDX(),T=m.teams,n=act().length,sl=S.players.slice(0,S.game==='rook'?2:8);
+function sdPlayers(){const m=M(),X=SDX(),T=m.teams,n=act().length,sl=S.players.slice(0,S.game==='rook'?2:(slots(),plN(S.players.slice(0,Math.max(8,M().max||8)))));
   const rows=sl.map((p,i)=>{p.mem=p.mem||['',''];return `<div class="prow ${p.on?'':'off'}">
     <button class="swatch" style="background:var(--t-${p.color});${pc(p.color)}" data-a="colpick" data-i="${i}" aria-expanded="${COLPICK===i}" aria-label="Color ${CNAME[p.color]}, tap to choose a color"></button>
     <input id="name-${p.id}" data-name="${i}" value="${esc(p.name)}" placeholder="${T?'Team name (optional)':'Player '+(i+1)}" aria-label="${T?'Team':'Player'} ${i+1} name" autocomplete="off" maxlength="20" enterkeyhint="next">
@@ -18476,6 +18478,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='7b7888';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='193f9d';</script>
 </body>
 </html>
