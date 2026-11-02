@@ -38,6 +38,19 @@ const {mk,W,ok,done,chromium}=require('./link.js');
       let lv=0;for(let i=0;i<4;i++){Object.assign(M.r,{w:1,b:1,s:3});if(cpWonUp(g,p))lv++}return {ok:no&&yes&&lv===4&&g.phase==='done'&&g.win===p,no,yes,lv}});
     t('Wonders: 10 points wins only with the highest wonder; setup can’t use the squares; no pirate',()=>{const x=fresh('8'),g=x.g,[p,q]=g.ps;const sq=[...g.purple,...g.brown].every(v=>!cpVOk(g,p,v,true));setup(x);g.turn=p;g.t={rolled:1,dev:0,road:0,newSh:[],mvd:0};
       g.won={th:{p,lv:1},ca:{p:q,lv:1}};g.ivp[p]=8;const tie=!cpWonWin(g,p);g.won.th.lv=2;const win=cpWonWin(g,p);return {ok:sq&&tie&&win&&g.pir==null&&!g.hx.some((h,i)=>cpPirOk(g,p,i)),sq,tie,win}});
+    t('Pirate Islands: a settlement and ship already placed, no robber, VP cards out with 3 players; setup uses roads',()=>{const x=fresh('7',3),g=x.g;const pre=g.ps.every(p=>Object.values(g.b).filter(b=>b[0]===p).length===1&&Object.values(g.sh).filter(s=>s===p).length===1);
+      const noSh=!cpSSpots(g,g.ps[0]).length;setup(x);return {ok:pre&&g.rob==null&&g.pir===g.pi.loop[0]&&!g.deck.includes('vp')&&noSh&&!Object.keys(g.sh).some(e=>Object.values(g.sh).length!==3)}});
+    t('Pirate Islands: one route, always one step nearer the circle, then the fortress',()=>{const x=setup(fresh('7',4)),g=x.g,B=x.B,p=g.ps[0];let ok=true,n=0;g.pir=null;
+      while(n<40){const T=cpPiTarget(g,p);if(T==null)break;const sp=cpSSpots(g,p);if(!sp.length){ok=false;break}const D=cpPiDist(g,p,T),hd=Math.min(...Object.keys(g.sh).filter(e=>g.sh[e]===p).flatMap(e=>[B.E[e].a,B.E[e].b]).map(v=>D[v]??99));if(!sp.every(e=>Math.min(D[B.E[e].a],D[B.E[e].b])===hd-1))ok=false;g.sh[sp[0]]=p;n++;if(cpPiFort(g,p))break}
+      return {ok:ok&&cpPiFort(g,p)&&cpB(g).V[g.pi.circ[p]].e.some(e=>g.sh[e]===p),n}});
+    t('Pirate Islands: knights make warships from the rear; the fleet attacks by the lower die',()=>{const x=setup(fresh('7',4)),g=x.g,B=x.B,p=g.ps[0],M=x.M(p);g.turn=p;g.t={rolled:0,dev:0,road:0,newSh:[],mvd:0};M.dev=['kn','vp'];M.nw=[];g.pir=null;for(let i=0;i<3;i++){const sp=cpSSpots(g,p);if(sp.length)g.sh[sp[0]]=p}
+      const o=cpPiOrder(g,p);const a=cpDev(g,p,'kn')&&g.pi.war[o[0]]===p;g.t.dev=0;const vpPts=cpVP(g,p);const b=cpPlayable(g,p,'vp');
+      g.pi.at=0;g.pir=g.pi.loop[0];const v0=B.hv[g.pi.loop[3]].find(v=>!g.b[v]&&cpVLand(g,v));if(v0==null)return {ok:a&&b,skip:1};g.b[v0]=[g.ps[1],1];g.me[g.ps[1]].r={w:3,b:0,s:0,g:0,o:0};g.t.rolled=0;cpRoll(g,p,[3,5]);
+      return {ok:a&&b&&g.pir===g.pi.loop[3]&&JSON.stringify(g.lg).includes('loses 2'),a,b,pir:g.pir===g.pi.loop[3],lg:JSON.stringify(g.lg.slice(-3))}});
+    t('Pirate Islands: attacking the fortress; 3 wins capture it and, with 10 points, win the game',()=>{const x=setup(fresh('7',4)),g=x.g,p=g.ps[0];g.pir=null;while(!cpPiFort(g,p)){const sp=cpSSpots(g,p);if(!sp.length)break;g.sh[sp[0]]=p}
+      cpPiOrder(g,p).slice(0,6).forEach(e=>g.pi.war[e]=p);const ships=cpPiOrder(g,p).length;const go=()=>{g.turn=p;g.t={rolled:1,dev:0,road:0,newSh:[],mvd:0}};
+      go();cpAttack(g,p,6);const tie=cpPiOrder(g,p).length===ships-1;g.pi.war={};cpPiOrder(g,p).slice(0,6).forEach(e=>g.pi.war[e]=p);while(!cpPiFort(g,p)){const sp=cpSSpots(g,p);if(!sp.length)break;g.sh[sp[0]]=p}
+      g.ivp[p]=9;go();cpAttack(g,p,1);go();cpAttack(g,p,2);const two=g.pi.f[p].c===1&&g.phase==='turn';go();cpAttack(g,p,3);return {ok:tie&&two&&g.pi.f[p].cap&&g.phase==='done'&&g.win===p,tie,two,c:g.pi.f[p].c,ph:g.phase}});
     return out});
   R.forEach(([n,g,x])=>ok(n,g,x));
 
@@ -46,7 +59,7 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   await P.evaluate(()=>{window.__htfast=1;S.screen='home';render()});await W(300);
   await P.evaluate(()=>document.querySelector('[data-a="cpstart"][data-k="1"]').click());await W(300);
   ok('Setup: Seafarers can be picked in play mode',await P.evaluate(()=>{const b=document.querySelector('[data-a="ctmode"][data-v="sf"]');if(!b||b.disabled)return false;b.click();return true}));await W(300);
-  ok('Setup: scenarios 1–6, 8 and 9 to pick, 7 coming',await P.evaluate(()=>document.querySelectorAll('[data-a="cpsfs"]').length===8&&document.querySelectorAll('.ctscen button[disabled]:not([data-a])').length===1));
+  ok('Setup: all 9 scenarios to pick',await P.evaluate(()=>document.querySelectorAll('[data-a="cpsfs"]').length===9));
   await P.evaluate(()=>document.querySelector('[data-a="cpsfs"][data-v="2"]').click());await W(200);
   ok('Setup: picking scenario 2 sets 13 points',await P.evaluate(()=>CTX().sfs==='2'&&+CTX().goalSF===13));
   await P.evaluate(()=>{S.players.forEach((p,i)=>{p.on=i<3;p.name=['Justin','Kim','Bo'][i];p.bot=i?'normal':null});save();const b=document.createElement('button');b.dataset.a='start';b.hidden=true;document.body.appendChild(b);b.click();b.remove()});await W(600);
