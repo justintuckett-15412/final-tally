@@ -1,4 +1,4 @@
-// Catan on the phone, Traders & Barbarians scenarios: Fishing on Catan and Rivers of Catan (more are added here as they're built).
+// Catan on the phone, Traders & Barbarians scenarios: Fishing on Catan, Rivers of Catan and Merchant Trains (more are added here as they're built).
 process.env.LAT=process.env.LAT||'120';process.env.JIT=process.env.JIT||'120';
 const {mk,W,ok,done,chromium}=require('./link.js');
 (async()=>{const browser=await chromium.launch();let P=await mk(browser,'tb');const errs=[];P.on('pageerror',e=>errs.push(e.message));
@@ -10,7 +10,7 @@ const {mk,W,ok,done,chromium}=require('./link.js');
       if(g.fg.map(f=>f.n).sort((a,b)=>a-b).join()!=='4,5,6,8,9,10')bad.push('grounds');if(g.fishS.length!==30)bad.push('tokens');if(g.rob!=null)bad.push('robber');if(g.goal!==10)bad.push('goal');if(g.hx.some(h=>h[2]==='d'))bad.push('desert');
       const B=cpB(g),fe=new Set();g.fg.forEach(F=>B.V[F.vs[0]].e.forEach(e=>{if(B.E[e].h.length===1)fe.add(e)}));if(g.hb.some(h=>fe.has(h[0])))bad.push('harbor on a ground')}return {ok:!bad.length,bad}});
     t('Fishing: a ground pays 1 token to a settlement and 2 to a city; the lake pays on 2, 3, 11 and 12',()=>{const x=setup(fresh('fish')),g=x.g,B=x.B,[p,q]=g.ps;const F=g.fg[0];g.b={};g.b[F.vs[1]]=[p,0];g.b[F.vs[2]]=[q,1];g.fishS=[1,1,1,1,1,1];turn(g,p);g.t.rolled=0;
-      g.hx.forEach(h=>{if(h[3]===F.n)h[3]=0});cpProduce(g,F.n);const a=g.me[p].fish.length===1&&g.me[q].fish.length===2;g.b={};const v=B.hv[g.lake][0];g.b[v]=[p,0];g.hx.forEach(h=>{if(h[3]===11)h[3]=0});cpProduce(g,11);return {ok:a&&g.me[p].fish.length===2,a}});
+      g.me[p].fish=[];g.me[q].fish=[];g.hx.forEach(h=>{if(h[3]===F.n)h[3]=0});cpProduce(g,F.n);const a=g.me[p].fish.length===1&&g.me[q].fish.length===2;g.b={};const v=B.hv[g.lake][0];g.b[v]=[p,0];g.hx.forEach(h=>{if(h[3]===11)h[3]=0});cpProduce(g,11);return {ok:a&&g.me[p].fish.length===2,a}});
     t('Fishing: spend 2/3/4/5/7 fish; the fewest tokens that cover it are used',()=>{const x=setup(fresh('fish')),g=x.g,[p,q]=g.ps,M=x.M(p);turn(g,p);M.fish=[3,3,1,2];g.rob=0;const a=cpFishAct(g,p,2)&&g.rob==null&&cpFishSum(M)===7;
       Object.assign(g.me[q].r,{w:2});const b=cpFishAct(g,p,3,q)&&cpSum(M.r)>=1;M.fish=[1,3];const w=M.r.w;const c=cpFishAct(g,p,4,'w')&&M.r.w===w+1&&!M.fish.length;M.fish=[3,3,1];const d=cpFishAct(g,p,7)&&M.dev.length===1&&M.fish.length===0;return {ok:a&&b&&c&&d,a,b,c,d}});
     t('Fishing: the old boot needs 1 more point and can be passed to someone with as many points',()=>{const x=setup(fresh('fish')),g=x.g,[p,q]=g.ps;g.boot=p;turn(g,p);g.ivp={[q]:2};const give=cpGiveBoot(g,p,q)&&g.boot===q;g.ivp={};g.ivp[q]=10-cpVis(g,q);turn(g,q);cpWin(g,q);const notYet=g.phase==='turn';g.ivp[q]+=1;cpWin(g,q);return {ok:give&&notYet&&g.phase==='done',give,notYet}});
@@ -24,6 +24,13 @@ const {mk,W,ok,done,chromium}=require('./link.js');
     t('Rivers: 2 gold buys a resource (twice a turn); the bank pays gold at your rate; Wealthiest +1, Poor −2',()=>{const x=setup(fresh('rivers')),g=x.g,[p,q,r]=g.ps,M=x.M(p);turn(g,p);M.gold=6;const b=cpGoldBuy(g,p,'o')&&cpGoldBuy(g,p,'o')&&!cpGoldBuy(g,p,'o')&&M.gold===2;
       M.r.w=4;const s=cpGoldSell(g,p,'w')&&M.gold===3;g.me[q].gold=1;g.me[r].gold=1;const w=cpWealth(g,p)===1&&cpWealth(g,q)===-2&&cpWealth(g,r)===-2;g.ps.forEach(z=>g.me[z].gold=2);const all=g.ps.every(z=>cpWealth(g,z)===-2);return {ok:b&&s&&w&&all,b,s,w,all}});
     t('Rivers: bots finish 3 and 4 player games',()=>{const bad=[];for(const n of [3,4]){const {g}=fresh('rivers',n);act().forEach(p=>p.bot='normal');let i=0;while(g.phase!=='done'&&i++<30000){const q=act().find(p=>p.id===cpActor(g));cpBotStep(g,q)}if(g.phase!=='done')bad.push(n)}return {ok:!bad.length,bad}});
+    t('Merchant Trains: watering hole in the middle, 18 numbered hexes, 3 start edges, 22 wagons, goal 12',()=>{const {g}=fresh('caravans');const o=g.hx[g.oasis];return {ok:o[0]===0&&o[1]===0&&o[2]==='o'&&g.hx.filter(h=>h[3]).length===18&&g.mtStart.length===3&&g.wagLeft===22&&g.goal===12&&g.rob==null}});
+    t('Merchant Trains: building starts a vote; bids go to the bank; the top bidder places; trains grow from the front',()=>{const x=setup(fresh('caravans')),g=x.g,B=x.B,[p,q,r]=g.ps;turn(g,p);Object.assign(g.me[p].r,{w:1,b:1,s:1,g:1});Object.assign(g.me[q].r,{s:3,g:0});
+      const v=cpVSpots(g,p,false)[0];let vote=false;if(v!=null){cpBuildSettle(g,p,v)}else g.t.built=1;cpEnd(g,p);vote=g.ask&&g.ask.k==='vote'&&g.ask.cur===p;cpBid(g,p,{});cpBid(g,q,{s:2});cpBid(g,r,{});const placer=g.ask&&g.ask.k==='wagon'&&g.ask.p===q&&g.me[q].r.s===1;
+      const sp=cpWagSpots(g),e=g.mtStart[0].e;const start=sp.length===3&&sp.includes(e);cpPlaceWag(g,q,e);const after=cpWagSpots(g);const grow=after.length>=3&&!after.includes(e)&&g.turn!==p;return {ok:vote&&placer&&start&&grow,vote,placer,start,grow}});
+    t('Merchant Trains: +1 for a building with wagons on 2 edges; a wagon on your road counts double',()=>{const x=setup(fresh('caravans')),g=x.g,B=x.B,p=g.ps[0];const S0=g.mtStart[0];cpWagPlace0(g,S0.e);const f=cpWagSpots(g).find(e=>B.E[e].a===S0.front||B.E[e].b===S0.front);cpWagPlace0(g,f);
+      g.b={};g.b[S0.front]=[p,0];const vp=cpWagVP(g,p)===1;g.rd={};g.rd[S0.e]=p;const len=cpRoadLen(g,p)===2;return {ok:vp&&len,vp,len}});
+    t('Merchant Trains: bots finish 3 and 4 player games',()=>{const bad=[];for(const n of [3,4]){const {g}=fresh('caravans',n);act().forEach(p=>p.bot='normal');let i=0;while(g.phase!=='done'&&i++<30000){const q=act().find(p=>p.id===cpActor(g));cpBotStep(g,q)}if(g.phase!=='done')bad.push(n)}return {ok:!bad.length,bad}});
     return out});
   R.forEach(([n,g,x])=>ok(n,g,x));
   await P.close();P=await mk(browser,'tb2');P.on('pageerror',e=>errs.push(e.message));
