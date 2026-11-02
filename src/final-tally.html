@@ -1653,6 +1653,7 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 :root[data-theme="dark"] .bgw{background:#4a4220;color:#fff}:root[data-theme="dark"] .bgw.ok{background:#1f4a28;color:#e8ffe8}:root[data-theme="dark"] .bgw.bad{background:#5a221b;color:#ffd9d4}:root[data-theme="dark"] .bgw.dup{background:#333;color:#999}
 
 .bgpic{display:block;margin:0 auto 6px;width:112px;height:112px;border-radius:18px;box-shadow:0 3px 8px rgba(0,0,0,.15)}.bgpic.sm{float:right;width:72px;height:72px;margin:0 0 6px 8px;border-radius:12px}.bgpic.xs{float:left;width:48px;height:48px;margin:0 8px 4px 0;border-radius:10px}.bgkey{overflow:hidden}.bgwin{text-align:center;margin:8px 0}.bgwin b{display:block;font-size:20px}
+.bgc.two{font-size:calc(min(440px,92vw)/var(--n)*.32);letter-spacing:-.02em}.bggrid.sm .bgc.two{font-size:calc(220px/var(--n)*.32)}
 
 /* Catan on the phone */
 .cpboard{background:#3b8fc9}
@@ -8076,8 +8077,8 @@ function tgUiAct(a,b,k){const g=tgG();if(!g)return;
 /* ================= Boggle and Big Boggle on the phone ================= */
 /* letter cubes (the classic 16-cube set and the 25-cube Big Boggle set); Q is the "Qu" face */
 const BGDICE={4:['AAEEGN','ABBJOO','ACHOPS','AFFKPS','AOOTTW','CIMOTU','DEILRX','DELRVY','DISTTY','EEGHNW','EEINSU','EHRTVW','EIOSST','ELRTTY','HIMNUQ','HLNNRZ'],
-  5:['AAAFRS','AAEEEE','AAFIRS','ADENNN','AEEEEM','AEEGMU','AEGMNN','AFIRSY','BJKQXZ','CCENST','CEIILT','CEILPT','CEIPST','DDHNOT','DHHLOR','DHLNOR','DHLNOR','EIIITT','EMOTTT','ENSSSU','FIPRSY','GORRVW','IPRRRY','NOOTUW','OOOTTU']};
-const BGDEF={play:1,size:4,min:3,mins:3,rounds:3,auto:1};
+  5:['AAAFRS','AAEEEE','AAFIRS','ADENNN','AEEEEM','AEEGMU','AEGMNN','AFIRSY','BJKQXZ','CCENST','CEIILT','CEILPT','CEIPST','DDHNOT','DHHLOR','DHLNOR',['Qu','Th','In','Er','He','An'],'EIIITT','EMOTTT','ENSSSU','FIPRSY','GORRVW','IPRRRY','NOOTUW','OOOTTU']};
+const BGDEF={play:1,size:4,min:3,mins:3,rounds:3,end:'rounds',target:50,hc:{}};
 const BGX=()=>{if(!S.bgx)S.bgx={...BGDEF};const X=S.bgx;for(const k in BGDEF)if(X[k]===undefined)X[k]=BGDEF[k];return X};
 function bgSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.bgx'))}catch(e){}return Object.assign({...BGDEF},x||{})}
 function bgKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.bgx',JSON.stringify(BGX()))}catch(e){}}
@@ -8105,9 +8106,11 @@ function bgHasPre(A,p){let lo=0,hi=A.length;while(lo<hi){const m=(lo+hi)>>1;if(A
 
 /* ---------- the grid ---------- */
 function bgShuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function bgRoll(n){return bgShuf(BGDICE[n]).map(d=>d[Math.floor(Math.random()*6)])}
+function bgRoll(n){return bgShuf(BGDICE[n]).map(d=>{const f=Array.isArray(d)?d:d.split('');const c=f[Math.floor(Math.random()*f.length)];return c==='Q'?'Q':c})}
 const bgFace=c=>c==='Q'?'Qu':c;
 const bgCellTxt=c=>c==='Q'?'qu':c.toLowerCase();
+/* each player's shortest word (Handicap: 3 letters for younger players) */
+const bgMinOf=(g,p)=>g.hc&&g.hc[p]?Math.min(3,g.min):g.min;
 function bgAdj(n,i){const r=Math.floor(i/n),c=i%n,o=[];for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(!dr&&!dc)continue;const rr=r+dr,cc=c+dc;if(rr>=0&&rr<n&&cc>=0&&cc<n)o.push(rr*n+cc)}return o}
 /* the cells spelling w along a path of touching cubes, each cube once (or null) */
 function bgTrace(grid,w){const n=Math.round(Math.sqrt(grid.length)),T=grid.map(bgCellTxt);const go=(i,pos,used)=>{const t=T[i];if(!w.startsWith(t,pos))return null;used.push(i);const np=pos+t.length;if(np===w.length)return used.slice();for(const j of bgAdj(n,i)){if(used.includes(j))continue;const r=go(j,np,used);if(r)return r}used.pop();return null};
@@ -8123,8 +8126,8 @@ const bgStale=g=>{const ids=act().map(p=>p.id);return !g.ps||g.ps.length!==ids.l
 const bgHumans=()=>act().filter(p=>!p.bot);
 /* several people on one phone without linking: they take turns with the same cubes */
 const bgSeqMode=()=>!(S.lk&&!S.demo)&&bgHumans().length>1;
-function bgDeal(){const P=act(),X=BGX();const g={_atom:1,id:String(Math.random()).slice(2,10),r:0,ps:P.map(p=>p.id),phase:'ready',n:0,size:X.size===5?5:4,min:X.size===5?Math.max(4,+X.min||4):Math.max(3,+X.min||3),dur:Math.max(30,Math.round((+X.mins||3)*60)),rounds:Math.max(1,+X.rounds||3),grid:null,t0:null,words:{},sub:{},res:null,ch:{},ov:{},msg:'',lg:[],cur:null,done:[]};
-  S.bgg=g;BGPATH=[];gAnn(g,bgName(),`${P.length} player${P.length===1?'':'s'}. ${g.rounds} round${g.rounds===1?'':'s'} of ${bgDur(g)}. Words of ${g.min}+ letters.`,'🔠');gLog(g,`${bgName()}: ${g.size}×${g.size}, ${g.min}+ letters`,'🔠');g.msg='Shake the cubes to start round 1.';bgDict().catch(()=>{})}
+function bgDeal(){const P=act(),X=BGX();const g={_atom:1,id:String(Math.random()).slice(2,10),r:0,ps:P.map(p=>p.id),phase:'ready',n:0,size:X.size===5?5:4,min:X.size===5?Math.max(4,+X.min||4):Math.max(3,+X.min||3),dur:Math.max(30,Math.round((+X.mins||3)*60)),rounds:X.end==='target'?99:Math.max(1,+X.rounds||3),target:X.end==='target'?Math.max(10,+X.target||50):0,hc:Object.fromEntries(P.filter(p=>(X.hc||{})[p.id]).map(p=>[p.id,1])),grid:null,t0:null,words:{},sub:{},res:null,ch:{},ov:{},msg:'',lg:[],cur:null,done:[]};
+  S.bgg=g;BGPATH=[];gAnn(g,bgName(),`${P.length} player${P.length===1?'':'s'}. ${g.target?`First to ${g.target} points`:`${g.rounds} round${g.rounds===1?'':'s'}`}, ${bgDur(g)} each. Words of ${g.min}+ letters.`,'🔠');gLog(g,`${bgName()}: ${g.size}×${g.size}, ${g.min}+ letters`,'🔠');g.msg='Shake the cubes to start round 1.';bgDict().catch(()=>{})}
 const bgDur=g=>{const m=Math.floor(g.dur/60),s=g.dur%60;return s?`${m}:${String(s).padStart(2,'0')}`:`${m} minute${m===1?'':'s'}`};
 /* shake: new cubes and the timer starts (in turn mode, each person starts their own timer) */
 function bgShake(g,pid){if(g.phase!=='ready')return false;g.grid=bgRoll(g.size);g.phase='play';g.words={};g.sub={};g.res=null;g.ch={};g.ov={};g.done=[];g.n++;
@@ -8132,7 +8135,7 @@ function bgShake(g,pid){if(g.phase!=='ready')return false;g.grid=bgRoll(g.size);
   act().filter(p=>p.bot).forEach(p=>g.sub[p.id]=1);gLog(g,`Round ${g.r+1}: the cubes are shaken`,'🎲');return true}
 /* turn mode: someone starts their own timer */
 function bgStart(g,pid){if(g.phase!=='play'||!g.seq||g.cur||g.sub[pid])return false;g.cur=pid;g.t0=Date.now();g.n++;g.msg=`${nmid(pid)} is finding words.`;return true}
-function bgSubmit(g,pid,words){if(g.phase!=='play'||g.sub[pid]||!g.ps.includes(pid))return false;const L=[...new Set((words||[]).map(bgNorm))].filter(w=>w.length>=g.min&&bgTrace(g.grid,w)).slice(0,400);g.words[pid]=L;g.sub[pid]=1;g.n++;gLog(g,`${nmid(pid)} found ${L.length} word${L.length===1?'':'s'}`,'📝');
+function bgSubmit(g,pid,words){if(g.phase!=='play'||g.sub[pid]||!g.ps.includes(pid))return false;const mn=bgMinOf(g,pid),L=[...new Set((words||[]).map(bgNorm))].filter(w=>w.length>=mn&&bgTrace(g.grid,w)).slice(0,400);g.words[pid]=L;g.sub[pid]=1;g.n++;gLog(g,`${nmid(pid)} found ${L.length} word${L.length===1?'':'s'}`,'📝');
   if(g.seq){g.cur=null;g.t0=null}return true}
 const bgAllIn=g=>g.ps.every(p=>g.sub[p]);
 /* the host closes the round when everyone is in (or time plus a little grace has passed) */
@@ -8142,7 +8145,7 @@ function bgBotWords(g,lv){if(!BGC)return [];const all=bgSolve(g.grid,BGC.a,BGC.s
   return all.filter(w=>Math.random()<f*(w.length<=4?1.2:w.length===5?.9:w.length===6?.6:.35))}
 /* everyone's words: duplicates cancel, then the word list (or a challenge vote) decides */
 function bgScoreRes(g){const cnt={};g.ps.forEach(p=>(g.words[p]||[]).forEach(w=>cnt[w]=(cnt[w]||0)+1));const R={};
-  g.ps.forEach(p=>{R[p]=(g.words[p]||[]).slice().sort((a,b)=>b.length-a.length||a.localeCompare(b)).map(w=>{const dup=cnt[w]>1,inD=!!BGD&&BGD.s.has(w),ok=w in g.ov?g.ov[w]:inD;return {w,st:dup?'dup':ok?'ok':'bad',inD,pts:dup||!ok?0:bgPts(w,g.min)}})});g.res=R}
+  g.ps.forEach(p=>{R[p]=(g.words[p]||[]).slice().sort((a,b)=>b.length-a.length||a.localeCompare(b)).map(w=>{const dup=cnt[w]>1,inD=!!BGD&&BGD.s.has(w),ok=w in g.ov?g.ov[w]:inD;return {w,st:dup?'dup':ok?'ok':'bad',inD,pts:dup||!ok?0:bgPts(w,bgMinOf(g,p))}})});g.res=R}
 const bgRoundPts=(g,p)=>(g.res&&g.res[p]||[]).reduce((a,x)=>a+x.pts,0);
 /* challenges: anyone can challenge a word that wasn't cancelled; everyone votes; a tie keeps the word list's answer */
 function bgChallenge(g,pid,w){if(g.phase!=='review'||g.ch[w])return false;if(!g.ps.some(p=>(g.res[p]||[]).some(x=>x.w===w&&x.st!=='dup')))return false;g.ch[w]={by:pid,v:{}};act().filter(p=>p.bot).forEach(p=>g.ch[w].v[p.id]=BGD&&BGD.s.has(w)?1:0);g.n++;gLog(g,`${nmid(pid)} challenges “${w}”`,'⚖️');bgChDone(g,w);return true}
@@ -8152,7 +8155,7 @@ const bgOpen=g=>Object.keys(g.ch).filter(w=>!g.ch[w].done);
 /* score the round and go on (open challenges close with the votes so far) */
 function bgNext(g,pid){if(g.phase!=='review')return false;bgOpen(g).forEach(w=>{const C=g.ch[w];act().forEach(p=>{if(C.v[p.id]==null)C.v[p.id]=BGD&&BGD.s.has(w)?1:0});bgChDone(g,w)});bgScoreRes(g);
   act().forEach(p=>{const B=bgP(p),pts=bgRoundPts(g,p.id);B.r[g.r]=pts;const ok=(g.res[p.id]||[]).filter(x=>x.pts>0);B.x.words=(B.x.words||0)+ok.length;const lw=ok.map(x=>x.w).sort((a,b)=>b.length-a.length)[0];if(lw&&lw.length>(B.x.long||'').length)B.x.long=lw;if(pts>(B.x.best||0))B.x.best=pts});
-  g.done.push({r:g.r,grid:g.grid});g.r++;g.n++;if(g.r>=g.rounds){g.phase='done';const P=act().slice().sort((a,b)=>bgTot(b)-bgTot(a));gAnn(g,'🏆 Game over',P.map(p=>`${nm(p)} ${bgTot(p)}`).join(' · '),'🏆');g.msg='That’s the game!';gLog(g,'The last round is scored','🏁',1)}
+  g.done.push({r:g.r,grid:g.grid});g.r++;g.n++;if(g.target?act().some(p=>bgTot(p)>=g.target):g.r>=g.rounds){g.phase='done';const P=act().slice().sort((a,b)=>bgTot(b)-bgTot(a));gAnn(g,'🏆 Game over',P.map(p=>`${nm(p)} ${bgTot(p)}`).join(' · '),'🏆');g.msg='That’s the game!';gLog(g,'The last round is scored','🏁',1)}
   else{g.phase='ready';g.grid=null;g.msg=`Shake the cubes for round ${g.r+1}.`;gLog(g,`Round ${g.r} scored`,'🧮')}return true}
 /* who needs to act (for the turn chip) */
 function bgActor(g){if(!g||g.phase==='done')return null;if(g.phase==='play'){if(g.seq)return g.cur||g.ps.find(p=>!g.sub[p])||null;const p=g.ps.find(x=>!g.sub[x]);return p||null}return null}
@@ -8172,14 +8175,14 @@ function bgEndAt(g){if(!g||g.phase!=='play')return 0;if(g.seq||!S.lk||S.demo||lk
 const bgPic=(k,c)=>`<img class="bgpic${c?' '+c:''}" src="art/bg-${k}.webp" alt="" width="112" height="112" onerror="this.remove()">`;
 const bgClock=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`};
 function bgSend(g,pid){const k=bgLWK(g,pid);if(BGSUBD[k])return;BGSUBD[k]=1;BGPATH=[];if(!lkq('bgSubmit',pid,bgLW(g,pid)))delete BGSUBD[k]}
-function bgAddWord(g,pid,w){w=bgNorm(w);if(w.length<g.min){toast(`Words need ${g.min} letters or more.`);return false}const L=bgLW(g,pid);if(L.includes(w)){toast(`You already have “${w}”.`);return false}if(!bgTrace(g.grid,w)){toast(`“${w}” isn’t on the cubes.`);return false}
+function bgAddWord(g,pid,w){w=bgNorm(w);const mn=bgMinOf(g,pid);if(w.length<mn){toast(`Words need ${mn} letters or more.`);return false}const L=bgLW(g,pid);if(L.includes(w)){toast(`You already have “${w}”.`);return false}if(!bgTrace(g.grid,w)){toast(`“${w}” isn’t on the cubes.`);return false}
   L.unshift(w);bgLWSet(g,pid,L);vibe(10);return true}
 const bgPathWord=g=>BGPATH.map(i=>bgCellTxt(g.grid[i])).join('');
-function bgGridEl(g,live,o={}){const n=g.size,on=new Set(live?BGPATH:o.hl||[]);return `<div class="bggrid${live?' live':''}${o.sm?' sm':''}" style="--n:${n};--rot:${BGROT*90}deg">${g.grid.map((c,i)=>`<div class="bgc${on.has(i)?' on':''}${live&&BGPATH[BGPATH.length-1]===i?' last':''}" data-bgi="${i}"><span>${bgFace(c)}</span></div>`).join('')}</div>`}
+function bgGridEl(g,live,o={}){const n=g.size,on=new Set(live?BGPATH:o.hl||[]);return `<div class="bggrid${live?' live':''}${o.sm?' sm':''}" style="--n:${n};--rot:${BGROT*90}deg">${g.grid.map((c,i)=>`<div class="bgc${c.length>1?' two':''}${on.has(i)?' on':''}${live&&BGPATH[BGPATH.length-1]===i?' last':''}" data-bgi="${i}"><span>${bgFace(c)}</span></div>`).join('')}</div>`}
 function bgTimerEl(g){const left=bgEndAt(g)-Date.now();return `<div class="bgtime${left<30000?' hot':''}" role="timer"><span class="bgclk num">${bgClock(left)}</span><i style="--p:${Math.max(0,Math.min(1,left/(g.dur*1000)))}"></i></div>`}
 function bgScoreScr(){if(bgOn()&&S.started&&!S.demo)return bgPlayUI();return bgScoreSheet()}
 function bgPlayUI(){const g=bgG(),P=act();
-  let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="${g?(g.phase==='done'?'Game over':`Round ${Math.min(g.r+1,g.rounds)} of ${g.rounds}`):'Boggle'}">${g?(g.phase==='done'?'🏁':`🔠 ${Math.min(g.r+1,g.rounds)}/${g.rounds}`):'🔠'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>`;
+  let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="${g?(g.phase==='done'?'Game over':(g.target?`Round ${g.r+1}, first to ${g.target}`:`Round ${Math.min(g.r+1,g.rounds)} of ${g.rounds}`)):'Boggle'}">${g?(g.phase==='done'?'🏁':(g.target?`🔠 R${g.r+1}`:`🔠 ${Math.min(g.r+1,g.rounds)}/${g.rounds}`)):'🔠'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>`;
   if(!g||bgStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(bgRes()?'Shaking the cubes…':'Waiting for the host phone…')}</div>`;
   const V=bgViewer();
   out+=`<div class="tabs hftabs nxtabs" role="list">${P.map(q=>`<div class="tab" role="listitem" style="${pc(q.color)}" data-lp="ph:${q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}</div><div class="ts num">${bgTot(q)}</div><div class="tr">${g.phase==='play'?(g.sub[q.id]&&!q.bot?'✓ done':q.bot?'🤖 hunting':g.seq&&g.cur===q.id?'⏳ now':'…'):g.phase==='review'?`+${bgRoundPts(g,q.id)} this round`:''}</div></div>`).join('')}</div>`;
@@ -8190,7 +8193,7 @@ function bgPlayUI(){const g=bgG(),P=act();
   else out+=bgDoneUI(g);
   return out}
 function bgReadyUI(g,V){const last=g.done[g.done.length-1];
-  return `<div class="panel bgready">${bgPic('shake')}<p class="rlab">${g.r===0?`${g.size}×${g.size} cubes · ${bgDur(g)} · words of ${g.min} letters or more. Duplicates cancel, so look for the words nobody else will find.`:`Round ${g.r} is scored. On to round ${g.r+1}.`}</p>${S.lk&&!S.demo&&!V?'':`<button class="btn primary wide" data-a="bgpshake">🎲 Shake the cubes</button>`}</div>${last?`<div class="sec"><div class="sec-h"><h3>Last round’s cubes</h3></div>${bgGridEl({...g,grid:last.grid},false,{sm:1})}</div>`:''}`}
+  return `<div class="panel bgready">${bgPic('shake')}<p class="rlab">${g.r===0?`${g.size}×${g.size} cubes · ${bgDur(g)} · words of ${g.min} letters or more${Object.keys(g.hc||{}).length?` (3 for ${Object.keys(g.hc).map(nmid).join(', ')})`:''} · ${g.target?`first to ${g.target} points`:`${g.rounds} round${g.rounds===1?'':'s'}`}. Duplicates cancel, so look for the words nobody else will find.`:`Round ${g.r} is scored. On to round ${g.r+1}.`}</p>${S.lk&&!S.demo&&!V?'':`<button class="btn primary wide" data-a="bgpshake">🎲 Shake the cubes</button>`}</div>${last?`<div class="sec"><div class="sec-h"><h3>Last round’s cubes</h3></div>${bgGridEl({...g,grid:last.grid},false,{sm:1})}</div>`:''}`}
 function bgPlayBox(g,V){
   if(g.seq&&!g.cur){const left=g.ps.filter(p=>!g.sub[p]&&!(act().find(q=>q.id===p)||{}).bot);
     return `<div class="panel bgready">${bgPic('hunt')}<p class="rlab">Everyone gets the same cubes and their own ${bgDur(g)}. Pass the phone; nobody else looks!</p>${left.map(p=>{const q=act().find(x=>x.id===p);return `<button class="btn wide" style="${pc(q.color)};margin-top:6px" data-a="bgpstart" data-k="${p}">⏳ ${esc(nm(q))}: start my ${bgDur(g)}</button>`}).join('')}</div>`}
@@ -8199,7 +8202,7 @@ function bgPlayBox(g,V){
   return `<div class="bgplay" style="${pc(V.color)}">${bgTimerEl(g)}${bgGridEl(g,true)}
     <div class="bgcur"><span class="bgword">${cur?esc(cur.toUpperCase()):'<i>Drag across the cubes, or tap them one by one</i>'}</span>${cur?`<button class="btn sm" data-a="bgpclear" aria-label="Clear">✕</button><button class="btn sm primary" data-a="bgpadd">Add</button>`:''}</div>
     <div class="prow bgtools"><button class="btn sm" data-a="bgprot" aria-label="Turn the cubes">↻ Turn</button><input class="bgtype" id="bg-type" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="or type a word" aria-label="Type a word"><button class="btn sm" data-a="bgptype">Add</button></div>
-    <div class="bgmine"><b>${S.lk||bgHumans().length<2?'Your':esc(nm(V))+'’s'} words · <span class="num">${L.length}</span></b><div class="bgwl">${L.map(w=>`<button class="bgw" data-a="bgpdel" data-k="${esc(w)}" aria-label="Remove ${esc(w)}">${esc(w)}<small>${bgPts(w,g.min)}</small></button>`).join('')||'<span class="rlab">Nothing yet.</span>'}</div></div>
+    <div class="bgmine"><b>${S.lk||bgHumans().length<2?'Your':esc(nm(V))+'’s'} words · <span class="num">${L.length}</span></b><div class="bgwl">${L.map(w=>`<button class="bgw" data-a="bgpdel" data-k="${esc(w)}" aria-label="Remove ${esc(w)}">${esc(w)}<small>${bgPts(w,bgMinOf(g,V.id))}</small></button>`).join('')||'<span class="rlab">Nothing yet.</span>'}</div></div>
     <div class="actions"><div class="in"><button class="btn" data-a="bgpdone">I’m done</button></div></div></div>`}
 function bgReviewUI(g,V){const P=act(),open=bgOpen(g),voters=S.lk&&!S.demo?(V?[V]:[]):bgHumans();
   let out=bgGridEl(g,false,{sm:1,hl:BGCH?bgTrace(g.grid,BGCH)||[]:[]});
@@ -8226,7 +8229,7 @@ function bgTick(){if(S.game!=='boggle'||!bgOn()||!S.started||S.finished||S.scree
 /* the clock on screen, and time's up for this phone */
 if(typeof window!=='undefined'&&!window.__bgclk){window.__bgclk=1;setInterval(()=>{if(S.game!=='boggle'||S.screen!=='score')return;const g=bgG();if(!g||g.phase!=='play')return;const V=bgViewer(),end=bgEndAt(g);if(!end)return;const left=end-Date.now();
   document.querySelectorAll('.bgclk').forEach(e=>e.textContent=bgClock(left));document.querySelectorAll('.bgtime').forEach(e=>{e.classList.toggle('hot',left<30000);const i=e.querySelector('i');if(i)i.style.setProperty('--p',Math.max(0,Math.min(1,left/(g.dur*1000))))});
-  if(left<=0&&V&&!g.sub[V.id]&&!BGSUBD[bgLWK(g,V.id)]){if(BGPATH.length>=2){const w=bgPathWord(g);if(w.length>=g.min)bgAddWord(g,V.id,w)}vibe([60,40,60]);bgSend(g,V.id);save();render()}},250)}
+  if(left<=0&&V&&!g.sub[V.id]&&!BGSUBD[bgLWK(g,V.id)]){if(BGPATH.length>=2){const w=bgPathWord(g);if(w.length>=bgMinOf(g,V.id))bgAddWord(g,V.id,w)}vibe([60,40,60]);bgSend(g,V.id);save();render()}},250)}
 /* dragging across the cubes */
 if(typeof document!=='undefined'&&!window.__bgdrag){window.__bgdrag=1;let st=null;
   const cellAt=(x,y,strict)=>{const el=document.elementFromPoint(x,y),c=el&&el.closest&&el.closest('.bggrid.live .bgc');if(!c)return null;if(strict){const r=c.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;if(Math.hypot(x-cx,y-cy)>r.width*.42)return null}return +c.dataset.bgi};
@@ -8236,7 +8239,7 @@ if(typeof document!=='undefined'&&!window.__bgdrag){window.__bgdrag=1;let st=nul
     if(!st.moved){if(i===st.i)return;st.moved=true;BGPATH=[st.i]}const last=BGPATH[BGPATH.length-1];if(i===last)return;if(BGPATH.length>1&&i===BGPATH[BGPATH.length-2]){BGPATH.pop();paint(g);return}
     if(!BGPATH.includes(i)&&bgAdj(n,last).includes(i)){BGPATH.push(i);vibe(4);paint(g)}},{passive:true});
   const up=()=>{if(!st)return;const g=st.g,V=bgViewer();const s=st;st=null;if(!V||g.phase!=='play')return;
-    if(s.moved){const w=bgPathWord(g);if(BGPATH.length>1&&w.length>=g.min)bgAddWord(g,V.id,w);else if(w.length<g.min)toast(`Words need ${g.min} letters or more.`);BGPATH=[];render();return}
+    if(s.moved){const w=bgPathWord(g);if(BGPATH.length>1&&w.length>=bgMinOf(g,V.id))bgAddWord(g,V.id,w);else if(w.length<bgMinOf(g,V.id))toast(`Words need ${bgMinOf(g,V.id)} letters or more.`);BGPATH=[];render();return}
     /* a tap: build the word one cube at a time; tap the last cube again to add it */
     const i=s.i,last=BGPATH[BGPATH.length-1];if(last===i){const w=bgPathWord(g);if(bgAddWord(g,V.id,w))BGPATH=[]}else if(BGPATH.includes(i))BGPATH=BGPATH.slice(0,BGPATH.indexOf(i)+1);else if(last!=null&&bgAdj(g.size,last).includes(i))BGPATH.push(i);else BGPATH=[i];render()};
   document.addEventListener('pointerup',up,{passive:true});document.addEventListener('pointercancel',()=>{st=null},{passive:true});
@@ -8277,10 +8280,12 @@ function bgSetup(){const X=BGX(),lock=S.started&&bgOn(),seg=(a,opts,cur)=>`<div 
   return `<div class="bar"><h1>Boggle</h1></div><img class="hero hfhero" src="art/boggle-banner.jpg" alt="" width="1200" height="560" onerror="this.remove()">${steps(1)}
   ${guideBtn()}<div class="sec"><div class="sec-h"><h3>How you’re playing</h3></div><div class="panel hfpanel">${S.started?`<div class="rlab"><b>${bgOn()?'🔠 Playing on the phones':'Scoring a real game'}</b></div>`:seg('bgplaymode',[[1,'🔠 Play on the phones'],[0,'Score a real game']],X.play?1:0)}</div>
   <p class="hint">${bgOn()?'Link everyone’s phone: the same cubes appear on every phone and each person finds words on their own. When time’s up, duplicates cancel and the word list checks the rest; anyone can challenge a word and everyone votes. On one phone, players take turns with the same cubes. Computer players can join.':'Play with the real cubes and paper, then enter each player’s points for each round.'}</p></div>
-  <div class="sec"><div class="sec-h"><h3>Cubes</h3></div><div class="panel hfpanel">${seg('bgsize',[[4,'Boggle 4×4'],[5,'Big Boggle 5×5']],X.size)}</div><p class="hint">${X.size===5?'25 cubes. Official rules: words of 4 letters or more.':'16 cubes. Official rules: words of 3 letters or more.'} “Qu” is one cube and counts as 2 letters.</p></div>
+  <div class="sec"><div class="sec-h"><h3>Cubes</h3></div><div class="panel hfpanel">${seg('bgsize',[[4,'Boggle 4×4'],[5,'Big Boggle 5×5']],X.size)}</div><p class="hint">${X.size===5?'25 cubes, Classic Edition: one cube has double letters (Qu, Th, In, Er, He, An). Official rules: words of 4 letters or more.':'16 cubes. Official rules: words of 3 letters or more.'} Double letters are one cube, used in order, and count as 2 letters.</p></div>
   ${X.play?`<div class="sec"><div class="sec-h"><h3>Timer</h3></div><div class="panel hfpanel">${seg('bgmins',[[1,'1 min'],[2,'2 min'],[3,'3 min'],[4,'4 min'],[5,'5 min']],X.mins)}</div><p class="hint">The official timer is 3 minutes.</p></div>
   <div class="sec"><div class="sec-h"><h3>Shortest word</h3></div><div class="panel hfpanel">${seg('bgmin',X.size===5?[[4,'4 letters (official)'],[5,'5 letters']]:[[3,'3 letters (official)'],[4,'4 letters']],X.min)}</div></div>`:''}
-  <div class="sec"><div class="sec-h"><h3>Rounds</h3></div><div class="panel hfpanel">${seg('bgrounds',[[1,'1'],[3,'3'],[5,'5'],[10,'10']],X.rounds)}</div><p class="hint">Highest total after the last round wins. ${usualUI('boggle')}</p></div>
+  <div class="sec"><div class="sec-h"><h3>Winning</h3></div><div class="panel hfpanel">${seg('bgend',[['rounds','Most points after rounds'],['target','First to a target']],X.end||'rounds')}${X.end==='target'?seg('bgtarget',[[25,'25'],[50,'50'],[75,'75'],[100,'100'],[150,'150']],X.target):seg('bgrounds',[[1,'1'],[3,'3'],[5,'5'],[10,'10']],X.rounds)}</div><p class="hint">${X.end==='target'?`Rounds go on until someone has ${X.target} points; then the highest total wins.`:'Highest total after the last round wins.'}</p></div>
+  ${X.play&&(X.size===5?Math.max(4,+X.min||4):Math.max(3,+X.min||3))>3?`<div class="sec"><div class="sec-h"><h3>Handicap</h3></div><div class="panel hfpanel">${act().length?act().map(p=>`<div class="prow"><div class="rtext"><b>${esc(nm(p)||'Player')}</b><div class="rlab">Also scores 3-letter words (1 point)</div></div><button class="sw" role="switch" aria-checked="${!!(X.hc||{})[p.id]}" data-a="bghc" data-k="${p.id}" ${lock?'disabled':''} aria-label="${esc(nm(p))}: 3-letter words"><i></i></button></div>`).join(''):'<p class="rlab" style="padding:8px 12px">Choose players first.</p>'}</div><p class="hint">From the rulebook: younger or newer players may look for words of 3 letters or more while everyone else needs ${X.size===5?Math.max(4,+X.min||4):4}.</p></div>`:''}
+  <p class="hint">${usualUI('boggle')}</p>
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Players ›</button></div></div>`}
 function bgResults(){const rk=ranking();
   return `<div class="bar"><button class="back" data-a="go" data-s="score">‹ Score sheet</button><h1>Results</h1></div>
@@ -8297,8 +8302,8 @@ function bgHistory(pid){const p=act().find(q=>q.id===pid);if(!p)return '';
 function bgRevSteps(){const N=Math.max(1,bgLast()+1);return Array.from({length:N},(_,r)=>({name:`Round ${r+1}`,f:p=>bgR(p,r)||0}))}
 function bgGuide(){const X=BGX(),m=X.size===5?Math.max(4,X.min||4):Math.max(3,X.min||3);
   return guideSheet(X.size===5?'Big Boggle':'Boggle',[
-    ['A round',[['Shake','The cubes are shaken and the timer starts ('+(X.mins||3)+' minutes).'],['Words','Find words in letters that touch (side to side or corner to corner). Each cube once per word. Words of '+m+' letters or more. “Qu” counts as 2 letters.'],['Allowed','Any word in the dictionary: plurals and other forms count. No names, abbreviations or hyphenated words.']]],
-    ['Scoring',[['Duplicates','A word found by two or more players is crossed off everyone’s list.'],['Points',(m<=3?'3 or 4 letters: 1 · ':'4 letters: 1 · ')+'5: 2 · 6: 3 · 7: 5 · 8 or more: 11'],['Winner','Highest total after '+X.rounds+' round'+(X.rounds==1?'':'s')+'.']]],
+    ['A round',[['Shake','The cubes are shaken and the timer starts ('+(X.mins||3)+' minutes).'],['Words','Find words in letters that touch (side to side or corner to corner). Each cube once per word. Words of '+m+' letters or more. Double letters (Qu, Th…) are one cube, used in order (Th, not hT), and count as 2 letters.'],['Not allowed','Proper nouns, abbreviations, contractions, hyphenated and foreign words. The same word counts once, wherever you found it.'],['Allowed','Any word in the dictionary: plurals and other forms count. No names, abbreviations or hyphenated words.']]],
+    ['Scoring',[['Duplicates','A word found by two or more players is crossed off everyone’s list.'],['Points',(m<=3?'3 or 4 letters: 1 · ':'4 letters: 1 · ')+'5: 2 · 6: 3 · 7: 5 · 8 or more: 11'],['Winner',X.end==='target'?'Rounds go on until someone reaches '+X.target+' points; the highest total wins.':'Highest total after '+X.rounds+' round'+(X.rounds==1?'':'s')+'.'],['Handicap','Players with the handicap switch on also score 3-letter words (1 point).']]],
     X.play?['On the phones',[['Finding words','Drag your finger across the cubes and let go to add the word. Or tap cubes one by one and tap the last one again. Or type it. ↻ turns the cubes.'],['Time’s up','Your list is sent when your timer runs out (or tap I’m done).'],['Checking','Words that aren’t in the word list are marked red. Tap any word to challenge it: everyone votes keep or reject, and a tie goes with the word list.'],['One phone','Without linked phones, each person takes a turn with the same cubes.']]]:null])}
 
 /* ================= Catan on the phone (base game) =================
@@ -18579,6 +18584,9 @@ document.addEventListener('click',e=>{
     case 'bgsize':{if(S.started&&bgOn())break;const X=BGX();X.size=+k===5?5:4;X.min=X.size===5?4:3;bgKeep();break}
     case 'bgmins':{if(S.started&&bgOn())break;BGX().mins=Math.max(1,Math.min(5,+k||3));bgKeep();break}
     case 'bgmin':{if(S.started&&bgOn())break;BGX().min=+k||3;bgKeep();break}
+    case 'bgend':{if(S.started&&bgOn())break;BGX().end=k==='target'?'target':'rounds';bgKeep();break}
+    case 'bgtarget':{if(S.started&&bgOn())break;BGX().target=Math.max(10,+k||50);bgKeep();break}
+    case 'bghc':{if(S.started&&bgOn())break;const X=BGX();X.hc=X.hc||{};if(X.hc[k])delete X.hc[k];else X.hc[k]=1;bgKeep();break}
     case 'bgrounds':{if(S.started&&bgOn())break;BGX().rounds=Math.max(1,Math.min(10,+k||3));bgKeep();break}
     case 'cistart':{switchGame('citadels');resetScores();clearPlayers();S.started=false;S.screen='map';CIX().play=k==='1'?1:0;ciKeep();window.scrollTo(0,0);break}
     case 'cich':{if(S.started&&ciOn())break;const X=CIX(),r=+k;X.ch=X.ch||{};if(X.ch[r])delete X.ch[r];else X.ch[r]=CIBONUS[r];ciKeep();break}
