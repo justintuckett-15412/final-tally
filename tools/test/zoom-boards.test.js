@@ -16,5 +16,13 @@ const {mk,W,ok,done,chromium}=require('./link.js');
       await new Promise(r=>setTimeout(r,400));const s1=z.s;ev('pointerdown',x0-30,y0,1);ev('pointerdown',x0+30,y0,2);ev('pointermove',x0-60,y0,1);ev('pointermove',x0+60,y0,2);ev('pointerup',x0-60,y0,1);ev('pointerup',x0+60,y0,2);const pinched=z.s>s1+.3;
       btn('fit').click();const fit=z.s===1&&z.x===0&&z.y===0&&btn('out').disabled;return panned&&!fired&&pinched&&fit?true:{panned,fired,pinched,fit,s:z.s}},key);
     ok(`${game}: zoom buttons, drag to pan (no stray tap), pinch, fit, and it stays zoomed through a redraw`,r===true,r);await P.close()}
+  {const P=await mk(browser,'zmqpme');P.on('pageerror',e=>errs.push('quacks me: '+e.message));
+    await P.evaluate(()=>{window.__htfast=1;SET.toursOff=true;S.screen='home';render();const c=a=>{const bt=document.createElement('button');bt.dataset.a=a;bt.dataset.k='1';bt.hidden=true;document.body.appendChild(bt);bt.click();bt.remove()};c('qpstart');S.players.forEach((q,i)=>{q.on=i<3;q.name=['Ann','Bob','Cy'][i];q.bot=i?'normal':null});save();c('start')});
+    let t=0;while(t++<60&&!(await P.evaluate(()=>!!document.querySelector('.qpme .zmbox[data-zk="qpme"] .qppot'))))await W(250);
+    const r=await P.evaluate(async()=>{const q=()=>document.querySelector('.zmbox[data-zk="qpme"]');if(!q())return 'no pot box';const n=q().querySelector('[data-zm="in"]');n.click();const a=ZM.qpme.s>1.4;
+      document.querySelector('[data-a="qpfocus"]').click();await new Promise(r=>setTimeout(r,500));const big=document.body.classList.contains('qpfocus')&&!!q()&&ZM.qpme.s>1.4&&q().querySelector('.zmin').style.transform.includes('scale(1.5)');
+      q().querySelector('[data-zm="in"]').click();const more=ZM.qpme.s>2;q().querySelector('[data-zm="fit"]').click();const fit=ZM.qpme.s===1;
+      const pot=q().querySelector('.qppot'),me=document.querySelector('.qpme');const fills=pot.offsetWidth>me.clientWidth*.7;document.querySelector('[data-a="qpfocus"]').click();return a&&big&&more&&fit&&fills?true:{a,big,more,fit,fills}});
+    ok('Quacks: your own pot zooms too, in the normal view and in ⛶ Big pot (which still fills the screen)',r===true,r);await P.screenshot({path:'/tmp/qpme.png'});await P.close()}
   ok('No page errors',!errs.length,errs.slice(0,3));
   await done(browser)})();
