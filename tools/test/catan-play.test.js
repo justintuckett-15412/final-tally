@@ -4,7 +4,7 @@ process.env.LAT=process.env.LAT||'120';process.env.JIT=process.env.JIT||'120';
 const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
 (async()=>{const browser=await chromium.launch();let P=await mk(browser,'p');const errs=[];P.on('pageerror',e=>errs.push(e.message));
   const R=await P.evaluate(()=>{const out=[];const t=(name,f)=>{try{const r=f();out.push([name,!!r.ok,r.ok?'':JSON.stringify(r)])}catch(e){out.push([name,false,e.message+' '+(e.stack||'').split('\n')[1]])}};
-    const fresh=(n=3)=>{S=ctFresh();S.ctx=Object.assign({...CTDEF},{play:1});S.players.forEach((p,i)=>{p.on=i<n;p.name=['Ann','Bob','Cy','Di'][i];p.bot=null});S.started=true;cpDeal();const g=S.cpg;return {g,ids:g.ps,M:id=>g.me[id],B:cpB(g)}};
+    const fresh=(n=3)=>{S=ctFresh();S.ctx=Object.assign({...CTDEF},{play:1});S.players.forEach((p,i)=>{p.on=i<n;p.name=['Ann','Bob','Cy','Di','Ed','Flo'][i];p.bot=null});S.started=true;cpDeal();const g=S.cpg;return {g,ids:g.ps,M:id=>g.me[id],B:cpB(g)}};
     /* play the setup with the bot brain, then hand back to people */
     const setup=x=>{const g=x.g;while(g.phase==='setup'){const q=act().find(p=>p.id===cpActor(g));q.bot='normal';cpBotStep(g,q);q.bot=null}return x};
     const give=(M,o)=>Object.entries(o).forEach(([r,n])=>{M.r[r]+=n});
@@ -41,6 +41,12 @@ const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
       const vs=B.hv[hi];g.b[vs[0]]=[p,0];g.b[vs[3]]=[q,0];g.bank[r]=1;const a=g.me[p].r[r],b=g.me[q].r[r];cpProduce(g,g.hx[hi][3]);return {ok:g.me[p].r[r]===a&&g.me[q].r[r]===b&&g.bank[r]===1}});
     t('Winning: 10 points on your own turn; hidden Victory Point cards count; the score sheet matches',()=>{const x=setup(fresh(3)),g=x.g,p=g.ps[0],M=x.M(p);g.turn=p;g.t={rolled:1,dev:0,road:0};const cs=cpCSpots(g,p);cs.forEach(v=>g.b[v][1]=1);M.dev=['vp','vp','vp','vp'];g.lr=p;cpWin(g,p);
       const pl=act().find(q=>q.id===p);return {ok:g.phase==='done'&&g.win===p&&total(pl)===cpVP(g,p)&&cpVP(g,p)>=10,vp:cpVP(g,p),tot:total(pl)}});
+    t('5–6 players: 30 hexes, 28 numbers, 11 harbors, 24 of each card, 34 development cards',()=>{const bad=[];for(const n of [5,6]){const {g}=fresh(n);const c={};g.hx.forEach(h=>c[h[2]]=(c[h[2]]||0)+1);
+      if(g.hx.length!==30||c.d!==2||c.f!==6||c.h!==5||c.p!==6||c.l!==6||c.m!==5)bad.push('tiles '+n);if(g.hx.filter(h=>h[3]).length!==28)bad.push('numbers');if(g.hb.length!==11)bad.push('harbors');if(g.bank.w!==24)bad.push('bank');if(g.deck.length!==34)bad.push('deck');if(!cpRedOk(g.hx))bad.push('6/8')}return {ok:!bad.length,bad}});
+    t('5–6 players: after a turn, the player 3 seats left builds (bank trades only), then the next player rolls',()=>{const x=fresh(5),g=x.g;while(g.phase==='setup'){const q=act().find(p=>p.id===cpActor(g));q.bot='normal';cpBotStep(g,q);q.bot=null}
+      const [a,b,c,d]=g.ps;g.t.rolled=0;cpRoll(g,a,[2,3]);cpEnd(g,a);const two=g.turn===d&&g.t.p2&&g.t.rolled;Object.assign(g.me[d].r,{w:4,b:0,s:0,g:0,o:0});const noOffer=!cpOffer(g,d,{w:1},{o:1});const bank=cpBank(g,d,'w','o',1);
+      Object.assign(g.me[d].r,{w:1,b:1});const road=cpESpots(g,d).length?cpBuildRoad(g,d,cpESpots(g,d)[0]):true;cpEnd(g,d);return {ok:two&&noOffer&&bank&&road&&g.turn===b&&!g.t.rolled,two,noOffer,bank,road,turn:g.turn===b}});
+    t('5–6 players: bots finish games',()=>{const bad=[];for(const n of [5,6]){const {g}=fresh(n);act().forEach(p=>p.bot='normal');let i=0;while(g.phase!=='done'&&i++<30000){const q=act().find(p=>p.id===cpActor(g));cpBotStep(g,q)}if(g.phase!=='done')bad.push(n)}return {ok:!bad.length,bad}});
     return out});
   R.forEach(([n,g,x])=>ok(n,g,x));
 
