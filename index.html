@@ -11754,12 +11754,14 @@ const trOn=()=>(!S.game||S.game==='ttr')&&!!S.trplay;
 const trG=()=>S.trg||null;
 const trRes=()=>!S.lk||S.demo||lkHost();
 const trM=g=>TRMAP[(g&&g.map)||'usa'];
+/* rules that change by map: trains each, double routes closed with this many players or fewer, locomotives wild only on tunnels/ferries/special routes, the face-up locomotive limit, tickets */
+const trRule=g=>Object.assign({trains:45,dbl:3,locoAny:1,faceL:1},trM(g).rule||{});
 /* ticket sets: Classic (the 30 standard tickets) and USA 1910's three: 1910 (only the new ones), Mega Game (all 69), Big Cities (the 35 touching a big city) */
 const TRVAR={classic:{n:'Classic',sub:'The 30 standard tickets. Longest route bonus.',deal:3,keep:2,draw:3,long:1,globe:0},
   '1910':{n:'1910',sub:'Only the 35 new 1910 tickets. Globetrotter (most tickets finished, 15) instead of the longest route.',deal:3,keep:2,draw:3,long:0,globe:1},
   mega:{n:'Mega Game',sub:'All 69 tickets. 5 to start (keep 3), draw 4 later. Both bonuses.',deal:5,keep:3,draw:4,long:1,globe:1},
   big:{n:'Big Cities',sub:'The 35 tickets touching Chicago, Dallas, Houston, Los Angeles, Miami, New York or Seattle. 4 to start (keep 2), draw 4 later. No bonus.',deal:4,keep:2,draw:4,long:0,globe:0}};
-const trVar=g=>g&&g.var==='europe'?TRVEU:TRVAR[(g&&g.var)||'classic']||TRVAR.classic;
+const trVar=g=>g&&g.var==='nordic'?TRVNO:g&&g.var==='europe'?TRVEU:TRVAR[(g&&g.var)||'classic']||TRVAR.classic;
 const trLongT=(g,t)=>g&&g.map==='europe'&&t>=trM(g).tickets.length;
 const trTk=g=>g&&g.tk||trM(g).tickets;
 /* the tickets in play: 1910's reprint of the standard tickets has 4 lower values */
@@ -11772,39 +11774,51 @@ const trEmptyHand=()=>Object.fromEntries(TRCARDS.map(c=>[c,0]));
 const TRPC={};function trPartner(g,rid){const k=(g&&g.map)||'usa';if(!TRPC[k]){const R=trM(g).routes;TRPC[k]=R.map((r,i)=>R.findIndex((q,j)=>j!==i&&(q[0]===r[0]&&q[1]===r[1]||q[0]===r[1]&&q[1]===r[0])))}return TRPC[k][rid]}
 
 /* Europe: 1 long ticket (blue) and 3 regular to start, keep at least 2; long ones not kept leave the game. 3 stations each. */
-const TRVEU={n:'Europe',sub:'Stations, tunnels and ferries.',deal:4,keep:2,draw:3,long:1,globe:0};
-function trDeal(){const P=act(),ps=P.map(p=>p.id),map=TRMAP[S.trmap]?S.trmap:'usa',m=TRMAP[map],eu=map==='europe',vr=eu?'europe':TRVAR[S.trvar]?S.trvar:'classic',V=eu?TRVEU:TRVAR[vr],tk=eu?[...m.tickets,...m.long]:trDeckOf(m,vr),hr=S.trhr||{};
+const TRVEU={n:'Europe',sub:'Stations, tunnels and ferries.',deal:4,keep:2,draw:3,long:1,globe:0},TRVNO={n:'Nordic Countries',sub:'2–3 players.',deal:5,keep:2,draw:3,long:0,globe:1};
+function trDeal(){const P=act(),ps=P.map(p=>p.id),map=TRMAP[S.trmap]?S.trmap:'usa',m=TRMAP[map],eu=map==='europe',no=map==='nordic',vr=eu?'europe':no?'nordic':TRVAR[S.trvar]?S.trvar:'classic',V=eu?TRVEU:no?TRVNO:TRVAR[vr],tk=eu?[...m.tickets,...m.long]:trDeckOf(m,vr),hr=S.trhr||{};
   const deck=trShuf([...TRC8.flatMap(c=>Array(12).fill(c)),...Array(14).fill('L')]);
   const g={_atom:1,id:String(Math.random()).slice(2,10),map,st:{},stOn:{},tun:null,ps,turn:ps[0],phase:'tix0',deck,disc:[],face:[],hand:{},tr:{},tix:{},offer:{},var:vr,tk,long:V.long||(vr==='big'&&hr.bclong)?1:0,globe:V.globe,tdeck:trShuf((eu?m.tickets:tk).map((t,i)=>i)),own:{},drew:0,lastRound:null,sc:{},stat:{},lg:[],n:0,tno:0,last:null};
-  ps.forEach(p=>{g.hand[p]=trEmptyHand();for(let i=0;i<4;i++)g.hand[p][g.deck.pop()]++;g.tr[p]=45;g.tix[p]=[];g.sc[p]=0;g.offer[p]=eu?[...g.tdeck.splice(0,3)]:g.tdeck.splice(0,V.deal);g.stat[p]={routes:0,cards:0,tix:0};if(m.stations)g.st[p]=m.stations});
+  ps.forEach(p=>{g.hand[p]=trEmptyHand();for(let i=0;i<4;i++)g.hand[p][g.deck.pop()]++;g.tr[p]=m.rule&&m.rule.trains||45;g.tix[p]=[];g.sc[p]=0;g.offer[p]=eu?[...g.tdeck.splice(0,3)]:g.tdeck.splice(0,V.deal);g.stat[p]={routes:0,cards:0,tix:0};if(m.stations)g.st[p]=m.stations});
   if(eu){const L=trShuf(m.long.map((t,i)=>m.tickets.length+i));ps.forEach(p=>g.offer[p].unshift(L.pop()))}
   trRefill(g);S.trg=g;gAnn(g,'Ticket to Ride',`${P.length} players · ${V.n}. Everyone keeps at least ${V.keep} of their ${V.deal} tickets.`,'🚂');gLog(g,`Ticket to Ride (USA, ${V.n} tickets): ${P.length} players, 45 trains each`,'🚂');return g}
 
 function trDrawCard(g){if(!g.deck.length&&g.disc.length){g.deck=trShuf(g.disc);g.disc=[];gLog(g,'The discards are shuffled into a new deck','🔀')}return g.deck.pop()||null}
 /* fill the 5 face-up cards; 3 or more locomotives showing: discard all 5 and deal again (while that can still help) */
 function trRefill(g){for(let i=0;i<5;i++)if(!g.face[i]){const c=trDrawCard(g);g.face[i]=c}g.face=g.face.slice(0,5);
-  for(let guard=0;guard<4;guard++){const nL=g.face.filter(c=>c==='L').length;if(nL<3)break;const left=[...g.deck,...g.disc].filter(c=>c!=='L').length;if(left<3)break;g.disc.push(...g.face.filter(Boolean));g.face=[];for(let i=0;i<5;i++)g.face[i]=trDrawCard(g);gLog(g,'Three locomotives face up: the 5 cards are replaced','🔁')}}
+  for(let guard=0;guard<4&&trRule(g).faceL;guard++){const nL=g.face.filter(c=>c==='L').length;if(nL<3)break;const left=[...g.deck,...g.disc].filter(c=>c!=='L').length;if(left<3)break;g.disc.push(...g.face.filter(Boolean));g.face=[];for(let i=0;i<5;i++)g.face[i]=trDrawCard(g);gLog(g,'Three locomotives face up: the 5 cards are replaced','🔁')}}
 const trCanDraw=g=>g.deck.length+g.disc.length>0||g.face.some(Boolean);
 
 const trActor=g=>!g||g.phase==='done'?null:g.phase==='tun'?g.tun.pid:g.phase==='tix0'?(g.ps.find(p=>g.offer[p])||null):g.turn;
 /* can pid claim route rid (ignoring cards)? */
-function trRouteOk(g,pid,rid){const R=trM(g).routes[rid];if(!R||g.own[rid]!=null)return false;if(g.tr[pid]<R[2])return false;const pr=trPartner(g,rid);if(pr>=0&&g.own[pr]!=null&&(g.own[pr]===pid||g.ps.length<=3))return false;return true}
+function trRouteOk(g,pid,rid){const R=trM(g).routes[rid];if(!R||g.own[rid]!=null)return false;if(g.tr[pid]<R[2])return false;const pr=trPartner(g,rid);if(pr>=0&&g.own[pr]!=null&&(g.own[pr]===pid||g.ps.length<=trRule(g).dbl))return false;return true}
 /* ways to pay for a route: [{c, n, L}] (n cards of colour c plus L locomotives), most colour first */
-function trPays(g,pid,rid){const R=trM(g).routes[rid],len=R[2],H=g.hand[pid],out=[],fL=R[5]||0;const cols=R[3]==='X'?TRC8:[R[3]];
+/* Nordic: locomotives only on tunnels, ferries and Murmansk–Lieksa (R[6]=4: any 4 cards stand in for one coloured card); on a ferry any 3 cards stand in for a locomotive. Pays then carry x: {colour: n} extra cards. */
+const trLocoOk=(g,R)=>trRule(g).locoAny||!!(R[4]||R[5]||R[6]);
+function trPool(H,use){const P={...H};for(const k in use)P[k]-=use[k];return P}
+function trTake3(P,k,avoid){/* pick k cards from pool P, most plentiful colours first (not avoid), locomotives last */const out={};let left=k;const ks=TRCARDS.slice().sort((a,b)=>(a==='L')-(b==='L')||(a===avoid)-(b===avoid)||P[b]-P[a]);for(const c of ks){const t=Math.min(P[c],left);if(t>0){out[c]=t;left-=t}if(!left)break}return left?null:out}
+function trPaysN(g,pid,rid){const R=trM(g).routes[rid],len=R[2],H=g.hand[pid],out=[],fL=R[5]||0,cols=R[3]==='X'?TRC8:[R[3]],seen=new Set(),add=p=>{const k=JSON.stringify(p);if(!seen.has(k)){seen.add(k);out.push(p)}};
+  cols.forEach(c=>{if(R[6]){const tot=Object.values(H).reduce((a,b)=>a+b,0);for(let n=Math.min(H[c],len);n>=0&&out.length<8;n--){if((len-n)*R[6]>tot-n)break;const x=n<len?trTake3(trPool(H,{[c]:n}),(len-n)*R[6],c):{};if(x)add({c,n,L:0,x})}return}
+    if(!R[4]&&!R[5]){if(H[c]>=len)add({c,n:len,L:0});return}
+    for(let L=Math.min(H.L,len);L>=0;L--){const d=Math.max(0,fL-L),n=len-L-d;if(n<0||H[c]<n)continue;if(n===0&&cols.length>1&&c!==cols[0])continue;const x=d?trTake3(trPool(H,{[c]:n,L}),3*d,c):{};if(x)add({c,n,L,x})}});
+  return out.slice(0,8)}
+function trPays(g,pid,rid){if(!trRule(g).locoAny)return trPaysN(g,pid,rid);const R=trM(g).routes[rid],len=R[2],H=g.hand[pid],out=[],fL=R[5]||0;const cols=R[3]==='X'?TRC8:[R[3]];
   cols.forEach(c=>{for(let n=Math.min(H[c],len-fL);n>=Math.max(0,len-H.L);n--){if(n===0&&R[3]==='X'&&cols.length>1)continue;out.push({c,n,L:len-n})}});
   if(R[3]==='X'&&H.L>=len)out.push({c:'L',n:0,L:len});return out}
-function trPayOk(g,pid,rid,pay){if(!pay)return false;const R=trM(g).routes[rid],len=R[2],H=g.hand[pid],n=+pay.n||0,L=+pay.L||0;if(n<0||L<0||n+L!==len||L>H.L||L<(R[5]||0))return false;
+function trPayOkN(g,pid,rid,pay){const R=trM(g).routes[rid],len=R[2],H=g.hand[pid],n=+pay.n||0,L=+pay.L||0,x=pay.x||{},fL=R[5]||0;if(n<0||L<0||!TRC8.includes(pay.c)||R[3]!=='X'&&pay.c!==R[3])return false;
+  let S=0;for(const k in x){if(!TRCARDS.includes(k)||!(x[k]>=0))return false;S+=x[k]}const use={...x};use[pay.c]=(use[pay.c]||0)+n;use.L=(use.L||0)+L;for(const k in use)if(use[k]>H[k])return false;
+  if(R[6])return L===0&&S%R[6]===0&&n+S/R[6]===len;if(!R[4]&&!R[5])return L===0&&S===0&&n===len;if(S%3)return false;return n+L+S/3===len&&L+S/3>=fL}
+function trPayOk(g,pid,rid,pay){if(!pay)return false;if(!trRule(g).locoAny)return trPayOkN(g,pid,rid,pay);const R=trM(g).routes[rid],len=R[2],H=g.hand[pid],n=+pay.n||0,L=+pay.L||0;if(n<0||L<0||n+L!==len||L>H.L||L<(R[5]||0))return false;
   if(pay.c==='L')return n===0;if(!TRC8.includes(pay.c)||n>H[pay.c])return false;if(R[3]!=='X'&&pay.c!==R[3]&&n>0)return false;return true}
 
 /* ---------- a turn ---------- */
 function trTake(g,pid,src){if(g.phase!=='play'||g.turn!==pid)return false;let card;
   if(src==='deck'){card=trDrawCard(g);if(!card)return false;g.last={p:pid,t:'deck'}}
-  else{const i=+src;card=g.face[i];if(!card)return false;if(card==='L'&&g.drew)return false;g.face[i]=trDrawCard(g);trRefill(g);g.last={p:pid,t:'face',c:card}}
+  else{const i=+src;card=g.face[i];if(!card)return false;if(card==='L'&&g.drew&&trRule(g).faceL)return false;g.face[i]=trDrawCard(g);trRefill(g);g.last={p:pid,t:'face',c:card}}
   g.hand[pid][card]++;g.stat[pid].cards++;const first=!g.drew;gLog(g,src==='deck'?`${nmid(pid)} draws a card from the deck`:`${nmid(pid)} takes a ${TRCOL[card][1].toLowerCase()}${card==='L'?'':' card'}`,'🃏');
-  if(src!=='deck'&&card==='L'&&first||!first||!trCanDraw(g)||!trCanDraw2(g)){return trEndTurn(g,pid)}
+  if(src!=='deck'&&card==='L'&&first&&trRule(g).faceL||!first||!trCanDraw(g)||!trCanDraw2(g)){return trEndTurn(g,pid)}
   g.drew=1;g.n++;return true}
 /* a second card is possible: the deck, or a face-up card that isn't a locomotive */
-const trCanDraw2=g=>g.deck.length+g.disc.length>0||g.face.some(c=>c&&c!=='L');
+const trCanDraw2=g=>g.deck.length+g.disc.length>0||g.face.some(c=>c&&(c!=='L'||!trRule(g).faceL));
 function trClaim(g,pid,rid,pay){if(g.phase!=='play'||g.turn!==pid||g.drew)return false;rid=+rid;if(!trRouteOk(g,pid,rid)||!trPayOk(g,pid,rid,pay))return false;const R=trM(g).routes[rid];
   /* a tunnel: turn up 3 cards; each in the colour you played (or a locomotive) costs one more card of it */
   if(R[4]){const rev=[];for(let i=0;i<3;i++){const c=trDrawCard(g);if(c)rev.push(c)}const ex=rev.filter(c=>c==='L'||pay.c!=='L'&&c===pay.c).length;g.disc.push(...rev);gLog(g,`${nmid(pid)} tries the ${trCity(g,R[0])}–${trCity(g,R[1])} tunnel: ${ex?ex+' more card'+(ex>1?'s':'')+' needed':'no extra cards'}`,'⛰️');
@@ -11817,7 +11831,7 @@ function trTunnel(g,pid,ch){const T=g.tun;if(g.phase!=='tun'||!T||T.pid!==pid)re
   const o=trTunPays({...g,tun:T}).find(x=>x.n===+ch.n&&x.L===+ch.L);if(!o){g.tun=T;g.phase='tun';return false}
   return trClaimGo(g,pid,T.rid,{c:T.pay.c,n:T.pay.n+o.n,L:T.pay.L+o.L},T.pay.n+T.pay.L+o.n+o.L)}
 function trClaimGo(g,pid,rid,pay,paid){const R=trM(g).routes[rid],H=g.hand[pid];
-  if(pay.c!=='L'){H[pay.c]-=+pay.n;for(let i=0;i<+pay.n;i++)g.disc.push(pay.c)}H.L-=+pay.L;for(let i=0;i<+pay.L;i++)g.disc.push('L');
+  if(pay.c!=='L'){H[pay.c]-=+pay.n;for(let i=0;i<+pay.n;i++)g.disc.push(pay.c)}H.L-=+pay.L;for(let i=0;i<+pay.L;i++)g.disc.push('L');for(const k in (pay.x||{})){H[k]-=pay.x[k];for(let i=0;i<pay.x[k];i++)g.disc.push(k)}
   g.own[rid]=pid;g.tr[pid]-=R[2];const pts=TRPTS[R[2]];g.sc[pid]+=pts;g.stat[pid].routes++;g.last={p:pid,t:'claim',rid,pts};
   gLog(g,`${nmid(pid)} claims ${trCity(g,R[0])}–${trCity(g,R[1])} (${R[2]} ${TRCOL[R[3]][1].toLowerCase()}${R[4]?' tunnel':R[5]?' ferry':''}) +${pts}`,'🚂');
   /* a ticket just finished? */
@@ -11828,7 +11842,7 @@ function trAskTix(g,pid){if(g.phase!=='play'||g.turn!==pid||g.drew||!g.tdeck.len
 const trMin=(g,O)=>Math.min(O.length,g.phase==='tix0'?trVar(g).keep:1);
 function trKeep(g,pid,keep){const O=g.offer[pid];if(!O||!Array.isArray(keep))return false;if(g.phase==='tix'&&g.turn!==pid)return false;if(g.phase!=='tix'&&g.phase!=='tix0')return false;
   keep=[...new Set(keep.map(Number))];const min=trMin(g,O);if(keep.length<min||keep.some(t=>!O.includes(t)))return false;
-  g.tix[pid].push(...keep);g.stat[pid].tix+=keep.length;g.tdeck.push(...O.filter(t=>!keep.includes(t)&&!trLongT(g,t)));delete g.offer[pid];gLog(g,`${nmid(pid)} keeps ${keep.length} ticket${keep.length>1?'s':''}`,'🎫');
+  g.tix[pid].push(...keep);g.stat[pid].tix+=keep.length;if(!trRule(g).drop)g.tdeck.push(...O.filter(t=>!keep.includes(t)&&!trLongT(g,t)));delete g.offer[pid];gLog(g,`${nmid(pid)} keeps ${keep.length} ticket${keep.length>1?'s':''}`,'🎫');
   if(g.phase==='tix0'){if(!g.ps.some(p=>g.offer[p])){g.phase='play';gAnn(g,'All aboard!',`${nmid(g.turn)} goes first.`,'🚂')}g.n++;return true}
   g.phase='play';return trEndTurn(g,pid)}
 /* nothing at all to do (no cards anywhere, no route you can pay for, no tickets left) */
@@ -11860,7 +11874,7 @@ function trEnd(g){g.phase='done';g.fin={};const L={};g.ps.forEach(p=>{const bor=
     const stp=4*(g.st[p]||0);g.sc[p]+=stp;L[p]=trLongest(g,p);g.fin[p]={rp:g.sc[p]-tv-stp,tv,done,fail,routes:rc,long:L[p],lb:false,stLeft:g.st[p]||0,stp,bor}});
   const mx=Math.max(0,...Object.values(L));if(g.long!==0&&mx>0)g.ps.forEach(p=>{if(L[p]===mx){g.fin[p].lb=true;g.sc[p]+=10}});
   /* Globetrotter: most tickets finished, 15 (ties all get it) */
-  if(g.globe){const gm=Math.max(0,...g.ps.map(p=>g.fin[p].done.length));if(gm>0)g.ps.forEach(p=>{if(g.fin[p].done.length===gm){g.fin[p].gt=true;g.sc[p]+=15}})}
+  if(g.globe){const gm=Math.max(0,...g.ps.map(p=>g.fin[p].done.length));if(gm>0)g.ps.forEach(p=>{if(g.fin[p].done.length===gm){g.fin[p].gt=true;g.sc[p]+=trRule(g).globe||15}})}
   g.n++;const P=act().slice().sort((a,b)=>g.sc[b.id]-g.sc[a.id]);gAnn(g,'🏆 Game over',P.map(p=>`${nm(p)} ${g.sc[p.id]}`).join(' · '),'🏆');gLog(g,'The last round is over: tickets and the longest route are scored','🏁',1);return true}
 /* the scoresheet (for Finish & reveal): routes by length, tickets, longest path */
 function trSyncScorer(g){if(!g||!g.fin)return;act().forEach(p=>{const F=g.fin[p.id];if(!F)return;blank(p);p.routes={...F.routes};const T=trTk(g);p.tickets=[...F.done.map(t=>({v:T[t][2],done:true,name:trCity(g,T[t][0])+'–'+trCity(g,T[t][1])})),...F.fail.map(t=>({v:T[t][2],done:false,name:trCity(g,T[t][0])+'–'+trCity(g,T[t][1])}))];p.x.lpath=F.long});
@@ -11905,7 +11919,7 @@ function trBotMove(g,pid){const q=act().find(p=>p.id===pid)||{},R=trM(g).routes,
     if(!need.size||late){const any=R.map((r,i)=>i).filter(r=>trRouteOk(g,pid,r)&&trPays(g,pid,r).length).sort((a,b)=>R[b][2]-R[a][2]);if(any.length&&(R[any[0]][2]>=3||late||g.tr[pid]<6||!trCanDraw(g)))return {t:'claim',rid:any[0],pay:trBotPay(g,pid,any[0],need)}}
     if(!trCanDraw(g)){if(g.tdeck.length&&!need.size)return {t:'tix'};const any=R.map((r,i)=>i).filter(r=>trRouteOk(g,pid,r)&&trPays(g,pid,r).length);if(any.length)return {t:'claim',rid:any[0],pay:trBotPay(g,pid,any[0],need)};if(g.tdeck.length)return {t:'tix'};return {t:'pass'}}}
   /* draw: a face-up colour we need, a locomotive (first card, not for easy), else the deck */
-  const want={};need.forEach((v,r)=>{const c=R[r][3],gap=R[r][2]-(c==='X'?Math.max(...TRC8.map(x=>H[x])):H[c])-H.L;if(gap>0){if(c==='X'){const best=TRC8.slice().sort((a,b)=>H[b]-H[a])[0];want[best]=(want[best]||0)+v*.6}else want[c]=(want[c]||0)+v}});
+  const want={};need.forEach((v,r)=>{const c=R[r][3],gap=R[r][2]-(c==='X'?Math.max(...TRC8.map(x=>H[x])):H[c])-(trLocoOk(g,R[r])?H.L:0);if(gap>0){if(c==='X'){const best=TRC8.slice().sort((a,b)=>H[b]-H[a])[0];want[best]=(want[best]||0)+v*.6}else want[c]=(want[c]||0)+v}});
   let bi=-1,bv=0;g.face.forEach((c,i)=>{if(!c)return;if(c==='L'){if(!g.drew&&lvl==='hard'&&Object.keys(want).length&&bv<5){bv=5;bi=i}return}const v=want[c]||0;if(v>bv){bv=v;bi=i}});
   if(bi>=0)return {t:'take',src:bi};if(g.deck.length+g.disc.length)return {t:'take',src:'deck'};const fi=g.face.findIndex(c=>c&&(c!=='L'||!g.drew));if(fi>=0)return {t:'take',src:fi};return {t:'pass'}}
 function trBotStep(g,q){const pid=q.id;if(g.phase==='tun'){if(!g.tun||g.tun.pid!==pid)return false;const o=trTunPays(g)[0];return trTunnel(g,pid,o||'give')}if(g.phase==='tix0'||g.phase==='tix'){if(!g.offer[pid])return false;return trKeep(g,pid,trBotKeep(g,pid))}
@@ -11975,7 +11989,7 @@ function trDock(g,V){const box=(h,b)=>`<div class="sadock cpdock trdock" style="
   if(TRCITY!=null&&!(trM(g).stations&&g.st[V.id]>0&&g.stOn[TRCITY]==null&&!g.drew))TRCITY=null;
   if(TRCITY!=null){const Pa=trStPays(g,V.id),k=trStCost(g,V.id);return box(`🏠 Station in ${esc(trCity(g,TRCITY))}`,`<div class="rlab">Your ${['first','second','third'][k-1]} station costs ${k} card${k>1?'s':''} of one colour (locomotives count as any). At the end it lets you use one other player’s route into ${esc(trCity(g,TRCITY))} for your tickets. Each station you don’t build is worth 4.</div><div class="lr ccmeeps">${Pa.map((p,i)=>`<button data-a="trpstpay" data-k="${i}">${p.n?trCardChip(p.c,p.n):''}${p.L?trCardChip('L',p.L):''}</button>`).join('')||'<span class="rlab">Not enough cards of one colour yet.</span>'}<button data-a="trpcancel">Cancel</button></div>${hand}`)}
   if(TRSEL!=null&&!(trRouteOk(g,V.id,TRSEL)&&!g.drew))TRSEL=null;
-  if(TRSEL!=null){const R=trM(g).routes[TRSEL],Pa=trPays(g,V.id,TRSEL);return box(`🚂 ${esc(trCity(g,R[0]))} – ${esc(trCity(g,R[1]))}`,`<div class="rlab">${R[2]} ${TRCOL[R[3]][1].toLowerCase()} space${R[2]>1?'s':''}${R[4]?', a tunnel (3 cards are turned up; each matching one costs one more)':''}${R[5]?`, a ferry (needs ${R[5]} locomotive${R[5]>1?'s':''})`:''}, worth ${TRPTS[R[2]]}. ${Pa.length?'Pay with:':R[3]==='X'?`You need ${R[2]} cards of one colour (locomotives count as any).`:`You need ${R[2]} ${TRCOL[R[3]][1].toLowerCase()} cards (locomotives count as any).`}</div><div class="lr ccmeeps">${Pa.map((p,i)=>`<button data-a="trppay" data-k="${i}">${p.n?trCardChip(p.c,p.n):''}${p.L?trCardChip('L',p.L):''}</button>`).join('')}<button data-a="trpcancel">Cancel</button></div>${hand}`)}
+  if(TRSEL!=null){const R=trM(g).routes[TRSEL],Pa=trPays(g,V.id,TRSEL);return box(`🚂 ${esc(trCity(g,R[0]))} – ${esc(trCity(g,R[1]))}`,`<div class="rlab">${R[2]} ${TRCOL[R[3]][1].toLowerCase()} space${R[2]>1?'s':''}${R[4]?', a tunnel (3 cards are turned up; each matching one costs one more)':''}${R[5]?`, a ferry (needs ${R[5]} locomotive${R[5]>1?'s':''})`:''}, worth ${TRPTS[R[2]]}. ${Pa.length?'Pay with:':trLocoOk(g,R)?(R[3]==='X'?`You need ${R[2]} cards of one colour (locomotives count as any).`:`You need ${R[2]} ${TRCOL[R[3]][1].toLowerCase()} cards (locomotives count as any).`):`You need ${R[2]} ${R[3]==='X'?'cards of one colour':TRCOL[R[3]][1].toLowerCase()+' cards'}. Locomotives only count on tunnels, ferries and Murmansk–Lieksa here.`}${R[6]?' Any 4 cards can stand in for one card of the colour.':''}${!trRule(g).locoAny&&R[5]?' Any 3 cards can stand in for a locomotive.':''}</div><div class="lr ccmeeps">${Pa.map((p,i)=>`<button data-a="trppay" data-k="${i}">${p.n?trCardChip(p.c,p.n):''}${p.L?trCardChip('L',p.L):''}${Object.entries(p.x||{}).filter(([,n])=>n).map(([c,n])=>trCardChip(c,n)).join('')}</button>`).join('')}<button data-a="trpcancel">Cancel</button></div>${hand}`)}
   const face=g.face.map((c,i)=>c?`<button class="trfacebtn" data-a="trptake" data-k="${i}" ${c==='L'&&g.drew?'disabled':''} aria-label="Take the face-up ${TRCOL[c][1].toLowerCase()} card">${trCardChip(c,null)}</button>`:'').join('');
   const deckN=g.deck.length+g.disc.length;
   return box(g.drew?'take a second card':trM(g).stations&&g.st[V.id]>0?'draw 2, claim, tickets, or tap a city for a station':'draw 2, claim a route, or tickets',`<div class="trface">${face}<button class="trfacebtn trdeck" data-a="trptake" data-k="deck" ${deckN?'':'disabled'} aria-label="Draw from the deck (${deckN} left)">${trCardChip('back',null)}<small class="num">${deckN}</small></button>${!g.drew?`<button class="trfacebtn" data-a="trptix" ${g.tdeck.length?'':'disabled'} aria-label="Draw destination tickets (${g.tdeck.length} left)"><span class="trcard trtk">🎫</span><small class="num">${g.tdeck.length}</small></button>`:''}</div>${g.drew?'<div class="rlab">One more: the deck or a face-up card (not a locomotive).</div>':''}${!g.drew&&!trCanAct(g,V.id)?'<div class="lr ccmeeps"><button data-a="trppass">Pass</button></div>':''}${hand}`)}
@@ -21564,6 +21578,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='eb449b';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='206530';</script>
 </body>
 </html>
