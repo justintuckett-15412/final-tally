@@ -11899,7 +11899,7 @@ function trBotStep(g,q){const pid=q.id;if(g.phase==='tun'){if(!g.tun||g.tun.pid!
   if(trCanDraw(g))return trTake(g,pid,g.deck.length+g.disc.length?'deck':g.face.findIndex(c=>c&&(c!=='L'||!g.drew)));return trEndTurn(g,pid)}
 /* ---------- Ticket to Ride: the play screen ---------- */
 /* Justin's painted map, when it's in art/ (turn on per map) */
-const TRART={usa:1,europe:0,station:0};
+const TRART={usa:1,europe:1,station:1};
 let TRCITY=null,TRVIEW=null,TRSEL=null,TRKEEP=null,TRHL=null,TRBOTT=null;
 const trHumans=()=>act().filter(p=>!p.bot);
 function trViewer(){const g=trG();if(!g)return null;if(S.lk&&!S.demo)return act().find(p=>p.id===S.lk.me)||null;const H=trHumans();if(H.length===1)return H[0];if(!H.length)return null;return H.find(p=>p.id===TRVIEW)||null}
@@ -11917,7 +11917,7 @@ function trLit(g,V){if(V&&g.offer[V.id]&&trKeepSt(g,V))return g.offer[V.id].filt
 const trLitCol=(g,V,t)=>{if(V&&g.offer[V.id])return TRHLC[g.offer[V.id].indexOf(t)%TRHLC.length];return TRHLC[0]};
 function trBoardSvg(g,V){const M=trM(g),mine=V&&g.phase==='play'&&g.turn===V.id&&!g.drew,lit=trLit(g,V),hl={};lit.forEach(t=>{const c=trLitCol(g,V,t);[trTk(g)[t][0],trTk(g)[t][1]].forEach(i=>(hl[i]||(hl[i]=[])).push(c))});
   let o=`<svg class="trboard" viewBox="-20 -20 ${M.W+200} ${M.H+40}" role="img" aria-label="The USA map: ${Object.keys(g.own).length} routes claimed">`;
-  o+=TRART[g.map]?`<rect x="-20" y="-20" width="${M.W+200}" height="${M.H+40}" fill="#4190ae"/><image href="art/ttr-map-${g.map}.webp" x="0" y="0" width="${M.W}" height="${M.H}" preserveAspectRatio="none"/>`:`<rect x="-20" y="-20" width="${M.W+200}" height="${M.H+40}" fill="var(--tr-sea,#b9d6e6)"/><g fill="var(--tr-land,#e8dcb8)" stroke="#a8946a" stroke-width="2">${M.land.map(d=>`<path d="${d}"/>`).join('')}</g><g fill="var(--tr-sea,#b9d6e6)" stroke="#a8946a" stroke-width="2">${M.lakes.map(d=>`<path d="${d}"/>`).join('')}</g>`;
+  o+=TRART[g.map]?`<rect x="-20" y="-20" width="${M.W+200}" height="${M.H+40}" fill="${g.map==='europe'?'#349bc3':'#4190ae'}"/><image href="art/ttr-map-${g.map}.webp" x="0" y="0" width="${M.W}" height="${M.H}" preserveAspectRatio="none"/>`:`<rect x="-20" y="-20" width="${M.W+200}" height="${M.H+40}" fill="var(--tr-sea,#b9d6e6)"/><g fill="var(--tr-land,#e8dcb8)" stroke="#a8946a" stroke-width="2">${M.land.map(d=>`<path d="${d}"/>`).join('')}</g><g fill="var(--tr-sea,#b9d6e6)" stroke="#a8946a" stroke-width="2">${M.lakes.map(d=>`<path d="${d}"/>`).join('')}</g>`;
   o+=trTint([...new Set(g.ps.map(trColOf))]);const cars={};
   /* routes */
   M.routes.forEach((R,rid)=>{const own=g.own[rid],C=trCars(g,rid),sel=TRSEL===rid,ok=mine&&own==null&&trRouteOk(g,V.id,rid);
@@ -11929,7 +11929,7 @@ function trBoardSvg(g,V){const M=trM(g),mine=V&&g.phase==='play'&&g.turn===V.id&
   /* cities */
   lit.forEach(t=>{const T=trTk(g)[t],[,ax,ay]=M.cities[T[0]],[,bx,by]=M.cities[T[1]],c=trLitCol(g,V,t);o+=`<line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="${c}" stroke-width="10" stroke-dasharray="5 15" stroke-linecap="round" opacity=".95" class="trlitl"/>`});
   const stOk=V&&mine&&trM(g).stations&&g.st[V.id]>0;
-  M.cities.forEach(([n,x,y],i)=>{const h=hl[i],sp=g.stOn&&g.stOn[i];if(sp!=null){const c=trColOf(sp);o+=TRART.station?`<image href="art/tr-station-g.webp" x="${x+4}" y="${y-30}" width="26" height="26" filter="url(#trx-${c})"/>`:`<path d="M${x+5},${y-6} v-12 l9,-8 l9,8 v12z" fill="var(--t-${c})" stroke="#1d232a" stroke-width="2"/>`}
+  M.cities.forEach(([n,x,y],i)=>{const h=hl[i],sp=g.stOn&&g.stOn[i];if(sp!=null){const c=trColOf(sp);o+=TRART.station?`<image href="art/tr-station-g.webp" x="${x+7}" y="${y-8}" width="46" height="38" filter="url(#trx-${c})"/>`:`<path d="M${x+5},${y-6} v-12 l9,-8 l9,8 v12z" fill="var(--t-${c})" stroke="#1d232a" stroke-width="2"/>`}
     if(stOk&&sp==null)o+=`<circle cx="${x}" cy="${y}" r="20" fill="rgba(0,0,0,0)" data-a="trpcity" data-k="${i}" role="button" aria-label="Station in ${esc(n)}"${TRCITY===i?' stroke="#ffd23f" stroke-width="6"':''}/>`;
     o+=`<g class="trcity${h?' lit':''}">${h?h.map((c,j)=>`<circle cx="${x}" cy="${y}" r="${24+j*9}" fill="none" stroke="${c}" stroke-width="8"/>`).join(''):''}<circle cx="${x}" cy="${y}" r="${h?14:10}" fill="${h?h[0]:'#c0392b'}" stroke="#fff" stroke-width="3.5"/><text x="${x}" y="${y-(h?26+h.length*8:17)}" text-anchor="middle" class="trcn${h?' lit':''}">${esc(n)}</text></g>`});
   return o+'</svg>'}
@@ -21549,6 +21549,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='513631';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='ba1e11';</script>
 </body>
 </html>
