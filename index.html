@@ -1878,8 +1878,10 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 .trtixl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 10px}
 .trtix{position:relative;aspect-ratio:600/302;display:flex;align-items:center;padding:0 22% 0 11%;min-width:0;width:100%;border:0;border-radius:6px;background:url(art/tr-ticket.webp) center/100% 100% no-repeat,transparent;color:#5a3714;text-align:left;cursor:pointer;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
 .trtix span{font:700 14px/1.15 Georgia,'Times New Roman',serif;display:flex;flex-direction:column}.trtix small{font:italic 11px/1.2 Georgia,serif;opacity:.75;margin:1px 0}.trtix b{position:absolute;right:13%;top:21%;font:700 16px/1 Georgia,serif;color:#7a2e12}.trtix i{position:absolute;right:-4px;top:-6px;box-shadow:0 0 0 2px var(--surface);width:24px;height:24px;border-radius:12px;background:#3d9a48;color:#fff;font:700 15px/24px system-ui;text-align:center;font-style:normal}
-.trtix.on{filter:drop-shadow(0 0 5px #ffb800) drop-shadow(0 0 2px #ffb800)}.trtix.pick:not(.on){opacity:.55;filter:grayscale(.6)}
+.trtix.on{filter:drop-shadow(0 0 5px var(--hc,#ffb800)) drop-shadow(0 0 2px var(--hc,#ffb800))}.trtix.pick:not(.on){opacity:.55;filter:grayscale(.6)}
 .trlast{display:block;font-weight:700;color:#b5470b}
+.trcn.lit{font-size:24px;stroke-width:6px}
+@media (prefers-reduced-motion:no-preference){.trlitl{animation:trdash 1.2s linear infinite}}@keyframes trdash{to{stroke-dashoffset:-36}}
 </style>
 
 <div id="app"></div>
@@ -11860,7 +11862,12 @@ const trColOf=pid=>(act().find(p=>p.id===pid)||{}).color||'gray';
 function trCars(g,rid){const M=trM(g),R=M.routes[rid],[ax,ay]=M.cities[R[0]].slice(1),[bx,by]=M.cities[R[1]].slice(1),pr=trPartner(g,rid);
   let dx=bx-ax,dy=by-ay;const L=Math.hypot(dx,dy);dx/=L;dy/=L;const off=pr<0?0:(rid<pr?-8.5:8.5),nx=-dy*off,ny=dx*off,pad=17,seg=(L-2*pad)/R[2],w=Math.max(8,seg-4),ang=Math.atan2(dy,dx)*180/Math.PI;
   return Array.from({length:R[2]},(_,i)=>{const t=pad+seg*(i+.5);return [ax+dx*t+nx,ay+dy*t+ny,w,ang]})}
-function trBoardSvg(g,V){const M=trM(g),mine=V&&g.phase==='play'&&g.turn===V.id&&!g.drew,hl=TRHL!=null&&M.tickets[TRHL]?[M.tickets[TRHL][0],M.tickets[TRHL][1]]:[];
+/* tickets lit up on the map: while choosing, every ticket you're keeping; otherwise the one you tapped. Each gets its own colour. */
+const TRHLC=['#ffd23f','#35d0ff','#ff5fd2','#7dff6a','#ff8a3d'];
+function trKeepSt(g,V){const O=V&&g.offer[V.id];if(!O)return null;const key=g.id+':'+O.join();if(!TRKEEP||TRKEEP.g!==key)TRKEEP={g:key,s:new Set(O)};return TRKEEP}
+function trLit(g,V){if(V&&g.offer[V.id]&&trKeepSt(g,V))return g.offer[V.id].filter(t=>TRKEEP.s.has(t));return TRHL!=null&&trM(g).tickets[TRHL]?[TRHL]:[]}
+const trLitCol=(g,V,t)=>{if(V&&g.offer[V.id])return TRHLC[g.offer[V.id].indexOf(t)%TRHLC.length];return TRHLC[0]};
+function trBoardSvg(g,V){const M=trM(g),mine=V&&g.phase==='play'&&g.turn===V.id&&!g.drew,lit=trLit(g,V),hl={};lit.forEach(t=>{const c=trLitCol(g,V,t);[M.tickets[t][0],M.tickets[t][1]].forEach(i=>(hl[i]||(hl[i]=[])).push(c))});
   let o=`<svg class="trboard" viewBox="-20 -20 ${M.W+200} ${M.H+40}" role="img" aria-label="The USA map: ${Object.keys(g.own).length} routes claimed">`;
   o+=TRART[g.map]?`<rect x="-20" y="-20" width="${M.W+200}" height="${M.H+40}" fill="#4190ae"/><image href="art/ttr-map-${g.map}.webp" x="0" y="0" width="${M.W}" height="${M.H}" preserveAspectRatio="none"/>`:`<rect x="-20" y="-20" width="${M.W+200}" height="${M.H+40}" fill="var(--tr-sea,#b9d6e6)"/><g fill="var(--tr-land,#e8dcb8)" stroke="#a8946a" stroke-width="2">${M.land.map(d=>`<path d="${d}"/>`).join('')}</g><g fill="var(--tr-sea,#b9d6e6)" stroke="#a8946a" stroke-width="2">${M.lakes.map(d=>`<path d="${d}"/>`).join('')}</g>`;
   o+=trTint([...new Set(g.ps.map(trColOf))]);const cars={};
@@ -11872,13 +11879,14 @@ function trBoardSvg(g,V){const M=trM(g),mine=V&&g.phase==='play'&&g.turn===V.id&
     o+='</g>'});
   for(const c in cars)o+=`<g filter="url(#trx-${c})">${cars[c].join('')}</g>`;
   /* cities */
-  M.cities.forEach(([n,x,y],i)=>{const h=hl.includes(i);o+=`<g class="trcity"><circle cx="${x}" cy="${y}" r="${h?15:10}" fill="${h?'#ffd23f':'#c0392b'}" stroke="#fff" stroke-width="3.5"/><text x="${x}" y="${y-17}" text-anchor="middle" class="trcn">${esc(n)}</text></g>`});
+  lit.forEach(t=>{const T=M.tickets[t],[,ax,ay]=M.cities[T[0]],[,bx,by]=M.cities[T[1]],c=trLitCol(g,V,t);o+=`<line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="${c}" stroke-width="10" stroke-dasharray="5 15" stroke-linecap="round" opacity=".95" class="trlitl"/>`});
+  M.cities.forEach(([n,x,y],i)=>{const h=hl[i];o+=`<g class="trcity${h?' lit':''}">${h?h.map((c,j)=>`<circle cx="${x}" cy="${y}" r="${24+j*9}" fill="none" stroke="${c}" stroke-width="8"/>`).join(''):''}<circle cx="${x}" cy="${y}" r="${h?14:10}" fill="${h?h[0]:'#c0392b'}" stroke="#fff" stroke-width="3.5"/><text x="${x}" y="${y-(h?26+h.length*8:17)}" text-anchor="middle" class="trcn${h?' lit':''}">${esc(n)}</text></g>`});
   return o+'</svg>'}
 /* Justin's card art: art/tr-card-<colour>.webp and the back, art/tr-back.webp */
 const trCardChip=(c,n,o={})=>`<span class="trcard tr-${c}${o.cls?' '+o.cls:''}" style="background-image:url(art/${c==='back'?'tr-back':'tr-card-'+c}.webp)" title="${(TRCOL[c]||[0,"Deck"])[1]}">${n!=null?`<b class="num">${n}</b>`:''}</span>`;
 /* Justin's red train piece, recoloured: the grey layer (art/tr-car-g.webp) times the player's colour */
 const trTint=cols=>`<defs>${cols.map(c=>`<filter id="trx-${c}" color-interpolation-filters="sRGB"><feFlood style="flood-color:var(--t-${c})"/><feBlend in2="SourceGraphic" mode="multiply"/><feComposite in2="SourceAlpha" operator="in"/></filter>`).join('')}</defs>`;
-const trTixLine=(g,pid,t,o={})=>{const T=trM(g).tickets[t],d=trTixDone(g,pid,t);return `<button class="trtix${d?' done':''}${TRHL===t?' on':''}" data-a="trphl" data-k="${t}" aria-pressed="${TRHL===t}"${o.dis?' disabled':''}><span>${esc(trCity(g,T[0]))}<small>to</small>${esc(trCity(g,T[1]))}</span><b class="num">${T[2]}</b>${d?'<i>✓</i>':''}</button>`};
+const trTixLine=(g,pid,t,o={})=>{const T=trM(g).tickets[t],d=trTixDone(g,pid,t);return `<button class="trtix${d?' done':''}${TRHL===t?' on':''}" style="--hc:${TRHLC[0]}" data-a="trphl" data-k="${t}" aria-pressed="${TRHL===t}"${o.dis?' disabled':''}><span>${esc(trCity(g,T[0]))}<small>to</small>${esc(trCity(g,T[1]))}</span><b class="num">${T[2]}</b>${d?'<i>✓</i>':''}</button>`};
 function trPlayUI(){const g=trG(),P=act();
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="Ticket to Ride">${g&&g.phase==='done'?'🏁':'🚂'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>`;
   if(!g||trStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(trRes()?'Shuffling the cards…':'Waiting for the host phone…')}</div>`;
@@ -11893,8 +11901,8 @@ function trPlayUI(){const g=trG(),P=act();
 function trDock(g,V){const box=(h,b)=>`<div class="sadock cpdock trdock" style="${pc(V.color)}"><div class="sadh"><span><b>${S.lk||trHumans().length<2?'You':esc(nm(V))}</b> · ${h}</span></div>${b}</div>`,H=g.hand[V.id];
   const hand=`<div class="trhand" aria-label="Your train cards">${TRCARDS.filter(c=>H[c]).map(c=>trCardChip(c,H[c])).join('')||'<span class="rlab">No train cards yet.</span>'}</div>`;
   const tix='';
-  if(g.offer[V.id]&&(g.phase==='tix0'||g.phase==='tix'&&g.turn===V.id)){const O=g.offer[V.id],min=Math.min(O.length,g.phase==='tix0'?2:1);if(!TRKEEP||TRKEEP.g!==g.id+':'+O.join())TRKEEP={g:g.id+':'+O.join(),s:new Set(O)};
-    return box('🎫 Keep which tickets?',`<div class="rlab">Keep at least ${min}. A finished ticket adds its points at the end; an unfinished one takes them away.</div><div class="trtixl">${O.map(t=>{const T=trM(g).tickets[t],on=TRKEEP.s.has(t);return `<button class="trtix pick${on?' on':''}" data-a="trptk" data-k="${t}" aria-pressed="${on}"><span>${esc(trCity(g,T[0]))}<small>to</small>${esc(trCity(g,T[1]))}</span><b class="num">${T[2]}</b>${on?'<i>✓</i>':''}</button>`}).join('')}</div><button class="btn primary wide" data-a="trpkeep" ${TRKEEP.s.size>=min?'':'disabled'}>Keep ${TRKEEP.s.size}</button>${hand}${tix}`)}
+  if(g.offer[V.id]&&(g.phase==='tix0'||g.phase==='tix'&&g.turn===V.id)){const O=g.offer[V.id],min=Math.min(O.length,g.phase==='tix0'?2:1);trKeepSt(g,V);
+    return box('🎫 Keep which tickets?',`<div class="rlab">Keep at least ${min}. Kept tickets light up on the map. Finished ones add their points at the end; unfinished ones take them away.</div><div class="trtixl">${O.map(t=>{const T=trM(g).tickets[t],on=TRKEEP.s.has(t);return `<button class="trtix pick${on?' on':''}" style="--hc:${TRHLC[O.indexOf(t)%TRHLC.length]}" data-a="trptk" data-k="${t}" aria-pressed="${on}"><span>${esc(trCity(g,T[0]))}<small>to</small>${esc(trCity(g,T[1]))}</span><b class="num">${T[2]}</b>${on?'<i>✓</i>':''}</button>`}).join('')}</div><button class="btn primary wide" data-a="trpkeep" ${TRKEEP.s.size>=min?'':'disabled'}>Keep ${TRKEEP.s.size}</button>`)}
   if(g.phase==='tix0')return box('Waiting',`<div class="rlab">The others are choosing their tickets.</div>${hand}${tix}`);
   if(g.phase!=='play'||g.turn!==V.id)return box('Your cards',`${hand}${tix}`);
   if(TRSEL!=null&&!(trRouteOk(g,V.id,TRSEL)&&!g.drew))TRSEL=null;
@@ -21479,6 +21487,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='011c51';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='66c28f';</script>
 </body>
 </html>
