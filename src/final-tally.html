@@ -12086,7 +12086,7 @@ function trRsBotPcs(g,pid){const R=trM(g).routes,T=trTk(g);let tr=0,sh=0;(g.tix[
   if(!tr&&!sh)return 20;return Math.max(10,Math.min(25,Math.round(60*tr/(tr+sh)+3)))}
 /* ---------- Ticket to Ride: the play screen ---------- */
 /* Justin's painted map, when it's in art/ (turn on per map) */
-const TRART={usa:1,europe:1,nordic:1,germany:1,world:1,station:1};
+const TRART={usa:1,europe:1,nordic:1,germany:1,world:1,ships:1,station:1};
 let TRREP=null,TRX=null,TRMV=null,TRMIX=null,TRCITY=null,TRVIEW=null,TRSEL=null,TRKEEP=null,TRHL=null,TRBOTT=null;
 const trHumans=()=>act().filter(p=>!p.bot);
 function trViewer(){const g=trG();if(!g)return null;if(S.lk&&!S.demo)return act().find(p=>p.id===S.lk.me)||null;const H=trHumans();if(H.length===1)return H[0];if(!H.length)return null;return H.find(p=>p.id===TRVIEW)||null}
@@ -12127,6 +12127,7 @@ function trBoardSvg(g,V){const M=trM(g),mine=V&&g.phase==='play'&&g.turn===V.id&
   return o+'</svg>'}
 /* Rails & Sails cards: train cards use the train art (⚓ marks a harbor card); ship cards are drawn until there's art */
 const trRsChip=(k,n)=>{const c=k[1],t=k[0];if(t==='h')return `<span class="trcard tr-${c}" style="background-image:url(art/tr-card-${c}.webp)" title="${TRCOL[c][1]} train (harbor)"><i class="trrsa">⚓</i>${n!=null?`<b class="num">${n}</b>`:''}</span>`;
+  if(TRART.ships)return `<span class="trcard" style="background-image:url(art/tr-card-${k}.webp)" title="${c==='P'?'Purple':TRCOL[c][1]} ${t==='d'?'double ship':'ship'}">${n!=null?`<b class="num">${n}</b>`:''}</span>`;
   return `<span class="trcard trship" style="--sc:${TRCOL[c][2]}" title="${TRCOL[c][1]} ${t==='d'?'double ship':'ship'}"><i class="trrsv">${t==='d'?'⛵⛵':'⛵'}</i>${t==='s'?'<i class="trrsa">⚓</i>':''}${n!=null?`<b class="num">${n}</b>`:''}</span>`};
 /* Märklin: the merchandise stack (top token and how many are left) and any passenger standing in the city */
 function trMerSvg(g,i,x,y,V){if(!g.mt)return '';let o='';const st=g.mt[i],k=trM(g).merch[i];if(st&&st.length){o+=`<g class="trmer"><circle cx="${x+17}" cy="${y+13}" r="10.5" fill="${TRMERC[k]}" stroke="#1d232a" stroke-width="2"/><text x="${x+17}" y="${y+17.5}" text-anchor="middle" font-size="13" font-weight="800" fill="${k==='K'||k==='R'?'#fff':'#1d232a'}">${st[st.length-1]}</text>${st.length>1?`<text x="${x+30}" y="${y+24}" font-size="10" font-weight="700" fill="#1d232a">×${st.length}</text>`:''}</g>`}
