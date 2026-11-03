@@ -1832,12 +1832,12 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 .trcn{font:700 20px/1 system-ui,sans-serif;fill:#2b2418;paint-order:stroke;stroke:rgba(255,255,255,.9);stroke-width:5px;stroke-linejoin:round;pointer-events:none}
 .trroute.ok rect{filter:drop-shadow(0 0 3px rgba(255,210,63,.9))}
 .trhand,.trface{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
-.trcard{display:inline-flex;align-items:center;justify-content:center;gap:2px;min-width:34px;height:44px;padding:0 6px;border-radius:7px;border:2px solid rgba(0,0,0,.35);box-shadow:0 1px 2px rgba(0,0,0,.25);font-size:18px;color:#fff}
-.trcard b{font-size:17px;text-shadow:0 1px 2px rgba(0,0,0,.6)}
-.tr-R{background:#d4382c}.tr-O{background:#ee8a26}.tr-Y{background:#f3cf2b}.tr-Y b{color:#3b2f00;text-shadow:none}.tr-G{background:#3d9a48}.tr-B{background:#2f6fc6}.tr-P{background:#de73b0}.tr-K{background:#2a2a2e}.tr-W{background:#f6f3ea}.tr-W b{color:#333;text-shadow:none}
-.tr-L{background:linear-gradient(135deg,#d4382c,#f3cf2b 30%,#3d9a48 50%,#2f6fc6 70%,#de73b0)}.tr-back{background:repeating-linear-gradient(45deg,#8a6d3b,#8a6d3b 6px,#a3844c 6px,#a3844c 12px)}
+.trcard{position:relative;display:inline-flex;align-items:center;justify-content:center;width:36px;height:54px;border-radius:6px;border:1px solid rgba(0,0,0,.3);box-shadow:0 1px 2px rgba(0,0,0,.25);background-size:100% 100%;background-repeat:no-repeat;font-size:18px;color:#fff}
+.trcard b{position:absolute;right:-6px;bottom:-6px;min-width:20px;height:20px;padding:0 4px;border-radius:10px;background:#1d232a;color:#fff;font-size:13px;line-height:20px;text-align:center;text-shadow:none;box-shadow:0 0 0 2px var(--surface)}
+.tr-R{background-color:#d4382c}.tr-O{background-color:#ee8a26}.tr-Y{background-color:#f3cf2b}.tr-G{background-color:#3d9a48}.tr-B{background-color:#2f6fc6}.tr-P{background-color:#de73b0}.tr-K{background-color:#2a2a2e}.tr-W{background-color:#f6f3ea}
+.tr-L{background-color:#8e7cc3}.tr-back{background-color:#e9d9b0}
 .trfacebtn{background:none;border:0;padding:0;display:inline-flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}.trfacebtn:disabled{opacity:.4}.trfacebtn small{font-size:12px;color:var(--muted)}
-.trfacebtn .trcard{width:38px}.trtk{background:#f3e7c4;color:#333;font-size:20px}
+.trfacebtn .trcard{width:40px;height:60px}.trhand{gap:10px}.trtk{background-color:#f3e7c4;color:#333;font-size:20px}
 .trdock .trhand{margin:4px 0 0}.trdock .trface{margin:4px 0;gap:5px}
 .trtixl{display:flex;flex-direction:column;gap:6px;margin:6px 0 10px}
 .trtix{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:15px;text-align:left}
@@ -11826,15 +11826,21 @@ function trCars(g,rid){const M=trM(g),R=M.routes[rid],[ax,ay]=M.cities[R[0]].sli
 function trBoardSvg(g,V){const M=trM(g),mine=V&&g.phase==='play'&&g.turn===V.id&&!g.drew,hl=TRHL!=null&&M.tickets[TRHL]?[M.tickets[TRHL][0],M.tickets[TRHL][1]]:[];
   let o=`<svg class="trboard" viewBox="-20 -20 ${M.W+200} ${M.H+40}" role="img" aria-label="The USA map: ${Object.keys(g.own).length} routes claimed">`;
   o+=TRART[g.map]?`<rect x="-20" y="-20" width="${M.W+200}" height="${M.H+40}" fill="#4190ae"/><image href="art/ttr-map-${g.map}.webp" x="0" y="0" width="${M.W}" height="${M.H}" preserveAspectRatio="none"/>`:`<rect x="-20" y="-20" width="${M.W+200}" height="${M.H+40}" fill="var(--tr-sea,#b9d6e6)"/><g fill="var(--tr-land,#e8dcb8)" stroke="#a8946a" stroke-width="2">${M.land.map(d=>`<path d="${d}"/>`).join('')}</g><g fill="var(--tr-sea,#b9d6e6)" stroke="#a8946a" stroke-width="2">${M.lakes.map(d=>`<path d="${d}"/>`).join('')}</g>`;
+  o+=trTint([...new Set(g.ps.map(trColOf))]);const cars={};
   /* routes */
   M.routes.forEach((R,rid)=>{const own=g.own[rid],C=trCars(g,rid),sel=TRSEL===rid,ok=mine&&own==null&&trRouteOk(g,V.id,rid);
-    o+=`<g class="trroute${sel?' sel':''}${ok?' ok':''}">${C.map(([x,y,w,a])=>`<rect x="${-w/2}" y="-7" width="${w}" height="14" rx="3" transform="translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${a.toFixed(1)})" fill="${own!=null?`var(--t-${trColOf(own)})`:TRCOL[R[3]][2]}" stroke="${sel?'#ffd23f':own!=null?'#1d232a':'#5b5246'}" stroke-width="${sel?5:own!=null?2.5:1.6}"/>${own!=null?`<circle r="3" cx="0" cy="0" transform="translate(${x.toFixed(1)},${y.toFixed(1)})" fill="rgba(255,255,255,.75)"/>`:''}`).join('')}`;
+    o+=`<g class="trroute${sel?' sel':''}${ok?' ok':''}">${C.map(([x,y,w,a])=>`<rect x="${-w/2}" y="-7" width="${w}" height="14" rx="3" transform="translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${a.toFixed(1)})" fill="${own!=null?`var(--t-${trColOf(own)})`:TRCOL[R[3]][2]}"${own!=null?' fill-opacity=".55"':''} stroke="${sel?'#ffd23f':own!=null?'#1d232a':'#5b5246'}" stroke-width="${sel?5:own!=null?1.5:1.6}"/>`).join('')}`;
+    if(own!=null){const col=trColOf(own);C.forEach(([x,y,w,a])=>{const cw=Math.min(w+6,38),ch=cw*198/256,aa=a>90||a<-90?a+180:a;(cars[col]||(cars[col]=[])).push(`<image href="art/tr-car-g.webp" x="${(-cw/2).toFixed(1)}" y="${(-ch/2-2).toFixed(1)}" width="${cw.toFixed(1)}" height="${ch.toFixed(1)}" transform="translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${aa.toFixed(1)})"/>`)})}
     if(ok){const [x1,y1]=C[0],[x2,y2]=C[C.length-1];o+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(0,0,0,0)" stroke-width="30" stroke-linecap="round" data-a="trproute" data-k="${rid}" role="button" aria-label="Claim ${esc(trCity(g,R[0]))} to ${esc(trCity(g,R[1]))}, ${R[2]} ${TRCOL[R[3]][1].toLowerCase()}"/>`}
     o+='</g>'});
+  for(const c in cars)o+=`<g filter="url(#trx-${c})">${cars[c].join('')}</g>`;
   /* cities */
   M.cities.forEach(([n,x,y],i)=>{const h=hl.includes(i);o+=`<g class="trcity"><circle cx="${x}" cy="${y}" r="${h?15:10}" fill="${h?'#ffd23f':'#c0392b'}" stroke="#fff" stroke-width="3.5"/><text x="${x}" y="${y-17}" text-anchor="middle" class="trcn">${esc(n)}</text></g>`});
   return o+'</svg>'}
-const trCardChip=(c,n,o={})=>`<span class="trcard tr-${c}${o.cls?' '+o.cls:''}" title="${(TRCOL[c]||[0,"Deck"])[1]}">${c==='L'?'🚂':''}${n!=null?`<b class="num">${n}</b>`:''}</span>`;
+/* Justin's card art: art/tr-card-<colour>.webp and the back, art/tr-back.webp */
+const trCardChip=(c,n,o={})=>`<span class="trcard tr-${c}${o.cls?' '+o.cls:''}" style="background-image:url(art/${c==='back'?'tr-back':'tr-card-'+c}.webp)" title="${(TRCOL[c]||[0,"Deck"])[1]}">${n!=null?`<b class="num">${n}</b>`:''}</span>`;
+/* Justin's red train piece, recoloured: the grey layer (art/tr-car-g.webp) times the player's colour */
+const trTint=cols=>`<defs>${cols.map(c=>`<filter id="trx-${c}" color-interpolation-filters="sRGB"><feFlood style="flood-color:var(--t-${c})"/><feBlend in2="SourceGraphic" mode="multiply"/><feComposite in2="SourceAlpha" operator="in"/></filter>`).join('')}</defs>`;
 const trTixLine=(g,pid,t,o={})=>{const T=trM(g).tickets[t],d=trTixDone(g,pid,t);return `<button class="trtix${d?' done':''}${TRHL===t?' on':''}" data-a="trphl" data-k="${t}" aria-pressed="${TRHL===t}"${o.dis?' disabled':''}><span>${esc(trCity(g,T[0]))} → ${esc(trCity(g,T[1]))}</span><b class="num">${T[2]}</b>${d?'<i>✓</i>':''}</button>`};
 function trPlayUI(){const g=trG(),P=act();
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="Ticket to Ride">${g&&g.phase==='done'?'🏁':'🚂'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>`;
