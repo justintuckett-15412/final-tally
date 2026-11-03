@@ -10781,9 +10781,24 @@ Object.assign(CCT,{
   AM11:[1,[['c',[9,10,11],13,50],['r',[7],50,84,{to:[30,44]}],['f',[8],24,90,[0]],['f',[0,1,2,3,4,5,6],74,30,[0]]],'',0,'am'],
   AM12:[1,[['c',[9,10,11],13,50],['r',[1,4],63,37],['f',[2,3],86,14,[]],['f',[0,5,6,7,8],50,74,[0]]],'',0,'am']});
 CCT.AM2=[1,CCT.W[1],'',0,'am'];
-/* Under the Big Top (20 tiles): {circ:[x,y]} a circus space, {acro:[x,y]} an acrobat space. PLACEHOLDER layouts until checked against Justin's tiles. */
-[['BT1','A',{circ:[24,24]}],['BT2','B',{circ:[24,76]}],['BT3','E',{circ:[50,68]}],['BT4','U',{circ:[24,50]}],['BT5','V',{circ:[72,28]}],['BT6','W',{circ:[50,24]}],['BT7','D',{circ:[50,80]}],['BT8','K',{circ:[76,64]}],['BT9','J',{circ:[24,64]}],['BT10','N',{circ:[70,70]}],['BT11','H',{circ:[50,24]}],['BT12','U',{circ:[76,50]}],
- ['BT13','U',{acro:[24,50]}],['BT14','V',{acro:[72,28]}],['BT15','E',{acro:[50,68]}],['BT16','W',{acro:[50,24]}],['BT17','D',{acro:[50,80]}],['BT18','J',{acro:[24,64]}],['BT19','N',{acro:[70,70]}],['BT20','B',{acro:[24,76]}]].forEach(([id,b,fl])=>{CCT[id]=[1,CCT[b][1],'',0,'bt',fl]});
+/* Under the Big Top (20 tiles, from Justin's photo): {circ:[x,y]} a circus space, {acro:[x,y]} an acrobat space; both end roads and split fields */
+{const N=(sp,F)=>[1,F,'',0,'bt',sp],RN=[['r',[1],50,12,{to:[50,30]}],['r',[7],50,88,{to:[50,70]}],['f',[8,9,10,11,0],14,50,[]],['f',[2,3,4,5,6],86,50,[]]],RW=[['r',[1],50,12,{to:[50,32]}],['r',[10],12,50,{to:[32,50]}],['f',[11,0],14,14,[]],['f',[2,3,4,5,6,7,8,9],80,80,[]]];Object.assign(CCT,{
+  BT1:N({circ:[50,52]},[['c',[0,1,2],50,13],['r',[10],14,56,{to:[34,54]}],['r',[4],86,56,{to:[66,54]}],['f',[11,3],18,30,[0]],['f',[5,6,7,8,9],50,88,[]]]),
+  BT2:N({circ:[44,50]},[['c',[3,4,5],87,50],['f',[0,1,2,6,7,8,9,10,11],18,18,[0]]]),
+  BT3:N({circ:[48,48]},[['c',[0,1,2],50,13],['c',[3,4,5],87,50],['r',[7],50,86,{to:[50,66]}],['f',[8,9,10,11],16,60,[0]],['f',[6],72,90,[1]]]),
+  BT4:N({circ:[50,52]},[['c',[0,1,2],50,13],['r',[7],50,86,{to:[50,68]}],['f',[3,4,5,6,8,9,10,11],16,60,[0]]]),
+  BT5:N({circ:[44,40]},[['c',[3,4,5,6,7,8],78,78],['r',[10],14,40,{to:[30,40]}],['f',[11,0,1,2],40,10,[0]],['f',[9],8,66,[0]]]),
+  BT6:N({circ:[52,50]},[['r',[1],50,12,{to:[50,34]}],['r',[10],12,50,{to:[34,50]}],['r',[7],50,88,{to:[50,66]}],['f',[11,0],14,14,[]],['f',[8,9],14,86,[]],['f',[2,3,4,5,6],86,50,[]]]),
+  BT7:N({circ:[50,50]},[['r',[1],50,12,{to:[50,34]}],['r',[7],50,88,{to:[50,66]}],['f',[8,9,10,11,0],14,50,[]],['f',[2,3,4,5,6],86,50,[]]]),
+  BT8:N({circ:[46,52]},[['c',[3,4,5],87,50],['r',[1],50,12,{to:[50,32]}],['f',[2],70,10,[0]],['f',[6,7,8,9,10,11,0],16,70,[0]]]),
+  BT9:N({circ:[50,50]},[['c',[0,1,2],50,13],['c',[6,7,8],50,87],['f',[9,10,11],10,50,[0,1]],['f',[3,4,5],90,50,[0,1]]]),
+  BT10:N({circ:[48,50]},[['c',[3,4,5],87,50],['r',[10],12,50,{to:[30,50]}],['f',[11,0,1,2],30,12,[0]],['f',[6,7,8,9],30,88,[0]]]),
+  BT11:N({circ:[50,46]},[['r',[10],12,46,{to:[32,46]}],['r',[7],50,88,{to:[50,66]}],['f',[8,9],14,86,[]],['f',[11,0,1,2,3,4,5,6],86,16,[]],['g',[],76,74]]),
+  BT12:N({circ:[54,50]},[['r',[10],12,56,{to:[32,54]}],['f',[0,1,2,3,4,5,6,7,8,9,11],14,14,[]]]),
+  BT13:N({acro:[50,50]},RN),BT14:N({acro:[50,50]},RN),BT15:N({acro:[56,56]},RW),BT16:N({acro:[56,56]},RW),BT17:N({acro:[56,56]},RW),
+  BT18:N({acro:[60,60]},[['r',[1,10],37,37],['f',[11,0],14,14,[]],['f',[2,3,4,5,6,7,8,9],80,80,[]]]),
+  BT19:N({acro:[44,56]},[['r',[1],50,12,{to:[50,32]}],['r',[4],88,50,{to:[68,50]}],['f',[2,3],86,14,[]],['f',[0,5,6,7,8,9,10,11],20,80,[]]]),
+  BT20:N({acro:[48,48]},[['f',[0,1,2,3,4,5,6,7,8,9,10,11],16,16,[]],['g',[],80,80]])})}
 const CCANIM={7:['🐘','elephant'],6:['🐅','tiger'],5:['🐻','bear'],4:['🦭','seal'],3:['🐒','monkey'],1:['🦟','flea']};
 const CCSTART='D',CCMEEPLES=7,CCDX=[0,1,0,-1],CCDY=[-1,0,1,0];
 const CCNAME={c:'city',r:'road',f:'field',m:'monastery',g:'garden',w:'river'};
@@ -11326,7 +11341,7 @@ const ccDfSym=(t,r)=>{let F=CCT[t][5]||{};let o='';if(F.abbey&&ccPaint())o+=ccUp
   if(F.herd){o+=ccUp(r,72,74,`<g transform="translate(72,74)"><ellipse rx="8" ry="5.5" fill="#f2a0b0" stroke="#8a4a5a" stroke-width="1.3"/><circle cx="7" cy="-2" r="3.4" fill="#f2a0b0" stroke="#8a4a5a" stroke-width="1.1"/><ellipse cx="-9" cy="6" rx="5" ry="3.5" fill="#f2a0b0" stroke="#8a4a5a" stroke-width="1.1"/></g>`)}
   if(F.volc&&!ccPaint()){const [x,y]=F.hoard;o+=`<path d="M${x-14},${y+10} L${x-4},${y-8} h8 L${x+14},${y+10}Z" fill="#6b4a3a" stroke="#3a2418" stroke-width="1.6"/><path d="M${x-4},${y-8} q4,-8 8,0" fill="#f39c34"/>`}
   if(F.circ&&ccPaint())o+=pic('ring',...F.circ,30,18);else if(F.circ){const [x,y]=F.circ;o+=ccUp(r,x,y,`<g transform="translate(${x},${y})"><circle r="12" fill="#e9d29a" stroke="#8a6a12" stroke-width="2"/><circle r="7" fill="none" stroke="#c0392b" stroke-width="2" stroke-dasharray="3 2"/></g>`)}
-  if(F.acro){const [x,y]=F.acro;o+=ccUp(r,x,y,`<g transform="translate(${x},${y})"><rect x="-14" y="-8" width="28" height="16" rx="7" fill="#e9d29a" stroke="#8a6a12" stroke-width="2"/><circle cx="-6" r="3.5" fill="#fff" stroke="#8a6a12"/><circle cx="6" r="3.5" fill="#fff" stroke="#8a6a12"/></g>`)}
+  if(F.acro&&ccPaint())o+=pic('acro',...F.acro,24,24);else if(F.acro){const [x,y]=F.acro;o+=ccUp(r,x,y,`<g transform="translate(${x},${y})"><rect x="-14" y="-8" width="28" height="16" rx="7" fill="#e9d29a" stroke="#8a6a12" stroke-width="2"/><circle cx="-6" r="3.5" fill="#fff" stroke="#8a6a12"/><circle cx="6" r="3.5" fill="#fff" stroke="#8a6a12"/></g>`)}
   if(F.fest){const [x,y]=F.fest;o+=`<g transform="translate(${x},${y})"><path d="M0,-10 L3,-3 L10,-3 L4,2 L6,9 L0,5 L-6,9 L-4,2 L-10,-3 L-3,-3Z" fill="#f2c230" stroke="#b5523b" stroke-width="1.4"/><circle r="2.4" fill="#b5523b"/></g>`}
   if(F.portal){const [x,y]=F.portal;o+=`<g transform="translate(${x},${y})"><ellipse rx="7.5" ry="10.5" fill="#5fd0ff" fill-opacity=".6" stroke="#f2c230" stroke-width="3"/><ellipse rx="3" ry="5.5" fill="#fff" fill-opacity=".75"/></g>`}return o};
 const ccDragonBody='M-22,-4 Q-31,-23 -10,-14 L0,-23 L10,-14 Q31,-23 22,-4 Q27,14 10,12 L6,21 L-6,21 L-10,12 Q-27,14 -22,-4Z';
@@ -21130,6 +21145,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='d7fe54';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='dbe1c7';</script>
 </body>
 </html>
