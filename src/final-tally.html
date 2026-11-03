@@ -11315,10 +11315,12 @@ function ccTileSvg(t,r,x,y,o={}){const colOf=pid=>(act().find(p=>p.id===pid)||{}
 /* ---------- Carcassonne: the play screen ---------- */
 let CCPEND=null,CCBOTT=null;
 function ccViewer(){const g=ccG();if(!g)return null;if(S.lk&&!S.demo)return act().find(p=>p.id===S.lk.me)||null;const t=act().find(p=>p.id===ccActor(g));if(t&&!t.bot)return t;const H=act().filter(p=>!p.bot);return H.length===1?H[0]:null}
+/* space round the map (top, right, bottom, left) so edge squares never sit under the zoom buttons or the screen edge */
+const CCPAD=[70,130,70,70];
 function ccBoardEl(g,V){const mine=V&&g.phase==='play'&&g.turn===V.id&&g.cur,pend=mine&&CCPEND;let x0=0,x1=0,y0=0,y1=0;
   Object.keys(g.bd).forEach(k=>{const [x,y]=k.split(',').map(Number);x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)});x0--;y0--;x1++;y1++;
-  const W=(x1-x0+1)*100,H=(y1-y0+1)*100;let o=`<svg class="ccboard${mine?' live':''}" viewBox="${x0*100-6} ${y0*100-6} ${W+12} ${H+12}" role="img" aria-label="The map: ${g.order.length} tiles">${ccDefs()}`;
-  o+=`<rect x="${x0*100-6}" y="${y0*100-6}" width="${W+12}" height="${H+12}" fill="var(--cc-table,#e9dfc8)"/>`;
+  const W=(x1-x0+1)*100,H=(y1-y0+1)*100;let o=`<svg class="ccboard${mine?' live':''}" viewBox="${x0*100-CCPAD[3]} ${y0*100-CCPAD[0]} ${W+CCPAD[1]+CCPAD[3]} ${H+CCPAD[0]+CCPAD[2]}" role="img" aria-label="The map: ${g.order.length} tiles">${ccDefs()}`;
+  o+=`<rect x="${x0*100-CCPAD[3]}" y="${y0*100-CCPAD[0]}" width="${W+CCPAD[1]+CCPAD[3]}" height="${H+CCPAD[0]+CCPAD[2]}" fill="var(--cc-table,#e9dfc8)"/>`;
   for(const k of g.order){const T=g.bd[k],[x,y]=k.split(',').map(Number);const fmk=pend&&(pend.fmove||[]).find(m=>m.k===k);o+=ccTileSvg(T.t,T.r,x,y,{fer:fmk?fmk.pr:T.fer,hl:pend&&(pend.fcand||[]).includes(k),m:T.m,fm:T.fm,a:T.a,L:T.L,b:T.b,p:T.p,sh:T.sh,fl:g.flock,my:T.my,wg:T.wg,bn:T.bn,mg:T.mg,wt:T.wt,gold:(g.gb||{})[k],cls:g.last&&g.last.k===k?'cclast':''})}
   if(g.fruitOn)for(const k in (g.tree||{})){const T=g.bd[k];if(!T)continue;const [tx,ty]=k.split(',').map(Number),[ax,ay]=CCT[T.t][5].tree,[rx,ry]=ccRotA(ax,ay,T.r);o+=`<g class="ccfruitn"><circle cx="${tx*100+rx+11}" cy="${ty*100+ry-11}" r="8" fill="#fff" stroke="#24521f" stroke-width="1.6"/><text x="${tx*100+rx+11}" y="${ty*100+ry-7.5}" text-anchor="middle" font-size="10" font-weight="700" fill="#24521f">${g.tree[k].length}</text></g>`}
   if(g.dr){const [dx,dy]=g.dr.k.split(',').map(Number);o+=ccDragonArt(dx*100+50,dy*100+50,g.dr.d)}
