@@ -1922,6 +1922,13 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 @media (prefers-reduced-motion:reduce){.trboard .trlitl{animation:none}}
 /* choosing tickets: the panel scrolls with the page under the map instead of covering it */
 .sadock.trflow{position:static;max-height:none;overflow:visible}
+/* bigger ticket text: sized to the ticket itself (cqi is the ticket's inner width) */
+.trtix{container-type:inline-size;padding:0 20% 0 10%}
+.trtix span{font-size:clamp(12px,var(--fs,15.5cqi),28px);line-height:1.08}
+.trtix small{font-size:clamp(10px,9.5cqi,17px);margin:0}
+.trtix b{font-size:clamp(15px,18cqi,30px);right:12%;top:15%}
+.trtix.tour span{font-size:clamp(11px,10.5cqi,20px)}
+.trtix .trtko{font-size:clamp(10px,9.5cqi,18px)}
 </style>
 
 <div id="app"></div>
@@ -12215,7 +12222,7 @@ const trCardChip=(c,n,o={})=>c.length>1&&c!=='back'?trRsChip(c,n):c==='P'&&TRART
 const TRFLAG={'Dänemark':'DK','Niederlande':'NL','Frankreich':'FR','France':'FR','Schweiz':'CH','Österreich':'AT','Deutschland':'DE','Italia':'IT'};
 const trTint=cols=>`<defs>${cols.map(c=>`<filter id="trx-${c}" color-interpolation-filters="sRGB"><feFlood style="flood-color:var(--t-${c})"/><feBlend in2="SourceGraphic" mode="multiply"/><feComposite in2="SourceAlpha" operator="in"/></filter>`).join('')}</defs>`;
 /* a ticket's label: two cities, a tour (→), or a city/country to one of several countries (each with its value) */
-function trTkLbl(g,t){const T=trTk(g)[t],o=T[3]&&T[3].opts,cs=trTkCities(g,t);if(o)return `<span>${esc(trCity(g,T[0]))}<small>to</small><em class="trtko">${o.map(([c,v])=>`${esc(trCity(g,c))}&nbsp;${v}`).join('<br>')}</em></span><b class="num" title="Lost if none is reached">−${T[2]}</b>`;if(cs.length>2)return `<span>${cs.map(c=>esc(trCity(g,c))).join(' → ')}</span><b class="num">${T[2]}/${T[3].hi}</b>`;return `<span>${esc(trCity(g,T[0]))}<small>to</small>${esc(trCity(g,T[1]))}</span><b class="num">${T[2]}</b>`}
+function trTkLbl(g,t){const T=trTk(g)[t],o=T[3]&&T[3].opts,cs=trTkCities(g,t);if(o)return `<span>${esc(trCity(g,T[0]))}<small>to</small><em class="trtko">${o.map(([c,v])=>`${esc(trCity(g,c))}&nbsp;${v}`).join('<br>')}</em></span><b class="num" title="Lost if none is reached">−${T[2]}</b>`;if(cs.length>2)return `<span>${cs.map(c=>esc(trCity(g,c))).join(' → ')}</span><b class="num">${T[2]}/${T[3].hi}</b>`;const L=Math.max(trCity(g,T[0]).length,trCity(g,T[1]).length);return `<span style="--fs:${Math.min(15.5,180/L).toFixed(1)}cqi">${esc(trCity(g,T[0]))}<small>to</small>${esc(trCity(g,T[1]))}</span><b class="num">${T[2]}</b>`}
 const trTixLine=(g,pid,t,o={})=>{const T=trTk(g)[t],d=trTixDone(g,pid,t),cs=trTkCities(g,t);return `<button class="trtix${d?' done':''}${TRHL===t?' on':''}${cs.length>2?' tour':''}" style="--hc:${TRHLC[0]}" data-a="trphl" data-k="${t}" aria-pressed="${TRHL===t}"${o.dis?' disabled':''}>${trTkLbl(g,t)}${d?'<i>✓</i>':''}</button>`};
 function trPlayUI(){const g=trG(),P=act();
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="Ticket to Ride">${g&&g.phase==='done'?'🏁':'🚂'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>`;
@@ -21860,6 +21867,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='60ffd0';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='b9c065';</script>
 </body>
 </html>
