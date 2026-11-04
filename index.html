@@ -1915,6 +1915,13 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 .trtm i{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:10px;background:#3d9a48;color:#fff;font:700 13px/20px system-ui;text-align:center;font-style:normal}
 .trdock.mini [data-a="trpkeep"]{position:sticky;bottom:0;box-shadow:0 -6px 10px var(--surface)}
 .trdock.mini .trtixm{gap:5px}
+
+/* lit tickets on the map: marching dashes */
+.trboard .trlitl{animation:trmarch 1.2s linear infinite}
+@keyframes trmarch{to{stroke-dashoffset:-40}}
+@media (prefers-reduced-motion:reduce){.trboard .trlitl{animation:none}}
+/* choosing tickets: the panel scrolls with the page under the map instead of covering it */
+.sadock.trflow{position:static;max-height:none;overflow:visible}
 </style>
 
 <div id="app"></div>
@@ -12179,7 +12186,9 @@ function trBoardSvg(g,V){const M=trM(g),mine=V&&g.phase==='play'&&g.turn===V.id&
     o+='</g>'});
   for(const c in cars)o+=`<g filter="url(#trx-${c})">${cars[c].join('')}</g>`;
   /* cities */
-  if(!M.segs)lit.forEach(t=>{const T=trTk(g)[t],[,ax,ay]=M.cities[T[0]],[,bx,by]=M.cities[T[1]],c=trLitCol(g,V,t);o+=`<line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="${c}" stroke-width="10" stroke-dasharray="5 15" stroke-linecap="round" opacity=".95" class="trlitl"/>`});
+  /* the tickets being looked at: a bold dashed line in the ticket's colour over a dark edge, gently moving, so it stands out on any map */
+  if(!M.segs)lit.forEach(t=>{const T=trTk(g)[t],c=trLitCol(g,V,t),cs=trTkCities(g,t),pr=T[3]&&T[3].opts?T[3].opts.map(([x])=>[T[0],x]):cs.slice(1).map((x,k)=>[cs[k],x]);
+    pr.forEach(([a,b])=>{const [,ax,ay]=M.cities[a],[,bx,by]=M.cities[b];o+=`<g class="trlit"><line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="#14181d" stroke-width="26" stroke-linecap="round" opacity=".85"/><line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="#fff" stroke-width="18" stroke-linecap="round"/><line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="${c}" stroke-width="18" stroke-dasharray="26 14" stroke-linecap="round" class="trlitl"/></g>`})});
   const stOk=V&&mine&&trM(g).stations&&g.st[V.id]>0,hbOk=V&&mine&&g.hbOn&&g.hb[V.id]>0;
   /* Germany: flags where routes leave for a neighbouring country */
   if(M.cend)for(const r in M.cend){const [x,y]=M.cend[r],fk=TRFLAG[M.cities[M.routes[r][1]][0]];o+=TRART.flags&&fk?`<image href="art/tr-flag-${fk}.webp" x="${x-13}" y="${y-13}" width="26" height="26"/>`:`<circle cx="${x}" cy="${y}" r="9" fill="#fff" stroke="#5b5246" stroke-width="3"/>`}
@@ -12222,7 +12231,7 @@ function trPlayUI(){const g=trG(),P=act();
 /* Germany: everyone's passengers by colour (scored colour by colour at the end) */
 function trPaxTable(g,P){return `<div class="trpaxt" aria-label="Passengers by colour">${TRPAX.map(c=>`<div class="trpaxc"><svg viewBox="0 0 40 40" width="18" height="18" aria-hidden="true"><path d="${MGSHAPE_M}" fill="${TRPAXC[c][1]}" stroke="#1d232a" stroke-width="2.5"/></svg>${P.map(q=>`<span class="num" style="${pc(q.color)}" title="${esc(nm(q))}: ${g.pp[q.id][c]} ${TRPAXC[c][0].toLowerCase()}">${g.pp[q.id][c]}</span>`).join('')}</div>`).join('')}</div>`}
 const trMixBtns=(g,cancel)=>{const n=trVar(g).draw,S0=g.tdeck.length,L0=g.tdeckL.length;return `<div class="lr ccmeeps">${Array.from({length:n+1},(_,nl)=>`<button data-a="trpmix" data-k="${nl}" ${n-nl<=S0&&nl<=L0||(nl===Math.min(n,L0)&&S0<n-nl)?'':'disabled'}>${n-nl?`${n-nl} short`:''}${n-nl&&nl?' + ':''}${nl?`${nl} long`:''}</button>`).join('')}${cancel?'<button data-a="trpcancel">Cancel</button>':''}</div><div class="rlab">Short tickets are worth less and easier to finish; long ones are worth more. ${S0} short and ${L0} long left.</div>`};
-function trDock(g,V){const box=(h,b,x)=>`<div class="sadock cpdock trdock${x&&TRMINI?' mini':''}" style="${pc(V.color)}"><div class="sadh"><span><b>${S.lk||trHumans().length<2?'You':esc(nm(V))}</b> · ${h}</span>${x?`<button class="btn sm trmin" data-a="trpmini" aria-pressed="${TRMINI}" aria-label="${TRMINI?'Show the full tickets':'Make the tickets small to see the map'}">${TRMINI?'▴ Bigger':'▾ Smaller'}</button>`:''}</div>${b}</div>`,H=g.hand[V.id];
+function trDock(g,V){const box=(h,b,x)=>`<div class="sadock cpdock trdock${x?' trflow':''}${x&&TRMINI?' mini':''}" style="${pc(V.color)}"><div class="sadh"><span><b>${S.lk||trHumans().length<2?'You':esc(nm(V))}</b> · ${h}</span>${x?`<button class="btn sm trmin" data-a="trpmini" aria-pressed="${TRMINI}" aria-label="${TRMINI?'Show the full tickets':'Make the tickets small to see the map'}">${TRMINI?'▴ Bigger':'▾ Smaller'}</button>`:''}</div>${b}</div>`,H=g.hand[V.id];
   const hand=`<div class="trhand" aria-label="Your train cards">${(trRs(g)?TRRSK:TRCARDS).filter(c=>H[c]).map(c=>trCardChip(c,H[c])).join('')||'<span class="rlab">No train cards yet.</span>'}</div>`;
   const tix='';
   if(g.offer[V.id]&&(g.phase==='tix0'||g.phase==='tix'&&g.turn===V.id)){const O=g.offer[V.id],min=trMin(g,O);trKeepSt(g,V);
@@ -21851,6 +21860,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='4b83ba';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='60ffd0';</script>
 </body>
 </html>
