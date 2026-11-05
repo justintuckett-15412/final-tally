@@ -12057,7 +12057,7 @@ function trBotMove(g,pid){const q=act().find(p=>p.id===pid)||{},R=trM(g).routes,
   /* draw: a face-up colour we need, a locomotive (first card, not for easy), else the deck */
   const want={};need.forEach((v,r)=>{const c=R[r][3],gap=R[r][2]-(c==='X'?Math.max(...TRC8.map(x=>H[x])):H[c])-(trLocoOk(g,R[r])?H.L:0);if(gap>0){if(c==='X'){const best=TRC8.slice().sort((a,b)=>H[b]-H[a])[0];want[best]=(want[best]||0)+v*.6}else want[c]=(want[c]||0)+v}});
   let bi=-1,bv=0;g.face.forEach((c,i)=>{if(!c)return;if(c==='L'){if(!g.drew&&lvl==='hard'&&Object.keys(want).length&&bv<5){bv=5;bi=i}return}const v=want[c]||0;if(v>bv){bv=v;bi=i}});
-  if(bi>=0)return {t:'take',src:bi};if(g.deck.length+g.disc.length)return {t:'take',src:'deck'};const fi=g.face.findIndex(c=>c&&(c!=='L'||!g.drew));if(fi>=0)return {t:'take',src:fi};return {t:'pass'}}
+  if(bi>=0)return {t:'take',src:bi};if(g.deck.length+g.disc.length)return {t:'take',src:'deck'};const fi=g.face.findIndex(c=>c&&(c!=='L'||!g.drew||!trRule(g).faceL));if(fi>=0)return {t:'take',src:fi};return {t:'pass'}}
 /* the passenger colour that helps most: one you can take or keep the lead in, or reach second */
 function trBotPaxCol(g,pid,city){const L=[...new Set(g.pax[city]||[])];const sc=c=>{const me=g.pp[pid][c]+1,o=Math.max(0,...g.ps.filter(p=>p!==pid).map(p=>g.pp[p][c]));return me>o?(me-o<=2?3:1.5):me===o?2.5:o-me<=2?2:.5};return L.sort((a,b)=>sc(b)-sc(a))[0]}
 function trBotStep(g,q){const pid=q.id;if(g.phase==='pax'){if(!g.paxq||g.paxq.pid!==pid)return false;const c=g.paxq.c[0];return trPax(g,pid,c,trBotPaxCol(g,pid,c))}
@@ -12066,7 +12066,7 @@ function trBotStep(g,q){const pid=q.id;if(g.phase==='pax'){if(!g.paxq||g.paxq.pi
   if(g.phase==='tix0'&&g.mixq&&g.mixq[pid])return trMix(g,pid,q.bot==='hard'?2:1);if(g.phase==='tun'){if(!g.tun||g.tun.pid!==pid)return false;const o=trTunPays(g)[0];return trTunnel(g,pid,o||'give')}if(g.phase==='tix0'||g.phase==='tix'){if(!g.offer[pid])return false;return trKeep(g,pid,trBotKeep(g,pid))}
   if(g.phase!=='play'||g.turn!==pid)return false;const mv=trBotMove(g,pid);if(mv.t==='station'&&trStation(g,pid,mv.city,mv.pay))return true;if(mv.t==='move'&&trMove(g,pid,mv.from,mv.path))return true;if(mv.t==='claim')return trClaim(g,pid,mv.rid,mv.pay);if(mv.t==='tix')return trAskTix(g,pid,g.tdeckL?(!g.tdeck.length?Math.min(4,g.tdeckL.length):g.tr[pid]>=25&&g.tdeckL.length?1:0):undefined);if(mv.t==='take')return trTake(g,pid,mv.src,mv.rep);if(mv.t==='harbor'&&trRsHarbor(g,pid,mv.city,mv.x))return true;if(mv.t==='exch'&&trRsExch(g,pid,mv.k))return true;if(trPass(g,pid))return true;
   /* last resort: any legal move */
-  if(trCanDraw(g))return trTake(g,pid,g.deck.length+g.disc.length?'deck':g.face.findIndex(c=>c&&(c!=='L'||!g.drew)));return trEndTurn(g,pid)}
+  if(trCanDraw(g))return trTake(g,pid,g.deck.length+g.disc.length?'deck':g.face.findIndex(c=>c&&(c!=='L'||!g.drew||!trRule(g).faceL)));return trEndTurn(g,pid)}
 
 /* ================= Ticket to Ride: Rails & Sails (World) ================= */
 /* Two decks. Train deck: per colour 7 plain train cards (R…) and 4 with the harbor symbol (hR…), plus 14 Wild cards (L).
