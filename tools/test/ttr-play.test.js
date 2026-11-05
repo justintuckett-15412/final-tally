@@ -197,6 +197,13 @@ const start=async(P,o)=>P.evaluate(o=>{window.__htfast=1;SET.toursOff=true;const
     const glow=[...new Set([...document.querySelectorAll('[data-a="trproute"]')].map(e=>+e.dataset.k))];if(!glow.length||glow.some(r=>M.routes[r][2]!==3||!['Y','X'].includes(M.routes[r][3])))return 'glow '+glow.map(r=>M.routes[r].slice(2,4));
     const r=glow[0];document.querySelector(`[data-a="trproute"][data-k="${r}"]`).dispatchEvent(new MouseEvent('click',{bubbles:true}));if(g.own[r]!=null)return 'claimed before confirm';if(!click('[data-a="trpconf"]'))return 'no confirm';
     return g.own[r]===a&&g.hand[a].Y===0&&g.hand[a].L===0&&g.hand[a].R===1&&g.sc[a]===4&&trPickN(g,a)===0||JSON.stringify([g.own[r],g.hand[a],g.sc[a]])});
+  /* tap two cities: 4 players, the other side of a double is a bot's; choose cards, tap both cities, confirm */
+  await P.evaluate(()=>{S.players.forEach((x,i)=>{x.on=i<4;x.bot=i?'normal':null});trDeal();const g=S.trg;g.ps.forEach(p=>{if(g.offer[p])trKeep(g,p,g.offer[p].slice(0,2))});g.ann=null;const [a,b]=g.ps;g.turn=a;g.drew=0;const M=TRMAP.usa,ci=n=>M.cities.findIndex(c=>c[0]===n);
+    const r1=M.routes.findIndex(r=>[r[0],r[1]].sort()+''==[ci('Kansas City'),ci('Saint Louis')].sort()+''&&r[3]==='B'),r2=trPartner(g,r1);g.own={};g.own[r1]=b;g.hand[a]={R:0,O:0,Y:0,G:0,B:0,P:M.routes[r2][3]==='P'?2:0,K:0,W:0,L:0};TRPICK={};TRCONF=null;TRCA=null;window.__r2=r2;S.screen='live';save();render()});await W(400);
+  const cz=await P.evaluate(()=>{const g=S.trg,a=g.ps[0],M=TRMAP.usa,ci=n=>M.cities.findIndex(c=>c[0]===n),clk=s=>{const e=document.querySelector(s);if(!e)return false;e.dispatchEvent(new MouseEvent('click',{bubbles:true}));return true};
+    if(!clk('[data-a="trphand"][data-k="P"]')||!clk('[data-a="trphand"][data-k="P"]'))return 'no hand';if(!clk(`[data-a="trpcz"][data-k="${ci('Kansas City')}"]`))return 'no city 1';if(!clk(`[data-a="trpcz"][data-k="${ci('Saint Louis')}"]`))return 'no city 2';
+    if(!TRCONF||TRCONF.rid!==window.__r2)return 'conf '+JSON.stringify(TRCONF);if(!clk('[data-a="trpconf"]'))return 'no confirm';return g.own[window.__r2]===a||'not claimed'});
+  ok('Through the screen: tap the two cities of a double route whose other side is a bot’s (4 players), confirm, it’s yours',cz===true,cz);
   ok('Through the screen: choose 2 yellow + a locomotive in your hand, only 3-space yellow/grey routes glow, tap one, confirm, it’s yours',pick===true,pick);
   // the reveal: finish a computer game and check the scoresheet matches
   await P.evaluate(()=>{S.players.forEach((x,i)=>{x.on=i<3;x.bot='normal'});const g=trDeal();let k=0;while(g.phase!=='done'&&k++<3000){const q=act().find(x=>x.id===trActor(g));trBotStep(g,q)}g.ann=null;S.screen='live';save();render()});await W(400);
