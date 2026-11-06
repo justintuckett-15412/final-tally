@@ -149,12 +149,12 @@ const start=async(P,o)=>P.evaluate(o=>{window.__htfast=1;SET.toursOff=true;const
       const g3=G();g3.vineOn=1;put(g3,'B',0,0,1,{0:a});[[-1,0],[1,0],[-1,1],[1,1],[-1,2],[0,2]].forEach(([x,y])=>put(g3,'B',0,x,y));put(g3,'HS1',0,1,2);const F3=ccFeatures(g3.bd),c3=F3.C[F3.id.get(F3.node('0,1',0))];const vine=ccPts(g3,c3,true,F3.C)===12&&ccPts(g3,c3,false,F3.C)===9;
       const g4=G();g4.hillOn=1;g4.bag.push('U','HS6');const n0=g4.bag.length;ccDrawNext(g4);const under=g4.cur==='HS6'&&g4.bag.length===n0-2&&g4.under===1;
       return {ok:closed&&hill&&vine&&under,closed,sc:g.sc[a],hill,s2:g2.sc,vine,under}});
-    t('River II: the spring starts, the fork goes on next and opens two branches, the volcano lake comes last (no figure, another tile); with The River too, one spring and one lake',()=>{CX().exp.river=false;CX().exp.r2=true;const g=G();const [a,b]=g.ps;
-      const st=g.bd['0,0'].t==='RB11'&&g.cur==='RB5'&&g.bag[g.bag.length-11-0]!=null,lastR=g.bag.filter(t=>ccRiverT(t)),okLast=lastR[0]==='RB6'&&lastR.length===10&&lastR.includes('RB12');
-      g.turn=a;const sp=ccSpots(g,'RB5')[0];const okf=ccPlay(g,a,{x:sp.x,y:sp.y,r:sp.r,f:null});const ends=ccRvEnds(g).length;
-      const h=G();h.turn=a;h.cur='RB6';const e1=ccPlayCheck(h,a,{x:-1,y:0,r:0,f:0});const sp6=ccSpots(h,'RB6')[0];const okv=sp6&&ccPlay(h,a,{x:sp6.x,y:sp6.y,r:sp6.r,f:null});const again=h.turn===a;
-      CX().exp.river=true;const g2=G();CX().exp.river=false;CX().exp.r2=false;const rv2=g2.bag.filter(t=>ccRiverT(t));
-      return {ok:st&&okLast&&okf&&ends===2&&/volcano lake/.test(e1||'')&&okv&&again&&rv2.length===20&&!rv2.includes('R12')&&!rv2.includes('RB11')&&g2.bd['0,0'].t==='R1'&&rv2[0]==='RB6',st,okLast,lr:lastR.length,ends,e1,again,n2:rv2.length}});
+    t('River II: the spring starts, the phone puts the fork on next (two branches) and the first player starts after it; the shuffle-the-fork house rule mixes it in; the volcano lake comes last (no figure, another tile); with The River too, one spring and one lake',()=>{CX().exp.river=false;CX().exp.r2=true;CX().hr={};const m0=G(),mixed=m0.order.length===1&&(m0.cur==='RB5'||m0.bag.includes('RB5'));CX().hr={forkmix:0};const g=G();const [a,b]=g.ps;
+      const st=g.bd['0,0'].t==='RB11'&&g.order.length===2&&g.bd[g.order[1]].t==='RB5'&&g.turn===a&&g.tno===0&&!g.last&&ccRiverT(g.cur),lastR=g.bag.filter(t=>ccRiverT(t)),okLast=lastR[0]==='RB6'&&lastR.length===9;
+      const okf=mixed;const ends=ccRvEnds(g).length;
+      const h=G();h.turn=a;h.cur='RB6';const sp6=ccSpots(h,'RB6')[0];const e1=sp6&&ccPlayCheck(h,a,{x:sp6.x,y:sp6.y,r:sp6.r,f:0});const okv=sp6&&ccPlay(h,a,{x:sp6.x,y:sp6.y,r:sp6.r,f:null});const again=h.turn===a;
+      CX().exp.river=true;const g2=G();CX().exp.river=false;CX().exp.r2=false;CX().hr={};const rv2=g2.bag.filter(t=>ccRiverT(t));
+      return {ok:st&&okLast&&okf&&ends===2&&g2.bd[g2.order[1]].t==='RB5'&&/volcano lake/.test(e1||'')&&okv&&again&&rv2.length===19&&!rv2.includes('R12')&&!rv2.includes('RB11')&&g2.bd['0,0'].t==='R1'&&rv2[0]==='RB6',st,okLast,lr:lastR.length,ends,e1,again,n2:rv2.length,mixed}});
     t('Abbey & Mayor: the abbey fills a gap instead of your tile and closes what it touches; the mayor counts its city’s shields; a wagon rolls on after scoring; a barn scores the field’s farmers and sends them home',()=>{CX().exp.am=true;const g=G();CX().exp.am=false;const [a,b]=g.ps;
       put(g,'A',0,1,0,{1:b});put(g,'B',0,0,1);put(g,'B',0,2,1);put(g,'B',0,1,2);g.mee[b]=6;g.turn=a;const cur0=g.cur;const bad=ccPlayCheck(g,a,{x:3,y:3,r:0,f:null,abbey:1});const okA=ccPlay(g,a,{x:1,y:1,r:0,f:0,abbey:1});
       const abbey=okA&&g.bd['1,1'].t==='ABB'&&g.abb[a]===0&&g.sc[b]===1&&g.mee[b]===7&&g.bd['1,1'].m[0]===a;
