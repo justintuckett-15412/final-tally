@@ -83,6 +83,8 @@ const start=async(P,o)=>P.evaluate(o=>{window.__htfast=1;SET.toursOff=true;const
       const need=ccPlayCheck(g,a,{x:1,y:0,r,f:wi});const ok1=ccPlay(g,a,{x:1,y:0,r,f:wi,fer:[wi,ei]});let F=ccFeatures(g.bd),c=F.C[F.id.get(F.node('0,0',1))];const joined=c.tiles.has('1,0')&&c.nodes.includes('1,0#'+ei);
       g.turn=b;g.cur='U';const cand=ccFerryCand(g,{...g.bd,'2,0':{t:'U',r:1,m:{}}},'2,0');const ok2=ccPlay(g,b,{x:2,y:0,r:1,f:null,fmove:{k:'1,0',pr:[wi,si]}});F=ccFeatures(g.bd);c=F.C[F.id.get(F.node('0,0',1))];const split=!c.nodes.includes('1,0#'+ei);
       return {ok:/two roads/.test(need||'')&&ok1&&joined&&cand==='1,0'&&ok2&&split,need,joined,cand,split}});
+    t('Ferries: a lake tile gets a ferry even with no follower placed (the rules: regardless of whether a follower was placed)',()=>{CX().exp.fer=true;const g=G();CX().exp.fer=false;const [a]=g.ps;g.turn=a;g.cur='PD';const r=[0,1,2,3].find(rr=>ccFits(g,'PD',rr,1,0));const R=ccLakeRoads('PD');
+      const need=ccPlayCheck(g,a,{x:1,y:0,r,f:null});const ok=ccPlay(g,a,{x:1,y:0,r,f:null,fer:[R[0],R[1]]});return {ok:/two roads/.test(need||'')&&ok&&g.bd['1,0'].fer&&g.bd['1,0'].fer.length===2,need}});
     t('Messengers (official): whoever scores is asked which marker moves; the message follows; the house rule lets the phone pick',()=>{CX().exp.msg=true;const g=G();CX().exp.msg=false;const [a,b]=g.ps;
       g.msgDeck=[6,7,5,1,2,3,4,8];g.bd['0,0'].m={0:a};g.mk[a]={m:1,s:0};g.sc[a]=1;g.turn=a;g.cur='E';ccPlay(g,a,{x:0,y:-1,r:2,f:null});const ph=g.phase,who=ccActor(g),q=JSON.stringify(g.mkQ);
       const bad=ccMark(g,b,'m');ccMark(g,a,'m');const ph2=g.phase;return {ok:ph==='mk'&&who===a&&!bad&&ph2==='msg'&&g.mk[a].m===5&&g.mk[a].s===0,ph,ph2,q,mk:g.mk[a]}});

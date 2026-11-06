@@ -11068,7 +11068,8 @@ function ccMagicCheck(g,bd,t,mw){const need=ccMagicNeed(g,bd,t);if(!need)return 
 const ccLakeRoads=t=>CCT[t][1].map((f,i)=>i).filter(i=>CCT[t][1][i][0]==='r');
 const ccPairOk=(t,pr)=>Array.isArray(pr)&&pr.length===2&&pr[0]!==pr[1]&&pr.every(i=>ccLakeRoads(t).includes(+i));
 /* a ferry is placed when a highwayman goes on a road of the lake tile just placed */
-const ccFerryNeed=(g,t,mv)=>!!((mv.pk==null||mv.pk==='')&&g.ferOn&&ccFlag(t,'lake')&&mv.f!=null&&mv.f!==''&&!mv.fly&&CCT[t][1][+mv.f]&&CCT[t][1][+mv.f][0]==='r'&&!mv.b);
+/* every lake tile gets a ferry joining two of its roads, whether or not a follower was placed (The Ferries rules) */
+const ccFerryNeed=(g,t,mv)=>!!(g.ferOn&&ccFlag(t,'lake'));
 /* the ferry that may move: the one nearest the new tile on a road it carries on (not one placed this turn) */
 function ccFerryCand(g,bd,k){return ccFerryCands(g,bd,k)[0]||null}
 /* up to one ferry per road the new tile carries on (a tile with two roads can move two) */
@@ -11101,7 +11102,7 @@ if(g.phase!=='play'||g.turn!==pid||!g.cur||!mv)return 'Not your turn.';const x=+
   const bd=ccPut(g.bd,g.cur,r,x,y);
   if(g.goldOn&&ccFlag(g.cur,'gold')){const nb=ccAround(ccK(x,y)).filter(kk=>bd[kk]);if(nb.length&&!nb.includes(mv.gk))return 'Choose a tile next to it for the second gold.'}
   const me=ccMagicCheck(g,bd,g.cur,mv.mw);if(me)return me;
-  if(ccFerryNeed(g,g.cur,mv)){if(!ccPairOk(g.cur,mv.fer))return 'Choose which two roads the ferry joins.';bd[ccK(x,y)]={...bd[ccK(x,y)],fer:mv.fer.map(Number)}}else if(mv.fer)return 'A ferry only goes on a lake tile with your highwayman.';
+  if(ccFerryNeed(g,g.cur,mv)){if(!ccPairOk(g.cur,mv.fer))return 'Choose which two roads the ferry joins.';bd[ccK(x,y)]={...bd[ccK(x,y)],fer:mv.fer.map(Number)}}else if(mv.fer)return 'A ferry only goes on a lake tile.';
   {const cands=ccFerryCands(g,bd,ccK(x,y)),fm=ccFmoves(mv);if(new Set(fm.map(m=>m.k)).size!==fm.length)return 'Each ferry moves once.';for(const m of fm){if(!cands.includes(m.k))return 'That ferry can’t be moved now.';if(!ccPairOk(bd[m.k].t,m.pr))return 'A ferry joins two roads on its lake.'}}
   return null}
 /* play a turn: place the tile (and maybe a meeple), score what was finished, draw for the next player */
@@ -11422,7 +11423,7 @@ function ccBotExtras(g,pid,mv){const k=ccK(mv.x,mv.y),bd=ccPut(g.bd,g.cur,mv.r,m
     else if(!(g.fairy&&g.fairy.pid===pid)){const O=ccFairyOpts(g,pid);if(O.length){const F=ccFeatures(g.bd);let bo=O[0],bv=-1;O.forEach(o=>{const c=F.C[F.id.get(F.node(o.k,o.i))],v=c?ccPts(g,c,false,F.C):0;if(v>bv){bv=v;bo=o}});mv.fy=bo}}}
   {const hk=g.dfOn&&ccHoardK(g.cur,mv.r,mv.x,mv.y);if(hk){const b4={...bd};if(mv.f!=null&&!mv.b&&!mv.p){const tk=ccPortK(mv,k);b4[tk]={...b4[tk],m:{...b4[tk].m,[mv.f]:pid}}}mv.dd=ccBotDirV(g,pid,b4,hk,ccDragonDirs(b4,hk))[0]}}
   if(g.goldOn&&ccFlag(g.cur,'gold')){const nb=ccAround(k).filter(kk=>bd[kk]);if(nb.length){const mine=kk=>Object.values(bd[kk].m||{}).filter(p=>p===pid).length;nb.sort((a,b)=>mine(b)-mine(a));mv.gk=nb[0]}}
-  if(ccFerryNeed(g,g.cur,mv)){const R=ccLakeRoads(g.cur);let best=null,bv=-1e9;for(let a=0;a<R.length;a++)for(let b2=a+1;b2<R.length;b2++){const pr=[R[a],R[b2]];if(!pr.includes(+mv.f)&&R.length>2)continue;const b3={...bd,[k]:{...bd[k],m:{[mv.f]:pid},fer:pr}},v=ccEval(g,b3,g.mee,g.ab,g.lm);const d=v[pid]-Math.max(...g.ps.filter(p=>p!==pid).map(p=>v[p]),0);if(d>bv){bv=d;best=pr}}mv.fer=best||[R[0],R[1]];bd[k]={...bd[k],fer:mv.fer}}
+  if(ccFerryNeed(g,g.cur,mv)){const R=ccLakeRoads(g.cur);let best=null,bv=-1e9;for(let a=0;a<R.length;a++)for(let b2=a+1;b2<R.length;b2++){const pr=[R[a],R[b2]];const onRoad=mv.f!=null&&mv.f!==''&&R.includes(+mv.f);if(onRoad&&!pr.includes(+mv.f)&&R.length>2)continue;const b3={...bd,[k]:{...bd[k],m:onRoad?{[mv.f]:pid}:(bd[k].m||{}),fer:pr}},v=ccEval(g,b3,g.mee,g.ab,g.lm);const d=v[pid]-Math.max(...g.ps.filter(p=>p!==pid).map(p=>v[p]),0);if(d>bv){bv=d;best=pr}}mv.fer=best||[R[0],R[1]];bd[k]={...bd[k],fer:mv.fer}}
   if(g.ferOn)for(const cand of ccFerryCands(g,bd,k)){{const U=bd[cand],R=ccLakeRoads(U.t);let best=null,bv=-1e9;const base=(()=>{const v=ccEval(g,bd,g.mee,g.ab,g.lm);return v[pid]-Math.max(...g.ps.filter(p=>p!==pid).map(p=>v[p]),0)})();
     for(let a=0;a<R.length;a++)for(let b2=a+1;b2<R.length;b2++){const pr=[R[a],R[b2]];const b3={...bd,[cand]:{...U,fer:pr}},v=ccEval(g,b3,g.mee,g.ab,g.lm),d=v[pid]-Math.max(...g.ps.filter(p=>p!==pid).map(p=>v[p]),0);if(d>bv){bv=d;best=pr}}
     if(best&&bv>base+.5){mv.fmove=ccFmoves(mv).concat({k:cand,pr:best});bd[cand]={...U,fer:best}}}}
@@ -11682,7 +11683,7 @@ function ccDock(g,V){if(V&&!V.bot&&ccActor(g)===V.id&&['fly','crop','rob','msg',
   if(pend&&g.festOn&&ccFlag(g.cur,'fest')&&ccFestOpts(g,V.id).length)extra+=`<div class="rlab ccstep">🎉 Festival: instead of placing a figure you may take one of yours back from the map (it scores nothing).${pend.fest?' <b>One is coming back.</b>':''}</div><div class="lr ccmeeps"><button data-a="ccpfest" aria-pressed="${!!(CCFEST||pend.fest)}">🎉 ${CCFEST?'Tap a red dot on the map':pend.fest?'Taking one back (tap to cancel)':'Take a figure back'}</button></div>`;
   if(pend&&g.ferOn){const pk=ccK(pend.x,pend.y),bd=ccPut(g.bd,g.cur,pend.r,pend.x,pend.y),rn=(t,r,i)=>{const s0=(Math.floor(CCT[t][1][i][1][0]/3)+r)%4;return ['top','right','bottom','left'][s0]},pairs=t=>{const R=ccLakeRoads(t),o=[];for(let a=0;a<R.length;a++)for(let b=a+1;b<R.length;b++)o.push([R[a],R[b]]);return o};
     if(ccFerryNeed(g,g.cur,ccMv(pend))){if(!ccPairOk(g.cur,pend.fer))pend.fer=pairs(g.cur).find(p=>p.includes(+pend.f))||pairs(g.cur)[0];bd[pk].fer=pend.fer;
-      extra+=`<div class="rlab ccstep">⛴️ Your highwayman puts a ferry on the lake. Which two roads does it join?</div><div class="lr ccmeeps">${pairs(g.cur).map(pr=>`<button data-a="ccpfer" data-k="${pr.join('-')}" aria-pressed="${pend.fer.join()===pr.join()}">${rn(g.cur,pend.r,pr[0])} ↔ ${rn(g.cur,pend.r,pr[1])}</button>`).join('')}</div>`}else delete pend.fer;
+      extra+=`<div class="rlab ccstep">⛴️ Put a ferry on the lake. Which two roads does it join?</div><div class="lr ccmeeps">${pairs(g.cur).map(pr=>`<button data-a="ccpfer" data-k="${pr.join('-')}" aria-pressed="${pend.fer.join()===pr.join()}">${rn(g.cur,pend.r,pr[0])} ↔ ${rn(g.cur,pend.r,pr[1])}</button>`).join('')}</div>`}else delete pend.fer;
     const cands=ccFerryCands(g,bd,pk);pend.fcand=cands;pend.fmove=(pend.fmove||[]).filter(m=>cands.includes(m.k));if(!pend.fmove.length)delete pend.fmove;
     cands.forEach((cand,ci)=>{const U=g.bd[cand],cur=(pend.fmove||[]).find(m=>m.k===cand);
       extra+=`<div class="rlab ccstep">⛴️ Your tile carries on a road with a ferry${cands.length>1?` (${ci===0?'first':'second'} one, outlined in blue)`:' (outlined in blue)'}. You may move it to join two other roads on its lake.</div><div class="lr ccmeeps"><button data-a="ccpfmv" data-k="${cand}|" aria-pressed="${!cur}">Leave it</button>${pairs(U.t).filter(pr=>pr.join()!==(U.fer||[]).join()).map(pr=>`<button data-a="ccpfmv" data-k="${cand}|${pr.join('-')}" aria-pressed="${!!cur&&cur.pr.join()===pr.join()}">${rn(U.t,U.r,pr[0])} ↔ ${rn(U.t,U.r,pr[1])}</button>`).join('')}</div>`})}
