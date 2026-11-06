@@ -206,7 +206,7 @@ const start=async(P,o)=>P.evaluate(o=>{window.__htfast=1;SET.toursOff=true;const
   await P.close();P=await mk(browser,'cc2');P.on('pageerror',e=>errs.push(e.message));await start(P,{n:2,bots:[null,'easy']});await W(1400);
   const s1=await P.evaluate(()=>{const g=S.ccg,me=act()[0].id;g.ann=null;g.turn=me;g.cur='E';CCPEND=null;render();const spot=document.querySelector('[data-a="ccpspot"][data-k="0,-1"]');if(!spot)return 'no spot';
     spot.dispatchEvent(new MouseEvent('click',{bubbles:true}));const r1=CCPEND&&CCPEND.r;let tries=0;while(CCPEND.r!==2&&tries++<4)document.querySelector('.cpdock [data-a="ccprot"]').click();
-    const chip=[...document.querySelectorAll('.ccmeeps [data-a="ccpmeep"]')].find(b=>/City/.test(b.textContent));if(!chip)return 'no city chip';chip.click();const lab=document.querySelector('[data-a="ccpplay"]').textContent;document.querySelector('[data-a="ccpplay"]').click();
+    const chip=[...document.querySelectorAll('.ccmeeps [data-a="ccpfeat"]')].find(b=>/City/.test(b.textContent));if(!chip)return 'no city chip';chip.click();const lab=document.querySelector('[data-a="ccpplay"]').textContent;document.querySelector('[data-a="ccpplay"]').click();
     return {lab,sc:g.sc[me],turn:g.turn!==me,mee:g.mee[me],placed:!!g.bd['0,-1'],log:S.clog.length}});
   ok('Screen: tap a glowing square, turn the tile, pick “City” for the meeple, Done: the city closes for 4 and the meeple comes back',s1&&s1.sc===4&&s1.turn&&s1.mee===7&&s1.placed&&/meeple/.test(s1.lab),s1);
   await W(3500);ok('The computer player takes its turn',await P.evaluate(()=>S.ccg.turn===act()[0].id&&S.ccg.order.length===3));
