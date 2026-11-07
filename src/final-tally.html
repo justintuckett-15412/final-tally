@@ -1906,6 +1906,7 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 .ccstrip{height:98px;box-sizing:border-box;align-items:center;overflow-y:hidden}.ccstrip .tab{height:74px;box-sizing:border-box}
 .zmbox[data-zk="cc"]{margin:10px 0 0!important}.ccstat.ccline{margin:0!important}.cpdock{margin:10px 0 0!important}
 .ccstat.ccline{height:40px!important;min-height:0!important;max-height:40px!important;box-sizing:border-box!important}
+.ccnt .ccevwho{margin:12px 0 2px;font-weight:700;opacity:.85}.ccnt .ccevwho:first-of-type{margin-top:0}
 /* ---- Ticket to Ride on the phone ---- */
 .trmapsec{margin-top:6px}.trzm{border-radius:14px;overflow:hidden;background:#b9d6e6}
 .trboard{display:block;width:100%;height:auto}
@@ -8212,7 +8213,7 @@ function tgZoomTo(s,cx,cy){TGZ.s=Math.max(1,Math.min(4,s));if(cx!=null){TGZ.cx=c
 if(typeof document!=='undefined'&&!window.__tgzoom){window.__tgzoom=1;const pts=new Map();let st=null;
   const svgOf=e=>e.target&&e.target.closest&&e.target.closest('.tgsvg');
   const upp=v=>TGVB?TGVB.w/TGZ.s/Math.max(1,v.getBoundingClientRect().width):1;
-  document.addEventListener('pointerdown',e=>{const v=svgOf(e);if(!v)return;pts.set(e.pointerId,[e.clientX,e.clientY]);st={v,s:TGZ.s,cx:TGZ.cx,cy:TGZ.cy,p:[...pts.values()].map(x=>x.slice()),moved:false}},{passive:true});
+  document.addEventListener('pointerdown',e=>{const v=svgOf(e);if(!v)return;if(e.isPrimary)pts.clear();pts.set(e.pointerId,[e.clientX,e.clientY]);st={v,s:TGZ.s,cx:TGZ.cx,cy:TGZ.cy,p:[...pts.values()].map(x=>x.slice()),moved:false}},{passive:true});
   document.addEventListener('pointermove',e=>{if(!st||!pts.has(e.pointerId))return;pts.set(e.pointerId,[e.clientX,e.clientY]);const P2=[...pts.values()],u=upp(st.v);
     if(P2.length>=2&&st.p.length>=2){const d0=Math.hypot(st.p[0][0]-st.p[1][0],st.p[0][1]-st.p[1][1]),d1=Math.hypot(P2[0][0]-P2[1][0],P2[0][1]-P2[1][1]);if(d0>10){st.moved=true;tgZoomTo(st.s*d1/d0,st.cx,st.cy)}return}
     if(TGZ.s<=1||P2.length!==1||st.p.length!==1)return;const dx=P2[0][0]-st.p[0][0],dy=P2[0][1]-st.p[0][1];if(!st.moved&&Math.hypot(dx,dy)<7)return;st.moved=true;
@@ -8236,13 +8237,15 @@ function zmApply(key){const z=ZM[key];document.querySelectorAll(`.zmbox[data-zk=
 if(typeof document!=='undefined'&&!window.__zmzoom){window.__zmzoom=1;const pts=new Map();let st=null;
   const boxOf=e=>e.target&&e.target.closest&&e.target.closest('.zmbox');
   const rel=(el,p)=>{const r=el.getBoundingClientRect();return [p[0]-r.left,p[1]-r.top]};
-  document.addEventListener('pointerdown',e=>{const b=boxOf(e);if(!b||e.target.closest('.zmctl'))return;pts.set(e.pointerId,[e.clientX,e.clientY]);const key=b.dataset.zk,z=ZM[key]||(ZM[key]={s:1,x:0,y:0});st={key,b,s:z.s,x:z.x,y:z.y,p:[...pts.values()].map(x=>x.slice()),moved:false}},{passive:true});
+  document.addEventListener('pointerdown',e=>{const b=boxOf(e);if(!b||e.target.closest('.zmctl'))return;if(e.isPrimary)pts.clear();pts.set(e.pointerId,[e.clientX,e.clientY]);const key=b.dataset.zk,z=ZM[key]||(ZM[key]={s:1,x:0,y:0});st={key,b,s:z.s,x:z.x,y:z.y,p:[...pts.values()].map(x=>x.slice()),moved:false}},{passive:true});
   document.addEventListener('pointermove',e=>{if(!st||!pts.has(e.pointerId))return;pts.set(e.pointerId,[e.clientX,e.clientY]);const P2=[...pts.values()],z=ZM[st.key];
     if(P2.length>=2&&st.p.length>=2){const d0=Math.hypot(st.p[0][0]-st.p[1][0],st.p[0][1]-st.p[1][1]),d1=Math.hypot(P2[0][0]-P2[1][0],P2[0][1]-P2[1][1]);if(d0>10){st.moved=true;const b=document.querySelector(`.zmbox[data-zk="${st.key}"]`)||st.b,[mx,my]=rel(b,[(st.p[0][0]+st.p[1][0])/2,(st.p[0][1]+st.p[1][1])/2]);
       z.s=st.s;z.x=st.x;z.y=st.y;zmSet(st.key,st.s*d1/d0,mx,my)}return}
     if(z.s<=1||P2.length!==1||st.p.length!==1)return;const dx=P2[0][0]-st.p[0][0],dy=P2[0][1]-st.p[0][1];if(!st.moved&&Math.hypot(dx,dy)<7)return;st.moved=true;const over=zmPan(st.key,st.x+dx,st.y+dy),d=over-(st.over||0);st.over=over;if(d)window.scrollBy(0,-d)},{passive:true});
   const end=e=>{if(!pts.has(e.pointerId))return;pts.delete(e.pointerId);if(st&&st.moved)ZMDRAG=Date.now();if(!pts.size)st=null;else if(st){const z=ZM[st.key];st.p=[...pts.values()].map(x=>x.slice());st.s=z.s;st.x=z.x;st.y=z.y;st.over=0}};
   document.addEventListener('pointerup',end,{passive:true});document.addEventListener('pointercancel',end,{passive:true});
+  /* iPhone: if a finger's pointerup got lost (its element was redrawn), clear it so pinch and drag never jam */
+  ['touchend','touchcancel'].forEach(t=>document.addEventListener(t,e=>{if(!e.touches||!e.touches.length){if(st&&st.moved)ZMDRAG=Date.now();pts.clear();st=null}},{passive:true,capture:true}));
   /* a drag or pinch isn't a tap; the zoom buttons work without a redraw */
   document.addEventListener('click',e=>{const zb=e.target.closest&&e.target.closest('[data-zm]');if(zb){e.stopPropagation();e.preventDefault();const b=zb.closest('.zmbox'),key=b.dataset.zk,z=ZM[key]||(ZM[key]={s:1,x:0,y:0}),k=zb.dataset.zm;zmSet(key,k==='in'?z.s*1.5:k==='out'?z.s/1.5:1);return}
     if(Date.now()-ZMDRAG<350&&boxOf(e)){e.stopPropagation();e.preventDefault()}},true);
@@ -11044,7 +11047,7 @@ function ccDeal(){const P=act(),ps=P.map(p=>p.id);/* the youngest goes first: se
   ps.forEach(p=>{g.mee[p]=CCMEEPLES;g.ab[p]=abbot?1:0;g.lm[p]=ic&&cPart('ic','big')?1:0;g.bu[p]=g.buOn?1:0;g.pg[p]=g.pgOn?1:0;g.goods[p]={w:0,g:0,c:0};g.gold[p]=0;g.rob[p]=null;g.mk[p]={m:0,s:0};g.sc[p]=0;g.stat[p]={best:0,bestW:'',tiles:0,feats:0}});ccDrawGo(g);S.ccg=g;CCPEND=null;
   /* The River II: the fork goes right after the spring, so the phone places it and the first player starts after it */
   if(r2&&!ccForkMix()&&g.cur==='RB5'){const sx=CCDX[g.rv.out],sy=CCDY[g.rv.out],ok=[];for(let r=0;r<4;r++){const mv={x:sx,y:sy,r,f:null};if(!ccPlayCheck(g,ps[0],mv))ok.push(mv)}
-    if(ok.length){const mv=ok[Math.floor(Math.random()*ok.length)],keep=g.stat[ps[0]].tiles;ccPlay(g,ps[0],mv);g.turn=ps[0];g.tno=0;g.last=null;g.lastBy={};g.stat[ps[0]].tiles=keep;if(g.phase!=='play'){g.phase='play'}}}
+    if(ok.length){const mv=ok[Math.floor(Math.random()*ok.length)],keep=g.stat[ps[0]].tiles;ccPlay(g,ps[0],mv);delete g.ntS;g.turn=ps[0];g.tno=0;g.last=null;g.lastBy={};g.stat[ps[0]].tiles=keep;if(g.phase!=='play'){g.phase='play'}}}
   gAnn(g,'Carcassonne',`${P.length} players. ${nmid(ps[0])} goes first.`,'🏰');gLog(g,`Carcassonne: ${g.bag.length+1} tiles in the stack${r1?', the River first':''}${r2?', the River II':''}${abbot?', with the Abbot':''}${ic?', with Inns & Cathedrals':''}${tb?', with Traders & Builders':''}${gold?', the Gold Mines':''}${mw?', Mage & Witch':''}${fm?', the Flier':''}${crop?', the Crop Circles':''}${rob?', the Robbers':''}${msg?', the Messengers':''}${fer?', the Ferries':''}${df?', Dragon & Fairy (2025 rules)':''}${pd?', the Princess & the Dragon':''}${fest?', the Festival':''}${fruit?', the Fruit-Bearing Trees':''}${hs?', Hills & Sheep':''}${am?', Abbey & Mayor':''}${bt?', Under the Big Top':''}${kr?', King & Robber':''}${cult?', the shrines':''}${city?', the city of Carcassonne and the Count':''}`,'🏰')}
 /* draw the next tile; one that fits nowhere is set aside and another is drawn */
 function ccDrawNext(g){g.cur=null;let tries=0;while(g.bag.length){const t=g.bag.pop();if(ccSpots(g,t).length){g.cur=t;ccHillUnder(g);return true}const fl=ccFlipOf(t);if(fl&&ccSpots(g,fl).length){g.cur=fl;return true}
@@ -11214,7 +11217,7 @@ if(g.phase!=='play'||g.turn!==pid||!g.cur||!mv)return 'Not your turn.';const x=+
   {const cands=ccFerryCands(g,bd,ccK(x,y)),fm=ccFmoves(mv);if(new Set(fm.map(m=>m.k)).size!==fm.length)return 'Each ferry moves once.';for(const m of fm){if(!cands.includes(m.k))return 'That ferry can’t be moved now.';if(!ccPairOk(bd[m.k].t,m.pr))return 'A ferry joins two roads on its lake.'}}
   return null}
 /* play a turn: place the tile (and maybe a meeple), score what was finished, draw for the next player */
-function ccPlay(g,pid,mv){if(mv&&mv.abbey){if(ccPlayCheck(g,pid,mv))return false;g.bag.push(g.cur);g.cur='ABB';g.abb[pid]=0;gLog(g,`${nmid(pid)} places the abbey`,'🏛');mv={...mv,r:0};delete mv.abbey}if(ccPlayCheck(g,pid,mv))return false;const x=+mv.x,y=+mv.y,r=((+mv.r%4)+4)%4,k=ccK(x,y),f=mv.f==null||mv.f===''?null:+mv.f;
+function ccPlay(g,pid,mv){if(mv&&mv.abbey){if(ccPlayCheck(g,pid,mv))return false;g.bag.push(g.cur);g.cur='ABB';g.abb[pid]=0;gLog(g,`${nmid(pid)} places the abbey`,'🏛');mv={...mv,r:0};delete mv.abbey}if(ccPlayCheck(g,pid,mv))return false;if(!g.ntS)g.ntS=ccSnap(g);const x=+mv.x,y=+mv.y,r=((+mv.r%4)+4)%4,k=ccK(x,y),f=mv.f==null||mv.f===''?null:+mv.f;
   const placedRiver=ccRiverT(g.cur),cur=g.cur;g.bd[k]={t:g.cur,r,m:{},by:pid};g.order.push(k);{const kB=ccPairK(cur,r,x,y);if(kB){g.bd[kB]={t:ccPairOf(cur)[0],r,m:{},by:pid};g.order.push(kB)}}/* does this tile carry on a road or city with my builder on it? (before any new figure goes down) */
   let grow=false;if(g.buOn&&!g.dbl){const F0=ccFeatures(g.bd);CCT[g.cur][1].forEach((ff,i)=>{if(ff[0]!=='r'&&ff[0]!=='c')return;const c=F0.C[F0.id.get(F0.node(k,i))];if((c.bu||[]).some(([p,kk])=>p===pid&&kk!==k))grow=true})}
   if(ccFerryNeed(g,cur,mv)){g.bd[k].fer=mv.fer.map(Number);gLog(g,`${nmid(pid)} puts a ferry on the lake`,'⛴️')}
@@ -11316,7 +11319,7 @@ const CCCROP={r:['road','highwayman','highwaymen'],f:['field','farmer','farmers'
 function ccTurnOn(g,pid,grow){g.phase='play';g.cropDone=0;if(g.extraTile){g.extraTile=0;grow=true}
   if(g.dfOn)ccFairyCheck(g);
   if(grow){g.dbl=1;gLog(g,`${nmid(pid)}’s builder: another tile`,'🔨');return ccDrawGo(g)}
-  g.dbl=0;const i=g.ps.indexOf(pid);g.turn=g.ps[(i+1)%g.ps.length];
+  g.dbl=0;try{ccTellDiff(g,pid)}catch(e){delete g.ntS}const i=g.ps.indexOf(pid);g.turn=g.ps[(i+1)%g.ps.length];
   if(g.pdOn){ccFairyCheck(g);const Fy=g.fairy,p=g.turn;if(Fy&&Fy.pid===p&&Fy.i!=null){const n1=Fy.w==='ac'?((g.bd[Fy.k]||{}).ac||[]).filter(q=>q===p).length||1:1;if(g.msgOn){g.sc[p]+=n1;g.scl.push({pid:p,pts:n1,cat:'fairy',fin:false});ccMoveMarker(g,p,n1,ccAutoMarker(g,p,n1),{end:1})}else ccGain(g,p,n1,'fairy');gLog(g,`🧚 The fairy gives ${nmid(p)} 1 point`,'🧚')}}
   if(g.dfOn&&g.drHeld===g.turn&&g.bag.length&&ccHoards(g).length){g.cur=null;g.phase='dret';g.n++;gAnn(g,'🐉 The dragon returns',`${nmid(g.turn)} puts it back on a dragon hoard.`,'🐉');return true}
   return ccDrawGo(g)}
@@ -11411,6 +11414,26 @@ function ccFestTake(g,pid,o){const T=g.bd[o.k],i=+o.i;if(o.w==='my'||o.w==='wg'|
 /* a computer player takes back a meeple that is losing its feature (or any, when it has none left) */
 function ccBotFest(g,pid,mv){if(!g.festOn||!ccFlag(g.cur,'fest')||mv.f!=null||mv.fly||mv.ret||mv.bn!=null||mv.ac||mv.acs)return;const F=ccFeatures(g.bd);let best=null,bv=0;
   ccFestOpts(g,pid).forEach(o=>{if(o.w==='b'||o.w==='p')return;const c=F.C[F.id.get(F.node(o.k,o.i))];if(!c)return;const own=ccOwners(c),v=(own.includes(pid)?0:4)+(g.mee[pid]<1?2:0)-(c.k==='f'?1:0)-ccPts(g,c,false,F.C)*.2;if(v>bv){bv=v;best=o}});if(best)mv.fest=best}
+/* ---------- while you were waiting: what other players' turns did to you ---------- */
+const CCNTW={m:'meeple',L:'large meeple',a:'abbot',my:'mayor',wg:'wagon',rm:'ringmaster',fm:'flier',ac:'acrobat'},CCNTK={c:'city',r:'road',m:'monastery',f:'field',g:'garden',s:'shrine'};
+function ccNtFeat(F,k,i){if(i>=100)return null;const n=F.id.get(F.node(k,+i));return n==null?null:F.C[n]}
+function ccSnap(g){const F=ccFeatures(g.bd),fig=[];for(const k of g.order){const T=g.bd[k];if(!T)continue;ccMenOn(T).forEach(e=>{const c=ccNtFeat(F,k,e.i);fig.push({k,i:e.i,w:e.w,p:e.p,fk:c?c.k:null,men:c?Object.keys(c.men):[],own:c?ccOwners(c):[]})})}
+  return {sc:{...g.sc},scl:g.scl.length,fig,mg:ccMagicAt(g.bd,'mage'),wt:ccMagicAt(g.bd,'witch')}}
+function ccTellDiff(g,pid){const S=g.ntS;delete g.ntS;if(!S)return;const F=ccFeatures(g.bd),nmK=c=>CCNTK[c&&c.k]||'feature',now=new Set();
+  for(const k of g.order){const T=g.bd[k];if(T)ccMenOn(T).forEach(e=>now.add(e.k=k+'|'+e.i+'|'+e.w+'|'+e.p))}
+  const mvMg=(w,key)=>{const a=S[w],b=ccMagicAt(g.bd,w);if(!b||a&&a.k===b.k&&a.i===b.i)return null;return ccNtFeat(F,b.k,b.i)},cMg=mvMg('mage'),cWt=mvMg('witch');
+  for(const p of g.ps){if(p===pid)continue;const L=[],seen=new Set();
+    const home={};S.fig.filter(e=>e.p===p&&!now.has(e.k+'|'+e.i+'|'+e.w+'|'+e.p)).forEach(e=>{const t=`${CCNTW[e.w]||'figure'}${e.fk?' on the '+CCNTK[e.fk]:''}`;home[t]=(home[t]||0)+1});
+    Object.entries(home).forEach(([t,n])=>L.push(`🏠 ${n>1?n+' of your '+t.replace(/^(\S+( meeple)?)/,'$1s'):'Your '+t} came home`));
+    S.fig.filter(e=>e.p===p&&e.fk&&now.has(e.k+'|'+e.i+'|'+e.w+'|'+e.p)).forEach(e=>{const c=ccNtFeat(F,e.k,e.i);if(!c)return;const key=F.id.get(F.node(e.k,+e.i));if(seen.has(key))return;seen.add(key);
+      const men=Object.keys(c.men),own=ccOwners(c),nu=men.filter(q=>q!==p&&!e.men.includes(q));
+      if(e.own.includes(p)&&!own.includes(p))L.push(`⚔️ ${own.map(nmid).join(' & ')} now ${own.length>1?'have':'has'} more figures in your ${nmK(c)}`);
+      else if(nu.length)L.push(`🤝 ${nu.map(nmid).join(' & ')} joined your ${nmK(c)}`);
+      if(c===cMg)L.push(`🔮 The mage is on your ${nmK(c)}: +1 a tile when it scores`);
+      if(c===cWt)L.push(`🧹 The witch is on your ${nmK(c)}: it scores only half`)});
+    const d=(g.sc[p]||0)-(S.sc[p]||0);if(d>0)L.push(`🏆 You scored +${d}`);else if(d<0)L.push(`➖ You lost ${-d} point${d===-1?'':'s'}`);
+    if(L.length)(g.ntc||(g.ntc=[])).push({to:p,by:pid,tno:g.tno,t:L})}
+  if(g.ntc)g.ntc=g.ntc.filter(n=>n.tno>=g.tno-g.ps.length*2-2)}
 /* ---------- The Fruit-Bearing Trees ---------- */
 /* placing a meeple on a tile next to a tree (sides or corners) lets you harvest that tree or sell a set */
 const ccFruitMee=(mv,k)=>mv.f!=null&&mv.f!==''&&!mv.b&&!mv.p&&!mv.fly&&ccPortK(mv,k)===k;
@@ -11790,6 +11813,9 @@ function ccPlayUI(){const g=ccG(),P=act();{const L0=g&&g.last,V0=ccViewer(),lk0=
   /* what just happened on your turn: the flying machine's roll, sheep and wolves (tap to dismiss) */
   const L=g.last,lk=L&&L.got&&g.id+':'+g.tno+':'+L.got.join('|').length;if(V&&!V.bot&&L&&L.got&&!CCSEEN.has(lk)){const mineEv=L.p===V.id&&L.got.some(t=>/^(🪂|🐑|🐺)/.test(t)||/sheep|wolf|flock/i.test(t)),pub=L.got.some(t=>/^(🎪|🌋|🐉)|^The dragon /.test(t)||/ \+\d+( |$)/.test(t)),ev=mineEv||pub?L.got.slice():[];if(ev.length&&!L.got.some(t=>/^(🪂|🐑|🐺|🎪|🌋|🐉)|^The dragon /.test(t)))setTimeout(()=>{if(!CCSEEN.has(lk)&&document.querySelector('.ccev')){CCSEEN.add(lk);render()}},6000);
     if(ev.length)out+=`<div class="sheet-bg ccevbg"><div class="sheet ccev" role="alertdialog" aria-modal="true" aria-labelledby="ccev-h" style="${pc((act().find(p=>p.id===L.p)||V).color)}"><h2 id="ccev-h">${ev.some(t=>t.startsWith('🎪'))?'🎪 The Big Top':ev.some(t=>/^(🌋|🐉)|^The dragon /.test(t))?'🐉 The dragon':ev.some(t=>t.startsWith('🪂'))?'🪂 Flying machine':ev.some(t=>/^(🐑|🐺)/.test(t))?'🐑 The flock':'🏆 Points scored'}</h2>${L.p!==V.id?`<p class="ccevwho">${esc(nmid(L.p))}’s turn</p>`:''}${ev.map(t=>`<p>${esc(t.replace(/^🎪 (\S+) (\w+) (\d+)$/,(m,e,n,v)=>`🎪 The circus scores: the ${n} ${e}, ${v} a figure`))}</p>`).join('')}<button class="btn primary wide" data-a="ccpevok" data-k="${lk}">OK</button></div></div>`}
+  /* at the start of your turn: what the other turns did to you (mage or witch on your city, figures home, someone joined…) */
+  if(V&&!V.bot&&g.turn===V.id&&g.phase==='play'&&!out.includes('ccevbg')){const lb=(g.lastBy||{})[V.id],N=(g.ntc||[]).filter(n=>n.to===V.id&&n.tno>(lb?lb.tno:-1)),nk='nt:'+g.id+':'+g.tno;
+    if(N.length&&!CCSEEN.has(nk))out+=`<div class="sheet-bg ccevbg"><div class="sheet ccev ccnt" role="alertdialog" aria-modal="true" aria-labelledby="ccnt-h" style="${pc(V.color)}"><h2 id="ccnt-h">📣 While you waited</h2>${N.map(n=>`<p class="ccevwho">${esc(nmid(n.by))}’s turn</p>${n.t.map(t=>`<p>${esc(t)}</p>`).join('')}`).join('')}<button class="btn primary wide" data-a="ccpevok" data-k="${nk}">OK</button></div></div>`}
   if(g.phase==='fly'&&g.fly&&V&&ccActor(g)===V.id){const fk='fly:'+g.id+':'+g.tno;if(fk!==CCDRK){CCDRK=fk;setTimeout(()=>ccFocusEl(`[data-lp="ccl:${g.fly.tk}"]`,2),80)}}
   if(g.dr&&(g.phase==='pdm'||g.phase==='drag')){const dk=g.id+':'+g.dr.k+':'+g.phase;if(dk!==CCDRK){CCDRK=dk;setTimeout(()=>ccFocusEl('.ccdragon',2),80)}}
   setTimeout(()=>{try{ccFit(false)}catch(e){}},0);

@@ -55,6 +55,9 @@ const start=async(P,o)=>P.evaluate(o=>{window.__htfast=1;SET.toursOff=true;const
       const g2=G();g2.goldOn=1;g2.bd['0,0'].m={0:a};g2.gb['0,0']=3;g2.turn=b;g2.cur='E';ccPlay(g2,b,{x:0,y:-1,r:2,f:null});
       const g3=G();g3.goldOn=1;g3.bd['0,0'].m={0:a};put(g3,'G',1,0,-1,{0:b});g3.gb['0,0']=3;g3.turn=b;g3.cur='E';const T=ccPlayCheck(g3,b,{x:0,y:-2,r:2,f:null});ccPlay(g3,b,{x:0,y:-2,r:2,f:null});
       return {ok:/second gold/.test(need||'')&&ok1&&bars===2&&g2.gold[a]===3&&g2.gold[b]===0&&!T&&g3.gold[b]===2&&g3.gold[a]===1&&GOLDV(7)===21&&GOLDV(3)===3,need,bars,g2:g2.gold,g3:g3.gold}});
+    t('While you waited: at the start of your turn, a card says what other turns did to you (figure home, points, mage on your city)',()=>{const g=G(),[a,b]=g.ps;g.bd['0,0'].m={0:a};g.turn=b;g.cur='E';const ok1=ccPlay(g,b,{x:0,y:-1,r:2,f:null});const N=(g.ntc||[]).filter(n=>n.to===a);
+      CX().exp.mw=true;const g2=G();CX().exp.mw=false;g2.bd['0,0'].m={0:a};g2.turn=b;g2.cur='MH';const sp=ccSpots(g2,'MH').find(s=>!(s.x===0&&s.y===-1))||ccSpots(g2,'MH')[0];const ok2=ccPlay(g2,b,{x:sp.x,y:sp.y,r:sp.r,f:null,mw:{w:'mage',k:'0,0',i:0}});const N2=(g2.ntc||[]).filter(n=>n.to===a).flatMap(n=>n.t);
+      return {ok:ok1&&g.turn===a&&N.length===1&&N[0].t.some(t=>/meeple on the city came home/.test(t))&&N[0].t.some(t=>/\+4/.test(t))&&!(g.ntc||[]).some(n=>n.to===b)&&ok2&&N2.some(t=>/mage is on your city/.test(t))&&!g.ntS,N,N2,ok2}});
     t('Mage & Witch: a magic tile needs a figure placed; mage +1 a tile, witch half (rounded up); they leave after scoring; never together',()=>{CX().exp.mw=true;const g=G();CX().exp.mw=false;const [a,b]=g.ps;
       g.turn=a;g.cur='MH';const sp=ccSpots(g,'MH')[0];const e1=ccPlayCheck(g,a,{x:sp.x,y:sp.y,r:sp.r,f:null});const ok1=ccPlay(g,a,{x:sp.x,y:sp.y,r:sp.r,f:null,mw:{w:'mage',k:'0,0',i:1}});const mAt=ccMagicAt(g.bd,'mage');
       const e2=mAt&&ccMagicCheck(g,g.bd,'MA',{w:'witch',k:mAt.k,i:mAt.i});
