@@ -11895,7 +11895,7 @@ function ccUiAct(a,b,k){const g=ccG();if(!g)return;const V=ccViewer();if(!V)retu
   if(a==='ccpmwpick'){CCMW=CCMW===k?null:k;return}
   if(a==='ccpmw'){if(!CCPEND||!CCMW)return;const [kk,ii]=k.split('#');CCPEND.mw={w:CCMW,k:kk,i:+ii};CCMW=null;vibe(6);return}
   if(a==='ccpmwrm'){if(CCPEND)CCPEND.mw={w:k,rm:1};return}
-  if(a==='ccpplay'){if(!CCPEND)return;const mv=ccMv(CCPEND);if(lkq('ccPlay',V.id,mv)){CCPEND=null;CCMW=null;CCABB=false;vibe([20,30,20])}else toast(ccPlayCheck(g,V.id,mv)||'That can’t be played.');return}}
+  if(a==='ccpplay'){if(!CCPEND)return;const mv=ccMv(CCPEND),pk=ccK(CCPEND.x,CCPEND.y);if(lkq('ccPlay',V.id,mv)){/* the score cards come back after Done and push the map down: keep your new tile in view */setTimeout(()=>{try{ccFocusEl(`[data-lp="ccl:${pk}"]`,1)}catch(e){}},150);CCPEND=null;CCMW=null;CCABB=false;vibe([20,30,20])}else toast(ccPlayCheck(g,V.id,mv)||'That can’t be played.');return}}
 /* the second gold defaults to the first neighbouring tile */
 function ccAutoGold(g){if(!CCPEND||!g.goldOn||!ccFlag(g.cur,'gold'))return;const nb=ccAround(ccK(CCPEND.x,CCPEND.y)).filter(kk=>g.bd[kk]);CCPEND.gk=nb[0]||null}
 function ccTick(){if(S.game!=='carc'||!ccOn()||!S.started||S.finished||S.demo||!['live','score'].includes(S.screen))return;if(!ccRes())return;if(lkqRun()){save();render();return}
