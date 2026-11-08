@@ -11677,9 +11677,9 @@ const CCPACKS=[['','🌿 Classic'],['a','🍂 Autumn'],['w','❄️ Winter'],['h
 const ccPk=()=>{const v=S.started&&S.ccg?S.ccg.pack:(CX()||{}).pack;return CCPKOK(v)?v:''};
 const ccTex=n=>`art/cc-${n}${ccPk()?'-'+ccPk():''}.jpg`;
 /* tile pieces that have a themed version (others stay classic) */
-const CCPKPIC={a:['mon','abbey','village','garden','house','herd','inn','cath','volcano','shrine'],w:['spring','spring2','lake','lakeriv','mon','abbey','village','garden','house','herd','inn','cath','volcano','shrine'],h:['mon','abbey','village','garden','house','herd','inn','cath','volcano','shrine']};
+const CCPKPIC={a:['mon','abbey','village','garden','house','herd','inn','cath','volcano','shrine','vine'],w:['spring','spring2','lake','lakeriv','mon','abbey','village','garden','house','herd','inn','cath','volcano','shrine','vine'],h:['mon','abbey','village','garden','house','herd','inn','cath','volcano','shrine','vine']};
 /* pieces with their grass and bushes cut away, for every look except Classic */
-const CCPKNG=['mon','abbey','village','garden','house','herd','inn','cath','volcano','shrine'];
+const CCPKNG=['mon','abbey','village','garden','house','herd','inn','cath','volcano','shrine','vine'];
 const ccPicN=n=>(CCPKPIC[ccPk()]||[]).includes(n)?n+'-'+ccPk():ccPk()&&CCPKNG.includes(n)?n+'-ng':n;
 function ccDefs(){if(!ccPaint())return '';let o='<defs>';for(let r=0;r<4;r++){for(const [k,f] of [['grass','jpg'],['road','jpg'],['city','jpg']])o+=`<pattern id="ccx-${k}-${r}" patternUnits="userSpaceOnUse" width="100" height="100" patternTransform="rotate(${-r*90} 50 50)"><image href="${ccTex(k)}" width="100" height="100" preserveAspectRatio="none"/></pattern>`}
   o+=`<pattern id="ccx-water" patternUnits="userSpaceOnUse" width="60" height="60"><rect width="60" height="60" fill="#5aa7e0"/><image href="${ccTex('water')}" width="60" height="60" preserveAspectRatio="none"/></pattern>`;
