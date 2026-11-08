@@ -11677,7 +11677,7 @@ const CCPACKS=[['','🌿 Classic'],['a','🍂 Autumn'],['w','❄️ Winter'],['h
 const ccPk=()=>{const v=S.started&&S.ccg?S.ccg.pack:(CX()||{}).pack;return CCPKOK(v)?v:''};
 const ccTex=n=>`art/cc-${n}${ccPk()?'-'+ccPk():''}.jpg`;
 /* tile pieces that have a themed version (others stay classic) */
-const CCPKPIC={a:['mon','abbey','village'],w:['spring','spring2','lake','lakeriv','mon','abbey','village'],h:['mon','abbey','village']};
+const CCPKPIC={a:['mon','abbey','village','garden'],w:['spring','spring2','lake','lakeriv','mon','abbey','village','garden'],h:['mon','abbey','village','garden']};
 /* pieces with their grass and bushes cut away, for every look except Classic */
 const CCPKNG=['mon','abbey','village','garden','house','herd','inn','cath','volcano'];
 const ccPicN=n=>(CCPKPIC[ccPk()]||[]).includes(n)?n+'-'+ccPk():ccPk()&&CCPKNG.includes(n)?n+'-ng':n;
