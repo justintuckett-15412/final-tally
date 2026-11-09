@@ -536,6 +536,8 @@ dl.glossary{margin:6px 0 0;display:grid;gap:8px}dl.glossary dt{font-weight:700}d
 .dtile small{font-size:12px;color:var(--muted);white-space:nowrap}.dtile b{font-size:20px;line-height:1.1}.dtile small{overflow:hidden;text-overflow:ellipsis}.dtile em{font-style:normal;font-size:11px;color:var(--muted);white-space:nowrap}
 .dashrow{padding:8px 0;border-bottom:1px solid var(--line)}.dashrow:last-of-type{border-bottom:0}.dname{display:flex;align-items:center;gap:8px}.dname .dot{width:12px;height:12px;border-radius:50%;background:var(--pc)}
 .dashrow .dash{margin-top:2px}.dashbtn{padding:6px 8px!important;min-width:0}.bar:has(.dashbtn){gap:8px}.dashbtn+.lkbtn{margin-left:6px}
+.essum h3{margin:0 0 8px}.essum .essr small{opacity:.8}
+.lkdrop{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-top:12px;padding:8px 10px;border-radius:12px;background:color-mix(in srgb,#e8a33a 22%,var(--surface));border:1.5px solid #e8a33a;font-size:.9em}.lkrejlast{margin-top:10px}
 .lkbar{display:flex;align-items:center;gap:8px;margin-top:12px;padding:6px 6px 6px 4px;border-radius:12px;background:var(--surface);border:1.5px solid var(--accent)}
 .lkbar.open{border-radius:12px 12px 0 0}
 .lkb-main{flex:1;display:flex;align-items:center;gap:8px;min-width:0;background:none;border:0;color:var(--ink);font:inherit;text-align:left;padding:6px 8px;cursor:pointer}
@@ -3370,8 +3372,17 @@ function lkWaitScreen(){if(S.game==='linkup'){const me=S.lk&&S.lk.me&&act().find
     return `<div class="bar"><h1>Linked phones</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480">${lkTakeHtml()}<h2>You’re linked</h2><p>You’re <b>${esc(nm(me))}</b>. When ${esc(luHost())} picks a game, you’ll get an invite here.</p>${luChips()}${waitLoader('*')}<button class="btn" style="margin-top:14px" data-a="lkleave">Leave</button></div>`}
   if(luSitting())return `<div class="bar"><h1>Linked phones</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>Sitting this one out</h2><p>The others are playing ${esc(M().name)}. This phone stays linked and gets an invite to the next game.</p><button class="btn" style="margin-top:14px" data-a="lkleave">Leave</button></div>`;
   return `<div class="bar"><h1>Linked game</h1></div><div class="empty-state"><img class="empty-img" src="art/linked.jpg" alt="" width="720" height="480"><h2>${LKSW?'Next game coming up':'Waiting for the host'}</h2><p>${LKSW?'The host is setting up the next game. This phone joins it by itself, no scanning needed.':S.lk&&S.lk.me?`You’re <b>${esc(nm(act().find(p=>p.id===S.lk.me)||{name:''}))}</b>. The host is still choosing the game and rules. Play opens here as soon as they start.`:'The host is still choosing the game and rules. Play opens here as soon as they start.'}</p>${waitLoader('*')}</div>`}
+
+/* ---------- rejoin: a button when this phone seems to have dropped out of a linked game ---------- */
+const LKLASTK='ft-lklast';
+function lkRemember(){try{if(!S.lk||S.demo||!S.lk.code||!S.lk.me||lkHost()||S.lk.lan)return;const me=act().find(p=>p.id===S.lk.me);if(!me)return;const o={code:S.lk.code,name:nm(me),game:S.game,t:Date.now()};const was=JSON.parse(localStorage.getItem(LKLASTK)||'null');if(!was||was.code!==o.code||was.name!==o.name||Date.now()-was.t>60e3)localStorage.setItem(LKLASTK,JSON.stringify(o))}catch(e){}}
+function lkLastGame(){try{const o=JSON.parse(localStorage.getItem(LKLASTK)||'null');return o&&Date.now()-o.t<8*3600e3?o:null}catch(e){return null}}
+/* a guest phone looks dropped out: nothing from the game for a while, the host phone silent, or a move not picked up */
+function lkDropped(){try{if(!S.lk||S.demo||!lkGuest()||S.lk.lan||!window.FTLINK)return false;if(lkHostGone())return true;if(window.FTLINK.quiet&&window.FTLINK.quiet()>20e3)return true;const P=lkPending();return !!(P.length&&Date.now()-Math.floor(P[0].id/1000)>10e3)}catch(e){return false}}
+async function lkRejoinNow(){toast('Reconnecting…');try{LKREF=0;lkRefresh('manual')}catch(e){}try{await lkRejoin()}catch(e){}render()}
+async function lkRejoinLast(){const o=lkLastGame();if(!o)return;LKPREV=o.name;LKAUTO=-1;await lkJoin(o.code);if(S.lk){save();lkAutoSeat()}render()}
 function lkBar(){if(!S.lk||S.demo||S.game==='linkup'||luSitting()||luInvite()||['lkwho','home'].includes(S.screen))return '';const seat=lkSeated(),n=lkReadyN(),mine=lkMine(),me=S.lk.me&&act().find(p=>p.id===S.lk.me);
-  const head=`<div class="lkbar${LKOPEN?' open':''}"><button class="lkb-main" data-a="lkopen" aria-expanded="${LKOPEN}"><span class="lkb-code">📱 <b class="num">${fmtCode(S.lk.code)}</b></span><span class="lkb-st">${lanOn()?(lkHost()?`✈️ ${lanN()} phone${lanN()===1?'':'s'} · `:LANLOST?'⚠️ Lost the host · ':'✈️ '):''}${S.lklock?'🔒 ':''}${S.finished?'Revealed':seat.length?`${n}/${seat.length} done`:'No phones joined yet'}${me?' · '+esc(nm(me)):lkHost()?' · Host':''}</span><span class="chev">${LKOPEN?'▴':'▾'}</span></button>
+  lkRemember();const drop=lkDropped();const head=`${drop?`<div class="lkdrop" role="status"><span>⚠️ This phone may have dropped out of the game.</span><button class="btn sm primary" data-a="lkrejoin">🔄 Rejoin</button></div>`:''}<div class="lkbar${LKOPEN?' open':''}"><button class="lkb-main" data-a="lkopen" aria-expanded="${LKOPEN}"><span class="lkb-code">📱 <b class="num">${fmtCode(S.lk.code)}</b></span><span class="lkb-st">${lanOn()?(lkHost()?`✈️ ${lanN()} phone${lanN()===1?'':'s'} · `:LANLOST?'⚠️ Lost the host · ':'✈️ '):''}${S.lklock?'🔒 ':''}${S.finished?'Revealed':seat.length?`${n}/${seat.length} done`:'No phones joined yet'}${me?' · '+esc(nm(me)):lkHost()?' · Host':''}</span><span class="chev">${LKOPEN?'▴':'▾'}</span></button>
     ${me&&!me.bot&&vcOk()?`<button class="btn sm lkvoice${vcOn()?(vcMuted()?' muted':' on'):''}" data-a="${vcOn()?'vcmute':'vcjoin'}" aria-label="${vcOn()?(vcMuted()?'Unmute your microphone':'Mute your microphone'):'Join voice chat'}">${vcOn()?(vcMuted()?'🔇':'🎙️'):'🎧'}</button>`:''}${me&&!me.bot?`<button class="btn sm lkreact" data-a="rxopen" aria-expanded="${RXOPEN}" aria-label="Send a reaction">${RXOPEN?'✕':'😀'}</button>`:''}${me&&!me.bot?(()=>{const u=CHOPEN?0:chUnread();return `<button class="btn sm lkchat" data-a="${CHOPEN?'chclose':'chopen'}" aria-expanded="${CHOPEN}" aria-label="${u?u+' new messages':'Chat'}">💬${u?`<i class="chbadge">${u>9?'9+':u}</i>`:''}</button>`})():''}${me&&S.started&&!S.finished&&!playingOn()?`<button class="btn sm${lkOk(mine)?'':' primary'}" data-a="lkready" data-k="${lkOk(mine)?'0':'1'}">${lkOk(mine)?'Not done':'I’m done'}</button>`:''}</div>${RXOPEN&&me?`<div class="rxpick" role="group" aria-label="Reactions">${RXE.map(e=>`<button data-a="rxsend" data-k="${e}" aria-label="Send ${e}">${e}</button>`).join('')}</div>`:''}${rxLayer()}`;
   const dmine=lkTakeHtml()+(me&&dashOn()?dashStrip(me):'')+vcStrip();
   if(!LKOPEN)return head+dmine;
@@ -3379,6 +3390,7 @@ function lkBar(){if(!S.lk||S.demo||S.game==='linkup'||luSitting()||luInvite()||[
   return head+vcStrip()+`<div class="lkpanel">
     ${lkHost()?`<div class="rlab"><b>Who can enter scores?</b></div><div class="seg"><button data-a="lklock" data-k="0" aria-pressed="${!S.lklock}">Anyone, for anyone</button><button data-a="lklock" data-k="1" aria-pressed="${!!S.lklock}">Each phone, its own player</button></div>
       <p class="rlab" style="margin:0">${S.lklock?'Each phone can only change its own player. Shared scores that include their player still count. You (the host) can change anyone, including players without a phone.':'Any phone can score any player.'}</p>`:`<p class="rlab" style="margin:0"><b>${S.lklock?'Locked scoring:':'Open scoring:'}</b> ${S.lklock?'this phone can only change its own player\u2019s score. The host can change anyone.':'any phone can score any player.'}</p>`}
+    ${lkGuest()?`<button class="btn wide" data-a="lkrejoin">🔄 Rejoin this game</button><p class="hint" style="margin:0">Use this if the game stops updating on this phone. You keep your seat.</p>`:''}
     <p class="rlab">${lkHost()?`Others tap 📱 Join on the home screen and scan this, or type <b class="num">${fmtCode(S.lk.code)}</b>.`:`Hosted game <b class="num">${fmtCode(S.lk.code)}</b>.`} ${playingOn()?'The phones run the game, and the scores reveal on every phone when it ends.':'When everyone with a phone taps <b>I’m done</b>, the reveal starts on every phone.'}</p>${lkHost()?lkQr():''}
     ${P.map(p=>{const s=LKSEATS[p.id];return `<div class="seat" style="${pc(p.color)}"><i class="dot"></i><div class="seat-m"><b>${esc(nm(p))}${S.lk.me===p.id?' (this phone)':''}</b><small>${s&&s.dev?(lkGone(p.id)?'⚠️ Not connected right now':'On a phone · locked to it'):'No phone · scored by anyone'}</small></div>${s&&s.dev&&!playingOn()?(lkOk(s)?'<span class="st ok">Done ✓</span>':'<span class="st">Scoring…</span>'):''}${lkHost()&&s&&s.dev&&S.lk.me!==p.id?`<button class="btn sm" data-a="lkfree" data-k="${p.id}">${LKFREE===p.id?'Tap to free':'Free'}</button>`:''}</div>`}).join('')}
     <div class="prow">${lkHost()&&S.started&&!S.finished&&!playingOn()?(LKSTOP==='rev'?`<button class="btn warn" style="flex:1" data-a="lkrevnow">Tap again to reveal now</button>`:`<button class="btn" style="flex:1" data-a="lkrevnow">Reveal now</button>`):''}
@@ -3415,7 +3427,7 @@ function lkHomeCard(){if(!window.FTLINK&&!window.FTLAN)return '';
     <input id="lu-name" class="search" maxlength="20" autocomplete="off" placeholder="Your name" value="${esc(luName())}">
     <div class="prow" style="padding:0"><button class="btn primary" style="flex:1" data-a="lustart" data-k="net" ${window.FTLINK&&navigator.onLine&&!LKBUSY?'':'disabled'}>📶 With internet</button><button class="btn" style="flex:1" data-a="lustart" data-k="lan" ${window.FTLAN&&!LKBUSY?'':'disabled'}>✈️ Without internet</button></div>
     <button class="link-btn" data-a="lkui" data-k="">Cancel</button>${msg}</div></div>`;
-  return `<div class="sec lkhome"><div class="lkbtns"><button class="btn primary" data-a="lkui" data-k="linkup" ${window.FTLINK||window.FTLAN?'':'disabled'}>📱 Link phones</button><button class="btn" data-a="lkui" data-k="join" ${window.FTLINK?'':'disabled'}>📱 Join</button></div><button class="link-btn" data-a="lkui" data-k="host" ${window.FTLINK?'':'disabled'}>📱 Link a game in progress</button>${LANREADY?`<button class="link-btn lanlink" data-a="lkui" data-k="lan">✈️ No internet? Link phones over a hotspot</button>`:''}</div>`}
+  return `<div class="sec lkhome"><div class="lkbtns"><button class="btn primary" data-a="lkui" data-k="linkup" ${window.FTLINK||window.FTLAN?'':'disabled'}>📱 Link phones</button><button class="btn" data-a="lkui" data-k="join" ${window.FTLINK?'':'disabled'}>📱 Join</button></div>${!S.lk&&window.FTLINK&&lkLastGame()?(()=>{const o=lkLastGame();return `<button class="btn primary wide lkrejlast" data-a="lkrejoinlast">🔄 Rejoin game <span class="num">${fmtCode(o.code)}</span> as ${esc(o.name)}</button>`})():''}<button class="link-btn" data-a="lkui" data-k="host" ${window.FTLINK?'':'disabled'}>📱 Link a game in progress</button>${LANREADY?`<button class="link-btn lanlink" data-a="lkui" data-k="lan">✈️ No internet? Link phones over a hotspot</button>`:''}</div>`}
 window.lkBoot=function(){setTimeout(lkHashJoin,0);if(lanBootCheck()){render();return}if(S.lk&&S.lk.lan){render();return}if(S.lk&&window.FTLINK&&!lkIdleCheck()){LKLAST=(()=>{const x=lkSplit();return {m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}}})();window.FTLINK.resume(S.lk.code,S.lk.role)}render()};
 
 /* ---------- offline linked games: phones on the host's hotspot, paired by scanning QR codes (window.FTLAN comes from lan.js) ---------- */
@@ -7542,7 +7554,7 @@ const ciDone=(g,p)=>g.me[p].city.length>=ciEndN(g);
 function ciActor(g){if(!g||g.phase==='done')return null;if(g.ask)return g.ask.p;if(g.phase==='draft'){const s=g.dr&&g.dr.steps[g.dr.i];return s?s.p:null}if(g.phase==='turn')return g.turn?g.turn.p:null;return null}
 
 function ciDeal(){const P=act(),n=P.length,X=CIX(),ch=ciChars(X,n);
-  const g={_atom:1,r:0,ps:P.map(p=>p.id),phase:'draft',round:0,ch,deck:ciDeck(X,ch),endN:X.end===7?7:8,crown:P[Math.floor(Math.random()*n)].id,me:{},first:null,bell:0,n:0,msg:'',ask:null,turn:null,dr:null,lg:[]};
+  const g={_atom:1,id:String(Math.random()).slice(2,10),r:0,ps:P.map(p=>p.id),phase:'draft',round:0,ch,deck:ciDeck(X,ch),endN:X.end===7?7:8,crown:P[Math.floor(Math.random()*n)].id,me:{},first:null,bell:0,n:0,msg:'',ask:null,turn:null,dr:null,lg:[]};
   P.forEach(p=>{g.me[p.id]={h:ciDraw(g,4),city:[],gold:2,ch:[],shown:[],mus:0}});S.cig=g;CIVIEW=null;CISEL=[];
   gAnn(g,'Citadels',`${n} players. ${nmid(g.crown)} has the Crown.`,'👑');gLog(g,`Characters: ${Object.values(ch).map(ciN).join(', ')}`,'🎭');ciRound(g)}
 const ciStale=g=>{const ids=act().map(p=>p.id);return !g.ps||g.ps.length!==ids.length||g.ps.some(id=>!ids.includes(id)||!g.me[id])};
@@ -8290,7 +8302,7 @@ const ZM={};let ZMDRAG=0;
    While you waited: at the start of your turn, a card says what the other turns did to you.
    Since your turn: pieces placed since your last turn get an outline and a number in their owner's colour.
    A game adapter gives: snap(g,pid) -> facts, diff(old,new,g,pid) -> lines, pieces(g) -> {key: owner}. */
-const wyKey=(g,pid)=>'ft-wy:'+(g.id||g.bk||'x')+':'+pid;
+const wyKey=(g,pid)=>'ft-wy:'+S.game+':'+(g.id||g.bk||'x')+':'+pid;
 function wyLoad(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
 function wySave(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 /* call once per render for each person playing on this phone; returns {fresh:[{k,o,n}], added:key|null, card:[lines]|null} */
@@ -8306,6 +8318,60 @@ function wyCard(g,pid,lines,col){if(!lines||!lines.length)return '';return `<div
 function wyOk(k){const st=wyLoad(k);if(st){st.card=null;wySave(k,st)}}
 /* follow: bring an element on a zoom board (zmBox) into the middle at zoom s0 */
 function zmFocus(key,sel,s0){const el=document.querySelector(`.zmbox[data-zk="${key}"]`),d=el&&el.querySelector(sel),zi=el&&el.querySelector('.zmin');if(!d||!zi)return;const z=ZM[key]||(ZM[key]={s:1,x:0,y:0}),r=d.getBoundingClientRect(),q=zi.getBoundingClientRect(),ux=(r.left+r.width/2-q.left)/z.s,uy=(r.top+r.height/2-q.top)/z.s;z.s=Math.max(s0,1);zmPan(key,el.clientWidth/2-ux*z.s,el.clientHeight/2-uy*z.s)}
+/* round-by-round version (games where everyone acts in a round): the card comes at the start of the next round */
+function wyRound(A,g,pid,r){const k=wyKey(g,pid)+':r';let st=wyLoad(k);if(!st||st.r>r){st={r,s:A.snap(g,pid),card:null};wySave(k,st);return null}
+  if(r>st.r){let L=[];try{L=A.diff(st.s,A.snap(g,pid),g,pid)||[]}catch(e){}st={r,s:A.snap(g,pid),card:L.length?L:null};wySave(k,st)}return st.card}
+function wyRoundOk(k){const st=wyLoad(k);if(st){st.card=null;wySave(k,st)}}
+/* points: everyone's total, for the games scored by the app */
+const wyTots=()=>Object.fromEntries(act().map(p=>[p.id,total(p)]));
+function wyPtsLines(a,b,pid){const L=[];const d=(b[pid]||0)-(a[pid]||0);if(d)L.push(`🏆 You ${d>0?'scored +'+d:'lost '+(-d)} point${Math.abs(d)===1?'':'s'}`);
+  Object.keys(b).forEach(p=>{if(p===pid)return;const e=(b[p]||0)-(a[p]||0);if(e>=5)L.push(`📈 ${nmid(p)} +${e} points`)});return L}
+/* the card for the other games, added after each game's own screen */
+const WYG={
+  stoneage:{g:()=>saG(),V:()=>saViewer(),round:g=>g.phase==='done'?null:g.r,title:'Last round',
+    snap(g,pid){const M=g.me[pid];return {t:wyTots(),food:M.food,res:{w:M.w,c:M.c,s:M.s,g:M.g},ag:M.ag,pp:M.pp,tl:(M.tl||[]).length,bld:(M.bld||[]).length,cards:(M.cards||[]).length,ob:Object.fromEntries(g.ps.map(p=>[p,(g.me[p].bld||[]).length]))}},
+    diff(a,b,g,pid){const L=wyPtsLines(a.t,b.t,pid),R={w:'🪵',c:'🧱',s:'🪨',g:'🥇'},up=[],dn=[];Object.keys(R).forEach(r=>{const d=b.res[r]-a.res[r];if(d>0)up.push(R[r]+d);if(d<0)dn.push(R[r]+(-d))});if(up.length)L.push(`⛏️ You gathered ${up.join(' ')}`);if(dn.length)L.push(`➖ You spent ${dn.join(' ')}`);
+      if(b.food!==a.food)L.push(`🍖 Food ${b.food>a.food?'+':''}${b.food-a.food} (now ${b.food})`);if(b.ag>a.ag)L.push(`🌾 Farming up to ${b.ag}`);if(b.pp>a.pp)L.push(`👪 +${b.pp-a.pp} person`);if(b.bld>a.bld)L.push(`🛖 You built ${b.bld-a.bld} hut${b.bld-a.bld===1?'':'s'}`);if(b.cards>a.cards)L.push(`🃏 +${b.cards-a.cards} civilization card${b.cards-a.cards===1?'':'s'}`);
+      g.ps.forEach(p=>{if(p!==pid&&b.ob[p]>a.ob[p])L.push(`🛖 ${nmid(p)} built ${b.ob[p]-a.ob[p]} hut${b.ob[p]-a.ob[p]===1?'':'s'}`)});return L}},
+  quacks:{g:()=>qpG(),V:()=>qpViewer(),round:g=>g.r,title:'Last round',
+    snap(g,pid){return {t:wyTots()}},diff(a,b,g,pid){return wyPtsLines(a.t,b.t,pid)}},
+  citadels:{g:()=>ciG(),V:()=>ciViewer(),mine:(g,pid)=>!!g.turn&&g.turn.p===pid,
+    snap(g,pid){const M=g.me[pid];return {t:wyTots(),gold:M.gold,h:M.h.length,city:M.city.slice(),crown:g.crown,oc:Object.fromEntries(g.ps.map(p=>[p,g.me[p].city.length]))}},
+    diff(a,b,g,pid){const L=[],d=b.gold-a.gold;if(d<0)L.push(`💰 You lost ${-d} gold (now ${b.gold})`);else if(d>0)L.push(`💰 You got ${d} gold (now ${b.gold})`);
+      const gone=a.city.filter(x=>!b.city.includes(x));gone.forEach(x=>L.push(`💥 Your ${ciN(x)} was destroyed`));if(b.h!==a.h)L.push(`🃏 Your hand: ${a.h} → ${b.h} cards`);
+      if(a.crown!==b.crown)L.push(b.crown===pid?'👑 You have the Crown':`👑 ${nmid(b.crown)} has the Crown`);
+      g.ps.forEach(p=>{if(p!==pid&&b.oc[p]>a.oc[p])L.push(`🏰 ${nmid(p)} built ${b.oc[p]-a.oc[p]} district${b.oc[p]-a.oc[p]===1?'':'s'} (${b.oc[p]} of ${g.endN})`)});return L}},
+  dominion:{g:()=>dnG(),V:()=>dnViewer(),mine:(g,pid)=>g.turn===pid,
+    snap(g,pid){const M=g.me[pid],c={};dnAll(M).forEach(k=>{const b=String(k).split('~')[0];c[b]=(c[b]||0)+1});return {t:wyTots(),h:M.h.length,c,sup:{...g.sup}}},
+    diff(a,b,g,pid){const L=[];if(b.h<a.h)L.push(`✋ You had to discard ${a.h-b.h} card${a.h-b.h===1?'':'s'} from your hand`);if(b.h>a.h)L.push(`✋ You drew ${b.h-a.h} extra card${b.h-a.h===1?'':'s'}`);
+      const gain=[],lost=[];new Set([...Object.keys(a.c),...Object.keys(b.c)]).forEach(k=>{const d=(b.c[k]||0)-(a.c[k]||0);if(d>0)gain.push(`${d} ${dnNm(k)}`);if(d<0)lost.push(`${-d} ${dnNm(k)}`)});
+      if(gain.length)L.push(`➕ You gained ${gain.join(', ')}`);if(lost.length)L.push(`🗑️ You lost ${lost.join(', ')}`);
+      const took=Object.keys(a.sup).map(k=>[k,(a.sup[k]||0)-(b.sup[k]||0)]).filter(([,n])=>n>0).sort((x,y)=>y[1]-x[1]);if(took.length)L.push(`🛒 Taken from the supply: ${took.slice(0,6).map(([k,n])=>`${n} ${dnNm(k)}`).join(', ')}`);
+      const em=Object.keys(b.sup).filter(k=>a.sup[k]>0&&!b.sup[k]);if(em.length)L.push(`📭 Now empty: ${em.map(dnNm).join(', ')}`);return L.concat(wyPtsLines(a.t,b.t,pid).filter(x=>!/You (scored|lost)/.test(x)||true))}}};
+function wyHook(game,html){const A=WYG[game];if(!A)return html;const g=A.g();if(!g||g.phase==='done'||!S.started)return html;const V=A.V(),who=S.lk&&!S.demo?(V?[V.id]:[]):act().filter(p=>!p.bot).map(p=>p.id);let card=null,key=null;
+  who.forEach(pid=>{if(!g.me&&!g.pl)return;let c=null;if(A.round){const r=A.round(g);if(r==null)return;c=wyRound(A,g,pid,r);if(c&&V&&pid===V.id){card=c;key=wyKey(g,pid)+':r'}}else{const R=wyStep({pieces:()=>({}),snap:A.snap,diff:A.diff},g,pid,A.mine(g,pid));if(R.card&&V&&pid===V.id){card=R.card;key=wyKey(g,pid)}}});
+  if(!card||/yzpass/.test(html))return html;const t=A.title||'While you waited';return html+`<div class="sheet-bg ccevbg"><div class="sheet ccev ccnt" role="alertdialog" aria-modal="true" aria-labelledby="wy-h" style="${pc(V.color)}"><h2 id="wy-h">📣 ${esc(t)}</h2>${card.map(x=>`<p>${esc(x)}</p>`).join('')}<button class="btn primary wide" data-a="${A.round?'wyrok':'wyok'}" data-k="${esc(key)}">OK</button></div></div>`}
+{const _sa=saPlayUI,_ci=ciPlayUI,_dn=dnPlayUI,_qp=qpPlayUI;saPlayUI=function(){return wyHook('stoneage',_sa.apply(this,arguments))};ciPlayUI=function(){return wyHook('citadels',_ci.apply(this,arguments))};dnPlayUI=function(){return wyHook('dominion',_dn.apply(this,arguments))};qpPlayUI=function(){return wyHook('quacks',_qp.apply(this,arguments))}}
+/* ---------- end-of-game highlights (playable games): best turn, a few game facts, and awards ---------- */
+const ESG={carc:{g:()=>ccG(),a:g=>g.turn,sc:(g,p)=>g.sc&&g.sc[p]||0},catan:{g:()=>cpG(),a:g=>g.turn,sc:(g,p)=>cpVis(g,p),fin:(g,p)=>cpVP(g,p)},ttr:{g:()=>trG(),a:g=>g.turn,sc:(g,p)=>g.sc&&g.sc[p]||0},stoneage:{g:()=>saG(),a:g=>g.turn,sc:(g,p)=>g.me&&g.me[p]&&g.me[p].pts||0},citadels:{g:()=>ciG(),a:g=>g.turn&&g.turn.p},dominion:{g:()=>dnG(),a:g=>g.turn},tobago:{g:()=>tgG(),a:g=>g.turn}};
+const esGame=()=>S.game||(typeof trOn==='function'&&trOn()?'ttr':'');
+const esKey=g=>'ft-es:'+esGame()+':'+(g.id||g.bk||'x');
+/* watch scores between redraws: points a player gains during their own turn count toward their best turn */
+function esRec(){const E=ESG[esGame()];if(!E)return;const g=E.g();if(!g||!S.started||g.phase==='done')return;const k=esKey(g);let st=wyLoad(k);const T=E.sc?Object.fromEntries(g.ps.map(p=>[p,E.sc(g,p)])):wyTots(),a=E.a(g)||null;
+  if(!st){wySave(k,{last:T,a,n:0,gain:{}});return}let ch=false;const pa=st.a;
+  /* points since the last redraw belong to the turn that was running then */Object.keys(T).forEach(p=>{const d=(T[p]||0)-(st.last[p]||0);if(d&&p===pa){const G=st.gain[p]||(st.gain[p]={});G[st.n]=(G[st.n]||0)+d;ch=true}if(d)ch=true});st.last=T;if(a!==st.a){st.a=a;st.n++;ch=true}if(ch)wySave(k,st)}
+function esFacts(game,g,pid){const L=[];try{
+  if(game==='carc'){const sc=(g.scl||[]).filter(e=>e.pid===pid&&e.pts>0).sort((a,b)=>b.pts-a.pts)[0];if(sc)L.push(`Biggest score: ${sc.pts} (${(typeof CCCAT!=='undefined'&&CCCAT[sc.cat])||sc.cat||'points'})`);if(g.stat&&g.stat[pid])L.push(`${g.stat[pid].tiles||0} tiles placed`)}
+  if(game==='catan'){{const c=cpCount(g,pid,'city'),t=cpCount(g,pid,'settle');L.push(`${c} cit${c===1?'y':'ies'} · ${t} settlement${t===1?'':'s'}`)};L.push(`Longest road ${cpRoadLen(g,pid)} · ${g.me[pid].kn||0} knights`)}
+  if(game==='ttr'){const R=trM(g).routes,mine=Object.keys(g.own).filter(r=>g.own[r]===pid).map(r=>R[r]),lg=mine.sort((a,b)=>b[2]-a[2])[0],T=g.tix[pid]||[],d=T.filter(t=>trTixDone(g,pid,t)).length;if(lg)L.push(`Longest route: ${trCity(g,lg[0])}–${trCity(g,lg[1])} (${lg[2]})`);L.push(`Tickets: ${d} done, ${T.length-d} missed`)}
+  if(game==='dominion'){const all=dnAll(g.me[pid]),n=k=>all.filter(x=>String(x).split('~')[0]===k).length;L.push(`${n('province')} Provinces · ${n('duchy')} Duchies · ${all.length} cards`)}
+  if(game==='citadels')L.push(`${g.me[pid].city.length} districts built`);
+  if(game==='stoneage'){const M=g.me[pid];L.push(`${(M.bld||[]).length} huts · ${M.pp} people · farming ${M.ag}`)}}catch(e){}return L}
+function esSum(){const game=esGame(),E=ESG[game];if(!E)return '';const g=E.g();if(!g||g.phase!=='done')return '';const st=wyLoad(esKey(g))||{gain:{}},F=p=>E.fin?E.fin(g,p.id):E.sc?E.sc(g,p.id):total(p),P=act().slice().sort((a,b)=>F(b)-F(a));
+  const best=p=>{const G=st.gain[p.id]||{},v=Math.max(0,...Object.values(G));return v};const bt=P.map(p=>[p,best(p)]).sort((a,b)=>b[1]-a[1])[0];
+  const rows=P.map((p,i)=>{const b=best(p),f=esFacts(game,g,p.id);return `<div class="srow essr" style="${pc(p.color)}"><span class="rlab"><i class="dot"></i> <b>${['🥇','🥈','🥉'][i]||(i+1)+'.'} ${esc(nm(p))}</b>${b?` · ⚡ best turn +${b}`:''}${f.length?`<br><small>${f.map(esc).join(' · ')}</small>`:''}</span><span class="num"><b>${F(p)}</b></span></div>`}).join('');
+  return `<div class="panel essum"><h3>🏅 Highlights</h3>${bt&&bt[1]>0?`<p class="rlab">⚡ Biggest turn of the game: <b>${esc(nm(bt[0]))}</b>, +${bt[1]}</p>`:''}${rows}</div>`}
+{const W=(f,game)=>function(){esRec();const h=f.apply(this,arguments);return h+(ESG[esGame()]?esSum():'')};cpPlayUI=W(cpPlayUI);trPlayUI=W(trPlayUI);saPlayUI=W(saPlayUI);ciPlayUI=W(ciPlayUI);dnPlayUI=W(dnPlayUI);tgPlayUI=W(tgPlayUI)}
 function zmBox(key,inner,cls,xtra){const z=ZM[key]||{s:1,x:0,y:0};return `<div class="zmbox${cls?' '+cls:''}" data-zk="${key}" style="touch-action:${z.s>1?'none':'pan-y'}"><div class="zmctlw"><div class="tgzoom zmctl"><button class="btn sm" data-zm="in" aria-label="Zoom in">＋</button><button class="btn sm" data-zm="out" aria-label="Zoom out" ${z.s>1?'':'disabled'}>－</button><button class="btn sm" data-zm="fit" aria-label="Show it all" ${z.s>1?'':'disabled'}>⤢</button>${xtra||''}</div></div><div class="zmin" style="transform:translate(${z.x}px,${z.y}px) scale(${z.s})">${inner}</div></div>`}
 /* zoom to s around a point (px inside the box); keep the content covering the box */
 function zmSet(key,s,px,py){const el=document.querySelector(`.zmbox[data-zk="${key}"]`),z=ZM[key]||(ZM[key]={s:1,x:0,y:0});s=Math.max(1,Math.min(({cc:6.75})[key]||3,s));/* Carcassonne maps get big, so they zoom in one step further */
@@ -12839,7 +12905,7 @@ function saDeal(){const P=act(),ids=P.map(p=>p.id),n=ids.length,x=saXOf();
   const pool=SAHUTS.map((h,i)=>h.X||(h.L&&!(x.leaf||x.fit&&h.O))||(h.A&&!x.acorn)?null:'h'+i).filter(Boolean),huts=htShuffle(pool),piles=[];if(SAX().ext){for(let i=0;i<n;i++)piles.push([]);huts.forEach((h,i)=>piles[i%n].push(h))}else for(let i=0;i<n;i++)piles.push(huts.slice(i*7,i*7+7));
   const me={};ids.forEach(id=>me[id]={w:0,c:0,s:0,g:0,j:x.J?1:0,mt:0,food:12,ag:0,tl:[],tu:[],one:[],pp:5,cards:[],bld:[],bp:{},pts:0,hu:0,ex:0,tents:[],inc:[]});
   const ns=x.s5?5:4;
-  const g={_atom:1,r:0,ext:SAX().ext?1:0,x,nc:cards.length,mam:x.mam?{stack:htShuffle(SAMAM.map((_,i)=>i)),cur:null,on:null,hunt:{},won:{},rd:0}:null,ps:ids,first:ids[0],turn:ids[0],phase:'place',n:0,me,pl:{},left:{},todo:{},deck,slots:Array(ns).fill(null),piles,roll:null,pay:null,pick:null,dc:null,trd:{},fd:null,end:null,msg:''};
+  const g={_atom:1,id:String(Math.random()).slice(2,10),r:0,ext:SAX().ext?1:0,x,nc:cards.length,mam:x.mam?{stack:htShuffle(SAMAM.map((_,i)=>i)),cur:null,on:null,hunt:{},won:{},rd:0}:null,ps:ids,first:ids[0],turn:ids[0],phase:'place',n:0,me,pl:{},left:{},todo:{},deck,slots:Array(ns).fill(null),piles,roll:null,pay:null,pick:null,dc:null,trd:{},fd:null,end:null,msg:''};
   for(let i=0;i<ns;i++)g.slots[i]=g.deck.shift();
   saRound(g,true);S.sag=g;saSync(g);SASEL=null;SAN=1}
 /* start a round: refill cards (or end the game), everyone gets their people back */
@@ -13933,7 +13999,7 @@ function dnDaSetup(g,kd,fm,n){const all=[...kd,fm].filter(Boolean);
   const sh=DNX().sh||'auto';g.sh=sh==='on'||sh==='auto'&&DNKD.includes(kd[Math.floor(Math.random()*kd.length)])?1:0}
 function dnDeal(){const P=act(),n=P.length,v=n===2?8:12,big=n>=5,cg=dnCgPick(dnSortKd(dnKd())),kd=cg.kd;/* 5 or 6 players: both sets of Treasures, 15 or 18 Provinces */const sup={copper:(big?120:60)-7*n,silver:big?80:40,gold:big?60:30,estate:v,duchy:v,province:n===5?15:n===6?18:v,curse:10*(n-1)};
   kd.forEach(k=>sup[k]=dnIs(k,'V')?v:10);if(kd.some(k=>dnCostP(k)))sup.potion=16;{const pc=DNX().pc||'auto',use=pc==='on'||pc==='auto'&&DNKP.includes(kd[Math.floor(Math.random()*kd.length)]);if(use){sup.platinum=12;sup.colony=v}}
-  const g={_atom:1,r:0,pe:big?4:3,ps:P.map(p=>p.id),turn:null,ph:'action',A:1,B:1,co:0,mer:0,silv:0,br:0,np:0,sup,kd,chl:kd.includes('charlatan')?1:0,manT:[...kd,cg.fm].some(k=>DNMANT.includes(k))?1:0,bane:cg.bane,fm:cg.fm,fp:kd.includes('footpad')?1:0,cof:[...kd,cg.fm].some(k=>DNCOF.includes(k))?1:0,ns:Object.assign({},cg.fm?{[cg.fm]:dnIs(cg.fm,'V')?v:10}:{},kd.includes('joust')?Object.fromEntries(DNREW.map(k=>[k,n===2?1:2])):{}),trash:[],emb:{},gl:{},me:{},k:[],ask:null,phase:'play',n:0,msg:'',win:null};dnDaSetup(g,kd,cg.fm,n);dnAdvSetup(g,kd,n);dnEmpSetup(g,kd,n);
+  const g={_atom:1,id:String(Math.random()).slice(2,10),r:0,pe:big?4:3,ps:P.map(p=>p.id),turn:null,ph:'action',A:1,B:1,co:0,mer:0,silv:0,br:0,np:0,sup,kd,chl:kd.includes('charlatan')?1:0,manT:[...kd,cg.fm].some(k=>DNMANT.includes(k))?1:0,bane:cg.bane,fm:cg.fm,fp:kd.includes('footpad')?1:0,cof:[...kd,cg.fm].some(k=>DNCOF.includes(k))?1:0,ns:Object.assign({},cg.fm?{[cg.fm]:dnIs(cg.fm,'V')?v:10}:{},kd.includes('joust')?Object.fromEntries(DNREW.map(k=>[k,n===2?1:2])):{}),trash:[],emb:{},gl:{},me:{},k:[],ask:null,phase:'play',n:0,msg:'',win:null};dnDaSetup(g,kd,cg.fm,n);dnAdvSetup(g,kd,n);dnEmpSetup(g,kd,n);
   P.forEach(p=>{const M={dk:dnShuf([...Array(7).fill('copper'),...Array(3).fill('estate')]),h:[],ds:[],pl:[],aside:[],du:[],nx:[],hav:[],nv:[],isl:[],pt:0,tn:0,cf:kd.includes('baker')?1:0,tav:[],perm:[],tok:{},jr:1,hire:0,champ:0};if(g.sh)M.dk=dnShuf([...Array(7).fill('copper'),...DNSH]);g.me[p.id]=M;dnDraw(g,p.id,5)});
   const first=P[Math.floor(Math.random()*n)].id;S.dng=g;DNVIEW=null;DNSEL=[];DNPILE=null;
   gAnn(g,'Dominion',`${n} players. ${nmid(first)} goes first.`,'👑');gLog(g,`Kingdom: ${kd.map(k=>(DNC[k]||{n:k}).n).join(', ')}`,'👑');dnStartTurn(g,first)}
@@ -16990,7 +17056,7 @@ const qpK=c=>String(c)[0],qpV=c=>+String(c).split('#')[0].slice(1);
 let QPN=0;const qpNew=k=>k+'#'+Date.now().toString(36).slice(-4)+(QPN++);
 const qpBag0=()=>['w1','w1','w1','w1','w2','w2','w3','o1','g1'].map(qpNew);
 const qpBook=c=>{const b=qkBook(c);return (QPBOOKOK[c]||[]).includes(b)?b:(c==='black'?'base':({green:'g1',purple:'p1',blue:'u1',red:'r1',yellow:'y1',turquoise:'tRat'})[c])};
-function qpStart(){const X=QKX();Object.keys(QPBOOKOK).forEach(c=>{if(!QPBOOKOK[c].includes(X.bk[c]))X.bk[c]=qpBook(c)});const P=act(),g={_atom:1,r:0,phase:'card',ps:P.map(p=>p.id),pl:{},card:null,n:0,msg:''};
+function qpStart(){const X=QKX();Object.keys(QPBOOKOK).forEach(c=>{if(!QPBOOKOK[c].includes(X.bk[c]))X.bk[c]=qpBook(c)});const P=act(),g={_atom:1,id:String(Math.random()).slice(2,10),r:0,phase:'card',ps:P.map(p=>p.id),pl:{},card:null,n:0,msg:''};
   P.forEach(p=>g.pl[p.id]={bag:qpBag0(),pot:[],start:0,drop:0,flask:true,ex:false,stop:false,ws:0,lim:7,ask:null,done:false,buy:[],rubs:{drop:0,flask:0},y2:false,ycount:0});
   S.qpg=g;S.qkfc=[];qpRoundSetup(g);return g}
 /* start of a round: rat tails, the white chip in round 6, empty pots */
@@ -21541,6 +21607,9 @@ document.addEventListener('click',e=>{
     case 'undo':{const u=UNDO.pop();if(u){const o=JSON.parse(u);S.players=o.players;S.picks=o.picks;S.log=o.log||[];if(o.clog)S.clog=o.clog;if(o.cend)S.cend=o.cend;if(o.pk)S.pk=o.pk;if(o.rk)S.rk=o.rk;if(o.tph)S.tph=o.tph;if(o.ctr){S.ctr=o.ctr.r;S.cta=o.ctr.a;S.ctb=o.ctr.b||0}if(o.yzd){S.yzd=o.yzd;S.yzt=o.yzt;S.yzr=o.yzr||null}}break}
     case 'rules':RULESHEET=true;break;
     case 'wyok':wyOk(k);break;
+    case 'lkrejoin':lkRejoinNow();return;
+    case 'lkrejoinlast':lkRejoinLast();return;
+    case 'wyrok':wyRoundOk(k);break;
     case 'lpclose':if(e.target.closest('[data-stop]')&&!e.target.closest('button'))return;LPTIP=null;LPSUP=0;break;
     case 'mguide':RULESHEET=false;MEEPLESHEET=true;break;
     case 'mgclose':if(e.target.closest('[data-stop]')&&!e.target.closest('button'))return;MEEPLESHEET=false;break;
@@ -22325,6 +22394,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='19f5dc';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='fb877d';</script>
 </body>
 </html>
