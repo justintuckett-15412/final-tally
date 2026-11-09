@@ -1,0 +1,20 @@
+// While you waited / Since your turn / long-press sheets for playable Catan and Ticket to Ride.
+const {chromium}=require('playwright');const BASE=process.env.BASE||'http://localhost:8765/';
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:844}});const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(BASE);await p.waitForTimeout(1500);
+  const R=await p.evaluate(()=>{window.__htfast=1;SET.toursOff=true;localStorage.clear();const out=[];const t=(n,f)=>{try{const r=f();out.push([n,!!r.ok,r.ok?'':JSON.stringify(r).slice(0,300)])}catch(e){out.push([n,false,e.message])}};
+    t('Catan: card lists cards collected and the robber on your hex; numbered outlines on new pieces; card closes',()=>{S=ctFresh();S.game='catan';S.ctx=Object.assign({...CTDEF},{play:1});S.players.forEach((q,i)=>{q.on=i<3;q.name=['Ann','Bob','Cy'][i];q.bot=i?'normal':null});S.started=true;S.screen='score';cpDeal();const g=S.cpg;
+      while(g.phase==='setup'){const q=act().find(x=>x.id===cpActor(g));const w=q.bot;q.bot='normal';cpBotStep(g,q);q.bot=w}const a=cpHumans()[0].id,bb=g.ps.find(x=>x!==a),B=cpB(g);g.turn=a;g.t={rolled:1,dev:0,road:0};g.dice=[2,3];render();g.turn=bb;g.t={rolled:0,dev:0,road:0};render();
+      g.me[a].r.g+=2;g.rob=g.hx.findIndex((h,i)=>i!==g.rob&&B.hv[i].some(v=>g.b[v]&&g.b[v][0]===a));g.rd[cpESpots(g,bb)[0]]=bb;render();const marks=document.querySelectorAll('.wymk .wyring').length;
+      g.turn=a;render();const card=document.querySelector('.ccnt')?.innerText||'';document.querySelector('[data-a="wyok"]').click();const gone=!document.querySelector('.ccnt');
+      LPTIP='cph:'+g.rob;render();const hex=/robber is here/.test(document.querySelector('.lpsheet')?.innerText||'');LPTIP='cpq:'+bb;render();const peek=/points you can see/.test(document.querySelector('.lpsheet')?.innerText||'');LPTIP=null;
+      return {ok:marks===2&&/collected 🌾2/.test(card)&&/robber is on your/.test(card)&&gone&&hex&&peek,marks,card,gone,hex,peek}});
+    return out});
+  await p.evaluate(()=>{localStorage.clear();S=ctFresh();render()});
+  await p.evaluate(()=>{const c=(a,k)=>{const b=document.createElement('button');b.dataset.a=a;if(k!=null)b.dataset.k=k;b.hidden=true;document.body.appendChild(b);b.click();b.remove()};c('trstart','1');S.players.forEach((q,i)=>{q.on=i<3;q.name=['Ann','Bob','Cy'][i];q.bot=null});save();c('start')});await p.waitForTimeout(900);
+  const R2=await p.evaluate(()=>{const out=[];const t=(n,f)=>{try{const r=f();out.push([n,!!r.ok,r.ok?'':JSON.stringify(r).slice(0,300)])}catch(e){out.push([n,false,e.message])}};
+    t('Ticket to Ride: card lists routes claimed and low trains; outline on the route; route and city sheets; second-card locomotive reason',()=>{const g=trG(),[a,bb]=g.ps;g.phase='play';g.offer={};g.ps.forEach(x=>{if(!g.tix[x].length)g.tix[x]=[0,1]});S.lk=null;g.turn=a;TRVIEW=a;render();g.turn=bb;TRVIEW=a;render();
+      g.own[5]=bb;g.tr[bb]=4;render();const marks=document.querySelectorAll('.wymk [data-wy]').length;g.turn=a;TRVIEW=a;render();const card=document.querySelector('.ccnt')?.innerText||'';
+      LPTIP='trr:5';render();const rs=/Claimed by/.test(document.querySelector('.lpsheet')?.innerText||'');LPTIP='trc:'+trM(g).routes[5][0];render();const cs=/route/.test(document.querySelector('.lpsheet')?.innerText||'');LPTIP=null;
+      g.drew=1;g.face=['L','R','O','Y','G'];render();const why=/locomotive can’t be your second card/.test(document.body.innerText);
+      return {ok:marks>=1&&/claimed/.test(card)&&/only 4 trains/.test(card)&&rs&&cs&&why,marks,card,rs,cs,why}});return out});
+  let bad=0;[...R,...R2].forEach(([n,o,x])=>{console.log((o?'PASS ':'FAIL ')+n+(o?'':' '+x));if(!o)bad++});if(errs.length){bad++;console.log('FAIL page errors '+errs.slice(0,3).join(' | '))}else console.log('PASS No page errors');await b.close();process.exit(bad?1:0)})();
