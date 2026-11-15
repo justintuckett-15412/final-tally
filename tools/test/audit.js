@@ -3,7 +3,7 @@
 // Any push the guest sends is a change it made by itself, which can overwrite the host.
 const {mk,st,pages,chromium,W,ok,done}=require('./link.js');
 const SCORE=!!process.env.SCORE;const GAMES=(process.env.G||(SCORE?'ttr,carc,quacks,wingspan,wyrmspan,yahtzee,catan,hf,canasta,nerts,hearts,spades,rage,ohell,uno,munchkin,crowns,skipbo,gnome,skyjo,phase10,rook,golf,tripoley,mextrain,chicken,pad,darts,pool':'hearts,spades,ohell,rook,rage,uno,golf,skyjo,gnome,skipbo,crowns,phase10,hf,canasta,nerts,tripoley,mextrain,chicken,quacks,yahtzee')).split(',');
-const XF={hearts:'HTX',spades:'SDX',ohell:'OHX',rook:'RKX',rage:'RGX',uno:'UNX',golf:'GFX',skyjo:'SKX',gnome:'GNX',skipbo:'SBX',crowns:'FCX',phase10:'PTX',hf:'HX',canasta:'HX',nerts:'NX',tripoley:'TPX',mextrain:'MTX',chicken:'CFX',quacks:'QKX',yahtzee:'YZX'};
+const XF={hearts:'HTX',spades:'SDX',ohell:'OHX',rook:'RKX',rage:'RGX',uno:'UNX',golf:'GFX',skyjo:'SKX',gnome:'GNX',skipbo:'SBX',crowns:'FCX',phase10:'PTX',hf:'HX',canasta:'HX',nerts:'NX',tripoley:'TPX',mextrain:'MTX',chicken:'CFX',quacks:'QKX',yahtzee:'YZX',wingspan:'WSX'};
 (async()=>{const browser=await chromium.launch();const res={};
   for(const g of GAMES){
     const H=await mk(browser,'host-'+g),G=await mk(browser,'guest-'+g);
