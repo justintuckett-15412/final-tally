@@ -2130,6 +2130,9 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 .wp-hf .wprh,.wp-hg .wprh,.wp-hw .wprh{background:rgba(255,255,255,.8)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wprow{--wpveil:rgba(15,21,28,.45)}}
 :root[data-theme="dark"] .wprow{--wpveil:rgba(15,21,28,.45)}
+
+.wpimg{display:block;width:calc(100% + 2px);height:72px;object-fit:cover;object-position:center 40%;border-radius:6px;margin:1px -1px}
+.wpbsimg{display:block;width:180px;height:180px;border-radius:12px;margin:0 auto 8px;object-fit:cover}
 </style>
 
 <div id="app"></div>
@@ -13268,8 +13271,10 @@ const wpNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=wpG();if(!g||g.pha
 const wpEnc=mv=>encodeURIComponent(JSON.stringify(mv));
 const wpBtn=(mv,html,o={})=>`<button class="${o.cls||''}" data-a="wpans" data-k="${wpEnc(mv)}"${o.dis?' disabled':''}${o.lab?` aria-label="${esc(o.lab)}"`:''}>${html}</button>`;
 const wpCost=B=>{/* food icons */const L=[];for(const f in B.cost)for(let k=0;k<B.cost[f];k++)L.push(wpFI(f));for(let k=0;k<(B.wild||0);k++)L.push('🌈');return L.length?L.join(B.or?' / ':''):'free'};
+function wpBP(n){return 'art/wp-b-'+n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.webp'}
 function wpCard(b,o={}){const B=wpB(b);return `<div class="wpc wp-${B.col||'none'}${o.sel?' sel':''}${o.cls?' '+o.cls:''}">
   <div class="wpch"><b class="wpn">${esc(B.n)}</b><span class="wppt num">${B.pts}</span></div>
+  <img class="wpimg" src="${wpBP(B.n)}" alt="" loading="lazy" onerror="this.remove()">
   <div class="wpcm"><span title="Habitats">${B.hab.split('').map(h=>WPHI[h]).join('')}</span><span title="Food cost">${wpCost(B)}</span></div>
   <div class="wpcm"><span title="Nest: ${WPNN[B.nest]}">${wpNI(B.nest)}</span><span title="Egg limit">${wpEI}${B.egg}</span><span title="Wingspan">↔${B.ws}</span>${B.pred?'<span title="Predator">🦅</span>':''}${B.flock?'<span title="Flocking">🗂️</span>':''}</div>
   ${B.pw?`<div class="wpcp">${esc(B.say||'')}</div>`:'<div class="wpcp none">No power</div>'}
@@ -13348,7 +13353,7 @@ function wpResults(g){const P=act().slice().sort((a,b)=>g.fin[b.id].tot-g.fin[a.
   return `<div class="sec"><div class="sec-h"><h3>Final scores</h3></div><div class="panel">${P.map(q=>{const F=g.fin[q.id];return `<div class="prow" style="${pc(q.color)}"><span class="rtext"><b>${esc(nm(q))}</b><br><small class="rlab">Birds ${F.birds} · bonus ${F.bonus}${F.bon.length?` (${F.bon.map(b=>esc(wpBon(b.id).name)+' '+b.v).join(', ')})`:''} · goals ${F.goals} · eggs ${F.eggs} · cached food ${F.food} · tucked ${F.tuck} · leftover food ${F.left}</small></span><b class="num">${F.tot}</b></div>`}).join('')}</div>
     <div class="actions"><div class="in">${wpRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Waiting for the host…</span>`}</div></div></div>`}
 function wpBirdSheet(b){const B=wpB(b);return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet" role="dialog" aria-modal="true" aria-labelledby="lp-h" data-stop="1"><div class="rs-top"><div><h2 id="lp-h">${esc(B.n)}</h2><small class="lp-sub"><i>${esc(B.sci||'')}</i></small></div><button class="btn sm" data-a="lpclose">Close</button></div>
-  <div class="rs-body">${wpCard(b)}<p class="rlab">${B.pts} points · lives in ${B.hab.split('').map(h=>WPHN[h]).join(', ')} · food ${wpCost(B)} · ${WPNN[B.nest]} nest, up to ${B.egg} eggs · wingspan ${B.ws} cm${B.pred?' · predator':''}${B.flock?' · flocking':''}</p>${B.pw?`<p class="rlab"><b>${WPCOLN[B.col]||''}:</b> ${esc(B.say)}</p><p class="hint">The exact wording is on the card.</p>`:''}</div></div></div>`}
+  <div class="rs-body"><img class="wpbsimg" src="${wpBP(B.n)}" alt="${esc(B.n)}" onerror="this.remove()">${wpCard(b)}<p class="rlab">${B.pts} points · lives in ${B.hab.split('').map(h=>WPHN[h]).join(', ')} · food ${wpCost(B)} · ${WPNN[B.nest]} nest, up to ${B.egg} eggs · wingspan ${B.ws} cm${B.pred?' · predator':''}${B.flock?' · flocking':''}</p>${B.pw?`<p class="rlab"><b>${WPCOLN[B.col]||''}:</b> ${esc(B.say)}</p><p class="hint">The exact wording is on the card.</p>`:''}</div></div></div>`}
 function wpUiAct(a,b,k){const g=wpG();if(!g)return;if(a==='wpshow'){WPVIEW=k;WPSEL=null;return}if(a==='wplook'){WPLOOK=k;return}const V=wpViewer();if(!V)return;
   if(a==='wpsb'||a==='wpsf'||a==='wpsbo'){if(!WPSET)return;if(a==='wpsb'){const i=+k,L=WPSET.b;L.includes(i)?L.splice(L.indexOf(i),1):L.push(i);while(WPSET.b.length+WPSET.f.length>5&&WPSET.f.length)WPSET.f.pop()}else if(a==='wpsf'){const L=WPSET.f;L.includes(k)?L.splice(L.indexOf(k),1):L.length+WPSET.b.length<5&&L.push(k)}else WPSET.bo=k;vibe(6);return}
   if(a==='wpsgo'){if(!WPSET)return;const s=WPSET;WPSET=null;lkq('wpSetup',V.id,s.b,s.f,s.bo)&&vibe(12);return}
@@ -22941,6 +22946,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='4a73f2';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='34ee1e';</script>
 </body>
 </html>
