@@ -55,11 +55,11 @@ const {mk,W,ok,done,chromium}=require('./link.js');
     await P.evaluate(map=>{S.trmap=map;S.players.forEach((x,i)=>{x.on=i<3;x.bot=i?'normal':null});const g=trDeal();g.ps.forEach(p=>{if(g.offer[p])trKeep(g,p,g.offer[p].slice(0,trMin(g,g.offer[p])))});g.ann=null;g.phase='play';g.turn=g.ps[0];
       const M=TRMAP[map];if(map==='japan'){const r=M.routes.findIndex(x=>x[8]&&x[2]===3);g.own[r]=g.ps[1];g.bto[r]=1;g.bt--;g.btp[g.ps[1]]=3;g.btn[g.ps[1]]=1}else{g.hand[g.ps[0]].V=1;g.fy=9}
       S.screen='live';save();render()},map);await W(700);
-    const v=await P.evaluate(map=>{const g=S.trg;return {svg:!!document.querySelector('svg.trboard'),bullet:document.querySelectorAll('svg.trboard image[href="art/tr-bullet.webp"]').length,inset:document.querySelectorAll('svg.trboard clipPath').length,
+    const v=await P.evaluate(map=>{const g=S.trg;return {svg:!!document.querySelector('svg.trboard'),bullet:document.querySelectorAll('svg.trboard image[href="art/tr-bullet.webp"]').length,inset:document.querySelectorAll('svg.trboard clipPath').length+document.querySelectorAll(`svg.trboard image[href="art/ttr-map-${map}.webp"]`).length*2,art:document.querySelectorAll(`svg.trboard image[href="art/ttr-map-${map}.webp"]`).length,
       ferryBtn:!!document.querySelector('[data-a="trpferry"]'),ferryHand:!!document.querySelector('.trhand .tr-V'),status:(document.querySelector('.ccstat')||{}).textContent||''}},map);
     await P.screenshot({path:`/tmp/mc7/${map}-screen.png`});
-    ok(map==='japan'?'Japan screen: the map with its two close-up boxes, a Bullet Train on a claimed white route, Bullet Trains left in the status line':'Italy screen: the Ferry card pile button, a Ferry card in your hand, Ferry cards left in the status line',
-      map==='japan'?v.svg&&v.bullet===1&&v.inset===2&&/15 Bullet Trains left/.test(v.status):v.svg&&v.ferryBtn&&v.ferryHand&&/9 Ferry cards/.test(v.status),v)}
+    ok(map==='japan'?'Japan screen: the painted map (its two close-up boxes painted in), a Bullet Train on a claimed white route, Bullet Trains left in the status line':'Italy screen: the painted map, the Ferry card pile button, a Ferry card in your hand, Ferry cards left in the status line',
+      map==='japan'?v.svg&&v.bullet===1&&v.inset===2&&/15 Bullet Trains left/.test(v.status):v.svg&&v.art===1&&v.ferryBtn&&v.ferryHand&&/9 Ferry cards/.test(v.status),v)}
   // take a Ferry card through the screen
   const tf=await P.evaluate(()=>{const g=S.trg,a=g.ps[0];const b=document.querySelector('[data-a="trpferry"]');if(!b)return 'no button';b.dispatchEvent(new MouseEvent('click',{bubbles:true}));return g.hand[a].V===2&&g.turn!==a||[g.hand[a].V,g.turn]});
   ok('Through the screen: tap the Ferry card pile, the card is yours and your turn ends',tf===true,tf);
