@@ -11,8 +11,10 @@ const wzBtn=(mv,html,o={})=>`<button class="${o.cls||''}" data-a="wzans" data-k=
 const WZTYI={W:'⚡',A:'🏮',O:'🔁',E:'🏁'},WZTYN={W:'When played',A:'If activated',O:'Once per round',E:'End of game'};
 function wzCostH(D){const L=[];for(const k of ['meat','gold','crys','milk','coin','egg'])for(let i=0;i<(D.cost[k]||0);i++)L.push(wzI(k));return L.length?L.join(''):'<small>free</small>'}
 /* a dragon card (in hand, the display, or on a mat) */
+const wzDP=n=>'art/wz-d-'+n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.webp';
 function wzCard(id,o={}){const D=wzD(id),x=o.x;return `<div class="wzc wz-${D.per}${o.sel?' sel':''}${o.cls?' '+o.cls:''}" data-lp="wzd:${id}">
   <div class="wzch"><b class="wzn">${esc(D.n)}</b><span class="wzvp num">${D.vp}</span></div>
+  <img class="wzimg" src="${wzDP(D.n)}" alt="" loading="lazy" onerror="this.remove()">
   <div class="wzcm"><span>${wzCostH(D)}</span><span title="Caves">${D.cv.split('').map(c=>WZCI[c]).join('')}</span></div>
   <div class="wzcm"><small>${WZSZ[D.sz]} · ${WZPER[D.per]}</small>${D.cap?`<small title="Egg capacity">${x?`${x.e}/`:''}${D.cap}${wzI('egg')}</small>`:''}</div>
   <div class="wzcp"><span title="${WZTYN[D.ty]}">${WZTYI[D.ty]}</span> ${esc(wzDSay(D))}</div>
@@ -71,7 +73,7 @@ function wzResults(g){const P=act().slice().sort((a,b)=>g.fin[b.id].tot-g.fin[a.
   return `<div class="sec"><div class="sec-h"><h3>Final scores</h3></div><div class="panel">${P.map(q=>{const F=g.fin[q.id];return `<div class="prow" style="${pc(q.color)}"><span class="rtext"><b>${esc(nm(q))}</b><br><small class="rlab">Guild ${F.guild} · dragons ${F.dragons} · end-game ${F.abil} · eggs ${F.eggs} · cached ${F.cache} · tucked ${F.tuck} · objectives ${F.obj} · coins ${F.coins} · items ${Math.floor(F.items/4)}</small></span><b class="num">${F.tot}</b></div>`}).join('')}</div>
     <div class="actions"><div class="in">${wzRes2()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Waiting for the host…</span>`}</div></div></div>`}
 function wzDragonSheet(id){const D=wzD(id);return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet" role="dialog" aria-modal="true" aria-labelledby="lp-h" data-stop="1"><div class="rs-top"><div><h2 id="lp-h">${esc(D.n)}</h2><small class="lp-sub">Card ${D.no} · ${WZSZ[D.sz]} · ${WZPER[D.per]}</small></div><button class="btn sm" data-a="lpclose">Close</button></div>
-  <div class="rs-body">${wzCard(id)}<p class="rlab">${D.vp} points · lives in ${D.cv.split('').map(c=>WZCN[c]).join(', ')} · cost ${wzCostH(D)}${D.cap?` · holds ${D.cap} egg${D.cap>1?'s':''}`:''}</p><p class="rlab"><b>${WZTYN[D.ty]}:</b> ${esc(wzDSay(D))}</p><p class="hint">The exact wording is on the card.</p></div></div></div>`}
+  <div class="rs-body"><img class="wpbsimg" src="${wzDP(D.n)}" alt="${esc(D.n)}" onerror="this.remove()">${wzCard(id)}<p class="rlab">${D.vp} points · lives in ${D.cv.split('').map(c=>WZCN[c]).join(', ')} · cost ${wzCostH(D)}${D.cap?` · holds ${D.cap} egg${D.cap>1?'s':''}`:''}</p><p class="rlab"><b>${WZTYN[D.ty]}:</b> ${esc(wzDSay(D))}</p><p class="hint">The exact wording is on the card.</p></div></div></div>`}
 function wzUiAct(a,b,k){const g=wzG();if(!g)return;if(a==='wzshow'){WZVIEW=k;WZSEL=null;return}if(a==='wzlook'){WZLOOK=k;return}const V=wzViewer();if(!V)return;
   if(a==='wzsel'){if(k==='none'){WZSEL=null;return}if(k==='trade'){WZSEL={t:'trade',pay:[]};return}
     const [t,v]=String(k).split(':');if(t==='tp'&&WZSEL&&WZSEL.t==='trade'){WZSEL.pay.push(v);return}

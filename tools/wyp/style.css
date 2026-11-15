@@ -32,3 +32,4 @@ html.dark .wzcave{background:linear-gradient(#4a4030,#3a3226);color:#efe4cf;bord
 .wztrade{padding:8px;margin-top:6px}
 .wzxs{display:flex;gap:4px;margin:2px 0}.wzx{min-width:34px;height:34px;padding:0 4px;border-radius:10px;border:1px solid var(--line,#d9dee4);background:var(--surface,#fff);font-size:16px;display:flex;align-items:center;gap:1px;cursor:pointer}.wzx small{font-size:10px}.wzx:disabled{opacity:.35}
 .wzact{padding:4px}.wzact img{width:34px;height:34px}
+.wzimg{display:block;width:calc(100% + 4px);height:64px;object-fit:cover;object-position:center 45%;border-radius:6px;margin:1px -2px}
