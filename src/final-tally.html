@@ -13404,7 +13404,7 @@ const wzRoom=d=>d.e<wzD(d.id).cap;
 const wzOthers=(g,pid)=>{const L=g.ps,i=L.indexOf(pid);return L.slice(i+1).concat(L.slice(0,i))};
 const wzIns=(g,...st)=>{g.q.splice(1,0,...st)};
 const wzAsk=(g,s,msg,opts,o={})=>{g.ask={pid:s.pid,msg,opts,opt:!!o.opt,...o};return false};
-const wzLog=(g,t,ic)=>gLog(g,t,ic||'🐉');
+const wzLog=(g,t,ic)=>{if(!WZQUIET)gLog(g,t,ic||'🐉')},wzGL=(...a)=>{if(!WZQUIET)gLog(...a)},wzAnn=(...a)=>{if(!WZQUIET)gAnn(...a)};
 function wzDrawD(g){if(!g.dd.length&&g.ddisc.length){g.dd=wzShuf(g.ddisc);g.ddisc=[]}return g.dd.pop()??null}
 function wzDrawC(g){if(!g.dc.length&&g.cdisc.length){g.dc=wzShuf(g.cdisc);g.cdisc=[]}return g.dc.pop()??null}
 function wzRefill(g){for(let i=0;i<3;i++){if(g.disp.d[i]==null)g.disp.d[i]=wzDrawD(g);if(g.disp.c[i]==null)g.disp.c[i]=wzDrawC(g)}}
@@ -13420,8 +13420,8 @@ function wzDeal(){const P=act(),ps=P.map(p=>p.id),side=ps.length>=4?4:2;
     gpos:0,gm:0,ex:{c:0,g:0,a:0},passed:false,st:{exc:0,ent:0,exp:0}};
     g.q.push({t:'keep',pid:p,o:{d:[wzDrawD(g),wzDrawD(g),wzDrawD(g)],c:[wzDrawC(g),wzDrawC(g),wzDrawC(g)]},drop:2},{t:'start3',pid:p,n:3})});
   g.q.push({t:'go'});
-  S.wzg=g;gAnn(g,'Wyrmspan',`${P.length} players · ${WYGUILD[guild].n}. Everyone keeps 4 of 6 cards and picks 3 resources.`,'🐉');
-  gLog(g,`Wyrmspan: ${P.length} players, ${WYGUILD[guild].n}, objectives: ${g.obj.map(o=>wzObj(o).say).join(' · ')}`,'🐉');wzRun(g);return g}
+  S.wzg=g;wzAnn(g,'Wyrmspan',`${P.length} players · ${WYGUILD[guild].n}. Everyone keeps 4 of 6 cards and picks 3 resources.`,'🐉');
+  wzGL(g,`Wyrmspan: ${P.length} players, ${WYGUILD[guild].n}, objectives: ${g.obj.map(o=>wzObj(o).say).join(' · ')}`,'🐉');wzRun(g);return g}
 const wzObj=id=>WYOBJ.find(o=>o.id===id);
 const WZS={};
 WZS.keep=(g,s,mv)=>{const L=[...s.o.d.map((id,i)=>id==null?null:{v:'d'+i,l:'🐉 '+wzD(id).n}),...s.o.c.map((id,i)=>id==null?null:{v:'c'+i,l:'🪨 Cave card: '+wzCvSay(id)})].filter(Boolean);
@@ -13430,7 +13430,7 @@ WZS.keep=(g,s,mv)=>{const L=[...s.o.d.map((id,i)=>id==null?null:{v:'d'+i,l:'🐉
   if(s.drop>0)return WZS.keep(g,s);g.P[s.pid].hand.d=s.o.d.filter(x=>x!=null);g.P[s.pid].hand.c=s.o.c.filter(x=>x!=null);return true};
 WZS.start3=(g,s,mv)=>{if(!mv)return wzAsk(g,s,`Pick a starting resource (${s.n} to go)`,WZR.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});
   if(!WZR.includes(mv.v))return null;g.P[s.pid].res[mv.v]++;s.n--;return s.n>0?WZS.start3(g,s):true};
-WZS.go=g=>{gAnn(g,'Round 1',`${nmid(g.turn)} goes first. Spend coins on excavate, entice and explore; pass when you're done.`,'🐉');g.n++;return true};
+WZS.go=g=>{wzAnn(g,'Round 1',`${nmid(g.turn)} goes first. Spend coins on excavate, entice and explore; pass when you're done.`,'🐉');g.n++;return true};
 
 /* ---------- the actor and the queue ---------- */
 const wzActor=g=>!g||g.phase==='done'?null:g.ask?g.ask.pid:g.q.length?null:g.turn;
@@ -13528,16 +13528,16 @@ WZS.end=(g,s,mv)=>{const P=g.P[s.pid];if(P.coin>9)P.coin=9;
 function wzNext(g,pid){const L=g.ps;for(let k=1;k<=L.length;k++){const q=L[(L.indexOf(pid)+k)%L.length];const P=g.P[q];if(P.passed)continue;if(P.coin<1){P.passed=true;wzLog(g,`${nmid(q)} is out of coins and passes`,'✋');continue}return q}return null}
 /* ---------- the end of a round ---------- */
 WZS.rend=g=>{const st=[],L=g.ps,i0=L.indexOf(g.fp);for(let k=0;k<L.length;k++){const p=L[(i0+k)%L.length];wzDr(g,p).forEach(([kk,d])=>{if(wzD(d.id).ty==='O')st.push({t:'opr',pid:p,k:kk})})}
-  st.push({t:'rscore'});wzIns(g,...st);gLog(g,`Round ${g.rnd+1} is over`,'🔔',1);return true};
+  st.push({t:'rscore'});wzIns(g,...st);wzGL(g,`Round ${g.rnd+1} is over`,'🔔',1);return true};
 WZS.opr=(g,s,mv)=>{const x=wzAt(g,s.pid,s.k);if(!x||!x.d)return true;const D=wzD(x.d.id);if(!D.op)return true;
   wzLog(g,`${nmid(s.pid)} uses ${D.n} (once per round)`,'🔁');wzIns(g,...wzOps(g,s.pid,s.k,D.op));return true};
 WZS.rscore=g=>{const id=g.obj[g.rnd],c={};g.ps.forEach(p=>c[p]=wzObjN(g,p,id));g.oc[g.rnd]=c;const pts=wzObjPts(g,g.rnd);
-  gLog(g,`Round ${g.rnd+1} objective (${wzObj(id).say}): ${g.ps.map(p=>`${nmid(p)} ${c[p]} → ${pts[p]} VP`).join(', ')}`,'🎯',1);
+  wzGL(g,`Round ${g.rnd+1} objective (${wzObj(id).say}): ${g.ps.map(p=>`${nmid(p)} ${c[p]} → ${pts[p]} VP`).join(', ')}`,'🎯',1);
   if(g.rnd===3){wzEnd(g);return true}
   g.rnd++;g.ddisc.push(...g.disp.d.filter(x=>x!=null));g.cdisc.push(...g.disp.c.filter(x=>x!=null));g.disp={d:[null,null,null],c:[null,null,null]};wzRefill(g);
   g.fp=g.ps[(g.ps.indexOf(g.fp)+1)%g.ps.length];g.turn=g.fp;
   g.ps.forEach(p=>{const P=g.P[p];P.coin+=6;P.passed=false;P.ex={c:0,g:0,a:0};if(P.nest<2)P.nest++;else{const d=wzDr(g,p).map(x=>x[1]).filter(wzRoom).sort((a,b)=>(wzD(b.id).cap-b.e)-(wzD(a.id).cap-a.e))[0];if(d)d.e++}});
-  gAnn(g,`Round ${g.rnd+1}`,`${nmid(g.turn)} starts. Everyone gains 6 coins and 1 egg; the display is refreshed.`,'🎯');return true};
+  wzAnn(g,`Round ${g.rnd+1}`,`${nmid(g.turn)} starts. Everyone gains 6 coins and 1 egg; the display is refreshed.`,'🎯');return true};
 /* objective counts */
 function wzObjN(g,p,id){const P=g.P[p],D=wzDr(g,p).map(([k,d])=>[k,d,wzD(d.id)]),n=f=>D.filter(f).length;
   const cost=B=>Object.values(B.cost).reduce((a,v)=>a+v,0);
@@ -13748,7 +13748,7 @@ function wzScore(g,p){const P=g.P[p],D=wzDr(g,p),left={r:wzRes(g,p),d:P.hand.d.l
   const F={guild:gv,dragons:D.reduce((a,[,d])=>a+wzD(d.id).vp,0),abil,eggs:wzEggs(g,p),cache:D.reduce((a,[,d])=>a+d.c,0),tuck:D.reduce((a,[,d])=>a+d.t,0),coins:P.coin,items:left.r+left.d+left.c};
   F.obj=[0,1,2,3].reduce((a,r)=>a+(wzObjPts(g,r)[p]||0),0);F.tot=F.guild+F.dragons+F.abil+F.eggs+F.cache+F.tuck+F.coins+Math.floor(F.items/4)+F.obj;F.nd=D.length;return F}
 function wzEnd(g){g.phase='done';g.q=[];g.ask=null;g.fin={};g.ps.forEach(p=>g.fin[p]=wzScore(g,p));
-  const P=act().slice().sort((a,b)=>g.fin[b.id].tot-g.fin[a.id].tot||g.fin[b.id].nd-g.fin[a.id].nd);gAnn(g,'🏆 Game over',P.map(p=>`${nm(p)} ${g.fin[p.id].tot}`).join(' · '),'🏆');gLog(g,'Round 4 is over: final scoring','🏁',1);g.n++;return true}
+  const P=act().slice().sort((a,b)=>g.fin[b.id].tot-g.fin[a.id].tot||g.fin[b.id].nd-g.fin[a.id].nd);wzAnn(g,'🏆 Game over',P.map(p=>`${nm(p)} ${g.fin[p.id].tot}`).join(' · '),'🏆');wzGL(g,'Round 4 is over: final scoring','🏁',1);g.n++;return true}
 /* the score pad (Finish & reveal) */
 function wzSyncScorer(g){if(!g||!g.fin)return;act().forEach(p=>{const F=g.fin[p.id];if(!F)return;p.wy={g:[0,1,2,3].map(r=>g.oc[r]?g.oc[r][p.id]:0),f:{guild:F.guild,dragons:F.dragons,abil:F.abil,eggs:F.eggs,cache:F.cache,tuck:F.tuck,coins:F.coins,items:F.items}}});S.hr=4}
 
@@ -13793,8 +13793,39 @@ function wzBotAns(g,pid){const A=g.ask,L=A.opts||[];if(!L.length)return {skip:1}
   if(A.kind==='mark')return {v:L[Math.floor(Math.random()*Math.min(L.length,3))].v};
   return {v:L[0].v}}
 function wzBotStep(g,q){const pid=q.id;if(g.phase==='done')return false;
-  if(g.ask){if(g.ask.pid!==pid)return false;if(wzMove(g,pid,wzBotAns(g,pid)))return true;if(wzMove(g,pid,{skip:1}))return true;for(const o of g.ask.opts||[])if(wzMove(g,pid,{v:o.v}))return true;return false}
-  if(g.turn!==pid||g.q.length)return false;const a=wzBotAction(g,pid);return wzMove(g,pid,a)||wzMove(g,pid,{a:'pass'})}
+  if(g.ask){if(g.ask.pid!==pid)return false;if(wzMove(g,pid,(q.bot||'normal')==='easy'?wzBotAns(g,pid):wzSimAns(g,pid)))return true;if(wzMove(g,pid,{skip:1}))return true;for(const o of g.ask.opts||[])if(wzMove(g,pid,{v:o.v}))return true;return false}
+  if(g.turn!==pid||g.q.length)return false;const lv=q.bot||'normal';const a=lv==='easy'?wzBotAction(g,pid):wzSmartAction(g,pid,lv);return wzMove(g,pid,a)||wzMove(g,pid,{a:'pass'})}
+
+/* ---------- smarter computer players: try each action on a copy of the game and keep the best result ----------
+   easy = the simple rules above; normal and hard look one action ahead (normal sometimes takes its 2nd best). */
+const WZW8=Object.assign({coin:.45,res:.7,res2:.25,cave:1,play:.5,open:.3,room:.3,adv:1.2,opr:1.2,obj:.7,mat:.7,nofit:.2},(typeof process!=='undefined'&&process.env.W8)?JSON.parse(process.env.W8):{});
+function wzPotential(g,pid){const P=g.P[pid],F=wzScore(g,pid),left=3-g.rnd,W=WZW8;
+  if(g.phase==='done')return F.tot;
+  const D=wzDr(g,pid),open=WZC.reduce((a,cv)=>a+P.mat[cv].filter(x=>x&&!x.d).length,0),room=D.reduce((a,[,d])=>a+Math.max(0,wzD(d.id).cap-d.e),0)+(2-P.nest);
+  const adv=D.filter(([,d])=>wzD(d.id).ty==='A').length,opr=D.filter(([,d])=>wzD(d.id).ty==='O').length,play=P.hand.d.reduce((a,id)=>a+wzD(id).vp*(wzFits(g,pid,id).length?1:W.nofit),0);
+  const objs=g.obj.slice(g.rnd).reduce((a,id)=>{const me=wzObjN(g,pid,id),best=Math.max(...g.ps.filter(q=>q!==pid).map(q=>wzObjN(g,q,id)));return a+(me>best?2:me===best&&me>0?1:0)},0);
+  const base=F.tot-F.coins-Math.floor(F.items/4);
+  const coinV=left>0?W.coin:1;let need=0;P.hand.d.forEach(id=>WZR.forEach(r=>need+=wzD(id).cost[r]||0));const R=wzRes(g,pid),useR=Math.min(R,need+2),resT=left>0?useR*W.res+(R-useR)*W.res2:R*.25;
+  return base+P.coin*coinV+resT+(left>0?D.length*W.mat*(left+.5)+Math.min(P.hand.c.length,3)*W.cave+Math.min(play,16)*W.play+open*W.open+room*W.room+adv*W.adv*(left+.5)+opr*W.opr*left:(P.hand.d.length+P.hand.c.length)*.25)+objs*W.obj}
+function wzSimAns(g,pid){const A=g.ask,L=A.opts||[];if(!L.length)return {skip:1};
+  if(/discard down/.test(A.msg)){const o=L.slice().sort((a,b)=>{const v=x=>x.v[0]==='d'?wzVal(g.P[pid].hand.d[+x.v.split(':')[1]]):x.v[0]==='c'?3:1;return v(a)-v(b)})[0];return {v:o.v}}
+  if(/Column 4 bonus/.test(A.msg))return A.opt&&wzRes(g,pid)<3?{skip:1}:{v:(L.find(o=>o.v.startsWith('r:'))||L[0]).v};
+  if(A.kind==='mark'){const n=g.gbox[4].length;if(n<2)return {v:4};const r=L.find(o=>o.v===2)||L.find(o=>o.v===3)||L[0];return {v:r.v}}
+  if(/^Pay /.test(A.msg)&&L.length===1)return {v:'y'};
+  if(A.kind==='cardd'){const P=g.P[pid],v=o=>o.v==='deck'?3.2:wzVal(g.disp.d[+o.v])+(wzFits(g,pid,g.disp.d[+o.v]).length?2:0)-WZR.reduce((a,r)=>a+Math.max(0,(wzD(g.disp.d[+o.v]).cost[r]||0)-P.res[r]),0)*.5;return {v:L.slice().sort((a,b)=>v(b)-v(a))[0].v}}
+  if(A.kind==='exc'){const P=g.P[pid],v=o=>{const cv=String(o.v).split('@')[1];return P.hand.d.filter(id=>wzD(id).cv.includes(cv)).length*2-wzNextEx(g,pid,cv)};return {v:L.slice().sort((a,b)=>v(b)-v(a))[0].v}}
+  return wzBotAns(g,pid)}
+function wzSim(g,pid,mv){const c=JSON.parse(JSON.stringify(g));wzShuf(c.dd);wzShuf(c.dc);const q=wzSimSilence();try{if(!wzMove(c,pid,mv))return null;let k=0;
+  while(c.ask&&k++<60){const a=c.ask.pid;if(!wzMove(c,a,wzSimAns(c,a))&&!wzMove(c,a,{skip:1})&&!wzMove(c,a,{v:c.ask.opts[0].v}))break}return wzPotential(c,pid)}catch(e){return null}finally{wzSimSilence(q)}}
+/* keep the log and pop-ups quiet while simulating */
+let WZQUIET=0;function wzSimSilence(r){if(r===undefined){WZQUIET++;return 1}WZQUIET--}
+function wzCands(g,pid){const P=g.P[pid],A=wzActs(g,pid),L=[{a:'pass'}];A.ent.forEach(o=>o.cv.forEach(cv=>L.push({a:'ent',i:o.i,cv})));
+  const seen=new Set();A.exc.forEach(cv=>P.hand.c.forEach((id,i)=>{const k=cv+':'+id;if(seen.has(k))return;seen.add(k);L.push({a:'exc',cv,i})}));A.exp.forEach(cv=>L.push({a:'exp',cv}));return L}
+function wzSmartAction(g,pid,lv){const L=wzCands(g,pid);if(L.length===1)return L[0];const tries=lv==='hard'?3:2;
+  const sc=L.map(mv=>{let s=0,n=0;for(let t=0;t<tries;t++){const v=wzSim(g,pid,mv);if(v!=null){s+=v;n++}}return {mv,v:n?s/n:-1e9}}).sort((a,b)=>b.v-a.v);
+  /* passing is only best when nothing else helps */
+  if(sc[0].mv.a==='pass'&&sc[1]&&sc[1].v>sc[0].v-.4)return sc[1].mv;
+  if(lv!=='hard'&&sc[1]&&sc[1].mv.a!=='pass'&&Math.random()<.15&&sc[1].v>sc[0].v-1.5)return sc[1].mv;return sc[0].mv}
 /* ---------- Wyrmspan screen ---------- */
 let WZVIEW=null,WZLOOK=null,WZSEL=null,WZBOTT=null,WZBOTAT=0;
 const wzRes2=()=>!S.lk||S.demo||lkHost();
