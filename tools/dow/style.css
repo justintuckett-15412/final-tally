@@ -33,3 +33,11 @@ html.dark .dwdie{background:#2a333c;color:#f3efe6;border-color:#c9d1d9}
 .dwdock{max-height:46vh;overflow-y:auto}
 .dwab{padding:6px 10px;border-radius:999px;border:1px solid var(--line,#d9dee4);background:var(--surface,#fff);color:var(--ink,#17212b);font-size:13px;cursor:pointer}.dwab:disabled{opacity:.4}
 html.dark .dwab{background:#2a333c;color:#f3efe6}
+
+.dwi{width:18px;height:18px;vertical-align:-4px;border-radius:3px}.dwi.dwz{width:20px;height:20px}
+.dwpf{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:-6px;margin-right:3px}
+.dwpm{float:left;width:44px;height:44px;border-radius:10px;object-fit:cover;margin:0 8px 0 0}
+.dwps{display:block;width:180px;height:180px;border-radius:14px;margin:0 auto 8px;object-fit:cover}
+.dwloc,.dwcol{position:relative;isolation:isolate}
+.dwloc::before,.dwcol::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:var(--dwbg) center/cover;opacity:.22}
+html.dark .dwloc::before,html.dark .dwcol::before{opacity:.18}
