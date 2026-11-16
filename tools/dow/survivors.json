@@ -1,0 +1,320 @@
+[
+{
+"n": "Buddy Davis",
+"job": "Fitness Trainer",
+"inf": 36,
+"atk": 2,
+"sr": 4,
+"at": "any",
+"ab": "Takes 4 wounds to die instead of 3",
+"m": 1
+},
+{
+"n": "Maria Lopez",
+"job": "Teacher",
+"inf": 48,
+"atk": 4,
+"sr": 2,
+"at": "school",
+"die": 1,
+"opr": 1,
+"ab": "Kill 1 zombie at the school, no exposure roll"
+},
+{
+"n": "Loretta Clay",
+"job": "Cook",
+"inf": 20,
+"atk": 2,
+"sr": 4,
+"at": "colony",
+"die": 4,
+"opr": 1,
+"ab": "Add 2 food tokens to the supply"
+},
+{
+"n": "Andrew Evans",
+"job": "Farmer",
+"inf": 12,
+"atk": 3,
+"sr": 3,
+"at": "grocery",
+"opr": 1,
+"ab": "Searching at the grocery store: look at and keep 1 extra card",
+"m": 1
+},
+{
+"n": "Rod Miller",
+"job": "Truck Driver",
+"inf": 40,
+"atk": 3,
+"sr": 3,
+"at": "any",
+"ab": "No exposure roll when Rod moves",
+"m": 1
+},
+{
+"n": "Carla Thompson",
+"job": "Police Dispatcher",
+"inf": 22,
+"atk": 4,
+"sr": 2,
+"at": "police",
+"opr": 1,
+"ab": "Searching at the police station: look at and keep 1 extra card"
+},
+{
+"n": "Janet Taylor",
+"job": "Nurse",
+"inf": 42,
+"atk": 3,
+"sr": 4,
+"at": "hospital",
+"opr": 1,
+"ab": "Searching at the hospital: look at and keep 1 extra card"
+},
+{
+"n": "Sparky",
+"job": "Stunt Dog",
+"inf": 10,
+"atk": 2,
+"sr": 2,
+"at": "any",
+"ab": "A bite on Sparky's exposure roll counts as a wound; bites never spread to Sparky",
+"m": 1
+},
+{
+"n": "Sophie Robinson",
+"job": "Pilot",
+"inf": 58,
+"atk": 4,
+"sr": 1,
+"at": "any",
+"opr": 1,
+"ab": "Peek at the top card of one location's item deck and put it back"
+},
+{
+"n": "Annaleigh Chan",
+"job": "Lawyer",
+"inf": 38,
+"atk": 2,
+"sr": 2,
+"at": "colony",
+"opr": 1,
+"noco": 1,
+"ab": "Look at 1 random card in another player's hand"
+},
+{
+"n": "Bev Russell",
+"job": "Mother",
+"inf": 34,
+"atk": 2,
+"sr": 4,
+"at": "colony",
+"die": 1,
+"opr": 1,
+"ab": "If a helpless survivor is at the colony, kill 2 zombies there, no exposure roll"
+},
+{
+"n": "Ashley Ross",
+"job": "Construction Worker",
+"inf": 52,
+"atk": 2,
+"sr": 5,
+"at": "any",
+"opr": 1,
+"ab": "Build a barricade without spending a die"
+},
+{
+"n": "Brian Lee",
+"job": "Mayor",
+"inf": 68,
+"atk": 3,
+"sr": 4,
+"at": "any",
+"opr": 1,
+"ab": "Raise one of your unused dice by 1",
+"m": 1
+},
+{
+"n": "Mike Cho",
+"job": "Ninja",
+"inf": 30,
+"atk": 2,
+"sr": 4,
+"at": "any",
+"ab": "No exposure roll when Mike attacks",
+"m": 1
+},
+{
+"n": "Forest Plum",
+"job": "Mall Santa",
+"inf": 14,
+"atk": 2,
+"sr": 5,
+"at": "any",
+"ab": "At the start of your turn you may remove Forest from the game to raise morale by 1",
+"m": 1
+},
+{
+"n": "Talia Jones",
+"job": "Fortune Teller",
+"inf": 28,
+"atk": 3,
+"sr": 1,
+"at": "any",
+"opr": 1,
+"ab": "Look at the top 2 crisis cards, put them back in any order, and say exactly 2 words about them"
+},
+{
+"n": "Gray Beard",
+"job": "Pirate",
+"inf": 16,
+"atk": 1,
+"sr": 4,
+"at": "colony",
+"opr": 1,
+"noco": 1,
+"ab": "Take a random card from another player's hand",
+"m": 1
+},
+{
+"n": "Harman Brooks",
+"job": "Park Ranger",
+"inf": 32,
+"atk": 3,
+"sr": 3,
+"at": "any",
+"ab": "Frostbite on Harman counts as a normal wound",
+"m": 1
+},
+{
+"n": "Brandon Kane",
+"job": "Janitor",
+"inf": 26,
+"atk": 2,
+"sr": 4,
+"at": "colony",
+"opr": 1,
+"ab": "Cleaning waste removes 5 cards instead of 3",
+"m": 1
+},
+{
+"n": "Arthur Thurston",
+"job": "Principal",
+"inf": 62,
+"atk": 4,
+"sr": 2,
+"at": "school",
+"opr": 1,
+"ab": "Searching at the school: look at and keep 1 extra card",
+"m": 1
+},
+{
+"n": "Olivia Brown",
+"job": "Doctor",
+"inf": 56,
+"atk": 4,
+"sr": 3,
+"at": "any",
+"opr": 1,
+"ab": "Remove any one wound from a survivor at her location (herself too)"
+},
+{
+"n": "Daniel Smith",
+"job": "Sheriff",
+"inf": 66,
+"atk": 2,
+"sr": 5,
+"at": "any",
+"die": 4,
+"opr": 1,
+"ab": "Kill 2 zombies at his location, one exposure roll",
+"m": 1
+},
+{
+"n": "Jenny Clark",
+"job": "Waitress",
+"inf": 24,
+"atk": 4,
+"sr": 3,
+"at": "any",
+"opr": 1,
+"ab": "When searching with Jenny, look at 3 extra cards"
+},
+{
+"n": "David Garcia",
+"job": "Accountant",
+"inf": 50,
+"atk": 4,
+"sr": 3,
+"at": "any",
+"ab": "When searching with David, look at 1 extra card",
+"m": 1
+},
+{
+"n": "Gabriel Diaz",
+"job": "Fireman",
+"inf": 60,
+"atk": 2,
+"sr": 3,
+"at": "any",
+"opr": 1,
+"ab": "At a location with an item deck: reveal its top 4, take 1 outsider card if any, shuffle the rest back",
+"m": 1
+},
+{
+"n": "Edward White",
+"job": "Chemist",
+"inf": 44,
+"atk": 4,
+"sr": 3,
+"at": "colony",
+"die": 1,
+"opr": 1,
+"ab": "When attacking with Edward, play a medicine card to kill 3 zombies instead of 1, no exposure roll (the medicine's own effect isn't used)",
+"m": 1
+},
+{
+"n": "John Price",
+"job": "Student",
+"inf": 18,
+"atk": 3,
+"sr": 3,
+"at": "noncolony",
+"ab": "Away from the colony, John has the abilities of every other survivor at his location",
+"m": 1
+},
+{
+"n": "Alexis Grey",
+"job": "Librarian",
+"inf": 46,
+"atk": 5,
+"sr": 4,
+"at": "library",
+"opr": 1,
+"ab": "Searching at the library: look at and keep 1 extra card"
+},
+{
+"n": "James Meyers",
+"job": "Psychiatrist",
+"inf": 54,
+"atk": 6,
+"sr": 3,
+"at": "any",
+"opr": 1,
+"ab": "Reroll 1 or more of your unused dice; keep the new results",
+"m": 1
+},
+{
+"n": "Thomas Heart",
+"job": "Soldier",
+"inf": 64,
+"atk": 1,
+"sr": 3,
+"at": "colony",
+"die": 5,
+"opr": 1,
+"ab": "Kill 2 zombies at the colony, no exposure roll",
+"m": 1
+}
+]

@@ -1,0 +1,35 @@
+/* Dead of Winter on the phones */
+.dwcol,.dwloc{padding:10px;border-radius:12px}
+.dwtrack{display:flex;flex-wrap:wrap;gap:12px;font-size:15px;margin-bottom:6px}
+.dwents{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:6px 0}
+.dwent{display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 2px;border-radius:8px;border:1px solid var(--line,#d9dee4);font-size:12px;line-height:1.1;text-align:center;word-break:break-all}
+.dwent small{font-weight:700;color:var(--muted,#6a7480)}
+.dwsvrow{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.dwsv{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:999px;background:var(--pc,#888);color:#fff;font-size:12px;line-height:1.5}
+.dwsv i{font-style:normal}
+.dwsv.sel{outline:3px solid var(--accent,#f0b43a)}
+.dwmo,.dwcrisis,.dwxr{display:flex;flex-direction:column;gap:2px;margin-top:8px;padding:7px 9px;border-radius:10px;font-size:13px}
+.dwmo{background:rgba(240,180,58,.14)}.dwcrisis{background:rgba(210,70,50,.12)}.dwxr{background:rgba(90,110,140,.14)}
+.dwmo small,.dwcrisis small,.dwxr small{color:var(--muted,#55606c)}
+.dwlocs{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:8px 0}
+.dwloc{border:1px solid var(--line,#d9dee4);background:var(--surface,#fff);font-size:12px}
+.dwlh{display:flex;justify-content:space-between;gap:4px;align-items:baseline}.dwlh small{color:var(--muted,#6a7480)}
+.dwlz{margin-top:3px;letter-spacing:1px}
+.dwmine{display:flex;flex-direction:column;gap:5px;margin:6px 0}
+.dwmy,.dwcard{display:flex;flex-direction:column;gap:2px;text-align:left;padding:7px 9px;border-radius:10px;border:1px solid var(--line,#d9dee4);background:var(--surface,#fff);color:var(--ink,#17212b);font-size:13px;cursor:pointer}
+.dwmy small,.dwcard small{color:var(--muted,#55606c);font-size:11.5px}
+.dwmy.on,.dwcard.on,.dwdie.on{outline:3px solid var(--accent,#f0b43a)}
+.dwhand{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.dwdice{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.dwdie{width:38px;height:38px;border-radius:9px;border:2px solid #26313b;background:#fffdf6;color:#1d232a;font-weight:800;font-size:18px;display:grid;place-items:center;cursor:pointer}
+.dwdie.used{opacity:.35;cursor:default}
+.dwobj{margin:6px 0;padding:7px 9px;border-radius:10px;background:rgba(120,60,160,.10);font-size:13px}
+.dwobj summary{cursor:pointer;font-weight:700}.dwobj b,.dwobj small{display:block;margin-top:3px}
+.dwmos{flex-wrap:wrap}
+.dwlog{list-style:none;padding:0;margin:0;font-size:12.5px;display:flex;flex-direction:column;gap:3px}
+.dwobjin{flex:1;min-width:0;max-width:60%;padding:6px 8px;border-radius:8px;border:1px solid var(--line,#d9dee4);background:var(--surface,#fff);color:inherit}
+html.dark .dwloc,html.dark .dwmy,html.dark .dwcard{background:var(--surface,#1f262d)}
+html.dark .dwdie{background:#2a333c;color:#f3efe6;border-color:#c9d1d9}
+.dwdock{max-height:46vh;overflow-y:auto}
+.dwab{padding:6px 10px;border-radius:999px;border:1px solid var(--line,#d9dee4);background:var(--surface,#fff);color:var(--ink,#17212b);font-size:13px;cursor:pointer}.dwab:disabled{opacity:.4}
+html.dark .dwab{background:#2a333c;color:#f3efe6}

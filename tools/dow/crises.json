@@ -1,0 +1,22 @@
+[
+{"n":"Overpopulation","need":["food"],"fail":[["killLowest",2]]},
+{"n":"Illness","need":["med"],"fail":[["woundAll"],["morale",-1]]},
+{"n":"Horror in the Night","need":["food"],"fail":[["morale",-2]]},
+{"n":"Food Spoilage","need":["food"],"fail":[["noFoodTokens"],["morale",-1]]},
+{"n":"Raiders","need":["food"],"fail":[["loseRandomCard"],["morale",-1]]},
+{"n":"Strength of the Dead","need":["fuel"],"fail":[["clearBarricades","colony"],["zombies","colony",10]]},
+{"n":"Legions of Death","need":["fuel"],"fail":[["zombies","colony",12]]},
+{"n":"Dead Man's March","need":["tools","fuel"],"fail":[["zombies","school",3],["zombies","police",3]]},
+{"n":"Waste Not","need":["food"],"fail":[["foodToWaste"],["morale",-1]]},
+{"n":"Despair","need":["med"],"fail":[["morale",-2]]},
+{"n":"Unending Hordes","need":["tools"],"fail":[["zombies","colony",8],["morale",-1]]},
+{"n":"Starvation","need":["food"],"fail":[["starve"],["morale",-1]]},
+{"n":"Shaking Things Up","need":["tools"],"fail":[["giveLeft"],["morale",-1]]},
+{"n":"Exhaustion","need":["med"],"fail":[["frostHighest",5]]},
+{"n":"They're Watching Us","need":["med","tools"],"fail":[["zombies","library",3],["zombies","grocery",3]]},
+{"n":"Blizzard","need":["fuel"],"fail":[["noMove"],["morale",-1]]},
+{"n":"Zombie Surge","need":["tools"],"fail":[["zombies","colony",6],["zombiesAllOther",1]]},
+{"n":"Fuel Shortage","need":["fuel"],"fail":[["morale",-2]]},
+{"n":"Killer Instinct","need":["food","med"],"fail":[["zombies","hospital",3],["zombies","gas",3]]},
+{"n":"Hailstorm","need":["tools"],"fail":[["rollFrost",4],["clearBarricades","all"]]}
+]

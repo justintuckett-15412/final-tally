@@ -1,0 +1,8 @@
+[
+{"id":"police","n":"Police Station","no":1,"surv":3,"zomb":4,"noise":4,"items":["weapon","fuel","tools","food","outsider"]},
+{"id":"grocery","n":"Grocery Store","no":2,"surv":3,"zomb":4,"noise":4,"items":["food","med","tools","outsider"]},
+{"id":"school","n":"School","no":3,"surv":4,"zomb":4,"noise":4,"items":["food","book","tools","med","outsider"]},
+{"id":"library","n":"Library","no":4,"surv":3,"zomb":3,"noise":4,"items":["book","fuel","food","tools","outsider"]},
+{"id":"hospital","n":"Hospital","no":5,"surv":4,"zomb":4,"noise":4,"items":["med","fuel","food","tools","outsider"]},
+{"id":"gas","n":"Gas Station","no":6,"surv":2,"zomb":3,"noise":4,"items":["fuel","weapon","food","med","outsider"]}
+]
