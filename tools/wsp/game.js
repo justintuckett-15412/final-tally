@@ -262,7 +262,33 @@ function wpBotAns(g,pid,q){const A=g.ask,lvl=q.bot||'normal',H=g.hand[pid],W=wpW
 function wpBotSetup(g,pid){const O=g.offer[pid],idx=O.b.map((b,i)=>i).sort((a,b)=>wpVal(O.b[b])-wpVal(O.b[a])),keep=idx.slice(0,3);const W={i:0,s:0,f:0,r:0,u:0};keep.forEach(i=>{const B=wpB(O.b[i]);for(const f in B.cost)W[f]+=B.cost[f]});
   const food=WPF.slice().sort((a,b)=>W[b]-W[a]).slice(0,2);return wpSetup(g,pid,keep,food,O.bo[0])}
 function wpBotStep(g,q){const pid=q.id;if(g.phase==='setup')return g.offer[pid]?wpBotSetup(g,pid):false;if(g.phase!=='play')return false;
-  if(g.ask){if(g.ask.pid!==pid)return false;let mv=wpBotAns(g,pid,q);if(wpMove(g,pid,mv))return true;return wpMove(g,pid,{skip:1})||wpBotAny(g,pid)}
-  if(g.turn!==pid||g.q.length)return false;const a=wpBotAction(g,pid,q);return wpMove(g,pid,{a})||['food','cards','eggs','play'].some(x=>wpMove(g,pid,{a:x}))}
+  if(g.ask){if(g.ask.pid!==pid)return false;let mv=wpBotAns(g,pid,q);if(g.ask.t==='play'&&g.botPick){const bp=g.botPick;g.botPick=null;if(g.ask.opts.some(o=>o.i===bp.i&&o.habs.includes(bp.h)))mv=bp}if(wpMove(g,pid,mv))return true;return wpMove(g,pid,{skip:1})||wpBotAny(g,pid)}
+  if(g.turn!==pid||g.q.length)return false;const lv=q.bot||'normal',a=lv==='easy'?wpBotAction(g,pid,q):(wpSmartAction(g,pid,q)||wpBotAction(g,pid,q));return wpMove(g,pid,{a})||['food','cards','eggs','play'].some(x=>wpMove(g,pid,{a:x}))}
 /* last resort: any answer that's accepted */
 function wpBotAny(g,pid){const A=g.ask;const tries=[{skip:1},{c:'deck'},{c:0},{k:(A.opts||[])[0]},{d:(A.opts||[])[0],f:'i'},{re:1},{yes:false},{i:(A.opts||[{}])[0]&&(A.opts[0].i??0),h:A.opts&&A.opts[0]&&A.opts[0].habs&&A.opts[0].habs[0]},{h:(A.opts||[])[0]},{id:(A.opts||[])[0]}];for(const t of tries)if(wpMove(g,pid,t))return true;return false}
+
+/* ---------- smarter computer players: try each action on a copy of the game and keep the best result ----------
+   easy = the simple rules above; normal and hard look one action ahead (normal sometimes takes its 2nd best). */
+const WPW8=Object.assign({food:.55,card:.35,fit:.6,room:.25,brown:1,row:.5,goal:1,bon:.6},(typeof process!=='undefined'&&process.env.W8)?JSON.parse(process.env.W8):{});
+function wpPotential(g,pid){const W=WPW8,B=wpSlots(g,pid),left=WPCUBES.slice(g.rnd).reduce((a,n)=>a+n,0)-(WPCUBES[g.rnd]-g.cubes[pid]);
+  const now=B.reduce((a,[,,x])=>a+wpB(x.b).pts+x.e+(x.c||0)+(x.t||0),0)+g.gp[pid]+g.bon[pid].reduce((a,id)=>a+wpBonusPts(g,pid,id),0);
+  if(g.phase==='done'||left<=0)return now;const fr=Math.min(1,left/12);
+  const H=g.hand[pid],fit=H.filter(b=>wpPlayHabs(g,pid,b).length).reduce((a,b)=>a+wpB(b).pts,0);
+  const room=B.reduce((a,[,,x])=>a+Math.max(0,wpB(x.b).egg-x.e),0),brown=B.filter(([,,x])=>wpB(x.b).col==='brown').length;
+  const rows=WPH.reduce((a,h)=>a+Math.min(g.mat[pid][h].length,5),0);
+  const G=wpGoal(g.goals[g.rnd]);let goal=0;if(G){const me=wpGoalCount(g,pid,G),best=Math.max(...g.ps.filter(q=>q!==pid).map(q=>wpGoalCount(g,q,G)));goal=me>best?2:me===best?1:0}
+  return now+wpFoodN(g,pid)*W.food*fr+Math.min(H.length,8)*W.card*fr+Math.min(fit,30)*W.fit*.1*fr*10/10+room*W.room*fr+brown*W.brown*left/6+rows*W.row*fr+goal*W.goal}
+function wpSimAns(g,pid,q){try{return wpBotAns(g,pid,q)}catch(e){return {skip:1}}}
+/* a copy of the game where the bot can't see other hands or the deck order */
+function wpFog(g,pid){const c=JSON.parse(JSON.stringify(g));g.ps.forEach(p=>{if(p===pid)return;c.deck.push(...c.hand[p])});wpShuf(c.deck);g.ps.forEach(p=>{if(p===pid)return;const n=c.hand[p].length;c.hand[p]=c.deck.splice(c.deck.length-n,n)});return c}
+/* play the rest of the game with simple bots; score = my total minus the best other total */
+function wpRoll(c,pid){const E={};let k=0;while(c.phase!=='done'&&k++<4000){const a=wpActor(c);if(!a)break;if(!wpBotStep(c,E[a]||(E[a]={id:a,bot:'easy'})))break}
+  if(c.phase!=='done')return null;const me=c.fin[pid].tot,best=Math.max(...c.ps.filter(p=>p!==pid).map(p=>c.fin[p].tot));return me-best*.5}
+function wpSim(g,pid,a,pick,q,roll){const c=wpFog(g,pid);try{if(!wpMove(c,pid,{a}))return null;let k=0,first=true;
+  while(c.ask&&c.phase==='play'&&k++<80){const ap=c.ask.pid;let mv=first&&pick&&c.ask.t==='play'&&ap===pid?pick:wpSimAns(c,ap,{id:ap,bot:'normal'});if(c.ask.t==='play')first=false;
+    if(!wpMove(c,ap,mv)&&!wpMove(c,ap,{skip:1})&&!wpBotAny(c,ap))break}return roll?wpRoll(c,pid):wpPotential(c,pid)}catch(e){return null}}
+function wpSmartAction(g,pid,q){const lv=q.bot||'normal',H=g.hand[pid],L=[];['food','eggs','cards'].forEach(a=>L.push({a}));
+  H.forEach((b,i)=>{if(!wpPay(g,pid,b))return;wpPlayHabs(g,pid,b).forEach(h=>L.push({a:'play',pick:{i,h}}))});
+  const tries=+(typeof process!=='undefined'&&process.env.RO||0)||(lv==='hard'?(g.ps.length>=4?4:6):3);const sc=L.map(o=>{let s=0,n=0;for(let t=0;t<tries;t++){const v=wpSim(g,pid,o.a,o.pick,q,1);if(v!=null){s+=v;n++}}return {o,v:n?s/n:-1e9}}).sort((a,b)=>b.v-a.v);
+  if(!sc.length||sc[0].v<-1e8)return null;let pick=sc[0];if(lv!=='hard'&&sc[1]&&Math.random()<.15&&sc[1].v>sc[0].v-1.5)pick=sc[1];
+  g.botPick=pick.o.pick||null;return pick.o.a}

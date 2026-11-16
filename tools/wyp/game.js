@@ -430,14 +430,18 @@ function wzSimAns(g,pid){const A=g.ask,L=A.opts||[];if(!L.length)return {skip:1}
   if(A.kind==='cardd'){const P=g.P[pid],v=o=>o.v==='deck'?3.2:wzVal(g.disp.d[+o.v])+(wzFits(g,pid,g.disp.d[+o.v]).length?2:0)-WZR.reduce((a,r)=>a+Math.max(0,(wzD(g.disp.d[+o.v]).cost[r]||0)-P.res[r]),0)*.5;return {v:L.slice().sort((a,b)=>v(b)-v(a))[0].v}}
   if(A.kind==='exc'){const P=g.P[pid],v=o=>{const cv=String(o.v).split('@')[1];return P.hand.d.filter(id=>wzD(id).cv.includes(cv)).length*2-wzNextEx(g,pid,cv)};return {v:L.slice().sort((a,b)=>v(b)-v(a))[0].v}}
   return wzBotAns(g,pid)}
-function wzSim(g,pid,mv){const c=JSON.parse(JSON.stringify(g));wzShuf(c.dd);wzShuf(c.dc);const q=wzSimSilence();try{if(!wzMove(c,pid,mv))return null;let k=0;
-  while(c.ask&&k++<60){const a=c.ask.pid;if(!wzMove(c,a,wzSimAns(c,a))&&!wzMove(c,a,{skip:1})&&!wzMove(c,a,{v:c.ask.opts[0].v}))break}return wzPotential(c,pid)}catch(e){return null}finally{wzSimSilence(q)}}
+function wzFog(g,pid){const c=JSON.parse(JSON.stringify(g));g.ps.forEach(p=>{if(p===pid)return;c.dd.push(...c.P[p].hand.d);c.dc.push(...c.P[p].hand.c)});wzShuf(c.dd);wzShuf(c.dc);
+  g.ps.forEach(p=>{if(p===pid)return;const H=c.P[p].hand;H.d=c.dd.splice(c.dd.length-H.d.length,H.d.length);H.c=c.dc.splice(c.dc.length-H.c.length,H.c.length)});return c}
+function wzRoll(c,pid){const E={};let k=0;while(c.phase!=='done'&&k++<6000){const a=wzActor(c);if(!a)break;if(!wzBotStep(c,E[a]||(E[a]={id:a,bot:'easy'})))break}
+  if(c.phase!=='done')return null;const me=c.fin[pid].tot,best=Math.max(...c.ps.filter(p=>p!==pid).map(p=>c.fin[p].tot));return me-best*.5}
+function wzSim(g,pid,mv,roll){const c=wzFog(g,pid);const q=wzSimSilence();try{if(!wzMove(c,pid,mv))return null;let k=0;
+  while(c.ask&&k++<60){const a=c.ask.pid;if(!wzMove(c,a,wzSimAns(c,a))&&!wzMove(c,a,{skip:1})&&!wzMove(c,a,{v:c.ask.opts[0].v}))break}return roll?wzRoll(c,pid):wzPotential(c,pid)}catch(e){return null}finally{wzSimSilence(q)}}
 /* keep the log and pop-ups quiet while simulating */
 let WZQUIET=0;function wzSimSilence(r){if(r===undefined){WZQUIET++;return 1}WZQUIET--}
 function wzCands(g,pid){const P=g.P[pid],A=wzActs(g,pid),L=[{a:'pass'}];A.ent.forEach(o=>o.cv.forEach(cv=>L.push({a:'ent',i:o.i,cv})));
   const seen=new Set();A.exc.forEach(cv=>P.hand.c.forEach((id,i)=>{const k=cv+':'+id;if(seen.has(k))return;seen.add(k);L.push({a:'exc',cv,i})}));A.exp.forEach(cv=>L.push({a:'exp',cv}));return L}
-function wzSmartAction(g,pid,lv){const L=wzCands(g,pid);if(L.length===1)return L[0];const tries=lv==='hard'?3:2;
-  const sc=L.map(mv=>{let s=0,n=0;for(let t=0;t<tries;t++){const v=wzSim(g,pid,mv);if(v!=null){s+=v;n++}}return {mv,v:n?s/n:-1e9}}).sort((a,b)=>b.v-a.v);
+function wzSmartAction(g,pid,lv){const L=wzCands(g,pid);if(L.length===1)return L[0];const RO=+(typeof process!=='undefined'&&process.env.RO||0),roll=RO>=0,tries=RO>0?RO:RO<0?(lv==='hard'?3:2):(lv==='hard'?(g.ps.length>=4?3:5):2);
+  const sc=L.map(mv=>{let s=0,n=0;for(let t=0;t<tries;t++){const v=wzSim(g,pid,mv,roll);if(v!=null){s+=v;n++}}return {mv,v:n?s/n:-1e9}}).sort((a,b)=>b.v-a.v);
   /* passing is only best when nothing else helps */
   if(sc[0].mv.a==='pass'&&sc[1]&&sc[1].v>sc[0].v-.4)return sc[1].mv;
   if(lv!=='hard'&&sc[1]&&sc[1].mv.a!=='pass'&&Math.random()<.15&&sc[1].v>sc[0].v-1.5)return sc[1].mv;return sc[0].mv}
