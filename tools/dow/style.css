@@ -41,3 +41,4 @@ html.dark .dwab{background:#2a333c;color:#f3efe6}
 .dwloc,.dwcol{position:relative;isolation:isolate}
 .dwloc::before,.dwcol::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:var(--dwbg) center/cover;opacity:.22}
 html.dark .dwloc::before,html.dark .dwcol::before{opacity:.18}
+.dwbk{float:left;width:44px;height:44px;margin:0 8px 0 0;border-radius:6px}
