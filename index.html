@@ -14509,89 +14509,159 @@ function dwBotAns(g,pid){const A=g.ask,L=A.opts||[];if(!L.length)return {skip:1}
   case 'surv':{const o=L.slice().sort((a,b)=>{const x=DWS[+a.v],y=DWS[+b.v];return (y.inf/20+(7-y.atk)+(7-y.sr))-(x.inf/20+(7-x.atk)+(7-x.sr))});return {v:/leader|give|frostbite/i.test(A.msg)&&!/leader/i.test(A.msg)?o[o.length-1].v:o[0].v}}
   case 'search':{const need=dwNeedSyms(g,pid),cr=g.crisis?DWCR[g.crisis.id].need:[];const keep=L.filter(o=>o.v!=='noise');
     const def=Math.ceil(dwColN(g)/2)-g.food;const val=o=>{const c=+o.v,s=dwSym(c);return (cr.includes(s)?3:0)+(need[s]?2:0)+(s==='food'?(def>0?3+(+DWI[c].k.slice(4)||0):1.5):0)+(s==='outsider'?1:0)+(dwK(c).use==='equip'?1:0)};
-    const best=keep.slice().sort((a,b)=>val(b)-val(a))[0];const sl=g.q[0].loc;if(best&&val(best)<2&&L.some(o=>o.v==='noise')&&g.loc[sl].noise<2&&dwRisk(g,sl,1)===0)return {v:'noise'};return {v:best?best.v:L[0].v}}
-  case 'bite':return {v:dwSv(g.q[0].sid).inf>40?'roll':'kill'};
+    const best=keep.slice().sort((a,b)=>val(b)-val(a))[0];const sl=g.q[0].loc;if(g.mo.id==='raid'&&dwRaidT(g).includes(sl)&&L.some(o=>o.v==='noise')&&g.loc[sl].noise<3&&dwRisk(g,sl,2)===0)return {v:'noise'};if(DWB.noise&&best&&val(best)<2&&L.some(o=>o.v==='noise')&&g.loc[sl].noise<2&&dwRisk(g,sl,1)===0)return {v:'noise'};return {v:best?best.v:L[0].v}}
+  case 'bite':{const sid=g.q[0].sid,x=g.sv[sid],n=x?dwAt(g,x.loc).length:9;return {v:n<=2&&dwSv(sid).inf>40?'roll':'kill'}}
   case 'give':{if(P.betray)return {skip:1};const c=L.find(o=>dwSym(+o.v)==='food'||dwSym(+o.v)==='junk');return c&&Math.random()<.5?{v:c.v}:{skip:1}}
   case 'loc':return {v:L.slice().sort((a,b)=>dwZ(g,a.v)-dwZ(g,b.v))[0].v};
   case 'info':return {v:'ok'};
   default:return A.opt&&/remove Forest/.test(A.msg)?(g.morale<=3?{v:L[0].v}:{skip:1}):{v:L[0].v}}}
 function dwBotVote(g,pid){const V=g.vote,P=g.P[pid];if(V.kind!=='exile')return Math.random()<.5;if(V.target===pid)return false;
   if(P.betray)return Math.random()<.3;const s=g.susp[V.target]||0,avg=g.ps.reduce((a,p)=>a+(g.susp[p]||0),0)/g.ps.length;return s>avg+1&&s>=2}
-/* the colony's needs, as a bot sees them */
-function dwBotAction(g,pid,lv){const P=g.P[pid],my=dwMine(g,pid),D=P.dice,low=()=>D.map((v,i)=>[v,i]).sort((a,b)=>a[0]-b[0])[0];
+/* ---------- computer players: planning (public info + own cards only) ---------- */
+/* zombies that will hit each place this colony phase */
+function dwFailZ(g,loc){if(!g.crisis||g.crisis.skip)return 0;let n=0;DWCR[g.crisis.id].fail.forEach(f=>{if(f[0]==='zombies'&&f[1]===loc)n+=f[2];if(f[0]==='zombiesAllOther'&&loc!=='colony')n+=f[1]});return n}
+const dwFailClears=(g,loc)=>!!(g.crisis&&!g.crisis.skip&&DWCR[g.crisis.id].fail.some(f=>f[0]==='clearBarricades'&&(f[1]==='all'||f[1]===loc)));
+/* how many more matching crisis cards this player should add (face-down cards count only by number) */
+function dwCrisisShort(g,pid){if(!g.crisis||g.crisis.skip)return 0;const N=dwActive(g).length,A=g.crisis.add.length,i=g.order?g.order.indexOf(pid):0,R=g.order?g.order.slice(i+1).filter(p=>!g.P[p].exiled).length:0;
+  const mine=g.crisis.add.filter(a=>a.pid===pid).length,others=A-mine;if(A>=N+DWB.cx+1)return 0;return Math.ceil(N+DWB.cx-(mine+others*DWB.wo+R*DWB.wr))}
+const DWB=Object.assign({cx:.5,wo:.9,wr:.6,foodKeep:0,k1:.5,k2:.5,nf:1,noise:1,mg:8,sl:.3},(typeof process!=='undefined'&&process.env&&process.env.DWB)?JSON.parse(process.env.DWB):{});
+function dwFailLikely(g,pid){const C=g.crisis&&!g.crisis.skip?DWCR[g.crisis.id]:null;if(!C)return false;const M=g.P[pid].hand.filter(c=>C.need.includes(dwSym(c))).length;return dwCrisisShort(g,pid)-M>0}
+function dwColSim(g,add,clear){const E=g.loc.colony.ent.map(e=>({z:e.z,bar:clear?0:e.bar}));let o=0;for(let k=0;k<add;k++){const e=E[k%6];if(e.z+e.bar<3)e.z++;else if(e.bar>0)e.bar--;else o++}return o}
+function dwColAdd(g,pid){const f=pid!=null&&dwFailLikely(g,pid);return Math.ceil(dwColN(g)/2)+(f?dwFailZ(g,'colony'):0)}
+function dwColOver(g,pid){const f=pid!=null&&dwFailLikely(g,pid);return dwColSim(g,dwColAdd(g,pid),f&&dwFailClears(g,'colony'))}
+function dwLocOver(g,loc,pid,dS){if(loc==='colony')return dwColOver(g,pid);const e=g.loc[loc],f=pid!=null&&dwFailLikely(g,pid);
+  const add=dwAt(g,loc).length+(dS||0)+e.noise*.5+(f?dwFailZ(g,loc):0);return Math.max(0,Math.ceil(add-(dwEntCap(loc)-e.z+(f&&dwFailClears(g,loc)?0:e.bar))))}
+/* the old names, now exact (a barricade takes a space AND stops one zombie, so room = 3 − zombies) */
+function dwEntRisk(g){const add=Math.ceil(dwColN(g)/2),E=g.loc.colony.ent.map(e=>({z:e.z,bar:e.bar})),o=[0,0,0,0,0,0];for(let k=0;k<add;k++){const e=E[k%6];if(e.z+e.bar<3)e.z++;else if(e.bar>0)e.bar--;else o[k%6]++}
+  return o.map((v,k)=>v+(E[k].z>=3&&!E[k].bar?.5:0))}
+function dwRisk(g,loc,dSurv){return dwLocOver(g,loc,null,dSurv)}
+const DWSYMLOC={food:['grocery','school','hospital','library'],med:['grocery','hospital','gas','school'],fuel:['gas','police','library','hospital'],tools:['grocery','police','school','hospital'],weapon:['police','gas'],book:['library','school'],outsider:['hospital','school','police']};
+function dwPickDie(D,min){let b=-1;D.forEach((v,i)=>{if(v>=min&&(b<0||v<D[b]))b=i});return b}
+/* every way this player can kill a zombie at loc right now, safest first */
+function dwKillOpts(g,pid,loc){const P=g.P[pid],D=P.dice,o=[];if(dwZ(g,loc)<=0)return o;
+  dwMine(g,pid).forEach(s=>{const x=g.sv[s];if(x.loc!==loc||dwFrozen(g,s))return;const nm=dwSv(s).n,ab=k=>!x.used['ab'+dwSidN(k)];
+    if(loc==='colony'&&dwHas(g,s,'Thomas Heart')&&ab('Thomas Heart')){const i=dwPickDie(D,5);if(i>=0)o.push({mv:{a:'ability',s,die:i,who:'Thomas Heart'},k:2,safe:1})}
+    if(loc==='colony'&&dwHas(g,s,'Bev Russell')&&ab('Bev Russell')&&g.helpless>0){const i=dwPickDie(D,1);if(i>=0)o.push({mv:{a:'ability',s,die:i,who:'Bev Russell'},k:2,safe:1})}
+    if(loc==='school'&&dwHas(g,s,'Maria Lopez')&&ab('Maria Lopez')){const i=dwPickDie(D,1);if(i>=0)o.push({mv:{a:'ability',s,die:i,who:'Maria Lopez'},k:1,safe:1})}
+    if(dwHas(g,s,'Daniel Smith')&&ab('Daniel Smith')&&x.w<2){const i=dwPickDie(D,4);if(i>=0)o.push({mv:{a:'ability',s,die:i,who:'Daniel Smith'},k:2,safe:.7})}
+    const rf=dwEqK(g,s,'rifle');if(rf!=null&&!x.used['c'+rf])o.push({mv:{a:'use',s,c:rf,loc},k:1,safe:1,free:1});
+    const blade=['blade','wrench'].map(k=>dwEqK(g,s,k)).find(c=>c!=null&&!x.used['c'+c]);const i=blade!=null?dwPickDie(D,1):dwPickDie(D,dwSv(s).atk);if(i<0)return;
+    const noExp=nm==='Mike Cho'||['colt','arts','shotgun'].some(k=>{const c=dwEqK(g,s,k);return c!=null&&!x.used['c'+c]});
+    const ed=loc==='colony'&&dwHas(g,s,'Edward White')&&!x.used.ed&&P.hand.some(c=>DWI[c].k==='med');
+    const lt=dwEqK(g,s,'lighter')!=null&&!x.used['c'+dwEqK(g,s,'lighter')]&&P.hand.some(c=>DWI[c].k==='fuel');
+    if(ed)o.push({mv:{a:'attack',s,die:i,target:'z',use:'edward'},k:3,safe:1});else if(lt)o.push({mv:{a:'attack',s,die:i,target:'z',use:'lighter'},k:4,safe:1});
+    else o.push({mv:{a:'attack',s,die:i,target:'z'},k:dwEqK(g,s,'bat')!=null||dwEqK(g,s,'shotgun')!=null?2:1,safe:noExp?1:x.w>=2?.2:x.w===1?.5:.65,inf:dwSv(s).inf})});
+  return o.sort((a,b)=>b.safe-a.safe||(b.free||0)-(a.free||0)||b.k-a.k)}
+/* Raiding Party: the location decks closest to empty are the targets */
+const dwRaidT=g=>{const L=DWLOC.map(l=>l.id).filter(l=>g.decks[l].length).sort((a,b)=>g.decks[a].length-g.decks[b].length),done=DWLOC.filter(l=>!g.decks[l.id].length).length;return L.slice(0,Math.max(0,(g.mo.side==='hc'&&g.starters>=4?3:2)-done))};
+const dwRaidBonus=(g,loc)=>g.mo.id==='raid'&&dwRaidT(g).includes(loc)?4:0;
+const dwSearchVal=(g,pid,loc,need,cr)=>{let v=.2;const fg=Math.ceil(dwColN(g)/2)-g.food;const syms={};(g.decks[loc]||[]).forEach(c=>syms[dwSym(c)]=(syms[dwSym(c)]||0)+1);const n=(g.decks[loc]||[]).length||1;
+  v+=dwRaidBonus(g,loc);for(const s in syms){const p=syms[s]/n;v+=p*((cr.includes(s)?3:0)+(need[s]?2:0)+(s==='food'?1.2+Math.max(0,fg)*1.2:s==='outsider'?(fg>0?.2:1):.4))}return v};
+function dwBotAction(g,pid,lv){const P=g.P[pid],my=dwMine(g,pid),D=P.dice;if(!my.length)return {a:'end'};
   const bad=P.betray&&!P.exiled&&g.morale<=6&&Math.random()<.5;const C=g.crisis&&!g.crisis.skip?DWCR[g.crisis.id]:null,need=dwNeedSyms(g,pid),N=dwActive(g).length;
-  const colN=dwColN(g),foodNeed=Math.ceil(colN/2)+(dwFlags(g).horse?1:0),deficit=foodNeed-g.food,later=g.order?g.order.length-1-g.order.indexOf(pid):0;
-  const myCol=my.filter(s=>g.sv[s].loc==='colony'),E=g.loc.colony.ent;
-  const atkDie=s=>g.sv[s].w>=2&&dwSv(s).n!=='Buddy Davis'?null:D.map((v,i)=>[v,i]).filter(([v])=>v>=dwSv(s).atk).sort((a,b)=>a[0]-b[0])[0];
-  /* 0. overrun forecast where my survivors are */
-  if(!bad&&D.length){const locs=[...new Set(my.map(s=>g.sv[s].loc))].map(l=>[l,dwRisk(g,l)]).filter(x=>x[1]>0).sort((a,b)=>(b[0]==='colony')-(a[0]==='colony')||b[1]-a[1]);
-    for(const [l] of locs){const here=my.filter(s=>g.sv[s].loc===l);if(dwBarRoom(g,l))return {a:'barricade',s:here[0],die:low()[1]};
-      for(const s of here){const d=atkDie(s);if(d&&g.sv[s].w<2)return {a:'attack',s,die:d[1],target:'z'}}
-      if(l!=='colony'&&g.noMove<g.rndNo){const s=here.find(q=>!P.moved.includes(q)&&dwCanMove(g,q,'colony'));if(s!=null&&dwRoom(g,'colony')>0&&!P.exiled){const fuel=P.hand.find(c=>DWI[c].k==='fuel');return {a:'move',s,to:'colony',...(fuel!=null?{fuel}:{})}}}}}
-  /* 1. entrances about to be overrun */
-  if(!bad&&myCol.length&&E.some(e=>e.z>=3&&e.bar===0)){for(const s of myCol){const d=atkDie(s);if(d)return {a:'attack',s,die:d[1],target:'z'}}}
-  if(!bad&&myCol.length&&D.length&&E.some(e=>e.z===2&&e.bar===0))return {a:'barricade',s:myCol[0],die:low()[1]};
-  /* my survivors at risk away from the colony */
-  for(const s of my){const l=g.sv[s].loc;if(l==='colony')continue;const e=g.loc[l];if(e.z+e.bar>=dwEntCap(l)-1&&e.z>0){const d=atkDie(s);if(d)return {a:'attack',s,die:d[1],target:'z'}}}
-  /* 2. food */
-  const food=P.hand.filter(c=>DWI[c].k.startsWith('food')&&!(P.req||[]).includes(c));
-  if(!P.exiled&&!bad&&dwFlags(g).noFoodCards!==g.tno){const cNeedsFood=C&&C.need.includes('food');
-    if(food.length&&deficit>0&&!(cNeedsFood&&g.crisis.add.length<N&&food.length===1&&deficit<=1))return {a:'play',c:food[0]}}
-  const lor=my.find(s=>dwHas(g,s,'Loretta Clay')&&g.sv[s].loc==='colony'&&!g.sv[s].used['ab'+dwSidN('Loretta Clay')]);if(lor!=null&&deficit>0){const d=D.map((v,i)=>[v,i]).find(([v])=>v>=4);if(d)return {a:'ability',s:lor,die:d[1]}}
-  /* waste close to the next 10 */
-  if(!bad&&myCol.length&&D.length&&g.waste.length%10>=6&&g.waste.length>=6)return {a:'clean',die:low()[1]};
-  /* 3. crisis */
-  if(C&&!P.exiled&&!(dwFlags(g).grayBeard===pid)){const match=P.hand.filter(c=>C.need.includes(dwSym(c))&&!(P.req||[]).includes(c));
-    if(bad&&P.cn===0&&P.hand.length){const w=P.hand.find(c=>!C.need.includes(dwSym(c)));if(w!=null)return {a:'crisis',c:w}}
-    if(!bad&&match.length&&g.crisis.add.length<N+(later?0:1)&&P.cn<2){const c=match.find(c=>!need[dwSym(c)]&&!(DWI[c].k.startsWith('food')&&deficit>0))??(later===0?match[0]:null);if(c!=null)return {a:'crisis',c}}}
-  /* 4. main objective cards */
-  for(const c of P.hand)if(dwObjCardOK(g,c)&&!bad)return {a:'objcard',c};
-  /* 5. outsiders when there is food to feed them; equip; heal */
-  const oc=P.hand.find(c=>dwSym(c)==='outsider');if(oc!=null&&g.decks.surv.length&&(P.exiled||dwRoom(g,'colony')>3)&&(g.food>=foodNeed+2||P.exiled))return {a:'play',c:oc};
-  for(const c of P.hand){if(dwK(c).use==='equip'&&(!need[dwSym(c)]||dwSym(c)==='weapon'||dwSym(c)==='book'&&/equipped/.test((dwObjOf(g,pid)||{}).need||''))){const s=my.slice().sort((a,b)=>g.sv[a].eq.length-g.sv[b].eq.length)[0];if(s!=null)return {a:'play',c,s}}}
-  const med=P.hand.find(c=>DWI[c].k==='med'),hurt=my.slice().sort((a,b)=>(g.sv[b].w+g.sv[b].fb*2)-(g.sv[a].w+g.sv[a].fb*2)).find(s=>g.sv[s].w>=2||g.sv[s].fb>0);if(med!=null&&hurt!=null&&!(need.med&&dwHandN(g,pid,'med')<=2&&g.sv[hurt].w<2))return {a:'play',c:med,t:hurt};
-  const oli=my.find(s=>dwHas(g,s,'Olivia Brown')&&!g.sv[s].used['ab'+dwSidN('Olivia Brown')]);if(oli!=null){const t=dwAt(g,g.sv[oli].loc).filter(q=>g.sv[q].w>0).sort((a,b)=>g.sv[b].w-g.sv[a].w)[0];if(t!=null)return {a:'ability',s:oli,target:t}}
+  const colN=dwColN(g),foodNeed=Math.ceil(colN/2)+(dwFlags(g).horse?1:0),deficit=foodNeed-g.food;
+  const myCol=my.filter(s=>g.sv[s].loc==='colony'),lowDie=()=>D.length?D.map((v,i)=>[v,i]).sort((a,b)=>a[0]-b[0])[0][1]:-1;
+  const free=c=>!(P.req||[]).includes(c),cr=C?C.need:[];
+  /* free things first: equip weapons/books/tools that help, play outsiders when the colony can feed them */
+  for(const c of P.hand){if(!free(c)||dwK(c).use!=='equip')continue;const sym=dwSym(c);if(C&&cr.includes(sym)&&dwCrisisShort(g,pid)>0)continue;if(need[sym]&&sym!=='weapon'&&!(sym==='book'&&/equipped/.test((dwObjOf(g,pid)||{}).need||'')))continue;
+    const k=DWI[c].k,pref=['colt','rifle','shotgun','lighter','blade','bat','wrench','arts'].includes(k)?my.filter(s=>dwZ(g,g.sv[s].loc)>0||g.sv[s].loc==='colony'):my;const s=(pref.length?pref:my).slice().sort((a,b)=>g.sv[a].eq.length-g.sv[b].eq.length||dwSv(a).atk-dwSv(b).atk)[0];if(s!=null)return {a:'play',c,s}}
+  if(!bad&&!P.exiled){
+    /* 1. the colony must not be overrun */
+    let over=dwColOver(g,pid);if(over>0){const ER=dwEntRisk(g),bi=ER.findIndex((r,k)=>r>=1&&g.loc.colony.ent[k].z+g.loc.colony.ent[k].bar<3);
+      if(bi>=0&&myCol.length&&D.length)return {a:'barricade',s:myCol[0],die:lowDie(),ent:bi};const K=dwKillOpts(g,pid,'colony').filter(o=>o.safe>=DWB.k1);if(K.length)return K[0].mv;
+      const out=myCol.filter(s=>!P.moved.includes(s)&&g.noMove<g.rndNo&&dwCanMove(g,s,'x')&&g.sv[s].w===0).sort((a,b)=>dwSv(a).sr-dwSv(b).sr)[0];const fuel0=P.hand.find(c=>DWI[c].k==='fuel'&&free(c));
+      if(out!=null&&fuel0!=null){const L=DWLOC.map(l=>l.id).filter(l=>dwRoom(g,l)>0&&dwLocOver(g,l,pid,1)===0&&dwCanMove(g,out,l));if(L.length)return {a:'move',s:out,to:L.sort((a,b)=>dwSearchVal(g,pid,b,need,cr)-dwSearchVal(g,pid,a,need,cr))[0],fuel:fuel0}}}
+    /* 2. my survivors elsewhere about to be overrun */
+    for(const s of my){const l=g.sv[s].loc;if(l==='colony')continue;if(dwLocOver(g,l,pid)>0){if(D.length&&dwBarRoom(g,l))return {a:'barricade',s,die:lowDie()};const K=dwKillOpts(g,pid,l).filter(o=>o.safe>=DWB.k2);if(K.length)return K[0].mv;
+      if(!P.moved.includes(s)&&g.noMove<g.rndNo&&dwCanMove(g,s,'colony')&&dwRoom(g,'colony')>0){const fuel=P.hand.find(c=>DWI[c].k==='fuel'&&free(c));return {a:'move',s,to:'colony',...(fuel!=null?{fuel}:{})}}}}
+    if(deficit>0){const fd=P.hand.filter(c=>DWI[c].k.startsWith('food')&&free(c));if(fd.length)return {a:'play',c:fd[0]}}
+    /* 3. crisis: add matching cards until it is covered (keep 1 for my secret objective when safe) */
+    if(C&&!(dwFlags(g).grayBeard===pid)){const match=P.hand.filter(c=>cr.includes(dwSym(c))&&free(c));const short=dwCrisisShort(g,pid);
+      if(match.length&&short>0){const spare=match.filter(c=>!(need[dwSym(c)]&&dwHandN(g,pid,dwSym(c))<=2)&&!(DWI[c].k.startsWith('food')&&deficit>0));const c=(spare.length?spare:short>=2||g.order.indexOf(pid)===g.order.length-1?match:[])[0];if(c!=null)return {a:'crisis',c}}}
+    /* 4. food for the colony */
+    const food=P.hand.filter(c=>DWI[c].k.startsWith('food')&&free(c)).sort((a,b)=>(+DWI[b].k.slice(4))-(+DWI[a].k.slice(4)));
+    if(deficit>0&&dwFlags(g).noFoodCards!==g.tno){const lor=my.find(s=>dwHas(g,s,'Loretta Clay')&&g.sv[s].loc==='colony'&&!g.sv[s].used['ab'+dwSidN('Loretta Clay')]);if(lor!=null){const i=dwPickDie(D,4);if(i>=0)return {a:'ability',s:lor,die:i,who:'Loretta Clay'}}
+      const fc=food.find(c=>!(cr.includes('food')&&dwCrisisShort(g,pid)>0&&food.length===1));if(fc!=null)return {a:'play',c:fc}}
+    const ck=my.map(s=>[s,dwEqK(g,s,'cook')]).find(([s,c])=>c!=null&&g.sv[s].loc==='colony'&&!g.sv[s].used['c'+c]);if(ck)return {a:'use',s:ck[0],c:ck[1]};
+    /* 5. main objective cards */
+    for(const c of P.hand)if(free(c)&&dwObjCardOK(g,c)&&!(cr.includes(dwSym(c))&&dwCrisisShort(g,pid)>0))return {a:'objcard',c};
+    /* 6. keep survivors alive: heal the badly hurt */
+    const med=P.hand.find(c=>DWI[c].k==='med'&&free(c)),hurt=my.filter(s=>g.sv[s].w>=2||g.sv[s].w>=1&&g.sv[s].fb>0).sort((a,b)=>g.sv[b].w-g.sv[a].w)[0];
+    if(med!=null&&hurt!=null&&!(cr.includes('med')&&dwCrisisShort(g,pid)>0))return {a:'play',c:med,t:hurt};
+    const oli=my.find(s=>dwHas(g,s,'Olivia Brown')&&!g.sv[s].used['ab'+dwSidN('Olivia Brown')]);if(oli!=null){const t=dwAt(g,g.sv[oli].loc).filter(q=>g.sv[q].w>0).sort((a,b)=>g.sv[b].w-g.sv[a].w)[0];if(t!=null)return {a:'ability',s:oli,target:t,who:'Olivia Brown'}}
+    /* 7. waste close to a morale loss */
+    if(myCol.length&&D.length&&g.waste.length>=7&&g.waste.length%10>=6)return {a:'clean',die:lowDie()};
+    /* outsiders: more dice, if there is food for them */
+    const oc=P.hand.find(c=>dwSym(c)==='outsider'&&free(c));if(oc!=null&&g.decks.surv.length&&dwRoom(g,'colony')>2&&g.food>=foodNeed+1&&dwColOver(g,pid)===0)return {a:'play',c:oc}}
   if(!D.length)return {a:'end'};
-  /* 6. search with survivors already out */
-  const se=[];my.forEach(s=>{const x=g.sv[s];if(x.loc==='colony'||!g.decks[x.loc].length||dwFrozen(g,s))return;D.forEach((v,i)=>{if(v>=dwSv(s).sr)se.push({s,i,v})})});
-  if(se.length){const b=se.sort((a,b)=>a.v-b.v)[0];return {a:'search',s:b.s,die:b.i}}
-  /* 7. send someone out (fewer mouths at the colony, more cards) */
-  if(g.noMove<g.rndNo&&D.length){const want=[];if(deficit>0||need.food)want.push('grocery','school','hospital','library');if(C)C.need.forEach(x=>want.push({food:'grocery',fuel:'gas',med:'hospital',tools:'police'}[x]));
-    if(need.fuel)want.push('gas','library');if(need.med)want.push('hospital','grocery');if(need.weapon)want.push('police','gas');if(need.book)want.push('library','school');if(need.tools)want.push('police','grocery');
-    want.push('grocery','school','hospital','police','library','gas');
-    const cand=my.filter(s=>!P.moved.includes(s)&&g.sv[s].w<2&&dwCanMove(g,s,'x')&&(g.sv[s].loc==='colony'||!g.decks[g.sv[s].loc].length)).sort((a,b)=>dwSv(a).sr-dwSv(b).sr);
-    for(const s of cand){if(!D.some(v=>v>=dwSv(s).sr))continue;const to=want.find(l=>l&&l!==g.sv[s].loc&&dwRoom(g,l)>0&&g.decks[l].length&&dwRisk(g,l,1)===0&&dwCanMove(g,s,l));
-      if(to){const fuel=P.hand.find(c=>DWI[c].k==='fuel'&&!need.fuel);return {a:'move',s,to,...(fuel!=null&&Math.random()<.6?{fuel}:{})}}}}
-  /* 8. barricade the colony, clean waste, kill zombies */
-  if(!bad&&myCol.length&&dwBarRoom(g,'colony')&&(dwBar(g,'colony')<6||g.mo.id==='home'||g.mo.id==='stock'))return {a:'barricade',s:myCol[0],die:low()[1]};
-  if(!bad&&g.waste.length>=7&&myCol.length)return {a:'clean',die:low()[1]};
-  if(!bad){const nc=my.filter(s=>g.sv[s].loc!=='colony'&&dwZ(g,g.sv[s].loc)>0&&g.sv[s].w<2);for(const s of nc){const d=atkDie(s);if(d&&(g.mo.id==='kill'||g.mo.id==='samples'||dwZ(g,g.sv[s].loc)>=2))return {a:'attack',s,die:d[1],target:'z'}}
-    if(g.mo.id==='samples'||g.mo.id==='kill'){for(const s of my){if(dwZ(g,g.sv[s].loc)>0&&g.sv[s].w<2){const d=atkDie(s);if(d)return {a:'attack',s,die:d[1],target:'z'}}}}}
-  if(!bad&&dwBarRoom(g,'colony')&&myCol.length)return {a:'barricade',s:myCol[0],die:low()[1]};
-  /* 9. exile vote on someone suspicious */
+  /* betrayer: quietly add a wrong card */
+  if(bad&&C&&P.cn===0){const w=P.hand.find(c=>!cr.includes(dwSym(c)));if(w!=null)return {a:'crisis',c:w}}
+  /* 8. objective goals that need dice */
+  if(!bad&&(g.mo.id==='samples'||g.mo.id==='kill')){for(const l of [...new Set(my.map(s=>g.sv[s].loc))]){if(l==='colony')continue;const K=dwKillOpts(g,pid,l).filter(o=>o.safe>=.9||o.safe>=.6&&dwAt(g,l).length<=2&&g.mo.id==='samples');if(K.length)return K[0].mv}}
+  /* 8b. barricade objectives */
+  if(!bad&&(g.mo.id==='home'||g.mo.id==='stock')){for(const s of my){const l=g.sv[s].loc;if(l!=='colony'&&g.mo.id==='home'&&dwBar(g,l)===0&&dwBarRoom(g,l))return {a:'barricade',s,die:lowDie()}}
+    if(myCol.length&&dwBarRoom(g,'colony')){const E=g.loc.colony.ent,k=E.findIndex(e=>e.bar===0&&e.z+e.bar<3);if(k>=0||g.mo.id==='home')return {a:'barricade',s:myCol[0],die:lowDie(),...(k>=0?{ent:k}:{})}}}
+  /* 9. search with survivors already out */
+  const se=[];my.forEach(s=>{const x=g.sv[s];if(x.loc==='colony'||!g.decks[x.loc].length||dwFrozen(g,s))return;const i=dwPickDie(D,dwSv(s).sr);if(i>=0)se.push({s,i,v:D[i],q:dwSearchVal(g,pid,x.loc,need,cr)})});
+  if(se.length){const b=se.sort((a,b)=>b.q-a.q||a.v-b.v)[0];return {a:'search',s:b.s,die:b.i}}
+  /* 10. send a healthy searcher out (fuel if possible), keeping fighters home if the colony needs them */
+  if(g.noMove<g.rndNo&&D.length&&!bad){const cand=my.filter(s=>!P.moved.includes(s)&&g.sv[s].w===0&&!g.sv[s].fb&&dwCanMove(g,s,'x')&&(g.sv[s].loc==='colony'||!g.decks[g.sv[s].loc].length)&&dwPickDie(D,dwSv(s).sr)>=0)
+      .sort((a,b)=>dwSv(a).sr-dwSv(b).sr||dwSv(b).atk-dwSv(a).atk);
+    const keepHome=s=>g.sv[s].loc==='colony'&&dwZ(g,'colony')>=6&&myCol.length<=1;
+    for(const s of cand){if(keepHome(s))continue;const L=DWLOC.map(l=>l.id).filter(l=>l!==g.sv[s].loc&&dwRoom(g,l)>0&&g.decks[l].length&&dwLocOver(g,l,pid,1)===0&&dwCanMove(g,s,l));if(!L.length)continue;
+      const hv=l=>g.mo.id==='home'&&dwBar(g,l)===0&&!dwAt(g,l).length?3:0;const to=L.sort((a,b)=>dwSearchVal(g,pid,b,need,cr)+hv(b)-dwSearchVal(g,pid,a,need,cr)-hv(a))[0];const fuels=P.hand.filter(c=>DWI[c].k==='fuel'&&free(c)),fuel=fuels.length>=(g.mo.id==='winter'?3:2)&&!(cr.includes('fuel')&&dwCrisisShort(g,pid)>0)?fuels[0]:null;
+      if(fuel==null&&(DWB.nf===0||DWB.nf===1&&cand.length>1&&P.moved.length))continue;return {a:'move',s,to,...(fuel!=null?{fuel}:{})}}}
+  if(!bad){
+    /* 11. spare dice: thin the colony's fullest entrances safely, then barricade where the next zombies land */
+    if(myCol.length){const E=g.loc.colony.ent;if(E.some(e=>e.z>=2)){const K=dwKillOpts(g,pid,'colony').filter(o=>o.safe>=.9);if(K.length)return K[0].mv}
+      if(dwBarRoom(g,'colony'))return {a:'barricade',s:myCol[0],die:lowDie()}}
+    for(const s of my){const l=g.sv[s].loc;if(l!=='colony'&&dwBarRoom(g,l)&&(g.mo.id==='home'||g.mo.id==='kill'||dwBar(g,l)===0))return {a:'barricade',s,die:lowDie()}}
+    if(myCol.length&&g.waste.length>=4)return {a:'clean',die:lowDie()}}
+  /* 12. exile vote on someone suspicious */
   if(g.mode!=='coop'&&!P.voted&&!P.exiled){const sus=g.ps.filter(q=>q!==pid&&!g.P[q].exiled&&(g.susp[q]||0)>=3).sort((a,b)=>g.susp[b]-g.susp[a])[0];if(sus&&(!P.betray||Math.random()<.2))return {a:'exile',target:sus}}
   return {a:'end'}}
-/* normal/hard: try the simple choice and a few alternatives on a fogged copy, keep the best by the evaluator */
-function dwEval(g,pid){if(g.phase==='done'){const f=g.fin&&g.fin[pid];return f&&f.win?100:-50}const P=g.P[pid];
-  const colZ=dwZ(g,'colony'),bar=dwBar(g,'colony'),surv=dwMine(g,pid).length,wounds=dwMine(g,pid).reduce((a,s)=>a+g.sv[s].w,0);
-  const C=g.crisis?DWCR[g.crisis.id]:null,cr=C?g.crisis.add.filter(a=>C.need.includes(dwSym(a.c))).length-g.crisis.add.filter(a=>!C.need.includes(dwSym(a.c))).length:0;
-  const need=dwNeedSyms(g,pid);const hv=P.hand.reduce((a,c)=>a+(need[dwSym(c)]?1.5:.4),0);
-  const sign=P.betray&&!P.exiled?-1:1;
-  return sign*(g.morale*3-colZ*.6+bar*.5+g.food*.6+Math.min(cr,dwActive(g).length+2)*1.5-g.waste.length*.1+(g.mo.cards.length+g.mo.tokens)*2)+surv*2-wounds*1.2+hv}
-function dwFog(g,pid){const c=JSON.parse(JSON.stringify(g));DWLOC.forEach(l=>dwShuf(c.decks[l.id]));dwShuf(c.decks.crisis);dwShuf(c.decks.surv);return c}
-function dwSmartAction(g,pid,lv){const base=dwBotAction(g,pid,lv);const P=g.P[pid];if(base.a==='end'||base.a==='exile')return base;
-  const C=[base];const my=dwMine(g,pid);
-  /* alternatives: other dice for attacks/searches, barricade, end */
-  P.dice.forEach((v,i)=>my.forEach(s=>{const x=g.sv[s];if(dwZ(g,x.loc)>0&&v>=dwSv(s).atk)C.push({a:'attack',s,die:i,target:'z'});if(x.loc!=='colony'&&v>=dwSv(s).sr&&g.decks[x.loc].length)C.push({a:'search',s,die:i})}));
-  if(C.length>(lv==='hard'?10:5))C.length=lv==='hard'?10:5;C.push({a:'end'});
-  const tries=lv==='hard'?2:1;DWQUIET++;try{
-    const sc=C.map(mv=>{let s=0,n=0;for(let t=0;t<tries;t++){const c=dwFog(g,pid);if(!dwMove(c,pid,mv))continue;let k=0;while(c.phase!=='done'&&(c.ask||c.vote)&&k++<40){const a=dwActor(c);if(!a)break;
-        if(c.vote)dwMove(c,a,{vote:dwBotVote(c,a)});else if(!dwMove(c,a,dwBotAns(c,a)))dwMove(c,a,{skip:1})||dwMove(c,a,{v:c.ask.opts[0].v})}s+=dwEval(c,pid);n++}return {mv,v:n?s/n:-1e9}});
+/* normal/hard: try the main choices on fogged copies and play each to the end with simple bots */
+function dwFog(g,pid){const c=JSON.parse(JSON.stringify(g));const decks=DWLOC.map(l=>c.decks[l.id]);decks.forEach(dwShuf);dwShuf(c.decks.crisis);dwShuf(c.decks.surv);if(c.decks.xr)dwShuf(c.decks.xr);
+  const swap=(card,want)=>{const L=decks.filter(d=>d.length);if(!L.length)return card;for(let t=0;t<8;t++){const d=L[Math.floor(Math.random()*L.length)],j=Math.floor(Math.random()*d.length);if(!want||want.includes(dwSym(d[j]))||t===7){const n=d[j];d[j]=card;return n}}return card};
+  const crisisNeed=c.crisis&&!c.crisis.skip?DWCR[c.crisis.id].need:null;
+  c.ps.forEach(p=>{if(p===pid)return;const Q=c.P[p];Q.hand=Q.hand.map(x=>swap(x));if(Q.xr!=null&&c.decks.xr&&c.decks.xr.length){c.decks.xr.push(Q.xr);dwShuf(c.decks.xr);Q.xr=c.decks.xr.pop()}
+    if(!Q.exiled&&Q.obj&&Q.obj.t!=='regular'||Q.obj&&Q.obj.t==='regular'){if(!Q.exiled){Q.obj={t:'regular',i:Math.floor(Math.random()*DWSO.regular.length)};Q.betray=false}}});
+  if(c.crisis)c.crisis.add=c.crisis.add.map(a=>a.pid===pid?a:{...a,c:swap(a.c,Math.random()<.8?crisisNeed:null)});return c}
+/* play on with simple bots until this round's colony phase is over, then score the colony's position */
+function dwRollRound(c,pid){const E={},r0=c.rndNo;let k=0;while(c.phase!=='done'&&c.rndNo===r0&&k++<8000){const a=dwActor(c);if(!a)break;const q=E[a]||(E[a]={id:a,bot:'base'});if(!dwBotStep(c,q))break}return dwPos(c,pid)}
+function dwPos(c,pid){const P=c.P[pid],bt=P.betray&&!P.exiled;if(c.phase==='done'){const f=c.fin[pid];return bt?(f.win?300:-100):(c.mo.done?300:-150)+(f.win?60:0)}
+  const all=Object.keys(c.sv).map(Number),my=all.filter(s=>c.sv[s].pid===pid),w=all.reduce((a,s)=>a+c.sv[s].w+c.sv[s].fb*1.5,0);
+  const col=c.loc.colony.ent.reduce((a,e)=>a+e.z*(e.z>=2?1.6:.8)-e.bar*.8,0),need=dwNeedSyms(c,pid);
+  const v=c.morale*12+Math.min(c.food,8)*2.5-c.starve*10+all.length*5+c.helpless*1.5-w*2.5-col+(c.mo.cards.length+c.mo.tokens)*6-Math.floor(c.waste.length%10)*.3
+    +P.hand.reduce((a,x)=>a+(need[dwSym(x)]?1.5:.8),0)+my.length*2;return bt?-v+P.hand.length:v}
+function dwRoll(c,pid){const E={};let k=0;while(c.phase!=='done'&&k++<20000){const a=dwActor(c);if(!a)break;const q=E[a]||(E[a]={id:a,bot:'base'});if(!dwBotStep(c,q))break}
+  if(c.phase!=='done')return null;const P=c.P[pid],f=c.fin[pid];
+  if(P.betray&&!P.exiled)return (f.win?100:0)+(10-c.morale)*2;return (c.mo.done?60:0)+(f.win?40:0)+c.morale*1.5+(c.rndNo||0)*2}
+function dwCands(g,pid,lv){const base=dwBotAction(g,pid,'easy'),P=g.P[pid],my=dwMine(g,pid),D=P.dice,L=[base],key=m=>JSON.stringify(m),seen=new Set([key(base)]);const add=m=>{const k=key(m);if(!seen.has(k)){seen.add(k);L.push(m)}};
+  const cr=g.crisis&&!g.crisis.skip?DWCR[g.crisis.id].need:[];
+  ['colony',...new Set(my.map(s=>g.sv[s].loc))].forEach(l=>dwKillOpts(g,pid,l).slice(0,2).forEach(o=>add(o.mv)));
+  my.forEach(s=>{const x=g.sv[s];if(x.loc!=='colony'&&g.decks[x.loc].length){const i=dwPickDie(D,dwSv(s).sr);if(i>=0)add({a:'search',s,die:i})}});
+  const col=my.find(s=>g.sv[s].loc==='colony');if(col!=null&&D.length){if(dwBarRoom(g,'colony'))add({a:'barricade',s:col,die:dwPickDie(D,1)});if(g.waste.length>=3)add({a:'clean',die:dwPickDie(D,1)})}
+  P.hand.filter(c=>cr.includes(dwSym(c))).slice(0,1).forEach(c=>add({a:'crisis',c}));
+  P.hand.filter(c=>DWI[c].k.startsWith('food')).slice(0,1).forEach(c=>add({a:'play',c}));
+  if(g.noMove<g.rndNo)my.filter(s=>!P.moved.includes(s)&&dwCanMove(g,s,'x')).slice(0,2).forEach(s=>{const fuel=P.hand.find(c=>DWI[c].k==='fuel');
+    DWLOC.map(l=>l.id).filter(l=>l!==g.sv[s].loc&&dwRoom(g,l)>0&&g.decks[l].length).sort((a,b)=>dwLocOver(g,a,pid,1)-dwLocOver(g,b,pid,1)).slice(0,lv==='hard'?2:1).forEach(to=>add({a:'move',s,to,...(fuel!=null?{fuel}:{})}));
+    if(g.sv[s].loc!=='colony')add({a:'move',s,to:'colony',...(fuel!=null?{fuel}:{})})});
+  add({a:'end'});return L.slice(0,lv==='hard'?12:7)}
+/* easy: the same plan, but now and then a careless choice */
+function dwEasyAction(g,pid){if(Math.random()>=DWB.sl)return dwBotAction(g,pid,'easy');const C=dwCands(g,pid,'normal');return C[Math.floor(Math.random()*C.length)]}
+function dwSmartAction(g,pid,lv){const P=g.P[pid];if(P.betray&&!P.exiled)return dwBotAction(g,pid,lv);const C=dwCands(g,pid,lv);if(C.length===1)return C[0];
+  const n=g.ps.length,tries=lv==='hard'?(n>=4?4:6):2;DWQUIET++;try{
+    /* the same random futures for every choice, so the comparison is fair */
+    const seeds=Array.from({length:tries},()=>Math.random()*4294967296>>>0),R0=Math.random;
+    const sc=C.map((mv,ci)=>{let s=0,k=0;for(let t=0;t<tries;t++){let a=seeds[t];Math.random=()=>{a=a+0x6D2B79F5|0;let x=Math.imul(a^a>>>15,1|a);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296};
+      try{const c=dwFog(g,pid);if(!dwMove(c,pid,mv))break;const v=DWB.full?dwRoll(c,pid):dwRollRound(c,pid);if(v!=null){s+=v;k++}}finally{Math.random=R0}}return {mv,v:k?s/k+(ci===0?DWB.mg:0):-1e9}});
     sc.sort((a,b)=>b.v-a.v);return sc[0].mv}finally{DWQUIET--}}
+function dwEval(g,pid){const c=JSON.parse(JSON.stringify(g));DWQUIET++;try{return dwRoll(c,pid)}finally{DWQUIET--}}
 function dwBotStep(g,q){const pid=q.id;if(g.phase==='done')return false;
   if(g.vote){if(!g.vote.need.includes(pid)||pid in g.vote.got)return false;return dwMove(g,pid,{vote:dwBotVote(g,pid)})}
   if(g.ask){if(g.ask.pid!==pid)return false;if(dwMove(g,pid,dwBotAns(g,pid)))return true;if(dwMove(g,pid,{skip:1}))return true;for(const o of g.ask.opts||[])if(dwMove(g,pid,{v:o.v}))return true;return false}
-  if(g.turn!==pid||g.q.length)return false;const lv=q.bot||'normal';let mv=lv==='easy'?dwBotAction(g,pid,lv):dwSmartAction(g,pid,lv);
+  if(g.turn!==pid||g.q.length)return false;const lv=q.bot||'normal';let mv=lv==='hard'?dwSmartAction(g,pid,lv):lv==='easy'?dwEasyAction(g,pid):dwBotAction(g,pid,lv);
   if(dwMove(g,pid,mv))return true;return dwMove(g,pid,{a:'end'})}
 
 /* ================= crossroads glue: steps, selectors, ops, flags ================= */
@@ -14789,8 +14859,6 @@ DWQ.workout=(g,s,mv)=>{const P=g.P[s.pid],f=P.hand.find(c=>DWI[c].k.startsWith('
   P.hand.splice(P.hand.indexOf(f),1);dwToWaste(g,s.pid,f);P.dice.push(dwD6());return true};
 
 /* overrun forecast for the next colony phase: zombies that would overrun (barricades absorb 2 each) */
-function dwEntRisk(g){const add=Math.ceil(dwColN(g)/2);return g.loc.colony.ent.map((e,k)=>{const n=Math.floor(add/6)+(k<add%6?1:0);return Math.max(0,n-(3-e.z-e.bar)-2*e.bar)})}
-function dwRisk(g,loc,dSurv){if(loc==='colony')return dwEntRisk(g).reduce((a,b)=>a+b,0);const e=g.loc[loc],n=dwAt(g,loc).length+(dSurv||0)+Math.round(e.noise/2);return Math.max(0,n-(dwEntCap(loc)-e.z-e.bar)-2*e.bar)}
 
 /* bot drawer: tap "They yawned" now and then while holding Sleep (UI may call this for bot drawers) */
 function dwBotYawn(g,p){if(!g||g.phase!=='play'||g.turn==null||g.q.length)return false;const d=dwRight(g,g.turn);if(d===g.turn||g.P[d].xr==null||g.yawned===g.tno)return false;
@@ -24880,6 +24948,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='4d5a56';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='e2016d';</script>
 </body>
 </html>

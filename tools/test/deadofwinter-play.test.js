@@ -28,14 +28,18 @@ const {mk,W,ok,done,chromium}=require('./link.js');
     others.forEach(p=>(g.P[p].hand||[]).forEach(c=>{if(html.includes(`data-k="card:${c}"`))leak.push('card '+c)}));
     return {mine:(!dwObjP(g,me)||html.includes(dwObjP(g,me).n))&&!!document.querySelector('.dwdock'),leak}},ann);
   ok('Privacy: you see your own objective and hand, never another player’s',priv.mine&&!priv.leak.length,priv);
+  /* these screen steps check buttons, not crossroads: put held crossroads cards aside and answer any pending question */
+  await P.evaluate(me=>{const g=S.dwg;g.ps.forEach(p=>{g.P[p].xr=null});let k=0;while((g.ask||g.vote)&&k++<20){const a=dwActor(g);if(g.vote)dwMove(g,a,{vote:true});else dwMove(g,a,g.ask.opt?{skip:1}:{v:g.ask.opts[0].v})}render()},ann);
   const mv=await P.evaluate(me=>{const g=S.dwg,s=g.P[me].lead;const b=document.querySelector(`[data-a="dwsel"][data-k="surv:${s}"]`);if(!b)return 'no survivor button';b.click();
     const m=[...document.querySelectorAll('[data-a="dwans"]')].find(x=>{const v=JSON.parse(decodeURIComponent(x.dataset.k));return v.a==='move'&&!v.fuel});if(!m)return 'no move button';const to=JSON.parse(decodeURIComponent(m.dataset.k)).to;m.click();
     return g.sv[s].loc===to||[g.sv[s].loc,to]},ann);
   ok('Through the screen: tap a survivor, then Move: it moves',mv===true,mv);
+  await P.evaluate(()=>{const g=S.dwg;g.ps.forEach(p=>{g.P[p].xr=null});let k=0;while((g.ask||g.vote)&&k++<20){const a=dwActor(g);if(g.vote)dwMove(g,a,{vote:true});else dwMove(g,a,g.ask.opt?{skip:1}:{v:g.ask.opts[0].v})}render()});
   const tk=await P.evaluate(()=>{const b=document.querySelector('[data-a="dwsel"][data-k^="card:"]');if(!b)return 'no card';b.click();const c=[...document.querySelectorAll('[data-a="dwans"]')].find(x=>JSON.parse(decodeURIComponent(x.dataset.k)).a==='crisis');if(!c)return 'no crisis button';const n=(S.dwg.crisis.add||[]).length;c.click();return (S.dwg.crisis.add||[]).length===n+1||'not added'});
   ok('Through the screen: tap a card, then Add to the crisis (counts only, face down)',tk===true,tk);
   const sheet=await P.evaluate(()=>{LPTIP='dws:0';render();const t=(document.querySelector('.lpsheet')||{}).innerText||'';LPTIP=null;render();return /Attack \d\+/.test(t)});
   ok('Press and hold a survivor: its sheet shows attack, search and ability',sheet,sheet);
+  await P.evaluate(()=>{const g=S.dwg;let k=0;while((g.ask||g.vote)&&k++<20){const a=dwActor(g);if(g.vote)dwMove(g,a,{vote:true});else dwMove(g,a,g.ask.opt?{skip:1}:{v:g.ask.opts[0].v})}render()});
   const end=await P.evaluate(me=>{const b=[...document.querySelectorAll('[data-a="dwans"]')].find(x=>JSON.parse(decodeURIComponent(x.dataset.k)).a==='end');if(!b)return 'no end';b.click();return S.dwg.turn!==me&&!!document.querySelector('[data-a="dwshow"]')&&!document.querySelector('.dwdock')},ann);
   ok('End turn: the phone asks to be passed to the next player before showing anything',end===true,end);
   await P.screenshot({path:'/tmp/dw-screen.png',fullPage:true});
