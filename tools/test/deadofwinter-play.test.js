@@ -32,6 +32,8 @@ const {mk,W,ok,done,chromium}=require('./link.js');
     const leak=others.filter(p=>dwObjP(g,p)&&html.includes('<b>'+dwObjP(g,p).n+'</b>')&&dwObjP(g,p).n!==(dwObjP(g,me)||{}).n).map(p=>'objective of '+p);
     others.forEach(p=>(g.P[p].hand||[]).forEach(c=>{if(html.includes(`data-k="card:${c}"`))leak.push('card '+c)}));
     return {mine:(!dwObjP(g,me)||html.includes(dwObjP(g,me).n))&&!!document.querySelector('.dwdock'),leak}},ann);
+  const prog=await P.evaluate(me=>{const mo=document.querySelector('.dwmo .dwchk'),sec=document.querySelector('.dwobj .dwchk');return !!mo&&mo.querySelectorAll('li').length>0&&!!sec&&/of \d+ ✓|Your secret objective/.test(document.querySelector('.dwobj summary').innerText)||[!!mo,!!sec]},ann);
+  ok('Progress: the main objective shows a checklist, and your secret objective shows your own',prog===true,prog);
   ok('Privacy: you see your own objective and hand, never another player’s',priv.mine&&!priv.leak.length,priv);
   /* these screen steps check buttons, not crossroads: put held crossroads cards aside and answer any pending question */
   await P.evaluate(me=>{const g=S.dwg;g.ps.forEach(p=>{g.P[p].xr=null});let k=0;while((g.ask||g.vote)&&k++<20){const a=dwActor(g);if(g.vote)dwMove(g,a,{vote:true});else dwMove(g,a,g.ask.opt?{skip:1}:{v:g.ask.opts[0].v})}render()},ann);

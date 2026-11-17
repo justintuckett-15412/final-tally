@@ -48,3 +48,6 @@ html.dark .dwloc::before,html.dark .dwcol::before{opacity:.18}
 .dwwr{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}
 .dwwr small{flex-basis:100%}
 .dwwr .dwab,.dwwr .btn{font-size:14px}
+.dwchk{list-style:none;margin:6px 0 2px;padding:0;display:grid;gap:3px;font-size:13px}
+.dwchk li{display:flex;gap:6px;align-items:flex-start}
+.dwchk li.ok{opacity:.75}

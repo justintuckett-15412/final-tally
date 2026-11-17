@@ -2182,6 +2182,9 @@ html.dark .dwloc::before,html.dark .dwcol::before{opacity:.18}
 .dwwr{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}
 .dwwr small{flex-basis:100%}
 .dwwr .dwab,.dwwr .btn{font-size:14px}
+.dwchk{list-style:none;margin:6px 0 2px;padding:0;display:grid;gap:3px;font-size:13px}
+.dwchk li{display:flex;gap:6px;align-items:flex-start}
+.dwchk li.ok{opacity:.75}
 </style>
 
 <div id="app"></div>
@@ -15416,14 +15419,14 @@ function dwColony(g){const C=(g.loc||{}).colony||{},mo=g.mo?dwMOid(g.mo.id):null
   return `<div class="panel dwcol" style="--dwbg:url(art/dw-loc-colony.webp)"><div class="dwtrack"><span title="Morale">❤️ <b class="num">${g.morale??'·'}</b></span><span title="Rounds left">⏳ <b class="num">${g.round??'·'}</b></span><span title="Food tokens">${dwIm('dw-tok-food','food tokens')} <b class="num">${g.food??0}</b></span>${g.starve?`<span title="Starvation tokens">${dwIm('dw-starve','starvation')} <b class="num">${g.starve}</b></span>`:''}<span title="Waste pile">🗑️ <b class="num">${(g.waste||[]).length}</b></span><span title="Helpless survivors">🧒 <b class="num">${g.helpless||0}</b></span></div>
     <div class="dwents">${(C.ent||[]).map((e,i)=>`<span class="dwent" title="Entrance ${i+1}"><small>${i+1}</small>${dwZI().repeat(e.z||0)}${dwBI().repeat(e.bar||0)}${'·'.repeat(Math.max(0,(DWCOL.zombPerEntrance||3)-(e.z||0)-(e.bar||0)))}</span>`).join('')}</div>
     <div class="dwsvrow">${dwSurvAt(g,'colony').map(id=>dwSvChip(g,id)).join('')||'<span class="rlab">No survivors at the colony.</span>'}</div>
-    ${M?`<div class="dwmo"><b>🎯 ${esc(M.name||mo.n)}${side==='hc'?' ⚠️':''}</b><small>${esc(M.goal)}</small>${g.mo.cards&&g.mo.cards.length||g.mo.tokens?`<small>Under the objective: ${g.mo.cards&&g.mo.cards.length?g.mo.cards.length+' card'+(g.mo.cards.length>1?'s':''):''}${g.mo.tokens?` ${g.mo.tokens} zombie token${g.mo.tokens>1?'s':''}`:''}</small>`:''}</div>`:''}
+    ${M?`<div class="dwmo"><b>🎯 ${esc(M.name||mo.n)}${side==='hc'?' ⚠️':''}</b><small>${esc(M.goal)}</small>${g.phase!=='setup'?dwChk(dwMOList(g)):''}${g.mo.cards&&g.mo.cards.length||g.mo.tokens?`<small>Under the objective: ${g.mo.cards&&g.mo.cards.length?g.mo.cards.length+' card'+(g.mo.cards.length>1?'s':''):''}${g.mo.tokens?` ${g.mo.tokens} zombie token${g.mo.tokens>1?'s':''}`:''}</small>`:''}</div>`:''}
     ${cr?`<div class="dwcrisis"><b>${dwIm('dw-back-crisis','crisis')} Crisis: ${esc(cr.n)}</b><small>Needs ${cr.need.map(k=>DWSYM[k]+' '+DWSYMN[k]).join(' or ')} · ${(g.crisis.add||[]).length} card${(g.crisis.add||[]).length===1?'':'s'} added face down</small></div>`:''}</div>`}
 function dwLocs(g){return `<div class="dwlocs">${DWLOC.map(L=>{const st=(g.loc||{})[L.id]||{},sv=dwSurvAt(g,L.id),dk=((g.decks||{})[L.id]||[]).length;
   return `<div class="dwloc" style="--dwbg:url(art/dw-loc-${L.id}.webp)"><div class="dwlh"><b>${DWLI[L.id]} ${esc(L.n)}</b><small>${sv.length}/${L.surv} · ${dwIm('dw-back-item','cards left in this deck')}${dk}</small></div><div class="dwlz">${dwZI().repeat(st.z||0)}${dwBI().repeat(st.bar||0)}${'·'.repeat(Math.max(0,L.zomb-(st.z||0)-(st.bar||0)))}${st.noise?` <span title="Noise">${dwIm('dw-noise','noise')}${st.noise}</span>`:''}</div><div class="dwsvrow">${sv.map(id=>dwSvChip(g,id)).join('')}</div></div>`}).join('')}</div>`}
 function dwHandCards(g,V,o={}){const P=g.P[V.id]||{};return (P.hand||[]).map(c=>{const C=dwCard(c);if(!C)return '';return `<button class="dwcard${DWSEL&&DWSEL.c===c?' on':''}" data-a="dwsel" data-k="card:${c}" data-lp="dwi:${c}"${o.dis?' disabled':''}><b>${DWSYM[C.sym]||''} ${esc(C.n)}</b><small>${C.use==='equip'?'Equip: ':C.use==='event'?'':'Play: '}${esc(C.say)}</small></button>`}).join('')||'<span class="rlab">No cards in hand.</span>'}
 const dwObjP=(g,pid)=>{const P=(g.P||{})[pid]||{};if(!P.obj)return null;return typeof P.obj==='string'?dwSO(P.obj):(DWSO[P.obj.t]||[])[P.obj.i]||null};
 function dwObjBox(g,V){const P=g.P[V.id]||{};if(g.mode==='coop')return `<div class="dwobj"><b>🤝 Co-op: everyone wins together by completing the main objective.</b></div>`;const o=dwObjP(g,V.id);if(!o)return '';const ex=P.exObj!=null?DWSO.exile[P.exObj]:null;
-  return `<details class="dwobj"><summary>${dwIm('dw-back-obj','secret objective')} Your secret objective${P.betray?' (betrayal)':''}${P.exiled?' · exiled':''}</summary><b>${esc(o.n)}</b><small>${P.betray?'Morale at 0. ':'Main objective completed. '}${esc(o.need||'')}</small>${ex?`<b>Exile: ${esc(ex.n)}</b><small>${esc(P.betray?ex.betray:ex.plain)}</small>`:''}</details>`}
+  return `<details class="dwobj"><summary>${dwIm('dw-back-obj','secret objective')} Your secret objective${P.betray?' (betrayal)':''}${P.exiled?' · exiled':''}${(()=>{const L=ex?dwExList(g,V.id,ex.n,P.betray?1:0):dwSecList(g,V.id,o.n).filter(x=>x.ok!==null);return L.length?` · ${L.filter(x=>x.ok).length} of ${L.length} ✓`:''})()}</summary><b>${esc(o.n)}</b><small>${P.betray?'Morale at 0. ':'Main objective completed. '}${esc(o.need||'')}</small>${(()=>{const L=ex?[]:dwSecList(g,V.id,o.n);if(ex)return '';return dwChk([P.betray?dwB(`Morale at 0 (now ${g.morale})`,g.morale<=0):dwB('Main objective completed',g.mo&&g.mo.done),...L])})()}${ex?`<b>Exile: ${esc(ex.n)}</b><small>${esc(P.betray?ex.betray:ex.plain)}</small>${dwChk(P.betray?[...dwExList(g,V.id,ex.n,1),...dwSecList(g,V.id,o.n)]:dwExList(g,V.id,ex.n,0))}`:''}</details>`}
 function dwXrBox(g,V){const P=g.P[V.id]||{};if(P.xr==null)return '';const X=typeof DWXR!=='undefined'?DWXR.find(c=>c.no===P.xr):null;
   return `<div class="dwxr">${dwIm('dw-back-xr','crossroads card','dwbk')} You’re holding a crossroads card for ${esc(dwPName(P.xrFor||g.turn))}${X?`: <b>${esc(X.t)}</b><small>${esc(X.say||'')}</small>`:''}</div>`}
 function dwDice(g,pid){const P=g.P[pid]||{};return `<div class="dwdice">${(P.dice||[]).map((v,i)=>`<button class="dwdie${DWSEL&&DWSEL.die===i?' on':''}" data-a="dwsel" data-k="die:${i}" aria-label="Unused die ${v}">${v}</button>`).join('')}${(P.used||[]).map(v=>`<span class="dwdie used" aria-label="Used die ${v}">${v}</span>`).join('')}</div>`}
@@ -15533,6 +15536,58 @@ function dwWhatSheet(){const g=dwGg(),V=dwViewer();if(!g||!V)return '';const P=g
     fr+=row(dwBtn({a:'end'},'✋ End turn',{cls:'btn primary'}),'');
     body+=sec('🆓 No die needed',fr)}
   return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet dwwhat" role="dialog" aria-modal="true" aria-labelledby="lp-h" data-stop="1" style="${pc(V.color)}"><div class="rs-top"><div><h2 id="lp-h">What you can do</h2><small class="lp-sub">${esc(nm(V))} · round ${g.rndNo||1}</small></div><button class="btn sm" data-a="lpclose">Close</button></div><div class="rs-body">${body}<p class="hint">The rule card has the full wording.</p></div></div></div>`}
+/* ---------- progress checklists: main objective (everyone) and secret objective (private) ---------- */
+const dwR=(t,h,n)=>({t,h,n,ok:h>=n}),dwB=(t,ok,note)=>({t,ok:!!ok,note});
+function dwMOList(g){if(!g.mo)return [];const id=g.mo.id,hc=g.mo.side==='hc',n=g.starters||g.ps.length,A=dwActive(g),nc=DWLOC.map(l=>l.id),r=g.rndNo||1;
+  const under=sym=>(g.mo.cards||[]).filter(c=>dwSym(c)===sym&&!dwStarter(c)).length,L=[];
+  switch(id){
+  case 'leave':A.forEach(p=>L.push(dwB(`${dwPName(p)}: a survivor with a weapon equipped`,dwMine(g,p).some(s=>g.sv[s].eq.some(c=>dwSym(c)==='weapon')))));L.push(dwR('Food cards under the objective (not starters)',under('food'),(hc?3:2)*n));break;
+  case 'kill':{const z=nc.reduce((a,l)=>a+g.loc[l].z,0),m=hc?1:3;L.push(dwB(`Zombies away from the colony: ${z} (${m} or fewer)`,z<=m));if(hc)L.push(dwR('Places with a barricade',nc.filter(l=>g.loc[l].bar>=1).length,nc.length));break}
+  case 'mouths':L.push(dwR('Survive to round',r,hc?6:5));break;
+  case 'stock':L.push(dwR('Food tokens',g.food||0,(hc?3:2)*A.length),dwR('Colony entrances barricaded',g.loc.colony.ent.filter(e=>e.bar>=1).length,6),dwR('Medicine under the objective',under('med'),2),dwR('Tools under the objective',under('tools'),2),dwR('Fuel under the objective',under('fuel'),2));break;
+  case 'cure':L.push(dwR('Medicine under the objective (not starters)',under('med'),(hc?3:2)*n));break;
+  case 'samples':L.push(dwR('Zombie tokens on the objective',g.mo.tokens||0,(hc?4:3)*n));break;
+  case 'weeks':L.push(dwR('Survive to round',r,hc?10:8));if(hc)L.push(dwR('Food tokens',g.food||0,6));break;
+  case 'home':L.push(dwR('Colony barricades',dwBar(g,'colony'),hc?14:10),dwR('Places with a barricade',nc.filter(l=>g.loc[l].bar>=1).length,nc.length));break;
+  case 'winter':L.push(dwR('Survive to round',r,hc?10:8),dwR('Fuel cards placed (one each round)',(g.mo.cards||[]).length,hc?10:8));break;
+  case 'raid':L.push(dwR('Location decks emptied',nc.filter(l=>!g.decks[l].length).length,hc&&n>=4?3:2));break}
+  ((dwFlags(g).addWin)||[]).forEach(w=>{if(w==='deputy')L.push(dwB('Crossroads: no zombies at the gas station, hospital and police station',['gas','hospital','police'].every(l=>g.loc[l].z===0)));if(w==='army')L.push(dwR('Crossroads: food tokens',g.food||0,5))});
+  return L}
+function dwSecList(g,p,name){const H=(sym,ns)=>dwHandN(g,p,sym,ns),Y=(sym,k,ns)=>dwR(`${DWSYMN[sym][0].toUpperCase()+DWSYMN[sym].slice(1)} cards in hand${ns?' (not starters)':''}`,H(sym,ns),k),
+  my=dwMine(g,p),fol=dwFol(g,p),oth=g.ps.filter(q=>q!==p),mx=f=>oth.reduce((a,q)=>Math.max(a,f(q)),0),eqW=s=>g.sv[s].eq.filter(c=>dwSym(c)==='weapon').length,
+  hand=g.P[p].hand.length,col=dwBar(g,'colony'),mostH=mx(q=>g.P[q].hand.length),mostF=mx(q=>dwFol(g,q));
+  const T={
+  'Collector':()=>[dwR('Cards in hand',hand,4)],'Experienced':()=>[dwR('Your survivors with an item equipped',my.filter(s=>g.sv[s].eq.length).length,my.length)],
+  'Safety':()=>[dwR('Colony barricades',col,4)],'Desire to Live':()=>['weapon','food','fuel','med'].map(x=>Y(x,1)),
+  'Hoarder':()=>[dwB(`More cards in hand than anyone else (you ${hand}, most of the others ${mostH})`,hand>mostH)],'Junkie':()=>[Y('med',3)],
+  'Hope':()=>[dwR('Helpless survivors in the colony',g.helpless||0,2)],'Zombie Killing Robot!':()=>[Y('weapon',1),Y('tools',2)],'Hunger':()=>[Y('food',3)],'A New Destination':()=>[Y('fuel',3)],
+  'Leader':()=>[dwB(`More followers than anyone else (you ${fol}, most of the others ${mostF})`,fol>mostF)],'Repopulate':()=>[dwR('Survivors and helpless survivors in the game',Object.keys(g.sv).length+(g.helpless||0),12)],
+  'Burn It All Down':()=>[dwR('Colony barricades',col,4),Y('fuel',1)],'All I Need Is My Books':()=>[dwR('Books equipped on one survivor',my.reduce((a,s)=>Math.max(a,g.sv[s].eq.filter(c=>dwSym(c)==='book').length),0),2)],
+  'Loner':()=>[dwB(`Exactly 1 survivor in your group (you have ${my.length})`,my.length===1)],'Germ-a-phobe':()=>[dwB('None of your survivors wounded',!dwWounded(g,p))],
+  'Hypochondriac':()=>[Y('med',2)],'Protected':()=>[dwR('Weapons equipped',dwEqN(g,p,'weapon'),2)],
+  'Neat Freak':()=>[dwB('Your hand is all medicine (at least 1 card)',hand>=1&&g.P[p].hand.every(c=>dwSym(c)==='med'))],
+  'The Way Back Home':()=>[Y('fuel',2),Y('food',1),Y('weapon',1)],'Justice':()=>[{t:'If there is a betrayer, they are exiled. Checked at the end.',ok:null}],
+  'Historian':()=>[Y('book',2)],'Masochist':()=>[dwR('Wounds on one of your survivors',my.reduce((a,s)=>Math.max(a,g.sv[s].w||0),0),2)],'Revenge':()=>[dwR('Survivors removed from the game',g.removed||0,3)],
+  'Cult Leader':()=>[dwB(`At least 2 more followers than anyone else (you ${fol}, most of the others ${mostF})`,fol>=mostF+2)],'Serial Killers':()=>[dwR('Survivors removed from the game',g.removed||0,5),dwR('Followers',fol,1)],
+  'Trigger Happy':()=>[dwR('Weapons equipped',dwEqN(g,p,'weapon'),4)],'Mad Scientist':()=>[dwR('Followers',fol,2),Y('med',2,1),Y('tools',2,1)],
+  'Obsessed':()=>[dwB(`Exactly 1 follower (you have ${fol})`,fol===1),dwB('Every survivor in your group has a weapon equipped',my.every(s=>eqW(s)>0)),Y('food',1,1),Y('med',1,1),Y('fuel',1,1)],
+  'Gluttony':()=>[Y('food',6,1)],'Runaway':()=>[dwR('Weapons equipped',dwEqN(g,p,'weapon'),1),Y('fuel',2,1),Y('food',2,1)],
+  'Take Over':()=>[dwR('Most barricades at one location',DWLOC.reduce((a,l)=>Math.max(a,g.loc[l.id].bar),0),4),dwB('A survivor with a weapon equipped',my.some(s=>eqW(s)>0)),Y('fuel',2,1)],
+  'All for One':()=>[dwB(`Exactly 1 survivor in your group (you have ${my.length})`,my.length===1),dwR('Weapons equipped',dwEqN(g,p,'weapon'),1),...['food','fuel','med','tools'].map(x=>Y(x,1,1))],
+  'Accept Your Fate':()=>[dwR('Weapons equipped on one survivor',my.reduce((a,s)=>Math.max(a,eqW(s)),0),2),Y('med',3,1)]};
+  return T[name]?T[name]():[]}
+function dwExList(g,p,name,bt){const H=(sym)=>dwHandN(g,p,sym),Y=(sym,k)=>dwR(`${DWSYMN[sym][0].toUpperCase()+DWSYMN[sym].slice(1)} cards in hand`,H(sym),k),done=dwB('Main objective completed',g.mo&&g.mo.done),
+  oth=g.ps.filter(q=>q!==p),my=dwMine(g,p);
+  const T={'Remorse':[[done,Y('med',4)],[dwR('Cards in hand',g.P[p].hand.length,10)]],'Resourceful':[[done,Y('tools',4)],[Y('tools',3)]],
+  'Atonement':[[done],['fuel','food','med','tools'].map(x=>Y(x,1))],
+  'New Friends':[[dwB('Main objective not completed',!(g.mo&&g.mo.done)),dwB('More followers than anyone else',oth.every(q=>dwFol(g,q)<dwFol(g,p)))],[dwB('A location deck is empty',DWLOC.some(l=>!g.decks[l.id].length))]],
+  'Shelter':[[dwR('Places with 2+ barricades',DWL.filter(l=>dwBar(g,l)>=2).length,3)],[dwB('More weapons equipped than anyone else',oth.every(q=>dwEqN(g,q,'weapon')<dwEqN(g,p,'weapon')))]],
+  'South':[[done,Y('fuel',4)],[dwR("Other players' wounded survivors",Object.keys(g.sv).filter(s=>g.sv[s].pid!==p&&g.sv[s].w>0).length,4)]],
+  'The Chosen':[[dwR('Survivors in your group',my.length,3),dwB('None wounded',!dwWounded(g,p))],[dwB('None wounded',!dwWounded(g,p)),dwR('Barricades on the board',DWL.reduce((a,l)=>a+dwBar(g,l),0),5)]],
+  'Barter':[[Y('med',4)],[dwR('Books equipped',dwEqN(g,p,'book'),3)]],'Forgiveness':[[done,Y('food',5)],[done]],
+  'Vengeance':[[dwR('Survivors removed from the game',g.removed||0,5)],[dwR('Survivors removed from the game',g.removed||0,4)]]};
+  return T[name]?T[name][bt?1:0]:[]}
+function dwChk(L){return L.length?`<ul class="dwchk">${L.map(x=>`<li class="${x.ok===true?'ok':x.ok===false?'no':'q'}"><span aria-hidden="true">${x.ok===true?'✅':x.ok===false?'⬜':'❔'}</span><span>${esc(x.t)}${x.n!=null?`: <b class="num">${x.h} of ${x.n}</b>`:''}</span></li>`).join('')}</ul>`:''}
 
 
 /* ================= Stone Age on the phone =================
