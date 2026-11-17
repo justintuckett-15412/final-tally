@@ -336,8 +336,9 @@ DWQ.exileMove=(g,s,mv)=>{const x=g.sv[s.s];if(!x||x.loc!=='colony')return true;c
   if(!mv)return dwAsk(g,s,`Exiled: where does ${dwSv(s.s).n} go?`,L.map(l=>({v:l,l:DWLN[l]})),{kind:'loc'});if(!L.includes(mv.v))return null;x.loc=mv.v;dwExposure(g,s.s,'leaving the colony');return true};
 
 /* ---------- colony phase ---------- */
-DWQ.colony=(g,s)=>{const st=s.step;s.step++;
-  if(st===0&&g.mo.id==='winter'){g.wq=null;dwIns(g,...g.order.map(p=>({t:'winter',pid:p})),{t:'winterChk'});return false||DWQ.colony(g,s)}
+DWQ.colony=(g,s)=>{if(g.phase==='done')return true;const st=s.step;s.step++;
+  /* Winter Has Come: the fuel is placed (or the game is lost) before the colony eats and before the objective check */
+  if(st===0&&g.mo.id==='winter'){g.wq=null;dwIns(g,...g.order.map(p=>({t:'winter',pid:p})),{t:'winterChk'},{t:'colony',step:1});return true}
   if(st===0)return DWQ.colony(g,s);
   if(st===1){const c=dwColN(g),hz=dwFlags(g).horse,need=Math.ceil(c/2)+(hz&&g.sv[hz.s]&&!g.P[g.sv[hz.s].pid].exiled?1:0);if(g.food>=need){g.food-=need;dwLog(g,`The colony eats ${need} food (${g.food} left)`,'🍲')}
     else{g.starve++;dwLog(g,`Not enough food! Starvation tokens: ${g.starve}`,'🍽️');dwMorale(g,-g.starve,'starvation')}return g.phase==='done'||DWQ.colony(g,s)}
@@ -359,7 +360,8 @@ function dwResolveCrisis(g){const C=DWCR[g.crisis.id],N=dwActive(g).length,A=dwS
   A.forEach(a=>{pts+=a.c>=0&&C.need.includes(dwSym(a.c))?1:-1});g.crisis.shown=A.map(a=>a.c).filter(c=>c>=0);g.gone.push(...g.crisis.shown);
   dwLog(g,`Crisis ${C.n}: ${A.length} card${A.length===1?'':'s'} – ${A.map(a=>a.c>=0?dwCN(a.c):'a penalty').join(', ')||'none'} → ${pts} of ${N} needed`,'⚠️');
   /* suspicion: who added fewer cards than usual (contribution counts are public) */
-  const prevented=pts>=N;if(!prevented)g.ps.forEach(p=>{if(!g.P[p].exiled&&g.P[p].cn===0)g.susp[p]+=1});
+  const prevented=pts>=N;(g.ev=g.ev||[]).push({r:g.rndNo,w:A.filter(a=>a.c>=0&&!C.need.includes(dwSym(a.c))).length,by:A.reduce((o,a)=>{if(a.c>=0)o[a.pid]=(o[a.pid]||0)+1;return o},{}),ok:prevented});/* public record for the computer players */
+  if(!prevented)g.ps.forEach(p=>{if(!g.P[p].exiled&&g.P[p].cn===0)g.susp[p]+=1});
   if(!prevented&&A.some(a=>!C.need.includes(dwSym(a.c))))g.ps.forEach(p=>{if(g.crisis.add.some(a=>a.pid===p))g.susp[p]+=0.5});
   if(prevented){dwAnn(g,'Crisis prevented',`${C.n}: ${pts} points`,'✅');if(pts>=N+2)dwMorale(g,1,'crisis prevented with room to spare');return}
   dwAnn(g,'Crisis!',`${C.n} happens (${pts} of ${N})`,'💥');C.fail.forEach(f=>{if(g.phase!=='done')dwFail(g,f)})}
@@ -460,24 +462,33 @@ const dwNeedSyms=(g,p)=>{const O=g.P[p].obj?dwObjOf(g,p):null,t=(O?O.need:'').to
 function dwBotAns(g,pid){const A=g.ask,L=A.opts||[];if(!L.length)return {skip:1};const P=g.P[pid];
   switch(A.kind){
   case 'surv':{const o=L.slice().sort((a,b)=>{const x=DWS[+a.v],y=DWS[+b.v];return (y.inf/20+(7-y.atk)+(7-y.sr))-(x.inf/20+(7-x.atk)+(7-x.sr))});return {v:/leader|give|frostbite/i.test(A.msg)&&!/leader/i.test(A.msg)?o[o.length-1].v:o[0].v}}
-  case 'search':{const need=dwNeedSyms(g,pid),cr=g.crisis?DWCR[g.crisis.id].need:[];const keep=L.filter(o=>o.v!=='noise');
-    const def=Math.ceil(dwColN(g)/2)-g.food;const val=o=>{const c=+o.v,s=dwSym(c);return (cr.includes(s)?3:0)+(need[s]?2:0)+(s==='food'?(def>0?3+(+DWI[c].k.slice(4)||0):1.5):0)+(s==='outsider'?1:0)+(dwK(c).use==='equip'?1:0)};
-    const best=keep.slice().sort((a,b)=>val(b)-val(a))[0];const sl=g.q[0].loc;if(g.mo.id==='raid'&&dwRaidT(g).includes(sl)&&L.some(o=>o.v==='noise')&&g.loc[sl].noise<3&&dwRisk(g,sl,2)===0)return {v:'noise'};if(DWB.noise&&best&&val(best)<2&&L.some(o=>o.v==='noise')&&g.loc[sl].noise<2&&dwRisk(g,sl,1)===0)return {v:'noise'};return {v:best?best.v:L[0].v}}
-  case 'bite':{const sid=g.q[0].sid,x=g.sv[sid],n=x?dwAt(g,x.loc).length:9;return {v:n<=2&&dwSv(sid).inf>40?'roll':'kill'}}
-  case 'give':{if(P.betray)return {skip:1};const c=L.find(o=>dwSym(+o.v)==='food'||dwSym(+o.v)==='junk');return c&&Math.random()<.5?{v:c.v}:{skip:1}}
+  case 'search':{const keep=L.filter(o=>o.v!=='noise'),W=dwWant(g,pid),sl=g.q[0].loc;
+    const def=Math.ceil(dwColN(g)/2)-g.food;const val=o=>{const c=+o.v,s=dwSym(c);return (W[s]||.3)+(s==='food'?(+DWI[c].k.slice(4)||1)*(def>0?.6:.25):0)+(dwK(c).use==='equip'?.4:0)};
+    const best=keep.slice().sort((a,b)=>val(b)-val(a))[0],bv=best?val(best):0,canN=L.some(o=>o.v==='noise');
+    if(g.mo.id==='raid'&&dwRaidT(g).includes(sl)&&canN&&g.loc[sl].noise<3&&dwRisk(g,sl,2)===0)return {v:'noise'};
+    if(DWB.noise&&canN&&g.loc[sl].noise<2&&dwRisk(g,sl,1)===0&&!(g.mo.id==='home'&&g.loc[sl].bar>=1)){const E=dwDeckEst(g,pid,sl);let ev=0;for(const s in E.p)ev+=E.p[s]*Math.max(0,(W[s]||.3)-bv);if(ev>DWB.nz)return {v:'noise'}}
+    return {v:best?best.v:L[0].v}}
+  case 'bite':return {v:DWB.bite?'roll':'kill'}; /* rolling costs at most the same survivor and saves them half the time */
+  case 'give':return dwGiveAns(g,pid);
   case 'loc':return {v:L.slice().sort((a,b)=>dwZ(g,a.v)-dwZ(g,b.v))[0].v};
   case 'info':return {v:'ok'};
   default:return A.opt&&/remove Forest/.test(A.msg)?(g.morale<=3?{v:L[0].v}:{skip:1}):{v:L[0].v}}}
-function dwBotVote(g,pid){const V=g.vote,P=g.P[pid];if(V.kind!=='exile')return Math.random()<.5;if(V.target===pid)return false;
-  if(P.betray)return Math.random()<.3;const s=g.susp[V.target]||0,avg=g.ps.reduce((a,p)=>a+(g.susp[p]||0),0)/g.ps.length;return s>avg+1&&s>=2}
+function dwBotVote(g,pid){const V=g.vote;if(V.kind!=='exile')return Math.random()<.5;return dwExileVote(g,pid)}
 /* ---------- computer players: planning (public info + own cards only) ---------- */
 /* zombies that will hit each place this colony phase */
 function dwFailZ(g,loc){if(!g.crisis||g.crisis.skip)return 0;let n=0;DWCR[g.crisis.id].fail.forEach(f=>{if(f[0]==='zombies'&&f[1]===loc)n+=f[2];if(f[0]==='zombiesAllOther'&&loc!=='colony')n+=f[1]});return n}
 const dwFailClears=(g,loc)=>!!(g.crisis&&!g.crisis.skip&&DWCR[g.crisis.id].fail.some(f=>f[0]==='clearBarricades'&&(f[1]==='all'||f[1]===loc)));
 /* how many more matching crisis cards this player should add (face-down cards count only by number) */
-function dwCrisisShort(g,pid){if(!g.crisis||g.crisis.skip)return 0;const N=dwActive(g).length,A=g.crisis.add.length,i=g.order?g.order.indexOf(pid):0,R=g.order?g.order.slice(i+1).filter(p=>!g.P[p].exiled).length:0;
-  const mine=g.crisis.add.filter(a=>a.pid===pid).length,others=A-mine;if(A>=N+DWB.cx+1)return 0;return Math.ceil(N+DWB.cx-(mine+others*DWB.wo+R*DWB.wr))}
-const DWB=Object.assign({cx:.5,wo:.9,wr:.6,foodKeep:0,k1:.5,k2:.5,nf:1,noise:1,mg:8,sl:.3},(typeof process!=='undefined'&&process.env&&process.env.DWB)?JSON.parse(process.env.DWB):{});
+/* how bad a failed crisis is, in morale-like units */
+const DWFC=DWCR.map(C=>C.fail.reduce((v,[op,a,b])=>v+(op==='morale'?-a:op==='killLowest'?a*1.1:op==='zombies'?(a==='colony'?b/3.5:.6):op==='clearBarricades'?1.2:op==='woundAll'?1.5:op==='starve'?1.5:op==='rollFrost'||op==='frostHighest'?1.2:op==='zombiesAllOther'?1:.6),0));
+function dwFailCost(g,C){return DWFC[DWCR.indexOf(C)]}
+/* how many more cards I should add: cards already in (mine are known good, others' are probably good), the players still to go and their hand sizes */
+function dwCrisisShort(g,pid){if(!g.crisis||g.crisis.skip)return 0;const C=DWCR[g.crisis.id],N=dwActive(g).length,ad=g.crisis.add,i=g.order?g.order.indexOf(pid):0,R=g.order?g.order.slice(i+1).filter(p=>!g.P[p].exiled):[];
+  const mine=ad.filter(a=>a.pid===pid&&a.c>=0&&C.need.includes(dwSym(a.c))).length,mineBad=ad.filter(a=>a.pid===pid&&!(a.c>=0&&C.need.includes(dwSym(a.c)))).length,others=ad.filter(a=>a.pid!==pid).length;
+  const coop=g.mode==='coop',q=coop?1:DWB.wo,cost=dwFailCost(g,C);const later=R.reduce((t,p)=>t+DWB.wr*Math.min(1,g.P[p].hand.length/4),0);
+  const cush=!R.length?(coop?0:.3):DWB.cx+(cost>=2?.3:0);const sure=mine-mineBad+others*q;
+  if(sure>=N+DWB.cx+1)return 0;return Math.max(0,Math.ceil(N+cush-sure-later-1e-9))}
+const DWB=Object.assign({/* A, B */cx:1,wo:.85,wr:.6,foodKeep:0,k1:.5,k2:.5,nf:1,noise:1,sl:.3,bite:1,cs:1,os:1,ef:1,fb:1,br:1,h1:1,lb:0,mo:1,keep:0,eo:1,nz:.6,wk:2,wf:6,mp:40,ff:1,/* C, hard */mg:1,ma:1,z:1,ls:.9,la:.5,et:.55,ec:.65,eps:.08,ok:.85,bs:35,ow:150,sw:80},(typeof process!=='undefined'&&process.env&&process.env.DWB)?JSON.parse(process.env.DWB):{});
 function dwFailLikely(g,pid){const C=g.crisis&&!g.crisis.skip?DWCR[g.crisis.id]:null;if(!C)return false;const M=g.P[pid].hand.filter(c=>C.need.includes(dwSym(c))).length;return dwCrisisShort(g,pid)-M>0}
 function dwColSim(g,add,clear){const E=g.loc.colony.ent.map(e=>({z:e.z,bar:clear?0:e.bar}));let o=0;for(let k=0;k<add;k++){const e=E[k%6];if(e.z+e.bar<3)e.z++;else if(e.bar>0)e.bar--;else o++}return o}
 function dwColAdd(g,pid){const f=pid!=null&&dwFailLikely(g,pid);return Math.ceil(dwColN(g)/2)+(f?dwFailZ(g,'colony'):0)}
@@ -487,6 +498,13 @@ function dwLocOver(g,loc,pid,dS){if(loc==='colony')return dwColOver(g,pid);const
 /* the old names, now exact (a barricade takes a space AND stops one zombie, so room = 3 − zombies) */
 function dwEntRisk(g){const add=Math.ceil(dwColN(g)/2),E=g.loc.colony.ent.map(e=>({z:e.z,bar:e.bar})),o=[0,0,0,0,0,0];for(let k=0;k<add;k++){const e=E[k%6];if(e.z+e.bar<3)e.z++;else if(e.bar>0)e.bar--;else o[k%6]++}
   return o.map((v,k)=>v+(E[k].z>=3&&!E[k].bar?.5:0))}
+/* per-entrance overruns for a given number of new zombies (round robin from entrance 1) */
+function dwEntRiskN(g,add,clear){const E=g.loc.colony.ent.map(e=>({z:e.z,bar:clear?0:e.bar})),o=[0,0,0,0,0,0];for(let k=0;k<add;k++){const e=E[k%6];if(e.z+e.bar<3)e.z++;else if(e.bar>0)e.bar--;else o[k%6]++}
+  return o.map((v,k)=>v+(E[k].z>=3&&!E[k].bar?.5:0))}
+/* the entrance where one barricade saves the most: overrun there, and still room for a barricade */
+function dwBestEnt(g,ER){let b=-1;ER.forEach((r,k)=>{const e=g.loc.colony.ent[k];if(r>=1&&e.z+e.bar<3&&(b<0||r>ER[b]))b=k});return b}
+/* the crisis will fail whatever happens: nobody after me, and I can't cover it */
+function dwFailSure(g,pid){if(!g.crisis||g.crisis.skip)return false;const i=g.order?g.order.indexOf(pid):0,R=g.order?g.order.slice(i+1).filter(p=>!g.P[p].exiled).length:0;return R===0&&dwCrisisGap(g,pid)>0}
 function dwRisk(g,loc,dSurv){return dwLocOver(g,loc,null,dSurv)}
 const DWSYMLOC={food:['grocery','school','hospital','library'],med:['grocery','hospital','gas','school'],fuel:['gas','police','library','hospital'],tools:['grocery','police','school','hospital'],weapon:['police','gas'],book:['library','school'],outsider:['hospital','school','police']};
 function dwPickDie(D,min){let b=-1;D.forEach((v,i)=>{if(v>=min&&(b<0||v<D[b]))b=i});return b}
@@ -508,20 +526,73 @@ function dwKillOpts(g,pid,loc){const P=g.P[pid],D=P.dice,o=[];if(dwZ(g,loc)<=0)r
 /* Raiding Party: the location decks closest to empty are the targets */
 const dwRaidT=g=>{const L=DWLOC.map(l=>l.id).filter(l=>g.decks[l].length).sort((a,b)=>g.decks[a].length-g.decks[b].length),done=DWLOC.filter(l=>!g.decks[l.id].length).length;return L.slice(0,Math.max(0,(g.mo.side==='hc'&&g.starters>=4?3:2)-done))};
 const dwRaidBonus=(g,loc)=>g.mo.id==='raid'&&dwRaidT(g).includes(loc)?4:0;
-const dwSearchVal=(g,pid,loc,need,cr)=>{let v=.2;const fg=Math.ceil(dwColN(g)/2)-g.food;const syms={};(g.decks[loc]||[]).forEach(c=>syms[dwSym(c)]=(syms[dwSym(c)]||0)+1);const n=(g.decks[loc]||[]).length||1;
-  v+=dwRaidBonus(g,loc);for(const s in syms){const p=syms[s]/n;v+=p*((cr.includes(s)?3:0)+(need[s]?2:0)+(s==='food'?1.2+Math.max(0,fg)*1.2:s==='outsider'?(fg>0?.2:1):.4))}return v};
+/* public knowledge only: which cards of a location deck could still be in it (all of its cards minus the ones seen leaving it) */
+const DWIDX=(()=>{const o={};DWI.forEach((x,i)=>(o[x.d]=o[x.d]||[]).push(i));return o})();
+function dwSeen(g,pid){const o=new Set([...g.P[pid].hand,...g.waste,...g.gone,...g.mo.cards]);
+  for(const s in g.sv)(g.sv[s].eq||[]).forEach(c=>o.add(c));(g.crisis&&g.crisis.add||[]).forEach(a=>{if(a.pid===pid&&a.c>=0)o.add(a.c)});return o}
+/* a small per-decision memo (not copied with the game state) */
+function dwMemo(g,pid){const P=g.P[pid],k=[pid,g.tno,g.rndNo,g.phase,P.hand.length,P.hand[P.hand.length-1],P.dice.length,g.waste.length,g.gone.length,g.mo.cards.length,g.crisis?g.crisis.add.length:-1,g.food,g.starve].join(',');
+  if(!g._mm||g._mm.k!==k)Object.defineProperty(g,'_mm',{value:{k,est:{}},writable:true,configurable:true,enumerable:false});return g._mm}
+function dwDeckEst(g,pid,loc){const L=(g.decks[loc]||[]).length;if(!L)return {n:0,p:{}};const M=dwMemo(g,pid);if(M.est[loc])return M.est[loc];const seen=M.seen||(M.seen=dwSeen(g,pid)),p={};let t=0;
+  (DWIDX[loc]||[]).forEach(i=>{if(seen.has(i))return;const s=dwSym(i);p[s]=(p[s]||0)+1;t++});for(const k in p)p[k]/=t||1;return M.est[loc]={n:L,p}}
+/* how many crisis points the table still needs, from public counts: cards added so far and the hand sizes of the players still to go */
+function dwCrisisGap(g,pid){if(!g.crisis||g.crisis.skip)return 0;const C=DWCR[g.crisis.id],N=dwActive(g).length,mine=g.P[pid].hand.filter(c=>C.need.includes(dwSym(c))).length;return Math.max(0,dwCrisisShort(g,pid)-mine)}
+/* chance the next crisis needs a symbol (crises not yet seen) */
+const DWCRP=(()=>{const o={};DWCR.forEach(c=>c.need.forEach(s=>o[s]=(o[s]||0)+1/DWCR.length));return o})();
+/* what each card symbol is worth to me right now: crisis, next crisis, food, the main objective, my secret objective, wounds */
+function dwWant(g,pid){const M=dwMemo(g,pid);if(M.w)return M.w;return M.w=dwWant0(g,pid)}
+function dwWant0(g,pid){const P=g.P[pid],C=g.crisis&&!g.crisis.skip?DWCR[g.crisis.id]:null,need=dwNeedSyms(g,pid),w={food:.6,fuel:.5,med:.5,tools:.4,weapon:.5,book:.3,outsider:.4},my=dwMine(g,pid);
+  const hn=s=>P.hand.filter(c=>dwSym(c)===s).length,late=g.round<=2;
+  if(C){const gap=dwCrisisGap(g,pid);C.need.forEach(s=>w[s]+=gap>0?2.5+Math.min(gap,3)*.8:.6)}
+  for(const s in DWCRP)w[s]+=DWCRP[s]*(hn(s)?1:2.2);
+  const colN=dwColN(g),fn=Math.ceil(colN/2),foodH=P.hand.filter(c=>DWI[c].k.startsWith('food')).reduce((a,c)=>a+(+DWI[c].k.slice(4)||1),0);
+  const def=fn-g.food,def2=2*fn-g.food-foodH;w.food+=def>0?DWB.ff*(2+def*.9):def2>0?DWB.ff*(1+def2*.3):0;w.outsider+=g.food>=fn+2&&dwRoom(g,'colony')>2?.8:-.3;
+  const mo=g.mo.id,hc=g.mo.side==='hc',n=g.ps.length,cnt=s=>g.mo.cards.filter(c=>dwSym(c)===s).length;
+  if(mo==='leave'){if(!my.some(s=>g.sv[s].eq.some(c=>dwSym(c)==='weapon'))&&!hn('weapon'))w.weapon+=3;w.food+=1.5}
+  if(mo==='stock'){['med','tools','fuel'].forEach(s=>{if(cnt(s)<2)w[s]+=2.2});w.food+=1}
+  if(mo==='cure')w.med+=2.5;
+  if(mo==='winter'){const f=hn('fuel');w.fuel+=DWB.wf*(f===0?1:f===1?.6:f===2?.3:.1)}
+  if(mo==='kill'||mo==='samples')w.weapon+=1.2;
+  for(const s in need)if(!(DWOBJK[mo]||[]).includes(s))w[s]=(w[s]||0)+(late?3:1.8);
+  if(my.some(s=>g.sv[s].w>=1))w.med+=1;return w}
+const dwSearchVal=(g,pid,loc,need,cr)=>{let v=.2;const E=dwDeckEst(g,pid,loc);if(!E.n)return v;const W=dwWant(g,pid);v+=dwRaidBonus(g,loc);for(const s in E.p)v+=E.p[s]*(W[s]||.3);return v};
+/* cards I hold back: Winter Has Come needs a fuel card from someone every colony phase */
+function dwReserved(g,pid){const o=new Set();if(g.mo.id==='winter'&&!g.P[pid].exiled){g.P[pid].hand.filter(c=>DWI[c].k==='fuel').slice(0,DWB.wk).forEach(c=>o.add(c))}return o}
+/* the entrance a main-objective barricade should go to: Stockpile wants one on every entrance, Home Sweet Home wants them where arriving zombies will not reach */
+function dwObjEnt(g){const E=g.loc.colony.ent,add=Math.ceil(dwColN(g)/2),ok=k=>E[k].z+E[k].bar<3;
+  if(g.mo.id==='stock'){const L=[5,4,3,2,1,0].filter(k=>ok(k)&&E[k].bar===0);return L.length?L[0]:-1}
+  if(g.mo.id==='home'){const L=[5,4,3,2,1,0].filter(ok).sort((a,b)=>(a<add)-(b<add)||b-a);return L.length?L[0]:-1}return -1}
+const DWLOCMIX={};function dwLocMix(loc){if(!DWLOCMIX[loc]){const o={},L=DWI.filter(c=>c.d===loc);L.forEach(c=>{const y=dwSym(c.id);o[y]=(o[y]||0)+1/L.length});DWLOCMIX[loc]=o}return DWLOCMIX[loc]}
+/* food the colony still has to find to get through the next two colony phases (my own food cards count) */
+function dwFoodGap(g,pid){const n=Math.ceil(dwColN(g)/2)+(dwFlags(g).horse?1:0),R=Math.min(2,Math.max(1,g.round||1)),mine=g.P[pid].hand.filter(c=>DWI[c].k.startsWith('food')).reduce((a,c)=>a+(+DWI[c].k.slice(4)||1),0);return n*R-g.food-mine}
+const dwHurtN=(g,pid)=>dwMine(g,pid).filter(s=>g.sv[s].w>=1||g.sv[s].fb).length;
+/* Ashley Ross or the Barricade Manual: a barricade that costs no die. Colony first if it is under pressure, else where my survivors are out */
+function dwFreeBar(g,pid){const my=dwMine(g,pid),myCol=my.filter(s=>g.sv[s].loc==='colony');
+  const ash=my.some(o=>dwHas(g,o,'Ashley Ross')&&!g.sv[o].used.ab&&!dwJailed(g,o)),bb=myCol.find(o=>{const c=dwEqK(g,o,'barbook');return c!=null&&!g.sv[o].used['c'+c]});if(!ash&&bb==null)return null;
+  const colP=myCol.length&&dwBarRoom(g,'colony')?dwColSim(g,Math.ceil(dwColN(g)/2)+3,false):-1;
+  const outs=ash?my.filter(s=>g.sv[s].loc!=='colony'&&dwBarRoom(g,g.sv[s].loc)).map(s=>({s,p:dwLocOver(g,g.sv[s].loc,pid,1)})).sort((a,b)=>b.p-a.p):[];
+  if(colP>0||(myCol.length&&dwBarRoom(g,'colony')&&!outs.length))return {a:'barricade',s:bb!=null?bb:myCol[0]};
+  if(outs.length)return {a:'barricade',s:outs[0].s};return null}
+/* Brian Lee: lift a die by one when that is exactly what a search or an ability needs (the engine allows Brian once per round, so the bot checks that first) */
+function dwBrian(g,pid){const P=g.P[pid],my=dwMine(g,pid),D=P.dice;const br=my.find(o=>dwHas(g,o,'Brian Lee')&&!dwJailed(g,o)&&!g.sv[o].used['ab'+dwSv(o).id]);if(br==null||!D.length)return null;
+  const th=[];my.forEach(s=>{const x=g.sv[s];if(x.loc!=='colony'&&g.decks[x.loc]&&g.decks[x.loc].length&&!dwFrozen(g,s))th.push(dwSv(s).sr)});if(my.some(s=>dwHas(g,s,'Loretta Clay')&&g.sv[s].loc==='colony')&&g.food<Math.ceil(dwColN(g)/2))th.push(4);
+  if(!th.length||D.some(v=>th.includes(v)||th.some(t=>v>t)))return null;const t=Math.min(...th),i=D.indexOf(t-1);return i>=0?{a:'ability',s:br,who:'Brian Lee',die2:i}:null}
 function dwBotAction(g,pid,lv){const P=g.P[pid],my=dwMine(g,pid),D=P.dice;if(!my.length)return {a:'end'};
   const bad=P.betray&&!P.exiled&&g.morale<=6&&Math.random()<.5;const C=g.crisis&&!g.crisis.skip?DWCR[g.crisis.id]:null,need=dwNeedSyms(g,pid),N=dwActive(g).length;
   const colN=dwColN(g),foodNeed=Math.ceil(colN/2)+(dwFlags(g).horse?1:0),deficit=foodNeed-g.food;
   const myCol=my.filter(s=>g.sv[s].loc==='colony'),lowDie=()=>D.length?D.map((v,i)=>[v,i]).sort((a,b)=>a[0]-b[0])[0][1]:-1;
-  const free=c=>!(P.req||[]).includes(c),cr=C?C.need:[];
+  const resv=dwReserved(g,pid),free=c=>!(P.req||[]).includes(c)&&!resv.has(c),cr=C?C.need:[];
   /* free things first: equip weapons/books/tools that help, play outsiders when the colony can feed them */
   for(const c of P.hand){if(!free(c)||dwK(c).use!=='equip')continue;const sym=dwSym(c);if(C&&cr.includes(sym)&&dwCrisisShort(g,pid)>0)continue;if(need[sym]&&sym!=='weapon'&&!(sym==='book'&&/equipped/.test((dwObjOf(g,pid)||{}).need||'')))continue;
     const k=DWI[c].k,pref=['colt','rifle','shotgun','lighter','blade','bat','wrench','arts'].includes(k)?my.filter(s=>dwZ(g,g.sv[s].loc)>0||g.sv[s].loc==='colony'):my;const s=(pref.length?pref:my).slice().sort((a,b)=>g.sv[a].eq.length-g.sv[b].eq.length||dwSv(a).atk-dwSv(b).atk)[0];if(s!=null)return {a:'play',c,s}}
+  if(!bad&&!P.exiled&&DWB.fb){const fbm=dwFreeBar(g,pid);if(fbm)return fbm}
+  if(!bad&&!P.exiled&&DWB.br){const bm=dwBrian(g,pid);if(bm)return bm}
   if(!bad&&!P.exiled){
     /* 1. the colony must not be overrun */
-    let over=dwColOver(g,pid);if(over>0){const ER=dwEntRisk(g),bi=ER.findIndex((r,k)=>r>=1&&g.loc.colony.ent[k].z+g.loc.colony.ent[k].bar<3);
-      if(bi>=0&&myCol.length&&D.length)return {a:'barricade',s:myCol[0],die:lowDie(),ent:bi};const K=dwKillOpts(g,pid,'colony').filter(o=>o.safe>=DWB.k1);if(K.length)return K[0].mv;
+    let over=dwColOver(g,pid);if(over>0){const fl=dwFailLikely(g,pid),ER=DWB.ef?dwEntRiskN(g,dwColAdd(g,pid),fl&&dwFailClears(g,'colony')):dwEntRisk(g),bi=DWB.ef?dwBestEnt(g,ER):ER.findIndex((r,k)=>r>=1&&g.loc.colony.ent[k].z+g.loc.colony.ent[k].bar<3);
+      if(bi>=0&&myCol.length&&D.length)return {a:'barricade',s:myCol[0],die:lowDie(),ent:bi};
+      /* zombies from a crisis that may still be saved are not worth an exposure roll */
+      const sure=!DWB.ef||dwColSim(g,Math.ceil(colN/2),false)>0||dwFailSure(g,pid);const K=sure?dwKillOpts(g,pid,'colony').filter(o=>o.safe>=DWB.k1):dwKillOpts(g,pid,'colony').filter(o=>o.safe>=1);if(K.length)return K[0].mv;
       const out=myCol.filter(s=>!P.moved.includes(s)&&g.noMove<g.rndNo&&dwCanMove(g,s,'x')&&g.sv[s].w===0).sort((a,b)=>dwSv(a).sr-dwSv(b).sr)[0];const fuel0=P.hand.find(c=>DWI[c].k==='fuel'&&free(c));
       if(out!=null&&fuel0!=null){const L=DWLOC.map(l=>l.id).filter(l=>dwRoom(g,l)>0&&dwLocOver(g,l,pid,1)===0&&dwCanMove(g,out,l));if(L.length)return {a:'move',s:out,to:L.sort((a,b)=>dwSearchVal(g,pid,b,need,cr)-dwSearchVal(g,pid,a,need,cr))[0],fuel:fuel0}}}
     /* 2. my survivors elsewhere about to be overrun */
@@ -530,7 +601,7 @@ function dwBotAction(g,pid,lv){const P=g.P[pid],my=dwMine(g,pid),D=P.dice;if(!my
     if(deficit>0){const fd=P.hand.filter(c=>DWI[c].k.startsWith('food')&&free(c));if(fd.length)return {a:'play',c:fd[0]}}
     /* 3. crisis: add matching cards until it is covered (keep 1 for my secret objective when safe) */
     if(C&&!(dwFlags(g).grayBeard===pid)){const match=P.hand.filter(c=>cr.includes(dwSym(c))&&free(c));const short=dwCrisisShort(g,pid);
-      if(match.length&&short>0){const spare=match.filter(c=>!(need[dwSym(c)]&&dwHandN(g,pid,dwSym(c))<=2)&&!(DWI[c].k.startsWith('food')&&deficit>0));const c=(spare.length?spare:short>=2||g.order.indexOf(pid)===g.order.length-1?match:[])[0];if(c!=null)return {a:'crisis',c}}}
+      const lastP=g.order.slice(g.order.indexOf(pid)+1).every(p=>g.P[p].exiled),gapX=N-g.crisis.add.reduce((t,a)=>t+(a.pid===pid?(a.c>=0&&cr.includes(dwSym(a.c))?1:-1):1),0);if(match.length&&short>0&&!(lastP&&match.length<gapX)){const spare=match.filter(c=>!(need[dwSym(c)]&&dwHandN(g,pid,dwSym(c))<=2)&&!(DWI[c].k.startsWith('food')&&deficit>0));const c=(spare.length?spare:short>=2||g.order.indexOf(pid)===g.order.length-1||DWB.cs&&short-P.hand.filter(x=>cr.includes(dwSym(x))).length>=0?match:[])[0];if(c!=null)return {a:'crisis',c}}}
     /* 4. food for the colony */
     const food=P.hand.filter(c=>DWI[c].k.startsWith('food')&&free(c)).sort((a,b)=>(+DWI[b].k.slice(4))-(+DWI[a].k.slice(4)));
     if(deficit>0&&dwFlags(g).noFoodCards!==g.tno){const lor=my.find(s=>dwHas(g,s,'Loretta Clay')&&g.sv[s].loc==='colony'&&!g.sv[s].used['ab'+dwSidN('Loretta Clay')]);if(lor!=null){const i=dwPickDie(D,4);if(i>=0)return {a:'ability',s:lor,die:i,who:'Loretta Clay'}}
@@ -539,13 +610,13 @@ function dwBotAction(g,pid,lv){const P=g.P[pid],my=dwMine(g,pid),D=P.dice;if(!my
     /* 5. main objective cards */
     for(const c of P.hand)if(free(c)&&dwObjCardOK(g,c)&&!(cr.includes(dwSym(c))&&dwCrisisShort(g,pid)>0))return {a:'objcard',c};
     /* 6. keep survivors alive: heal the badly hurt */
-    const med=P.hand.find(c=>DWI[c].k==='med'&&free(c)),hurt=my.filter(s=>g.sv[s].w>=2||g.sv[s].w>=1&&g.sv[s].fb>0).sort((a,b)=>g.sv[b].w-g.sv[a].w)[0];
+    const med=P.hand.find(c=>DWI[c].k==='med'&&free(c)),hurt=my.filter(s=>g.sv[s].w>=2||g.sv[s].w>=1&&g.sv[s].fb>0||DWB.h1&&g.sv[s].w>=1&&P.hand.filter(c=>DWI[c].k==='med').length>=2).sort((a,b)=>g.sv[b].w-g.sv[a].w)[0];
     if(med!=null&&hurt!=null&&!(cr.includes('med')&&dwCrisisShort(g,pid)>0))return {a:'play',c:med,t:hurt};
     const oli=my.find(s=>dwHas(g,s,'Olivia Brown')&&!g.sv[s].used['ab'+dwSidN('Olivia Brown')]);if(oli!=null){const t=dwAt(g,g.sv[oli].loc).filter(q=>g.sv[q].w>0).sort((a,b)=>g.sv[b].w-g.sv[a].w)[0];if(t!=null)return {a:'ability',s:oli,target:t,who:'Olivia Brown'}}
     /* 7. waste close to a morale loss */
     if(myCol.length&&D.length&&g.waste.length>=7&&g.waste.length%10>=6)return {a:'clean',die:lowDie()};
     /* outsiders: more dice, if there is food for them */
-    const oc=P.hand.find(c=>dwSym(c)==='outsider'&&free(c));if(oc!=null&&g.decks.surv.length&&dwRoom(g,'colony')>2&&g.food>=foodNeed+1&&dwColOver(g,pid)===0)return {a:'play',c:oc}}
+    const oc=P.hand.find(c=>dwSym(c)==='outsider'&&free(c));if(oc!=null&&g.decks.surv.length&&dwRoom(g,'colony')>2&&g.food>=foodNeed+1&&dwColOver(g,pid)===0&&(!DWB.os||dwFoodGap(g,pid)+2<=0))return {a:'play',c:oc}}
   if(!D.length)return {a:'end'};
   /* betrayer: quietly add a wrong card */
   if(bad&&C&&P.cn===0){const w=P.hand.find(c=>!cr.includes(dwSym(c)));if(w!=null)return {a:'crisis',c:w}}
@@ -553,25 +624,29 @@ function dwBotAction(g,pid,lv){const P=g.P[pid],my=dwMine(g,pid),D=P.dice;if(!my
   if(!bad&&(g.mo.id==='samples'||g.mo.id==='kill')){for(const l of [...new Set(my.map(s=>g.sv[s].loc))]){if(l==='colony')continue;const K=dwKillOpts(g,pid,l).filter(o=>o.safe>=.9||o.safe>=.6&&dwAt(g,l).length<=2&&g.mo.id==='samples');if(K.length)return K[0].mv}}
   /* 8b. barricade objectives */
   if(!bad&&(g.mo.id==='home'||g.mo.id==='stock')){for(const s of my){const l=g.sv[s].loc;if(l!=='colony'&&g.mo.id==='home'&&dwBar(g,l)===0&&dwBarRoom(g,l))return {a:'barricade',s,die:lowDie()}}
-    if(myCol.length&&dwBarRoom(g,'colony')){const E=g.loc.colony.ent,k=E.findIndex(e=>e.bar===0&&e.z+e.bar<3);if(k>=0||g.mo.id==='home')return {a:'barricade',s:myCol[0],die:lowDie(),...(k>=0?{ent:k}:{})}}}
+    if(myCol.length&&dwBarRoom(g,'colony')){const k=dwObjEnt(g);if(k>=0)return {a:'barricade',s:myCol[0],die:lowDie(),ent:k}}}
   /* 9. search with survivors already out */
   const se=[];my.forEach(s=>{const x=g.sv[s];if(x.loc==='colony'||!g.decks[x.loc].length||dwFrozen(g,s))return;const i=dwPickDie(D,dwSv(s).sr);if(i>=0)se.push({s,i,v:D[i],q:dwSearchVal(g,pid,x.loc,need,cr)})});
   if(se.length){const b=se.sort((a,b)=>b.q-a.q||a.v-b.v)[0];return {a:'search',s:b.s,die:b.i}}
   /* 10. send a healthy searcher out (fuel if possible), keeping fighters home if the colony needs them */
-  if(g.noMove<g.rndNo&&D.length&&!bad){const cand=my.filter(s=>!P.moved.includes(s)&&g.sv[s].w===0&&!g.sv[s].fb&&dwCanMove(g,s,'x')&&(g.sv[s].loc==='colony'||!g.decks[g.sv[s].loc].length)&&dwPickDie(D,dwSv(s).sr)>=0)
+  if(g.noMove<g.rndNo&&D.length&&!bad){const cand=my.filter(s=>!P.moved.includes(s)&&g.sv[s].w===0&&!g.sv[s].fb&&dwCanMove(g,s,'x')&&(g.sv[s].loc==='colony'||!g.decks[g.sv[s].loc].length||g.mo.id==='home'&&dwBar(g,g.sv[s].loc)>=1&&DWLOC.some(l=>dwBar(g,l.id)===0))&&dwPickDie(D,dwSv(s).sr)>=0)
       .sort((a,b)=>dwSv(a).sr-dwSv(b).sr||dwSv(b).atk-dwSv(a).atk);
     const keepHome=s=>g.sv[s].loc==='colony'&&dwZ(g,'colony')>=6&&myCol.length<=1;
     for(const s of cand){if(keepHome(s))continue;const L=DWLOC.map(l=>l.id).filter(l=>l!==g.sv[s].loc&&dwRoom(g,l)>0&&g.decks[l].length&&dwLocOver(g,l,pid,1)===0&&dwCanMove(g,s,l));if(!L.length)continue;
       const hv=l=>g.mo.id==='home'&&dwBar(g,l)===0&&!dwAt(g,l).length?3:0;const to=L.sort((a,b)=>dwSearchVal(g,pid,b,need,cr)+hv(b)-dwSearchVal(g,pid,a,need,cr)-hv(a))[0];const fuels=P.hand.filter(c=>DWI[c].k==='fuel'&&free(c)),fuel=fuels.length>=(g.mo.id==='winter'?3:2)&&!(cr.includes('fuel')&&dwCrisisShort(g,pid)>0)?fuels[0]:null;
       if(fuel==null&&(DWB.nf===0||DWB.nf===1&&cand.length>1&&P.moved.length))continue;return {a:'move',s,to,...(fuel!=null?{fuel}:{})}}}
+  /* 10b. a survivor away from the colony doesn't eat: when food is short, send a spare healthy one out to a quiet place */
+  if(DWB.mo&&!bad&&!P.exiled&&g.noMove<g.rndNo&&dwFoodGap(g,pid)>0&&myCol.length>DWB.keep){const fuel=P.hand.find(c=>DWI[c].k==='fuel'&&free(c)&&!(cr.includes('fuel')&&dwCrisisShort(g,pid)>0));
+    if(fuel!=null||P.moved.length<DWB.mo){const s=myCol.filter(s=>!P.moved.includes(s)&&g.sv[s].w===0&&!g.sv[s].fb&&dwCanMove(g,s,'x')).sort((a,b)=>dwSv(a).inf-dwSv(b).inf)[0];
+      if(s!=null){const L=DWLOC.map(l=>l.id).filter(l=>dwRoom(g,l)>0&&dwLocOver(g,l,pid,2)===0&&dwCanMove(g,s,l));if(L.length){const to=L.sort((a,b)=>dwSearchVal(g,pid,b,need,cr)-dwSearchVal(g,pid,a,need,cr))[0];return {a:'move',s,to,...(fuel!=null?{fuel}:{})}}}}}
   if(!bad){
     /* 11. spare dice: thin the colony's fullest entrances safely, then barricade where the next zombies land */
     if(myCol.length){const E=g.loc.colony.ent;if(E.some(e=>e.z>=2)){const K=dwKillOpts(g,pid,'colony').filter(o=>o.safe>=.9);if(K.length)return K[0].mv}
       if(dwBarRoom(g,'colony'))return {a:'barricade',s:myCol[0],die:lowDie()}}
-    for(const s of my){const l=g.sv[s].loc;if(l!=='colony'&&dwBarRoom(g,l)&&(g.mo.id==='home'||g.mo.id==='kill'||dwBar(g,l)===0))return {a:'barricade',s,die:lowDie()}}
+    for(const s of my){const l=g.sv[s].loc;if(l!=='colony'&&dwBarRoom(g,l)&&(g.mo.id==='home'||g.mo.id==='kill'||dwBar(g,l)===0||DWB.lb&&dwLocOver(g,l,pid,dwAt(g,l).length)>0))return {a:'barricade',s,die:lowDie()}}
     if(myCol.length&&g.waste.length>=4)return {a:'clean',die:lowDie()}}
   /* 12. exile vote on someone suspicious */
-  if(g.mode!=='coop'&&!P.voted&&!P.exiled){const sus=g.ps.filter(q=>q!==pid&&!g.P[q].exiled&&(g.susp[q]||0)>=3).sort((a,b)=>g.susp[b]-g.susp[a])[0];if(sus&&(!P.betray||Math.random()<.2))return {a:'exile',target:sus}}
+  {const ec=dwExileCall(g,pid);if(ec)return ec}
   return {a:'end'}}
 /* normal/hard: try the main choices on fogged copies and play each to the end with simple bots */
 function dwFog(g,pid){const c=JSON.parse(JSON.stringify(g));const decks=DWLOC.map(l=>c.decks[l.id]);decks.forEach(dwShuf);dwShuf(c.decks.crisis);dwShuf(c.decks.surv);if(c.decks.xr)dwShuf(c.decks.xr);
@@ -581,12 +656,12 @@ function dwFog(g,pid){const c=JSON.parse(JSON.stringify(g));const decks=DWLOC.ma
     if(!Q.exiled&&Q.obj&&Q.obj.t!=='regular'||Q.obj&&Q.obj.t==='regular'){if(!Q.exiled){Q.obj={t:'regular',i:Math.floor(Math.random()*DWSO.regular.length)};Q.betray=false}}});
   if(c.crisis)c.crisis.add=c.crisis.add.map(a=>a.pid===pid?a:{...a,c:swap(a.c,Math.random()<.8?crisisNeed:null)});return c}
 /* play on with simple bots until this round's colony phase is over, then score the colony's position */
-function dwRollRound(c,pid){const E={},r0=c.rndNo;let k=0;while(c.phase!=='done'&&c.rndNo===r0&&k++<8000){const a=dwActor(c);if(!a)break;const q=E[a]||(E[a]={id:a,bot:'base'});if(!dwBotStep(c,q))break}return dwPos(c,pid)}
+function dwRollRound(c,pid){const E={},r0=c.rndNo;let k=0;while(c.phase!=="done"&&c.rndNo<=r0+(DWB.h2||0)&&k++<16000){const a=dwActor(c);if(!a)break;const q=E[a]||(E[a]={id:a,bot:'base'});if(!dwBotStep(c,q))break}return dwPos(c,pid)}
 function dwPos(c,pid){const P=c.P[pid],bt=P.betray&&!P.exiled;if(c.phase==='done'){const f=c.fin[pid];return bt?(f.win?300:-100):(c.mo.done?300:-150)+(f.win?60:0)}
   const all=Object.keys(c.sv).map(Number),my=all.filter(s=>c.sv[s].pid===pid),w=all.reduce((a,s)=>a+c.sv[s].w+c.sv[s].fb*1.5,0);
   const col=c.loc.colony.ent.reduce((a,e)=>a+e.z*(e.z>=2?1.6:.8)-e.bar*.8,0),need=dwNeedSyms(c,pid);
   const v=c.morale*12+Math.min(c.food,8)*2.5-c.starve*10+all.length*5+c.helpless*1.5-w*2.5-col+(c.mo.cards.length+c.mo.tokens)*6-Math.floor(c.waste.length%10)*.3
-    +P.hand.reduce((a,x)=>a+(need[dwSym(x)]?1.5:.8),0)+my.length*2;return bt?-v+P.hand.length:v}
+    +P.hand.reduce((a,x)=>a+(need[dwSym(x)]?1.5:.8),0)+my.length*2+DWB.mp*dwMOProg(c,pid);return bt?-v+P.hand.length:v}
 function dwRoll(c,pid){const E={};let k=0;while(c.phase!=='done'&&k++<20000){const a=dwActor(c);if(!a)break;const q=E[a]||(E[a]={id:a,bot:'base'});if(!dwBotStep(c,q))break}
   if(c.phase!=='done')return null;const P=c.P[pid],f=c.fin[pid];
   if(P.betray&&!P.exiled)return (f.win?100:0)+(10-c.morale)*2;return (c.mo.done?60:0)+(f.win?40:0)+c.morale*1.5+(c.rndNo||0)*2}
@@ -600,22 +675,112 @@ function dwCands(g,pid,lv){const base=dwBotAction(g,pid,'easy'),P=g.P[pid],my=dw
   if(g.noMove<g.rndNo)my.filter(s=>!P.moved.includes(s)&&dwCanMove(g,s,'x')).slice(0,2).forEach(s=>{const fuel=P.hand.find(c=>DWI[c].k==='fuel');
     DWLOC.map(l=>l.id).filter(l=>l!==g.sv[s].loc&&dwRoom(g,l)>0&&g.decks[l].length).sort((a,b)=>dwLocOver(g,a,pid,1)-dwLocOver(g,b,pid,1)).slice(0,lv==='hard'?2:1).forEach(to=>add({a:'move',s,to,...(fuel!=null?{fuel}:{})}));
     if(g.sv[s].loc!=='colony')add({a:'move',s,to:'colony',...(fuel!=null?{fuel}:{})})});
-  add({a:'end'});return L.slice(0,lv==='hard'?12:7)}
+  /* main-objective moves, so the look-ahead can weigh them */
+  const mo=g.mo.id;if(lv==='easy'&&DWB.eo){L.splice(6);add({a:'end'});return L}if(D.length){if((mo==='home'||mo==='stock')&&col!=null&&dwBarRoom(g,'colony')){const k=dwObjEnt(g);if(k>=0)add({a:'barricade',s:col,die:dwPickDie(D,1),ent:k})}
+    if(mo==='home'||mo==='kill'&&g.mo.side==='hc')my.forEach(s=>{const l=g.sv[s].loc;if(l!=='colony'&&dwBar(g,l)===0&&dwBarRoom(g,l))add({a:'barricade',s,die:dwPickDie(D,1)})})}
+  P.hand.filter(c=>dwObjCardOK(g,c)&&!dwReserved(g,pid).has(c)).slice(0,1).forEach(c=>add({a:'objcard',c}));
+  const ex=L.splice(lv==='hard'?11:6);add({a:'end'});return L.concat(ex).slice(0,lv==='hard'?12:7)}
 /* easy: the same plan, but now and then a careless choice */
-function dwEasyAction(g,pid){if(Math.random()>=DWB.sl)return dwBotAction(g,pid,'easy');const C=dwCands(g,pid,'normal');return C[Math.floor(Math.random()*C.length)]}
-function dwSmartAction(g,pid,lv){const P=g.P[pid];if(P.betray&&!P.exiled)return dwBotAction(g,pid,lv);const C=dwCands(g,pid,lv);if(C.length===1)return C[0];
-  const n=g.ps.length,tries=lv==='hard'?(n>=4?4:6):2;DWQUIET++;try{
-    /* the same random futures for every choice, so the comparison is fair */
-    const seeds=Array.from({length:tries},()=>Math.random()*4294967296>>>0),R0=Math.random;
-    const sc=C.map((mv,ci)=>{let s=0,k=0;for(let t=0;t<tries;t++){let a=seeds[t];Math.random=()=>{a=a+0x6D2B79F5|0;let x=Math.imul(a^a>>>15,1|a);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296};
-      try{const c=dwFog(g,pid);if(!dwMove(c,pid,mv))break;const v=DWB.full?dwRoll(c,pid):dwRollRound(c,pid);if(v!=null){s+=v;k++}}finally{Math.random=R0}}return {mv,v:k?s/k+(ci===0?DWB.mg:0):-1e9}});
-    sc.sort((a,b)=>b.v-a.v);return sc[0].mv}finally{DWQUIET--}}
+function dwEasyAction(g,pid){if(Math.random()>=DWB.sl)return dwBotAction(g,pid,'easy');const C=dwCands(g,pid,DWB.eo?'easy':'normal');return C[Math.floor(Math.random()*C.length)]}
 function dwEval(g,pid){const c=JSON.parse(JSON.stringify(g));DWQUIET++;try{return dwRoll(c,pid)}finally{DWQUIET--}}
 function dwBotStep(g,q){const pid=q.id;if(g.phase==='done')return false;
-  if(g.vote){if(!g.vote.need.includes(pid)||pid in g.vote.got)return false;return dwMove(g,pid,{vote:dwBotVote(g,pid)})}
-  if(g.ask){if(g.ask.pid!==pid)return false;if(dwMove(g,pid,dwBotAns(g,pid)))return true;if(dwMove(g,pid,{skip:1}))return true;for(const o of g.ask.opts||[])if(dwMove(g,pid,{v:o.v}))return true;return false}
-  if(g.turn!==pid||g.q.length)return false;const lv=q.bot||'normal';let mv=lv==='hard'?dwSmartAction(g,pid,lv):lv==='easy'?dwEasyAction(g,pid):dwBotAction(g,pid,lv);
+  const hd=q.bot==='hard';
+  if(g.vote){if(!g.vote.need.includes(pid)||pid in g.vote.got)return false;return dwMove(g,pid,{vote:hd&&!DWB.nv?dwSmartVote(g,pid):dwBotVote(g,pid)})}
+  if(g.ask){if(g.ask.pid!==pid)return false;if(dwMove(g,pid,hd&&!DWB.na?dwSmartAns(g,pid):dwBotAns(g,pid)))return true;if(dwMove(g,pid,{skip:1}))return true;for(const o of g.ask.opts||[])if(dwMove(g,pid,{v:o.v}))return true;return false}
+  if(g.turn!==pid||g.q.length)return false;const lv=q.bot||'normal';let mv=lv==='hard'?(dwExileCall(g,pid)||dwSmartAction(g,pid,lv)):lv==='easy'?dwEasyAction(g,pid):dwBotAction(g,pid,lv);
   if(dwMove(g,pid,mv))return true;return dwMove(g,pid,{a:'end'})}
+
+/* ---------- hard computer players: lookahead on fogged copies (public info + own cards only) ----------
+   Every choice (turn action, crossroads answer, search pick, vote) is tried on fogged copies of the game and played on by simple bots
+   to the end of this round's colony phase, using the same random futures for every choice, then scored by dwPos2. */
+const dwRng=a=>()=>{a=a+0x6D2B79F5|0;let x=Math.imul(a^a>>>15,1|a);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296};
+function dwRollTo(c,pid,hz){const E={},r1=c.rndNo+(hz||0);let k=0;while(c.phase!=='done'&&c.rndNo<=r1&&k++<9000){const a=dwActor(c);if(!a)break;const q=E[a]||(E[a]={id:a,bot:'base'});if(!dwBotStep(c,q))break}return dwPos2(c,pid)}
+/* N choices; apply(copy,i) makes choice i on a copy (false = not possible there). Weak choices are dropped after 2 futures (choice 0, the simple plan, always stays).
+   Returns the index of the best choice, which must beat choice 0 by more than its own noise (paired over the same futures). */
+function dwLook(g,pid,N,apply,o){o=o||{};const R0=Math.random,tries=o.tries||6,keep=o.keep||5,V=Array.from({length:N},()=>[]);let live=V.map((_,i)=>i);
+  DWQUIET++;try{for(let t=0;t<tries&&live.length>1;t++){const seed=R0()*4294967296>>>0;
+      live.forEach(i=>{Math.random=dwRng(seed);try{const c=dwFog(g,pid);if(!apply(c,i)){V[i]=null;return}Math.random=dwRng(seed^0x9e3779b9);V[i].push(dwRollTo(c,pid,o.hz))}finally{Math.random=R0}});
+      live=live.filter(i=>V[i]);if(!V[0])return dwBestOf(V);
+      if(t===1&&live.length>keep){const m=i=>V[i].reduce((a,x)=>a+x,0)/V[i].length;live=[0,...live.filter(i=>i).sort((x,y)=>m(y)-m(x)).slice(0,keep-1)]}}}
+  finally{DWQUIET--}
+  if(!V[0])return dwBestOf(V);const T=V[0].length;let b=0,bv=0;live.forEach(i=>{if(!i||V[i].length<T)return;const d=V[i].map((x,t)=>x-V[0][t]),m=d.reduce((a,x)=>a+x,0)/T,sd=Math.sqrt(d.reduce((a,x)=>a+(x-m)*(x-m),0)/Math.max(1,T-1));
+    const lcb=m-(o.z!=null?o.z:DWB.z)*sd/Math.sqrt(T)-(o.mg||0);if(lcb>bv){bv=lcb;b=i}});return b}
+const dwBestOf=V=>{let b=-1,bv=-1e9;V.forEach((v,i)=>{if(v&&v.length){const m=v.reduce((a,x)=>a+x,0)/v.length;if(m>bv){bv=m;b=i}}});return Math.max(0,b)};
+/* how far along the main objective is, 0..1 (public) */
+function dwMOProg(g,pid){const id=g.mo.id,hc=g.mo.side==='hc',n=g.starters||g.ps.length,A=dwActive(g).length||1,nc=DWLOC.map(l=>l.id),cl=(x)=>Math.max(0,Math.min(1,x));
+  const under=sym=>g.mo.cards.filter(c=>dwSym(c)===sym&&!dwStarter(c)).length;
+  switch(id){
+  case 'leave':{const arm=dwActive(g).filter(p=>dwMine(g,p).some(s=>g.sv[s].eq.some(c=>dwSym(c)==='weapon'))).length/A;return .3*arm+.7*cl(under('food')/((hc?3:2)*n))}
+  case 'kill':{const Z=nc.reduce((a,l)=>a+g.loc[l].z,0),t=hc?1:3;return (Z<=t?1:cl((t+1)/(Z+1)))*(hc?.7+.3*nc.filter(l=>g.loc[l].bar>=1).length/nc.length:1)}
+  case 'stock':return .2*cl(g.food/(2*A))+.2*g.loc.colony.ent.filter(e=>e.bar>=1).length/6+.6*(['med','tools','fuel'].reduce((a,y)=>a+Math.min(2,under(y)),0)/6);
+  case 'cure':return cl(under('med')/((hc?3:2)*n));
+  case 'samples':return cl(g.mo.tokens/((hc?4:3)*n));
+  case 'home':return .7*cl(dwBar(g,'colony')/(hc?14:10))+.3*nc.filter(l=>g.loc[l].bar>=1).length/nc.length;
+  case 'winter':return cl(g.mo.cards.length/(hc?10:8));
+  case 'mouths':return cl((g.rndNo-1)/(hc?6:5));case 'weeks':return cl((g.rndNo-1)/(hc?10:8));
+  case 'raid':{const need=hc&&n>=4?3:2,L=nc.map(l=>g.decks[l].length).sort((a,b)=>a-b).slice(0,need);return cl(1-L.reduce((a,x)=>a+x,0)/(need*20))}
+  default:return 0}}
+/* the position after a rollout, from pid's side */
+function dwPos2(c,pid){const P=c.P[pid],bt=P.betray&&!P.exiled,O=P.obj?dwObjOf(c,pid):null,sec=O&&DWSEC[O.n]?!!DWSEC[O.n](c,pid):false;
+  if(c.phase==='done'){const f=c.fin[pid];if(bt)return f.win?500:c.morale<=0?60:-80;return (c.mo.done?400:-250)+(f.win?120:0)+c.morale*3}
+  const all=Object.keys(c.sv).map(Number),med=P.hand.some(x=>DWI[x].k==='med');let v=c.morale*14-c.starve*8;
+  all.forEach(s=>{const x=c.sv[s];if(c.P[x.pid].exiled)return;const L=(dwSv(s).n==='Buddy Davis'?4:3)-x.w;let r=x.fb>0?(x.fb>=L?.9:.55):L<=1?.3:x.w>0?.08:0;if(x.pid===pid&&med)r*=.6;v+=7-r*21+(x.pid===pid?2:0)});
+  const colN=dwColN(c),need=Math.ceil(colN/2),fd=c.food-need;v+=fd>=0?Math.min(fd,6)*2:fd*5-(c.starve+1)*4;
+  v-=dwColSim(c,need,false)*16;v-=c.loc.colony.ent.reduce((a,e)=>a+e.z*.7+(e.z>=2&&!e.bar?1.5:0)-e.bar*.7,0);
+  DWLOC.forEach(l=>{const n=dwAt(c,l.id).filter(s=>!c.P[c.sv[s].pid].exiled).length;if(!n)return;const e=c.loc[l.id];v-=Math.max(0,n-(dwEntCap(l.id)-e.z+e.bar))*10});
+  const W=c.waste.length,wm=W%10;v-=Math.floor(W/10)*10+(wm>=7?(wm-6)*3:0);
+  const pr=dwMOProg(c);v+=(c.mo.id==='mouths'||c.mo.id==='weeks'?0:pr*DWB.ow)+(c.mo.id==='winter'?Math.min(2,dwHandN(c,pid,'fuel'))*4:0)+c.helpless*.5;
+  const nd=dwNeedSyms(c,pid);v+=P.hand.reduce((a,x)=>a+(dwSym(x)==='junk'?.1:nd[dwSym(x)]?1.5:.8),0);
+  if(bt)return -v+(sec?30+(10-c.morale)*10:0)+P.hand.length*.5-(c.mode==='coop'?0:dwBelief(c,dwOther(c,pid,pid),pid))*DWB.bs;return v+(sec?15+pr*DWB.sw:0)}
+/* the turn plan: the simple plan's choice plus every sensible alternative */
+function dwCands2(g,pid){const P=g.P[pid],my=dwMine(g,pid),D=P.dice,L=dwCands(g,pid,'hard'),key=m=>JSON.stringify(m),seen=new Set(L.map(key));const add=m=>{const k=key(m);if(!seen.has(k)){seen.add(k);L.push(m)}};
+  const free=c=>!(P.req||[]).includes(c),cr=g.crisis&&!g.crisis.skip?DWCR[g.crisis.id].need:[],bt=P.betray&&!P.exiled,lo=D.length?D.map((v,i)=>[v,i]).sort((a,b)=>a[0]-b[0])[0][1]:-1;
+  if(!P.exiled&&g.crisis&&!g.crisis.skip){const by={};P.hand.filter(free).forEach(c=>{const y=dwSym(c),ok=cr.includes(y);if((bt||ok)&&by[y+ok]==null)by[y+ok]=c});Object.values(by).forEach(c=>add({a:'crisis',c}))}
+  const med=P.hand.find(c=>DWI[c].k==='med'&&free(c));if(med!=null)my.filter(s=>g.sv[s].w>0).forEach(s=>add({a:'play',c:med,t:s}));
+  const oc=P.hand.find(c=>dwSym(c)==='outsider'&&free(c));if(oc!=null)add({a:'play',c:oc});
+  if(lo>=0){my.forEach(s=>{const l=g.sv[s].loc;if(l!=='colony'&&dwBarRoom(g,l))add({a:'barricade',s,die:lo})});const col=my.find(s=>g.sv[s].loc==='colony');
+    if(col!=null&&dwBarRoom(g,'colony')){const E=g.loc.colony.ent,k=E.map((e,i)=>[e,i]).filter(([e])=>e.z+e.bar<3).sort((a,b)=>b[0].z-a[0].z||a[0].bar-b[0].bar)[0];if(k)add({a:'barricade',s:col,die:lo,ent:k[1]})}}
+  for(const c of P.hand)if(free(c)&&dwObjCardOK(g,c)){add({a:'objcard',c});break}
+  if(g.noMove<g.rndNo)my.filter(s=>!P.moved.includes(s)&&dwCanMove(g,s,'x')).forEach(s=>{const fuel=P.hand.find(c=>DWI[c].k==='fuel'&&free(c));if(fuel==null)return;
+    DWLOC.map(l=>l.id).filter(l=>l!==g.sv[s].loc&&dwRoom(g,l)>0&&g.decks[l].length).forEach(to=>add({a:'move',s,to,fuel}))});
+  /* main-objective moves: go where the objective needs someone */
+  if(g.noMove<g.rndNo&&(g.mo.id==='kill'||g.mo.id==='home'||g.mo.id==='raid')){const fuel=P.hand.find(c=>DWI[c].k==='fuel'&&free(c)),want=l=>g.mo.id==='kill'?g.loc[l].z:g.mo.id==='home'?(dwBar(g,l)===0?1:0):(dwRaidT(g).includes(l)?1:0);
+    const T=DWLOC.map(l=>l.id).filter(l=>dwRoom(g,l)>0&&want(l)>0).sort((a,b)=>want(b)-want(a)).slice(0,2);
+    my.filter(s=>!P.moved.includes(s)&&dwCanMove(g,s,'x')).slice(0,2).forEach(s=>T.forEach(to=>{if(to!==g.sv[s].loc)add({a:'move',s,to,...(fuel!=null?{fuel}:{})})}))}
+  return L.slice(0,20)}
+function dwSmartAction(g,pid,lv){const C=dwCands2(g,pid).filter(m=>m.a!=='exile');if(C.length<2)return C[0]||{a:'end'};const n=g.ps.length;
+  return C[dwLook(g,pid,C.length,(c,i)=>dwMove(c,pid,C[i]),{tries:n>=4?9:11,keep:5,mg:DWB.mg})]}
+/* answers: crossroads choices, which card to keep, who takes the hit... */
+function dwSmartAns(g,pid){const A=g.ask,base=dwBotAns(g,pid);if(!A||A.kind==='info'||A.kind==='give')return base;const key=m=>JSON.stringify(m);
+  const L=[base,...(A.opts||[]).map(o=>({v:o.v})),...(A.opt?[{skip:1}]:[])].filter((m,i,a)=>a.findIndex(x=>key(x)===key(m))===i).slice(0,8);if(L.length<2)return base;
+  return L[dwLook(g,pid,L.length,(c,i)=>dwMove(c,pid,L[i]),{tries:8,keep:4,mg:DWB.ma})]}
+/* votes: a crossroads vote is judged by playing both outcomes; an exile vote by the public evidence */
+function dwSmartVote(g,pid){const V=g.vote,P=g.P[pid];if(V.kind==='exile')return dwExileVote(g,pid,1);if(V.kind!=='xr'||typeof dwXrVoted!=='function')return dwBotVote(g,pid);
+  const up=dwLook(g,pid,2,(c,i)=>{const W=c.vote;c.vote=null;dwXrVoted(c,W.no,i===1,W.ctx||{},W.by);dwRun(c);return true},{tries:6,z:0})===1;
+  if(P.betray&&!P.exiled&&Math.random()<.3)return !up;return up}
+/* how likely each other player is the betrayer, seen by a loyal viewer, from public things only: the revealed crisis cards (how many were wrong) and who added how many */
+function dwBeliefs(g,viewer){const O=g.ps.filter(p=>p!==viewer),n=g.ps.length,o={};if(g.mode==='coop'||!O.length)return o;const bm=g.mode==='betrayer',e=DWB.eps;
+  /* betrayer variant: 1 regular each + 1 betrayal, so a loyal viewer sees 1/n per other player; normal: 2 regular each + 1 betrayal */
+  const W=O.map(p=>bm?1/n:1/(2*n));let w0=Math.max(0,1-W.reduce((a,x)=>a+x,0));
+  (g.ev||[]).forEach(E=>{O.forEach((p,i)=>{const c=E.by[p]||0;W[i]*=E.w>0?(c>=E.w?1:Math.pow(e,E.w-c)):(c>0?DWB.ok:1)});if(E.w>0)w0*=Math.pow(e,E.w)});
+  const S=W.reduce((a,x)=>a+x,0)+w0;O.forEach((p,i)=>o[p]=S?W[i]/S:0);return o}
+const dwBelief=(g,viewer,t)=>dwBeliefs(g,viewer)[t]||0;
+function dwExileVote(g,pid,hard){const V=g.vote,P=g.P[pid];if(V.target===pid)return false;const ex=g.ps.filter(p=>g.P[p].exiled&&!g.P[p].betray).length;
+  if(P.betray&&!P.exiled){if(ex>=1)return true;return dwBelief(g,dwOther(g,pid,V.target),V.target)>=.3||Math.random()<.25}
+  const b=dwBelief(g,pid,V.target);return b>=(ex>=1?DWB.et+.2:DWB.et)}
+const dwOther=(g,pid,t)=>g.ps.find(p=>p!==pid&&p!==t)||pid;
+/* calling an exile vote (hard): only on strong public evidence */
+function dwExileCall(g,pid){const P=g.P[pid];if(g.mode==='coop'||P.voted||P.exiled)return null;const bt=P.betray;
+  const L=g.ps.filter(q=>q!==pid&&!g.P[q].exiled).map(q=>[q,dwBelief(g,bt?dwOther(g,pid,q):pid,q)]).sort((a,b)=>b[1]-a[1]);if(!L.length)return null;
+  if(!bt&&L[0][1]>=DWB.ec)return {a:'exile',target:L[0][0]};if(bt&&L[0][1]>=.35&&g.morale<=4)return {a:'exile',target:L[0][0]};return null}
+/* someone asks for a card: help when it plainly helps them and costs the colony nothing (given cards must be played, not kept) */
+function dwGiveAns(g,pid){const s=g.q[0],P=g.P[pid];if(!s||P.betray&&!P.exiled)return {skip:1};const to=s.to;if(!g.P[to])return {skip:1};
+  const need=dwNeedSyms(g,pid),cr=g.crisis&&!g.crisis.skip?DWCR[g.crisis.id].need:[],want=(s.what||'').toLowerCase(),def=Math.ceil(dwColN(g)/2)-g.food;
+  const theirs=dwMine(g,to),hurt=theirs.some(x=>g.sv[x].w>0),armed=theirs.some(x=>g.sv[x].eq.some(c=>dwSym(c)==='weapon')),out=theirs.some(x=>g.sv[x].loc!=='colony');
+  const val=c=>{const y=dwSym(c);if(y==='junk')return -9;let v=0;if(want&&(want.includes(y)||want.includes(DWSYMN[y]||y)))v+=3;
+    if(y==='med'&&hurt)v+=2.5;if(DWI[c].k.startsWith('food')&&def>0)v+=2;if(y==='weapon'&&!armed)v+=2;if(y==='fuel'&&out)v+=1;
+    if(need[y]&&dwHandN(g,pid,y)<=2)v-=3;if(cr.includes(y)&&dwCrisisShort(g,pid)>0)v-=2;return v};
+  const b=P.hand.filter(c=>!(P.req||[]).includes(c)).map(c=>[c,val(c)]).sort((a,b)=>b[1]-a[1])[0];return b&&b[1]>=2?{v:b[0]}:{skip:1}}
 
 /* ================= crossroads glue: steps, selectors, ops, flags ================= */
 DWQ.xr=(g,s,mv)=>{const D=g.P[s.drawer];if(typeof DWXRSTEP!=='function')return true;const r=DWXRSTEP(g,s,mv);if(r!==false&&r!==null&&D)D.xrPend=0;return r};
