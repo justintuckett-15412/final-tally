@@ -51,12 +51,12 @@ rep("players:UW2?nxPlayers:", "players:DW2?nxPlayers:UW2?nxPlayers:")
 rep("score:UW2?uwScoreScr:", "score:DW2?dwScoreScr:UW2?uwScoreScr:")
 rep("if(S.game==='upwords')uwTick();", "if(S.game==='upwords')uwTick();if(S.game==='deadofwinter')dwTick();")
 rep("if(S.game==='upwords')return uwOn()&&S.uwg?uwActor(S.uwg):null;", "if(S.game==='upwords')return uwOn()&&S.uwg?uwActor(S.uwg):null;if(S.game==='deadofwinter')return dwPlayOn()&&S.dwg&&typeof dwActor==='function'?dwActor(S.dwg):null;")
-rep("  if(/^uwp[a-z]+$/.test(a)&&S.game==='upwords'", "  if(/^dw(sel|ans|show)$/.test(a)&&dwPlayOn()&&S.started){dwUiAct(a,b,k);save();render();return}\n  if(/^uwp[a-z]+$/.test(a)&&S.game==='upwords'")
+rep("  if(/^uwp[a-z]+$/.test(a)&&S.game==='upwords'", "  if(/^dw(sel|ans|show|what)$/.test(a)&&dwPlayOn()&&S.started){dwUiAct(a,b,k);save();render();return}\n  if(/^uwp[a-z]+$/.test(a)&&S.game==='upwords'")
 rep("    case 'uwstart':", """    case 'dwstart':{switchGame('deadofwinter');resetScores();clearPlayers();delete S.dwg;S.started=false;S.finished=false;S.screen='map';DWX().play=k==='1'?1:0;dwKeep();window.scrollTo(0,0);break}
     case 'dwplaymode':{if(S.started)break;DWX().play=k==='1'?1:0;dwKeep();break}
     case 'dwmo':{if(S.started&&dwPlayOn())break;DWX().mo=k||'';dwKeep();break}
     case 'dwside':{if(S.started&&dwPlayOn())break;DWX().side=k==='hc'?'hc':'std';dwKeep();break}
-    case 'dwmode':{if(S.started&&dwPlayOn())break;DWX().mode=['normal','betrayer','coop'].includes(k)?k:'normal';if(k==='coop')DWX().side='hc';dwKeep();break}
+    case 'dwmode':{if(S.started&&dwPlayOn())break;DWX().mode=['normal','betrayer','loyal','coop'].includes(k)?k:'normal';if(k==='coop')DWX().side='hc';dwKeep();break}
     case 'dwrec':{const [i,f]=String(k).split(':'),q=act()[+i];if(!q)break;const D=dwP(q);D[f]=D[f]?0:1;break}
     case 'dwrecmo':{(S.dwrec=S.dwrec||{}).mo=k;break}
     case 'dwrecside':{(S.dwrec=S.dwrec||{}).side=k;break}
@@ -71,7 +71,7 @@ rep("S.game==='wyrmspan'&&wzOn()||", "S.game==='wyrmspan'&&wzOn()||S.game==='dea
 rep("wyrmspan:()=>wzOn()&&S.wzg,", "wyrmspan:()=>wzOn()&&S.wzg,deadofwinter:()=>dwPlayOn()&&S.dwg,")
 rep("if(wzOn()&&S.wzg)return wzActor(S.wzg);", "if(wzOn()&&S.wzg)return wzActor(S.wzg);if(dwPlayOn()&&S.dwg&&typeof dwActor==='function')return dwActor(S.dwg);")
 rep("    case 'finish':{", "    case 'finish':{if(dwPlayOn()&&S.dwg&&S.dwg.phase==='done')dwSyncScorer(S.dwg);")
-rep("function lpSheet(){if(!LPTIP)return '';", "function lpSheet(){if(!LPTIP)return '';if(LPTIP.startsWith('dws:')&&S.game==='deadofwinter')return dwSurvSheet(+LPTIP.slice(4));if(LPTIP.startsWith('dwi:')&&S.game==='deadofwinter')return dwItemSheet(+LPTIP.slice(4));")
-rep("LPTIP.startsWith('wzd:')||", "LPTIP.startsWith('wzd:')||LPTIP.startsWith('dws:')||LPTIP.startsWith('dwi:')||")
+rep("function lpSheet(){if(!LPTIP)return '';", "function lpSheet(){if(!LPTIP)return '';if(LPTIP.startsWith('dws:')&&S.game==='deadofwinter')return dwSurvSheet(+LPTIP.slice(4));if(LPTIP==='dww:1'&&S.game==='deadofwinter')return dwWhatSheet();if(LPTIP.startsWith('dwi:')&&S.game==='deadofwinter')return dwItemSheet(+LPTIP.slice(4));")
+rep("LPTIP.startsWith('wzd:')||", "LPTIP.startsWith('wzd:')||LPTIP.startsWith('dws:')||LPTIP.startsWith('dwi:')||LPTIP.startsWith('dww:')||")
 open(out, 'w', encoding='utf-8').write(s)
 print('ok', len(s))

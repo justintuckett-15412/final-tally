@@ -2176,6 +2176,12 @@ html.dark .dwab{background:#2a333c;color:#f3efe6}
 .dwloc::before,.dwcol::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:var(--dwbg) center/cover;opacity:.22}
 html.dark .dwloc::before,html.dark .dwcol::before{opacity:.18}
 .dwbk{float:left;width:44px;height:44px;margin:0 8px 0 0;border-radius:6px}
+.dwwhat .rs-body{max-height:70vh;overflow:auto}
+.dwwh{font-size:15px;margin:14px 0 6px}
+.dwwb{border-top:1px solid var(--line,rgba(127,127,127,.25));padding:8px 0}
+.dwwr{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}
+.dwwr small{flex-basis:100%}
+.dwwr .dwab,.dwwr .btn{font-size:14px}
 </style>
 
 <div id="app"></div>
@@ -4733,7 +4739,7 @@ function playerHistory(pid){if(HFE())return hfHistory(pid);if(S.game==='nerts')r
     <div class="rs-body"><ul class="phlist">${L.map(e=>`<li><button class="cedit" data-a="cedit" data-k="${e.id}">${esc(e.txt)}</button><b class="num">${e.pts>0?'+':''}${e.pts}</b></li>`).join('')}${hs?row('Head start',hs):''}${!L.length&&!hs?'<li class="empty"><span>Nothing scored yet.</span></li>':''}</ul>
     ${cols.length?`<div class="rlab" style="margin-top:12px"><b>Collected</b> · counts at the final reveal</div><div class="phcoll">${cols.map(([key,sub,lab])=>key==='fruit'?`<span><b class="num">${fruitTotal(pid)}</b> fruit: ${fruitList(pid).join(', ')}</span>`:`<span><b class="num">${collGet(key,pid,sub)}</b> ${lab.toLowerCase()}</span>`).join('')}</div>`:''}
     <p class="hint">Newest first. Unfinished features, fields and end-of-game bonuses are added at the final reveal.</p></div></div></div>`}
-function lpSheet(){if(!LPTIP)return '';if(LPTIP.startsWith('dws:')&&S.game==='deadofwinter')return dwSurvSheet(+LPTIP.slice(4));if(LPTIP.startsWith('dwi:')&&S.game==='deadofwinter')return dwItemSheet(+LPTIP.slice(4));if(LPTIP.startsWith('wzd:')&&wzOn())return wzDragonSheet(+LPTIP.slice(4));if(LPTIP.startsWith('wpb:')&&wpOn())return wpBirdSheet(+LPTIP.slice(4));if(LPTIP.startsWith('trp:')&&trOn())return trPeek(LPTIP.slice(4));if(LPTIP.startsWith('trr:')&&trOn())return trRouteSheet(+LPTIP.slice(4));if(LPTIP.startsWith('trc:')&&trOn())return trCitySheet(+LPTIP.slice(4));if(LPTIP.startsWith('ccl:')&&S.game==='carc')return ccLpSheet(LPTIP.slice(4));if(LPTIP.startsWith('exp:')&&S.game==='carc')return ccExpSheet(LPTIP.slice(4));if(LPTIP.startsWith('ph:')&&S.game==='carc'&&ccOn()&&S.ccg)return ccPeek(LPTIP.slice(3));if(LPTIP.startsWith('dnkp:')&&S.game==='dominion')return dnKPicker(LPTIP.slice(5));if(LPTIP.startsWith('dnc:')&&S.game==='dominion')return dnLpSheet(LPTIP.slice(4));if(/^ci[cd]:/.test(LPTIP)&&S.game==='citadels')return ciLpSheet(LPTIP);if(LPTIP.startsWith('tgc:')&&S.game==='tobago')return tgLpSheet(LPTIP);if(/^c[pk][dbpehq]:/.test(LPTIP)&&S.game==='catan')return cpLpSheet(LPTIP);if(/^sa[tchm]/.test(LPTIP)&&S.game==='stoneage')return saLpSheet(LPTIP);if(LPTIP.startsWith('qb:'))return qpBoardSheet(LPTIP.slice(3));if(LPTIP.startsWith('wt:'))return qpWSheet(LPTIP.slice(3));if(LPTIP.startsWith('pg:'))return plRules(LPTIP.slice(3),true);if(LPTIP.startsWith('dg:'))return dRulesSheet(LPTIP.slice(3),true);if(LPTIP.startsWith('ph:'))return playerHistory(LPTIP.slice(3));
+function lpSheet(){if(!LPTIP)return '';if(LPTIP.startsWith('dws:')&&S.game==='deadofwinter')return dwSurvSheet(+LPTIP.slice(4));if(LPTIP==='dww:1'&&S.game==='deadofwinter')return dwWhatSheet();if(LPTIP.startsWith('dwi:')&&S.game==='deadofwinter')return dwItemSheet(+LPTIP.slice(4));if(LPTIP.startsWith('wzd:')&&wzOn())return wzDragonSheet(+LPTIP.slice(4));if(LPTIP.startsWith('wpb:')&&wpOn())return wpBirdSheet(+LPTIP.slice(4));if(LPTIP.startsWith('trp:')&&trOn())return trPeek(LPTIP.slice(4));if(LPTIP.startsWith('trr:')&&trOn())return trRouteSheet(+LPTIP.slice(4));if(LPTIP.startsWith('trc:')&&trOn())return trCitySheet(+LPTIP.slice(4));if(LPTIP.startsWith('ccl:')&&S.game==='carc')return ccLpSheet(LPTIP.slice(4));if(LPTIP.startsWith('exp:')&&S.game==='carc')return ccExpSheet(LPTIP.slice(4));if(LPTIP.startsWith('ph:')&&S.game==='carc'&&ccOn()&&S.ccg)return ccPeek(LPTIP.slice(3));if(LPTIP.startsWith('dnkp:')&&S.game==='dominion')return dnKPicker(LPTIP.slice(5));if(LPTIP.startsWith('dnc:')&&S.game==='dominion')return dnLpSheet(LPTIP.slice(4));if(/^ci[cd]:/.test(LPTIP)&&S.game==='citadels')return ciLpSheet(LPTIP);if(LPTIP.startsWith('tgc:')&&S.game==='tobago')return tgLpSheet(LPTIP);if(/^c[pk][dbpehq]:/.test(LPTIP)&&S.game==='catan')return cpLpSheet(LPTIP);if(/^sa[tchm]/.test(LPTIP)&&S.game==='stoneage')return saLpSheet(LPTIP);if(LPTIP.startsWith('qb:'))return qpBoardSheet(LPTIP.slice(3));if(LPTIP.startsWith('wt:'))return qpWSheet(LPTIP.slice(3));if(LPTIP.startsWith('pg:'))return plRules(LPTIP.slice(3),true);if(LPTIP.startsWith('dg:'))return dRulesSheet(LPTIP.slice(3),true);if(LPTIP.startsWith('ph:'))return playerHistory(LPTIP.slice(3));
   if(LPTIP.startsWith('feat:')){const [,kind,ex]=LPTIP.split(':'),rows=featRules(kind,ex),btn=document.querySelector(`[data-lp="${LPTIP}"] b`),title=btn?btn.textContent:(BNAME[ex]||[kind])[0];
     return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet" role="dialog" aria-modal="true" aria-labelledby="lp-h" data-stop="1"><div class="rs-top"><div><h2 id="lp-h">${esc(title)}</h2><small class="lp-sub">How it scores${ex&&CEXP.find(e=>e.id===ex)?' · '+esc(CEXP.find(e=>e.id===ex).name):''}</small></div><button class="btn sm" data-a="lpclose">Close</button></div>
       <div class="rs-body"><dl class="glossary">${rows.map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl><p class="hint">Tap the button to score it. Only the expansions you have on are shown.</p></div></div></div>`}const [kind,id,pid]=LPTIP.split(':');const ex=CEXP.find(e=>e.id===id);if(!ex)return '';
@@ -14048,7 +14054,9 @@ const dwEqK=(g,sid,k)=>(g.sv[sid]?g.sv[sid].eq:[]).find(c=>DWI[c].k===k);
 const dwStarter=c=>DWI[c].d==='starter';
 
 /* ---------- setup ---------- */
-function dwDeal(o={}){const P=act(),ps=P.map(p=>p.id),n=ps.length;let mode=o.mode||'normal';if(n<=2&&mode!=='coop')mode='coop';
+/* no exile votes in co-op or with the no-betrayer house rule */
+function dwNoExile(g){return g.mode==='coop'||g.mode==='loyal'}
+function dwDeal(o={}){const P=act(),ps=P.map(p=>p.id),n=ps.length;let mode=o.mode||'normal';if(n<=2&&mode!=='coop'&&mode!=='loyal')mode='coop';
   const moId=o.mo||DWMO[Math.floor(Math.random()*DWMO.length)].id,side=o.side||(mode==='coop'?'hc':'std');
   const g={_atom:1,id:String(Math.random()).slice(2,10),ps,fp:null,turn:null,phase:'setup',mode,n:0,tno:0,rndNo:0,
     mo:{id:moId,side,cards:[],tokens:0,done:false,failed:false},morale:0,round:0,food:0,starve:0,helpless:0,waste:[],gone:[],removed:0,
@@ -14062,7 +14070,7 @@ function dwDeal(o={}){const P=act(),ps=P.map(p=>p.id),n=ps.length;let mode=o.mod
   g.decks.xr=typeof DWXR!=='undefined'?dwShuf(DWXR.filter(x=>!(mode==='coop'&&x.noco)).map(x=>x.no)):[];
   g.decks.exileObj=dwShuf(DWSO.exile.map((x,i)=>i));
   /* secret objectives: 2 regular per player + 1 betrayal (betrayer variant: 1 regular per player) */
-  let pool=[];if(mode!=='coop'){const reg=dwShuf(DWSO.regular.map((x,i)=>({t:'regular',i}))).slice(0,(mode==='betrayer'?1:2)*n);pool=dwShuf(reg.concat(dwShuf(DWSO.betrayal.map((x,i)=>({t:'betrayal',i}))).slice(0,1)))}
+  let pool=[];if(mode!=='coop'){const reg=dwShuf(DWSO.regular.map((x,i)=>({t:'regular',i}))).slice(0,(mode==='betrayer'?1:2)*n);pool=dwShuf(reg.concat(mode==='loyal'?[]:dwShuf(DWSO.betrayal.map((x,i)=>({t:'betrayal',i}))).slice(0,1)))}
   ps.forEach((p,k)=>{g.P[p]={hand:starter.splice(0,n<=2?7:5),lead:null,follow:[],obj:mode==='coop'?null:pool[k],betray:mode!=='coop'&&pool[k].t==='betrayal',
     exiled:false,exObj:null,dice:[],xr:null,xrBy:null,voted:false,moved:[],req:null,cn:0};g.susp[p]=0});
   /* main objective setup */
@@ -14071,7 +14079,7 @@ function dwDeal(o={}){const P=act(),ps=P.map(p=>p.id),n=ps.length;let mode=o.mod
   dwAddZ(g,'colony',M.zc||0,1);DWLOC.forEach(l=>dwAddZ(g,l.id,M.zo||0,1));
   ps.forEach(p=>g.q.push({t:'pickSurv',pid:p,o:g.decks.surv.splice(0,4),keep:n<=2?3:2}));
   g.q.push({t:'begin'});S.dwg=g;
-  dwAnn(g,'Dead of Winter',`${n} players · ${dwMOName(g)}${side==='hc'?' (hardcore)':''}${mode==='coop'?' · co-op':''}. Choose your survivors.`,'❄️');
+  dwAnn(g,'Dead of Winter',`${n} players · ${dwMOName(g)}${side==='hc'?' (hardcore)':''}${mode==='coop'?' · co-op':mode==='loyal'?' · no betrayer':''}. Choose your survivors.`,'❄️');
   dwLog(g,`Dead of Winter: ${n} players, main objective ${dwMOName(g)}${side==='hc'?' (hardcore)':''}, morale ${g.morale}, ${g.round} rounds`,'❄️');
   dwRun(g);return g}
 const dwMOName=g=>dwMOS(g).name||dwMO(g).n;
@@ -14233,7 +14241,7 @@ function dwAction(g,pid,mv){const P=g.P[pid],a=mv.a;g.last={p:pid,t:a};
     dwIns(g,...others.map(o=>({t:'give',pid:o,to:pid,what:mv.what||''})));dwLog(g,`${nmid(pid)} asks the others for ${mv.what?mv.what+' ':''}cards`,'🙏');return true}
   case 'handoff':{const s=+mv.s,c=+mv.c,to=+mv.to;if(!dwMineOK(g,pid,s)||!g.sv[s].eq.includes(c)||!g.sv[to]||to===s||g.sv[to].loc!==g.sv[s].loc)return false;
     g.sv[s].eq.splice(g.sv[s].eq.indexOf(c),1);g.sv[to].eq.push(c);if(g.sv[s].used['c'+c])g.sv[to].used['c'+c]=1;dwLog(g,`${dwNm(g,s)} hands ${dwCN(c)} to ${dwNm(g,to)}`,'🤝');return true}
-  case 'exile':{const t=mv.target;if(g.mode==='coop'||P.voted||P.exiled||t===pid||!g.P[t]||g.P[t].exiled)return false;P.voted=true;
+  case 'exile':{const t=mv.target;if(dwNoExile(g)||P.voted||P.exiled||t===pid||!g.P[t]||g.P[t].exiled)return false;P.voted=true;
     const need=dwActive(g);g.vote={kind:'exile',target:t,by:pid,msg:`${nmid(pid)} calls a vote to exile ${nmid(t)}`,need,got:{}};dwLog(g,`${nmid(pid)} calls a vote to exile ${nmid(t)}`,'🗳️');return true}
   case 'janet':{const c=+mv.c,t=+mv.t,j=dwSidN('Janet Taylor');if(!dwFlags(g).janetCare||!g.sv[j]||g.sv[j].loc!=='colony'||!P.hand.includes(c)||!dwMineOK(g,pid,t)||g.sv[t].loc!=='colony'||g.sv[t].w<=0)return false;
     P.hand.splice(P.hand.indexOf(c),1);dwToWaste(g,pid,c);g.sv[t].w--;if(g.sv[t].fb>0)g.sv[t].fb--;dwLog(g,`Janet patches up ${dwNm(g,t)}`,'🩹');return true}
@@ -14496,7 +14504,7 @@ function dwFailCost(g,C){return DWFC[DWCR.indexOf(C)]}
 /* how many more cards I should add: cards already in (mine are known good, others' are probably good), the players still to go and their hand sizes */
 function dwCrisisShort(g,pid){if(!g.crisis||g.crisis.skip)return 0;const C=DWCR[g.crisis.id],N=dwActive(g).length,ad=g.crisis.add,i=g.order?g.order.indexOf(pid):0,R=g.order?g.order.slice(i+1).filter(p=>!g.P[p].exiled):[];
   const mine=ad.filter(a=>a.pid===pid&&a.c>=0&&C.need.includes(dwSym(a.c))).length,mineBad=ad.filter(a=>a.pid===pid&&!(a.c>=0&&C.need.includes(dwSym(a.c)))).length,others=ad.filter(a=>a.pid!==pid).length;
-  const coop=g.mode==='coop',q=coop?1:DWB.wo,cost=dwFailCost(g,C);const later=R.reduce((t,p)=>t+DWB.wr*Math.min(1,g.P[p].hand.length/4),0);
+  const coop=dwNoExile(g),q=coop?1:DWB.wo,cost=dwFailCost(g,C);const later=R.reduce((t,p)=>t+DWB.wr*Math.min(1,g.P[p].hand.length/4),0);
   const cush=!R.length?(coop?0:.3):DWB.cx+(cost>=2?.3:0);const sure=mine-mineBad+others*q;
   if(sure>=N+DWB.cx+1)return 0;return Math.max(0,Math.ceil(N+cush-sure-later-1e-9))}
 const DWB=Object.assign({/* A, B */cx:1,wo:.85,wr:.6,foodKeep:0,k1:.5,k2:.5,nf:1,noise:1,sl:.3,bite:1,cs:1,os:1,ef:1,fb:1,br:1,h1:1,lb:0,mo:1,keep:0,eo:1,nz:.6,wk:2,wf:6,mp:40,ff:1,/* C, hard */mg:1,ma:1,z:1,ls:.9,la:.5,et:.55,ec:.65,eps:.08,ok:.85,bs:35,ow:150,sw:80},(typeof process!=='undefined'&&process.env&&process.env.DWB)?JSON.parse(process.env.DWB):{});
@@ -14770,7 +14778,7 @@ function dwSmartVote(g,pid){const V=g.vote,P=g.P[pid];if(V.kind==='exile')return
   const up=dwLook(g,pid,2,(c,i)=>{const W=c.vote;c.vote=null;dwXrVoted(c,W.no,i===1,W.ctx||{},W.by);dwRun(c);return true},{tries:6,z:0})===1;
   if(P.betray&&!P.exiled&&Math.random()<.3)return !up;return up}
 /* how likely each other player is the betrayer, seen by a loyal viewer, from public things only: the revealed crisis cards (how many were wrong) and who added how many */
-function dwBeliefs(g,viewer){const O=g.ps.filter(p=>p!==viewer),n=g.ps.length,o={};if(g.mode==='coop'||!O.length)return o;const bm=g.mode==='betrayer',e=DWB.eps;
+function dwBeliefs(g,viewer){const O=g.ps.filter(p=>p!==viewer),n=g.ps.length,o={};if(dwNoExile(g)||!O.length)return o;const bm=g.mode==='betrayer',e=DWB.eps;
   /* betrayer variant: 1 regular each + 1 betrayal, so a loyal viewer sees 1/n per other player; normal: 2 regular each + 1 betrayal */
   const W=O.map(p=>bm?1/n:1/(2*n));let w0=Math.max(0,1-W.reduce((a,x)=>a+x,0));
   (g.ev||[]).forEach(E=>{O.forEach((p,i)=>{const c=E.by[p]||0;W[i]*=E.w>0?(c>=E.w?1:Math.pow(e,E.w-c)):(c>0?DWB.ok:1)});if(E.w>0)w0*=Math.pow(e,E.w)});
@@ -14781,7 +14789,7 @@ function dwExileVote(g,pid,hard){const V=g.vote,P=g.P[pid];if(V.target===pid)ret
   const b=dwBelief(g,pid,V.target);return b>=(ex>=1?DWB.et+.2:DWB.et)}
 const dwOther=(g,pid,t)=>g.ps.find(p=>p!==pid&&p!==t)||pid;
 /* calling an exile vote (hard): only on strong public evidence */
-function dwExileCall(g,pid){const P=g.P[pid];if(g.mode==='coop'||P.voted||P.exiled)return null;const bt=P.betray;
+function dwExileCall(g,pid){const P=g.P[pid];if(dwNoExile(g)||P.voted||P.exiled)return null;const bt=P.betray;
   const L=g.ps.filter(q=>q!==pid&&!g.P[q].exiled).map(q=>[q,dwBelief(g,bt?dwOther(g,pid,q):pid,q)]).sort((a,b)=>b[1]-a[1]);if(!L.length)return null;
   if(!bt&&L[0][1]>=DWB.ec)return {a:'exile',target:L[0][0]};if(bt&&L[0][1]>=.35&&g.morale<=4)return {a:'exile',target:L[0][0]};return null}
 /* someone asks for a card: help when it plainly helps them and costs the colony nothing (given cards must be played, not kept) */
@@ -14915,7 +14923,7 @@ DWOP.peek=(g,s,mv)=>{const k=s.a[1],tp=s.pid,others=g.ps.filter(p=>p!==tp);const
   if(k==='objective'){const O=dwObjOf(g,p);return show(`${nmid(p)}'s secret objective: ${O?O.n+' – '+O.need:'none'}`)}
   if(k==='showHandOther'){dwLog(g,`${nmid(p)}'s hand is shown to everyone: ${g.P[p].hand.map(dwCN).join(', ')||'nothing'}`,'👀');return true}
   return show(`${nmid(p)}'s hand: ${g.P[p].hand.map(dwCN).join(', ')||'nothing'}`)};
-DWOP.exileVote=(g,s,mv)=>{if(g.mode==='coop')return true;const L=g.ps.filter(p=>p!==s.pid&&!g.P[p].exiled&&(s.a[1]!=='colonyPlayer'||dwMine(g,p).some(id=>g.sv[id].loc==='colony')));if(!L.length)return true;
+DWOP.exileVote=(g,s,mv)=>{if(dwNoExile(g))return true;const L=g.ps.filter(p=>p!==s.pid&&!g.P[p].exiled&&(s.a[1]!=='colonyPlayer'||dwMine(g,p).some(id=>g.sv[id].loc==='colony')));if(!L.length)return true;
   if(!mv)return dwAsk(g,s,'Crossroads: call an exile vote on whom?',L.map(p=>({v:p,l:nmid(p)})),{kind:'player'});if(!L.includes(mv.v))return null;
   g.vote={kind:'exile',target:mv.v,by:s.pid,msg:`${nmid(s.pid)} calls a vote to exile ${nmid(mv.v)}`,need:dwActive(g),got:{}};return true};
 DWOP.addWin=(g,s)=>{const F=dwFlags(g);(F.addWin=F.addWin||[]).push(s.a[1]);dwLog(g,`The main objective now also needs ${s.a[1]==='deputy'?'no zombies at the gas station, hospital and police station':'5 or more food tokens'}`,'🎯');return true};
@@ -15354,8 +15362,8 @@ function dwSetup(){const X=DWX(),lock=S.started&&dwPlayOn(),seg=(a,opts,cur)=>`<
   <p class="hint">${X.play?'The phones deal the survivors, items, crises and objectives and keep everything secret: link everyone’s phone, pass one phone around (it hides each hand), or add computer players. Crossroads cards are being added.':'Play with the real box, then record who won, the main objective, the betrayer and anyone exiled.'}</p></div>
   ${X.play?`<div class="sec"><div class="sec-h"><h3>Main objective</h3></div><div class="panel hfpanel"><div class="seg dwmos">${[['','🎲 Random'],...DWMO.map(m=>[m.id,m.side?m.n:(m.std.name||m.n)])].map(([v,t])=>`<button data-a="dwmo" data-k="${v}" aria-pressed="${X.mo===v}" ${lock?'disabled':''}>${esc(t)}</button>`).join('')}</div>${seg('dwside',[['std','Standard'],['hc','⚠️ Hardcore']],X.side)}</div>
   <p class="hint">${mo?`${esc((mo[X.side]||mo.std).name||mo.n)}: ${esc((mo[X.side]||mo.std).goal)} Morale starts at ${(mo[X.side]||mo.std).mor}, ${(mo[X.side]||mo.std).rnd} rounds. Time: ${esc(mo.time)}.`:'A main objective is picked at random when the game starts. The rulebook suggests We Need More Samples for a first game.'}</p></div>
-  <div class="sec"><div class="sec-h"><h3>Secret objectives</h3></div><div class="panel hfpanel">${seg('dwmode',[['normal','Official'],['betrayer','More betrayers'],['coop','Co-op']],X.mode)}</div>
-  <p class="hint">${X.mode==='coop'?'Co-op variant: no secret objectives and no exile votes; everyone wins together by completing the main objective (the rulebook uses the hardcore side). Cards with the non co-op mark are left out.':X.mode==='betrayer'?'Betrayer variant: only 1 regular objective per player goes in with 1 betrayal card, so a betrayer is much more likely.':'Official rules: 2 regular objectives per player and 1 betrayal objective are shuffled, and each player gets one. There may or may not be a betrayer.'}</p></div>`:''}
+  <div class="sec"><div class="sec-h"><h3>Secret objectives</h3></div><div class="panel hfpanel">${seg('dwmode',[['normal','Official'],['betrayer','More betrayers'],['loyal','No betrayer'],['coop','Co-op']],X.mode)}</div>
+  <p class="hint">${X.mode==='coop'?'Co-op variant: no secret objectives and no exile votes; everyone wins together by completing the main objective (the rulebook uses the hardcore side). Cards with the non co-op mark are left out.':X.mode==='loyal'?'House rule: everyone gets a regular secret objective and nobody is a betrayer, so there are no exile votes. You still need the main objective and your own secret objective to win.':X.mode==='betrayer'?'Betrayer variant: only 1 regular objective per player goes in with 1 betrayal card, so a betrayer is much more likely.':'Official rules: 2 regular objectives per player and 1 betrayal objective are shuffled, and each player gets one. There may or may not be a betrayer.'}</p></div>`:''}
   <p class="hint">${usualUI('deadofwinter')}</p>
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Players ›</button></div></div>`}
 function dwScoreScr(){if(dwPlayOn()&&S.started&&!S.demo)return dwPlayUI();return dwScoreSheet()}
@@ -15450,7 +15458,7 @@ function dwPlayUI(){const g=dwGg(),P=act();
   out+=dwColony(g)+dwLocs(g);
   if(g.phase==='done')out+=dwEndUI(g);
   else if(hide){const h=dwNeedHandoff();out+=`<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="dwh-h" style="${pc(h.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="dwh-h">${esc(nm(h))}</h2><p class="rlab">${g.vote?'Time to vote, in secret.':g.ask&&g.ask.pid===h.id&&g.turn!==h.id?'A question for you.':'It’s your turn.'} Everyone else, look away.</p><button class="btn primary wide" data-a="dwshow" data-k="${h.id}">I’m ${esc(nm(h))}, show my cards</button></div></div>`}
-  else if(V)out+=dwMe(g,V)+dwDock(g,V);
+  else if(V)out+=dwMe(g,V)+(LPTIP==='dww:1'?'':dwDock(g,V));
   out+=dwLogBox(g);
   return out}
 function dwLogBox(g){const L=(g.lg||[]).slice(-8).reverse();return L.length?`<div class="sec"><div class="sec-h"><h3>What happened</h3></div><ul class="dwlog">${L.map(e=>`<li>${esc(e.ic||'')} ${esc(e.t)}</li>`).join('')}</ul></div>`:''}
@@ -15465,8 +15473,8 @@ function dwDock(g,V){const box=(h,b)=>`<div class="sadock cpdock dwdock" style="
   if(A)return box('Waiting',`<p class="rlab">${esc(dwPName(A.pid))}: ${esc(A.msg)}</p>`)+me;
   if(g.turn!==V.id||(g.q||[]).length)return box('Waiting',`<p class="rlab">${esc(dwPName(g.turn))} is taking a turn.</p>`)+me;
   const acts=dwActions(g,V),others=act().filter(p=>p.id!==V.id&&!((g.P[p.id]||{}).exiled));
-  return box('your turn',`<p class="rlab">${DWSEL?'':'Tap a survivor, a die or a card to see what you can do.'}</p><div class="wzopts">${acts.join('')}</div>
-    <div class="wzopts">${DWSEL?dwSelB('none','Clear',{}):''}${dwBtn({a:'request'},'🙏 Ask for a card')}${!g.P[V.id].voted&&DWX().mode!=='coop'?others.map(p=>dwBtn({a:'exile',target:p.id},`🚪 Vote to exile ${esc(nm(p))}`)).join(''):''}${dwBtn({a:'end'},'✋ End turn',{cls:'btn primary'})}</div>`)+me}
+  return box('your turn',`<p class="rlab">${DWSEL?'':'Tap a survivor, a die or a card, or tap 💡 What you can do.'}</p><div class="wzopts">${acts.join('')}</div>
+    <div class="wzopts">${DWSEL?dwSelB('none','Clear',{}):''}<button class="btn" data-a="dwwhat">💡 What you can do</button>${dwBtn({a:'request'},'🙏 Ask for a card')}${!g.P[V.id].voted&&!dwNoExile(g)?others.map(p=>dwBtn({a:'exile',target:p.id},`🚪 Vote to exile ${esc(nm(p))}`)).join(''):''}${dwBtn({a:'end'},'✋ End turn',{cls:'btn primary'})}</div>`)+me}
 function dwEndUI(g){const P=act();return `<div class="sec"><div class="sec-h"><h3>Game over</h3></div><p class="rlab">${esc(g.endWhy||'')}</p><div class="panel">${P.map(q=>{const F=(g.fin||{})[q.id]||{},Q=(g.P||{})[q.id]||{};return `<div class="prow" style="${pc(q.color)}"><span class="rtext"><b>${F.win?'🏆 ':''}${esc(nm(q))}</b><br><small class="rlab">${esc(F.obj||(dwObjP(g,q.id)||{}).n||'')}${F.betrayer||Q.betray?' · 🗡️ betrayer':''}${F.exiled||Q.exiled?' · 🚪 exiled':''}${F.why?' · '+esc(F.why):''}</small></span><b>${F.win?'Won':'Lost'}</b></div>`}).join('')}</div>
   <div class="actions"><div class="in">${dwRes2()?`<button class="btn primary" data-a="finish">Finish &amp; reveal</button>`:`<span class="rlab">Waiting for the host…</span>`}</div></div></div>`}
 function dwSyncScorer(g){if(!g||!g.fin)return;S.dwrec={mo:g.mo&&g.mo.id,side:g.mo&&g.mo.side,end:g.mo&&g.mo.done?'done':g.morale<=0?'morale':'rounds'};act().forEach(p=>{const F=g.fin[p.id]||{},Q=(g.P||{})[p.id]||{};p.dw={win:F.win?1:0,betray:(F.betrayer||Q.betray)?1:0,exiled:(F.exiled||Q.exiled)?1:0,obj:F.obj||(dwObjP(g,p.id)||{}).n||''}});S.hr=1}
@@ -15475,10 +15483,13 @@ function dwSurvSheet(id){const D=dwSv(id);if(!D)return '';const g=dwGg(),x=g&&g.
   <div class="rs-body"><img class="dwps" src="${dwSP(id)}" alt="${esc(D.n)}" onerror="this.remove()"><p class="rlab">Attack ${D.atk}+ · search ${D.sr}+</p><p><b>${esc((D.at||'any')==='any'?'Anywhere':D.at==='noncolony'?'Away from the colony':DWLN[D.at]||D.at)}${D.die?` (${D.die}+ die)`:''}${D.opr?' · once per round':''}:</b> ${esc(D.ab)}</p>${x?`<p class="rlab">${esc(DWLN[x.loc]||'')} · ${x.w||0} wound${x.w===1?'':'s'}${x.fb?` (${x.fb} frostbite)`:''}${(x.eq||[]).length?' · equipped: '+x.eq.map(c=>esc((dwCard(c)||{}).n)).join(', '):''}</p>`:''}<p class="hint">The exact wording is on the card.</p></div></div></div>`}
 function dwItemSheet(c){const C=dwCard(c);if(!C)return '';return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet" role="dialog" aria-modal="true" aria-labelledby="lp-h" data-stop="1"><div class="rs-top"><div><h2 id="lp-h">${DWSYM[C.sym]||''} ${esc(C.n)}</h2><small class="lp-sub">${esc(DWSYMN[C.sym]||'')} · ${C.use==='equip'?'equip':C.use==='event'?'event':'play to the waste pile'} · ${C.d==='starter'?'starter item':esc(DWLN[C.d]||C.d)}</small></div><button class="btn sm" data-a="lpclose">Close</button></div><div class="rs-body"><p>${esc(C.say)}</p><p class="hint">The exact wording is on the card.</p></div></div></div>`}
 function dwUiAct(a,b,k){const g=dwGg();if(!g)return;if(a==='dwshow'){DWVIEW=k;DWSEL=null;return}const V=dwViewer();if(!V)return;
+  if(a==='dwwhat'){LPTIP='dww:1';return}
+  if(a==='dwsel'&&String(k).startsWith('only:')){LPTIP=null;DWSEL=null;k=String(k).slice(5)}
+  if(a==='dwsel'&&String(k).startsWith('sd:')){const [,sv,dv]=String(k).split(':');DWSEL={s:+sv,die:+dv};vibe(6);return}
   if(a==='dwsel'){if(k==='none'){DWSEL=null;return}const [t,v]=String(k).split(':');DWSEL=DWSEL||{};
     if(t==='die')DWSEL.die=DWSEL.die===+v?null:+v;else if(t==='surv')DWSEL.s=DWSEL.s===+v?null:+v;else if(t==='card'){DWSEL.c=DWSEL.c===+v?null:+v}
     if(DWSEL.die==null&&DWSEL.s==null&&DWSEL.c==null)DWSEL=null;vibe(6);return}
-  if(a==='dwans'){let mv;try{mv=JSON.parse(decodeURIComponent(k))}catch(e){return}if(mv.a)DWSEL=null;lkq('dwMove',V.id,mv)&&vibe(8);return}}
+  if(a==='dwans'){let mv;try{mv=JSON.parse(decodeURIComponent(k))}catch(e){return}if(LPTIP==='dww:1')LPTIP=null;if(mv.a)DWSEL=null;lkq('dwMove',V.id,mv)&&vibe(8);return}}
 function dwTick(){if(!dwPlayOn()||!S.started||S.finished||S.demo||S.screen!=='score')return;if(!dwRes2())return;if(lkqRun()){save();render();return}
   if(typeof dwDeal!=='function')return;
   const g=dwGg();if(!g||(typeof dwStale==='function'&&dwStale(g))){const X=DWX();S.dwg=dwDeal({mo:X.mo||null,side:X.side,mode:X.mode})||S.dwg;save();render();return}if(g.phase==='done'||DWBOTT)return;
@@ -15486,6 +15497,42 @@ function dwTick(){if(!dwPlayOn()||!S.started||S.finished||S.demo||S.screen!=='sc
   const a=dwAct(g),q=act().find(p=>p.bot&&p.id===a);if(!q)return;
   DWBOTT=setTimeout(()=>{DWBOTT=null;DWBOTAT=Date.now();const g2=dwGg();if(g2&&g2.phase!=='done'&&dwAct(g2)===q.id){try{dwBotStep(g2,q)}catch(e){console.error('Dead of Winter bot',e)}save()}render()},500*htSpd());DWBOTAT=Date.now()}
 setInterval(()=>{try{if(!dwPlayOn()||!S.started||S.finished||document.hidden)return;const g=dwGg();if(!g||g.phase==='done'||!dwRes2())return;const a=dwAct(g),q=act().find(p=>p.bot&&p.id===a);if(!q)return;if(Date.now()-DWBOTAT<4000)return;if(DWBOTT){clearTimeout(DWBOTT);DWBOTT=null}DWBOTAT=Date.now();render()}catch(e){}},1500);
+/* ---------- "What you can do" sheet: every move open to you right now ---------- */
+function dwWhatSheet(){const g=dwGg(),V=dwViewer();if(!g||!V)return '';const P=g.P[V.id]||{},dice=P.dice||[];
+  const low=min=>{let b=-1;dice.forEach((v,i)=>{if(v>=min&&(b<0||v<dice[b]))b=i});return b};
+  const sec=(h,body)=>body?`<h3 class="dwwh">${h}</h3>${body}`:'';
+  const row=(btn,note)=>`<div class="dwwr">${btn}${note?`<small class="rlab">${note}</small>`:''}</div>`;
+  const myTurn=g.turn===V.id&&g.phase==='play'&&!g.ask&&!g.vote&&!(g.q||[]).length;
+  let body='';
+  if(g.vote&&(g.vote.need||[]).includes(V.id)&&!(g.vote.got&&V.id in g.vote.got))body=`<p>Vote yes or no below. Your vote stays secret until everyone has voted.</p>`;
+  else if(g.ask&&g.ask.pid===V.id)body=`<p>Answer the question at the bottom of the screen: ${esc(g.ask.msg||'')}</p>`;
+  else if(!myTurn)body=`<p>It’s ${esc(dwPName(g.turn))}’s turn. When it’s yours, this shows every move you can make.</p>`;
+  else{const L=[P.lead,...(P.follow||[])].filter(x=>x!=null&&g.sv[x]);
+    /* dice actions, one block per survivor */
+    let dz='';L.forEach(s=>{const x=g.sv[s],D=dwSv(s),here=x.loc,r=[];
+      const za=dwZ(g,here)>0,ia=low(D.atk),is=low(D.sr),ib=low(1);
+      if(za)r.push(ia>=0?row(dwBtn({a:'attack',s,die:ia,target:'z'},`⚔️ Kill a zombie (die ${dice[ia]})`),'Then roll the exposure die.'):row('',`⚔️ Killing a zombie needs a ${D.atk}+ die.`));
+      if(here!=='colony')r.push(is>=0?row(dwBtn({a:'search',s,die:is},`🔍 Search ${esc(DWLN[here])} (die ${dice[is]})`),'Draw a card; you may make noise to draw more.'):row('',`🔍 Searching needs a ${D.sr}+ die.`));
+      if(ib>=0)r.push(row(dwBtn({a:'barricade',s,die:ib},`🧱 Barricade ${esc(DWLN[here])} (die ${dice[ib]})`),''));
+      if(ib>=0){const Z=Object.keys(g.loc||{}).filter(l=>l!==here&&dwZ(g,l)>0);if(Z.length)r.push(row(dwSelB(`only:sd:${s}:${ib}`,`📣 Attract 2 zombies here (die ${dice[ib]})`),`Then pick where from: ${Z.length} place${Z.length===1?'':'s'} have zombies.`))}
+      if(D.die){const ix=low(D.die);r.push(ix>=0?row(dwBtn({a:'ability',s,die:ix},`✨ ${esc(D.ab)} (die ${dice[ix]})`),''):row('',`✨ Ability needs a ${D.die}+ die.`))}
+      else if(D.opr&&!(x.used||{})['ab'+s])r.push(row(dwBtn({a:'ability',s},`✨ ${esc(D.ab)}`),'Once per round.'));
+      if(r.length)dz+=`<div class="dwwb"><b>${esc(D.n)}</b> <small class="rlab">at ${esc(DWLN[here]||here)} · attack ${D.atk}+ · search ${D.sr}+</small>${r.join('')}</div>`});
+    const ic=low(1);
+    if(ic>=0&&(g.waste||[]).length)dz+=row(dwBtn({a:'clean',die:ic},`🗑️ Clean waste (die ${dice[ic]})`),'Removes 3 cards from the waste pile.');
+    if(dice.length&&(g.food||0)>0)dz+=`<p class="rlab">🥫 You can spend food tokens to raise a die: tap the die, then choose how much.</p>`;
+    body+=sec(`🎲 With a die${dice.length?` (unused: ${dice.join(', ')})`:''}`,dice.length?dz:'<p class="rlab">No unused dice left. You can still do everything below.</p>');
+    /* free actions */
+    let fr='';const mv=L.filter(s=>!(P.moved||[]).includes(s));
+    if(mv.length)fr+=row(mv.map(s=>dwSelB('only:surv:'+s,`🚶 Move ${esc(dwSv(s).n)}`)).join(''),`Each survivor moves once a turn. Roll exposure, or spend fuel to skip it.${(P.hand||[]).some(c=>(dwCard(c)||{}).k==='fuel')?' You have fuel.':''}`);
+    else if(L.length)fr+=`<p class="rlab">🚶 Everyone in your group has moved this turn.</p>`;
+    if((P.hand||[]).length)fr+=row((P.hand||[]).map(c=>{const C=dwCard(c);return C?dwSelB('only:card:'+c,`${DWSYM[C.sym]||''} ${esc(C.n)}`):''}).join(''),'Tap a card to play it, equip it, add it to the crisis or put it under the main objective.');
+    const eq=L.filter(s=>(g.sv[s].eq||[]).length);if(eq.length)fr+=row(eq.map(s=>dwSelB('only:surv:'+s,`🎒 ${esc(dwSv(s).n)}’s gear`)).join(''),'Equipped items can go into the crisis or to another of your survivors in the same place.');
+    fr+=row(dwBtn({a:'request'},'🙏 Ask for a card'),'Another player may give you a card; it must be played this turn.');
+    if(!dwNoExile(g)&&!P.voted){const O=act().filter(p=>p.id!==V.id&&!((g.P[p.id]||{}).exiled));if(O.length)fr+=row(O.map(p=>dwBtn({a:'exile',target:p.id},`🚪 Exile ${esc(nm(p))}`)).join(''),'Calls a secret vote.')}
+    fr+=row(dwBtn({a:'end'},'✋ End turn',{cls:'btn primary'}),'');
+    body+=sec('🆓 No die needed',fr)}
+  return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet dwwhat" role="dialog" aria-modal="true" aria-labelledby="lp-h" data-stop="1" style="${pc(V.color)}"><div class="rs-top"><div><h2 id="lp-h">What you can do</h2><small class="lp-sub">${esc(nm(V))} · round ${g.rndNo||1}</small></div><button class="btn sm" data-a="lpclose">Close</button></div><div class="rs-body">${body}<p class="hint">The rule card has the full wording.</p></div></div></div>`}
 
 
 /* ================= Stone Age on the phone =================
@@ -23966,7 +24013,7 @@ function render0(){
   const wasFinal=REV&&REV.phase==='final'&&S.screen==='reveal'&&document.querySelector('[data-final]');
   const winY=SLOCK?null:window.scrollY,winScr=S.screen;
   const KEEPSC=['.csheet .cbody','.rsheet .rs-body','.cpick','.lansheet'],keepSc=KEEPSC.map(q=>{const el=document.querySelector(q);return el?el.scrollTop:null});
-  cbApply();try{rxBots()}catch(e){}document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+rxLocal()+hintFab()+turnBanner()+glWaitCard()+lkMakingHtml()+dashSheet()+cbSheet()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','stoneage','dominion','citadels','tobago','phase10','rook','yahtzee','mextrain','chicken','catan','golf','tripoley','quacks','boggle','scatter','wordtiles','upwords','deadofwinter'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||S.game==='dominion'&&/^dnk?[cp]:/.test(LPTIP)||S.game==='citadels'&&/^ci[cd]:/.test(LPTIP)||S.game==='tobago'&&LPTIP.startsWith('tgc:')||S.game==='catan'&&/^c[pk][dbpehq]:/.test(LPTIP)||S.game==='stoneage'&&/^sa[tchm]/.test(LPTIP)||LPTIP.startsWith('ph:')||LPTIP.startsWith('wpb:')||LPTIP.startsWith('wzd:')||LPTIP.startsWith('dws:')||LPTIP.startsWith('dwi:')||/^tr[prc]:/.test(LPTIP)||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:')||LPTIP.startsWith('wt:')||LPTIP.startsWith('qb:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
+  cbApply();try{rxBots()}catch(e){}document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+rxLocal()+hintFab()+turnBanner()+glWaitCard()+lkMakingHtml()+dashSheet()+cbSheet()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','stoneage','dominion','citadels','tobago','phase10','rook','yahtzee','mextrain','chicken','catan','golf','tripoley','quacks','boggle','scatter','wordtiles','upwords','deadofwinter'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||S.game==='dominion'&&/^dnk?[cp]:/.test(LPTIP)||S.game==='citadels'&&/^ci[cd]:/.test(LPTIP)||S.game==='tobago'&&LPTIP.startsWith('tgc:')||S.game==='catan'&&/^c[pk][dbpehq]:/.test(LPTIP)||S.game==='stoneage'&&/^sa[tchm]/.test(LPTIP)||LPTIP.startsWith('ph:')||LPTIP.startsWith('wpb:')||LPTIP.startsWith('wzd:')||LPTIP.startsWith('dws:')||LPTIP.startsWith('dwi:')||LPTIP.startsWith('dww:')||/^tr[prc]:/.test(LPTIP)||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:')||LPTIP.startsWith('wt:')||LPTIP.startsWith('qb:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
   if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar){bar.insertAdjacentHTML('afterbegin',HOMEBTN);if(CBG.includes(S.game)&&['score','live'].includes(S.screen)&&!S.editing){const rb=bar.querySelector('.rulesbtn');if(rb&&!bar.querySelector('.cbbtn'))rb.insertAdjacentHTML('afterend',`<button class="btn sm cbbtn" data-a="cbopen" aria-label="Card back" title="Card back">${cbThumb(cbFor(S.game))}</button>`)}if(dashOn()&&!S.editing)bar.insertAdjacentHTML('beforeend','<button class="btn sm dashbtn" data-a="dashopen" aria-label="Everyone at a glance">📊</button>');if((window.FTLINK||window.FTLAN)&&!S.lk&&!S.demo&&!S.editing&&S.started&&!S.finished&&['score','live'].includes(S.screen))bar.insertAdjacentHTML('beforeend','<button class="btn sm lkbtn" data-a="lkchoose" aria-label="Link phones">📱<span class="lkw"> Link</span></button>')}}
   if(S.screen==='results'&&S.lk&&!S.demo&&S.finished){const app=document.getElementById('app'),ac=app.querySelector('.actions');if(ac){ac.querySelectorAll('[data-a="rematch"]').forEach(x=>x.remove());ac.insertAdjacentHTML('beforebegin',lkVoteHtml());if(!ac.querySelector('button'))ac.remove()}else app.insertAdjacentHTML('beforeend',lkVoteHtml())}
   bidMark();
@@ -24227,7 +24274,7 @@ document.addEventListener('click',e=>{
   if(/^trp[a-z]+$/.test(a)&&trOn()&&S.started){trUiAct(a,b,k);save();render();return}
   if(/^ccp[a-z]+$/.test(a)&&S.game==='carc'&&ccOn()&&S.started){ccUiAct(a,b,k);save();render();return}
   if(/^wg[a-z]+$/.test(a)){wgAct(a,b,k);render();return}
-  if(/^dw(sel|ans|show)$/.test(a)&&dwPlayOn()&&S.started){dwUiAct(a,b,k);save();render();return}
+  if(/^dw(sel|ans|show|what)$/.test(a)&&dwPlayOn()&&S.started){dwUiAct(a,b,k);save();render();return}
   if(/^uwp[a-z]+$/.test(a)&&S.game==='upwords'&&uwOn()&&S.started){uwUiAct(a,b,k);save();render();return}
   if(/^wtp[a-z]+$/.test(a)&&S.game==='wordtiles'&&wtOn()&&S.started){wtUiAct(a,b,k);save();render();return}
   if(/^sgp[a-z]+$/.test(a)&&S.game==='scatter'&&sgOn()&&S.started){sgUiAct(a,b,k);save();render();return}
@@ -24427,7 +24474,7 @@ document.addEventListener('click',e=>{
     case 'dwplaymode':{if(S.started)break;DWX().play=k==='1'?1:0;dwKeep();break}
     case 'dwmo':{if(S.started&&dwPlayOn())break;DWX().mo=k||'';dwKeep();break}
     case 'dwside':{if(S.started&&dwPlayOn())break;DWX().side=k==='hc'?'hc':'std';dwKeep();break}
-    case 'dwmode':{if(S.started&&dwPlayOn())break;DWX().mode=['normal','betrayer','coop'].includes(k)?k:'normal';if(k==='coop')DWX().side='hc';dwKeep();break}
+    case 'dwmode':{if(S.started&&dwPlayOn())break;DWX().mode=['normal','betrayer','loyal','coop'].includes(k)?k:'normal';if(k==='coop')DWX().side='hc';dwKeep();break}
     case 'dwrec':{const [i,f]=String(k).split(':'),q=act()[+i];if(!q)break;const D=dwP(q);D[f]=D[f]?0:1;break}
     case 'dwrecmo':{(S.dwrec=S.dwrec||{}).mo=k;break}
     case 'dwrecside':{(S.dwrec=S.dwrec||{}).side=k;break}

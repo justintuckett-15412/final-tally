@@ -37,7 +37,9 @@ const dwEqK=(g,sid,k)=>(g.sv[sid]?g.sv[sid].eq:[]).find(c=>DWI[c].k===k);
 const dwStarter=c=>DWI[c].d==='starter';
 
 /* ---------- setup ---------- */
-function dwDeal(o={}){const P=act(),ps=P.map(p=>p.id),n=ps.length;let mode=o.mode||'normal';if(n<=2&&mode!=='coop')mode='coop';
+/* no exile votes in co-op or with the no-betrayer house rule */
+function dwNoExile(g){return g.mode==='coop'||g.mode==='loyal'}
+function dwDeal(o={}){const P=act(),ps=P.map(p=>p.id),n=ps.length;let mode=o.mode||'normal';if(n<=2&&mode!=='coop'&&mode!=='loyal')mode='coop';
   const moId=o.mo||DWMO[Math.floor(Math.random()*DWMO.length)].id,side=o.side||(mode==='coop'?'hc':'std');
   const g={_atom:1,id:String(Math.random()).slice(2,10),ps,fp:null,turn:null,phase:'setup',mode,n:0,tno:0,rndNo:0,
     mo:{id:moId,side,cards:[],tokens:0,done:false,failed:false},morale:0,round:0,food:0,starve:0,helpless:0,waste:[],gone:[],removed:0,
@@ -51,7 +53,7 @@ function dwDeal(o={}){const P=act(),ps=P.map(p=>p.id),n=ps.length;let mode=o.mod
   g.decks.xr=typeof DWXR!=='undefined'?dwShuf(DWXR.filter(x=>!(mode==='coop'&&x.noco)).map(x=>x.no)):[];
   g.decks.exileObj=dwShuf(DWSO.exile.map((x,i)=>i));
   /* secret objectives: 2 regular per player + 1 betrayal (betrayer variant: 1 regular per player) */
-  let pool=[];if(mode!=='coop'){const reg=dwShuf(DWSO.regular.map((x,i)=>({t:'regular',i}))).slice(0,(mode==='betrayer'?1:2)*n);pool=dwShuf(reg.concat(dwShuf(DWSO.betrayal.map((x,i)=>({t:'betrayal',i}))).slice(0,1)))}
+  let pool=[];if(mode!=='coop'){const reg=dwShuf(DWSO.regular.map((x,i)=>({t:'regular',i}))).slice(0,(mode==='betrayer'?1:2)*n);pool=dwShuf(reg.concat(mode==='loyal'?[]:dwShuf(DWSO.betrayal.map((x,i)=>({t:'betrayal',i}))).slice(0,1)))}
   ps.forEach((p,k)=>{g.P[p]={hand:starter.splice(0,n<=2?7:5),lead:null,follow:[],obj:mode==='coop'?null:pool[k],betray:mode!=='coop'&&pool[k].t==='betrayal',
     exiled:false,exObj:null,dice:[],xr:null,xrBy:null,voted:false,moved:[],req:null,cn:0};g.susp[p]=0});
   /* main objective setup */
@@ -60,7 +62,7 @@ function dwDeal(o={}){const P=act(),ps=P.map(p=>p.id),n=ps.length;let mode=o.mod
   dwAddZ(g,'colony',M.zc||0,1);DWLOC.forEach(l=>dwAddZ(g,l.id,M.zo||0,1));
   ps.forEach(p=>g.q.push({t:'pickSurv',pid:p,o:g.decks.surv.splice(0,4),keep:n<=2?3:2}));
   g.q.push({t:'begin'});S.dwg=g;
-  dwAnn(g,'Dead of Winter',`${n} players · ${dwMOName(g)}${side==='hc'?' (hardcore)':''}${mode==='coop'?' · co-op':''}. Choose your survivors.`,'❄️');
+  dwAnn(g,'Dead of Winter',`${n} players · ${dwMOName(g)}${side==='hc'?' (hardcore)':''}${mode==='coop'?' · co-op':mode==='loyal'?' · no betrayer':''}. Choose your survivors.`,'❄️');
   dwLog(g,`Dead of Winter: ${n} players, main objective ${dwMOName(g)}${side==='hc'?' (hardcore)':''}, morale ${g.morale}, ${g.round} rounds`,'❄️');
   dwRun(g);return g}
 const dwMOName=g=>dwMOS(g).name||dwMO(g).n;
@@ -222,7 +224,7 @@ function dwAction(g,pid,mv){const P=g.P[pid],a=mv.a;g.last={p:pid,t:a};
     dwIns(g,...others.map(o=>({t:'give',pid:o,to:pid,what:mv.what||''})));dwLog(g,`${nmid(pid)} asks the others for ${mv.what?mv.what+' ':''}cards`,'🙏');return true}
   case 'handoff':{const s=+mv.s,c=+mv.c,to=+mv.to;if(!dwMineOK(g,pid,s)||!g.sv[s].eq.includes(c)||!g.sv[to]||to===s||g.sv[to].loc!==g.sv[s].loc)return false;
     g.sv[s].eq.splice(g.sv[s].eq.indexOf(c),1);g.sv[to].eq.push(c);if(g.sv[s].used['c'+c])g.sv[to].used['c'+c]=1;dwLog(g,`${dwNm(g,s)} hands ${dwCN(c)} to ${dwNm(g,to)}`,'🤝');return true}
-  case 'exile':{const t=mv.target;if(g.mode==='coop'||P.voted||P.exiled||t===pid||!g.P[t]||g.P[t].exiled)return false;P.voted=true;
+  case 'exile':{const t=mv.target;if(dwNoExile(g)||P.voted||P.exiled||t===pid||!g.P[t]||g.P[t].exiled)return false;P.voted=true;
     const need=dwActive(g);g.vote={kind:'exile',target:t,by:pid,msg:`${nmid(pid)} calls a vote to exile ${nmid(t)}`,need,got:{}};dwLog(g,`${nmid(pid)} calls a vote to exile ${nmid(t)}`,'🗳️');return true}
   case 'janet':{const c=+mv.c,t=+mv.t,j=dwSidN('Janet Taylor');if(!dwFlags(g).janetCare||!g.sv[j]||g.sv[j].loc!=='colony'||!P.hand.includes(c)||!dwMineOK(g,pid,t)||g.sv[t].loc!=='colony'||g.sv[t].w<=0)return false;
     P.hand.splice(P.hand.indexOf(c),1);dwToWaste(g,pid,c);g.sv[t].w--;if(g.sv[t].fb>0)g.sv[t].fb--;dwLog(g,`Janet patches up ${dwNm(g,t)}`,'🩹');return true}
@@ -485,7 +487,7 @@ function dwFailCost(g,C){return DWFC[DWCR.indexOf(C)]}
 /* how many more cards I should add: cards already in (mine are known good, others' are probably good), the players still to go and their hand sizes */
 function dwCrisisShort(g,pid){if(!g.crisis||g.crisis.skip)return 0;const C=DWCR[g.crisis.id],N=dwActive(g).length,ad=g.crisis.add,i=g.order?g.order.indexOf(pid):0,R=g.order?g.order.slice(i+1).filter(p=>!g.P[p].exiled):[];
   const mine=ad.filter(a=>a.pid===pid&&a.c>=0&&C.need.includes(dwSym(a.c))).length,mineBad=ad.filter(a=>a.pid===pid&&!(a.c>=0&&C.need.includes(dwSym(a.c)))).length,others=ad.filter(a=>a.pid!==pid).length;
-  const coop=g.mode==='coop',q=coop?1:DWB.wo,cost=dwFailCost(g,C);const later=R.reduce((t,p)=>t+DWB.wr*Math.min(1,g.P[p].hand.length/4),0);
+  const coop=dwNoExile(g),q=coop?1:DWB.wo,cost=dwFailCost(g,C);const later=R.reduce((t,p)=>t+DWB.wr*Math.min(1,g.P[p].hand.length/4),0);
   const cush=!R.length?(coop?0:.3):DWB.cx+(cost>=2?.3:0);const sure=mine-mineBad+others*q;
   if(sure>=N+DWB.cx+1)return 0;return Math.max(0,Math.ceil(N+cush-sure-later-1e-9))}
 const DWB=Object.assign({/* A, B */cx:1,wo:.85,wr:.6,foodKeep:0,k1:.5,k2:.5,nf:1,noise:1,sl:.3,bite:1,cs:1,os:1,ef:1,fb:1,br:1,h1:1,lb:0,mo:1,keep:0,eo:1,nz:.6,wk:2,wf:6,mp:40,ff:1,/* C, hard */mg:1,ma:1,z:1,ls:.9,la:.5,et:.55,ec:.65,eps:.08,ok:.85,bs:35,ow:150,sw:80},(typeof process!=='undefined'&&process.env&&process.env.DWB)?JSON.parse(process.env.DWB):{});
@@ -759,7 +761,7 @@ function dwSmartVote(g,pid){const V=g.vote,P=g.P[pid];if(V.kind==='exile')return
   const up=dwLook(g,pid,2,(c,i)=>{const W=c.vote;c.vote=null;dwXrVoted(c,W.no,i===1,W.ctx||{},W.by);dwRun(c);return true},{tries:6,z:0})===1;
   if(P.betray&&!P.exiled&&Math.random()<.3)return !up;return up}
 /* how likely each other player is the betrayer, seen by a loyal viewer, from public things only: the revealed crisis cards (how many were wrong) and who added how many */
-function dwBeliefs(g,viewer){const O=g.ps.filter(p=>p!==viewer),n=g.ps.length,o={};if(g.mode==='coop'||!O.length)return o;const bm=g.mode==='betrayer',e=DWB.eps;
+function dwBeliefs(g,viewer){const O=g.ps.filter(p=>p!==viewer),n=g.ps.length,o={};if(dwNoExile(g)||!O.length)return o;const bm=g.mode==='betrayer',e=DWB.eps;
   /* betrayer variant: 1 regular each + 1 betrayal, so a loyal viewer sees 1/n per other player; normal: 2 regular each + 1 betrayal */
   const W=O.map(p=>bm?1/n:1/(2*n));let w0=Math.max(0,1-W.reduce((a,x)=>a+x,0));
   (g.ev||[]).forEach(E=>{O.forEach((p,i)=>{const c=E.by[p]||0;W[i]*=E.w>0?(c>=E.w?1:Math.pow(e,E.w-c)):(c>0?DWB.ok:1)});if(E.w>0)w0*=Math.pow(e,E.w)});
@@ -770,7 +772,7 @@ function dwExileVote(g,pid,hard){const V=g.vote,P=g.P[pid];if(V.target===pid)ret
   const b=dwBelief(g,pid,V.target);return b>=(ex>=1?DWB.et+.2:DWB.et)}
 const dwOther=(g,pid,t)=>g.ps.find(p=>p!==pid&&p!==t)||pid;
 /* calling an exile vote (hard): only on strong public evidence */
-function dwExileCall(g,pid){const P=g.P[pid];if(g.mode==='coop'||P.voted||P.exiled)return null;const bt=P.betray;
+function dwExileCall(g,pid){const P=g.P[pid];if(dwNoExile(g)||P.voted||P.exiled)return null;const bt=P.betray;
   const L=g.ps.filter(q=>q!==pid&&!g.P[q].exiled).map(q=>[q,dwBelief(g,bt?dwOther(g,pid,q):pid,q)]).sort((a,b)=>b[1]-a[1]);if(!L.length)return null;
   if(!bt&&L[0][1]>=DWB.ec)return {a:'exile',target:L[0][0]};if(bt&&L[0][1]>=.35&&g.morale<=4)return {a:'exile',target:L[0][0]};return null}
 /* someone asks for a card: help when it plainly helps them and costs the colony nothing (given cards must be played, not kept) */
@@ -904,7 +906,7 @@ DWOP.peek=(g,s,mv)=>{const k=s.a[1],tp=s.pid,others=g.ps.filter(p=>p!==tp);const
   if(k==='objective'){const O=dwObjOf(g,p);return show(`${nmid(p)}'s secret objective: ${O?O.n+' – '+O.need:'none'}`)}
   if(k==='showHandOther'){dwLog(g,`${nmid(p)}'s hand is shown to everyone: ${g.P[p].hand.map(dwCN).join(', ')||'nothing'}`,'👀');return true}
   return show(`${nmid(p)}'s hand: ${g.P[p].hand.map(dwCN).join(', ')||'nothing'}`)};
-DWOP.exileVote=(g,s,mv)=>{if(g.mode==='coop')return true;const L=g.ps.filter(p=>p!==s.pid&&!g.P[p].exiled&&(s.a[1]!=='colonyPlayer'||dwMine(g,p).some(id=>g.sv[id].loc==='colony')));if(!L.length)return true;
+DWOP.exileVote=(g,s,mv)=>{if(dwNoExile(g))return true;const L=g.ps.filter(p=>p!==s.pid&&!g.P[p].exiled&&(s.a[1]!=='colonyPlayer'||dwMine(g,p).some(id=>g.sv[id].loc==='colony')));if(!L.length)return true;
   if(!mv)return dwAsk(g,s,'Crossroads: call an exile vote on whom?',L.map(p=>({v:p,l:nmid(p)})),{kind:'player'});if(!L.includes(mv.v))return null;
   g.vote={kind:'exile',target:mv.v,by:s.pid,msg:`${nmid(s.pid)} calls a vote to exile ${nmid(mv.v)}`,need:dwActive(g),got:{}};return true};
 DWOP.addWin=(g,s)=>{const F=dwFlags(g);(F.addWin=F.addWin||[]).push(s.a[1]);dwLog(g,`The main objective now also needs ${s.a[1]==='deputy'?'no zombies at the gas station, hospital and police station':'5 or more food tokens'}`,'🎯');return true};
