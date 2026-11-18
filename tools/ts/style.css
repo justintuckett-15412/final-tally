@@ -1,0 +1,60 @@
+/* ---------- Telestrations ---------- */
+html[style*="--tspad"] #app{padding-bottom:var(--tspad)}
+.tscenter{text-align:center}
+.tshead{display:flex;align-items:center;justify-content:center;gap:10px;text-align:left;margin:6px 0 8px}
+.tsimg{width:60px;height:60px;object-fit:contain;flex:none}.tsemo{font-size:40px;line-height:1;flex:none}.tstimg{width:20px;height:20px;object-fit:contain;vertical-align:-4px}.tstmr .tsemo{font-size:15px}
+html.tsbig .tsimg{width:clamp(60px,7vw,110px);height:clamp(60px,7vw,110px)}.tshead h2{margin:2px 0;font-size:20px}.tshead .rlab{margin:0}
+.tstmr{display:inline-block;margin-top:2px;font-size:15px;padding:2px 10px;border-radius:999px;background:var(--soft)}.tstmr.low{background:#e5484d;color:#fff}
+.tspanel{padding:12px;display:flex;flex-direction:column;gap:6px}.tspanel.tscenter{align-items:center}
+.tslinkme h2{margin:0}
+.tsbigline{font-size:18px;margin:4px 0}
+.tsword{font-family:var(--display,inherit);font-size:30px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;margin:2px 0;padding:6px 16px;border-radius:14px;background:var(--surface,#fff);border:3px solid var(--accent,#f2b705);overflow-wrap:anywhere;text-align:center}
+.tsdie{flex:none;filter:drop-shadow(0 2px 0 rgba(0,0,0,.18))}
+.tsdierow{display:flex;gap:12px;align-items:center}.tsdierow p{margin:2px 0}
+.tscard{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:5px;counter-reset:none}
+.tsslot>span,.tsslot>button{display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;padding:8px 10px;border-radius:12px;background:var(--soft);border:2px solid transparent;font:inherit;color:inherit;text-align:left}
+.tsslot>button{cursor:pointer;border-color:var(--line)}.tsslot>button:active{transform:translateY(1px)}
+.tsslot.hit>span,.tsslot.hit>button{border-color:var(--accent,#f2b705);background:color-mix(in srgb,var(--accent,#f2b705) 22%,var(--surface,#fff));font-weight:800}
+.tsn{flex:none;width:28px;height:28px;border-radius:8px;background:var(--bg);display:inline-flex;align-items:center;justify-content:center;font-weight:800}
+.tsslot.hit .tsn{background:var(--accent,#f2b705);color:#1b1b1b}
+.tsw{font-size:17px}.tsw i{opacity:.75}
+.tschips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:4px 0}
+.tschip{font-size:14px;padding:3px 10px;border-radius:999px;background:var(--soft);border-left:5px solid var(--pc,#999);opacity:.75}
+.tschip.on{opacity:1;background:color-mix(in srgb,var(--accent,#f2b705) 25%,var(--surface,#fff));font-weight:700}
+.tssk{display:flex;justify-content:center;line-height:0}.tssk svg{max-width:100%;height:auto;border-radius:14px;box-shadow:0 2px 0 var(--line),0 4px 14px rgba(0,0,0,.1)}
+.tsbigsk svg{width:min(88vw,360px);height:auto}
+.tsnosvg{width:200px;height:200px;background:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:40px}
+.tsbook{border-radius:16px;padding:10px;background:var(--surface,var(--soft));border-top:6px solid var(--pc,#f2b705);box-shadow:0 2px 0 var(--line)}
+.tsbookh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}.tsbookh b{font-size:18px}
+.tspage{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px;border-radius:14px;background:var(--soft);margin:6px 0}
+.tspage .tssk svg{width:min(86vw,340px);height:auto}
+.tswhole .tspage .tssk svg{width:min(70vw,240px)}
+.tssecret .tsword{font-size:26px}
+.tsby{font-size:14px;padding:2px 10px;border-radius:999px;background:var(--bg);border-left:5px solid var(--pc,#999)}
+.tsgtxt{font-family:var(--display,inherit);font-size:26px;font-weight:800;text-transform:uppercase;text-align:center;overflow-wrap:anywhere}
+.tsmark{min-height:0}.tsmark.on{background:var(--accent,#f2b705);color:#1b1b1b;font-weight:700}
+.tsstar{font-size:14px;font-weight:700}
+.tsthumbs{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;margin:6px 0;font-size:13px}
+.tsthumb{padding:2px 6px;border-radius:8px;background:var(--soft);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tsthumb .tssk svg{width:44px;height:44px;border-radius:6px;box-shadow:none}
+.tsthumbs i{font-style:normal;opacity:.5}
+.tsnav{display:flex;gap:8px;justify-content:center;margin:8px 0 2px}.tsnav .btn.primary{flex:1;max-width:280px}
+.tsscoreme{display:flex;flex-direction:column;align-items:center;gap:6px;margin:8px 0;padding:8px;border-radius:12px;background:var(--soft);border-left:5px solid var(--accent,#f2b705)}
+.tstab{width:100%;border-collapse:collapse;margin:6px 0}.tstab th,.tstab td{padding:6px 4px;text-align:center;border-bottom:1px solid var(--line)}
+.tstab td:first-child,.tstab th:first-child{text-align:left}.tstab .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--pc,#999);margin-right:6px}
+.tsrec{display:grid;gap:4px}.tsrecr{display:grid;grid-template-columns:1fr auto 38px auto;align-items:center;gap:6px}.tsrecr b{text-align:center}
+.tssheet{border-top-color:var(--accent,#f2b705)}
+.tssheet .chform{display:flex;gap:6px}.tssheet .chform input{flex:1;min-width:0;font-size:17px}
+/* the big board (TV or iPad): bigger everything, never anyone's task */
+html.tsbig #app{max-width:1400px}
+html.tsbig .tshead h2{font-size:clamp(22px,3vw,44px)}
+html.tsbig .tsbigline{font-size:clamp(20px,2.6vw,40px)}
+html.tsbig .tschip{font-size:clamp(14px,1.8vw,26px);padding:4px 14px}
+html.tsbig .tspage .tssk svg{width:min(80vw,62vh);height:auto}
+html.tsbig .tsgtxt{font-size:clamp(28px,5vw,72px)}
+html.tsbig .tsword{font-size:clamp(28px,5vw,72px)}
+html.tsbig .tswhole{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+html.tsbig .tswhole .tspage .tssk svg{width:100%}
+.tsresimg{width:96px;height:96px}
+.tsby,.tschip{border-left:0}.tsby::before,.tschip::before{content:'';display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--pc,#999);margin-right:6px;vertical-align:1px}
+.tsmark{border:1.5px dashed var(--line)}.tsmark.on{border-style:solid;border-color:var(--accent,#f2b705)}

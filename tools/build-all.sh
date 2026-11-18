@@ -13,7 +13,8 @@ python3 tr/integrate.py /tmp/with-cc.html /tmp/with-tr.html
 python3 wsp/integrate.py /tmp/with-tr.html /tmp/with-wsp.html
 python3 wyp/integrate.py /tmp/with-wsp.html /tmp/with-wyp.html
 python3 dow/integrate.py /tmp/with-wyp.html /tmp/with-dow.html
-python3 cn/integrate.py /tmp/with-dow.html final-tally.html
+python3 cn/integrate.py /tmp/with-dow.html /tmp/with-cn.html
+python3 ts/integrate.py /tmp/with-cn.html final-tally.html
 node -e "const s=require('fs').readFileSync('final-tally.html','utf8');const m=[...s.matchAll(/<script>([\s\S]*?)<\/script>/g)];for(const x of m){try{new Function(x[1])}catch(e){console.log('ERR',e.message);process.exit(1)}}"
 python3 site-tools/build.py >/dev/null
 cp final-tally.html final-tally/src/
