@@ -63,7 +63,13 @@ function cnPushable(g){const O=cnOps(g,g.turn),v=O.map(p=>g.votes[p]).filter(x=>
 function cnApply(g,v,pid){if(v==='end'){if(!cnCanEnd(g))return false;cnEndTurn(g)}else{if(g.rev[v])return false;cnReveal(g,v,pid)}return true}
 /* the sand timer (house rule): anyone flips it; when it runs out the guessers' turn ends, or the spymaster is told to give a clue now */
 function cnTimerCheck(g,now){const T=g&&g.tmr;if(!T||T.out||now<T.end)return false;if(g.phase!==T.ph||g.turn!==T.turn){g.tmr=null;return true}
-  if(g.phase==='guess'){g.lastOut={tm:g.turn,at:now};cnEndTurn(g)}else T.out=true;g.n++;return true}
+  if(g.phase==='guess'){const tm=g.turn,v=cnTimeoutPick(g);g.lastOut={tm,at:now,w:typeof v==='number'?g.words[v]:null};
+    if(typeof v==='number'){cnReveal(g,v,'timer');if(g.phase==='guess'&&g.turn===tm)cnEndTurn(g)}else cnEndTurn(g)}else T.out=true;g.n++;return true}
+/* time ran out while guessing: the word with the most votes is revealed (the captain breaks a tie; a vote to stop counts too) */
+function cnTimeoutPick(g){const O=cnOps(g,g.turn),c={};O.forEach(p=>{const v=g.votes[p];if(v!==undefined&&v!==null)c[v]=(c[v]||0)+1});const ks=Object.keys(c);if(!ks.length)return null;
+  const top=Math.max(...ks.map(k=>c[k])),tied=ks.filter(k=>c[k]===top);let pick=tied.length===1?tied[0]:null;
+  if(pick===null){cnFixCap(g);const cv=g.votes[g.cap[g.turn]];if(cv!==undefined&&cv!==null&&tied.includes(String(cv)))pick=String(cv)}
+  if(pick===null||pick==='end')return null;const i=+pick;return g.rev[i]?null:i}
 function cnMove(g,pid,mv){if(!g||!mv)return false;const t=g.tm[pid];
   if(mv.a==='timer'){if(!g.timer||!['clue','guess'].includes(g.phase)||g.tmr&&!g.tmr.out)return false;g.tmr={end:Date.now()+g.timer*1000,ph:g.phase,turn:g.turn,by:pid,out:false};g.n++;return true}
   if(g.phase==='teams'){

@@ -59,10 +59,13 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   ok('Confirm: the word is revealed on every phone',rv.r===t&&rvs.every(Boolean),{rv,rvs});
   if(process.env.SHOT){await pgOf(ops[0]).evaluate(()=>{const i=document.getElementById('cnchatin');i.value='Ocean fits wave and shell?';i.form.requestSubmit()});await W(800);await tapW(ops[0],own[1]);await W(1200);await pgOf(ops[0]).screenshot({path:'/tmp/cn-guess.png'});await pgOf(st.spy[t]).evaluate(()=>{document.querySelector('.cngrid').scrollIntoView()});await pgOf(st.spy[t]).screenshot({path:'/tmp/cn-spy.png'});await pgOf(opp.find(p=>st.spy[cnO(t)]!==p)||opp[0]).screenshot({path:'/tmp/cn-other.png'})}
   { const g1=await H.evaluate(()=>({ph:S.cng.phase,turn:S.cng.turn}));
-    if(g1.ph==='guess'){await pgOf(opp[0]).evaluate(()=>document.querySelector('[data-a="cnutimer"]').click());await W(1200);
+    if(g1.ph==='guess'){const T1=g1.turn,O1=Object.keys(st.tm).filter(p=>st.tm[p]===T1&&st.spy[T1]!==p),rv1=await H.evaluate(()=>S.cng.rev),w1=st.key.map((c,i)=>i).find(i=>!rv1[i]&&st.key[i]==='n');
+      for(const p of O1){const v=await H.evaluate(p=>S.cng.votes[p],p);if(v!=null)await tapW(p,v)}await W(800);await tapW(O1[0],w1);await W(1000);
+      await pgOf(opp[0]).evaluate(()=>document.querySelector('[data-a="cnutimer"]').click());await W(1200);
       const run=await PG[3].evaluate(()=>!!document.querySelector('.cntmr.run'));await H.evaluate(()=>{S.cng.tmr.end=Date.now()+800;save()});await W(3000);
       const g2=await H.evaluate(()=>({ph:S.cng.phase,turn:S.cng.turn,tmr:S.cng.tmr}));
-      ok('Sand timer: anyone flips ⏳; when it runs out the guessers’ turn ends',run&&g2.ph==='clue'&&g2.turn!==g1.turn&&!g2.tmr,{run,g1,g2})}
+      const r1=await H.evaluate(i=>S.cng.rev[i],w1);
+      ok('Sand timer: anyone flips ⏳; when it runs out the word with the most votes is revealed and the turn ends',run&&r1&&g2.ph==='clue'&&g2.turn!==g1.turn&&!g2.tmr,{run,r1,g1,g2})}
     else ok('Sand timer: anyone flips ⏳; when it runs out the guessers’ turn ends',true,'skipped: turn already over')}
   /* play to the end: spymasters give clues, guessers agree on a word (usually their own) */
   const end=Date.now()+300000;let acts=0;global.window=global.window||{};

@@ -33,7 +33,7 @@ function cnSetup(){const X=CNX(),lock=S.started&&cnPlayOn(),seg=(a,opts,cur)=>`<
   ${X.play?`<div class="sec"><div class="sec-h"><h3>Match</h3></div><div class="panel hfpanel">${seg('cnmatch',[[1,'One game'],[3,'Best of 3'],[5,'Best of 5'],[0,'♾️ Keep playing']],X.match)}</div>
   <p class="hint">${+X.match===1?'Official rules: one game.':+X.match===0?'Play game after game. After each one, everybody votes “Another game” or “We’re done”; when more than half say done, the team with more wins takes the match.':`The first team to win ${(+X.match+1)/2} games takes the match.`}${+X.match!==1?' Between games the teams stay the same, the spymaster job moves to the next teammate, and you can change anything on the team screen.':''}</p></div>`:''}
   ${X.play?`<div class="sec"><div class="sec-h"><h3>Sand timer</h3></div><div class="panel hfpanel">${seg('cntimer',[[0,'Off'],[60,'1 min'],[120,'2 min'],[180,'3 min']],X.timer)}</div>
-  <p class="hint">${+X.timer?'When a team is taking too long, anyone taps ⏳ to flip the timer. When it runs out, the guessers’ turn ends, or the spymaster must give a clue right away.':'Optional, like the sand timer in the box: anyone can flip it when a team is taking too long.'}</p></div>`:''}
+  <p class="hint">${+X.timer?'When a team is taking too long, anyone taps ⏳ to flip the timer. When it runs out while guessing, the word with the most votes is revealed (the ⭐ captain breaks a tie) and the turn ends; with no votes, the turn just ends. If the spymaster runs out of time, everyone sees “Give your clue now.”':'Optional, like the sand timer in the box: anyone can flip it when a team is taking too long.'}</p></div>`:''}
   <p class="hint">${usualUI('codenames')}</p>
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Players ›</button></div></div>`}
 function cnScoreScr(){if(cnPlayOn()&&S.started&&!S.demo)return cnPlayUI();return cnScoreSheet()}
@@ -96,7 +96,7 @@ function cnTimerHtml(g){if(!g.timer||!['clue','guess'].includes(g.phase))return 
   if(T)return `<span class="cntmr run" data-end="${T.end}" role="timer">⏳ <b class="num">${cnClock(T.end-Date.now())}</b></span>`;
   return `<button class="btn sm cntmrbtn" data-a="cnutimer">⏳ Flip the timer (${g.timer/60} min)</button>`}
 const cnClock=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
-function cnClueLine(g){if(g.phase==='done'||g.phase==='teams')return '';const tm=cnTimerHtml(g),out=g.lastOut&&Date.now()-g.lastOut.at<8000&&g.lastOut.tm!==g.turn?`<span class="rlab">⌛ Time ran out for ${CNT[g.lastOut.tm]}.</span>`:'';
+function cnClueLine(g){if(g.phase==='done'||g.phase==='teams')return '';const tm=cnTimerHtml(g),out=g.lastOut&&Date.now()-g.lastOut.at<8000&&g.lastOut.tm!==g.turn?`<span class="rlab">⌛ Time ran out for ${CNT[g.lastOut.tm]}${g.lastOut.w?`: the word with the most votes, ${esc(g.lastOut.w)}, was revealed`:''}.</span>`:'';
   if(g.phase==='clue')return `<div class="cnclue t-${g.turn}"><span>${CNTE[g.turn]} <b>${esc(cnName(g.spy[g.turn]))}</b> is thinking of a clue…</span>${out}${tm}</div>`;
   const n=g.clue.n,left=n>0?n+1-g.guesses:null;return `<div class="cnclue t-${g.turn}"><span class="cncw">${CNTE[g.turn]} <b>${esc(g.clue.w)}</b> · <b class="num">${n<0?'∞':n}</b></span><span class="rlab">${left!=null?`${left} guess${left===1?'':'es'} left`:'No limit'}${g.guesses?` · ${g.guesses} so far`:''}</span>${tm}</div>`}
 /* after the game: what each clue meant */
