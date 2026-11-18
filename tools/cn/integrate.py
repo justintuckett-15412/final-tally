@@ -56,6 +56,7 @@ rep("  if(/^dw(sel|ans|show|what|goal|vok)$/.test(a)", "  if(/^cnu[a-z]+$/.test(
 rep("    case 'dwstart':", """    case 'cnstart':{switchGame('codenames');resetScores();clearPlayers();delete S.cng;S.started=false;S.finished=false;S.screen='map';CNX().play=k==='1'?1:0;cnKeep();window.scrollTo(0,0);break}
     case 'cnplaymode':{if(S.started)break;CNX().play=k==='1'?1:0;cnKeep();break}
     case 'cnwords':{if(S.started&&cnPlayOn())break;CNX().words=k==='kid'?'kid':'std';cnKeep();break}
+    case 'cnmatch':{if(S.started&&cnPlayOn())break;CNX().match=[1,3,5,0].includes(+k)?+k:1;cnKeep();break}
     case 'cnownonly':{if(S.started&&cnPlayOn())break;CNX().ownOnly=CNX().ownOnly?0:1;cnKeep();break}
     case 'cnrecwin':{(S.cnrec=S.cnrec||{}).win=k;cnRecWin();break}
     case 'cnrecwhy':{(S.cnrec=S.cnrec||{}).why=k;break}

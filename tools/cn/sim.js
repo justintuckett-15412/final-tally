@@ -14,4 +14,12 @@ for(let k=0;k<2000;k++){const g=cnDeal({words:k%2?'kid':'std'});if(!g||g.words.l
   O.forEach(p=>cnMove(g,p,{a:'vote',i:pick}));if(!cnMove(g,O[0],{a:'confirm'})){bad++;break}turns++}
  if(g.phase!=='done')bad++;else{res[g.win]++;res[g.why]++;if(g.win===g.start)res.startWin++;
   if(g.why==='agents'&&cnLeft(g,g.win)!==0)bad++;if(g.why==='assassin'&&!g.rev[g.key.indexOf('x')])bad++}}
-console.log('bad',bad,res,'avg turns',(turns/2000).toFixed(1))`);
+console.log('bad',bad,res,'avg turns',(turns/2000).toFixed(1))
+let mb=0,mres={};for(const fmt of [3,5,0]){for(let k=0;k<300;k++){const g=cnDeal({words:'std',match:fmt});cnMove(g,'p0',{a:'begin'});let s=0;
+ while(!g.match.over&&s++<3000){if(g.phase==='teams'){if(!cnMove(g,'p0',{a:'begin'})){mb++;break}continue}
+  if(g.phase==='done'){if(fmt===0){const v=g.match.no>=4?'done':'more';g.ps.forEach(p=>cnMove(g,p,{a:'mvote',v}))}else if(!cnMove(g,'p0',{a:'next'})){mb++;break}continue}
+  const sp=g.spy[g.turn];if(g.phase==='clue'){cnMove(g,sp,{a:'clue',w:'QQ'+s,n:1});continue}
+  const O=cnOps(g,g.turn),L=g.key.map((c,i)=>i).filter(i=>!g.rev[i]),pick=L[Math.floor(Math.random()*L.length)];O.forEach(p=>cnMove(g,p,{a:'vote',i:pick}));cnMove(g,O[0],{a:'confirm'})}
+ const M=g.match,need=cnNeed(M);if(!M.over)mb++;if(need&&Math.max(M.wins.r,M.wins.b)!==need)mb++;if(fmt===0&&M.no!==4)mb++;if(new Set(g.used).size!==g.used.length)mb++;
+ if(cnMove(g,'p0',{a:'next'}))mb++;mres[fmt]=(mres[fmt]||0)+M.no}}
+console.log('match bad',mb,'avg games',Object.fromEntries(Object.entries(mres).map(([k,v])=>[k,(v/300).toFixed(2)])))`);

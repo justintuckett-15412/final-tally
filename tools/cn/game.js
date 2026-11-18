@@ -20,7 +20,17 @@ function cnDeal(o={}){const ps=act().map(p=>p.id),pool=cnPool(o);if(pool.length<
   const words=cnShuf(pool).slice(0,25),start=Math.random()<.5?'r':'b',other=cnOther(start);
   const key=cnShuf([...Array(9).fill(start),...Array(8).fill(other),...Array(7).fill('n'),'x']);
   const T=cnAutoTeams(ps,o.prev);
-  return {gid:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ps,words,key,rev:Array(25).fill(null),start,tm:T.tm,spy:T.spy,phase:'teams',turn:start,clue:null,guesses:0,votes:{},hist:[],win:null,why:null,solo:!!o.solo,n:0,lastRev:null}}
+  const fmt=[1,3,5,0].includes(+o.match)?+o.match:1;
+  return {gid:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ps,words,key,rev:Array(25).fill(null),start,tm:T.tm,spy:T.spy,phase:'teams',turn:start,clue:null,guesses:0,votes:{},hist:[],win:null,why:null,solo:!!o.solo,n:0,lastRev:null,
+    o:{words:o.words,own:o.own,ownOnly:o.ownOnly},used:words.slice(),match:{fmt,no:1,wins:{r:0,b:0},pw:{},over:false,votes:{},games:[]}}}
+/* best of 3 / 5: first to 2 / 3 game wins. Keep playing (0): until most players vote they're done */
+const cnNeed=m=>m.fmt>1?(m.fmt+1)/2:m.fmt===1?1:null;
+function cnNextGame(g){const M=g.match,pool=cnPool(g.o||{});let fresh=pool.filter(w=>!g.used.includes(w));if(fresh.length<25){g.used=[];fresh=pool}
+  const words=cnShuf(fresh).slice(0,25),start=Math.random()<.5?'r':'b',other=cnOther(start);
+  /* the spymaster job moves to the next teammate */
+  ['r','b'].forEach(t=>{const T=g.ps.filter(p=>g.tm[p]===t);if(T.length>1){const i=T.indexOf(g.spy[t]);g.spy[t]=T[(i+1)%T.length]}});
+  Object.assign(g,{words,key:cnShuf([...Array(9).fill(start),...Array(8).fill(other),...Array(7).fill('n'),'x']),rev:Array(25).fill(null),start,phase:'teams',turn:start,clue:null,guesses:0,votes:{},hist:[],win:null,why:null,lastRev:null});
+  g.used.push(...words);M.no++;M.votes={}}
 const cnStale=g=>{const ids=act().map(p=>p.id);return !g||!g.ps||g.ps.length!==ids.length||g.ps.some(id=>!ids.includes(id))};
 /* teams are ready when each has a spymaster and at least one guesser */
 function cnTeamsOK(g){return ['r','b'].every(t=>g.spy[t]&&g.tm[g.spy[t]]===t&&cnOps(g,t).length>=1)}
@@ -30,7 +40,10 @@ function cnTeamsWhy(g){const n=g.ps.length;if(n<4)return 'Codenames needs at lea
 function cnClueBad(g,w){const c=cnNorm(w);if(!c)return 'Type a clue word.';if(c.length>30)return 'That clue is too long.';
   for(let i=0;i<25;i++){if(g.rev[i])continue;const b=cnNorm(g.words[i]);if(c===b)return `${g.words[i]} is on the board.`;if(c.includes(b)||b.includes(c))return `Too close to ${g.words[i]}, which is on the board.`}return ''}
 function cnEndTurn(g){if(g.clue&&g.hist.length)g.hist[g.hist.length-1].done=true;g.turn=cnOther(g.turn);g.phase='clue';g.clue=null;g.guesses=0;g.votes={}}
-function cnFinish(g,win,why){g.phase='done';g.win=win;g.why=why;g.votes={}}
+function cnFinish(g,win,why){g.phase='done';g.win=win;g.why=why;g.votes={};const M=g.match;if(!M)return;
+  M.wins[win]++;g.ps.forEach(p=>{if(g.tm[p]===win)M.pw[p]=(M.pw[p]||0)+1});M.games.push({win,why});const need=cnNeed(M);if(need&&M.wins[win]>=need)M.over=true}
+/* the team ahead in a match (null when tied) */
+const cnMatchWin=g=>{const M=g.match;if(!M)return g.win;return M.wins.r>M.wins.b?'r':M.wins.b>M.wins.r?'b':null};
 function cnReveal(g,i,by){const t=g.turn,c=g.key[i];g.rev[i]=t;g.guesses++;g.votes={};g.lastRev={i,c,by,tm:t,at:Date.now()};
   const H=g.hist[g.hist.length-1];if(H)H.res.push({i,c,t:Date.now()});
   if(c==='x'){cnFinish(g,cnOther(t),'assassin');return}
@@ -59,4 +72,8 @@ function cnMove(g,pid,mv){if(!g||!mv)return false;const t=g.tm[pid];
       g.votes[pid]=v==='end'?'end':+v;g.n++;return true}
     if(mv.a==='confirm'){const v=cnAgree(g);if(v===null)return false;if(v==='end'){if(!cnCanEnd(g))return false;cnEndTurn(g)}else cnReveal(g,v,pid);g.n++;return true}
     return false}
+  if(g.phase==='done'&&g.match&&!g.match.over){const M=g.match;
+    if(mv.a==='next'){if(M.fmt===0)return false;cnNextGame(g);g.n++;return true}
+    if(mv.a==='mvote'){if(M.fmt!==0||!g.ps.includes(pid)||!['more','done'].includes(mv.v))return false;M.votes[pid]=mv.v;if(g.solo){if(mv.v==='done')M.over=true;else cnNextGame(g);g.n++;return true}
+      const half=g.ps.length/2,c=v=>Object.values(M.votes).filter(x=>x===v).length;if(c('done')>half)M.over=true;else if(c('more')>half)cnNextGame(g);g.n++;return true}}
   return false}
