@@ -58,3 +58,5 @@ html.tsbig .tswhole .tspage .tssk svg{width:100%}
 .tsresimg{width:96px;height:96px}
 .tsby,.tschip{border-left:0}.tsby::before,.tschip::before{content:'';display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--pc,#999);margin-right:6px;vertical-align:1px}
 .tsmark{border:1.5px dashed var(--line)}.tsmark.on{border-style:solid;border-color:var(--accent,#f2b705)}
+.tscust{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}.tscust input{width:96px;font-size:17px;padding:6px 8px;text-align:center}
+.tswait .tsbigline b{white-space:nowrap}

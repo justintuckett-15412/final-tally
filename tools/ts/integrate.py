@@ -57,7 +57,7 @@ rep("    case 'cnstart':", """    case 'tsstart':{switchGame('telestrations');re
     case 'tsplaymode':{if(S.started)break;TSX().play=k==='1'?1:0;tsKeep();break}
     case 'tswords':{if(S.started&&tsPlayOn())break;TSX().words=k==='kid'?'kid':'std';tsKeep();break}
     case 'tsscoring':{if(S.started&&tsPlayOn())break;TSX().scoring=['friendly','competitive','none'].includes(k)?k:'friendly';tsKeep();break}
-    case 'tstimer':{if(S.started&&tsPlayOn())break;TSX().timer=[0,30,60,90,120].includes(+k)?+k:60;tsKeep();break}
+    case 'tstimer':{if(S.started&&tsPlayOn())break;if(k==='c'){TSX().ctimer=1;TSX().csec=tsCsec(TSX())}else{TSX().ctimer=0;TSX().timer=[0,30,60,90,120].includes(+k)?+k:60}tsKeep();break}
     case 'tsflip':{if(S.started&&tsPlayOn())break;TSX().flip=TSX().flip?0:1;tsKeep();break}
     case 'tsownonly':{if(S.started&&tsPlayOn())break;TSX().ownOnly=TSX().ownOnly?0:1;tsKeep();break}
     case 'tsrecpt':{const [i,r,d]=String(k).split(':'),q=act()[+i];if(!q)break;const D=tsP(q);D.r[+r]=Math.max(0,Math.min(99,(+D.r[+r]||0)+(+d||0)));break}

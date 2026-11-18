@@ -1,5 +1,9 @@
 /* ================= Telestrations: settings, record sheet, play screens (linked phones), the big board ================= */
-const TSDEF={play:1,words:'std',own:'',ownOnly:0,scoring:'friendly',timer:60,flip:1,colors:0};
+const TSDEF={play:1,words:'std',own:'',ownOnly:0,scoring:'friendly',timer:60,ctimer:0,csec:45,flip:1,colors:0,async:0};
+/* the sketch timer the settings ask for: a preset, or the custom number of seconds (10-600) */
+const tsCsec=X=>{const n=Math.round(+X.csec);return isFinite(n)&&n>=10?Math.min(600,n):isFinite(n)&&n>0?10:45};
+const tsTimerOf=X=>X.ctimer?tsCsec(X):(+X.timer||0);
+const tsTimerHint=X=>{const t=tsTimerOf(X);return !t?'No timer: everyone taps Done when their sketch is finished.':X.ctimer||t!==60?`House rule: ${t} seconds to sketch, then a couple of seconds to finish up. Guessing has no timer.`:'Official rules: 60 seconds to sketch, then a couple of seconds to finish up. Guessing has no timer.'};
 const TSX=()=>{if(!S.tsx)S.tsx={...TSDEF};const X=S.tsx;for(const k in TSDEF)if(X[k]===undefined)X[k]=TSDEF[k];return X};
 function tsSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.tsx'))}catch(e){}return Object.assign({...TSDEF},x||{})}
 function tsKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.tsx',JSON.stringify(TSX()))}catch(e){}}
@@ -41,9 +45,12 @@ function tsSetup(){const X=TSX(),lock=S.started&&tsPlayOn(),seg=(a,opts,cur)=>`<
   <p class="hint">${X.words==='kid'?`Kids list: ${TSW_KID.length} simple words.`:`Standard list: ${TSW_STD.length} words.`}${own.length?` Plus ${own.length} family word${own.length===1?'':'s'}${X.ownOnly&&own.length>=12?' (only these)':''}.`:''} Some cards have a blank (make up any word) or a category. These are Final Tally’s own lists, not the words from the box.</p></div>`:''}
   ${X.play?`<div class="sec"><div class="sec-h"><h3>Scoring</h3></div><div class="panel hfpanel">${seg('tsscoring',[['friendly','Friendly'],['competitive','Competitive'],['none','No scoring']],X.scoring)}</div>
   <p class="hint">${TSSCW[X.scoring]||TSSCW.friendly}</p></div>
-  <div class="sec"><div class="sec-h"><h3>Sketch timer</h3></div><div class="panel hfpanel">${seg('tstimer',[[0,'Off'],[30,'30 s'],[60,'60 s'],[90,'90 s'],[120,'2 min']],X.timer)}</div>
-  <p class="hint">${+X.timer?`Official rules: 60 seconds to sketch, then a couple of seconds to finish up. Guessing has no timer.`:'No timer: everyone taps Done when their sketch is finished.'}</p></div>
-  <div class="sec"><div class="sec-h"><h3>Passing</h3></div><div class="panel hfpanel"><div class="srow"><span class="rlab">Reverse direction each round</span><button class="sw" role="switch" aria-checked="${!!X.flip}" data-a="tsflip" aria-label="Reverse direction each round" ${lock?'disabled':''}><i></i></button></div></div>
+  <div class="sec"><div class="sec-h"><h3>Sketch timer</h3></div><div class="panel hfpanel">${seg('tstimer',[[0,'Off'],[30,'30 s'],[60,'60 s'],[90,'90 s'],[120,'2 min'],['c','Custom']],X.ctimer?'c':X.timer)}
+    ${X.ctimer?`<div class="srow tscust"><label class="rlab" for="tscsec">Seconds to sketch (10 to 600)</label><input id="tscsec" type="number" inputmode="numeric" min="10" max="600" step="5" value="${tsCsec(X)}" data-tscsec="1" ${lock?'disabled':''}></div>`:''}</div>
+  <p class="hint" id="tstimerhint">${tsTimerHint(X)}</p></div>
+  <div class="sec"><div class="sec-h"><h3>Passing</h3></div><div class="panel hfpanel">${seg('tspass',[[0,'Pass together'],[1,'Pass when ready']],X.async?1:0)}
+    <div class="srow" style="margin-top:10px"><span class="rlab">Reverse direction each round</span><button class="sw" role="switch" aria-checked="${!!X.flip}" data-a="tsflip" aria-label="Reverse direction each round" ${lock?'disabled':''}><i></i></button></div></div>
+  <p class="hint">${X.async?'House rule: pass when ready. Your book moves on as soon as you finish a page, so nobody waits for the slowest sketcher. Your sketch timer starts when a book reaches you.':'Official: everyone passes at the same time.'}</p>
   <p class="hint">${X.flip?'Books pass to the left in round 1, then to the right, then left again, so you see different people’s sketches (the rule sheet’s play-again tip).':'Books always pass to the left.'}</p></div>
   <div class="sec"><div class="sec-h"><h3>Pen colors</h3></div><div class="panel hfpanel">${seg('tspens',[[0,'✒️ Black only'],[1,'🎨 Colors']],X.colors?1:0)}</div>
   <p class="hint">${X.colors?'House rule: the sketch pad gets 8 colored markers. Every phone uses the same pens.':'Official: black markers, like the ones in the box.'}</p></div>`:''}
@@ -78,7 +85,7 @@ function tsHistory(pid){const p=act().find(q=>q.id===pid);if(!p)return '';const 
 function tsRevSteps(){const n=Math.max(1,...act().map(p=>((p.ts||{}).r||[]).length));return Array.from({length:n},(_,r)=>({name:`Round ${r+1}`,f:p=>+((p.ts||{}).r||[])[r]||0}))}
 function tsGuide(){return guideSheet('Telestrations',[
   ['Setup',[['Players','4 to 8. Each phone is a sketchbook. A phone or iPad on “Just watching” is the big board.'],['Your word','Each round a die is rolled. Find that number on your card: that’s your secret word. A blank means make up any word; a category means make up something in it; a card marked “any” lets you pick any word on it. Keep it secret!']]],
-  ['Passing the books',[['Even number of players','You sketch your own word first, then the books pass.'],['Odd number of players','Your book passes first: the next player sketches your word.'],['Sketch, guess, sketch…','Each page alternates. If you get a sketch, write what you think it is. If you get a guess, sketch it. The last page is always a guess.'],['Timer','Sketches have a timer (60 seconds in the box), then a couple of seconds to finish up. Guesses have no timer.'],['Pen colors','The box has black markers. The 🎨 Colors house rule gives the sketch pad 8 colors.'],['No letters or numbers','Sketches can’t have letters, numbers or symbols. Just draw!'],['Never leave a guess blank','Always write your best guess, even if the sketch is a mystery.'],['Direction','Books pass to the left. Reversing each round (the rule sheet’s tip) mixes things up.']]],
+  ['Passing the books',[['Even number of players','You sketch your own word first, then the books pass.'],['Odd number of players','Your book passes first: the next player sketches your word.'],['Sketch, guess, sketch…','Each page alternates. If you get a sketch, write what you think it is. If you get a guess, sketch it. The last page is always a guess.'],['Timer','Sketches have a timer (60 seconds in the box), then a couple of seconds to finish up. Guesses have no timer.'],['Pen colors','The box has black markers. The 🎨 Colors house rule gives the sketch pad 8 colors.'],['No letters or numbers','Sketches can’t have letters, numbers or symbols. Just draw!'],['Never leave a guess blank','Always write your best guess, even if the sketch is a mystery.'],['Direction','Books pass to the left. Reversing each round (the rule sheet’s tip) mixes things up.'],['Pass when ready (house rule)','Your book moves on as soon as you finish a page, without waiting for everyone. Your sketch timer starts when a book reaches you.']]],
   ['The Big Reveal',[['Book by book','When your own book comes back, everyone watches as you flip through it, page by page, on every screen.'],['Friendly scoring','In your book, give 1 point to your favourite sketch and 1 to your favourite guess (not your own), and 1 to yourself if the last guess matches your word.'],['Competitive scoring','A guess scores 1 if it matches the secret word or the guess before it, and so does the sketch it came from. You get 1 if the last guess matches your word.'],['How many rounds','With scoring, play 3 rounds; most points wins. The rule sheet in the box has the official wording.']]]])}
 function tsStats(p){const g=S.tsg;if(g&&tsPlayOn()&&S.started&&!S.finished&&g.ps&&g.ps.includes(p.id))return [{k:'Points',v:g.scoring==='none'?'·':String(tsTotal(g,p.id)),i:'✏️'},{k:'Round',v:`${g.round}${g.rounds?' of '+g.rounds:''}`},{k:'Scoring',v:TSSC[g.scoring]}];
   const D=p.ts||{r:[]};return [{k:'Points',v:String(tsTot(p)),i:'✏️'},{k:'Rounds',v:String((D.r||[]).length)},{k:'Favourites',v:String((D.fs||0)+(D.fg||0))}]}
@@ -93,18 +100,25 @@ function tsMoveQ(g,pid,mv){if(!g||!mv)return false;if(mv.st!=null&&mv.st!==tsSt(
   return tsMove(g,pid,m)}
 
 /* ---------- the play screen ---------- */
-let TSBIG=(()=>{try{return localStorage.getItem('ft-tsbig')==='1'}catch(e){return false}})(),TSERR='';
+let TSLAST=null,TSBIG=(()=>{try{return localStorage.getItem('ft-tsbig')==='1'}catch(e){return false}})(),TSERR='';
 function tsViewer(){if(!tsLinked())return null;return act().find(p=>p.id===S.lk.me)||null}
 const tsBig=()=>TSBIG||tsLinked()&&!tsViewer();
 /* the state a phone should show: its own moves that are still on their way to the host count already */
 function tsGx(){if(typeof LKOPTR!=='undefined'&&LKOPTR)return S.tsg||null;try{const o=typeof lkqOn==='function'&&lkqOn()?lkOptState():null;if(o)return o.tsg||null}catch(e){}return S.tsg||null}
 function tsActor(g){if(!g||g.phase!=='reveal'||!g.rv)return null;return g.ps[g.rv.i]||null}
 const tsClock=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
-function tsTimerHtml(g){if(g.phase!=='play'||!g.tEnd||tsKind(g.step)!=='draw')return '';return `<span class="tstmr" data-end="${g.tEnd}" role="timer">${tsIm('ts-timer','⏱','tstimg')} <b class="num">${Date.now()>g.tEnd?'Finish up!':tsClock(g.tEnd-Date.now())}</b></span>`}
+function tsTimerHtml(g,end){if(g.phase!=='play')return '';if(end===undefined){if(tsAsync(g)||!g.tEnd||tsKind(g.step)!=='draw')return '';end=g.tEnd}if(!end)return '';
+  return `<span class="tstmr" data-end="${end}" role="timer">${tsIm('ts-timer','⏱','tstimg')} <b class="num">${Date.now()>end?'Finish up!':tsClock(end-Date.now())}</b></span>`}
+/* "pass when ready": who's on which page */
+function tsAsyncChips(g){return `<div class="tschips" aria-label="Who’s on which page">${g.ps.map(p=>{const k=tsAt(g,p),d=k>=g.steps;return `<span class="tschip${d?' on':''}" style="${tsPcol(p)}">${d?'✓ ':''}${esc(tsName(p))} · ${d?'done':`page ${k+1} of ${g.steps}`}</span>`}).join('')}</div>`}
 function tsChips(g,done,lab){return `<div class="tschips" aria-label="${lab||'Who’s done'}">${g.ps.map(p=>{const d=done(p);return `<span class="tschip${d?' on':''}" style="${tsPcol(p)}">${d?'✓':'…'} ${esc(tsName(p))}</span>`}).join('')}</div>`}
 const tsWaitLine=(g,done)=>{const w=g.ps.filter(p=>!done(p));return w.length?`Waiting for ${w.map(p=>esc(tsName(p))).join(', ')}…`:'Everyone’s done!'};
 function tsSlotLabel(s){return s.t==='w'?esc(s.w):s.t==='blank'?'<i>blank: make up any word</i>':`<i>make up: ${esc(s.c)}</i>`}
 function tsHead(g,V,big){const R=g.rounds?`Round ${g.round} of ${g.rounds}`:`Round ${g.round}`,me=V&&!big&&g.ps.includes(V.id)?V.id:null;
+  if(g.phase==='play'&&tsAsync(g)){const pass=`${R} · passing ${g.dir>0?'left ⬅️':'right ➡️'} · when ready`;
+    if(!me)return `<div class="tshead">${tsIm('ts-pass','📒')}<div><span class="rlab">${pass}</span><h2>Pass when ready</h2></div></div>`;
+    const pr=tsPrompt(g,me);if(!pr)return `<div class="tshead">${tsIm('ts-pass','📒')}<div><span class="rlab">${pass}</span><h2>All your pages are done!</h2></div></div>`;
+    const d=pr.kind==='draw';return `<div class="tshead">${pr.wait?tsIm('ts-pass','📒'):d?tsIm('ts-sketch','✏️'):tsIm('ts-guess','🤔')}<div><span class="rlab">${pass}</span><h2>Page ${pr.k+1} of ${g.steps} · ${pr.wait?'Book on its way':d?'Sketch it!':'Guess it!'}</h2>${!pr.wait&&d?tsTimerHtml(g,(g.te||{})[me]||null):''}</div></div>`}
   if(g.phase==='play'){const d=tsKind(g.step)==='draw',wait=!me||g.sub[me];return `<div class="tshead">${wait?tsIm('ts-pass','📒'):d?tsIm('ts-sketch','✏️'):tsIm('ts-guess','🤔')}<div><span class="rlab">${R} · passing ${g.dir>0?'left ⬅️':'right ➡️'}</span><h2>Page ${g.step+1} of ${g.steps} · ${d?'Sketch it!':'Guess it!'}</h2>${tsTimerHtml(g)}</div></div>`}
   if(g.phase==='pick')return `<div class="tshead">${tsIm('ts-sketch','✏️')}<div><span class="rlab">${R}</span><h2>Choose your secret word</h2></div></div>`;
   if(g.phase==='reveal')return `<div class="tshead">${tsIm('ts-reveal','🎉')}<div><span class="rlab">${R}</span><h2>The Big Reveal</h2></div></div>`;
@@ -117,12 +131,20 @@ function tsPickUI(g,V,big){const done=p=>!!g.books[p].word;
   return `<div class="panel tspanel"><div class="tsdierow">${tsDie(g.die,84)}<div><p class="tsbigline">The die rolled a <b>${g.die}</b>.</p><p class="rlab">${C.any?'Your card says <b>any</b>: tap any word on it.':rolled?'That’s your secret word. Keep it secret!':s.t==='blank'?'A blank: make up any word and type it below.':`Make up: <b>${esc(s.c)}</b>. Type it below.`}</p></div></div>
     <ol class="tscard${C.any?' any':''}" aria-label="Your card">${C.slots.map((x,i)=>{const hit=i===g.die-1,tap=C.any&&x.t==='w';return `<li class="tsslot${hit?' hit':''}${tap?' tap':''}">${tap?`<button data-a="tsuword" data-k="${i}">`:'<span>'}<span class="tsn">${i+1}</span><span class="tsw">${tsSlotLabel(x)}</span>${tap?'</button>':'</span>'}</li>`}).join('')}</ol>
     ${rolled?`<div class="cnrow"><button class="btn primary" data-a="tsuword" data-k="${g.die-1}">✓ Got it: ${esc(rolled)}</button></div>`:''}</div>`}
-function tsPlayStep(g,V,big){const done=p=>!!g.sub[p];
+function tsPlayStep(g,V,big){if(tsAsync(g))return tsPlayAsync(g,V,big);const done=p=>!!g.sub[p];
   if(big||!V||!g.ps.includes(V.id))return `<div class="panel tspanel tscenter"><p class="tsbigline">${tsKind(g.step)==='draw'?'✏️ Everyone is sketching':'🤔 Everyone is guessing'}</p>${tsChips(g,done)}<p class="rlab">${tsWaitLine(g,done)}</p></div>`;
   if(g.sub[V.id])return `<div class="panel tspanel tscenter"><p class="tsbigline">Sent ✓</p><p class="rlab">${tsWaitLine(g,done)}</p>${tsChips(g,done)}<p class="hint">The next page shows up as soon as everyone’s done.</p></div>`;
   const pr=tsPrompt(g,V.id);if(!pr)return '';
   if(pr.kind==='draw')return `<div class="panel tspanel tscenter"><p class="rlab">Sketch this (no letters or numbers):</p><p class="tsword">${esc(pr.word||'')}</p><p class="hint">Your sketch pad is open. Tap Done when you’re finished.</p></div>`;
   return `<div class="panel tspanel tscenter"><p class="rlab">What is this sketch?</p><div class="tssk tsbigsk" data-tspg="${esc(pr.owner)}:${g.step-1}">${tsSvgOk(pr.draw||'',360)}</div><p class="hint">Type your guess below. Never leave a guess blank.</p></div>`}
+/* "pass when ready": your own page, or who you're waiting on, plus everyone's progress */
+function tsPlayAsync(g,V,big){const done=p=>tsAt(g,p)>=g.steps;
+  if(big||!V||!g.ps.includes(V.id))return `<div class="panel tspanel tscenter"><p class="tsbigline">📒 The books move on as soon as each page is done</p>${tsAsyncChips(g)}</div>`;
+  const pr=tsPrompt(g,V.id);
+  if(!pr)return `<div class="panel tspanel tscenter"><p class="tsbigline">Sent ✓</p><p class="rlab">${tsWaitLine(g,done)}</p>${tsAsyncChips(g)}<p class="hint">The Big Reveal starts when every book is full.</p></div>`;
+  if(pr.wait)return `<div class="panel tspanel tscenter tswait"><p class="tsbigline">Sent ✓ — waiting for <b>${esc(tsName(pr.from))}</b> to pass you a book</p>${tsAsyncChips(g)}<p class="hint">Your next page shows up as soon as it arrives.</p></div>`;
+  if(pr.kind==='draw')return `<div class="panel tspanel tscenter"><p class="rlab">Sketch this (no letters or numbers):</p><p class="tsword">${esc(pr.word||'')}</p><p class="hint">Your sketch pad is open. Tap Done when you’re finished.</p></div>`;
+  return `<div class="panel tspanel tscenter"><p class="rlab">What is this sketch?</p><div class="tssk tsbigsk" data-tspg="${esc(pr.owner)}:${pr.k-1}">${tsSvgOk(pr.draw||'',360)}</div><p class="hint">Type your guess below. Never leave a guess blank.</p>${tsAsyncChips(g)}</div>`}
 /* the Big Reveal: the same book on every screen */
 function tsPageHtml(g,owner,i,size,marks){const B=g.books[owner];
   if(i<0)return `<div class="tspage tssecret"><span class="rlab">${esc(tsName(owner))}’s secret word</span><span class="tsword">${esc(B.word||'')}</span></div>`;
@@ -183,18 +205,27 @@ function tsUiAct(a,b,k){if(a==='tsubig'){TSBIG=!tsBig();try{localStorage.setItem
     case 'tsunextround':tsSend({a:'next'});return;
     case 'tsustop':tsSend({a:'stop'});return}}
 /* setup: the Pen colors house rule (handled here so the shared app core needs no new case) */
-document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-a="tspens"]');if(!b||b.disabled)return;e.stopPropagation();
-  if(S.game!=='telestrations'||S.started&&tsPlayOn())return;TSX().colors=b.dataset.k==='1'?1:0;tsKeep();save();render()},true);
+document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-a="tspens"],[data-a="tspass"]');if(!b||b.disabled)return;e.stopPropagation();
+  if(S.game!=='telestrations'||S.started&&tsPlayOn())return;TSX()[b.dataset.a==='tspens'?'colors':'async']=b.dataset.k==='1'?1:0;tsKeep();save();render()},true);
+/* setup: the custom sketch timer (seconds). While typing, keep any whole number 10-600 and update the hint; on leaving the box, tidy it up */
+document.addEventListener('input',e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.tscsec||S.game!=='telestrations')return;const n=Math.round(+t.value);
+  if(isFinite(n)&&n>=10&&n<=600){TSX().csec=n;tsKeep();save();const h=document.getElementById('tstimerhint');if(h)h.textContent=tsTimerHint(TSX())}},true);
+document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.tscsec||S.game!=='telestrations')return;e.stopPropagation();
+  const X=TSX(),n=Math.round(+t.value);X.csec=isFinite(n)?Math.max(10,Math.min(600,n)):tsCsec(X);t.value=X.csec;tsKeep();save();render()},true);
 /* the drawing pad (draw.js) hands back the finished sketch here */
-window.tsPadDone=d=>{/* the pad can finish inside a redraw (time ran out): send it just after, never from the borrowed state */if(typeof LKOPTR!=='undefined'&&LKOPTR){setTimeout(()=>window.tsPadDone(d),0);return true}const g=tsGx(),V=tsViewer();if(!g||!V||g.phase!=='play'||g.sub[V.id])return false;const pr=tsPrompt(g,V.id);if(!pr||pr.kind!=='draw')return false;
-  const r=tsSend({a:'page',d:String(d||'')});save();render();return r};
-function tsTimeUp(g){if(!g||g.phase!=='play'||!g.tEnd||tsKind(g.step)!=='draw'||Date.now()<=g.tEnd+4000)return false;return tsMove(g,g.ps[0],{a:'timeup'})}
+window.tsPadDone=d=>{/* the pad can finish inside a redraw (time ran out): send it just after, never from the borrowed state */if(typeof LKOPTR!=='undefined'&&LKOPTR){setTimeout(()=>window.tsPadDone(d),0);return true}const g=tsGx(),V=tsViewer();if(!g||!V||g.phase!=='play'||tsDoneP(g,V.id))return false;const pr=tsPrompt(g,V.id);if(!pr||pr.wait||pr.kind!=='draw')return false;
+  /* only the page this pad was opened for */if(typeof TSD!=='undefined'&&TSD.key&&TSD.key!==tsPadKey(g,pr,V.id))return false;
+  const r=tsSend({a:'page',d:String(d||''),o:pr.owner,k:pr.k});save();render();return r};
+const tsPadKey=(g,pr,me)=>`${g.gid}:${g.round}:${pr.owner}:${pr.k}:${me}`;
+function tsTimeUp(g){if(g&&g.phase==='play'&&tsAsync(g)){const now=Date.now();return Object.values(g.te||{}).some(t=>now>t+4000)&&tsMove(g,g.ps[0],{a:'timeup'})}
+  if(!g||g.phase!=='play'||!g.tEnd||tsKind(g.step)!=='draw'||Date.now()<=g.tEnd+4000)return false;return tsMove(g,g.ps[0],{a:'timeup'})}
 /* host only: if a late copy of the game mixed old and new (everyone handed in, but the page never turned), finish the step */
 function tsRepair(g){if(!g||!g.ps)return false;if(g.phase==='pick'&&g.ps.every(p=>g.books[p]&&g.books[p].word)){tsStartPlay(g);return true}
+  if(g.phase==='play'&&tsAsync(g)){const f=()=>JSON.stringify([g.phase,g.ps.map(p=>[(g.at||{})[p],(g.te||{})[p]||0,(g.sub||{})[p]||0])]),b=f();tsAsyncStep(g);return f()!==b}
   if(g.phase==='play'&&g.ps.every(p=>g.sub[p])&&g.ps.every(o=>g.books[o].pages[g.step])){tsAdvance(g);return true}return false}
 function tsTick(){if(!tsPlayOn()||!S.started||S.finished||S.demo||S.screen!=='score')return;if(!tsRes2())return;if(lkqRun()){save();render();return}
   if(act().some(p=>p.bot)||act().length<4||!tsLinked())return;
-  const g=S.tsg;if(!g||tsStale(g)){const X=TSX(),n=tsDeal({words:X.words,own:X.own,ownOnly:X.ownOnly,scoring:X.scoring,timer:+X.timer,flip:!!X.flip,colors:!!X.colors});if(n){S.tsg=n;save();render()}return}
+  const g=S.tsg;if(!g||tsStale(g)){const X=TSX(),n=tsDeal({words:X.words,own:X.own,ownOnly:X.ownOnly,scoring:X.scoring,timer:tsTimerOf(X),flip:!!X.flip,colors:!!X.colors,async:!!X.async});if(n){S.tsg=n;save();render()}return}
   if(tsTimeUp(g)||tsRepair(g)){save();render()}}
 function tsSyncScorer(g){if(!g)return;const F=g.fav||{s:{},g:{},m:{}};S.tsrec={scoring:g.scoring,rounds:g.round,timer:g.timer};
   act().forEach(p=>{p.ts={r:(g.score[p.id]||[]).map(v=>+v||0),fs:F.s[p.id]||0,fg:F.g[p.id]||0,fm:F.m[p.id]||0}});S.hr=1}
@@ -202,23 +233,26 @@ function tsSyncScorer(g){if(!g)return;const F=g.fav||{s:{},g:{},m:{}};S.tsrec={s
 /* ---------- typing (made-up word, guesses): its own layer, so redraws never wipe what you're typing ---------- */
 function tsFxMode(g,V){if(!g||!V||tsBig()||!g.ps.includes(V.id))return null;
   if(g.phase==='pick'&&!g.books[V.id].word){const C=g.cards[V.id];if(C.any||tsRolled(g,V.id))return null;const s=C.slots[g.die-1];return {m:'pick',key:`${g.gid}:${g.round}:pick`,lab:s.t==='cat'?`Make up: ${s.c}`:'Make up any word',ph:s.t==='cat'?'Something in that category':'Your secret word',btn:'Use this word'}}
-  if(g.phase==='play'&&!g.sub[V.id]){const pr=tsPrompt(g,V.id);if(pr&&pr.kind==='guess')return {m:'guess',key:`${g.gid}:${g.round}:${g.step}`,lab:'What is it?',ph:'Your best guess',btn:'Send'}}
+  if(g.phase==='play'&&!tsDoneP(g,V.id)){const pr=tsPrompt(g,V.id);if(pr&&!pr.wait&&pr.kind==='guess')return {m:'guess',key:`${g.gid}:${g.round}:${pr.owner}:${pr.k}`,o:pr.owner,k:pr.k,lab:'What is it?',ph:'Your best guess',btn:'Send'}}
   return null}
 function tsFx(){let L=document.getElementById('tsfx');const on=S.game==='telestrations'&&tsPlayOn()&&S.started&&!S.demo&&S.screen==='score'&&tsLinked()&&!act().some(p=>p.bot);
   const g=on?tsGx():null,ok=g&&!tsStale(g),V=ok?tsViewer():null,F=ok?tsFxMode(g,V):null;
   /* the sketch pad */
-  try{if(typeof tsPadSync==='function'){const pr=ok&&V&&!tsBig()&&g.phase==='play'&&g.ps.includes(V.id)&&!g.sub[V.id]?tsPrompt(g,V.id):null;
-    if(pr&&pr.kind==='draw')tsPadSync({show:true,key:`${g.gid}:${g.round}:${g.step}:${V.id}`,word:pr.word||'',tEnd:g.tEnd,colors:!!g.colors});else tsPadSync({show:false})}}catch(e){console.error(e)}
+  const pr=ok&&V&&!tsBig()&&g.phase==='play'&&g.ps.includes(V.id)&&!tsDoneP(g,V.id)?tsPrompt(g,V.id):null;
+  try{if(typeof tsPadSync==='function'){
+    if(pr&&!pr.wait&&pr.kind==='draw')tsPadSync({show:true,key:tsPadKey(g,pr,V.id),word:pr.word||'',tEnd:tsAsync(g)?(g.te||{})[V.id]||null:g.tEnd,colors:!!g.colors});else tsPadSync({show:false})}}catch(e){console.error(e)}
+  /* "pass when ready": a little buzz when the next book reaches you */
+  {const t=pr&&tsAsync(g)?(pr.wait?'wait':tsPadKey(g,pr,V.id)):null;if(TSLAST==='wait'&&t&&t!=='wait')vibe(30);TSLAST=t}
   if(!F){if(L)L.remove();document.documentElement.style.removeProperty('--tspad');TSERR='';return}
   const sig=F.m+':'+F.key;
-  if(!L||L.dataset.sig!==sig){if(L)L.remove();TSERR='';L=document.createElement('div');L.id='tsfx';L.className='cnlayer tslayer';L.dataset.sig=sig;L.dataset.m=F.m;
+  if(!L||L.dataset.sig!==sig){if(L)L.remove();TSERR='';L=document.createElement('div');L.id='tsfx';L.className='cnlayer tslayer';L.dataset.sig=sig;L.dataset.m=F.m;if(F.o!=null){L.dataset.o=F.o;L.dataset.k=F.k}
     L.innerHTML=`<div class="cnsheet tssheet" role="region" aria-label="${esc(F.lab)}"><div class="cntop"><h2>${F.m==='guess'?'💬':'✏️'} ${esc(F.lab)}</h2></div><form id="tsform" class="chform" autocomplete="off"><input id="tsin" type="text" maxlength="40" placeholder="${esc(F.ph)}" aria-label="${esc(F.lab)}" enterkeyhint="send" autocapitalize="words"><button class="btn primary" type="submit">${F.btn}</button></form><p class="cnerr rlab" role="alert"></p>${F.m==='guess'?'<p class="rlab cnmhint">Never leave a guess blank: take your best guess!</p>':'<p class="rlab cnmhint">Only you see it. Keep it secret!</p>'}</div>`;
     document.body.appendChild(L)}
   L.querySelector('.cnerr').textContent=TSERR;
   document.documentElement.style.setProperty('--tspad',(L.offsetHeight+12)+'px')}
 document.addEventListener('submit',e=>{const f=e.target;if(!f||f.id!=='tsform')return;e.preventDefault();const L=document.getElementById('tsfx'),i=document.getElementById('tsin');if(!L||!i)return;
   const v=tsClean(i.value),m=L.dataset.m;if(!v){TSERR=m==='guess'?'Never leave a guess blank: take your best guess!':'Type a word first.';tsFx();return}
-  TSERR='';if(tsSend(m==='guess'?{a:'page',d:v}:{a:'word',w:v})){i.value='';vibe(12)}save();render()});
+  TSERR='';if(tsSend(m==='guess'?{a:'page',d:v,...(L.dataset.o!=null?{o:L.dataset.o,k:+L.dataset.k}:{})}:{a:'word',w:v})){i.value='';vibe(12)}save();render()});
 setInterval(()=>{try{tsFx()}catch(e){}},700);
 /* the sketch timer on screen, and the host closes the sketch step when time is up */
 setInterval(()=>{try{document.querySelectorAll('.tstmr[data-end]').forEach(el=>{const ms=+el.dataset.end-Date.now(),b=el.querySelector('b');if(b)b.textContent=ms>0?tsClock(ms):'Finish up!';el.classList.toggle('low',ms<10000)});
