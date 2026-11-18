@@ -58,6 +58,7 @@ rep("    case 'dwstart':", """    case 'cnstart':{switchGame('codenames');resetS
     case 'cnwords':{if(S.started&&cnPlayOn())break;CNX().words=k==='kid'?'kid':'std';cnKeep();break}
     case 'cnmatch':{if(S.started&&cnPlayOn())break;CNX().match=[1,3,5,0].includes(+k)?+k:1;cnKeep();break}
     case 'cntimer':{if(S.started&&cnPlayOn())break;CNX().timer=[60,120,180].includes(+k)?+k:0;cnKeep();break}
+    case 'cnpack':{if(S.started&&cnPlayOn())break;const X=CNX(),L=(X.packs||[]).slice();X.packs=L.includes(k)?L.filter(x=>x!==k):[...L,k];cnKeep();break}
     case 'cnownonly':{if(S.started&&cnPlayOn())break;CNX().ownOnly=CNX().ownOnly?0:1;cnKeep();break}
     case 'cnrecwin':{(S.cnrec=S.cnrec||{}).win=k;cnRecWin();break}
     case 'cnrecwhy':{(S.cnrec=S.cnrec||{}).why=k;break}
@@ -71,5 +72,6 @@ rep("S.game==='deadofwinter'&&dwPlayOn()||", "S.game==='deadofwinter'&&dwPlayOn(
 rep("if(dwPlayOn()&&S.dwg&&typeof dwActor==='function')return dwActor(S.dwg);", "if(dwPlayOn()&&S.dwg&&typeof dwActor==='function')return dwActor(S.dwg);if(cnPlayOn()&&S.cng)return cnActor(S.cng);")
 rep("    case 'finish':{", "    case 'finish':{if(cnPlayOn()&&S.cng&&S.cng.phase==='done')cnSyncScorer(S.cng);")
 rep("try{if(!document.querySelector('#app .lkbar'))CHOPEN=false;chFx()}catch(e){}", "try{if(!document.querySelector('#app .lkbar'))CHOPEN=false;chFx()}catch(e){}try{cnFx()}catch(e){}")
+print('records',repall('+yzRecords(G)','+yzRecords(G)+cnRecords(G)'))
 open(out, 'w', encoding='utf-8').write(s)
 print('ok', len(s))

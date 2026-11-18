@@ -57,6 +57,15 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   const rv=await H.evaluate(i=>({r:S.cng.rev[i],g:S.cng.guesses}),own[0]);
   const rvs=[];for(const p of PG)rvs.push(await p.evaluate(i=>!!document.querySelector(`.cngrid .cnt.rev[data-k="${i}"]`),own[0]));
   ok('Confirm: the word is revealed on every phone',rv.r===t&&rvs.every(Boolean),{rv,rvs});
+  { const ob=await pgOf(ops[0]).evaluate(()=>{const b=document.querySelector('[data-a="cnuoops"]');if(!b)return false;b.click();return true});await W(1500);
+    const capO=await H.evaluate(o=>{const g=S.cng;return g.cap[o]},t==='r'?'b':'r');
+    const ask=await pgOf(capO).evaluate(()=>!!document.querySelector('[data-a="cnuoopsok"]'));
+    await pgOf(capO).evaluate(()=>document.querySelector('[data-a="cnuoopsok"]').click());await W(1500);
+    const back=await H.evaluate(i=>({r:S.cng.rev[i],ph:S.cng.phase,turn:S.cng.turn}),own[0]);
+    ok('Oops: the team asks to undo a reveal, the other team’s captain allows it, and the word is put back',ob&&ask&&!back.r&&back.ph==='guess'&&back.turn===t,{ob,ask,back});
+    for(const p of ops)await tapW(p,own[0]);await W(1200);await pgOf(ops[0]).evaluate(()=>document.querySelector('#cnfx .cnconfirm').click());await W(1500);
+    const snd=await TV.evaluate(()=>{try{cnSfx('good');cnSfx('bad');cnSfx('meh');cnSfx('boom');return true}catch(e){return e.message}});
+    ok('Sounds: every reveal sound plays without errors',snd===true,snd)}
   if(process.env.SHOT){await pgOf(ops[0]).evaluate(()=>{const i=document.getElementById('cnchatin');i.value='Ocean fits wave and shell?';i.form.requestSubmit()});await W(800);await tapW(ops[0],own[1]);await W(1200);await pgOf(ops[0]).screenshot({path:'/tmp/cn-guess.png'});await pgOf(st.spy[t]).evaluate(()=>{document.querySelector('.cngrid').scrollIntoView()});await pgOf(st.spy[t]).screenshot({path:'/tmp/cn-spy.png'});await pgOf(opp.find(p=>st.spy[cnO(t)]!==p)||opp[0]).screenshot({path:'/tmp/cn-other.png'})}
   { const g1=await H.evaluate(()=>({ph:S.cng.phase,turn:S.cng.turn}));
     if(g1.ph==='guess'){const T1=g1.turn,O1=Object.keys(st.tm).filter(p=>st.tm[p]===T1&&st.spy[T1]!==p),rv1=await H.evaluate(()=>S.cng.rev),w1=st.key.map((c,i)=>i).find(i=>!rv1[i]&&st.key[i]==='n');
@@ -95,5 +104,9 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   await H.evaluate(()=>document.querySelector('.cndone [data-a="finish"]').click());await W(1500);
   const res=await H.evaluate(()=>({scr:S.screen,win:S.cnrec&&S.cnrec.win,ps:act().map(p=>p.cn)}));
   ok('Results: the winning team’s players are marked as winners',['results','reveal'].includes(res.scr)&&res.win&&res.ps.every(c=>c&&c.tm&&(c.win===(c.tm===res.win?1:0))),res);
+  for(let i=0;i<20;i++){const n=await H.evaluate(()=>HG().filter(g=>g.game==='codenames').length);if(n)break;await H.evaluate(()=>{const b=document.querySelector('[data-a="revskip"],[data-a="revnext"],.reveal [data-a]');if(b)b.click()});await W(1000)}
+  const rec=await H.evaluate(()=>{try{const G=HG();return cnRecords(G.some(g=>g.game==='codenames')?G:[{game:'codenames',date:new Date().toISOString(),state:{players:JSON.parse(JSON.stringify(act())),cnrec:S.cnrec},players:act().map(p=>({name:p.name,color:p.color,rank:p.cn&&p.cn.win?1:2,total:p.cn&&p.cn.win?1:0}))}])}catch(e){return 'ERR '+e.message}});
+  const hh=await H.evaluate(()=>{const G=HG().filter(g=>g.game==='codenames');return {n:G.length,scr:S.screen,st:G[0]&&!!G[0].state,ps:G[0]&&G[0].state&&G[0].state.players&&G[0].state.players.slice(0,2).map(p=>[p.name,JSON.stringify(p.cn)]),pl:G[0]&&G[0].players.slice(0,2).map(p=>p.name)}});
+  ok('Stats: Codenames records (most wins, best spymaster, best clue) on the stats screen',/Codenames records/.test(rec)&&/Most wins/.test(rec),{rec:String(rec).slice(0,200),hh});
   ok('No page errors on any phone',!errs.length,errs.slice(0,4));
   await done(browser)})();

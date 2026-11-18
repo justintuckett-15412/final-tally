@@ -1,5 +1,5 @@
 /* ================= Codenames: settings, record sheet, play screen, team panel ================= */
-const CNDEF={play:1,words:'std',own:'',ownOnly:0,match:1,timer:0};
+const CNDEF={play:1,words:'std',own:'',ownOnly:0,match:1,timer:0,packs:[]};
 const CNX=()=>{if(!S.cnx)S.cnx={...CNDEF};const X=S.cnx;for(const k in CNDEF)if(X[k]===undefined)X[k]=CNDEF[k];return X};
 function cnSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.cnx'))}catch(e){}return Object.assign({...CNDEF},x||{})}
 function cnKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.cnx',JSON.stringify(CNX()))}catch(e){}}
@@ -26,10 +26,11 @@ function cnSetup(){const X=CNX(),lock=S.started&&cnPlayOn(),seg=(a,opts,cur)=>`<
   ${guideBtn()}<div class="sec"><div class="sec-h"><h3>How you’re playing</h3></div><div class="panel hfpanel">${S.started?`<div class="rlab"><b>${cnPlayOn()?'🕵️ Playing on the phones':'Recording a real game'}</b></div>`:seg('cnplaymode',[[1,'🕵️ Play on the phones'],[0,'Record a real game']],X.play?1:0)}</div>
   <p class="hint">${X.play?'Link everyone’s phone. The 25 words show on every screen, each spymaster’s phone shows the secret key, and each team talks and votes in its own team chat before a word is revealed.':'Play with the real box, then record the teams, the spymasters and who won.'}</p></div>
   ${X.play?`<div class="sec"><div class="sec-h"><h3>Words</h3></div><div class="panel hfpanel">${seg('cnwords',[['std','Standard'],['kid','🧒 Kids (easier words)']],X.words)}
+    <p class="rlab" style="margin:10px 0 4px">Mix in themed packs:</p><div class="cnpacks">${Object.entries(CNPACKS).map(([k,P])=>`<button class="btn sm" data-a="cnpack" data-k="${k}" aria-pressed="${(X.packs||[]).includes(k)}" ${lock?'disabled':''}>${P.n}</button>`).join('')}</div>
     <label class="rlab" for="cnown" style="display:block;margin-top:10px">Family words (optional): add your own, separated by commas or new lines</label>
     <textarea id="cnown" class="cnown" data-cnown="1" rows="3" placeholder="Grandma, Lake Powell, Pickleball…" ${lock?'disabled':''}>${esc(X.own||'')}</textarea>
     ${own.length>=25?`<div class="srow"><span class="rlab">Use only our family words (${own.length})</span><button class="sw" role="switch" aria-checked="${!!X.ownOnly}" data-a="cnownonly" aria-label="Use only our family words" ${lock?'disabled':''}><i></i></button></div>`:''}</div>
-  <p class="hint">${X.words==='kid'?`Kids list: ${CNW_KID.length} simple words.`:`Standard list: ${CNW_STD.length} words.`}${own.length?` Plus ${own.length} family word${own.length===1?'':'s'}${X.ownOnly&&own.length>=25?' (only these)':''}.`:''} These are Final Tally’s own lists, not the words from the box.</p></div>`:''}
+  <p class="hint">${X.words==='kid'?`Kids list: ${CNW_KID.length} simple words.`:`Standard list: ${CNW_STD.length} words.`}${(X.packs||[]).length?` Plus ${(X.packs||[]).map(k=>CNPACKS[k]?CNPACKS[k].n.replace(/^\S+\s/,''):'').join(', ')} (${(X.packs||[]).reduce((a,k)=>a+(CNPACKS[k]?CNPACKS[k].w.length:0),0)} words).`:''}${own.length?` Plus ${own.length} family word${own.length===1?'':'s'}${X.ownOnly&&own.length>=25?' (only these)':''}.`:''} These are Final Tally’s own lists, not the words from the box.</p></div>`:''}
   ${X.play?`<div class="sec"><div class="sec-h"><h3>Match</h3></div><div class="panel hfpanel">${seg('cnmatch',[[1,'One game'],[3,'Best of 3'],[5,'Best of 5'],[0,'♾️ Keep playing']],X.match)}</div>
   <p class="hint">${+X.match===1?'Official rules: one game.':+X.match===0?'Play game after game. After each one, everybody votes “Another game” or “We’re done”; when more than half say done, the team with more wins takes the match.':`The first team to win ${(+X.match+1)/2} games takes the match.`}${+X.match!==1?' Between games the teams stay the same, the spymaster job moves to the next teammate, and you can change anything on the team screen.':''}</p></div>`:''}
   ${X.play?`<div class="sec"><div class="sec-h"><h3>Sand timer</h3></div><div class="panel hfpanel">${seg('cntimer',[[0,'Off'],[60,'1 min'],[120,'2 min'],[180,'3 min']],X.timer)}</div>
@@ -83,7 +84,7 @@ const cnSeesKey=(g,V)=>g.phase==='done'||!cnBig()&&(cnLinked()?!!(V&&cnRole(g,V)
 function cnTile(g,i,V,R){const w=g.words[i],r=g.rev[i],c=g.key[i],key=cnSeesKey(g,V),me=R.op&&g.turn===R.t&&g.phase==='guess';
   const voters=R.t&&g.turn===R.t?cnOps(g,R.t).filter(p=>g.votes[p]===i):[];
   const mi=!r&&g.phase==='clue'&&CNMEANT.includes(i)&&cnMeanMode(g,V,R);
-  const cls=['cnt',r?'rev k-'+c:key?'key k-'+c:'',me&&!r||cnMeanMode(g,V,R)&&!r&&c===g.turn?'tap':'',mi?'meant':'',V&&g.votes[V.id]===i?'myvote':'',CNFLASH===String(i)?'flash':''].filter(Boolean).join(' ');
+  const cls=['cnt',r?'rev k-'+c:key?'key k-'+c:'',me&&!r||cnMeanMode(g,V,R)&&!r&&c===g.turn?'tap':'',mi?'meant':'',V&&g.votes[V.id]===i?'myvote':'',r&&g.lastRev&&g.lastRev.i===i&&Date.now()-g.lastRev.at<900?'flip':''].filter(Boolean).join(' ');
   const lab=r?`${w}: ${c==='x'?'assassin':c==='n'?'bystander':CNT[c]+' agent'}`:key?`${w} (${c==='x'?'assassin':c==='n'?'bystander':CNT[c]})`:w;
   return `<button class="${cls}" data-a="cnutap" data-k="${i}" aria-label="${esc(lab)}" ${r?'aria-disabled="true"':''}>${r?`<span class="cnface">${c==='x'?cnIm('cn-assassin','assassin'):c==='n'?cnIm('cn-bystander','bystander'):cnIm(cnTI('cn-agent',c),'agent')}</span>`:''}<span class="cnw">${esc(w)}</span>${key&&!r&&c==='x'?'<span class="cnx" aria-hidden="true">☠️</span>':''}${voters.length?`<span class="cnvotes">${voters.map(p=>{const q=act().find(x=>x.id===p);return `<i style="${q?pc(q.color):''}" title="${esc(cnName(p))}">${esc((q?nm(q):'?').slice(0,1))}</i>`}).join('')}</span>`:''}</button>`}
 /* the spymaster giving a clue can tap their own team's words to mark what they mean */
@@ -103,6 +104,13 @@ function cnClueLine(g){if(g.phase==='done'||g.phase==='teams')return '';const tm
 function cnMeantUI(g){const H=g.hist.filter(h=>(h.meant||[]).length);if(!H.length)return '';
   return `<div class="panel cnmeant"><h3>🕵️ What the spymasters meant</h3><ul>${H.map(h=>`<li class="t-${h.tm}"><b>${CNTE[h.tm]} ${esc(h.w)} · ${h.n<0?'∞':h.n}</b><span>${h.meant.map(i=>{const got=g.rev[i]===h.tm&&(h.res||[]).some(r=>r.i===i),later=g.rev[i]&&!got;return `<span class="cnh k-${g.key[i]} ${got?'got':later?'later':'miss'}" title="${got?'found with this clue':later?'found later':'never found'}">${got?'✅':later?'☑️':'⬜'} ${esc(g.words[i])}</span>`}).join(' ')}</span></li>`).join('')}</ul><p class="rlab">✅ found with that clue · ☑️ found later · ⬜ never found</p></div>`}
 
+function cnOopsUI(g,V,R){const U=g.undo,now=Date.now();let o='';
+  if(g.oopsed&&now-g.oopsed.at<6000)o+=`<p class="rlab cnoopsed">↩️ ${esc(g.oopsed.w)} was put back.</p>`;
+  if(!U||cnBig())return o;const w=esc(g.words[U.i]),other=cnOther(U.tm),judge=(g.cap&&cnOps(g,other).includes(g.cap[other])?g.cap[other]:cnOps(g,other)[0])||g.spy[other];
+  if(!U.req){if(now-U.at>10000)return o;if(g.solo||R.t===U.tm)o+=`<div class="cnoops"><span>Tapped the wrong one?</span><button class="btn sm" data-a="cnuoops">↩️ Oops! Undo ${w}</button></div>`;return o}
+  if(g.solo)return o;
+  if(V&&V.id===judge)o+=`<div class="cnoops ask"><span><b>${esc(cnName(U.req.by))}</b> asks to undo ${w}. Allow it?</span><span class="cnrow" style="margin:0"><button class="btn sm primary" data-a="cnuoopsok">✓ Allow</button><button class="btn sm" data-a="cnuoopsno">✗ No</button></span></div>`;
+  else o+=`<div class="cnoops"><span>↩️ ${esc(cnName(U.req.by))} asked to undo ${w}. Waiting for ${esc(cnName(judge))} (${CNT[other]}) to allow it.</span></div>`;return o}
 function cnHistUI(g){if(!g.hist.length)return '';const row=h=>`<li class="t-${h.tm}"><b>${CNTE[h.tm]} ${esc(h.w)} · ${h.n<0?'∞':h.n}</b><span>${(h.res||[]).map(r=>`<span class="cnh k-${r.c}">${esc(g.words[r.i])}</span>`).join(' ')||'<span class="rlab">…</span>'}</span></li>`;
   return `<details class="cnhist"${g.phase==='done'?' open':''}><summary>Clues so far (${g.hist.length})</summary><ul>${g.hist.slice().reverse().map(row).join('')}</ul></details>`}
 function cnMatchLine(g){const M=g.match;if(!M||M.fmt===1)return '';return `<p class="rlab cnmatch">${CNFMT[M.fmt]} · game ${M.no} · ${CNTE.r} <b class="num">${M.wins.r}</b> – <b class="num">${M.wins.b}</b> ${CNTE.b}</p>`}
@@ -125,6 +133,7 @@ function cnPlayUI(){const g=cnGg(),P=act();
   if(V&&R.t&&g.phase!=='teams'&&!cnBig())out+=`<p class="rlab cnme">You’re ${R.spy?'the 🕵️ spymaster':'a guesser'} for ${CNTE[R.t]} ${CNT[R.t]}${g.phase!=='done'?(g.turn===R.t?(g.phase==='clue'?(R.spy?' · give your clue below':' · waiting for your clue'):(R.op?' · talk it over and vote below':' · your team is guessing')):' · the other team’s turn'):''}.</p>`;
   if(g.phase==='teams')out+=cnTeamsUI(g);
   out+=cnClueLine(g);
+  out+=cnOopsUI(g,V,R);
   if(g.phase==='done')out+=cnDoneUI(g);
   out+=`<div class="cngrid${cnSeesKey(g,V)&&g.phase!=='done'?' spyview':''}" role="grid" aria-label="The board">${g.words.map((w,i)=>cnTile(g,i,V,R)).join('')}</div>`;
   if(!cnLinked()&&g.phase!=='done'&&g.phase!=='teams')out+=`<div class="cnrow"><button class="btn${CNPEEK?' primary':''}" data-a="cnupeek">${CNPEEK?'🙈 Hide the key':'👁 Spymasters: show the key'}</button></div>`;
@@ -154,6 +163,9 @@ function cnUiAct(a,b,k){const g=cnGg();if(!g)return;const V=cnViewer(),R=cnRole(
     case 'cnupanel':CNPANEL=!CNPANEL;return;
     case 'cnuq':cnChatSend(k);return;
     case 'cnutimer':mv({a:'timer'});return;
+    case 'cnuoops':mv({a:'oops'});return;
+    case 'cnuoopsok':mv({a:'oopsok'});return;
+    case 'cnuoopsno':mv({a:'oopsno'});return;
     case 'cnubig':CNBIG=!cnBig();try{localStorage.setItem('ft-cnbig',CNBIG?'1':'0')}catch(e){}return;
     case 'cnunext':mv({a:'next'});return;
     case 'cnucap':mv({a:'cap',who:k});return;
@@ -163,11 +175,11 @@ function cnUiAct(a,b,k){const g=cnGg();if(!g)return;const V=cnViewer(),R=cnRole(
     case 'cnumvote':mv({a:'mvote',v:k});return}}
 function cnTick(){if(!cnPlayOn()||!S.started||S.finished||S.demo||S.screen!=='score')return;if(!cnRes2())return;if(lkqRun()){save();render();return}
   if(act().some(p=>p.bot))return;
-  const g=cnGg();if(!g||cnStale(g)){const X=CNX();const prev=g&&!cnStale(g)?null:(X.last||null);S.cng=cnDeal({words:X.words,own:X.own,ownOnly:X.ownOnly,match:X.match,timer:X.timer,solo:!cnLinked(),prev})||S.cng;save();render();return}
+  const g=cnGg();if(!g||cnStale(g)){const X=CNX();const prev=g&&!cnStale(g)?null:(X.last||null);S.cng=cnDeal({words:X.words,own:X.own,ownOnly:X.ownOnly,packs:X.packs||[],match:X.match,timer:X.timer,solo:!cnLinked(),prev})||S.cng;save();render();return}
   /* one device or linked phones: phones can link after the board is dealt */
   if(g.solo!==!cnLinked()){g.solo=!cnLinked();save();render()}
   if(g.phase!=='teams'&&g.phase!=='done'){const X=CNX(),L={tm:g.tm,spy:g.spy,cap:g.cap};if(JSON.stringify(X.last||{})!==JSON.stringify(L)){X.last=L;cnKeep()}}}
-function cnSyncScorer(g){if(!g)return;const M=g.match,mw=cnMatchWin(g);S.cnrec={win:mw,why:M&&M.fmt!==1?'match':g.why,fmt:M?M.fmt:1,wins:M?{...M.wins}:null,games:M?M.no:1};act().forEach(p=>{const t=g.tm[p.id];p.cn={tm:t||'',spy:g.spy[t]===p.id?1:0,win:mw&&t===mw?1:0,gw:M?(M.pw[p.id]||0):0}});S.hr=1}
+function cnSyncScorer(g){if(!g)return;const M=g.match,mw=cnMatchWin(g);S.cnrec={win:mw,why:M&&M.fmt!==1?'match':g.why,fmt:M?M.fmt:1,wins:M?{...M.wins}:null,games:M?M.no:1};act().forEach(p=>{const t=g.tm[p.id];const T=g.st||{};p.cn={tm:t||'',spy:g.spy[t]===p.id?1:0,win:mw&&t===mw?1:0,gw:M?(M.pw[p.id]||0):0,sg:(T.spyG||{})[p.id]||0,sw:(T.spyW||{})[p.id]||0,ass:(T.ass||{})[p.id]||0}});if(g.st&&g.st.best){const b=g.st.best;S.cnrec.best={w:b.w,n:b.n,by:cnName(b.pid)}}S.hr=1}
 
 /* ---------- team panel: its own layer, so redraws never wipe what you're typing ---------- */
 function cnChatAll(g){const C=S.cnchat||{},out=[];for(const pid in C)(Array.isArray(C[pid])?C[pid]:[]).forEach(x=>{if(x&&x.m&&x.gid===g.gid)out.push({...x,pid})});return out}
@@ -229,3 +241,27 @@ setInterval(()=>{try{document.querySelectorAll('.cntmr.run[data-end]').forEach(e
   const g=S.game==='codenames'&&cnPlayOn()&&S.started&&!S.demo?cnGg():null;if(!g)return;
   if(g.tmr&&!g.tmr.out&&Date.now()>=g.tmr.end&&CNTOUT!==g.gid+g.tmr.end){CNTOUT=g.gid+g.tmr.end;vibe([200,80,200]);toast('⌛ Time’s up!')}
   if(cnRes2()&&!LKOPTR&&cnTimerCheck(g,Date.now())){save();render()}}catch(e){}},500);
+
+/* sounds when a word is revealed (uses the app's sound setting) */
+let CNSND='';
+function cnTone(c,f,t,d,type,vol,f2){const o=c.createOscillator(),gn=c.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(vol||.2,t+.02);gn.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(gn).connect(c.destination);o.start(t);o.stop(t+d+.05)}
+function cnSfx(kind){if(!SET.sound)return;const c=ac();if(!c)return;const t=c.currentTime+.03;try{
+  if(kind==='good'){[523,659,784,1047].forEach((f,i)=>cnTone(c,f,t+i*.08,.35,'triangle',.18))}
+  else if(kind==='bad'){cnTone(c,330,t,.25,'sawtooth',.12,220);cnTone(c,220,t+.22,.5,'sawtooth',.12,147)}
+  else if(kind==='meh'){cnTone(c,392,t,.18,'sine',.16);cnTone(c,349,t+.16,.3,'sine',.14)}
+  else if(kind==='boom'){if(typeof timpani==='function')timpani(c,t,62,.8);cnTone(c,98,t,1.4,'sawtooth',.16,49);cnTone(c,147,t+.05,1.2,'square',.07,73)}}catch(e){}}
+setInterval(()=>{try{const g=S.game==='codenames'&&cnPlayOn()&&S.started&&!S.demo?cnGg():null;if(!g)return;
+  const L=g.lastRev;if(L){const k=g.gid+':'+L.at+':'+L.i;if(CNSND===''){CNSND=k}else if(k!==CNSND){CNSND=k;if(Date.now()-L.at<5000){const V=cnViewer(),me=V&&g.tm[V.id]||L.tm;cnSfx(L.c==='x'?'boom':L.c==='n'?'meh':L.c===me?'good':'bad');vibe(L.c==='x'?[200,100,200]:20)}}}
+  const U=g.undo;if(U&&!U.req&&Date.now()-U.at>10000&&document.querySelector('[data-a="cnuoops"]'))render();
+  if(g.oopsed&&Date.now()-g.oopsed.at>6000&&document.querySelector('.cnoopsed'))render()}catch(e){}},600);
+/* family records on the stats screen */
+function cnRecords(G){const CG=G.filter(g=>g.game==='codenames'&&g.state&&g.state.players);if(!CG.length)return '';const per={};let best=null;
+  CG.forEach(g=>{const R=g.state.cnrec||{};if(R.best&&(!best||R.best.n>best.n))best={...R.best,g};g.state.players.forEach(p=>{const D=p.cn;if(!D||!D.tm)return;const pl=g.players.find(x=>x.name===((p.name||'').trim()));if(!pl||!realP(pl))return;
+    const e=per[pkey(pl)]||(per[pkey(pl)]={name:pl.name,color:pl.color,g:0,w:0,sg:0,sw:0,ass:0});e.g++;e.w+=D.win?1:0;e.sg+=D.sg||(D.spy?1:0);e.sw+=D.sw||(D.spy&&D.win?1:0);e.ass+=D.ass||0})});
+  const L=Object.values(per),card=(t,v,sub,c)=>`<div${c?` style="${pc(c)}"`:''}><span>${t}</span><b>${v}</b><small>${sub}</small></div>`;
+  const top=[...L].sort((a,b)=>b.w-a.w||b.w/b.g-a.w/a.g)[0],spy=L.filter(e=>e.sg>=2).sort((a,b)=>b.sw/b.sg-a.sw/a.sg||b.sg-a.sg)[0],as=[...L].sort((a,b)=>b.ass-a.ass)[0];
+  return `<div class="sec"><div class="sec-h"><h3>Codenames records</h3></div><div class="recs" style="margin-top:0">
+    ${top&&top.w?card('Most wins',`<span class="num">${top.w}</span>`,`${esc(top.name)} · ${top.w} of ${top.g} games`,top.color):''}
+    ${spy?card('Best spymaster',`<span class="num">${Math.round(spy.sw/spy.sg*100)}%</span>`,`${esc(spy.name)} · won ${spy.sw} of ${spy.sg} as spymaster`,spy.color):''}
+    ${best?card('Best clue',esc(best.w),`${esc(best.by)} · found ${best.n} agents · ${fmtD(best.g.date,{month:'short',day:'numeric'})}`):''}
+    ${as&&as.ass?card('Found the assassin',`<span class="num">${as.ass}</span>`,`${esc(as.name)} · oops!`,as.color):''}</div></div>`}

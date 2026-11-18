@@ -86,3 +86,11 @@ html.cnbig .cnface .cni{width:calc(var(--th) * .55);height:calc(var(--th) * .55)
 html.cnbig .cncw{font-size:clamp(22px,4vw,56px)}
 html.cnbig .cnsc b{font-size:clamp(26px,4vw,56px)}
 html.cnbig .cnhist,html.cnbig .cnvotes{display:none}
+
+.cnpacks{display:flex;flex-wrap:wrap;gap:6px}.cnpacks .btn[aria-pressed="true"]{background:var(--accent,#f2b705);color:#1d2329;font-weight:700}
+.cnoops{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;padding:6px 10px;border-radius:10px;background:var(--soft);margin:6px 0;border-left:5px solid #f2b705}
+.cnoops.ask{border-left-color:#c0392b}
+.cnoopsed{text-align:center;margin:4px 0}
+.cnt.flip{animation:cnflip .55s ease-out}
+@keyframes cnflip{0%{transform:perspective(500px) rotateY(90deg);filter:brightness(1.4)}60%{transform:perspective(500px) rotateY(-12deg)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){.cnt.flip{animation:none}}
