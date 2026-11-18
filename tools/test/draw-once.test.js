@@ -16,7 +16,8 @@ const until=async(p,fn,ms=8000,arg=null)=>{const t=Date.now();while(Date.now()-t
   for(let k=0;k<6;k++){await G.evaluate(()=>{const b=document.querySelector('[data-a=qpdraw]');if(b)b.click()});await W(40)}
   ok('only one draw is queued',await G.evaluate(id=>((S.lkq||{})[id]||[]).filter(e=>e.f==='qpDraw'&&e.id>((S.lkqa||{})[id]||0)).length<=1,ids[1]));
   ok('the button shows Drawing… meanwhile',await G.evaluate(()=>{const b=document.querySelector('[data-a=qpdraw]');return !b||b.disabled}));
-  await W(4000);
+  /* wait for the chip to come back and its reveal to finish (slow, uneven delivery can take a few seconds) */
+  await W(2500);await until(G,n=>!document.querySelector('.qppop')&&S.qpg.pl[n.id].pot.length>n.n0,9000,{id:ids[1],n0});await W(1200);
   const n1=await G.evaluate(id=>S.qpg.pl[id].pot.length,ids[1]);
   ok('exactly one chip went in',n1===n0+1,{n0,n1});
   ok('Draw works again after',await G.evaluate(()=>{const b=document.querySelector('[data-a=qpdraw]');return !!b&&!b.disabled}));

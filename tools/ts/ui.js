@@ -1,5 +1,5 @@
 /* ================= Telestrations: settings, record sheet, play screens (linked phones), the big board ================= */
-const TSDEF={play:1,words:'std',own:'',ownOnly:0,scoring:'friendly',timer:60,flip:1};
+const TSDEF={play:1,words:'std',own:'',ownOnly:0,scoring:'friendly',timer:60,flip:1,colors:0};
 const TSX=()=>{if(!S.tsx)S.tsx={...TSDEF};const X=S.tsx;for(const k in TSDEF)if(X[k]===undefined)X[k]=TSDEF[k];return X};
 function tsSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.tsx'))}catch(e){}return Object.assign({...TSDEF},x||{})}
 function tsKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.tsx',JSON.stringify(TSX()))}catch(e){}}
@@ -44,7 +44,9 @@ function tsSetup(){const X=TSX(),lock=S.started&&tsPlayOn(),seg=(a,opts,cur)=>`<
   <div class="sec"><div class="sec-h"><h3>Sketch timer</h3></div><div class="panel hfpanel">${seg('tstimer',[[0,'Off'],[30,'30 s'],[60,'60 s'],[90,'90 s'],[120,'2 min']],X.timer)}</div>
   <p class="hint">${+X.timer?`Official rules: 60 seconds to sketch, then a couple of seconds to finish up. Guessing has no timer.`:'No timer: everyone taps Done when their sketch is finished.'}</p></div>
   <div class="sec"><div class="sec-h"><h3>Passing</h3></div><div class="panel hfpanel"><div class="srow"><span class="rlab">Reverse direction each round</span><button class="sw" role="switch" aria-checked="${!!X.flip}" data-a="tsflip" aria-label="Reverse direction each round" ${lock?'disabled':''}><i></i></button></div></div>
-  <p class="hint">${X.flip?'Books pass to the left in round 1, then to the right, then left again, so you see different people’s sketches (the rule sheet’s play-again tip).':'Books always pass to the left.'}</p></div>`:''}
+  <p class="hint">${X.flip?'Books pass to the left in round 1, then to the right, then left again, so you see different people’s sketches (the rule sheet’s play-again tip).':'Books always pass to the left.'}</p></div>
+  <div class="sec"><div class="sec-h"><h3>Pen colors</h3></div><div class="panel hfpanel">${seg('tspens',[[0,'✒️ Black only'],[1,'🎨 Colors']],X.colors?1:0)}</div>
+  <p class="hint">${X.colors?'House rule: the sketch pad gets 8 colored markers. Every phone uses the same pens.':'Official: black markers, like the ones in the box.'}</p></div>`:''}
   <p class="hint">${usualUI('telestrations')}</p>
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Players ›</button></div></div>`}
 function tsScoreScr(){if(tsPlayOn()&&S.started&&!S.demo)return tsPlayUI();return tsScoreSheet()}
@@ -76,7 +78,7 @@ function tsHistory(pid){const p=act().find(q=>q.id===pid);if(!p)return '';const 
 function tsRevSteps(){const n=Math.max(1,...act().map(p=>((p.ts||{}).r||[]).length));return Array.from({length:n},(_,r)=>({name:`Round ${r+1}`,f:p=>+((p.ts||{}).r||[])[r]||0}))}
 function tsGuide(){return guideSheet('Telestrations',[
   ['Setup',[['Players','4 to 8. Each phone is a sketchbook. A phone or iPad on “Just watching” is the big board.'],['Your word','Each round a die is rolled. Find that number on your card: that’s your secret word. A blank means make up any word; a category means make up something in it; a card marked “any” lets you pick any word on it. Keep it secret!']]],
-  ['Passing the books',[['Even number of players','You sketch your own word first, then the books pass.'],['Odd number of players','Your book passes first: the next player sketches your word.'],['Sketch, guess, sketch…','Each page alternates. If you get a sketch, write what you think it is. If you get a guess, sketch it. The last page is always a guess.'],['Timer','Sketches have a timer (60 seconds in the box), then a couple of seconds to finish up. Guesses have no timer.'],['No letters or numbers','Sketches can’t have letters, numbers or symbols. Just draw!'],['Never leave a guess blank','Always write your best guess, even if the sketch is a mystery.'],['Direction','Books pass to the left. Reversing each round (the rule sheet’s tip) mixes things up.']]],
+  ['Passing the books',[['Even number of players','You sketch your own word first, then the books pass.'],['Odd number of players','Your book passes first: the next player sketches your word.'],['Sketch, guess, sketch…','Each page alternates. If you get a sketch, write what you think it is. If you get a guess, sketch it. The last page is always a guess.'],['Timer','Sketches have a timer (60 seconds in the box), then a couple of seconds to finish up. Guesses have no timer.'],['Pen colors','The box has black markers. The 🎨 Colors house rule gives the sketch pad 8 colors.'],['No letters or numbers','Sketches can’t have letters, numbers or symbols. Just draw!'],['Never leave a guess blank','Always write your best guess, even if the sketch is a mystery.'],['Direction','Books pass to the left. Reversing each round (the rule sheet’s tip) mixes things up.']]],
   ['The Big Reveal',[['Book by book','When your own book comes back, everyone watches as you flip through it, page by page, on every screen.'],['Friendly scoring','In your book, give 1 point to your favourite sketch and 1 to your favourite guess (not your own), and 1 to yourself if the last guess matches your word.'],['Competitive scoring','A guess scores 1 if it matches the secret word or the guess before it, and so does the sketch it came from. You get 1 if the last guess matches your word.'],['How many rounds','With scoring, play 3 rounds; most points wins. The rule sheet in the box has the official wording.']]]])}
 function tsStats(p){const g=S.tsg;if(g&&tsPlayOn()&&S.started&&!S.finished&&g.ps&&g.ps.includes(p.id))return [{k:'Points',v:g.scoring==='none'?'·':String(tsTotal(g,p.id)),i:'✏️'},{k:'Round',v:`${g.round}${g.rounds?' of '+g.rounds:''}`},{k:'Scoring',v:TSSC[g.scoring]}];
   const D=p.ts||{r:[]};return [{k:'Points',v:String(tsTot(p)),i:'✏️'},{k:'Rounds',v:String((D.r||[]).length)},{k:'Favourites',v:String((D.fs||0)+(D.fg||0))}]}
@@ -180,6 +182,9 @@ function tsUiAct(a,b,k){if(a==='tsubig'){TSBIG=!tsBig();try{localStorage.setItem
     case 'tsudone':tsSend({a:'bookdone'});return;
     case 'tsunextround':tsSend({a:'next'});return;
     case 'tsustop':tsSend({a:'stop'});return}}
+/* setup: the Pen colors house rule (handled here so the shared app core needs no new case) */
+document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-a="tspens"]');if(!b||b.disabled)return;e.stopPropagation();
+  if(S.game!=='telestrations'||S.started&&tsPlayOn())return;TSX().colors=b.dataset.k==='1'?1:0;tsKeep();save();render()},true);
 /* the drawing pad (draw.js) hands back the finished sketch here */
 window.tsPadDone=d=>{/* the pad can finish inside a redraw (time ran out): send it just after, never from the borrowed state */if(typeof LKOPTR!=='undefined'&&LKOPTR){setTimeout(()=>window.tsPadDone(d),0);return true}const g=tsGx(),V=tsViewer();if(!g||!V||g.phase!=='play'||g.sub[V.id])return false;const pr=tsPrompt(g,V.id);if(!pr||pr.kind!=='draw')return false;
   const r=tsSend({a:'page',d:String(d||'')});save();render();return r};
@@ -189,7 +194,7 @@ function tsRepair(g){if(!g||!g.ps)return false;if(g.phase==='pick'&&g.ps.every(p
   if(g.phase==='play'&&g.ps.every(p=>g.sub[p])&&g.ps.every(o=>g.books[o].pages[g.step])){tsAdvance(g);return true}return false}
 function tsTick(){if(!tsPlayOn()||!S.started||S.finished||S.demo||S.screen!=='score')return;if(!tsRes2())return;if(lkqRun()){save();render();return}
   if(act().some(p=>p.bot)||act().length<4||!tsLinked())return;
-  const g=S.tsg;if(!g||tsStale(g)){const X=TSX(),n=tsDeal({words:X.words,own:X.own,ownOnly:X.ownOnly,scoring:X.scoring,timer:+X.timer,flip:!!X.flip});if(n){S.tsg=n;save();render()}return}
+  const g=S.tsg;if(!g||tsStale(g)){const X=TSX(),n=tsDeal({words:X.words,own:X.own,ownOnly:X.ownOnly,scoring:X.scoring,timer:+X.timer,flip:!!X.flip,colors:!!X.colors});if(n){S.tsg=n;save();render()}return}
   if(tsTimeUp(g)||tsRepair(g)){save();render()}}
 function tsSyncScorer(g){if(!g)return;const F=g.fav||{s:{},g:{},m:{}};S.tsrec={scoring:g.scoring,rounds:g.round,timer:g.timer};
   act().forEach(p=>{p.ts={r:(g.score[p.id]||[]).map(v=>+v||0),fs:F.s[p.id]||0,fg:F.g[p.id]||0,fm:F.m[p.id]||0}});S.hr=1}
@@ -203,7 +208,7 @@ function tsFx(){let L=document.getElementById('tsfx');const on=S.game==='telestr
   const g=on?tsGx():null,ok=g&&!tsStale(g),V=ok?tsViewer():null,F=ok?tsFxMode(g,V):null;
   /* the sketch pad */
   try{if(typeof tsPadSync==='function'){const pr=ok&&V&&!tsBig()&&g.phase==='play'&&g.ps.includes(V.id)&&!g.sub[V.id]?tsPrompt(g,V.id):null;
-    if(pr&&pr.kind==='draw')tsPadSync({show:true,key:`${g.gid}:${g.round}:${g.step}:${V.id}`,word:pr.word||'',tEnd:g.tEnd});else tsPadSync({show:false})}}catch(e){console.error(e)}
+    if(pr&&pr.kind==='draw')tsPadSync({show:true,key:`${g.gid}:${g.round}:${g.step}:${V.id}`,word:pr.word||'',tEnd:g.tEnd,colors:!!g.colors});else tsPadSync({show:false})}}catch(e){console.error(e)}
   if(!F){if(L)L.remove();document.documentElement.style.removeProperty('--tspad');TSERR='';return}
   const sig=F.m+':'+F.key;
   if(!L||L.dataset.sig!==sig){if(L)L.remove();TSERR='';L=document.createElement('div');L.id='tsfx';L.className='cnlayer tslayer';L.dataset.sig=sig;L.dataset.m=F.m;

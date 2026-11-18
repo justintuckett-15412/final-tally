@@ -3366,6 +3366,7 @@ const dashOn=()=>S.started&&!S.finished&&!S.demo&&['score','live'].includes(S.sc
 /* Each phone keeps its own screen; everything else in the game is shared. Each player is stored separately, so two
    phones scoring different players at the same moment don't overwrite each other. */
 const LKLOCAL=['yzd','yzr','screen','active','hr','demo','link','lk','_sig','editing','endShown','psel','dmul','skgrid','gfgrid','gngrid','fctap','tkmode','lastTick','playMs'];
+/* changes this phone has sent that the shared copy may not include yet: path -> {s: send number, t: time}. Until the copy coming back includes them, an older copy can't undo them. */let LKSENT={};
 let LKUI='',LKLAST={m:null,order:null,ps:{},items:{}},LKSEATS={},LKRD=0,LKFREE=null,LKRV=null,LKMUTE=false,LKT=null,LKOPEN=false,LKMSG='',LKBUSY=false,LKCODE='',LKPEND=false,LKSTOP=false;
 const stable=o=>o===null||typeof o!=='object'?JSON.stringify(o):Array.isArray(o)?'['+o.map(x=>x===undefined?'null':stable(x)).join(',')+']':'{'+Object.keys(o).filter(k=>o[k]!==undefined).sort().map(k=>JSON.stringify(k)+':'+stable(o[k])).join(',')+'}';
 /* Shared game data is stored in small pieces so changes from different phones merge instead of overwriting:
@@ -3480,12 +3481,12 @@ function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK||LKSWAP)return;if(lkHost()&&L
   const old=LKLAST.m||{},sets=[],dels=[],keys=Object.keys(x.m);
   for(const p in x.m)if(x.m[p]!==old[p])sets.push(p);
   for(const p in old)if(!(p in x.m)&&!keys.some(q=>q.startsWith(p+LKSEP))&&!sets.some(q=>p.startsWith(q+LKSEP)))dels.push(p);
-  if(sets.length||dels.length){u.mops=[...sets.map(p=>[p.split(LKSEP),x.m[p]]),...dels.map(p=>[p.split(LKSEP),null])];LKLAST.m=x.m}
+  if(sets.length||dels.length){u.mops=[...sets.map(p=>[p.split(LKSEP),x.m[p]]),...dels.map(p=>[p.split(LKSEP),null])];LKLAST.m=x.m;u.sent=[...sets,...dels]}
   const it={},oi=LKLAST.items||{};for(const k in x.items)if(x.items[k]!==oi[k])it[k]=x.items[k];for(const k in oi)if(!(k in x.items))it[k]=null;
   if(Object.keys(it).length){u.items=it;LKLAST.items=x.items}
   if(stable(x.order)!==stable(LKLAST.order)&&!(lkGuest()&&S.game==='linkup')){u.order=x.order;LKLAST.order=x.order}
   const ps={};for(const id in x.ps)if(x.ps[id]!==LKLAST.ps[id]){if(lkGuest()&&id!==S.lk.me&&LKLAST.ps[id]&&lkSameBut(LKLAST.ps[id],x.ps[id]))continue;ps[id]=x.ps[id];LKLAST.ps[id]=x.ps[id]}
-  if(Object.keys(ps).length)u.ps=ps;if(Object.keys(u).length){lkTouch();window.FTLINK.push(u)}},250)}
+  if(Object.keys(ps).length)u.ps=ps;if(Object.keys(u).length){lkTouch();const sent=u.sent;delete u.sent;const seq=window.FTLINK.push(u);if(sent){const t=Date.now();sent.forEach(p=>{LKSENT[p]={s:typeof seq==='number'?seq:0,t}})}}},250)}
 
 /* "Your turn!" on a linked phone: a strong buzz, plus a notification if the app is in the background (and notifications are allowed) */
 let LKTURN=null;
@@ -3524,7 +3525,7 @@ function lkVoteGo(k){if(!S.lk||!lkHost()||!S.finished)return;if(k==='again'){con
   else{S.lkvote={...lkVotes(),_d:'new'};save();render()}}
 let LKGEN=0,LKSW=false,LKSWAP=false,LKPREV='',LKAUTO=-1;
 async function lkSwap(){if(!S.lk||!lkHost()||!window.FTLINK||!window.FTLINK.swap)return;LKSWAP=true;const x=lkSplit();LKSEATS={};LKRV=null;
-  try{LKGEN=await window.FTLINK.swap(x);LKLAST={m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}};LKSWAP=false;LKAUTO=-1;lkPush();lkAutoSeat();toast('The linked phones are following you to '+M().name+'.')}
+  try{LKGEN=await window.FTLINK.swap(x);LKSENT={};LKLAST={m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}};LKSWAP=false;LKAUTO=-1;lkPush();lkAutoSeat();toast('The linked phones are following you to '+M().name+'.')}
   catch(e){LKSWAP=false;toast('Couldn’t move the linked phones to this game. Link them again from here.');delete S.lk;save()}render()}
 function lkAutoSeat(){if(!S.lk||S.lk.me||!LKPREV||LKAUTO===LKGEN||LKBUSY)return;if(lkGuest()&&S.lkinv&&LKINVG!==LKGEN)return;const dev=window.FTLINK&&window.FTLINK.dev();
   const q=act().find(p=>!p.bot&&nm(p).trim().toLowerCase()===LKPREV.trim().toLowerCase()&&!(LKSEATS[p.id]&&LKSEATS[p.id].dev&&LKSEATS[p.id].dev!==dev));if(!q)return;LKAUTO=LKGEN;lkPick(q.id)}
@@ -3543,12 +3544,14 @@ window.lkRecv=function(u){if(!S.lk)return;
   if(u.host){LKHOSTDEV=u.host;const mine=window.FTLINK&&window.FTLINK.dev();if(mine&&!S.demo){if(lkHost()&&u.host!==mine&&!S.lk.lan){lkBecome('guest');return}if(lkGuest()&&u.host===mine){lkBecome('host')}}}
   if(u.seats){const old=LKSEATS;for(const id in u.seats){const n=u.seats[id],o=old[id];if(n&&(!o||o.t!==n.t||!LKSEEN[id]))LKSEEN[id]=Date.now()}LKSEATS=u.seats||{};const me=S.lk.me;{const dv=window.FTLINK&&window.FTLINK.dev();if(me&&LKSEATS[me]&&LKSEATS[me].dev===dv)LKSEATOK=me;else if(me&&!LKSEATS[me]&&S.lk.claimed&&LKSEATOK!==me&&old[me]&&old[me].dev===dv)LKSEATS[me]=old[me]}if(me&&!LKSEATS[me]&&S.lk.claimed&&lkGuest()&&Date.now()-LKREJT<20000){S.lk.claimed=false;S.lk.me=undefined;LKAUTO=-1;setTimeout(()=>{if(S.lk&&!S.lk.me)lkAutoSeat()},400)}
   else if(me&&!LKSEATS[me]&&S.lk.claimed){S.lk.claimed=false;S.lk.me=undefined;LKMUTE=true;save();LKMUTE=false;toast(lkHost()?'Your player spot was freed.':'The host freed your player spot. Pick again.');S.screen='lkwho'}}
+  /* the copy says which of this phone's sends it includes: those changes have landed, so from here on the copy is newer than them. Without that number (no-internet link), give them a few seconds. */if(u.mflat){const now=Date.now();for(const p in LKSENT){const e=LKSENT[p];if((typeof u.ack==='number'&&e.s&&u.ack>=e.s)||((typeof u.ack!=='number'||!e.s)&&now-e.t>6000)||now-e.t>30000)delete LKSENT[p]}}
   let changed=false;
   /* merge: anything this phone changed but hasn't sent yet wins; everything else follows the other phones */
   const cur=(u.mflat||u.items||u.ps)?lkSplit():null;
   if(u.mflat&&stable(u.mflat)!==stable(LKLAST.m||{})){const base=LKLAST.m||{},mine=cur.m,out={};
     /* this phone's own move queue only ever comes from this phone: an older echo from the host must never replace it (it would drop the newest move) */const ownQ=lkGuest()&&S.lk.me?'lkq'+LKSEP+S.lk.me:null;
-    new Set([...Object.keys(base),...Object.keys(mine),...Object.keys(u.mflat)]).forEach(p=>{const v=ownQ&&(p===ownQ||p.startsWith(ownQ+LKSEP))?mine[p]:mine[p]!==base[p]?mine[p]:u.mflat[p];if(v!==undefined)out[p]=v});
+    /* a change this phone sent that this copy doesn't include yet stays as it is here (the copy is older than the change) */const sent=Object.keys(LKSENT),wait=p=>sent.length&&sent.some(q=>q===p||p.startsWith(q+LKSEP)||q.startsWith(p+LKSEP));
+    new Set([...Object.keys(base),...Object.keys(mine),...Object.keys(u.mflat)]).forEach(p=>{const v=ownQ&&(p===ownQ||p.startsWith(ownQ+LKSEP))?mine[p]:mine[p]!==base[p]||wait(p)?mine[p]:u.mflat[p];if(v!==undefined)out[p]=v});
     const ks=Object.keys(out);ks.forEach(p=>{if(ks.some(q=>p.startsWith(q+LKSEP)))delete out[p]});
     const m=lkUnflat(out);delete m._lkarr;for(const k of Object.keys(S))if(k!=='players'&&!LKLOCAL.includes(k)&&!LKITEMS.includes(k)&&!(k in m))delete S[k];Object.assign(S,m);LKLAST.m=u.mflat;changed=true}
   if(u.items){const base=LKLAST.items||{},mine=cur.items,res={...mine};let ch=false;
@@ -3572,7 +3575,7 @@ window.lkRecv=function(u){if(!S.lk)return;
   if(S.lk&&!S.lk.me)lkAutoSeat();
   lkTurnCheck();const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&!/^(checkbox|radio|button|range|file)$/.test(ae.type||'')&&ae.id!=='lk-code'){LKPEND=true;return}
   LKPEND=false;render()};
-function lkClear(msg){const was=lkGuest();clearTimeout(LKT);LKT=null;try{window.FTLINK&&window.FTLINK.leave()}catch(e){}if(window.FTLAN&&FTLAN.hub){try{FTLAN.stop()}catch(e){}}if(window.FTLINK_NET||window.FTLAN)window.FTLINK=window.FTLINK_NET;LANLOST=false;LANUI=null;lanCam(false);LKLAST={m:null,order:null,ps:{},items:{}};LKSEATS={};LKRD=0;LKFREE=null;LKRV=null;LKOPEN=false;LKSTOP=false;
+function lkClear(msg){const was=lkGuest();clearTimeout(LKT);LKT=null;try{window.FTLINK&&window.FTLINK.leave()}catch(e){}if(window.FTLAN&&FTLAN.hub){try{FTLAN.stop()}catch(e){}}if(window.FTLINK_NET||window.FTLAN)window.FTLINK=window.FTLINK_NET;LANLOST=false;LANUI=null;lanCam(false);LKSENT={};LKLAST={m:null,order:null,ps:{},items:{}};LKSEATS={};LKRD=0;LKFREE=null;LKRV=null;LKOPEN=false;LKSTOP=false;
   if(was){try{localStorage.removeItem(KEY+'.linked');localStorage.removeItem(KEY+'.lkon')}catch(e){}const n=load();S=n||S;if(!n){delete S.lk}S.screen='home'}
   else{delete S.lk;save()}
   if(msg)toast(msg);window.scrollTo(0,0);render()}
@@ -3580,7 +3583,7 @@ let LKMAKING=0;/* a clear 'making your code' card while the host waits, so the s
 function lkMakingHtml(){if(!LKMAKING)return '';return `<div class="lkmaking" role="status" aria-live="polite"><div class="lkm-card panel"><div class="lkm-spin"></div><b>Making your link code…</b><span>This takes a few seconds. The code and QR show up next.</span></div></div>`}
 async function lkHostStart(g){if(!window.FTLINK)return;LKBUSY=true;LKMAKING=Date.now();LKMSG='';render();
   try{if(g&&(S.game||'ttr')!==g)switchGame(g);const x=lkSplit();const code=await window.FTLINK.host(x);
-    S.lk={code,role:'host',me:undefined,at:Date.now()};LKLAST={m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}};LKSEATS={};LKRV=null;LKOPEN=true;save();
+    S.lk={code,role:'host',me:undefined,at:Date.now()};LKSENT={};LKLAST={m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}};LKSEATS={};LKRV=null;LKOPEN=true;save();
     S.screen=S.game==='linkup'?'home':S.started?lkScreen():S.screen==='home'?'map':S.screen;if(S.started)S.screen='lkwho';if(S.game==='linkup'&&act()[0]){LKBUSY=false;await lkPick(act()[0].id)}window.scrollTo(0,0)}
   catch(e){LKMSG=(e&&e.message)||'Couldn’t start a linked game. Check your internet connection.'}LKBUSY=false;LKMAKING=0;render()}
 async function lkJoin(code){if(!window.FTLINK)return;const c=String(code||'').replace(/\D/g,'');if(c.length!==6){LKMSG='A game code has 6 numbers.';render();return}
@@ -3590,7 +3593,7 @@ async function lkJoin(code){if(!window.FTLINK)return;const c=String(code||'').re
     const n={...lkUnflat(g.mflat||{}),players:(g.order||[]).map(id=>ps[id]?JSON.parse(ps[id]):null).filter(Boolean)};lkItemsTo(n,g.items||{});
     n.lk={code:c,role:'guest',me:undefined,at:Date.now()};n.screen='lkwho';n.active=0;
     {const mine=window.FTLINK.dev(),seat=Object.entries(g.seats||{}).find(([id,x])=>x&&x.dev===mine&&(g.order||[]).includes(id));if(seat){n.lk.me=seat[0];n.lk.claimed=true}}
-    S=n;LKUI='';LKGEN=g.gen||0;LKSW=false;LKLAST={m:g.mflat||{},order:g.order,ps,items:{...(g.items||{})}};LKSEATS=g.seats||{};LKRD=g.rd||0;LKRV=g.rv||null;S.lk.rv=LKRV;
+    S=n;LKUI='';LKSENT={};LKGEN=g.gen||0;LKSW=false;LKLAST={m:g.mflat||{},order:g.order,ps,items:{...(g.items||{})}};LKSEATS=g.seats||{};LKRD=g.rd||0;LKRV=g.rv||null;S.lk.rv=LKRV;
     try{localStorage.setItem(KEY+'.lkon','1')}catch(e){}LKMUTE=true;save();LKMUTE=false;LKCODE='';lkGo();window.scrollTo(0,0)}
   catch(e){LKMSG=(e&&e.message)||'Couldn’t join. Check the code and your internet connection.'}LKBUSY=false;render()}
 /* a player can only be on one phone: the database refuses a second phone claiming the same player */
@@ -16279,7 +16282,7 @@ const TSCAT=['an animal','a food','a job','a place','a sport','a movie or TV sho
 
 /* ================= Telestrations: rules engine (from the 2010 rule sheet) =================
    State S.tsg = {gid, ps:[pid in seat order], n, round, rounds (3, or 0 = keep playing), dir (1 = left, -1 = right),
-     scoring:'friendly'|'competitive'|'none', timer (sketch seconds, 0 = none), die (1-6),
+     scoring:'friendly'|'competitive'|'none', colors (house rule: colored pens; false = black only, official), timer (sketch seconds, 0 = none), die (1-6),
      cards:{pid:{slots:[{t:'w',w}|{t:'blank'}|{t:'cat',c}], any:bool}}, books:{owner:{word, pages:[{by,kind:'draw'|'guess',d}] }},
      phase:'pick'|'play'|'reveal'|'roundEnd'|'done', step, steps, sub:{pid:1} (handed in this step), tEnd (timer end, ms),
      rv:{i (owner index in ps), p (page index; -1 = secret word)}, marks:{owner:{sketch:pid|null, guess:pid|null, self:bool, match:{pageIndex:bool}}},
@@ -16303,7 +16306,7 @@ function tsPool(o){const base=o.words==='kid'?TSW_KID:TSW_STD,own=String(o.own||
   return [...new Set([...(o.ownOnly&&own.length>=12?[]:base),...own])]}
 function tsDeal(o={}){const ps=act().map(p=>p.id);if(ps.length<4)return null;
   const g={gid:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ps,round:0,rounds:o.scoring==='none'?0:3,dir:1,flip:o.flip!==false,
-    scoring:['friendly','competitive','none'].includes(o.scoring)?o.scoring:'friendly',timer:[0,30,60,90,120].includes(+o.timer)?+o.timer:60,
+    scoring:['friendly','competitive','none'].includes(o.scoring)?o.scoring:'friendly',colors:!!o.colors,timer:[0,30,60,90,120].includes(+o.timer)?+o.timer:60,
     o:{words:o.words,own:o.own,ownOnly:o.ownOnly},usedW:[],score:Object.fromEntries(ps.map(p=>[p,[]])),n:0};
   tsNewRound(g);return g}
 function tsNewRound(g){g.round++;if(g.round>1&&g.flip)g.dir=-g.dir;g.die=1+Math.floor(Math.random()*6);
@@ -16353,19 +16356,25 @@ const tsTotal=(g,p)=>(g.score[p]||[]).reduce((a,b)=>a+(b||0),0);
 const tsStale=g=>{const ids=act().map(p=>p.id);return !g||!g.ps||g.ps.length!==ids.length||g.ps.some(id=>!ids.includes(id))};
 
 /* ================= Telestrations: sketch encoding, SVG pages and the finger-drawing pad =================
-   A stroke = {w:1|2|3 (pen size), e:0|1 (eraser), p:[x,y,x,y,...]} with x,y in 0..1000 (square page).
+   A stroke = {w:1|2|3 (pen size), e:0|1 (eraser), c:0..7 (pen color, TSD_COL; 0 = black), p:[x,y,x,y,...]} with x,y in 0..1000 (square page).
    tsEnc(strokes) -> compact string (<= TSD_MAX chars), tsDec(str) -> strokes, tsSvg(str,{size}) -> '<svg ...>'.
-   tsPadSync({show,key,word,tEnd}) drives the pad layer #tsdraw (outside #app, so render() never wipes it).
+   tsPadSync({show,key,word,tEnd,colors}) drives the pad layer #tsdraw (outside #app, so render() never wipes it).
    On Done (or ~2 s after tEnd) it calls window.tsPadDone(encoded) once per key.
 
-   Encoding: '1' + grid char + strokes joined by ','.  Stroke = head char ((w-1)+3e) + first point (2+2 chars,
+   Encoding: '1' + grid char + strokes joined by ','.  Stroke = head char ((w-1)+3e+6c) + first point (2+2 chars,
    absolute, in grid units) + one delta per coordinate: 1 char for -31..31, or '_' + 2 chars for bigger jumps.
    Alphabet is URL/JSON safe (A-Z a-z 0-9 - _). Points are simplified (Ramer-Douglas-Peucker) and snapped to the
-   grid; if the result is too long we simplify harder (never cut a stroke in half). */
+   grid; if the result is too long we simplify harder (never cut a stroke in half).
+   Pen colors (house rule): the color index rides in the head char (6c), so old strings (head 0..5) decode as black. */
 const TSD_MAX=6000,TSD_B64='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 const TSD_LEVELS=[[1.5,2],[2.5,2],[3.5,3],[5,3],[7,4],[10,5],[14,6],[20,8],[30,10],[45,12],[70,16],[110,20]];
 /* pen widths in page units (1000 = page width); eraser is wider */
 const TSD_PEN={1:7,2:14,3:24},TSD_ERA={1:24,2:40,3:60};
+/* pen colors: black (official), then the 'Colors' house rule markers */
+const TSD_COL=['#111111','#e5262d','#f57c00','#f5c400','#2e9e3f','#1f6fd6','#7b3fbf','#7a4a24'];
+const TSD_COLN=['Black','Red','Orange','Yellow','Green','Blue','Purple','Brown'];
+const tsdCi=v=>{v=Math.floor(+v||0);return v>=0&&v<TSD_COL.length?v:0};
+const tsdInk=s=>s.e?'#fff':TSD_COL[tsdCi(s.c)];
 const tsdW=s=>(s.e?TSD_ERA:TSD_PEN)[s.w]||TSD_PEN[1];
 /* Ramer-Douglas-Peucker on a flat [x,y,...] list (iterative, keeps both ends) */
 function tsdRdp(p,eps){const n=p.length>>1;if(n<3||eps<=0)return p.slice();const keep=new Uint8Array(n);keep[0]=keep[n-1]=1;const st=[[0,n-1]],e2=eps*eps;
@@ -16379,22 +16388,22 @@ const tsdC=v=>Math.max(0,Math.min(1000,+v||0));
 function tsdEncStroke(s,eps,q){const B=TSD_B64,raw=(s.p||[]).map(tsdC);if(raw.length<2)return '';
   const p=tsdRdp(raw.length&1?raw.slice(0,-1):raw,eps),g=[];
   for(let i=0;i<p.length;i+=2){const x=Math.round(p[i]/q),y=Math.round(p[i+1]/q),k=g.length;if(k&&g[k-2]===x&&g[k-1]===y)continue;g.push(x,y)}
-  const w=[1,2,3].includes(+s.w)?+s.w:1;let o=B[(w-1)+(s.e?3:0)]+B[g[0]>>6]+B[g[0]&63]+B[g[1]>>6]+B[g[1]&63];
+  const w=[1,2,3].includes(+s.w)?+s.w:1;let o=B[(w-1)+(s.e?3:6*tsdCi(s.c))]+B[g[0]>>6]+B[g[0]&63]+B[g[1]>>6]+B[g[1]&63];
   for(let i=2;i<g.length;i++){const d=g[i]-g[i-2];if(d>=-31&&d<=31)o+=B[d+31];else{const v=d+2048;o+='_'+B[v>>6]+B[v&63]}}
   return o}
 function tsEnc(strokes){const S=(Array.isArray(strokes)?strokes:[]).filter(s=>s&&Array.isArray(s.p)&&s.p.length>=2);if(!S.length)return '';
   const mk=(eps,q,list)=>{const parts=list.map(s=>tsdEncStroke(s,eps,q)).filter(Boolean);return parts.length?'1'+TSD_B64[q]+parts.join(','):''};
   let out='';for(const [eps,q] of TSD_LEVELS){out=mk(eps,q,S);if(out.length<=TSD_MAX)return out}
   /* still too long: thin out the points (every k-th, ends kept), then as a last resort drop the smallest whole strokes */
-  const [eps,q]=TSD_LEVELS[TSD_LEVELS.length-1],thin=(s,k)=>{const n=s.p.length>>1,p=[];for(let i=0;i<n;i+=k)p.push(s.p[2*i],s.p[2*i+1]);if((n-1)%k)p.push(s.p[2*n-2],s.p[2*n-1]);return {w:s.w,e:s.e,p}};
+  const [eps,q]=TSD_LEVELS[TSD_LEVELS.length-1],thin=(s,k)=>{const n=s.p.length>>1,p=[];for(let i=0;i<n;i+=k)p.push(s.p[2*i],s.p[2*i+1]);if((n-1)%k)p.push(s.p[2*n-2],s.p[2*n-1]);return {w:s.w,e:s.e,c:s.c,p}};
   for(let k=2;k<=64;k*=2){out=mk(eps,q,S.map(s=>thin(s,k)));if(out.length<=TSD_MAX)return out}
   S.forEach((s,i)=>S[i]=thin(s,64));const size=s=>{let a=1e9,b=1e9,c=-1,d=-1;for(let i=0;i<s.p.length;i+=2){a=Math.min(a,s.p[i]);c=Math.max(c,s.p[i]);b=Math.min(b,s.p[i+1]);d=Math.max(d,s.p[i+1])}return (c-a)+(d-b)};
   const order=S.map((s,i)=>[size(s),i]).sort((x,y)=>x[0]-y[0]),drop=new Set();
   for(const [,i] of order){drop.add(i);out=mk(eps,q,S.filter((s,j)=>!drop.has(j)));if(out.length<=TSD_MAX)return out}
   return ''}
 function tsDec(str){try{str=String(str||'');if(str.length<3||str[0]!=='1')return [];const B=TSD_B64,q=B.indexOf(str[1]);if(q<1)return [];
-  const out=[];for(const part of str.slice(2).split(',')){const v=[...part].map(c=>B.indexOf(c));if(v.length<5||v.some(x=>x<0)||v[0]>5)continue;
-    const h=v[0],s={w:h%3+1,e:h>=3?1:0,p:[]};let x=v[1]*64+v[2],y=v[3]*64+v[4],i=5,ok=true;s.p.push(tsdC(x*q),tsdC(y*q));
+  const out=[];for(const part of str.slice(2).split(',')){const v=[...part].map(c=>B.indexOf(c));if(v.length<5||v.some(x=>x<0)||v[0]>=6*TSD_COL.length)continue;
+    const h=v[0],e=h%6>=3?1:0,s={w:h%3+1,e,c:e?0:Math.floor(h/6),p:[]};let x=v[1]*64+v[2],y=v[3]*64+v[4],i=5,ok=true;s.p.push(tsdC(x*q),tsdC(y*q));
     const rd=()=>{if(i>=v.length)return null;if(v[i]===63){if(i+2>=v.length){ok=false;return null}const d=v[i+1]*64+v[i+2]-2048;i+=3;return d}return v[i++]-31};
     while(i<v.length&&ok){const dx=rd(),dy=rd();if(dx==null||dy==null)break;x+=dx;y+=dy;s.p.push(tsdC(x*q),tsdC(y*q))}
     out.push(s)}
@@ -16403,7 +16412,7 @@ function tsDec(str){try{str=String(str||'');if(str.length<3||str[0]!=='1')return
 let tsdSvgN=0;
 function tsSvg(str,o={}){const size=Math.max(40,+o.size||300),k=1000/size,S=tsDec(str),id='tsdc'+(++tsdSvgN),r=40;
   let body='';
-  for(const s of S){const w=Math.max(tsdW(s),(s.e?3:1.6)*k).toFixed(1),c=s.e?'#fff':'#111',p=s.p;let d='M'+p[0]+' '+p[1];
+  for(const s of S){const w=Math.max(tsdW(s),(s.e?3:1.6)*k).toFixed(1),c=tsdInk(s),p=s.p;let d='M'+p[0]+' '+p[1];
     if(p.length===2)d+='l0 0';else for(let i=2;i<p.length;i+=2)d+='L'+p[i]+' '+p[i+1];
     body+='<path d="'+d+'" stroke="'+c+'" stroke-width="'+w+'"/>'}
   if(!S.length)body='<text x="500" y="515" text-anchor="middle" font-family="system-ui,sans-serif" font-size="'+Math.max(48,12*k).toFixed(0)+'" fill="#9aa3ad">(left blank)</text>';
@@ -16414,7 +16423,7 @@ function tsSvg(str,o={}){const size=Math.max(40,+o.size||300),k=1000/size,S=tsDe
     +'<rect x="'+(k/2)+'" y="'+(k/2)+'" width="'+(1000-k)+'" height="'+(1000-k)+'" rx="'+r+'" fill="none" stroke="#d5dbe1" stroke-width="'+k.toFixed(2)+'"/></svg>'}
 
 /* ---------------- the pad ---------------- */
-let TSD={key:null,strokes:[],cur:null,pid:null,tool:'thin',sent:false,word:'',tEnd:null,show:false,clearArm:0,tick:null,el:null};
+let TSD={key:null,strokes:[],cur:null,pid:null,tool:'thin',pen:'thin',color:0,colors:false,sent:false,word:'',tEnd:null,show:false,clearArm:0,tick:null,el:null};
 const tsdEsc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function tsdCss(){if(document.getElementById('tsdrawcss'))return;const st=document.createElement('style');st.id='tsdrawcss';st.textContent=`
 #tsdraw{position:fixed;inset:0;z-index:55;background:var(--bg,#EDF0F3);color:var(--ink,#17212B);display:flex;flex-direction:column;align-items:center;
@@ -16436,6 +16445,12 @@ function tsdCss(){if(document.getElementById('tsdrawcss'))return;const st=docume
 #tsdraw .tsdsent span{background:#fff;border:2px solid var(--accent,#f2b705);border-radius:16px;padding:12px 18px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
 #tsdraw .tsdhint{text-align:center;font-size:12.5px;color:var(--muted,#5A6672);margin-top:-4px}
 #tsdraw .tsdtools{display:flex;gap:6px}
+#tsdraw.tsdc .tsdcol{gap:8px}
+#tsdraw.tsdc .tsdtools button{min-height:46px;font-size:10.5px;gap:2px}
+#tsdraw .tsdcolors{display:flex;gap:5px;padding:3px}
+#tsdraw .tsdcolors button{flex:1;min-width:0;height:40px;border-radius:12px;border:2px solid rgba(0,0,0,.18);background:var(--sw);cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
+#tsdraw .tsdcolors button.on{box-shadow:0 0 0 3px var(--bg,#EDF0F3),0 0 0 6px var(--ink,#17212B);border-color:#fff;transform:scale(1.04)}
+#tsdraw .tsdcolors button:disabled{opacity:.4;cursor:default}
 #tsdraw .tsdtools button{flex:1;min-height:52px;border-radius:14px;border:1px solid var(--line,#D2D9E0);background:var(--surface,#fff);color:var(--ink,#17212B);font:inherit;font-size:11px;font-weight:700;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px 2px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 #tsdraw .tsdtools button.on{background:var(--accent,#f2b705);border-color:var(--accent,#f2b705);color:#1b1b1b;box-shadow:inset 0 -2px 0 rgba(0,0,0,.15)}
@@ -16443,19 +16458,21 @@ function tsdCss(){if(document.getElementById('tsdrawcss'))return;const st=docume
 #tsdraw .tsdtools button:disabled{opacity:.4;cursor:default}
 #tsdraw .tsdtools i{font-style:normal;font-size:19px;line-height:20px;height:20px;display:flex;align-items:center}
 #tsdraw .tsdtools i.dot{width:20px;justify-content:center}
-#tsdraw .tsdtools i.dot b{display:block;border-radius:50%;background:currentColor}
+#tsdraw .tsdtools i.dot b{display:block;border-radius:50%;background:var(--pen,currentColor);box-shadow:0 0 0 1px rgba(0,0,0,.15)}
 #tsdraw .tsddone{min-height:56px;border:0;border-radius:16px;background:var(--accent,#f2b705);color:#1b1b1b;font:inherit;font-family:var(--display,inherit);font-size:20px;font-weight:800;cursor:pointer;
   box-shadow:inset 0 -3px 0 rgba(0,0,0,.18);-webkit-tap-highlight-color:transparent}
 #tsdraw .tsddone:disabled{background:var(--soft,#E3E8ED);color:var(--muted,#5A6672);box-shadow:none;font-size:16px;cursor:default}
 `;document.head.appendChild(st)}
 /* square size: about min(92vw, 58vh, 520px) */
-function tsdSize(){const v=Math.floor(Math.min(innerWidth*.92,innerHeight*.58,520));return Math.max(200,v)}
+function tsdSize(){const L=TSD.el;let rest=0;
+  if(L&&!L.hidden){const col=L.querySelector('.tsdcol'),pg=L.querySelector('.tsdpage'),cs=getComputedStyle(L);
+    rest=col.offsetHeight-pg.offsetHeight+(parseFloat(cs.paddingTop)||0)+(parseFloat(cs.paddingBottom)||0)+4}
+  const h=rest?innerHeight-rest:innerHeight*.58,v=Math.floor(Math.min(innerWidth*.92,h,520));return Math.max(200,v)}
 function tsdBuild(){tsdCss();let L=document.getElementById('tsdraw');if(L&&L===TSD.el&&document.body.contains(L))return L;if(L)L.remove();
   L=document.createElement('div');L.id='tsdraw';L.hidden=true;L.setAttribute('role','dialog');L.setAttribute('aria-label','Sketch pad');
   L.innerHTML=`<div class="tsdcol">
-  <div class="tsdtop"><div class="tsdword"><small>\u270f\ufe0f Sketch</small><span class="tsdw"></span></div><div class="tsdclock" hidden></div></div>
+  <div class="tsdtop"><div class="tsdword"><small>\u270f\ufe0f Sketch \u00b7 no letters or numbers</small><span class="tsdw"></span></div><div class="tsdclock" hidden></div></div>
   <div class="tsdpage"><canvas aria-label="Drawing area"></canvas><div class="tsdsent" hidden><span>Sent \u2713<br><small style="font-size:14px;font-weight:700">Waiting for the others</small></span></div></div>
-  <div class="tsdhint">No letters or numbers!</div>
   <div class="tsdtools">
     <button data-t="thin" aria-label="Thin pen"><i class="dot"><b style="width:6px;height:6px"></b></i>Thin</button>
     <button data-t="thick" aria-label="Thick pen"><i class="dot"><b style="width:15px;height:15px"></b></i>Thick</button>
@@ -16463,6 +16480,7 @@ function tsdBuild(){tsdCss();let L=document.getElementById('tsdraw');if(L&&L===T
     <button data-a="undo" aria-label="Undo"><i>\u21a9\ufe0f</i>Undo</button>
     <button data-a="clear" aria-label="Clear"><i>\u{1f5d1}\ufe0f</i><span>Clear</span></button>
   </div>
+  <div class="tsdcolors" role="radiogroup" aria-label="Pen color" hidden>${TSD_COL.map((c,i)=>`<button data-c="${i}" role="radio" aria-label="${TSD_COLN[i]} pen" style="--sw:${c}"></button>`).join('')}</div>
   <button class="tsddone">Done \u2713</button></div>`;
   document.body.appendChild(L);TSD.el=L;
   const cv=L.querySelector('canvas');
@@ -16470,29 +16488,31 @@ function tsdBuild(){tsdCss();let L=document.getElementById('tsdraw');if(L&&L===T
   cv.addEventListener('lostpointercapture',tsdUp);cv.addEventListener('contextmenu',e=>e.preventDefault());
   cv.addEventListener('touchstart',e=>e.preventDefault(),{passive:false});cv.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
   L.querySelector('.tsdtools').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled||TSD.sent)return;
-    if(b.dataset.t){TSD.tool=b.dataset.t;tsdUi();return}
+    if(b.dataset.t){TSD.tool=b.dataset.t;if(TSD.tool!=='erase')TSD.pen=TSD.tool;tsdUi();return}
     if(b.dataset.a==='undo'){if(!TSD.cur&&TSD.strokes.length){TSD.strokes.pop();tsdRedraw()}TSD.clearArm=0;tsdUi();return}
     if(b.dataset.a==='clear'){if(Date.now()<TSD.clearArm){TSD.strokes=[];TSD.cur=null;TSD.clearArm=0;tsdRedraw()}else{TSD.clearArm=Date.now()+3000;setTimeout(tsdUi,3050)}tsdUi()}});
+  L.querySelector('.tsdcolors').addEventListener('click',e=>{const b=e.target.closest('button[data-c]');if(!b||b.disabled||TSD.sent||!TSD.colors)return;
+    TSD.color=tsdCi(b.dataset.c);if(TSD.tool==='erase')TSD.tool=TSD.pen||'thin';tsdUi()});
   L.querySelector('.tsddone').addEventListener('click',()=>tsdSend());
   if(!tsdBuild.r){tsdBuild.r=1;addEventListener('resize',()=>{if(TSD.show)tsdFit()})}
   return L}
 function tsdFit(){const L=TSD.el;if(!L)return;const z=tsdSize();L.style.setProperty('--tsdz',z+'px');const cv=L.querySelector('canvas'),dpr=Math.min(3,window.devicePixelRatio||1),px=Math.round(z*dpr);
   if(cv.width!==px){cv.width=px;cv.height=px}tsdRedraw()}
 function tsdCtx(){const cv=TSD.el&&TSD.el.querySelector('canvas');if(!cv)return null;const c=cv.getContext('2d'),s=cv.width/1000;c.setTransform(s,0,0,s,0,0);c.lineCap='round';c.lineJoin='round';return c}
-function tsdPaint(c,s,from){const p=s.p,n=p.length>>1;c.strokeStyle=c.fillStyle=s.e?'#fff':'#111';c.lineWidth=tsdW(s);
+function tsdPaint(c,s,from){const p=s.p,n=p.length>>1;c.strokeStyle=c.fillStyle=tsdInk(s);c.lineWidth=tsdW(s);
   if(n===1){if(from>0)return;c.beginPath();c.arc(p[0],p[1],tsdW(s)/2,0,7);c.fill();return}
   /* quadratic curves through the midpoints; 'from' = how many points were already drawn (live drawing) */
   const mx=i=>(p[2*i]+p[2*i+2])/2,my=i=>(p[2*i+1]+p[2*i+3])/2;let a;c.beginPath();
   if(from<=1){c.moveTo(p[0],p[1]);c.lineTo(mx(0),my(0));a=1}else{c.moveTo(mx(from-2),my(from-2));a=from-1}
   for(let i=a;i<n-1;i++)c.quadraticCurveTo(p[2*i],p[2*i+1],mx(i),my(i));c.stroke()}
-function tsdTail(c,s){const p=s.p,n=p.length>>1;if(n<2)return;c.strokeStyle=s.e?'#fff':'#111';c.lineWidth=tsdW(s);c.beginPath();
+function tsdTail(c,s){const p=s.p,n=p.length>>1;if(n<2)return;c.strokeStyle=tsdInk(s);c.lineWidth=tsdW(s);c.beginPath();
   c.moveTo((p[2*n-4]+p[2*n-2])/2,(p[2*n-3]+p[2*n-1])/2);c.lineTo(p[2*n-2],p[2*n-1]);c.stroke()}
 function tsdRedraw(){const c=tsdCtx();if(!c)return;c.fillStyle='#fff';c.fillRect(0,0,1000,1000);for(const s of TSD.strokes){tsdPaint(c,s,0);tsdTail(c,s)}if(TSD.cur)tsdPaint(c,TSD.cur,0)}
 function tsdPt(e){const r=TSD.el.querySelector('canvas').getBoundingClientRect();if(!r.width)return null;
   return [tsdC((e.clientX-r.left)/r.width*1000),tsdC((e.clientY-r.top)/r.height*1000)]}
 function tsdDown(e){e.preventDefault();if(TSD.sent||TSD.pid!=null||(e.pointerType==='mouse'&&e.button!==0))return;const q=tsdPt(e);if(!q)return;
   TSD.pid=e.pointerId;try{e.target.setPointerCapture(e.pointerId)}catch(_){}
-  const t=TSD.tool;TSD.cur={w:t==='thin'?1:3,e:t==='erase'?1:0,p:q.slice()};TSD.clearArm=0;const c=tsdCtx();c&&tsdPaint(c,TSD.cur,0)}
+  const t=TSD.tool;TSD.cur={w:t==='thin'?1:3,e:t==='erase'?1:0,c:t==='erase'||!TSD.colors?0:TSD.color,p:q.slice()};TSD.clearArm=0;const c=tsdCtx();c&&tsdPaint(c,TSD.cur,0)}
 function tsdMove(e){if(e.pointerId!==TSD.pid||!TSD.cur)return;e.preventDefault();const s=TSD.cur,evs=e.getCoalescedEvents?e.getCoalescedEvents():[];
   const before=s.p.length>>1;for(const ev of (evs.length?evs:[e])){const q=tsdPt(ev);if(!q)continue;const n=s.p.length;
     const dx=q[0]-s.p[n-2],dy=q[1]-s.p[n-1];if(dx*dx+dy*dy<2.25)continue;s.p.push(q[0],q[1])}
@@ -16507,6 +16527,8 @@ function tsdClock(){const el=TSD.el&&TSD.el.querySelector('.tsdclock');if(!el)re
   else{el.textContent=Math.floor(left/60)+':'+String(left%60).padStart(2,'0');el.className='tsdclock'+(left<=10?' low':'')}
   if(!TSD.sent&&Date.now()>=TSD.tEnd+2000)tsdSend()}
 function tsdUi(){const L=TSD.el;if(!L)return;L.querySelectorAll('[data-t]').forEach(b=>{b.classList.toggle('on',b.dataset.t===TSD.tool);b.disabled=TSD.sent});
+  L.classList.toggle('tsdc',TSD.colors);const cr=L.querySelector('.tsdcolors');cr.hidden=!TSD.colors;L.style.setProperty('--pen',TSD.colors?TSD_COL[TSD.color]:'');
+  cr.querySelectorAll('[data-c]').forEach(b=>{const on=TSD.tool!=='erase'&&+b.dataset.c===TSD.color;b.classList.toggle('on',on);b.setAttribute('aria-checked',String(on));b.disabled=TSD.sent});
   const u=L.querySelector('[data-a=undo]'),c=L.querySelector('[data-a=clear]'),armed=Date.now()<TSD.clearArm;
   u.disabled=TSD.sent||!TSD.strokes.length;c.disabled=TSD.sent||!TSD.strokes.length;c.classList.toggle('arm',armed&&!c.disabled);c.querySelector('span').textContent=armed?'Tap again':'Clear';
   const d=L.querySelector('.tsddone');d.disabled=TSD.sent;d.textContent=TSD.sent?'Sent \u2713 Waiting for the others':'Done \u2713';
@@ -16515,15 +16537,16 @@ function tsdUi(){const L=TSD.el;if(!L)return;L.querySelectorAll('[data-t]').forE
 function tsPadSync(o={}){const show=!!o.show;
   if(!show){TSD.show=false;if(TSD.el)TSD.el.hidden=true;if(TSD.tick){clearInterval(TSD.tick);TSD.tick=null}return}
   const key=String(o.key==null?'':o.key);
-  if(key!==TSD.key){TSD.key=key;TSD.strokes=[];TSD.cur=null;TSD.pid=null;TSD.sent=false;TSD.clearArm=0;TSD.tool='thin'}
+  if(key!==TSD.key){TSD.key=key;TSD.strokes=[];TSD.cur=null;TSD.pid=null;TSD.sent=false;TSD.clearArm=0;TSD.tool=TSD.pen='thin';TSD.color=0}
+  const colors=!!o.colors,relay=colors!==TSD.colors;TSD.colors=colors;if(!colors)TSD.color=0;
   TSD.word=o.word||'';TSD.tEnd=o.tEnd==null||!isFinite(+o.tEnd)?null:+o.tEnd;
   const fresh=!TSD.el||!document.body.contains(TSD.el);tsdBuild();const wasHidden=TSD.el.hidden;TSD.el.hidden=false;TSD.show=true;
-  if(fresh||wasHidden)tsdFit();tsdUi();if(!TSD.tick)TSD.tick=setInterval(tsdClock,250)}
+  if(fresh||wasHidden||relay){tsdUi();tsdFit()}tsdUi();if(!TSD.tick)TSD.tick=setInterval(tsdClock,250)}
 /* for ui.js / tests: what the pad holds right now */
-function tsPadState(){return {key:TSD.key,sent:TSD.sent,strokes:TSD.strokes.length,show:TSD.show}}
+function tsPadState(){return {key:TSD.key,sent:TSD.sent,strokes:TSD.strokes.length,show:TSD.show,colors:TSD.colors,color:TSD.color,used:[...new Set(TSD.strokes.filter(s=>!s.e).map(s=>s.c||0))]}}
 
 /* ================= Telestrations: settings, record sheet, play screens (linked phones), the big board ================= */
-const TSDEF={play:1,words:'std',own:'',ownOnly:0,scoring:'friendly',timer:60,flip:1};
+const TSDEF={play:1,words:'std',own:'',ownOnly:0,scoring:'friendly',timer:60,flip:1,colors:0};
 const TSX=()=>{if(!S.tsx)S.tsx={...TSDEF};const X=S.tsx;for(const k in TSDEF)if(X[k]===undefined)X[k]=TSDEF[k];return X};
 function tsSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.tsx'))}catch(e){}return Object.assign({...TSDEF},x||{})}
 function tsKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.tsx',JSON.stringify(TSX()))}catch(e){}}
@@ -16568,7 +16591,9 @@ function tsSetup(){const X=TSX(),lock=S.started&&tsPlayOn(),seg=(a,opts,cur)=>`<
   <div class="sec"><div class="sec-h"><h3>Sketch timer</h3></div><div class="panel hfpanel">${seg('tstimer',[[0,'Off'],[30,'30 s'],[60,'60 s'],[90,'90 s'],[120,'2 min']],X.timer)}</div>
   <p class="hint">${+X.timer?`Official rules: 60 seconds to sketch, then a couple of seconds to finish up. Guessing has no timer.`:'No timer: everyone taps Done when their sketch is finished.'}</p></div>
   <div class="sec"><div class="sec-h"><h3>Passing</h3></div><div class="panel hfpanel"><div class="srow"><span class="rlab">Reverse direction each round</span><button class="sw" role="switch" aria-checked="${!!X.flip}" data-a="tsflip" aria-label="Reverse direction each round" ${lock?'disabled':''}><i></i></button></div></div>
-  <p class="hint">${X.flip?'Books pass to the left in round 1, then to the right, then left again, so you see different people’s sketches (the rule sheet’s play-again tip).':'Books always pass to the left.'}</p></div>`:''}
+  <p class="hint">${X.flip?'Books pass to the left in round 1, then to the right, then left again, so you see different people’s sketches (the rule sheet’s play-again tip).':'Books always pass to the left.'}</p></div>
+  <div class="sec"><div class="sec-h"><h3>Pen colors</h3></div><div class="panel hfpanel">${seg('tspens',[[0,'✒️ Black only'],[1,'🎨 Colors']],X.colors?1:0)}</div>
+  <p class="hint">${X.colors?'House rule: the sketch pad gets 8 colored markers. Every phone uses the same pens.':'Official: black markers, like the ones in the box.'}</p></div>`:''}
   <p class="hint">${usualUI('telestrations')}</p>
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Players ›</button></div></div>`}
 function tsScoreScr(){if(tsPlayOn()&&S.started&&!S.demo)return tsPlayUI();return tsScoreSheet()}
@@ -16600,7 +16625,7 @@ function tsHistory(pid){const p=act().find(q=>q.id===pid);if(!p)return '';const 
 function tsRevSteps(){const n=Math.max(1,...act().map(p=>((p.ts||{}).r||[]).length));return Array.from({length:n},(_,r)=>({name:`Round ${r+1}`,f:p=>+((p.ts||{}).r||[])[r]||0}))}
 function tsGuide(){return guideSheet('Telestrations',[
   ['Setup',[['Players','4 to 8. Each phone is a sketchbook. A phone or iPad on “Just watching” is the big board.'],['Your word','Each round a die is rolled. Find that number on your card: that’s your secret word. A blank means make up any word; a category means make up something in it; a card marked “any” lets you pick any word on it. Keep it secret!']]],
-  ['Passing the books',[['Even number of players','You sketch your own word first, then the books pass.'],['Odd number of players','Your book passes first: the next player sketches your word.'],['Sketch, guess, sketch…','Each page alternates. If you get a sketch, write what you think it is. If you get a guess, sketch it. The last page is always a guess.'],['Timer','Sketches have a timer (60 seconds in the box), then a couple of seconds to finish up. Guesses have no timer.'],['No letters or numbers','Sketches can’t have letters, numbers or symbols. Just draw!'],['Never leave a guess blank','Always write your best guess, even if the sketch is a mystery.'],['Direction','Books pass to the left. Reversing each round (the rule sheet’s tip) mixes things up.']]],
+  ['Passing the books',[['Even number of players','You sketch your own word first, then the books pass.'],['Odd number of players','Your book passes first: the next player sketches your word.'],['Sketch, guess, sketch…','Each page alternates. If you get a sketch, write what you think it is. If you get a guess, sketch it. The last page is always a guess.'],['Timer','Sketches have a timer (60 seconds in the box), then a couple of seconds to finish up. Guesses have no timer.'],['Pen colors','The box has black markers. The 🎨 Colors house rule gives the sketch pad 8 colors.'],['No letters or numbers','Sketches can’t have letters, numbers or symbols. Just draw!'],['Never leave a guess blank','Always write your best guess, even if the sketch is a mystery.'],['Direction','Books pass to the left. Reversing each round (the rule sheet’s tip) mixes things up.']]],
   ['The Big Reveal',[['Book by book','When your own book comes back, everyone watches as you flip through it, page by page, on every screen.'],['Friendly scoring','In your book, give 1 point to your favourite sketch and 1 to your favourite guess (not your own), and 1 to yourself if the last guess matches your word.'],['Competitive scoring','A guess scores 1 if it matches the secret word or the guess before it, and so does the sketch it came from. You get 1 if the last guess matches your word.'],['How many rounds','With scoring, play 3 rounds; most points wins. The rule sheet in the box has the official wording.']]]])}
 function tsStats(p){const g=S.tsg;if(g&&tsPlayOn()&&S.started&&!S.finished&&g.ps&&g.ps.includes(p.id))return [{k:'Points',v:g.scoring==='none'?'·':String(tsTotal(g,p.id)),i:'✏️'},{k:'Round',v:`${g.round}${g.rounds?' of '+g.rounds:''}`},{k:'Scoring',v:TSSC[g.scoring]}];
   const D=p.ts||{r:[]};return [{k:'Points',v:String(tsTot(p)),i:'✏️'},{k:'Rounds',v:String((D.r||[]).length)},{k:'Favourites',v:String((D.fs||0)+(D.fg||0))}]}
@@ -16704,6 +16729,9 @@ function tsUiAct(a,b,k){if(a==='tsubig'){TSBIG=!tsBig();try{localStorage.setItem
     case 'tsudone':tsSend({a:'bookdone'});return;
     case 'tsunextround':tsSend({a:'next'});return;
     case 'tsustop':tsSend({a:'stop'});return}}
+/* setup: the Pen colors house rule (handled here so the shared app core needs no new case) */
+document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-a="tspens"]');if(!b||b.disabled)return;e.stopPropagation();
+  if(S.game!=='telestrations'||S.started&&tsPlayOn())return;TSX().colors=b.dataset.k==='1'?1:0;tsKeep();save();render()},true);
 /* the drawing pad (draw.js) hands back the finished sketch here */
 window.tsPadDone=d=>{/* the pad can finish inside a redraw (time ran out): send it just after, never from the borrowed state */if(typeof LKOPTR!=='undefined'&&LKOPTR){setTimeout(()=>window.tsPadDone(d),0);return true}const g=tsGx(),V=tsViewer();if(!g||!V||g.phase!=='play'||g.sub[V.id])return false;const pr=tsPrompt(g,V.id);if(!pr||pr.kind!=='draw')return false;
   const r=tsSend({a:'page',d:String(d||'')});save();render();return r};
@@ -16713,7 +16741,7 @@ function tsRepair(g){if(!g||!g.ps)return false;if(g.phase==='pick'&&g.ps.every(p
   if(g.phase==='play'&&g.ps.every(p=>g.sub[p])&&g.ps.every(o=>g.books[o].pages[g.step])){tsAdvance(g);return true}return false}
 function tsTick(){if(!tsPlayOn()||!S.started||S.finished||S.demo||S.screen!=='score')return;if(!tsRes2())return;if(lkqRun()){save();render();return}
   if(act().some(p=>p.bot)||act().length<4||!tsLinked())return;
-  const g=S.tsg;if(!g||tsStale(g)){const X=TSX(),n=tsDeal({words:X.words,own:X.own,ownOnly:X.ownOnly,scoring:X.scoring,timer:+X.timer,flip:!!X.flip});if(n){S.tsg=n;save();render()}return}
+  const g=S.tsg;if(!g||tsStale(g)){const X=TSX(),n=tsDeal({words:X.words,own:X.own,ownOnly:X.ownOnly,scoring:X.scoring,timer:+X.timer,flip:!!X.flip,colors:!!X.colors});if(n){S.tsg=n;save();render()}return}
   if(tsTimeUp(g)||tsRepair(g)){save();render()}}
 function tsSyncScorer(g){if(!g)return;const F=g.fav||{s:{},g:{},m:{}};S.tsrec={scoring:g.scoring,rounds:g.round,timer:g.timer};
   act().forEach(p=>{p.ts={r:(g.score[p.id]||[]).map(v=>+v||0),fs:F.s[p.id]||0,fg:F.g[p.id]||0,fm:F.m[p.id]||0}});S.hr=1}
@@ -16727,7 +16755,7 @@ function tsFx(){let L=document.getElementById('tsfx');const on=S.game==='telestr
   const g=on?tsGx():null,ok=g&&!tsStale(g),V=ok?tsViewer():null,F=ok?tsFxMode(g,V):null;
   /* the sketch pad */
   try{if(typeof tsPadSync==='function'){const pr=ok&&V&&!tsBig()&&g.phase==='play'&&g.ps.includes(V.id)&&!g.sub[V.id]?tsPrompt(g,V.id):null;
-    if(pr&&pr.kind==='draw')tsPadSync({show:true,key:`${g.gid}:${g.round}:${g.step}:${V.id}`,word:pr.word||'',tEnd:g.tEnd});else tsPadSync({show:false})}}catch(e){console.error(e)}
+    if(pr&&pr.kind==='draw')tsPadSync({show:true,key:`${g.gid}:${g.round}:${g.step}:${V.id}`,word:pr.word||'',tEnd:g.tEnd,colors:!!g.colors});else tsPadSync({show:false})}}catch(e){console.error(e)}
   if(!F){if(L)L.remove();document.documentElement.style.removeProperty('--tspad');TSERR='';return}
   const sig=F.m+':'+F.key;
   if(!L||L.dataset.sig!==sig){if(L)L.remove();TSERR='';L=document.createElement('div');L.id='tsfx';L.className='cnlayer tslayer';L.dataset.sig=sig;L.dataset.m=F.m;

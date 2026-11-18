@@ -6,7 +6,9 @@ const {chromium}=require('playwright');
 const LAT=+(process.env.LAT||400), JIT=+(process.env.JIT||600);
 const clone=v=>v===undefined?undefined:JSON.parse(JSON.stringify(v));
 const pages={};
-const later=(f,s,own)=>{const t=Math.max(Date.now()+(own?5:LAT+Math.random()*JIT),(s&&s.last)||0);if(s)s.last=t;setTimeout(f,t-Date.now())};
+/* deliveries to one listener always arrive in order (like Firestore); two timers due in the same millisecond could otherwise swap */
+const later=(f,s,own)=>{const t=Date.now()+(own?5:LAT+Math.random()*JIT);if(!s){setTimeout(f,t-Date.now());return}
+  s.p=(s.p||Promise.resolve()).then(()=>new Promise(r=>setTimeout(r,Math.max(0,t-Date.now())))).then(()=>{try{f()}catch(e){console.log('deliver',e.message)}})};
 function Store(){
   const docs=new Map(),subs=new Set(),K=p=>p.join('/'),par=k=>k.slice(0,k.lastIndexOf('/')),idOf=k=>k.slice(k.lastIndexOf('/')+1);
   const all=col=>[...docs].filter(([k])=>par(k)===col).map(([k,d])=>({id:idOf(k),data:clone(d)}));

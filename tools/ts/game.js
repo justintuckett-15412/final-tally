@@ -1,6 +1,6 @@
 /* ================= Telestrations: rules engine (from the 2010 rule sheet) =================
    State S.tsg = {gid, ps:[pid in seat order], n, round, rounds (3, or 0 = keep playing), dir (1 = left, -1 = right),
-     scoring:'friendly'|'competitive'|'none', timer (sketch seconds, 0 = none), die (1-6),
+     scoring:'friendly'|'competitive'|'none', colors (house rule: colored pens; false = black only, official), timer (sketch seconds, 0 = none), die (1-6),
      cards:{pid:{slots:[{t:'w',w}|{t:'blank'}|{t:'cat',c}], any:bool}}, books:{owner:{word, pages:[{by,kind:'draw'|'guess',d}] }},
      phase:'pick'|'play'|'reveal'|'roundEnd'|'done', step, steps, sub:{pid:1} (handed in this step), tEnd (timer end, ms),
      rv:{i (owner index in ps), p (page index; -1 = secret word)}, marks:{owner:{sketch:pid|null, guess:pid|null, self:bool, match:{pageIndex:bool}}},
@@ -24,7 +24,7 @@ function tsPool(o){const base=o.words==='kid'?TSW_KID:TSW_STD,own=String(o.own||
   return [...new Set([...(o.ownOnly&&own.length>=12?[]:base),...own])]}
 function tsDeal(o={}){const ps=act().map(p=>p.id);if(ps.length<4)return null;
   const g={gid:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ps,round:0,rounds:o.scoring==='none'?0:3,dir:1,flip:o.flip!==false,
-    scoring:['friendly','competitive','none'].includes(o.scoring)?o.scoring:'friendly',timer:[0,30,60,90,120].includes(+o.timer)?+o.timer:60,
+    scoring:['friendly','competitive','none'].includes(o.scoring)?o.scoring:'friendly',colors:!!o.colors,timer:[0,30,60,90,120].includes(+o.timer)?+o.timer:60,
     o:{words:o.words,own:o.own,ownOnly:o.ownOnly},usedW:[],score:Object.fromEntries(ps.map(p=>[p,[]])),n:0};
   tsNewRound(g);return g}
 function tsNewRound(g){g.round++;if(g.round>1&&g.flip)g.dir=-g.dir;g.die=1+Math.floor(Math.random()*6);
