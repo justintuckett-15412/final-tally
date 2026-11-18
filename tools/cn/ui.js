@@ -122,13 +122,14 @@ function cnOopsUI(g,V,R){const U=g.undo,now=Date.now();let o='';
 function cnHistUI(g){if(!g.hist.length)return '';const row=h=>`<li class="t-${h.tm}"><b>${CNTE[h.tm]} ${esc(h.w)} · ${h.n<0?'∞':h.n}</b><span>${(h.res||[]).map(r=>`<span class="cnh k-${r.c}">${esc(g.words[r.i])}</span>`).join(' ')||'<span class="rlab">…</span>'}</span></li>`;
   return `<details class="cnhist"${g.phase==='done'?' open':''}><summary>Clues so far (${g.hist.length})</summary><ul>${g.hist.slice().reverse().map(row).join('')}</ul></details>`}
 function cnMatchLine(g){const M=g.match;if(!M||M.fmt===1)return '';return `<p class="rlab cnmatch">${CNFMT[M.fmt]} · game ${M.no} · ${CNTE.r} <b class="num">${M.wins.r}</b> – <b class="num">${M.wins.b}</b> ${CNTE.b}</p>`}
-function cnDoneUI(g){if(g.variant==='coop'){const won=g.win==='r';return `<div class="panel cndone t-${won?'r':'n'}">${won?cnIm('cn-win','','cnwinimg'):''}<h2>${won?`🤝 You won! Score: ${g.score}`:'The other team got there first.'}</h2><p>${won?`${g.score} of their agent${g.score===1?' was':'s were'} still left. The rule sheet has a rating for each score.`:g.why==='assassin'?'Your team found the assassin.':'All of their agents were covered.'}</p><p class="rlab">The whole key is showing now.</p>${cnMeantUI(g)}<div class="actions"><div class="in"><button class="btn primary" data-a="finish">See results</button></div></div></div>`}const M=g.match||{fmt:1,over:true},mw=cnMatchWin(g),V=cnViewer();
+const cnShareBtn=()=>`<div class="cnrow"><button class="btn" data-a="cnushare">📸 Share a picture of this game</button></div>${CNSHARE?`<p class="rlab" style="text-align:center">${esc(CNSHARE)}</p>`:''}`;
+function cnDoneUI(g){if(g.variant==='coop'){const won=g.win==='r';return `<div class="panel cndone t-${won?'r':'n'}">${won?cnIm('cn-win','','cnwinimg'):''}<h2>${won?`🤝 You won! Score: ${g.score}`:'The other team got there first.'}</h2><p>${won?`${g.score} of their agent${g.score===1?' was':'s were'} still left. The rule sheet has a rating for each score.`:g.why==='assassin'?'Your team found the assassin.':'All of their agents were covered.'}</p><p class="rlab">The whole key is showing now.</p>${cnMeantUI(g)}${cnShareBtn()}<div class="actions"><div class="in"><button class="btn primary" data-a="finish">See results</button></div></div></div>`}const M=g.match||{fmt:1,over:true},mw=cnMatchWin(g),V=cnViewer();
   let next='';
   if(!M.over){if(M.fmt===0){const c=v=>Object.values(M.votes).filter(x=>x===v).length,mine=V?M.votes[V.id]:null;
       next=g.solo?`<div class="cnrow"><button class="btn primary" data-a="cnumvote" data-k="more">▶️ Another game</button><button class="btn" data-a="cnumvote" data-k="done">🏁 We’re done</button></div>`:`<p class="rlab">Another game? When more than half of you agree, it happens.</p><div class="cnrow"><button class="btn${mine==='more'?' primary':''}" data-a="cnumvote" data-k="more">▶️ Another game · ${c('more')}</button><button class="btn${mine==='done'?' primary':''}" data-a="cnumvote" data-k="done">🏁 We’re done · ${c('done')}</button></div><p class="rlab">${g.ps.filter(p=>M.votes[p]).map(p=>esc(cnName(p))+(M.votes[p]==='done'?' 🏁':' ▶️')).join(' · ')||'No votes yet.'}</p>`}
     else next=`<p class="rlab">First to ${cnNeed(M)} wins the match.</p><div class="actions"><div class="in"><button class="btn primary" data-a="cnunext">▶️ Next game</button></div></div>`}
   const head=M.over&&M.fmt!==1?(mw?`${CNTE[mw]} ${CNT[mw]} wins the match ${Math.max(M.wins.r,M.wins.b)}–${Math.min(M.wins.r,M.wins.b)}!`:`It’s a tie, ${M.wins.r}–${M.wins.b}!`):`${CNTE[g.win]} ${CNT[g.win]} team wins!`;
-  return `<div class="panel cndone t-${M.over&&M.fmt!==1?mw||'n':g.win}">${cnIm(cnTI('cn-win',M.over&&M.fmt!==1?mw||g.win:g.win),'','cnwinimg')}<h2>${head}</h2><p>${M.fmt!==1&&M.over?`Last game: ${CNT[g.win]} won. `:''}${g.why==='assassin'?`${CNT[cnOther(g.win)]} found the assassin.`:`${CNT[g.win]} found all ${g.win===g.start?9:8} agents.`}</p>${cnMatchLine(g)}<p class="rlab">The whole key is showing now.</p>${cnMeantUI(g)}${M.over?`<div class="actions"><div class="in"><button class="btn primary" data-a="finish">See results</button></div></div>`:next}</div>`}
+  return `<div class="panel cndone t-${M.over&&M.fmt!==1?mw||'n':g.win}">${cnIm(cnTI('cn-win',M.over&&M.fmt!==1?mw||g.win:g.win),'','cnwinimg')}<h2>${head}</h2><p>${M.fmt!==1&&M.over?`Last game: ${CNT[g.win]} won. `:''}${g.why==='assassin'?`${CNT[cnOther(g.win)]} found the assassin.`:`${CNT[g.win]} found all ${g.win===g.start?9:8} agents.`}</p>${cnMatchLine(g)}<p class="rlab">The whole key is showing now.</p>${cnMeantUI(g)}${cnShareBtn()}${M.over?`<div class="actions"><div class="in"><button class="btn primary" data-a="finish">See results</button></div></div>`:next}</div>`}
 
 function cnPlayUI(){const g=cnGg(),P=act();
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="Codenames">${g&&g.phase==='done'?'🏁':'🕵️'}</h1>${S.cng&&S.cng.phase!=='teams'?`<button class="btn sm undo" data-a="cnubig" aria-pressed="${cnBig()}" aria-label="Big board for a TV or iPad">📺${cnBig()?' Exit':''}</button>`:''}<button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>`;
@@ -171,6 +172,7 @@ function cnUiAct(a,b,k){const g=cnGg();if(!g)return;const V=cnViewer(),R=cnRole(
     case 'cnunum':CNNUM=+k;return;
     case 'cnupanel':CNPANEL=!CNPANEL;return;
     case 'cnuq':cnChatSend(k);return;
+    case 'cnushare':cnShareRecap();return;
     case 'cnutimer':mv({a:'timer'});return;
     case 'cnuoops':mv({a:'oops'});return;
     case 'cnuoopsok':mv({a:'oopsok'});return;
@@ -276,3 +278,36 @@ function cnRecords(G){const CG=G.filter(g=>g.game==='codenames'&&g.state&&g.stat
     ${best?card('Best clue',esc(best.w),`${esc(best.by)} · found ${best.n} agents · ${fmtD(best.g.date,{month:'short',day:'numeric'})}`):''}
     ${(()=>{const c=CG.filter(g=>g.state.cnrec&&g.state.cnrec.coop&&g.state.cnrec.win==='r').sort((a,b)=>b.state.cnrec.score-a.state.cnrec.score)[0];return c?card('Best play-together score',`<span class="num">${c.state.cnrec.score}</span>`,fmtD(c.date,{month:'short',day:'numeric'})):''})()}
     ${as&&as.ass?card('Found the assassin',`<span class="num">${as.ass}</span>`,`${esc(as.name)} · oops!`,as.color):''}</div></div>`}
+
+/* ---------- recap picture: the final board, every clue and what it found, and the winner ---------- */
+let CNSHARE='';
+async function cnShareRecap(){const g=cnGg();if(!g||g.phase!=='done')return;CNSHARE='Making the picture…';render();
+  try{const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+    const DISP='"Big Shoulders Display","Arial Narrow",Impact,sans-serif',BODY='"Atkinson Hyperlegible",system-ui,sans-serif';try{await document.fonts.ready}catch(e){}
+    const CR={r:'#d64541',b:'#2f6fd6',n:'#d8c9a0',x:'#1b1b1b'},CL={r:'#f3c9c6',b:'#c9daf4',n:'#efe6cf',x:'#555'};
+    const rr=(X,Y,w,h,r)=>{x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath()};
+    const fit=(t,max,size,font)=>{let z=size;x.font=`800 ${z}px ${font}`;while(x.measureText(t).width>max&&z>12){z-=2;x.font=`800 ${z}px ${font}`}};
+    x.fillStyle='#F6F2EA';x.fillRect(0,0,W,H);x.fillStyle='#E3A21A';x.fillRect(0,0,W,16);
+    const M=g.match||{fmt:1},coop=g.variant==='coop',mw=cnMatchWin(g);
+    x.textAlign='center';x.fillStyle='#5A6672';x.font=`700 30px ${BODY}`;x.fillText('CODENAMES · '+new Date().toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}).toUpperCase(),W/2,66);
+    const head=coop?(g.win==='r'?`We won! Score ${g.score}`:'The other team got there first'):M.fmt!==1&&M.over?(mw?`${CNT[mw]} wins the match ${Math.max(M.wins.r,M.wins.b)}–${Math.min(M.wins.r,M.wins.b)}`:`A ${M.wins.r}–${M.wins.b} tie`):`${CNT[g.win]} team wins!`;
+    x.fillStyle=coop?(g.win==='r'?CR.r:'#5A6672'):CR[mw||g.win]||'#17212B';fit(head.toUpperCase(),W-80,76,DISP);x.fillText(head.toUpperCase(),W/2,146);
+    x.fillStyle='#5A6672';x.font=`700 26px ${BODY}`;x.fillText(g.why==='assassin'?`${coop?'Our team':CNT[cnOther(g.win)]} found the assassin`:coop?'':`${CNT[g.win]} found all ${g.win===g.start?9:8} agents`,W/2,188);
+    if(!coop){x.font=`700 24px ${BODY}`;['r','b'].forEach((t,k)=>{const names=g.ps.filter(p=>g.tm[p]===t&&g.shared!==p).map(p=>cnName(p)+(g.spy[t]===p?' (spymaster)':'')).join(', ');x.fillStyle=CR[t];x.textAlign=k?'right':'left';const s2=names.length>38?names.slice(0,36)+'…':names;x.fillText(s2,k?W-60:60,230)});x.textAlign='center'}
+    const bx=60,by=256,gw=W-120,gap=10,tw=(gw-gap*4)/5,th=92;
+    g.words.forEach((w,i)=>{const r=Math.floor(i/5),c=i%5,X=bx+c*(tw+gap),Y=by+r*(th+gap),k=g.key[i],rev=!!g.rev[i];
+      rr(X,Y,tw,th,14);x.fillStyle=rev?CR[k]:CL[k];x.fill();if(!rev){x.lineWidth=3;x.strokeStyle=CR[k];x.stroke()}
+      x.fillStyle=rev&&k!=='n'||k==='x'?'#fff':'#2a2418';fit(w,tw-16,28,BODY);x.fillText(w,X+tw/2,Y+th/2+10);
+      if(k==='x'){x.font=`700 20px ${BODY}`;x.fillText('☠',X+tw-18,Y+24)}});
+    let y=by+5*(th+gap)+50;x.textAlign='left';x.fillStyle='#17212B';x.font=`800 34px ${DISP}`;x.fillText('THE CLUES',60,y);y+=16;
+    const H2=g.hist.slice(-9);if(g.hist.length>9){x.font=`700 22px ${BODY}`;x.fillStyle='#5A6672';x.textAlign='right';x.fillText(`last 9 of ${g.hist.length}`,W-60,y-16);x.textAlign='left'}
+    H2.forEach(h=>{y+=46;x.fillStyle=CR[h.tm];x.beginPath();x.arc(72,y-10,10,0,7);x.fill();x.fillStyle='#17212B';x.font=`800 30px ${BODY}`;const lab=`${h.w} · ${h.n<0?'∞':h.n}`;x.fillText(lab,94,y);
+      let cx=94+x.measureText(lab).width+20;x.font=`700 22px ${BODY}`;(h.res||[]).forEach(r=>{const t=g.words[r.i],w2=x.measureText(t).width+20;if(cx+w2>W-60)return;rr(cx,y-27,w2,34,8);x.fillStyle=CR[r.c];x.fill();x.fillStyle=r.c==='n'?'#2a2418':'#fff';x.fillText(t,cx+10,y-3);cx+=w2+8});
+      if(!(h.res||[]).length){x.fillStyle='#8a939b';x.fillText('no guesses',cx,y)}});
+    x.textAlign='center';x.fillStyle='#5A6672';x.font=`700 28px ${BODY}`;x.fillText('Played with Final Tally',W/2,H-36);
+    window.__cnRecap=cv;
+    const blob=await new Promise(r=>cv.toBlob(r,'image/png')),fn=`codenames-${new Date().toISOString().slice(0,10)}.png`;
+    if(typeof DL!=='undefined'&&DL){try{await DL.save({filename:fn,data:blob});CNSHARE='Picture saved.'}catch(e){CNSHARE=e&&e.code==='declined'?'':'The picture couldn’t be saved here.'}}
+    else if(navigator.canShare&&navigator.canShare({files:[new File([blob],fn,{type:'image/png'})]})){try{await navigator.share({files:[new File([blob],fn,{type:'image/png'})]});CNSHARE=''}catch(e){CNSHARE=''}}
+    else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();CNSHARE='Picture downloaded.'}
+  }catch(e){CNSHARE='The picture couldn’t be made.';console.error(e)}render()}
