@@ -24,7 +24,7 @@ function cnDeal(o={}){const ps=act().map(p=>p.id),pool=cnPool(o);if(pool.length<
   const key=cnShuf([...Array(9).fill(start),...Array(8).fill(other),...Array(7).fill('n'),'x']);
   const T=cnAutoTeams(ps,o.prev);
   const fmt=[1,3,5,0].includes(+o.match)?+o.match:1;
-  const g0={pickSpy:!!T.pick,lastSpy:T.last||null,gid:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ps,words,key,rev:Array(25).fill(null),start,tm:T.tm,spy:T.spy,phase:'teams',turn:start,clue:null,guesses:0,votes:{},hist:[],win:null,why:null,solo:!!o.solo,n:0,lastRev:null,
+  const g0={timer:[60,120,180].includes(+o.timer)?+o.timer:0,tmr:null,pickSpy:!!T.pick,lastSpy:T.last||null,gid:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ps,words,key,rev:Array(25).fill(null),start,tm:T.tm,spy:T.spy,phase:'teams',turn:start,clue:null,guesses:0,votes:{},hist:[],win:null,why:null,solo:!!o.solo,n:0,lastRev:null,
     cap:null,nudge:null,o:{words:o.words,own:o.own,ownOnly:o.ownOnly},used:words.slice(),match:{fmt,no:1,wins:{r:0,b:0},pw:{},over:false,votes:{},games:[]}};
   if(o.prev&&o.prev.cap)g0.cap={...o.prev.cap};cnFixCap(g0);return g0}
 /* best of 3 / 5: first to 2 / 3 game wins. Keep playing (0): until most players vote they're done */
@@ -34,7 +34,7 @@ function cnNextGame(g){const M=g.match,pool=cnPool(g.o||{});let fresh=pool.filte
   /* the spymaster job moves to the next teammate */
   const oldCap={...(g.cap||{})};['r','b'].forEach(t=>{const T=g.ps.filter(p=>g.tm[p]===t);if(T.length>1){const i=T.indexOf(g.spy[t]);g.spy[t]=T[(i+1)%T.length]}});
   g.cap={};['r','b'].forEach(t=>{const O=cnOps(g,t),T=g.ps.filter(p=>g.tm[p]===t),i=T.indexOf(oldCap[t]);let c=null;if(i>=0)for(let k=1;k<=T.length;k++){const q=T[(i+k)%T.length];if(O.includes(q)){c=q;break}}g.cap[t]=c||O[0]||null});
-  Object.assign(g,{words,key:cnShuf([...Array(9).fill(start),...Array(8).fill(other),...Array(7).fill('n'),'x']),rev:Array(25).fill(null),start,phase:'teams',turn:start,clue:null,guesses:0,votes:{},hist:[],win:null,why:null,lastRev:null,nudge:null});
+  Object.assign(g,{words,key:cnShuf([...Array(9).fill(start),...Array(8).fill(other),...Array(7).fill('n'),'x']),rev:Array(25).fill(null),start,phase:'teams',turn:start,clue:null,guesses:0,votes:{},hist:[],win:null,why:null,lastRev:null,nudge:null,tmr:null});
   g.used.push(...words);M.no++;M.votes={}}
 const cnStale=g=>{const ids=act().map(p=>p.id);return !g||!g.ps||g.ps.length!==ids.length||g.ps.some(id=>!ids.includes(id))};
 /* teams are ready when each has a spymaster and at least one guesser */
@@ -44,8 +44,8 @@ function cnTeamsWhy(g){const n=g.ps.length;if(n<4)return 'Codenames needs at lea
 /* a clue can't be a word still showing on the board, or part of one, or contain one */
 function cnClueBad(g,w){const c=cnNorm(w);if(!c)return 'Type a clue word.';if(c.length>30)return 'That clue is too long.';
   for(let i=0;i<25;i++){if(g.rev[i])continue;const b=cnNorm(g.words[i]);if(c===b)return `${g.words[i]} is on the board.`;if(c.includes(b)||b.includes(c))return `Too close to ${g.words[i]}, which is on the board.`}return ''}
-function cnEndTurn(g){if(g.clue&&g.hist.length)g.hist[g.hist.length-1].done=true;g.turn=cnOther(g.turn);g.phase='clue';g.clue=null;g.guesses=0;g.votes={}}
-function cnFinish(g,win,why){g.phase='done';g.win=win;g.why=why;g.votes={};const M=g.match;if(!M)return;
+function cnEndTurn(g){g.tmr=null;if(g.clue&&g.hist.length)g.hist[g.hist.length-1].done=true;g.turn=cnOther(g.turn);g.phase='clue';g.clue=null;g.guesses=0;g.votes={}}
+function cnFinish(g,win,why){g.tmr=null;g.phase='done';g.win=win;g.why=why;g.votes={};const M=g.match;if(!M)return;
   M.wins[win]++;g.ps.forEach(p=>{if(g.tm[p]===win)M.pw[p]=(M.pw[p]||0)+1});M.games.push({win,why});const need=cnNeed(M);if(need&&M.wins[win]>=need)M.over=true}
 /* the team ahead in a match (null when tied) */
 const cnMatchWin=g=>{const M=g.match;if(!M)return g.win;return M.wins.r>M.wins.b?'r':M.wins.b>M.wins.r?'b':null};
@@ -61,7 +61,11 @@ function cnAgree(g){const O=cnOps(g,g.turn);if(!O.length)return null;const v=O.m
 /* everyone who has voted picked the same thing (at least one vote): the captain can push that through */
 function cnPushable(g){const O=cnOps(g,g.turn),v=O.map(p=>g.votes[p]).filter(x=>x!==undefined&&x!==null);if(!v.length)return null;return v.every(x=>x===v[0])?v[0]:null}
 function cnApply(g,v,pid){if(v==='end'){if(!cnCanEnd(g))return false;cnEndTurn(g)}else{if(g.rev[v])return false;cnReveal(g,v,pid)}return true}
+/* the sand timer (house rule): anyone flips it; when it runs out the guessers' turn ends, or the spymaster is told to give a clue now */
+function cnTimerCheck(g,now){const T=g&&g.tmr;if(!T||T.out||now<T.end)return false;if(g.phase!==T.ph||g.turn!==T.turn){g.tmr=null;return true}
+  if(g.phase==='guess'){g.lastOut={tm:g.turn,at:now};cnEndTurn(g)}else T.out=true;g.n++;return true}
 function cnMove(g,pid,mv){if(!g||!mv)return false;const t=g.tm[pid];
+  if(mv.a==='timer'){if(!g.timer||!['clue','guess'].includes(g.phase)||g.tmr&&!g.tmr.out)return false;g.tmr={end:Date.now()+g.timer*1000,ph:g.phase,turn:g.turn,by:pid,out:false};g.n++;return true}
   if(g.phase==='teams'){
     if(mv.a==='team'){const w=mv.who;if(!g.ps.includes(w)||!['r','b'].includes(mv.tm))return false;const was=g.tm[w];g.tm[w]=mv.tm;if(was!==mv.tm&&g.spy[was]===w)g.spy[was]=g.pickSpy?null:g.ps.find(p=>p!==w&&g.tm[p]===was)||null;if(!g.spy[mv.tm]&&!g.pickSpy)g.spy[mv.tm]=w;cnFixCap(g);g.n++;return true}
     if(mv.a==='spy'){const w=mv.who;if(!g.ps.includes(w))return false;g.spy[g.tm[w]]=w;cnFixCap(g);g.n++;return true}
@@ -72,7 +76,8 @@ function cnMove(g,pid,mv){if(!g||!mv)return false;const t=g.tm[pid];
     return false}
   if(g.phase==='clue'){if(mv.a!=='clue')return false;if(!g.solo&&g.spy[g.turn]!==pid)return false;
     const w=String(mv.w||'').trim().replace(/\s+/g,' ').toUpperCase(),n=+mv.n;if(cnClueBad(g,w))return false;if(!(n===-1||n>=0&&n<=9))return false;
-    g.clue={w,n,by:g.spy[g.turn]};g.hist.push({tm:g.turn,w,n,res:[],t:Date.now()});g.phase='guess';g.guesses=0;g.votes={};g.n++;return true}
+    const meant=Array.isArray(mv.meant)?[...new Set(mv.meant.map(Number))].filter(i=>i>=0&&i<25&&!g.rev[i]&&g.key[i]===g.turn).slice(0,9):[];
+    g.clue={w,n,by:g.spy[g.turn]};g.tmr=null;g.hist.push({tm:g.turn,w,n,res:[],t:Date.now(),meant});g.phase='guess';g.guesses=0;g.votes={};g.n++;return true}
   if(g.phase==='guess'){
     if(mv.a==='pick'){/* one shared device: tap and confirm a word straight away */if(!g.solo)return false;const i=+mv.i;if(!(i>=0&&i<25)||g.rev[i])return false;cnReveal(g,i,pid);g.n++;return true}
     if(mv.a==='stop'){if(!g.solo||!cnCanEnd(g))return false;cnEndTurn(g);g.n++;return true}
