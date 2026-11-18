@@ -13,8 +13,9 @@ function cnFixCap(g){g.cap=g.cap||{};['r','b'].forEach(t=>{const O=cnOps(g,t);if
 const cnShuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 /* teams: last game's teams when the same people play again, otherwise alternate Red/Blue, first two are the spymasters */
 function cnAutoTeams(ps,prev){const tm={},spy={r:null,b:null};
-  if(prev&&prev.tm&&ps.every(p=>prev.tm[p])){ps.forEach(p=>tm[p]=prev.tm[p]);['r','b'].forEach(t=>{spy[t]=prev.spy&&prev.spy[t]&&tm[prev.spy[t]]===t?prev.spy[t]:ps.find(p=>tm[p]===t)||null})}
-  else{ps.forEach((p,i)=>tm[p]=i%2?'b':'r');spy.r=ps[0]||null;spy.b=ps[1]||null}
+  /* a rematch with the same people: same teams, and each team chooses its spymaster */
+  if(prev&&prev.tm&&ps.every(p=>prev.tm[p])){ps.forEach(p=>tm[p]=prev.tm[p]);return {tm,spy,pick:true,last:{...(prev.spy||{})}}}
+  ps.forEach((p,i)=>tm[p]=i%2?'b':'r');spy.r=ps[0]||null;spy.b=ps[1]||null;
   return {tm,spy}}
 function cnPool(o){const base=o.words==='kid'?CNW_KID:CNW_STD,own=String(o.own||'').split(/[\n,]+/).map(w=>w.trim().toUpperCase()).filter(w=>w&&w.length<=20);
   const all=[...new Set([...(o.ownOnly&&own.length>=25?[]:base),...own])];return all}
@@ -23,7 +24,7 @@ function cnDeal(o={}){const ps=act().map(p=>p.id),pool=cnPool(o);if(pool.length<
   const key=cnShuf([...Array(9).fill(start),...Array(8).fill(other),...Array(7).fill('n'),'x']);
   const T=cnAutoTeams(ps,o.prev);
   const fmt=[1,3,5,0].includes(+o.match)?+o.match:1;
-  const g0={gid:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ps,words,key,rev:Array(25).fill(null),start,tm:T.tm,spy:T.spy,phase:'teams',turn:start,clue:null,guesses:0,votes:{},hist:[],win:null,why:null,solo:!!o.solo,n:0,lastRev:null,
+  const g0={pickSpy:!!T.pick,lastSpy:T.last||null,gid:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ps,words,key,rev:Array(25).fill(null),start,tm:T.tm,spy:T.spy,phase:'teams',turn:start,clue:null,guesses:0,votes:{},hist:[],win:null,why:null,solo:!!o.solo,n:0,lastRev:null,
     cap:null,nudge:null,o:{words:o.words,own:o.own,ownOnly:o.ownOnly},used:words.slice(),match:{fmt,no:1,wins:{r:0,b:0},pw:{},over:false,votes:{},games:[]}};
   if(o.prev&&o.prev.cap)g0.cap={...o.prev.cap};cnFixCap(g0);return g0}
 /* best of 3 / 5: first to 2 / 3 game wins. Keep playing (0): until most players vote they're done */
@@ -62,8 +63,9 @@ function cnPushable(g){const O=cnOps(g,g.turn),v=O.map(p=>g.votes[p]).filter(x=>
 function cnApply(g,v,pid){if(v==='end'){if(!cnCanEnd(g))return false;cnEndTurn(g)}else{if(g.rev[v])return false;cnReveal(g,v,pid)}return true}
 function cnMove(g,pid,mv){if(!g||!mv)return false;const t=g.tm[pid];
   if(g.phase==='teams'){
-    if(mv.a==='team'){const w=mv.who;if(!g.ps.includes(w)||!['r','b'].includes(mv.tm))return false;const was=g.tm[w];g.tm[w]=mv.tm;if(was!==mv.tm&&g.spy[was]===w)g.spy[was]=g.ps.find(p=>p!==w&&g.tm[p]===was)||null;if(!g.spy[mv.tm])g.spy[mv.tm]=w;cnFixCap(g);g.n++;return true}
+    if(mv.a==='team'){const w=mv.who;if(!g.ps.includes(w)||!['r','b'].includes(mv.tm))return false;const was=g.tm[w];g.tm[w]=mv.tm;if(was!==mv.tm&&g.spy[was]===w)g.spy[was]=g.pickSpy?null:g.ps.find(p=>p!==w&&g.tm[p]===was)||null;if(!g.spy[mv.tm]&&!g.pickSpy)g.spy[mv.tm]=w;cnFixCap(g);g.n++;return true}
     if(mv.a==='spy'){const w=mv.who;if(!g.ps.includes(w))return false;g.spy[g.tm[w]]=w;cnFixCap(g);g.n++;return true}
+    if(mv.a==='spyrand'){const t=mv.tm,T=g.ps.filter(p=>g.tm[p]===t);if(!['r','b'].includes(t)||T.length<2)return false;g.spy[t]=T[Math.floor(Math.random()*T.length)];cnFixCap(g);g.n++;return true}
     if(mv.a==='cap'){const w=mv.who,t=g.tm[w];if(!t||!cnOps(g,t).includes(w))return false;g.cap=g.cap||{};g.cap[t]=w;g.n++;return true}
     if(mv.a==='shuffle'){const P=cnShuf(g.ps);P.forEach((p,i)=>g.tm[p]=i%2?'b':'r');g.spy={r:P[0],b:P[1]};g.cap={};cnFixCap(g);g.n++;return true}
     if(mv.a==='begin'){if(!cnTeamsOK(g))return false;g.phase='clue';g.turn=g.start;g.n++;return true}

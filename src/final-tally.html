@@ -15749,8 +15749,9 @@ function cnFixCap(g){g.cap=g.cap||{};['r','b'].forEach(t=>{const O=cnOps(g,t);if
 const cnShuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 /* teams: last game's teams when the same people play again, otherwise alternate Red/Blue, first two are the spymasters */
 function cnAutoTeams(ps,prev){const tm={},spy={r:null,b:null};
-  if(prev&&prev.tm&&ps.every(p=>prev.tm[p])){ps.forEach(p=>tm[p]=prev.tm[p]);['r','b'].forEach(t=>{spy[t]=prev.spy&&prev.spy[t]&&tm[prev.spy[t]]===t?prev.spy[t]:ps.find(p=>tm[p]===t)||null})}
-  else{ps.forEach((p,i)=>tm[p]=i%2?'b':'r');spy.r=ps[0]||null;spy.b=ps[1]||null}
+  /* a rematch with the same people: same teams, and each team chooses its spymaster */
+  if(prev&&prev.tm&&ps.every(p=>prev.tm[p])){ps.forEach(p=>tm[p]=prev.tm[p]);return {tm,spy,pick:true,last:{...(prev.spy||{})}}}
+  ps.forEach((p,i)=>tm[p]=i%2?'b':'r');spy.r=ps[0]||null;spy.b=ps[1]||null;
   return {tm,spy}}
 function cnPool(o){const base=o.words==='kid'?CNW_KID:CNW_STD,own=String(o.own||'').split(/[\n,]+/).map(w=>w.trim().toUpperCase()).filter(w=>w&&w.length<=20);
   const all=[...new Set([...(o.ownOnly&&own.length>=25?[]:base),...own])];return all}
@@ -15759,7 +15760,7 @@ function cnDeal(o={}){const ps=act().map(p=>p.id),pool=cnPool(o);if(pool.length<
   const key=cnShuf([...Array(9).fill(start),...Array(8).fill(other),...Array(7).fill('n'),'x']);
   const T=cnAutoTeams(ps,o.prev);
   const fmt=[1,3,5,0].includes(+o.match)?+o.match:1;
-  const g0={gid:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ps,words,key,rev:Array(25).fill(null),start,tm:T.tm,spy:T.spy,phase:'teams',turn:start,clue:null,guesses:0,votes:{},hist:[],win:null,why:null,solo:!!o.solo,n:0,lastRev:null,
+  const g0={pickSpy:!!T.pick,lastSpy:T.last||null,gid:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ps,words,key,rev:Array(25).fill(null),start,tm:T.tm,spy:T.spy,phase:'teams',turn:start,clue:null,guesses:0,votes:{},hist:[],win:null,why:null,solo:!!o.solo,n:0,lastRev:null,
     cap:null,nudge:null,o:{words:o.words,own:o.own,ownOnly:o.ownOnly},used:words.slice(),match:{fmt,no:1,wins:{r:0,b:0},pw:{},over:false,votes:{},games:[]}};
   if(o.prev&&o.prev.cap)g0.cap={...o.prev.cap};cnFixCap(g0);return g0}
 /* best of 3 / 5: first to 2 / 3 game wins. Keep playing (0): until most players vote they're done */
@@ -15798,8 +15799,9 @@ function cnPushable(g){const O=cnOps(g,g.turn),v=O.map(p=>g.votes[p]).filter(x=>
 function cnApply(g,v,pid){if(v==='end'){if(!cnCanEnd(g))return false;cnEndTurn(g)}else{if(g.rev[v])return false;cnReveal(g,v,pid)}return true}
 function cnMove(g,pid,mv){if(!g||!mv)return false;const t=g.tm[pid];
   if(g.phase==='teams'){
-    if(mv.a==='team'){const w=mv.who;if(!g.ps.includes(w)||!['r','b'].includes(mv.tm))return false;const was=g.tm[w];g.tm[w]=mv.tm;if(was!==mv.tm&&g.spy[was]===w)g.spy[was]=g.ps.find(p=>p!==w&&g.tm[p]===was)||null;if(!g.spy[mv.tm])g.spy[mv.tm]=w;cnFixCap(g);g.n++;return true}
+    if(mv.a==='team'){const w=mv.who;if(!g.ps.includes(w)||!['r','b'].includes(mv.tm))return false;const was=g.tm[w];g.tm[w]=mv.tm;if(was!==mv.tm&&g.spy[was]===w)g.spy[was]=g.pickSpy?null:g.ps.find(p=>p!==w&&g.tm[p]===was)||null;if(!g.spy[mv.tm]&&!g.pickSpy)g.spy[mv.tm]=w;cnFixCap(g);g.n++;return true}
     if(mv.a==='spy'){const w=mv.who;if(!g.ps.includes(w))return false;g.spy[g.tm[w]]=w;cnFixCap(g);g.n++;return true}
+    if(mv.a==='spyrand'){const t=mv.tm,T=g.ps.filter(p=>g.tm[p]===t);if(!['r','b'].includes(t)||T.length<2)return false;g.spy[t]=T[Math.floor(Math.random()*T.length)];cnFixCap(g);g.n++;return true}
     if(mv.a==='cap'){const w=mv.who,t=g.tm[w];if(!t||!cnOps(g,t).includes(w))return false;g.cap=g.cap||{};g.cap[t]=w;g.n++;return true}
     if(mv.a==='shuffle'){const P=cnShuf(g.ps);P.forEach((p,i)=>g.tm[p]=i%2?'b':'r');g.spy={r:P[0],b:P[1]};g.cap={};cnFixCap(g);g.n++;return true}
     if(mv.a==='begin'){if(!cnTeamsOK(g))return false;g.phase='clue';g.turn=g.start;g.n++;return true}
@@ -15908,8 +15910,8 @@ function cnTile(g,i,V,R){const w=g.words[i],r=g.rev[i],c=g.key[i],key=cnSeesKey(
   const cls=['cnt',r?'rev k-'+c:key?'key k-'+c:'',me&&!r?'tap':'',V&&g.votes[V.id]===i?'myvote':'',CNFLASH===String(i)?'flash':''].filter(Boolean).join(' ');
   const lab=r?`${w}: ${c==='x'?'assassin':c==='n'?'bystander':CNT[c]+' agent'}`:key?`${w} (${c==='x'?'assassin':c==='n'?'bystander':CNT[c]})`:w;
   return `<button class="${cls}" data-a="cnutap" data-k="${i}" aria-label="${esc(lab)}" ${r?'aria-disabled="true"':''}>${r?`<span class="cnface">${c==='x'?cnIm('cn-assassin','assassin'):c==='n'?cnIm('cn-bystander','bystander'):cnIm(cnTI('cn-agent',c),'agent')}</span>`:''}<span class="cnw">${esc(w)}</span>${key&&!r&&c==='x'?'<span class="cnx" aria-hidden="true">☠️</span>':''}${voters.length?`<span class="cnvotes">${voters.map(p=>{const q=act().find(x=>x.id===p);return `<i style="${q?pc(q.color):''}" title="${esc(cnName(p))}">${esc((q?nm(q):'?').slice(0,1))}</i>`}).join('')}</span>`:''}</button>`}
-function cnTeamsUI(g){const why=cnTeamsWhy(g),col=t=>`<div class="cnteam t-${t}"><h3>${CNTE[t]} ${CNT[t]}</h3>${g.ps.filter(p=>g.tm[p]===t).map(p=>{const q=act().find(x=>x.id===p);return `<div class="cnmem" style="${q?pc(q.color):''}"><b>${esc(cnName(p))}</b>${g.spy[t]===p?'<span class="cnrole">🕵️ Spymaster</span>':`${(g.cap||{})[t]===p?'<span class="cnrole">⭐ Captain</span>':`<button class="btn sm" data-a="cnucap" data-k="${p}">⭐ Captain</button>`}<button class="btn sm" data-a="cnuspy" data-k="${p}">🕵️ Spymaster</button>`}<button class="btn sm" data-a="cnuteam" data-k="${p}:${cnOther(t)}" aria-label="Move ${esc(cnName(p))} to ${CNT[cnOther(t)]}">→ ${CNTE[cnOther(t)]}</button></div>`}).join('')||'<p class="rlab">Nobody yet.</p>'}</div>`;
-  return `<div class="panel cnteams"><p class="rlab">Pick teams. Each team needs a spymaster and at least one guesser. The ⭐ captain can push the team’s vote through if someone forgets to vote. ${CNTE[g.start]} <b>${CNT[g.start]}</b> goes first (9 agents to find; the other team has 8).</p><div class="cncols">${col('r')}${col('b')}</div>
+function cnTeamsUI(g){const why=cnTeamsWhy(g),col=t=>`<div class="cnteam t-${t}"><h3>${CNTE[t]} ${CNT[t]}</h3>${!g.spy[t]?`<p class="rlab cnpick">Choose your spymaster${g.lastSpy&&g.lastSpy[t]?` (last game: ${esc(cnName(g.lastSpy[t]))})`:''}.</p>${g.ps.filter(p=>g.tm[p]===t).length>1?`<button class="btn sm" data-a="cnuspyrand" data-k="${t}">🎲 Pick for us</button>`:''}`:''}${g.ps.filter(p=>g.tm[p]===t).map(p=>{const q=act().find(x=>x.id===p);return `<div class="cnmem" style="${q?pc(q.color):''}"><b>${esc(cnName(p))}</b>${g.spy[t]===p?'<span class="cnrole">🕵️ Spymaster</span>':`${(g.cap||{})[t]===p?'<span class="cnrole">⭐ Captain</span>':`<button class="btn sm" data-a="cnucap" data-k="${p}">⭐ Captain</button>`}<button class="btn sm" data-a="cnuspy" data-k="${p}">🕵️ Spymaster</button>`}<button class="btn sm" data-a="cnuteam" data-k="${p}:${cnOther(t)}" aria-label="Move ${esc(cnName(p))} to ${CNT[cnOther(t)]}">→ ${CNTE[cnOther(t)]}</button></div>`}).join('')||'<p class="rlab">Nobody yet.</p>'}</div>`;
+  return `<div class="panel cnteams">${g.pickSpy?'<p class="rlab"><b>Rematch:</b> same teams. Each team chooses its spymaster by tapping 🕵️ Spymaster next to a name.</p>':''}<p class="rlab">Pick teams. Each team needs a spymaster and at least one guesser. The ⭐ captain can push the team’s vote through if someone forgets to vote. ${CNTE[g.start]} <b>${CNT[g.start]}</b> goes first (9 agents to find; the other team has 8).</p><div class="cncols">${col('r')}${col('b')}</div>
     <div class="cnrow"><button class="btn" data-a="cnushuffle">🔀 Shuffle teams</button><button class="btn primary" data-a="cnubegin" ${why?'disabled':''}>Start</button></div>${why?`<p class="rlab">${esc(why)}</p>`:''}${!cnLinked()?'<p class="hint">Tip: link everyone’s phone so each spymaster can see the key privately.</p>':''}</div>`}
 function cnClueLine(g){if(g.phase==='done'||g.phase==='teams')return '';if(g.phase==='clue')return `<div class="cnclue t-${g.turn}"><span>${CNTE[g.turn]} <b>${esc(cnName(g.spy[g.turn]))}</b> is thinking of a clue…</span></div>`;
   const n=g.clue.n,left=n>0?n+1-g.guesses:null;return `<div class="cnclue t-${g.turn}"><span class="cncw">${CNTE[g.turn]} <b>${esc(g.clue.w)}</b> · <b class="num">${n<0?'∞':n}</b></span><span class="rlab">${left!=null?`${left} guess${left===1?'':'es'} left`:'No limit'}${g.guesses?` · ${g.guesses} so far`:''}</span></div>`}
@@ -15963,6 +15965,7 @@ function cnUiAct(a,b,k){const g=cnGg();if(!g)return;const V=cnViewer(),R=cnRole(
     case 'cnuq':cnChatSend(k);return;
     case 'cnunext':mv({a:'next'});return;
     case 'cnucap':mv({a:'cap',who:k});return;
+    case 'cnuspyrand':mv({a:'spyrand',tm:k});return;
     case 'cnupush':mv({a:'push'});return;
     case 'cnunudge':mv({a:'nudge'});return;
     case 'cnumvote':mv({a:'mvote',v:k});return}}

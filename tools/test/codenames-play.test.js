@@ -32,13 +32,22 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   await P.evaluate(()=>document.querySelector('.cndone [data-a="finish"]').click());await W(800);
   const res=await P.evaluate(()=>({scr:S.screen,ps:act().map(p=>p.cn)}));
   ok('Results after a one-device game',['results','reveal'].includes(res.scr)&&res.ps.every(x=>x&&x.tm),res);
+  /* rematch: same teams, each team chooses its spymaster */
+  await c('rematch');await W(600);
+  await W(800);const dbg=await P.evaluate(()=>({scr:S.screen,g:!!S.cng,ph:S.cng&&S.cng.phase,sheet:(document.querySelector('.sheet')||{}).innerText,last:CNX().last}));if(process.env.VERBOSE)console.log(JSON.stringify(dbg).slice(0,600));
+  const rm=await P.evaluate(()=>{const g=S.cng;if(!g)return 'no game';return {pick:g.pickSpy,spy:g.spy,ui:!!document.querySelector('.cnteams'),dis:document.querySelector('[data-a="cnubegin"]').disabled,txt:/Choose your spymaster/.test(document.querySelector('.cnteams').innerText)}});
+  ok('Rematch: same teams, no spymasters yet; Start waits until each team chooses',rm&&rm.pick&&!rm.spy.r&&!rm.spy.b&&rm.ui&&rm.dis&&rm.txt,rm);
+  await P.evaluate(()=>{const g=S.cng,r=g.ps.find(p=>g.tm[p]==='r');document.querySelector(`[data-a="cnuspy"][data-k="${r}"]`).click()});await W(200);
+  await P.evaluate(()=>document.querySelector('[data-a="cnuspyrand"][data-k="b"]').click());await W(200);
+  const rm2=await P.evaluate(()=>{const g=S.cng;return {spy:g.spy,cap:g.cap,ok:!document.querySelector('[data-a="cnubegin"]').disabled&&cnTeamsOK(g)&&g.cap.r!==g.spy.r&&g.cap.b!==g.spy.b}});
+  ok('Rematch: tap 🕵️ Spymaster (or 🎲 Pick for us) and Start unlocks; the captain is a guesser',rm2.ok,rm2);
   /* best of 3 on one device */
   await c('cnstart','1');await c('cnmatch','3');await W(200);
   const mh=await P.evaluate(()=>/first team to win 2 games/i.test(document.body.innerText)&&!!document.querySelector('[data-a="ureset"]'));
   ok('Match setting: Best of 3 explained, with Back to our usual rules',mh,mh);
   await P.evaluate(()=>{S.players.forEach((p,i)=>{p.on=i<4;p.name=['Ann','Bob','Cy','Di'][i]||'';delete p.bot});save()});await c('start');await W(800);
   let games=0,guard=0;while(guard++<400){const st=await P.evaluate(()=>({ph:S.cng.phase,over:S.cng.match.over,no:S.cng.match.no}));if(st.over)break;
-    if(st.ph==='teams'){await P.evaluate(()=>document.querySelector('[data-a="cnubegin"]').click());await W(120);continue}
+    if(st.ph==='teams'){await P.evaluate(()=>{['r','b'].forEach(t=>{if(!S.cng.spy[t]){const b=document.querySelector(`[data-a="cnuspyrand"][data-k="${t}"]`);if(b)b.click()}});document.querySelector('[data-a="cnubegin"]').click()});await W(120);continue}
     if(st.ph==='done'){games++;await P.evaluate(()=>document.querySelector('[data-a="cnunext"]').click());await W(150);continue}
     if(st.ph==='clue'){await P.evaluate(n=>{const i=document.getElementById('cnclue');i.value='qz'+n;document.querySelector('[data-a="cnunum"][data-k="1"]').click();document.querySelector('button[form="cnclueform"]').click()},guard);await W(120);continue}
     await P.evaluate(()=>{const g=S.cng,i=g.key.findIndex((c,i)=>!g.rev[i]&&c===g.turn);document.querySelector(`.cngrid [data-a="cnutap"][data-k="${i}"]`).click()});await W(80);
