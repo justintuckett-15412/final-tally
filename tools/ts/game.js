@@ -38,7 +38,7 @@ function tsDeal(o={}){const ps=act().map(p=>p.id);if(ps.length<4)return null;
   tsNewRound(g);return g}
 function tsNewRound(g){g.round++;if(g.round>1&&g.flip)g.dir=-g.dir;g.die=1+Math.floor(Math.random()*6);
   const used=new Set(g.usedW),pool=tsPool(g.o||{});g.cards={};g.books={};g.ps.forEach(p=>{g.cards[p]=tsCard(pool.length>=60?pool:TSW_STD,used);g.books[p]={word:null,pages:[]}});g.usedW=[...used];
-  g.phase='pick';g.step=0;g.steps=tsSteps(g);g.sub={};g.tEnd=null;g.rv=null;g.marks={};g.score&&g.ps.forEach(p=>{(g.score[p]=g.score[p]||[])[g.round-1]=0})}
+  g.phase='pick';g.step=0;g.steps=tsSteps(g);g.sub={};g.tEnd=null;g.rv=null;g.marks={};g.nz={};g.score&&g.ps.forEach(p=>{(g.score[p]=g.score[p]||[])[g.round-1]=0})}
 /* the word the die picks on a player's card (null = they choose or make one up) */
 function tsRolled(g,pid){const C=g.cards[pid];if(!C)return null;const s=C.slots[g.die-1];return s&&s.t==='w'&&!C.any?s.w:null}
 const tsClean=w=>String(w||'').replace(/\s+/g,' ').trim().slice(0,40);
@@ -59,6 +59,7 @@ function tsPrompt(g,pid){if(g.phase!=='play')return null;const k=tsAt(g,pid);if(
   return {kind:tsKind(k),owner:o,k,word:prev.kind==='guess'?prev.d:null,draw:prev.kind==='draw'?prev.d:null}}
 const tsMax=6000; /* largest drawing we keep, in characters */
 function tsMove(g,pid,mv){if(!g||!mv||!g.ps.includes(pid))return false;
+  if(mv.a==='nudge')return tsNudge(g,pid,mv);
   if(g.phase==='pick'&&mv.a==='word'){if(g.books[pid].word)return false;const C=g.cards[pid];let w=tsRolled(g,pid);
     if(!w){if(C.any&&mv.slot!=null&&C.slots[+mv.slot]&&C.slots[+mv.slot].t==='w')w=C.slots[+mv.slot].w;else w=mv.w}
     w=tsClean(w);if(!w)return false;g.books[pid].word=w;g.n++;if(g.ps.every(p=>g.books[p].word))tsStartPlay(g);return true}
@@ -103,3 +104,21 @@ function tsMatchOK(g,owner,i,secretOnly){const M=(g.marks[owner]||{}).match||{},
   if(tsSame(P.d,B.word))return true;if(secretOnly)return false;const prev=B.pages[i-2];return !!prev&&prev.kind==='guess'&&tsSame(P.d,prev.d)}
 const tsTotal=(g,p)=>(g.score[p]||[]).reduce((a,b)=>a+(b||0),0);
 const tsStale=g=>{const ids=act().map(p=>p.id);return !g||!g.ps||g.ps.length!==ids.length||g.ps.some(id=>!ids.includes(id))};
+/* "Nudge": who this player may nudge right now, and what they're waiting on: {pid:'word'|'sketch'|'guess'|'page'}
+   pick: you've chosen, they haven't · pass together: you've handed in, they haven't · pass when ready: the one player your next book is waiting on ·
+   Big Reveal with the owner flipping: the owner, once the page hasn't moved for 20 s (slack: ms allowed for another phone's clock) */
+const TSNZCOOL=15000,TSNZWAIT=20000;
+function tsNudgeable(g,pid,now,slack){const o={};if(!g||!g.ps||!g.ps.includes(pid))return o;now=now||Date.now();
+  if(g.phase==='pick'){if(g.books[pid]&&g.books[pid].word)g.ps.forEach(p=>{if(p!==pid&&!g.books[p].word)o[p]='word'})}
+  else if(g.phase==='play'&&tsAsync(g)){const pr=tsPrompt(g,pid);if(pr&&pr.wait&&pr.from&&pr.from!==pid){const k=tsAt(g,pr.from);if(k<g.steps)o[pr.from]=tsKind(k)==='draw'?'sketch':'guess'}}
+  else if(g.phase==='play'){if(g.sub[pid])g.ps.forEach(p=>{if(p!==pid&&!g.sub[p])o[p]=tsKind(g.step)==='draw'?'sketch':'guess'})}
+  else if(g.phase==='reveal'&&g.rv&&!g.auto){const owner=g.ps[g.rv.i];if(owner!==pid&&now-(g.rv.t||now)>=TSNZWAIT-(slack||0))o[owner]='page'}
+  return o}
+/* how long until this player may nudge p again (ms; 0 = now) */
+const tsNudgeCool=(g,by,p,now)=>Math.max(0,TSNZCOOL-((now||Date.now())-(((g&&g.nzl)||{})[by+'>'+p]||-1e15)));
+/* the move: {a:'nudge',to:[pid,...]}; each target gets its own entry g.nz[pid]={k,by,at,w}; g.nudge = the latest one (k counts every nudge) */
+function tsNudge(g,pid,mv){const now=Date.now(),can=tsNudgeable(g,pid,now,3000),want=(Array.isArray(mv.to)?mv.to:[mv.to]).map(String);
+  const to=[...new Set(want)].filter(p=>can[p]&&!tsNudgeCool(g,pid,p,now));if(!to.length)return false;g.nz=g.nz||{};g.nzl=g.nzl||{};
+  const k=((g.nudge&&g.nudge.k)||0)+1;to.forEach(p=>{g.nz[p]={k,by:pid,at:now,w:can[p]};g.nzl[pid+'>'+p]=now});
+  /* the cooldown list only needs the last 15 s */for(const x in g.nzl)if(now-g.nzl[x]>TSNZCOOL*2)delete g.nzl[x];
+  g.nudge={k,by:pid,to,at:now};g.n++;return true}

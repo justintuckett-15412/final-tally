@@ -2361,6 +2361,9 @@ html.tsbig .tswhole .tspage .tssk svg{width:100%}
 .tsmark{border:1.5px dashed var(--line)}.tsmark.on{border-style:solid;border-color:var(--accent,#f2b705)}
 .tscust{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}.tscust input{width:96px;font-size:17px;padding:6px 8px;text-align:center}
 .tswait .tsbigline b{white-space:nowrap}
+.tsnudges{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px 0 4px}.tsnudge{padding:5px 12px!important;min-height:0;font-size:14px!important;white-space:nowrap}
+.tsnudge:not(.on):not(:disabled){border-color:var(--pc,var(--line));box-shadow:inset 3px 0 0 var(--pc,transparent)}.tsnudge.on{opacity:.7}.tsnzall{flex-basis:100%;max-width:320px}.tsnzn{font-weight:400}
+.toast.tsnzt{top:calc(14px + env(safe-area-inset-top,0px));bottom:auto;z-index:70;background:#FFD43B;color:#17212B;font-size:16px;padding:12px 18px;max-width:92vw;text-align:center}
 </style>
 
 <div id="app"></div>
@@ -3372,7 +3375,7 @@ const dashOn=()=>S.started&&!S.finished&&!S.demo&&['score','live'].includes(S.sc
 /* Each phone keeps its own screen; everything else in the game is shared. Each player is stored separately, so two
    phones scoring different players at the same moment don't overwrite each other. */
 const LKLOCAL=['yzd','yzr','screen','active','hr','demo','link','lk','_sig','editing','endShown','psel','dmul','skgrid','gfgrid','gngrid','fctap','tkmode','lastTick','playMs'];
-/* changes this phone has sent that the shared copy may not include yet: path -> {s: send number, t: time}. Until the copy coming back includes them, an older copy can't undo them. */let LKSENT={};
+/* changes this phone has sent that the shared copy may not include yet: path -> {s: send number, t: time}. Until the copy coming back includes them, an older copy can't undo them. */let LKSENT={},LKRAWM='';
 let LKUI='',LKLAST={m:null,order:null,ps:{},items:{}},LKSEATS={},LKRD=0,LKFREE=null,LKRV=null,LKMUTE=false,LKT=null,LKOPEN=false,LKMSG='',LKBUSY=false,LKCODE='',LKPEND=false,LKSTOP=false;
 const stable=o=>o===null||typeof o!=='object'?JSON.stringify(o):Array.isArray(o)?'['+o.map(x=>x===undefined?'null':stable(x)).join(',')+']':'{'+Object.keys(o).filter(k=>o[k]!==undefined).sort().map(k=>JSON.stringify(k)+':'+stable(o[k])).join(',')+'}';
 /* Shared game data is stored in small pieces so changes from different phones merge instead of overwriting:
@@ -3492,7 +3495,7 @@ function lkPush(){if(!S.lk||LKMUTE||!window.FTLINK||LKSWAP)return;if(lkHost()&&L
   if(Object.keys(it).length){u.items=it;LKLAST.items=x.items}
   if(stable(x.order)!==stable(LKLAST.order)&&!(lkGuest()&&S.game==='linkup')){u.order=x.order;LKLAST.order=x.order}
   const ps={};for(const id in x.ps)if(x.ps[id]!==LKLAST.ps[id]){if(lkGuest()&&id!==S.lk.me&&LKLAST.ps[id]&&lkSameBut(LKLAST.ps[id],x.ps[id]))continue;ps[id]=x.ps[id];LKLAST.ps[id]=x.ps[id]}
-  if(Object.keys(ps).length)u.ps=ps;if(Object.keys(u).length){lkTouch();const sent=u.sent;delete u.sent;const seq=window.FTLINK.push(u);if(sent){const t=Date.now();sent.forEach(p=>{LKSENT[p]={s:typeof seq==='number'?seq:0,t}})}}},250)}
+  if(Object.keys(ps).length)u.ps=ps;if(Object.keys(u).length){lkTouch();const sent=u.sent;delete u.sent;const seq=window.FTLINK.push(u);if(sent){const t=Date.now();sent.forEach(p=>{LKSENT[p]={s:typeof seq==='number'?seq:0,t,v:x.m[p]}})}}},250)}
 
 /* "Your turn!" on a linked phone: a strong buzz, plus a notification if the app is in the background (and notifications are allowed) */
 let LKTURN=null;
@@ -3531,7 +3534,7 @@ function lkVoteGo(k){if(!S.lk||!lkHost()||!S.finished)return;if(k==='again'){con
   else{S.lkvote={...lkVotes(),_d:'new'};save();render()}}
 let LKGEN=0,LKSW=false,LKSWAP=false,LKPREV='',LKAUTO=-1;
 async function lkSwap(){if(!S.lk||!lkHost()||!window.FTLINK||!window.FTLINK.swap)return;LKSWAP=true;const x=lkSplit();LKSEATS={};LKRV=null;
-  try{LKGEN=await window.FTLINK.swap(x);LKSENT={};LKLAST={m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}};LKSWAP=false;LKAUTO=-1;lkPush();lkAutoSeat();toast('The linked phones are following you to '+M().name+'.')}
+  try{LKGEN=await window.FTLINK.swap(x);LKSENT={};LKRAWM="";LKLAST={m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}};LKSWAP=false;LKAUTO=-1;lkPush();lkAutoSeat();toast('The linked phones are following you to '+M().name+'.')}
   catch(e){LKSWAP=false;toast('Couldn’t move the linked phones to this game. Link them again from here.');delete S.lk;save()}render()}
 function lkAutoSeat(){if(!S.lk||S.lk.me||!LKPREV||LKAUTO===LKGEN||LKBUSY)return;if(lkGuest()&&S.lkinv&&LKINVG!==LKGEN)return;const dev=window.FTLINK&&window.FTLINK.dev();
   const q=act().find(p=>!p.bot&&nm(p).trim().toLowerCase()===LKPREV.trim().toLowerCase()&&!(LKSEATS[p.id]&&LKSEATS[p.id].dev&&LKSEATS[p.id].dev!==dev));if(!q)return;LKAUTO=LKGEN;lkPick(q.id)}
@@ -3554,12 +3557,14 @@ window.lkRecv=function(u){if(!S.lk)return;
   let changed=false;
   /* merge: anything this phone changed but hasn't sent yet wins; everything else follows the other phones */
   const cur=(u.mflat||u.items||u.ps)?lkSplit():null;
-  if(u.mflat&&stable(u.mflat)!==stable(LKLAST.m||{})){const base=LKLAST.m||{},mine=cur.m,out={};
+  if(u.mflat&&stable(u.mflat)!==LKRAWM&&stable(u.mflat)!==stable(LKLAST.m||{})){const base=LKLAST.m||{},mine=cur.m,out={};
     /* this phone's own move queue only ever comes from this phone: an older echo from the host must never replace it (it would drop the newest move) */const ownQ=lkGuest()&&S.lk.me?'lkq'+LKSEP+S.lk.me:null;
     /* a change this phone sent that this copy doesn't include yet stays as it is here (the copy is older than the change) */const sent=Object.keys(LKSENT),wait=p=>sent.length&&sent.some(q=>q===p||p.startsWith(q+LKSEP)||q.startsWith(p+LKSEP));
     new Set([...Object.keys(base),...Object.keys(mine),...Object.keys(u.mflat)]).forEach(p=>{const v=ownQ&&(p===ownQ||p.startsWith(ownQ+LKSEP))?mine[p]:mine[p]!==base[p]||wait(p)?mine[p]:u.mflat[p];if(v!==undefined)out[p]=v});
     const ks=Object.keys(out);ks.forEach(p=>{if(ks.some(q=>p.startsWith(q+LKSEP)))delete out[p]});
-    const m=lkUnflat(out);delete m._lkarr;for(const k of Object.keys(S))if(k!=='players'&&!LKLOCAL.includes(k)&&!LKITEMS.includes(k)&&!(k in m))delete S[k];Object.assign(S,m);LKLAST.m=u.mflat;changed=true}
+    const m=lkUnflat(out);delete m._lkarr;for(const k of Object.keys(S))if(k!=='players'&&!LKLOCAL.includes(k)&&!LKITEMS.includes(k)&&!(k in m))delete S[k];Object.assign(S,m);
+    /* what the shared copy will hold once this phone's own sends land: an older copy plus those sends. Comparing later changes against the older copy alone would skip sending some of them. */const last={...u.mflat};for(const p of Object.keys(LKSENT)){Object.keys(last).forEach(q=>{if(q===p||q.startsWith(p+LKSEP)||p.startsWith(q+LKSEP))delete last[q]});if(LKSENT[p].v!==undefined)last[p]=LKSENT[p].v}
+    LKLAST.m=last;LKRAWM=stable(u.mflat);changed=true}
   if(u.items){const base=LKLAST.items||{},mine=cur.items,res={...mine};let ch=false;
     for(const k in u.items){const r=u.items[k];if(r===base[k]||(r==null&&base[k]==null))continue;ch=true;if(mine[k]!==base[k])continue;if(r==null)delete res[k];else res[k]=r}
     for(const k in u.items){if(u.items[k]==null)delete base[k];else base[k]=u.items[k]}LKLAST.items=base;
@@ -3581,7 +3586,7 @@ window.lkRecv=function(u){if(!S.lk)return;
   if(S.lk&&!S.lk.me)lkAutoSeat();
   lkTurnCheck();const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&!/^(checkbox|radio|button|range|file)$/.test(ae.type||'')&&ae.id!=='lk-code'){LKPEND=true;return}
   LKPEND=false;render()};
-function lkClear(msg){const was=lkGuest();clearTimeout(LKT);LKT=null;try{window.FTLINK&&window.FTLINK.leave()}catch(e){}if(window.FTLAN&&FTLAN.hub){try{FTLAN.stop()}catch(e){}}if(window.FTLINK_NET||window.FTLAN)window.FTLINK=window.FTLINK_NET;LANLOST=false;LANUI=null;lanCam(false);LKSENT={};LKLAST={m:null,order:null,ps:{},items:{}};LKSEATS={};LKRD=0;LKFREE=null;LKRV=null;LKOPEN=false;LKSTOP=false;
+function lkClear(msg){const was=lkGuest();clearTimeout(LKT);LKT=null;try{window.FTLINK&&window.FTLINK.leave()}catch(e){}if(window.FTLAN&&FTLAN.hub){try{FTLAN.stop()}catch(e){}}if(window.FTLINK_NET||window.FTLAN)window.FTLINK=window.FTLINK_NET;LANLOST=false;LANUI=null;lanCam(false);LKSENT={};LKRAWM="";LKLAST={m:null,order:null,ps:{},items:{}};LKSEATS={};LKRD=0;LKFREE=null;LKRV=null;LKOPEN=false;LKSTOP=false;
   if(was){try{localStorage.removeItem(KEY+'.linked');localStorage.removeItem(KEY+'.lkon')}catch(e){}const n=load();S=n||S;if(!n){delete S.lk}S.screen='home'}
   else{delete S.lk;save()}
   if(msg)toast(msg);window.scrollTo(0,0);render()}
@@ -3589,7 +3594,7 @@ let LKMAKING=0;/* a clear 'making your code' card while the host waits, so the s
 function lkMakingHtml(){if(!LKMAKING)return '';return `<div class="lkmaking" role="status" aria-live="polite"><div class="lkm-card panel"><div class="lkm-spin"></div><b>Making your link code…</b><span>This takes a few seconds. The code and QR show up next.</span></div></div>`}
 async function lkHostStart(g){if(!window.FTLINK)return;LKBUSY=true;LKMAKING=Date.now();LKMSG='';render();
   try{if(g&&(S.game||'ttr')!==g)switchGame(g);const x=lkSplit();const code=await window.FTLINK.host(x);
-    S.lk={code,role:'host',me:undefined,at:Date.now()};LKSENT={};LKLAST={m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}};LKSEATS={};LKRV=null;LKOPEN=true;save();
+    S.lk={code,role:'host',me:undefined,at:Date.now()};LKSENT={};LKRAWM="";LKLAST={m:x.m,order:x.order,ps:{...x.ps},items:{...x.items}};LKSEATS={};LKRV=null;LKOPEN=true;save();
     S.screen=S.game==='linkup'?'home':S.started?lkScreen():S.screen==='home'?'map':S.screen;if(S.started)S.screen='lkwho';if(S.game==='linkup'&&act()[0]){LKBUSY=false;await lkPick(act()[0].id)}window.scrollTo(0,0)}
   catch(e){LKMSG=(e&&e.message)||'Couldn’t start a linked game. Check your internet connection.'}LKBUSY=false;LKMAKING=0;render()}
 async function lkJoin(code){if(!window.FTLINK)return;const c=String(code||'').replace(/\D/g,'');if(c.length!==6){LKMSG='A game code has 6 numbers.';render();return}
@@ -3599,7 +3604,7 @@ async function lkJoin(code){if(!window.FTLINK)return;const c=String(code||'').re
     const n={...lkUnflat(g.mflat||{}),players:(g.order||[]).map(id=>ps[id]?JSON.parse(ps[id]):null).filter(Boolean)};lkItemsTo(n,g.items||{});
     n.lk={code:c,role:'guest',me:undefined,at:Date.now()};n.screen='lkwho';n.active=0;
     {const mine=window.FTLINK.dev(),seat=Object.entries(g.seats||{}).find(([id,x])=>x&&x.dev===mine&&(g.order||[]).includes(id));if(seat){n.lk.me=seat[0];n.lk.claimed=true}}
-    S=n;LKUI='';LKSENT={};LKGEN=g.gen||0;LKSW=false;LKLAST={m:g.mflat||{},order:g.order,ps,items:{...(g.items||{})}};LKSEATS=g.seats||{};LKRD=g.rd||0;LKRV=g.rv||null;S.lk.rv=LKRV;
+    S=n;LKUI='';LKSENT={};LKRAWM="";LKGEN=g.gen||0;LKSW=false;LKLAST={m:g.mflat||{},order:g.order,ps,items:{...(g.items||{})}};LKSEATS=g.seats||{};LKRD=g.rd||0;LKRV=g.rv||null;S.lk.rv=LKRV;
     try{localStorage.setItem(KEY+'.lkon','1')}catch(e){}LKMUTE=true;save();LKMUTE=false;LKCODE='';lkGo();window.scrollTo(0,0)}
   catch(e){LKMSG=(e&&e.message)||'Couldn’t join. Check the code and your internet connection.'}LKBUSY=false;render()}
 /* a player can only be on one phone: the database refuses a second phone claiming the same player */
@@ -16326,7 +16331,7 @@ function tsDeal(o={}){const ps=act().map(p=>p.id);if(ps.length<4)return null;
   tsNewRound(g);return g}
 function tsNewRound(g){g.round++;if(g.round>1&&g.flip)g.dir=-g.dir;g.die=1+Math.floor(Math.random()*6);
   const used=new Set(g.usedW),pool=tsPool(g.o||{});g.cards={};g.books={};g.ps.forEach(p=>{g.cards[p]=tsCard(pool.length>=60?pool:TSW_STD,used);g.books[p]={word:null,pages:[]}});g.usedW=[...used];
-  g.phase='pick';g.step=0;g.steps=tsSteps(g);g.sub={};g.tEnd=null;g.rv=null;g.marks={};g.score&&g.ps.forEach(p=>{(g.score[p]=g.score[p]||[])[g.round-1]=0})}
+  g.phase='pick';g.step=0;g.steps=tsSteps(g);g.sub={};g.tEnd=null;g.rv=null;g.marks={};g.nz={};g.score&&g.ps.forEach(p=>{(g.score[p]=g.score[p]||[])[g.round-1]=0})}
 /* the word the die picks on a player's card (null = they choose or make one up) */
 function tsRolled(g,pid){const C=g.cards[pid];if(!C)return null;const s=C.slots[g.die-1];return s&&s.t==='w'&&!C.any?s.w:null}
 const tsClean=w=>String(w||'').replace(/\s+/g,' ').trim().slice(0,40);
@@ -16347,6 +16352,7 @@ function tsPrompt(g,pid){if(g.phase!=='play')return null;const k=tsAt(g,pid);if(
   return {kind:tsKind(k),owner:o,k,word:prev.kind==='guess'?prev.d:null,draw:prev.kind==='draw'?prev.d:null}}
 const tsMax=6000; /* largest drawing we keep, in characters */
 function tsMove(g,pid,mv){if(!g||!mv||!g.ps.includes(pid))return false;
+  if(mv.a==='nudge')return tsNudge(g,pid,mv);
   if(g.phase==='pick'&&mv.a==='word'){if(g.books[pid].word)return false;const C=g.cards[pid];let w=tsRolled(g,pid);
     if(!w){if(C.any&&mv.slot!=null&&C.slots[+mv.slot]&&C.slots[+mv.slot].t==='w')w=C.slots[+mv.slot].w;else w=mv.w}
     w=tsClean(w);if(!w)return false;g.books[pid].word=w;g.n++;if(g.ps.every(p=>g.books[p].word))tsStartPlay(g);return true}
@@ -16391,6 +16397,24 @@ function tsMatchOK(g,owner,i,secretOnly){const M=(g.marks[owner]||{}).match||{},
   if(tsSame(P.d,B.word))return true;if(secretOnly)return false;const prev=B.pages[i-2];return !!prev&&prev.kind==='guess'&&tsSame(P.d,prev.d)}
 const tsTotal=(g,p)=>(g.score[p]||[]).reduce((a,b)=>a+(b||0),0);
 const tsStale=g=>{const ids=act().map(p=>p.id);return !g||!g.ps||g.ps.length!==ids.length||g.ps.some(id=>!ids.includes(id))};
+/* "Nudge": who this player may nudge right now, and what they're waiting on: {pid:'word'|'sketch'|'guess'|'page'}
+   pick: you've chosen, they haven't · pass together: you've handed in, they haven't · pass when ready: the one player your next book is waiting on ·
+   Big Reveal with the owner flipping: the owner, once the page hasn't moved for 20 s (slack: ms allowed for another phone's clock) */
+const TSNZCOOL=15000,TSNZWAIT=20000;
+function tsNudgeable(g,pid,now,slack){const o={};if(!g||!g.ps||!g.ps.includes(pid))return o;now=now||Date.now();
+  if(g.phase==='pick'){if(g.books[pid]&&g.books[pid].word)g.ps.forEach(p=>{if(p!==pid&&!g.books[p].word)o[p]='word'})}
+  else if(g.phase==='play'&&tsAsync(g)){const pr=tsPrompt(g,pid);if(pr&&pr.wait&&pr.from&&pr.from!==pid){const k=tsAt(g,pr.from);if(k<g.steps)o[pr.from]=tsKind(k)==='draw'?'sketch':'guess'}}
+  else if(g.phase==='play'){if(g.sub[pid])g.ps.forEach(p=>{if(p!==pid&&!g.sub[p])o[p]=tsKind(g.step)==='draw'?'sketch':'guess'})}
+  else if(g.phase==='reveal'&&g.rv&&!g.auto){const owner=g.ps[g.rv.i];if(owner!==pid&&now-(g.rv.t||now)>=TSNZWAIT-(slack||0))o[owner]='page'}
+  return o}
+/* how long until this player may nudge p again (ms; 0 = now) */
+const tsNudgeCool=(g,by,p,now)=>Math.max(0,TSNZCOOL-((now||Date.now())-(((g&&g.nzl)||{})[by+'>'+p]||-1e15)));
+/* the move: {a:'nudge',to:[pid,...]}; each target gets its own entry g.nz[pid]={k,by,at,w}; g.nudge = the latest one (k counts every nudge) */
+function tsNudge(g,pid,mv){const now=Date.now(),can=tsNudgeable(g,pid,now,3000),want=(Array.isArray(mv.to)?mv.to:[mv.to]).map(String);
+  const to=[...new Set(want)].filter(p=>can[p]&&!tsNudgeCool(g,pid,p,now));if(!to.length)return false;g.nz=g.nz||{};g.nzl=g.nzl||{};
+  const k=((g.nudge&&g.nudge.k)||0)+1;to.forEach(p=>{g.nz[p]={k,by:pid,at:now,w:can[p]};g.nzl[pid+'>'+p]=now});
+  /* the cooldown list only needs the last 15 s */for(const x in g.nzl)if(now-g.nzl[x]>TSNZCOOL*2)delete g.nzl[x];
+  g.nudge={k,by:pid,to,at:now};g.n++;return true}
 
 /* ================= Telestrations: sketch encoding, SVG pages and the finger-drawing pad =================
    A stroke = {w:1|2|3 (pen size), e:0|1 (eraser), c:0..7 (pen color, TSD_COL; 0 = black), p:[x,y,x,y,...]} with x,y in 0..1000 (square page).
@@ -16713,14 +16737,14 @@ function tsHead(g,V,big){const R=g.rounds?`Round ${g.round} of ${g.rounds}`:`Rou
 function tsPickUI(g,V,big){const done=p=>!!g.books[p].word;
   if(big||!V||!g.ps.includes(V.id))return `<div class="panel tspanel tscenter">${tsDie(g.die,big?120:84)}<p class="tsbigline">The die rolled a <b>${g.die}</b>. Everyone is choosing a secret word.</p>${tsChips(g,done)}</div>`;
   const C=g.cards[V.id],B=g.books[V.id];
-  if(B.word)return `<div class="panel tspanel tscenter"><p class="rlab">Your secret word</p><p class="tsword">${esc(B.word)}</p><p class="rlab">Keep it secret!</p><p class="rlab">${tsWaitLine(g,done)}</p>${tsChips(g,done)}</div>`;
+  if(B.word)return `<div class="panel tspanel tscenter"><p class="rlab">Your secret word</p><p class="tsword">${esc(B.word)}</p><p class="rlab">Keep it secret!</p><p class="rlab">${tsWaitLine(g,done)}</p>${tsChips(g,done)}${tsNudgeRow(g,V,big)}</div>`;
   const s=C.slots[g.die-1],rolled=tsRolled(g,V.id);
   return `<div class="panel tspanel"><div class="tsdierow">${tsDie(g.die,84)}<div><p class="tsbigline">The die rolled a <b>${g.die}</b>.</p><p class="rlab">${C.any?'Your card says <b>any</b>: tap any word on it.':rolled?'That’s your secret word. Keep it secret!':s.t==='blank'?'A blank: make up any word and type it below.':`Make up: <b>${esc(s.c)}</b>. Type it below.`}</p></div></div>
     <ol class="tscard${C.any?' any':''}" aria-label="Your card">${C.slots.map((x,i)=>{const hit=i===g.die-1,tap=C.any&&x.t==='w';return `<li class="tsslot${hit?' hit':''}${tap?' tap':''}">${tap?`<button data-a="tsuword" data-k="${i}">`:'<span>'}<span class="tsn">${i+1}</span><span class="tsw">${tsSlotLabel(x)}</span>${tap?'</button>':'</span>'}</li>`}).join('')}</ol>
     ${rolled?`<div class="cnrow"><button class="btn primary" data-a="tsuword" data-k="${g.die-1}">✓ Got it: ${esc(rolled)}</button></div>`:''}</div>`}
 function tsPlayStep(g,V,big){if(tsAsync(g))return tsPlayAsync(g,V,big);const done=p=>!!g.sub[p];
   if(big||!V||!g.ps.includes(V.id))return `<div class="panel tspanel tscenter"><p class="tsbigline">${tsKind(g.step)==='draw'?'✏️ Everyone is sketching':'🤔 Everyone is guessing'}</p>${tsChips(g,done)}<p class="rlab">${tsWaitLine(g,done)}</p></div>`;
-  if(g.sub[V.id])return `<div class="panel tspanel tscenter"><p class="tsbigline">Sent ✓</p><p class="rlab">${tsWaitLine(g,done)}</p>${tsChips(g,done)}<p class="hint">The next page shows up as soon as everyone’s done.</p></div>`;
+  if(g.sub[V.id])return `<div class="panel tspanel tscenter"><p class="tsbigline">Sent ✓</p><p class="rlab">${tsWaitLine(g,done)}</p>${tsChips(g,done)}${tsNudgeRow(g,V,big)}<p class="hint">The next page shows up as soon as everyone’s done.</p></div>`;
   const pr=tsPrompt(g,V.id);if(!pr)return '';
   if(pr.kind==='draw')return `<div class="panel tspanel tscenter"><p class="rlab">Sketch this (no letters or numbers):</p><p class="tsword">${esc(pr.word||'')}</p><p class="hint">Your sketch pad is open. Tap Done when you’re finished.</p></div>`;
   return `<div class="panel tspanel tscenter"><p class="rlab">What is this sketch?</p><div class="tssk tsbigsk" data-tspg="${esc(pr.owner)}:${g.step-1}">${tsSvgOk(pr.draw||'',360)}</div><p class="hint">Type your guess below. Never leave a guess blank.</p></div>`}
@@ -16729,9 +16753,27 @@ function tsPlayAsync(g,V,big){const done=p=>tsAt(g,p)>=g.steps;
   if(big||!V||!g.ps.includes(V.id))return `<div class="panel tspanel tscenter"><p class="tsbigline">📒 The books move on as soon as each page is done</p>${tsAsyncChips(g)}</div>`;
   const pr=tsPrompt(g,V.id);
   if(!pr)return `<div class="panel tspanel tscenter"><p class="tsbigline">Sent ✓</p><p class="rlab">${tsWaitLine(g,done)}</p>${tsAsyncChips(g)}<p class="hint">The Big Reveal starts when every book is full.</p></div>`;
-  if(pr.wait)return `<div class="panel tspanel tscenter tswait"><p class="tsbigline">Sent ✓ — waiting for <b>${esc(tsName(pr.from))}</b> to pass you a book</p>${tsAsyncChips(g)}<p class="hint">Your next page shows up as soon as it arrives.</p></div>`;
+  if(pr.wait)return `<div class="panel tspanel tscenter tswait"><p class="tsbigline">Sent ✓ — waiting for <b>${esc(tsName(pr.from))}</b> to pass you a book</p>${tsNudgeRow(g,V,big)}${tsAsyncChips(g)}<p class="hint">Your next page shows up as soon as it arrives.</p></div>`;
   if(pr.kind==='draw')return `<div class="panel tspanel tscenter"><p class="rlab">Sketch this (no letters or numbers):</p><p class="tsword">${esc(pr.word||'')}</p><p class="hint">Your sketch pad is open. Tap Done when you’re finished.</p></div>`;
   return `<div class="panel tspanel tscenter"><p class="rlab">What is this sketch?</p><div class="tssk tsbigsk" data-tspg="${esc(pr.owner)}:${pr.k-1}">${tsSvgOk(pr.draw||'',360)}</div><p class="hint">Type your guess below. Never leave a guess blank.</p>${tsAsyncChips(g)}</div>`}
+/* "Nudge": a 🔔 button for each player you're waiting on ("Nudged ✓" for 15 s after you nudge them). Never on the big board.
+   data-tsre = when this part of the screen changes by itself (a cooldown ends, the reveal's 20 s pass): the screen redraws then */
+function tsNudgeRow(g,V,big){if(big||!V||!g.ps.includes(V.id))return '';const now=Date.now(),can=tsNudgeable(g,V.id,now),to=g.ps.filter(p=>can[p]);
+  if(!to.length){if(g.phase==='reveal'&&g.rv&&!g.auto&&g.ps[g.rv.i]!==V.id){const at=(g.rv.t||now)+TSNZWAIT;if(at>now)return `<span hidden data-tsre="${at}"></span>`}return ''}
+  const cool=p=>tsNudgeCool(g,V.id,p,now),ready=to.filter(p=>!cool(p)),soon=to.filter(p=>cool(p)).map(p=>now+cool(p));
+  const one=p=>{const c=cool(p);return c?`<button class="btn sm tsnudge on" disabled data-tsre="${now+c}" aria-label="Nudged ${esc(tsName(p))}">Nudged ✓ <span class="tsnzn">${esc(tsName(p))}</span></button>`
+    :`<button class="btn sm tsnudge" data-a="tsunudge" data-k="${esc(p)}" style="${tsPcol(p)}">🔔 Nudge ${esc(tsName(p))}</button>`};
+  const all=to.length>3?`<button class="btn sm tsnudge tsnzall" data-a="tsunudge" data-k="${esc(ready.join(','))}" ${ready.length?'':`disabled data-tsre="${Math.min(...soon)}"`}>🔔 Nudge everyone still going</button>`:'';
+  return `<div class="tsnudges" aria-label="Nudge the players you’re waiting on">${all}${to.map(one).join('')}</div>`}
+/* the nudged phone: a toast, a strong buzz and a bell, once per nudge; an old nudge (app reopened, ~15 s+) stays quiet */
+let TSNZ=null;
+const TSNZT={word:'is waiting on your secret word',sketch:'is waiting on your sketch',guess:'is waiting on your guess',page:'is waiting for you to turn the page'};
+function tsNzToast(msg){document.querySelectorAll('.toast').forEach(x=>x.remove());const t=document.createElement('div');t.className='toast tsnzt';t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),5000)}
+function tsNudgeFx(g){const V=tsViewer();if(!g||!g.gid||!V||tsBig()||!g.ps.includes(V.id))return;const n=(g.nz||{})[V.id];if(!n||!n.k)return;
+  const key=g.gid+':'+n.k,age=Date.now()-(+n.at||0);if(TSNZ===null){TSNZ=new Set();if(age>15000){TSNZ.add(key);return}}
+  if(TSNZ.has(key))return;TSNZ.add(key);if(age>60000)return;
+  /* already done what they're waiting on (the nudge crossed with your page): nothing */if(!tsNudgeable(g,n.by,Date.now(),TSNZWAIT)[V.id])return;
+  tsNzToast(`🔔 ${tsName(n.by)} ${TSNZT[n.w]||'is waiting on you'}`);vibe([120,60,120,60,220]);try{tsSfx('bell')}catch(e){}}
 /* the Big Reveal: the same book on every screen */
 function tsPageHtml(g,owner,i,size,marks){const B=g.books[owner];
   if(i<0)return `<div class="tspage tssecret"><span class="rlab">${esc(tsName(owner))}’s secret word</span><span class="tsword">${esc(B.word||'')}</span></div>`;
@@ -16753,6 +16795,7 @@ function tsRevealUI(g,V,big){const owner=g.ps[g.rv.i],B=g.books[owner],p=g.rv.p,
         :M.self?`<p class="rlab tscenter">✓ The last guess matched ${esc(tsName(owner))}’s word.</p>`:''}}
   if(mine)o+=`<div class="tsnav"><button class="btn" data-a="tsuprev" ${p<0?'disabled':''} aria-label="Previous page">◀</button>${p<last?'<button class="btn primary" data-a="tsunext" aria-label="Next page">Next page ▶</button>':'<button class="btn primary" data-a="tsudone">Done with my book</button>'}</div>`;
   else o+=g.auto?`<p class="rlab tscenter">${p===last&&g.scoring!=='none'?`${esc(tsName(owner))} is giving out points…`:`▶️ Auto-play: ${esc(tsName(owner))}’s book`}</p>`:`<p class="rlab tscenter">${esc(tsName(owner))} is flipping through ${big?'their':'the'} book${p===last?' and giving out points':''}…</p>`;
+  if(!mine&&!big&&!g.auto)o+=tsNudgeRow(g,V,big);
   return o+'</div>'}
 /* "Auto-play": the countdown to the next page on every screen, with ⏸ / ▶ for the owner and the host */
 function tsAutoLeft(g){const R=g.rv,dur=g.auto*1000;return R.pz!=null?R.pz:Math.max(0,Math.min(dur,(R.t||Date.now())+dur-Date.now()))}
@@ -16794,6 +16837,7 @@ function tsUiAct(a,b,k){if(a==='tsubig'){TSBIG=!tsBig();try{localStorage.setItem
   const g=tsGx();if(!g||tsBig())return;
   switch(a){
     case 'tsuword':tsSend({a:'word',slot:+k});return;
+    case 'tsunudge':{const to=String(k||'').split(',').filter(Boolean);if(to.length)tsSend({a:'nudge',to});return}
     case 'tsunext':tsSend({a:'rvnext',...(g.rv?{p:g.rv.p}:{})});return;
     case 'tsuprev':tsSend({a:'rvprev',...(g.rv?{p:g.rv.p}:{})});return;
     case 'tsumark':{const [f,p]=String(k).split(':');tsSend({a:'mark',f,p:+p});return}
@@ -16839,6 +16883,7 @@ function tsFxMode(g,V){if(!g||!V||tsBig()||!g.ps.includes(V.id))return null;
   return null}
 function tsFx(){/* sounds: checked on every redraw too, so a page that's answered within moments still gets its page turn */try{tsSndCheck()}catch(e){}let L=document.getElementById('tsfx');const on=S.game==='telestrations'&&tsPlayOn()&&S.started&&!S.demo&&S.screen==='score'&&tsLinked()&&!act().some(p=>p.bot);
   const g=on?tsGx():null,ok=g&&!tsStale(g),V=ok?tsViewer():null,F=ok?tsFxMode(g,V):null;
+  /* "Nudge": a toast, buzz and bell on the nudged phone */try{if(ok)tsNudgeFx(g)}catch(e){}
   /* the sketch pad */
   const pr=ok&&V&&!tsBig()&&g.phase==='play'&&g.ps.includes(V.id)&&!tsDoneP(g,V.id)?tsPrompt(g,V.id):null;
   try{if(typeof tsPadSync==='function'){
@@ -16859,6 +16904,8 @@ setInterval(()=>{try{tsFx()}catch(e){}},700);
 /* the sketch timer on screen, and the host closes the sketch step when time is up */
 setInterval(()=>{try{document.querySelectorAll('.tstmr[data-end]').forEach(el=>{const ms=+el.dataset.end-Date.now(),b=el.querySelector('b');if(b)b.textContent=ms>0?tsClock(ms):'Finish up!';el.classList.toggle('low',ms<10000)});
   if(S.game!=='telestrations'||!tsPlayOn()||!S.started||S.demo||!tsRes2()||(typeof LKOPTR!=='undefined'&&LKOPTR))return;if(S.tsg&&!tsStale(S.tsg)&&(tsTimeUp(S.tsg)||tsLinked()&&lkHost()&&(tsRepair(S.tsg)||tsAutoStep(S.tsg)))){save();render()}}catch(e){}},500);
+/* "Nudge": redraw when a cooldown ends or the reveal's 20 s pass */
+setInterval(()=>{try{if(S.game!=='telestrations')return;const now=Date.now();if([...document.querySelectorAll('#app [data-tsre]')].some(e=>+e.dataset.tsre<=now))render()}catch(e){}},500);
 /* the auto-play countdown bar on every screen */
 setInterval(()=>{try{document.querySelectorAll('.tsauto[data-t]').forEach(el=>{const dur=+el.dataset.dur,left=Math.max(0,Math.min(dur,+el.dataset.t+dur-Date.now())),i=el.querySelector('.tsautobar i'),b=el.querySelector('.tsautot b');
   if(i)i.style.width=(100*left/dur).toFixed(1)+'%';if(b)b.textContent=String(Math.ceil(left/1000))})}catch(e){}},200);
@@ -16875,6 +16922,7 @@ function tsSfx(kind){if(!SET.sound)return;const c=typeof ac==='function'?ac():nu
   else if(kind==='timeup'){tsTone(c,660,t,.16,'triangle',.18);tsTone(c,440,t+.15,.32,'triangle',.18)}
   else if(kind==='tada'){if(typeof brass==='function'){brass(c,392,t,.1,{vol:.07});[523,659,784].forEach((f,i)=>brass(c,f,t+.16,.55,{vol:.06,pan:(i-1)*.3}))}
     else{tsTone(c,392,t,.12,'triangle',.18);[523,659,784].forEach(f=>tsTone(c,f,t+.16,.6,'triangle',.12))}}
+  else if(kind==='bell'){/* a little desk bell, struck twice */[0,.2].forEach(d=>{tsTone(c,1568,t+d,.7,'sine',.17);tsTone(c,3136,t+d,.35,'sine',.05);tsTone(c,2349,t+d,.5,'triangle',.035)})}
   else if(kind==='chime'){tsTone(c,1319,t,.5,'sine',.1);tsTone(c,1976,t+.08,.6,'sine',.07)}}catch(e){}}
 let TSSF=null;
 /* the sound events right now on this screen: [kind, key]. The big board (and anyone just watching) only gets the reveal's */

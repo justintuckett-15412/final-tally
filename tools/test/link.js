@@ -17,7 +17,7 @@ function Store(){
       else if(s.col===col){const a=[{id:idOf(k),data:d?clone(d):null,removed:!d,local:origin===s.client}],b=all(col);later(()=>s.cb(a,false,b,false),s,origin===s.client)}})}
   function setPath(o,segs,v){let t=o;for(let i=0;i<segs.length-1;i++){if(!t[segs[i]]||typeof t[segs[i]]!=='object')t[segs[i]]={};t=t[segs[i]]}
     if(v===null)delete t[segs[segs.length-1]];else t[segs[segs.length-1]]=clone(v)}
-  return {get:p=>clone(docs.get(K(p)))??null,
+  return {__docs:()=>docs,get:p=>clone(docs.get(K(p)))??null,
     set(p,d,o){docs.set(K(p),clone(d));notify(K(p),o)},
     update(p,d,o){const k=K(p);docs.set(k,{...docs.get(k),...clone(d)});notify(k,o)},
     updatePaths(p,ops,o){const k=K(p);const x=docs.get(k);ops.forEach(([s,v])=>setPath(x,s,v));notify(k,o)},

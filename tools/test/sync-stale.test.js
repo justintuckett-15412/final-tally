@@ -18,12 +18,16 @@ const SECS=+(process.env.SECS||14);
     const watch=()=>{for(const k of ['zzh','zzg','zzx']){const v=S[k]||0;if(v<(window.__seen[k]||0))window.__back.push(k+':'+window.__seen[k]+'->'+v);window.__seen[k]=Math.max(window.__seen[k]||0,v)}};
     const R=window.lkRecv;window.lkRecv=function(u){R(u);watch()};
     window.__iv=setInterval(()=>{S[key]=(S[key]||0)+1;save();watch()},ms)},[key,ms]);
-  await arm(H,'zzh',190);await arm(G,'zzg',230);await arm(X,'zzx',270);
+  await arm(H,'zzh',190);
+  /* the host also keeps filling and emptying a list (like 'who's done this page'): an emptied list must reach every phone and the database */
+  await H.evaluate(()=>{let n=0;window.__iv2=setInterval(()=>{n++;S.zzo=n%3===0?{}:{...(S.zzo||{}),['p'+n]:1};save()},140)});await arm(G,'zzg',230);await arm(X,'zzx',270);
   await W(SECS*1000);
-  await Promise.all([H,G,X].map(p=>p.evaluate(()=>clearInterval(window.__iv))));
+  await Promise.all([H,G,X].map(p=>p.evaluate(()=>clearInterval(window.__iv))));await H.evaluate(()=>{clearInterval(window.__iv2);S.zzo={};save()});
   await W(6000);
   const r=await Promise.all([H,G,X].map(p=>p.evaluate(()=>({back:window.__back,v:[S.zzh||0,S.zzg||0,S.zzx||0]}))));
   r.forEach((x,i)=>ok(['host','guest','third'][i]+': no change ever went backwards',!x.back.length,x.back.slice(0,8)));
+  const zo=await Promise.all([H,G,X].map(p=>p.evaluate(()=>JSON.stringify(S.zzo))));const {st}=require('./link.js');const doc=[...st.__docs()].find(([k,d])=>d&&d.m&&d.m.zzo!==undefined);
+  ok('an emptied list reaches every phone and the database',zo.every(v=>v==='{}')&&doc&&JSON.stringify(doc[1].m.zzo)==='"{}"',{zo,db:doc&&doc[1].m.zzo});
   ok('all phones end with the same values',r.every(x=>JSON.stringify(x.v)===JSON.stringify(r[0].v)),r.map(x=>x.v));
   ok('each phone’s own counter kept every bump',r[0].v[0]>=SECS*4&&r[0].v[1]>=SECS*3&&r[0].v[2]>=SECS*3,r[0].v);
   await done(browser)})();

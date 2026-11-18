@@ -64,3 +64,6 @@ html.tsbig .tswhole .tspage .tssk svg{width:100%}
 .tsmark{border:1.5px dashed var(--line)}.tsmark.on{border-style:solid;border-color:var(--accent,#f2b705)}
 .tscust{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}.tscust input{width:96px;font-size:17px;padding:6px 8px;text-align:center}
 .tswait .tsbigline b{white-space:nowrap}
+.tsnudges{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px 0 4px}.tsnudge{padding:5px 12px!important;min-height:0;font-size:14px!important;white-space:nowrap}
+.tsnudge:not(.on):not(:disabled){border-color:var(--pc,var(--line));box-shadow:inset 3px 0 0 var(--pc,transparent)}.tsnudge.on{opacity:.7}.tsnzall{flex-basis:100%;max-width:320px}.tsnzn{font-weight:400}
+.toast.tsnzt{top:calc(14px + env(safe-area-inset-top,0px));bottom:auto;z-index:70;background:#FFD43B;color:#17212B;font-size:16px;padding:12px 18px;max-width:92vw;text-align:center}

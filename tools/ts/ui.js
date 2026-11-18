@@ -129,14 +129,14 @@ function tsHead(g,V,big){const R=g.rounds?`Round ${g.round} of ${g.rounds}`:`Rou
 function tsPickUI(g,V,big){const done=p=>!!g.books[p].word;
   if(big||!V||!g.ps.includes(V.id))return `<div class="panel tspanel tscenter">${tsDie(g.die,big?120:84)}<p class="tsbigline">The die rolled a <b>${g.die}</b>. Everyone is choosing a secret word.</p>${tsChips(g,done)}</div>`;
   const C=g.cards[V.id],B=g.books[V.id];
-  if(B.word)return `<div class="panel tspanel tscenter"><p class="rlab">Your secret word</p><p class="tsword">${esc(B.word)}</p><p class="rlab">Keep it secret!</p><p class="rlab">${tsWaitLine(g,done)}</p>${tsChips(g,done)}</div>`;
+  if(B.word)return `<div class="panel tspanel tscenter"><p class="rlab">Your secret word</p><p class="tsword">${esc(B.word)}</p><p class="rlab">Keep it secret!</p><p class="rlab">${tsWaitLine(g,done)}</p>${tsChips(g,done)}${tsNudgeRow(g,V,big)}</div>`;
   const s=C.slots[g.die-1],rolled=tsRolled(g,V.id);
   return `<div class="panel tspanel"><div class="tsdierow">${tsDie(g.die,84)}<div><p class="tsbigline">The die rolled a <b>${g.die}</b>.</p><p class="rlab">${C.any?'Your card says <b>any</b>: tap any word on it.':rolled?'That’s your secret word. Keep it secret!':s.t==='blank'?'A blank: make up any word and type it below.':`Make up: <b>${esc(s.c)}</b>. Type it below.`}</p></div></div>
     <ol class="tscard${C.any?' any':''}" aria-label="Your card">${C.slots.map((x,i)=>{const hit=i===g.die-1,tap=C.any&&x.t==='w';return `<li class="tsslot${hit?' hit':''}${tap?' tap':''}">${tap?`<button data-a="tsuword" data-k="${i}">`:'<span>'}<span class="tsn">${i+1}</span><span class="tsw">${tsSlotLabel(x)}</span>${tap?'</button>':'</span>'}</li>`}).join('')}</ol>
     ${rolled?`<div class="cnrow"><button class="btn primary" data-a="tsuword" data-k="${g.die-1}">✓ Got it: ${esc(rolled)}</button></div>`:''}</div>`}
 function tsPlayStep(g,V,big){if(tsAsync(g))return tsPlayAsync(g,V,big);const done=p=>!!g.sub[p];
   if(big||!V||!g.ps.includes(V.id))return `<div class="panel tspanel tscenter"><p class="tsbigline">${tsKind(g.step)==='draw'?'✏️ Everyone is sketching':'🤔 Everyone is guessing'}</p>${tsChips(g,done)}<p class="rlab">${tsWaitLine(g,done)}</p></div>`;
-  if(g.sub[V.id])return `<div class="panel tspanel tscenter"><p class="tsbigline">Sent ✓</p><p class="rlab">${tsWaitLine(g,done)}</p>${tsChips(g,done)}<p class="hint">The next page shows up as soon as everyone’s done.</p></div>`;
+  if(g.sub[V.id])return `<div class="panel tspanel tscenter"><p class="tsbigline">Sent ✓</p><p class="rlab">${tsWaitLine(g,done)}</p>${tsChips(g,done)}${tsNudgeRow(g,V,big)}<p class="hint">The next page shows up as soon as everyone’s done.</p></div>`;
   const pr=tsPrompt(g,V.id);if(!pr)return '';
   if(pr.kind==='draw')return `<div class="panel tspanel tscenter"><p class="rlab">Sketch this (no letters or numbers):</p><p class="tsword">${esc(pr.word||'')}</p><p class="hint">Your sketch pad is open. Tap Done when you’re finished.</p></div>`;
   return `<div class="panel tspanel tscenter"><p class="rlab">What is this sketch?</p><div class="tssk tsbigsk" data-tspg="${esc(pr.owner)}:${g.step-1}">${tsSvgOk(pr.draw||'',360)}</div><p class="hint">Type your guess below. Never leave a guess blank.</p></div>`}
@@ -145,9 +145,27 @@ function tsPlayAsync(g,V,big){const done=p=>tsAt(g,p)>=g.steps;
   if(big||!V||!g.ps.includes(V.id))return `<div class="panel tspanel tscenter"><p class="tsbigline">📒 The books move on as soon as each page is done</p>${tsAsyncChips(g)}</div>`;
   const pr=tsPrompt(g,V.id);
   if(!pr)return `<div class="panel tspanel tscenter"><p class="tsbigline">Sent ✓</p><p class="rlab">${tsWaitLine(g,done)}</p>${tsAsyncChips(g)}<p class="hint">The Big Reveal starts when every book is full.</p></div>`;
-  if(pr.wait)return `<div class="panel tspanel tscenter tswait"><p class="tsbigline">Sent ✓ — waiting for <b>${esc(tsName(pr.from))}</b> to pass you a book</p>${tsAsyncChips(g)}<p class="hint">Your next page shows up as soon as it arrives.</p></div>`;
+  if(pr.wait)return `<div class="panel tspanel tscenter tswait"><p class="tsbigline">Sent ✓ — waiting for <b>${esc(tsName(pr.from))}</b> to pass you a book</p>${tsNudgeRow(g,V,big)}${tsAsyncChips(g)}<p class="hint">Your next page shows up as soon as it arrives.</p></div>`;
   if(pr.kind==='draw')return `<div class="panel tspanel tscenter"><p class="rlab">Sketch this (no letters or numbers):</p><p class="tsword">${esc(pr.word||'')}</p><p class="hint">Your sketch pad is open. Tap Done when you’re finished.</p></div>`;
   return `<div class="panel tspanel tscenter"><p class="rlab">What is this sketch?</p><div class="tssk tsbigsk" data-tspg="${esc(pr.owner)}:${pr.k-1}">${tsSvgOk(pr.draw||'',360)}</div><p class="hint">Type your guess below. Never leave a guess blank.</p>${tsAsyncChips(g)}</div>`}
+/* "Nudge": a 🔔 button for each player you're waiting on ("Nudged ✓" for 15 s after you nudge them). Never on the big board.
+   data-tsre = when this part of the screen changes by itself (a cooldown ends, the reveal's 20 s pass): the screen redraws then */
+function tsNudgeRow(g,V,big){if(big||!V||!g.ps.includes(V.id))return '';const now=Date.now(),can=tsNudgeable(g,V.id,now),to=g.ps.filter(p=>can[p]);
+  if(!to.length){if(g.phase==='reveal'&&g.rv&&!g.auto&&g.ps[g.rv.i]!==V.id){const at=(g.rv.t||now)+TSNZWAIT;if(at>now)return `<span hidden data-tsre="${at}"></span>`}return ''}
+  const cool=p=>tsNudgeCool(g,V.id,p,now),ready=to.filter(p=>!cool(p)),soon=to.filter(p=>cool(p)).map(p=>now+cool(p));
+  const one=p=>{const c=cool(p);return c?`<button class="btn sm tsnudge on" disabled data-tsre="${now+c}" aria-label="Nudged ${esc(tsName(p))}">Nudged ✓ <span class="tsnzn">${esc(tsName(p))}</span></button>`
+    :`<button class="btn sm tsnudge" data-a="tsunudge" data-k="${esc(p)}" style="${tsPcol(p)}">🔔 Nudge ${esc(tsName(p))}</button>`};
+  const all=to.length>3?`<button class="btn sm tsnudge tsnzall" data-a="tsunudge" data-k="${esc(ready.join(','))}" ${ready.length?'':`disabled data-tsre="${Math.min(...soon)}"`}>🔔 Nudge everyone still going</button>`:'';
+  return `<div class="tsnudges" aria-label="Nudge the players you’re waiting on">${all}${to.map(one).join('')}</div>`}
+/* the nudged phone: a toast, a strong buzz and a bell, once per nudge; an old nudge (app reopened, ~15 s+) stays quiet */
+let TSNZ=null;
+const TSNZT={word:'is waiting on your secret word',sketch:'is waiting on your sketch',guess:'is waiting on your guess',page:'is waiting for you to turn the page'};
+function tsNzToast(msg){document.querySelectorAll('.toast').forEach(x=>x.remove());const t=document.createElement('div');t.className='toast tsnzt';t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),5000)}
+function tsNudgeFx(g){const V=tsViewer();if(!g||!g.gid||!V||tsBig()||!g.ps.includes(V.id))return;const n=(g.nz||{})[V.id];if(!n||!n.k)return;
+  const key=g.gid+':'+n.k,age=Date.now()-(+n.at||0);if(TSNZ===null){TSNZ=new Set();if(age>15000){TSNZ.add(key);return}}
+  if(TSNZ.has(key))return;TSNZ.add(key);if(age>60000)return;
+  /* already done what they're waiting on (the nudge crossed with your page): nothing */if(!tsNudgeable(g,n.by,Date.now(),TSNZWAIT)[V.id])return;
+  tsNzToast(`🔔 ${tsName(n.by)} ${TSNZT[n.w]||'is waiting on you'}`);vibe([120,60,120,60,220]);try{tsSfx('bell')}catch(e){}}
 /* the Big Reveal: the same book on every screen */
 function tsPageHtml(g,owner,i,size,marks){const B=g.books[owner];
   if(i<0)return `<div class="tspage tssecret"><span class="rlab">${esc(tsName(owner))}’s secret word</span><span class="tsword">${esc(B.word||'')}</span></div>`;
@@ -169,6 +187,7 @@ function tsRevealUI(g,V,big){const owner=g.ps[g.rv.i],B=g.books[owner],p=g.rv.p,
         :M.self?`<p class="rlab tscenter">✓ The last guess matched ${esc(tsName(owner))}’s word.</p>`:''}}
   if(mine)o+=`<div class="tsnav"><button class="btn" data-a="tsuprev" ${p<0?'disabled':''} aria-label="Previous page">◀</button>${p<last?'<button class="btn primary" data-a="tsunext" aria-label="Next page">Next page ▶</button>':'<button class="btn primary" data-a="tsudone">Done with my book</button>'}</div>`;
   else o+=g.auto?`<p class="rlab tscenter">${p===last&&g.scoring!=='none'?`${esc(tsName(owner))} is giving out points…`:`▶️ Auto-play: ${esc(tsName(owner))}’s book`}</p>`:`<p class="rlab tscenter">${esc(tsName(owner))} is flipping through ${big?'their':'the'} book${p===last?' and giving out points':''}…</p>`;
+  if(!mine&&!big&&!g.auto)o+=tsNudgeRow(g,V,big);
   return o+'</div>'}
 /* "Auto-play": the countdown to the next page on every screen, with ⏸ / ▶ for the owner and the host */
 function tsAutoLeft(g){const R=g.rv,dur=g.auto*1000;return R.pz!=null?R.pz:Math.max(0,Math.min(dur,(R.t||Date.now())+dur-Date.now()))}
@@ -210,6 +229,7 @@ function tsUiAct(a,b,k){if(a==='tsubig'){TSBIG=!tsBig();try{localStorage.setItem
   const g=tsGx();if(!g||tsBig())return;
   switch(a){
     case 'tsuword':tsSend({a:'word',slot:+k});return;
+    case 'tsunudge':{const to=String(k||'').split(',').filter(Boolean);if(to.length)tsSend({a:'nudge',to});return}
     case 'tsunext':tsSend({a:'rvnext',...(g.rv?{p:g.rv.p}:{})});return;
     case 'tsuprev':tsSend({a:'rvprev',...(g.rv?{p:g.rv.p}:{})});return;
     case 'tsumark':{const [f,p]=String(k).split(':');tsSend({a:'mark',f,p:+p});return}
@@ -255,6 +275,7 @@ function tsFxMode(g,V){if(!g||!V||tsBig()||!g.ps.includes(V.id))return null;
   return null}
 function tsFx(){/* sounds: checked on every redraw too, so a page that's answered within moments still gets its page turn */try{tsSndCheck()}catch(e){}let L=document.getElementById('tsfx');const on=S.game==='telestrations'&&tsPlayOn()&&S.started&&!S.demo&&S.screen==='score'&&tsLinked()&&!act().some(p=>p.bot);
   const g=on?tsGx():null,ok=g&&!tsStale(g),V=ok?tsViewer():null,F=ok?tsFxMode(g,V):null;
+  /* "Nudge": a toast, buzz and bell on the nudged phone */try{if(ok)tsNudgeFx(g)}catch(e){}
   /* the sketch pad */
   const pr=ok&&V&&!tsBig()&&g.phase==='play'&&g.ps.includes(V.id)&&!tsDoneP(g,V.id)?tsPrompt(g,V.id):null;
   try{if(typeof tsPadSync==='function'){
@@ -275,6 +296,8 @@ setInterval(()=>{try{tsFx()}catch(e){}},700);
 /* the sketch timer on screen, and the host closes the sketch step when time is up */
 setInterval(()=>{try{document.querySelectorAll('.tstmr[data-end]').forEach(el=>{const ms=+el.dataset.end-Date.now(),b=el.querySelector('b');if(b)b.textContent=ms>0?tsClock(ms):'Finish up!';el.classList.toggle('low',ms<10000)});
   if(S.game!=='telestrations'||!tsPlayOn()||!S.started||S.demo||!tsRes2()||(typeof LKOPTR!=='undefined'&&LKOPTR))return;if(S.tsg&&!tsStale(S.tsg)&&(tsTimeUp(S.tsg)||tsLinked()&&lkHost()&&(tsRepair(S.tsg)||tsAutoStep(S.tsg)))){save();render()}}catch(e){}},500);
+/* "Nudge": redraw when a cooldown ends or the reveal's 20 s pass */
+setInterval(()=>{try{if(S.game!=='telestrations')return;const now=Date.now();if([...document.querySelectorAll('#app [data-tsre]')].some(e=>+e.dataset.tsre<=now))render()}catch(e){}},500);
 /* the auto-play countdown bar on every screen */
 setInterval(()=>{try{document.querySelectorAll('.tsauto[data-t]').forEach(el=>{const dur=+el.dataset.dur,left=Math.max(0,Math.min(dur,+el.dataset.t+dur-Date.now())),i=el.querySelector('.tsautobar i'),b=el.querySelector('.tsautot b');
   if(i)i.style.width=(100*left/dur).toFixed(1)+'%';if(b)b.textContent=String(Math.ceil(left/1000))})}catch(e){}},200);
@@ -291,6 +314,7 @@ function tsSfx(kind){if(!SET.sound)return;const c=typeof ac==='function'?ac():nu
   else if(kind==='timeup'){tsTone(c,660,t,.16,'triangle',.18);tsTone(c,440,t+.15,.32,'triangle',.18)}
   else if(kind==='tada'){if(typeof brass==='function'){brass(c,392,t,.1,{vol:.07});[523,659,784].forEach((f,i)=>brass(c,f,t+.16,.55,{vol:.06,pan:(i-1)*.3}))}
     else{tsTone(c,392,t,.12,'triangle',.18);[523,659,784].forEach(f=>tsTone(c,f,t+.16,.6,'triangle',.12))}}
+  else if(kind==='bell'){/* a little desk bell, struck twice */[0,.2].forEach(d=>{tsTone(c,1568,t+d,.7,'sine',.17);tsTone(c,3136,t+d,.35,'sine',.05);tsTone(c,2349,t+d,.5,'triangle',.035)})}
   else if(kind==='chime'){tsTone(c,1319,t,.5,'sine',.1);tsTone(c,1976,t+.08,.6,'sine',.07)}}catch(e){}}
 let TSSF=null;
 /* the sound events right now on this screen: [kind, key]. The big board (and anyone just watching) only gets the reveal's */
