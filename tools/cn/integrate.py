@@ -59,6 +59,7 @@ rep("    case 'dwstart':", """    case 'cnstart':{switchGame('codenames');resetS
     case 'cnmatch':{if(S.started&&cnPlayOn())break;CNX().match=[1,3,5,0].includes(+k)?+k:1;cnKeep();break}
     case 'cntimer':{if(S.started&&cnPlayOn())break;CNX().timer=[60,120,180].includes(+k)?+k:0;cnKeep();break}
     case 'cnpack':{if(S.started&&cnPlayOn())break;const X=CNX(),L=(X.packs||[]).slice();X.packs=L.includes(k)?L.filter(x=>x!==k):[...L,k];cnKeep();break}
+    case 'cnvariant':{if(S.started&&cnPlayOn())break;CNX().variant=['std','coop','three'].includes(k)?k:'std';cnKeep();break}
     case 'cnownonly':{if(S.started&&cnPlayOn())break;CNX().ownOnly=CNX().ownOnly?0:1;cnKeep();break}
     case 'cnrecwin':{(S.cnrec=S.cnrec||{}).win=k;cnRecWin();break}
     case 'cnrecwhy':{(S.cnrec=S.cnrec||{}).why=k;break}
