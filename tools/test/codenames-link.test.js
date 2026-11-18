@@ -11,6 +11,8 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   for(let i=1;i<5;i++){await PG[i].evaluate(c=>{window.__htfast=1;SET.toursOff=true;lkJoin(c)},code);await W(2500);await PG[i].evaluate(id=>lkPick(id),ids[i]);await W(800)}
   await W(1500);
   const teams=await H.evaluate(()=>{const g=S.cng;return g&&{phase:g.phase,tm:g.tm,spy:g.spy,ui:!!document.querySelector('.cnteams'),ok:cnTeamsOK(g)}});
+  const capui=await H.evaluate(()=>{const g=S.cng;return ['r','b'].every(t=>g.cap&&cnOps(g,t).includes(g.cap[t]))&&document.querySelectorAll('.cnteams .cnrole').length>=3&&/Captain/.test(document.querySelector('.cnteams').innerText)});
+  ok('Captain: each team starts with a ⭐ captain (a guesser), shown on the team screen',capui,capui);
   ok('Teams: every player is on Red or Blue with a spymaster each, shown on the team screen',teams&&teams.phase==='teams'&&teams.ui&&teams.ok&&Object.keys(teams.tm).length===5,teams);
   await PG[2].evaluate(()=>document.querySelector('[data-a="cnubegin"]').click());await W(1500);
   const st=await H.evaluate(()=>({phase:S.cng.phase,turn:S.cng.turn,spy:S.cng.spy,tm:S.cng.tm,key:S.cng.key,words:S.cng.words}));
@@ -48,10 +50,19 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   ok('Confirm: the word is revealed on every phone',rv.r===t&&rvs.every(Boolean),{rv,rvs});
   if(process.env.SHOT){await pgOf(ops[0]).evaluate(()=>{const i=document.getElementById('cnchatin');i.value='Ocean fits wave and shell?';i.form.requestSubmit()});await W(800);await tapW(ops[0],own[1]);await W(1200);await pgOf(ops[0]).screenshot({path:'/tmp/cn-guess.png'});await pgOf(st.spy[t]).evaluate(()=>{document.querySelector('.cngrid').scrollIntoView()});await pgOf(st.spy[t]).screenshot({path:'/tmp/cn-spy.png'});await pgOf(opp.find(p=>st.spy[cnO(t)]!==p)||opp[0]).screenshot({path:'/tmp/cn-other.png'})}
   /* play to the end: spymasters give clues, guessers agree on a word (usually their own) */
-  const end=Date.now()+300000;let acts=0;
+  const end=Date.now()+300000;let acts=0;global.window=global.window||{};
   while(Date.now()<end){const g=await H.evaluate(()=>({phase:S.cng.phase,turn:S.cng.turn,rev:S.cng.rev,votes:S.cng.votes,n:S.cng.n}));if(g.phase==='done')break;
     if(g.phase==='clue'){const p=pgOf(st.spy[g.turn]);await p.evaluate(n=>{const i=document.getElementById('cnclue');if(!i)return;i.value='qzx'+n;document.querySelector('[data-a="cnunum"][data-k="1"]').click();document.querySelector('button[form="cnclueform"]').click()},g.n);acts++;await W(1200);continue}
     const T=g.turn,O=Object.keys(st.tm).filter(p=>st.tm[p]===T&&st.spy[T]!==p),L=st.key.map((c,i)=>i).filter(i=>!g.rev[i]),mine=L.filter(i=>st.key[i]===T);
+    if(O.length>1&&!window.__capdone){window.__capdone=1;const cap=await H.evaluate(t=>S.cng.cap[t],T),other=O.find(p=>p!==cap),tgt=mine[0]??L[0];
+      for(const p of O)if(g.votes[p]!=null)await pgOf(p).evaluate(i=>document.querySelector(`.cngrid [data-a="cnutap"][data-k="${i}"]`).click(),g.votes[p]);await W(800);
+      await tapW(cap,tgt);await W(1200);await pgOf(other).evaluate(()=>{window.__toasts=[];const o=window.toast;window.toast=(m,...a)=>{window.__toasts.push(m);return o(m,...a)}});
+      await pgOf(cap).evaluate(()=>document.querySelector('#cnfx [data-a="cnunudge"]').click());await W(1500);
+      const nz=await pgOf(other).evaluate(()=>window.__toasts.some(m=>/waiting for your vote/.test(m)));
+      ok('Nudge: the captain’s 🔔 Nudge pops a reminder on the teammate who hasn’t voted',nz,nz);
+      const pb=await pgOf(cap).evaluate(()=>{const b=document.querySelector('#cnfx [data-a="cnupush"]');if(!b)return 'no push button';b.click();return true});await W(1500);
+      const pr=await H.evaluate(i=>!!S.cng.rev[i]||S.cng.phase==='done',tgt);
+      ok('Captain: ⭐ pushes the vote through without waiting for a teammate who forgot to vote',pb===true&&pr,{pb,pr});continue}
     const pick=Math.random()<.75&&mine.length?mine[0]:L.filter(i=>st.key[i]!=='x')[0]??L[0];
     for(const p of O)if(g.votes[p]!==pick)await tapW(p,pick);await W(1200);
     await pgOf(O[0]).evaluate(()=>{const b=document.querySelector('#cnfx .cnconfirm');if(b&&!b.disabled)b.click()});acts++;await W(1200)}

@@ -82,8 +82,8 @@ function cnTile(g,i,V,R){const w=g.words[i],r=g.rev[i],c=g.key[i],key=cnSeesKey(
   const cls=['cnt',r?'rev k-'+c:key?'key k-'+c:'',me&&!r?'tap':'',V&&g.votes[V.id]===i?'myvote':'',CNFLASH===String(i)?'flash':''].filter(Boolean).join(' ');
   const lab=r?`${w}: ${c==='x'?'assassin':c==='n'?'bystander':CNT[c]+' agent'}`:key?`${w} (${c==='x'?'assassin':c==='n'?'bystander':CNT[c]})`:w;
   return `<button class="${cls}" data-a="cnutap" data-k="${i}" aria-label="${esc(lab)}" ${r?'aria-disabled="true"':''}>${r?`<span class="cnface">${c==='x'?cnIm('cn-assassin','assassin'):c==='n'?cnIm('cn-bystander','bystander'):cnIm(cnTI('cn-agent',c),'agent')}</span>`:''}<span class="cnw">${esc(w)}</span>${key&&!r&&c==='x'?'<span class="cnx" aria-hidden="true">☠️</span>':''}${voters.length?`<span class="cnvotes">${voters.map(p=>{const q=act().find(x=>x.id===p);return `<i style="${q?pc(q.color):''}" title="${esc(cnName(p))}">${esc((q?nm(q):'?').slice(0,1))}</i>`}).join('')}</span>`:''}</button>`}
-function cnTeamsUI(g){const why=cnTeamsWhy(g),col=t=>`<div class="cnteam t-${t}"><h3>${CNTE[t]} ${CNT[t]}</h3>${g.ps.filter(p=>g.tm[p]===t).map(p=>{const q=act().find(x=>x.id===p);return `<div class="cnmem" style="${q?pc(q.color):''}"><b>${esc(cnName(p))}</b>${g.spy[t]===p?'<span class="cnrole">🕵️ Spymaster</span>':`<button class="btn sm" data-a="cnuspy" data-k="${p}">🕵️ Make spymaster</button>`}<button class="btn sm" data-a="cnuteam" data-k="${p}:${cnOther(t)}" aria-label="Move ${esc(cnName(p))} to ${CNT[cnOther(t)]}">→ ${CNTE[cnOther(t)]}</button></div>`}).join('')||'<p class="rlab">Nobody yet.</p>'}</div>`;
-  return `<div class="panel cnteams"><p class="rlab">Pick teams. Each team needs a spymaster and at least one guesser. ${CNTE[g.start]} <b>${CNT[g.start]}</b> goes first (9 agents to find; the other team has 8).</p><div class="cncols">${col('r')}${col('b')}</div>
+function cnTeamsUI(g){const why=cnTeamsWhy(g),col=t=>`<div class="cnteam t-${t}"><h3>${CNTE[t]} ${CNT[t]}</h3>${g.ps.filter(p=>g.tm[p]===t).map(p=>{const q=act().find(x=>x.id===p);return `<div class="cnmem" style="${q?pc(q.color):''}"><b>${esc(cnName(p))}</b>${g.spy[t]===p?'<span class="cnrole">🕵️ Spymaster</span>':`${(g.cap||{})[t]===p?'<span class="cnrole">⭐ Captain</span>':`<button class="btn sm" data-a="cnucap" data-k="${p}">⭐ Captain</button>`}<button class="btn sm" data-a="cnuspy" data-k="${p}">🕵️ Spymaster</button>`}<button class="btn sm" data-a="cnuteam" data-k="${p}:${cnOther(t)}" aria-label="Move ${esc(cnName(p))} to ${CNT[cnOther(t)]}">→ ${CNTE[cnOther(t)]}</button></div>`}).join('')||'<p class="rlab">Nobody yet.</p>'}</div>`;
+  return `<div class="panel cnteams"><p class="rlab">Pick teams. Each team needs a spymaster and at least one guesser. The ⭐ captain can push the team’s vote through if someone forgets to vote. ${CNTE[g.start]} <b>${CNT[g.start]}</b> goes first (9 agents to find; the other team has 8).</p><div class="cncols">${col('r')}${col('b')}</div>
     <div class="cnrow"><button class="btn" data-a="cnushuffle">🔀 Shuffle teams</button><button class="btn primary" data-a="cnubegin" ${why?'disabled':''}>Start</button></div>${why?`<p class="rlab">${esc(why)}</p>`:''}${!cnLinked()?'<p class="hint">Tip: link everyone’s phone so each spymaster can see the key privately.</p>':''}</div>`}
 function cnClueLine(g){if(g.phase==='done'||g.phase==='teams')return '';if(g.phase==='clue')return `<div class="cnclue t-${g.turn}"><span>${CNTE[g.turn]} <b>${esc(cnName(g.spy[g.turn]))}</b> is thinking of a clue…</span></div>`;
   const n=g.clue.n,left=n>0?n+1-g.guesses:null;return `<div class="cnclue t-${g.turn}"><span class="cncw">${CNTE[g.turn]} <b>${esc(g.clue.w)}</b> · <b class="num">${n<0?'∞':n}</b></span><span class="rlab">${left!=null?`${left} guess${left===1?'':'es'} left`:'No limit'}${g.guesses?` · ${g.guesses} so far`:''}</span></div>`}
@@ -136,13 +136,16 @@ function cnUiAct(a,b,k){const g=cnGg();if(!g)return;const V=cnViewer(),R=cnRole(
     case 'cnupanel':CNPANEL=!CNPANEL;return;
     case 'cnuq':cnChatSend(k);return;
     case 'cnunext':mv({a:'next'});return;
+    case 'cnucap':mv({a:'cap',who:k});return;
+    case 'cnupush':mv({a:'push'});return;
+    case 'cnunudge':mv({a:'nudge'});return;
     case 'cnumvote':mv({a:'mvote',v:k});return}}
 function cnTick(){if(!cnPlayOn()||!S.started||S.finished||S.demo||S.screen!=='score')return;if(!cnRes2())return;if(lkqRun()){save();render();return}
   if(act().some(p=>p.bot))return;
   const g=cnGg();if(!g||cnStale(g)){const X=CNX();const prev=g&&!cnStale(g)?null:(X.last||null);S.cng=cnDeal({words:X.words,own:X.own,ownOnly:X.ownOnly,match:X.match,solo:!cnLinked(),prev})||S.cng;save();render();return}
   /* one device or linked phones: phones can link after the board is dealt */
   if(g.solo!==!cnLinked()){g.solo=!cnLinked();save();render()}
-  if(g.phase!=='teams'&&g.phase!=='done'){const X=CNX(),L={tm:g.tm,spy:g.spy};if(JSON.stringify(X.last||{})!==JSON.stringify(L)){X.last=L;cnKeep()}}}
+  if(g.phase!=='teams'&&g.phase!=='done'){const X=CNX(),L={tm:g.tm,spy:g.spy,cap:g.cap};if(JSON.stringify(X.last||{})!==JSON.stringify(L)){X.last=L;cnKeep()}}}
 function cnSyncScorer(g){if(!g)return;const M=g.match,mw=cnMatchWin(g);S.cnrec={win:mw,why:M&&M.fmt!==1?'match':g.why,fmt:M?M.fmt:1,wins:M?{...M.wins}:null,games:M?M.no:1};act().forEach(p=>{const t=g.tm[p.id];p.cn={tm:t||'',spy:g.spy[t]===p.id?1:0,win:mw&&t===mw?1:0,gw:M?(M.pw[p.id]||0):0}});S.hr=1}
 
 /* ---------- team panel: its own layer, so redraws never wipe what you're typing ---------- */
@@ -160,17 +163,22 @@ function cnFeedHtml(g,t,me){const L=cnFeed(g,t);if(!L.length)return '<p class="c
     if(x.kind==='rev'){const c=x.r.c;return `<div class="cnsys k-${c}">${esc(g.words[x.r.i])}: ${c==='x'?'☠️ the assassin':c==='n'?'🧍 a bystander':c===t?'✅ one of ours':'❌ one of theirs'}</div>`}
     const p=act().find(q=>q.id===x.pid),mine=x.pid===me;return `<div class="chmsg${mine?' mine':''}" style="${p?pc(p.color):''}">${mine?'':`<b>${esc(p?nm(p):'?')}${g.spy[t]===x.pid?' 🕵️':''}</b>`}<span>${esc(x.m)}</span><small>${new Date(x.t).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</small></div>`}).join('')}
 const CNQ=['👍 Agree','🤔 Not sure','Which one?','🛑 Let’s stop','Go for it!'];
-function cnVoteHtml(g,V,R){if(g.phase!=='guess'||!R.t||g.turn!==R.t)return '';const O=cnOps(g,R.t),agree=cnAgree(g),mine=V?g.votes[V.id]:undefined;
+function cnVoteHtml(g,V,R){if(g.phase!=='guess'||!R.t||g.turn!==R.t)return '';const O=cnOps(g,R.t),agree=cnAgree(g),mine=V?g.votes[V.id]:undefined,cap=(g.cap||{})[R.t];
   const lab=v=>v==='end'?'🛑 stop':v===undefined||v===null?'…':esc(g.words[v]);
-  const rows=O.map(p=>{const q=act().find(x=>x.id===p);return `<span class="cnv" style="${q?pc(q.color):''}"><b>${esc(cnName(p))}</b> ${lab(g.votes[p])}</span>`}).join('');
-  const can=R.op&&agree!==null;
-  return `<div class="cnvotebar"><div class="cnvs">${rows}</div>${R.op?`<div class="cnvbtns">${cnCanEnd(g)?`<button class="btn${mine==='end'?' primary':''}" data-a="cnuend" aria-label="Vote to stop guessing">🛑 Stop</button>`:''}<button class="btn primary cnconfirm" data-a="cnuconfirm" ${can?'':'disabled'}>${can?(agree==='end'?'✓ Stop guessing':`✓ Reveal ${esc(g.words[agree])}`):'✓ Confirm'}</button></div><p class="rlab cnvhint">${mine===undefined?'Tap a word on the board to vote.':can?'Everyone agrees.':O.length>1?'Confirm unlocks when everyone picks the same word.':''}</p>`:'<p class="rlab cnvhint">Your team is voting.</p>'}</div>`}
+  const rows=O.map(p=>{const q=act().find(x=>x.id===p);return `<span class="cnv" style="${q?pc(q.color):''}"><b>${p===cap?'⭐':''}${esc(cnName(p))}</b> ${lab(g.votes[p])}</span>`}).join('');
+  const can=R.op&&agree!==null,push=!can&&V&&V.id===cap?cnPushable(g):null,missing=O.filter(p=>g.votes[p]===undefined||g.votes[p]===null),others=missing.filter(p=>!V||p!==V.id);
+  const nudgeOK=R.op&&others.length&&!(g.nudge&&Date.now()-g.nudge.at<10000&&g.nudge.by===(V&&V.id));
+  return `<div class="cnvotebar"><div class="cnvs">${rows}</div>${R.op?`<div class="cnvbtns">${cnCanEnd(g)?`<button class="btn${mine==='end'?' primary':''}" data-a="cnuend" aria-label="Vote to stop guessing">🛑 Stop</button>`:''}${push!==null?`<button class="btn primary cnconfirm" data-a="cnupush">⭐ ${push==='end'?'Stop guessing':'Reveal '+esc(g.words[push])}</button>`:`<button class="btn primary cnconfirm" data-a="cnuconfirm" ${can?'':'disabled'}>${can?(agree==='end'?'✓ Stop guessing':`✓ Reveal ${esc(g.words[agree])}`):'✓ Confirm'}</button>`}</div>
+    <div class="cnvhint"><span class="rlab">${mine===undefined?'Tap a word on the board to vote.':can?'Everyone agrees.':push!==null?`You’re captain: push it through without waiting for ${others.map(p=>esc(cnName(p))).join(', ')||'everyone'}.`:O.length>1?`Waiting for ${missing.map(p=>esc(cnName(p))).join(', ')||'everyone to pick the same word'}.`:''}</span>${others.length&&R.op?`<button class="btn sm cnnudge" data-a="cnunudge" ${nudgeOK?'':'disabled'}>🔔 Nudge</button>`:''}</div>`:'<p class="rlab cnvhint">Your team is voting.</p>'}</div>`}
 
 function cnPanelMode(g,V,R){if(!g||g.phase==='teams'&&!cnLinked())return '';
   if(!cnLinked())return g.phase==='clue'?'clue':g.phase==='guess'?'solo':'';
   if(!V||!R.t)return '';if(g.phase==='clue'&&R.spy&&g.turn===R.t)return 'clue';return 'chat'}
+let CNNUDGE=null;
+function cnNudgeFx(g,V){const n=g&&g.nudge;if(!n||!V)return;const key=g.gid+':'+n.k;if(CNNUDGE===null){CNNUDGE=Date.now()-n.at>15000?key:'';}if(CNNUDGE===key)return;CNNUDGE=key;if(n.to.includes(V.id)&&g.phase==='guess'){toast(`🔔 ${cnName(n.by)} is waiting for your vote. Tap a word on the board.`);vibe([60,60,60])}}
 function cnFx(){let L=document.getElementById('cnfx');const g=S.game==='codenames'&&cnPlayOn()&&S.started&&!S.demo&&S.screen==='score'?cnGg():null;
-  const V=g?cnViewer():null,R=g?cnRole(g,V):{},mode=g&&!cnStale(g)&&!act().some(p=>p.bot)?cnPanelMode(g,V,R):'';
+  const V=g?cnViewer():null,R=g?cnRole(g,V):{};try{if(g)cnNudgeFx(g,V)}catch(e){}
+  const mode=g&&!cnStale(g)&&!act().some(p=>p.bot)?cnPanelMode(g,V,R):'';
   if(!mode){if(L)L.remove();document.documentElement.style.removeProperty('--cnpad');return}
   const sig=mode+(R.t||'')+(mode==='chat'&&!CNPANEL?'-min':'');
   if(!L||L.dataset.sig!==sig){if(L)L.remove();L=document.createElement('div');L.id='cnfx';L.className='cnlayer t-'+(R.t||g.turn);L.dataset.sig=sig;

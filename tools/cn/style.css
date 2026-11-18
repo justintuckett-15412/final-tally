@@ -65,3 +65,4 @@ html[style*="--cnpad"] #app{padding-bottom:var(--cnpad)}
 .cnwinimg{width:120px;height:120px;object-fit:contain;display:block;margin:0 auto}
 .cnmatch{text-align:center;margin:0 0 4px}
 .cndone.t-n{border-top-color:#999}
+.cnvhint{display:flex;align-items:center;justify-content:space-between;gap:6px}.cnnudge{padding:3px 10px!important;min-height:0;font-size:13px!important;white-space:nowrap}
