@@ -33,6 +33,14 @@ const {mk,W,ok,done,chromium}=require('./link.js');
     others.forEach(p=>(g.P[p].hand||[]).forEach(c=>{if(html.includes(`data-k="card:${c}"`))leak.push('card '+c)}));
     return {mine:(!dwObjP(g,me)||html.includes(dwObjP(g,me).n))&&!!document.querySelector('.dwdock'),leak}},ann);
   const prog=await P.evaluate(me=>{const mo=document.querySelector('.dwmo .dwchk'),sec=document.querySelector('.dwobj .dwchk');return !!mo&&mo.querySelectorAll('li').length>0&&!!sec&&/of \d+ ✓|Your secret objective/.test(document.querySelector('.dwobj summary').innerText)||[!!mo,!!sec]},ann);
+  const goal=await P.evaluate(()=>{const b=document.querySelector('[data-a="dwgoal"]');if(!b)return 'no Goal button';b.click();const sh=document.querySelector('.dwgoal');if(!sh)return 'no sheet';const t=sh.innerText;const ok1=/Progress/.test(t)&&/Main objective/.test(t)&&!!sh.querySelector('.dwchk');
+    document.querySelector('.dwgoal [data-a="lpclose"]').click();const box=document.querySelector('.dwmo[data-a="dwgoal"]');if(!box)return 'box not tappable';box.click();const ok2=!!document.querySelector('.dwgoal');document.querySelector('.dwgoal [data-a="lpclose"]').click();return ok1&&ok2||[ok1,ok2,t.slice(0,200)]});
+  ok('Objective: the 🎯 Goal button and the objective box both open the objective with its progress',goal===true,goal);
+  const vc=await P.evaluate(()=>{const keep=S.dwg,g=S.dwg=JSON.parse(JSON.stringify(keep));if(g.mode==='coop'||g.mode==='loyal')return 'mode '+g.mode;g.ask=null;g.q=[];g.vote=null;const me=g.turn,t=g.ps.find(p=>p!==me);g.P[me].voted=false;if(!dwMove(g,me,{a:'exile',target:t})){S.dwg=keep;render();return 'no vote '+JSON.stringify({ph:g.phase,turn:g.turn,v:!!g.vote,ex:g.P[t].exiled,mode:g.mode})}let k=0;
+    while(g.vote&&k++<10){const a=dwActor(g);dwMove(g,a,{vote:a!==t})}render();const c=document.querySelector('.dwvcard');if(!c)return 'no card';const tx=c.innerText;
+    const okc=/Vote (passed|failed)/i.test(tx)&&c.querySelectorAll('.dwvlist li').length===Object.keys(g.lastVote.got).length&&/exile/i.test(tx);c.querySelector('button[data-a="dwvok"]').click();const gone=!document.querySelector('.dwvcard');
+    S.dwg=keep;DWVSEEN='';render();return okc&&gone||[okc,gone,tx.slice(0,200)]});
+  ok('Vote result card: shows who voted how and the result, and OK closes it',vc===true,vc);
   ok('Progress: the main objective shows a checklist, and your secret objective shows your own',prog===true,prog);
   ok('Privacy: you see your own objective and hand, never another player’s',priv.mine&&!priv.leak.length,priv);
   /* these screen steps check buttons, not crossroads: put held crossroads cards aside and answer any pending question */

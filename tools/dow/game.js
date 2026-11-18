@@ -328,6 +328,8 @@ function dwObjCardOK(g,c){if(dwStarter(c)&&g.mo.id!=='winter')return false;const
 function dwVoteDone(g){const V=g.vote;g.vote=null;const yes=Object.values(V.got).filter(v=>v).length,no=Object.values(V.got).filter(v=>!v).length;
   let pass=yes>no;if(yes===no){const f=V.got[g.fp];pass=f===undefined?false:f}
   dwLog(g,`Vote: ${yes} yes, ${no} no – ${pass?'passed':'failed'}`,'🗳️');
+  /* kept for the vote result card every device shows once */
+  g.lastVote={id:(g.lastVote?g.lastVote.id:0)+1,at:Date.now(),rnd:g.rndNo,kind:V.kind,msg:V.msg,target:V.target,by:V.by,xr:V.no,got:{...V.got},yes,no,pass,tie:yes===no,fp:g.fp};
   if(V.kind==='exile'&&pass)dwExile(g,V.target);
   if(V.kind==='xr'&&typeof dwXrVoted==='function')dwXrVoted(g,V.no,pass,V.ctx||{},V.by)}
 function dwExile(g,t){const P=g.P[t];P.exiled=true;dwAnn(g,'Exiled!',`${nmid(t)} is exiled from the colony`,'🚪');dwLog(g,`${nmid(t)} is exiled`,'🚪');

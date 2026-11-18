@@ -85,7 +85,7 @@ function dwColony(g){const C=(g.loc||{}).colony||{},mo=g.mo?dwMOid(g.mo.id):null
   return `<div class="panel dwcol" style="--dwbg:url(art/dw-loc-colony.webp)"><div class="dwtrack"><span title="Morale">❤️ <b class="num">${g.morale??'·'}</b></span><span title="Rounds left">⏳ <b class="num">${g.round??'·'}</b></span><span title="Food tokens">${dwIm('dw-tok-food','food tokens')} <b class="num">${g.food??0}</b></span>${g.starve?`<span title="Starvation tokens">${dwIm('dw-starve','starvation')} <b class="num">${g.starve}</b></span>`:''}<span title="Waste pile">🗑️ <b class="num">${(g.waste||[]).length}</b></span><span title="Helpless survivors">🧒 <b class="num">${g.helpless||0}</b></span></div>
     <div class="dwents">${(C.ent||[]).map((e,i)=>`<span class="dwent" title="Entrance ${i+1}"><small>${i+1}</small>${dwZI().repeat(e.z||0)}${dwBI().repeat(e.bar||0)}${'·'.repeat(Math.max(0,(DWCOL.zombPerEntrance||3)-(e.z||0)-(e.bar||0)))}</span>`).join('')}</div>
     <div class="dwsvrow">${dwSurvAt(g,'colony').map(id=>dwSvChip(g,id)).join('')||'<span class="rlab">No survivors at the colony.</span>'}</div>
-    ${M?`<div class="dwmo"><b>🎯 ${esc(M.name||mo.n)}${side==='hc'?' ⚠️':''}</b><small>${esc(M.goal)}</small>${g.phase!=='setup'?dwChk(dwMOList(g)):''}${g.mo.cards&&g.mo.cards.length||g.mo.tokens?`<small>Under the objective: ${g.mo.cards&&g.mo.cards.length?g.mo.cards.length+' card'+(g.mo.cards.length>1?'s':''):''}${g.mo.tokens?` ${g.mo.tokens} zombie token${g.mo.tokens>1?'s':''}`:''}</small>`:''}</div>`:''}
+    ${M?`<div class="dwmo" data-a="dwgoal" role="button" tabindex="0" aria-label="Show the objective"><b>🎯 ${esc(M.name||mo.n)}${side==='hc'?' ⚠️':''}</b><small>${esc(M.goal)}</small>${g.phase!=='setup'?dwChk(dwMOList(g)):''}${g.mo.cards&&g.mo.cards.length||g.mo.tokens?`<small>Under the objective: ${g.mo.cards&&g.mo.cards.length?g.mo.cards.length+' card'+(g.mo.cards.length>1?'s':''):''}${g.mo.tokens?` ${g.mo.tokens} zombie token${g.mo.tokens>1?'s':''}`:''}</small>`:''}</div>`:''}
     ${cr?`<div class="dwcrisis"><b>${dwIm('dw-back-crisis','crisis')} Crisis: ${esc(cr.n)}</b><small>Needs ${cr.need.map(k=>DWSYM[k]+' '+DWSYMN[k]).join(' or ')} · ${(g.crisis.add||[]).length} card${(g.crisis.add||[]).length===1?'':'s'} added face down</small></div>`:''}</div>`}
 function dwLocs(g){return `<div class="dwlocs">${DWLOC.map(L=>{const st=(g.loc||{})[L.id]||{},sv=dwSurvAt(g,L.id),dk=((g.decks||{})[L.id]||[]).length;
   return `<div class="dwloc" style="--dwbg:url(art/dw-loc-${L.id}.webp)"><div class="dwlh"><b>${DWLI[L.id]} ${esc(L.n)}</b><small>${sv.length}/${L.surv} · ${dwIm('dw-back-item','cards left in this deck')}${dk}</small></div><div class="dwlz">${dwZI().repeat(st.z||0)}${dwBI().repeat(st.bar||0)}${'·'.repeat(Math.max(0,L.zomb-(st.z||0)-(st.bar||0)))}${st.noise?` <span title="Noise">${dwIm('dw-noise','noise')}${st.noise}</span>`:''}</div><div class="dwsvrow">${sv.map(id=>dwSvChip(g,id)).join('')}</div></div>`}).join('')}</div>`}
@@ -119,7 +119,7 @@ function dwActions(g,V){const S2=DWSEL||{},P=g.P[V.id]||{},dice=P.dice||[],out=[
   if(S2.die!=null&&S2.s==null){out.push(dwBtn({a:'clean',die:S2.die},'🗑️ Clean waste'));for(let n=1;n<=Math.min(g.food||0,6-dv);n++)out.push(dwBtn({a:'food',die:S2.die,n},`🥫 Spend ${n} food: ${dv}→${dv+n}`))}
   return out}
 function dwPlayUI(){const g=dwGg(),P=act();
-  let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="Dead of Winter">${g&&g.phase==='done'?'🏁':'🧟'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>`;
+  let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="Dead of Winter">${g&&g.phase==='done'?'🏁':'🧟'}</h1>${g&&g.mo&&g.phase!=='setup'?`<button class="btn sm undo" data-a="dwgoal" aria-label="Show the objective">🎯 Goal</button>`:''}<button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>`;
   if(!g||(typeof dwStale==='function'&&dwStale(g)))return out+`<div class="panel" style="padding:16px">${waitLoader(dwRes2()?'Digging out the colony…':'Waiting for the host phone…')}</div>`;
   const V=dwViewer(),hide=!!dwNeedHandoff(),aid=dwAct(g),ap=P.find(p=>p.id===aid);
   out+=`<div class="tabs hftabs nxtabs" role="list">${P.map(q=>{const Q=(g.P||{})[q.id]||{},n=[Q.lead,...(Q.follow||[])].filter(x=>x!=null&&g.sv[x]).length;return `<div class="tab" role="listitem" style="${pc(q.color)}"><div class="tn">${botHead(q)}${esc(nm(q))}${g.turn===q.id&&g.phase==='play'?' ▶':''}${g.fp===q.id?' ①':''}</div><div class="ts num">${g.phase==='done'&&g.fin&&g.fin[q.id]?(g.fin[q.id].win?'🏆':'✗'):n+'👤'}</div><div class="tr">${Q.exiled?'🚪 exiled · ':''}🃏${(Q.hand||[]).length} · 🎲${(Q.dice||[]).length}</div></div>`}).join('')}</div>`;
@@ -127,8 +127,9 @@ function dwPlayUI(){const g=dwGg(),P=act();
   out+=dwColony(g)+dwLocs(g);
   if(g.phase==='done')out+=dwEndUI(g);
   else if(hide){const h=dwNeedHandoff();out+=`<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="dwh-h" style="${pc(h.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="dwh-h">${esc(nm(h))}</h2><p class="rlab">${g.vote?'Time to vote, in secret.':g.ask&&g.ask.pid===h.id&&g.turn!==h.id?'A question for you.':'It’s your turn.'} Everyone else, look away.</p><button class="btn primary wide" data-a="dwshow" data-k="${h.id}">I’m ${esc(nm(h))}, show my cards</button></div></div>`}
-  else if(V)out+=dwMe(g,V)+(LPTIP==='dww:1'?'':dwDock(g,V));
+  else if(V)out+=dwMe(g,V)+(LPTIP==='dww:1'||LPTIP==='dwo:1'?'':dwDock(g,V));
   out+=dwLogBox(g);
+  out+=dwVoteCard(g);
   return out}
 function dwLogBox(g){const L=(g.lg||[]).slice(-8).reverse();return L.length?`<div class="sec"><div class="sec-h"><h3>What happened</h3></div><ul class="dwlog">${L.map(e=>`<li>${esc(e.ic||'')} ${esc(e.t)}</li>`).join('')}</ul></div>`:''}
 function dwMe(g,V){return `<div class="sec"><div class="sec-h"><h3>Your group</h3></div>${dwObjBox(g,V)}${dwXrBox(g,V)}${dwMySurvs(g,V)}${dwDice(g,V.id)}<div class="dwhand">${dwHandCards(g,V)}</div></div>`}
@@ -152,7 +153,9 @@ function dwSurvSheet(id){const D=dwSv(id);if(!D)return '';const g=dwGg(),x=g&&g.
   <div class="rs-body"><img class="dwps" src="${dwSP(id)}" alt="${esc(D.n)}" onerror="this.remove()"><p class="rlab">Attack ${D.atk}+ · search ${D.sr}+</p><p><b>${esc((D.at||'any')==='any'?'Anywhere':D.at==='noncolony'?'Away from the colony':DWLN[D.at]||D.at)}${D.die?` (${D.die}+ die)`:''}${D.opr?' · once per round':''}:</b> ${esc(D.ab)}</p>${x?`<p class="rlab">${esc(DWLN[x.loc]||'')} · ${x.w||0} wound${x.w===1?'':'s'}${x.fb?` (${x.fb} frostbite)`:''}${(x.eq||[]).length?' · equipped: '+x.eq.map(c=>esc((dwCard(c)||{}).n)).join(', '):''}</p>`:''}<p class="hint">The exact wording is on the card.</p></div></div></div>`}
 function dwItemSheet(c){const C=dwCard(c);if(!C)return '';return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet" role="dialog" aria-modal="true" aria-labelledby="lp-h" data-stop="1"><div class="rs-top"><div><h2 id="lp-h">${DWSYM[C.sym]||''} ${esc(C.n)}</h2><small class="lp-sub">${esc(DWSYMN[C.sym]||'')} · ${C.use==='equip'?'equip':C.use==='event'?'event':'play to the waste pile'} · ${C.d==='starter'?'starter item':esc(DWLN[C.d]||C.d)}</small></div><button class="btn sm" data-a="lpclose">Close</button></div><div class="rs-body"><p>${esc(C.say)}</p><p class="hint">The exact wording is on the card.</p></div></div></div>`}
 function dwUiAct(a,b,k){const g=dwGg();if(!g)return;if(a==='dwshow'){DWVIEW=k;DWSEL=null;return}const V=dwViewer();if(!V)return;
+  if(a==='dwvok'){DWVSEEN=dwVKey(dwGg());return}
   if(a==='dwwhat'){LPTIP='dww:1';return}
+  if(a==='dwgoal'){LPTIP='dwo:1';return}
   if(a==='dwsel'&&String(k).startsWith('only:')){LPTIP=null;DWSEL=null;k=String(k).slice(5)}
   if(a==='dwsel'&&String(k).startsWith('sd:')){const [,sv,dv]=String(k).split(':');DWSEL={s:+sv,die:+dv};vibe(6);return}
   if(a==='dwsel'){if(k==='none'){DWSEL=null;return}const [t,v]=String(k).split(':');DWSEL=DWSEL||{};
@@ -254,3 +257,31 @@ function dwExList(g,p,name,bt){const H=(sym)=>dwHandN(g,p,sym),Y=(sym,k)=>dwR(`$
   'Vengeance':[[dwR('Survivors removed from the game',g.removed||0,5)],[dwR('Survivors removed from the game',g.removed||0,4)]]};
   return T[name]?T[name][bt?1:0]:[]}
 function dwChk(L){return L.length?`<ul class="dwchk">${L.map(x=>`<li class="${x.ok===true?'ok':x.ok===false?'no':'q'}"><span aria-hidden="true">${x.ok===true?'✅':x.ok===false?'⬜':'❔'}</span><span>${esc(x.t)}${x.n!=null?`: <b class="num">${x.h} of ${x.n}</b>`:''}</span></li>`).join('')}</ul>`:''}
+/* ---------- objective sheet: tap 🎯 Goal or the objective box ---------- */
+function dwGoalSheet(){const g=dwGg();if(!g||!g.mo)return '';const V=dwViewer(),mo=dwMOid(g.mo.id),side=g.mo.side==='hc'?'hc':'std',M=mo[side]||mo.std;
+  const goal=side==='hc'&&/^Same/.test(M.goal||'')?`${mo.std.goal}. Hardcore: ${M.goal.replace(/^Same,?\s*/,'')}`:M.goal;
+  const L=dwMOList(g),done=L.filter(x=>x.ok).length;
+  const cardsNeeded=['leave','stock','cure'].includes(g.mo.id);
+  return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet dwgoal" role="dialog" aria-modal="true" aria-labelledby="lp-h" data-stop="1"${V?` style="${pc(V.color)}"`:''}><div class="rs-top"><div><h2 id="lp-h">🎯 ${esc(M.name||mo.n)}</h2><small class="lp-sub">Main objective · ${side==='hc'?'hardcore side ⚠️':'standard side'} · round ${g.rndNo||1}, ${g.round??'?'} left · morale ${g.morale??'?'}</small></div><button class="btn sm" data-a="lpclose">Close</button></div><div class="rs-body">
+    <p>${esc(goal)}</p>
+    <h3 class="dwwh">Progress${L.length?` · ${done} of ${L.length} ✓`:''}</h3>${dwChk(L)||'<p class="rlab">Nothing to track yet.</p>'}
+    ${g.mode==='coop'?'<p class="rlab">Co-op: everyone wins together when this is done.</p>':'<p class="rlab">To win you also need your own secret objective. A betrayer wins instead when morale reaches 0.</p>'}
+    ${cardsNeeded?'<p class="rlab">To put a card under the objective, tap the card in your hand on your turn and choose “🎯 Put under the main objective”.</p>':''}
+    ${V&&g.mode!=='coop'?`<h3 class="dwwh">Your secret objective</h3>${dwObjBox(g,V).replace('<details class="dwobj">','<details class="dwobj" open>')}`:''}
+    <p class="hint">The objective card has the full wording.</p></div></div></div>`}
+
+/* ---------- vote result card: shows once on each device after a vote ---------- */
+let DWVSEEN='';
+const dwVKey=g=>g&&g.lastVote?`${g.lastVote.at}:${g.lastVote.id}`:'';
+function dwVoteCard(g){const R=g&&g.lastVote;if(!R||g.phase==='done'||DWVSEEN===dwVKey(g))return '';
+  let what='';
+  if(R.kind==='exile')what=R.pass?`${esc(dwPName(R.target))} is exiled from the colony.`:`${esc(dwPName(R.target))} stays in the colony.`;
+  else if(R.kind==='xr'){const C=typeof DWXR!=='undefined'?DWXR.find(c=>c.no===R.xr):null;const o=C&&C.opts?(R.pass?C.opts[0]:C.opts[1]):null;what=o?`${R.pass?'👍':'👎'} ${esc(o.say)}`:(R.pass?'The 👍 choice happens.':'The 👎 choice happens.')}
+  const rows=Object.keys(R.got).map(p=>`<li><span>${esc(dwPName(p))}${p===R.fp?' <small class="rlab">(first player)</small>':''}</span><b>${R.got[p]?'👍 Yes':'👎 No'}</b></li>`).join('');
+  return `<div class="sheet-bg dwvote-bg" data-a="dwvok"><div class="sheet dwvcard ${R.pass?'pass':'fail'}" role="alertdialog" aria-modal="true" aria-labelledby="dwv-h" data-stop="1">
+    <div class="dwvhead"><span class="dwvic" aria-hidden="true">🗳️</span><div><h2 id="dwv-h">Vote ${R.pass?'passed':'failed'}</h2><small class="lp-sub">${esc(R.msg||'')}</small></div></div>
+    <div class="dwvtally"><span>👍 <b class="num">${R.yes}</b></span><span>👎 <b class="num">${R.no}</b></span></div>
+    ${R.tie?`<p class="rlab">Tie: the first player's vote decides.</p>`:''}
+    <ul class="dwvlist">${rows}</ul>
+    <p class="dwvwhat">${what}</p>
+    <button class="btn primary" data-a="dwvok" style="width:100%">OK</button></div></div>`}
