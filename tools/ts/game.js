@@ -5,6 +5,7 @@
      phase:'pick'|'play'|'reveal'|'roundEnd'|'done', step, steps, sub:{pid:1} (handed in this step), tEnd (timer end, ms),
      rv:{i (owner index in ps), p (page index; -1 = secret word)}, marks:{owner:{sketch:pid|null, guess:pid|null, self:bool, match:{pageIndex:bool}}},
      score:{pid:[r1,r2,...]}, n:moves,
+     auto (house rule "Auto-play" for the Big Reveal: seconds per page, 0 = the owner flips, official), rv.t (when the shown page started, host clock), rv.pz (paused: ms that were left),
      async (house rule "Pass when ready": each book moves on as soon as its page is done), at:{pid:page index they're on}, te:{pid:their own sketch timer end, ms} }
    Pages: a drawing d is a compact string from tsEnc (see draw.js); a guess d is text.
    Moves: tsMove(g,pid,mv) -> true when made. */
@@ -32,7 +33,7 @@ function tsPool(o){const base=o.words==='kid'?TSW_KID:TSW_STD,own=String(o.own||
   return [...new Set([...(o.ownOnly&&own.length>=12?[]:base),...own])]}
 function tsDeal(o={}){const ps=act().map(p=>p.id);if(ps.length<4)return null;
   const g={gid:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ps,round:0,rounds:o.scoring==='none'?0:3,dir:1,flip:o.flip!==false,
-    scoring:['friendly','competitive','none'].includes(o.scoring)?o.scoring:'friendly',colors:!!o.colors,timer:+o.timer===0?0:Number.isInteger(+o.timer)&&+o.timer>=10&&+o.timer<=600?+o.timer:60,async:!!o.async,
+    scoring:['friendly','competitive','none'].includes(o.scoring)?o.scoring:'friendly',colors:!!o.colors,auto:[4,6,8,10].includes(+o.auto)?+o.auto:0,timer:+o.timer===0?0:Number.isInteger(+o.timer)&&+o.timer>=10&&+o.timer<=600?+o.timer:60,async:!!o.async,
     o:{words:o.words,own:o.own,ownOnly:o.ownOnly},usedW:[],score:Object.fromEntries(ps.map(p=>[p,[]])),n:0};
   tsNewRound(g);return g}
 function tsNewRound(g){g.round++;if(g.round>1&&g.flip)g.dir=-g.dir;g.die=1+Math.floor(Math.random()*6);
@@ -48,8 +49,8 @@ function tsAsyncStep(g){const now=Date.now();g.at=g.at||{};g.te=g.te||{};g.sub=g
   g.ps.forEach(p=>{const k=tsAt(g,p);if(g.at[p]!==k){g.at[p]=k;delete g.te[p]}
     if(k>=g.steps){g.sub[p]=1;delete g.te[p];return}all=false;
     if(g.timer&&tsKind(k)==='draw'&&tsCanAct(g,p,k)&&!g.te[p])g.te[p]=now+g.timer*1000});
-  if(all){g.step=g.steps;g.phase='reveal';g.rv={i:0,p:-1};g.tEnd=null;g.te={}}}
-function tsAdvance(g){g.step++;g.sub={};if(g.step>=g.steps){g.phase='reveal';g.rv={i:0,p:-1};g.tEnd=null;return}
+  if(all){g.step=g.steps;g.phase='reveal';g.rv={i:0,p:-1,t:now};g.tEnd=null;g.te={}}}
+function tsAdvance(g){g.step++;g.sub={};if(g.step>=g.steps){g.phase='reveal';g.rv={i:0,p:-1,t:Date.now()};g.tEnd=null;return}
   g.tEnd=tsKind(g.step)==='draw'&&g.timer?Date.now()+g.timer*1000:null}
 /* what a player sees for their task: the word to draw, or the drawing to guess
    (k = the page; with "pass when ready", wait:true and from = who still has the book when it hasn't reached you yet) */
@@ -74,15 +75,23 @@ function tsMove(g,pid,mv){if(!g||!mv||!g.ps.includes(pid))return false;
   if(g.phase==='play'&&mv.a==='timeup'){if(!g.tEnd||Date.now()<g.tEnd+4000||tsKind(g.step)!=='draw')return false;
     g.ps.forEach(p=>{if(!g.sub[p]){const o=tsBookOf(g,p,g.step);g.books[o].pages[g.step]={by:p,kind:'draw',d:''};g.sub[p]=1}});tsAdvance(g);g.n++;return true}
   if(g.phase==='reveal'){const R=g.rv,owner=g.ps[R.i];if(!R)return false;
-    if(mv.a==='rvnext'||mv.a==='rvprev'){if(pid!==owner&&!mv.any)return false;const last=g.books[owner].pages.length-1;
-      if(mv.a==='rvnext'){if(R.p<last)R.p++;else return false}else{if(R.p>-1)R.p--;else return false}g.n++;return true}
+    /* the owner flips (mv.p = the page they were looking at, so a tap that crosses an auto-play turn never skips a page); auto-play's countdown starts again */
+    if(mv.a==='rvnext'||mv.a==='rvprev'){if(pid!==owner&&!mv.any)return false;if(mv.p!=null&&+mv.p!==R.p)return false;const last=g.books[owner].pages.length-1;
+      if(mv.a==='rvnext'){if(R.p<last)R.p++;else return false}else{if(R.p>-1)R.p--;else return false}R.t=Date.now();if(R.pz!=null)R.pz=g.auto*1000;g.n++;return true}
+    /* "Auto-play": the host turns the page once its time is up (never past the last page: the owner gives out points there) */
+    if(mv.a==='rvauto'){if(tsAutoDue(g)!=='page')return false;R.p++;R.t=Date.now();g.n++;return true}
+    if(mv.a==='rvpause'){if(pid!==owner||!g.auto)return false;const now=Date.now(),dur=g.auto*1000;
+      if(mv.on){if(R.pz!=null)return false;R.pz=Math.max(0,Math.min(dur,(R.t||now)+dur-now))}else{if(R.pz==null)return false;R.t=now-(dur-R.pz);delete R.pz}g.n++;return true}
     if(mv.a==='mark'){if(pid!==owner)return false;const M=g.marks[owner]=g.marks[owner]||{sketch:null,guess:null,self:false,match:{}};
       if(mv.f==='sketch'||mv.f==='guess'){const P=g.books[owner].pages[+mv.p];if(!P||P.kind!==(mv.f==='sketch'?'draw':'guess')||P.by===owner)return false;M[mv.f]=M[mv.f]===P.by&&M[mv.f+'P']===+mv.p?null:P.by;M[mv.f+'P']=M[mv.f]?+mv.p:null}
       else if(mv.f==='self')M.self=!M.self;else if(mv.f==='match'){const i=+mv.p,P=g.books[owner].pages[i];if(!P||P.kind!=='guess')return false;M.match[i]=!M.match[i]}else return false;g.n++;return true}
-    if(mv.a==='bookdone'){if(pid!==owner)return false;tsScoreBook(g,owner);if(R.i+1<tsN(g)){g.rv={i:R.i+1,p:-1}}else{g.phase=g.rounds&&g.round>=g.rounds?'done':'roundEnd';g.rv=null}g.n++;return true}}
+    if(mv.a==='bookdone'){if(pid!==owner)return false;tsScoreBook(g,owner);if(R.i+1<tsN(g)){g.rv={i:R.i+1,p:-1,t:Date.now()}}else{g.phase=g.rounds&&g.round>=g.rounds?'done':'roundEnd';g.rv=null}g.n++;return true}}
   if(g.phase==='roundEnd'&&mv.a==='next'){tsNewRound(g);g.n++;return true}
   if(g.phase==='roundEnd'&&mv.a==='stop'){g.phase='done';g.n++;return true}
   return false}
+/* "Auto-play": what's due now: 'page' (turn it), 'book' (no scoring: move on from the last page), or null (not yet, paused, or waiting for the owner's Done) */
+function tsAutoDue(g,now){const R=g&&g.rv;if(!R||g.phase!=='reveal'||!g.auto||R.pz!=null)return null;if((now||Date.now())<(R.t||0)+g.auto*1000)return null;
+  const last=g.books[g.ps[R.i]].pages.length-1;return R.p<last?'page':g.scoring==='none'?'book':null}
 /* a book's points, once its owner has finished the reveal */
 function tsScoreBook(g,owner){if(g.scoring==='none')return;const M=g.marks[owner]||{match:{}},B=g.books[owner],r=g.round-1,add=(p,n)=>{if(p&&g.score[p]){g.score[p][r]=(g.score[p][r]||0)+n}};
   const pg=B.pages,lastG=pg.length-1,selfM=pg[lastG]&&tsMatchOK(g,owner,lastG,true);

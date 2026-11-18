@@ -39,6 +39,10 @@ html.tsbig .tsimg{width:clamp(60px,7vw,110px);height:clamp(60px,7vw,110px)}.tshe
 .tsthumb .tssk svg{width:44px;height:44px;border-radius:6px;box-shadow:none}
 .tsthumbs i{font-style:normal;opacity:.5}
 .tsnav{display:flex;gap:8px;justify-content:center;margin:8px 0 2px}.tsnav .btn.primary{flex:1;max-width:280px}
+.tsauto{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:2px 0 6px;padding:6px 10px;border-radius:12px;background:var(--soft)}
+.tsautobar{flex:1 1 100%;height:8px;border-radius:999px;background:var(--bg);overflow:hidden}.tsautobar i{display:block;height:100%;border-radius:999px;background:var(--accent,#f2b705);transition:width .2s linear}
+.tsauto.pz .tsautobar i{opacity:.45}.tsautot{flex:1;margin:0}.tsautob{min-height:0}.tsautow{justify-content:center}.tsautow .rlab{margin:0;text-align:center}
+html.tsbig .tsautobar{height:14px}html.tsbig .tsautot{font-size:clamp(15px,1.8vw,26px)}
 .tsscoreme{display:flex;flex-direction:column;align-items:center;gap:6px;margin:8px 0;padding:8px;border-radius:12px;background:var(--soft);border-left:5px solid var(--accent,#f2b705)}
 .tstab{width:100%;border-collapse:collapse;margin:6px 0}.tstab th,.tstab td{padding:6px 4px;text-align:center;border-bottom:1px solid var(--line)}
 .tstab td:first-child,.tstab th:first-child{text-align:left}.tstab .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--pc,#999);margin-right:6px}

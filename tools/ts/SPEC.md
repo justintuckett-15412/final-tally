@@ -22,6 +22,7 @@ Engine checks: `node /home/claude/ts/sim.js` must print `bad 0 []`.
 - `tsMove(g,pid,mv)` moves: `{a:'word',w,slot}` (pick phase), `{a:'page',d}` (play: d = tsEnc string for a sketch, text for a guess),
   `{a:'timeup'}` (anyone, 4 s after `g.tEnd` in a sketch step: blank pages for anyone not done), `{a:'rvnext'}`, `{a:'rvprev'}` (book owner),
   `{a:'mark',f:'sketch'|'guess'|'self'|'match',p}` (owner, during their reveal), `{a:'bookdone'}` (owner), `{a:'next'}` / `{a:'stop'}` (roundEnd).
+- Auto-play (house rule, Big Reveal): `tsDeal({auto})` → `g.auto` (4/6/8/10 s, 0 = owner flips, official). `g.rv.t` = when the page started (host clock), `g.rv.pz` = ms left while paused. Moves `{a:'rvauto'}` (host, when `tsAutoDue(g)==='page'`), `{a:'rvpause',on}` (owner; the host applies it directly), `rvnext`/`rvprev` take `p` (the page the owner saw) and restart the countdown. With No scoring the host also does `bookdone` when `tsAutoDue(g)==='book'`.
 - Helpers: `tsPrompt(g,pid)` → {kind:'draw'|'guess', owner, word, draw}; `tsBookOf(g,pid,step)`, `tsHolder`, `tsKind(step)`, `tsRolled(g,pid)`, `tsTotal(g,pid)`, `tsMatchOK`, `tsSame`.
 - `g.sub[pid]` = handed in this step. `g.tEnd` = sketch timer end (ms epoch) or null. `g.rv={i,p}` reveal position (p=-1 is the secret-word page).
 

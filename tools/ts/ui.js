@@ -1,5 +1,5 @@
 /* ================= Telestrations: settings, record sheet, play screens (linked phones), the big board ================= */
-const TSDEF={play:1,words:'std',own:'',ownOnly:0,scoring:'friendly',timer:60,ctimer:0,csec:45,flip:1,colors:0,async:0};
+const TSDEF={play:1,words:'std',own:'',ownOnly:0,scoring:'friendly',timer:60,ctimer:0,csec:45,flip:1,colors:0,async:0,auto:0};
 /* the sketch timer the settings ask for: a preset, or the custom number of seconds (10-600) */
 const tsCsec=X=>{const n=Math.round(+X.csec);return isFinite(n)&&n>=10?Math.min(600,n):isFinite(n)&&n>0?10:45};
 const tsTimerOf=X=>X.ctimer?tsCsec(X):(+X.timer||0);
@@ -52,6 +52,9 @@ function tsSetup(){const X=TSX(),lock=S.started&&tsPlayOn(),seg=(a,opts,cur)=>`<
     <div class="srow" style="margin-top:10px"><span class="rlab">Reverse direction each round</span><button class="sw" role="switch" aria-checked="${!!X.flip}" data-a="tsflip" aria-label="Reverse direction each round" ${lock?'disabled':''}><i></i></button></div></div>
   <p class="hint">${X.async?'House rule: pass when ready. Your book moves on as soon as you finish a page, so nobody waits for the slowest sketcher. Your sketch timer starts when a book reaches you.':'Official: everyone passes at the same time.'}</p>
   <p class="hint">${X.flip?'Books pass to the left in round 1, then to the right, then left again, so you see different people’s sketches (the rule sheet’s play-again tip).':'Books always pass to the left.'}</p></div>
+  <div class="sec"><div class="sec-h"><h3>Big Reveal</h3></div><div class="panel hfpanel">${seg('tsrev',[[0,'👆 Owner flips'],[1,'▶️ Auto-play']],X.auto?1:0)}
+    ${X.auto?`<div class="srow" style="margin-top:10px"><span class="rlab">Seconds per page</span></div>${seg('tsautos',[[4,'4 s'],[6,'6 s'],[8,'8 s'],[10,'10 s']],X.auto)}`:''}</div>
+  <p class="hint">${X.auto?`House rule: every screen turns the page every ${X.auto} seconds. The owner can still flip or pause. ${X.scoring==='none'?'At the end of a book it moves on to the next one.':'It waits on the last page until the owner taps Done.'}`:'Official: each book’s owner flips through the pages.'}</p></div>
   <div class="sec"><div class="sec-h"><h3>Pen colors</h3></div><div class="panel hfpanel">${seg('tspens',[[0,'✒️ Black only'],[1,'🎨 Colors']],X.colors?1:0)}</div>
   <p class="hint">${X.colors?'House rule: the sketch pad gets 8 colored markers. Every phone uses the same pens.':'Official: black markers, like the ones in the box.'}</p></div>`:''}
   <p class="hint">${usualUI('telestrations')}</p>
@@ -86,7 +89,7 @@ function tsRevSteps(){const n=Math.max(1,...act().map(p=>((p.ts||{}).r||[]).leng
 function tsGuide(){return guideSheet('Telestrations',[
   ['Setup',[['Players','4 to 8. Each phone is a sketchbook. A phone or iPad on “Just watching” is the big board.'],['Your word','Each round a die is rolled. Find that number on your card: that’s your secret word. A blank means make up any word; a category means make up something in it; a card marked “any” lets you pick any word on it. Keep it secret!']]],
   ['Passing the books',[['Even number of players','You sketch your own word first, then the books pass.'],['Odd number of players','Your book passes first: the next player sketches your word.'],['Sketch, guess, sketch…','Each page alternates. If you get a sketch, write what you think it is. If you get a guess, sketch it. The last page is always a guess.'],['Timer','Sketches have a timer (60 seconds in the box), then a couple of seconds to finish up. Guesses have no timer.'],['Pen colors','The box has black markers. The 🎨 Colors house rule gives the sketch pad 8 colors.'],['No letters or numbers','Sketches can’t have letters, numbers or symbols. Just draw!'],['Never leave a guess blank','Always write your best guess, even if the sketch is a mystery.'],['Direction','Books pass to the left. Reversing each round (the rule sheet’s tip) mixes things up.'],['Pass when ready (house rule)','Your book moves on as soon as you finish a page, without waiting for everyone. Your sketch timer starts when a book reaches you.']]],
-  ['The Big Reveal',[['Book by book','When your own book comes back, everyone watches as you flip through it, page by page, on every screen.'],['Friendly scoring','In your book, give 1 point to your favourite sketch and 1 to your favourite guess (not your own), and 1 to yourself if the last guess matches your word.'],['Competitive scoring','A guess scores 1 if it matches the secret word or the guess before it, and so does the sketch it came from. You get 1 if the last guess matches your word.'],['How many rounds','With scoring, play 3 rounds; most points wins. The rule sheet in the box has the official wording.']]]])}
+  ['The Big Reveal',[['Book by book','When your own book comes back, everyone watches as you flip through it, page by page, on every screen.'],['Auto-play (house rule)','The pages turn by themselves every few seconds on every screen. The owner can still flip or pause, and it waits on the last page until they tap Done.'],['Friendly scoring','In your book, give 1 point to your favourite sketch and 1 to your favourite guess (not your own), and 1 to yourself if the last guess matches your word.'],['Competitive scoring','A guess scores 1 if it matches the secret word or the guess before it, and so does the sketch it came from. You get 1 if the last guess matches your word.'],['How many rounds','With scoring, play 3 rounds; most points wins. The rule sheet in the box has the official wording.']]]])}
 function tsStats(p){const g=S.tsg;if(g&&tsPlayOn()&&S.started&&!S.finished&&g.ps&&g.ps.includes(p.id))return [{k:'Points',v:g.scoring==='none'?'·':String(tsTotal(g,p.id)),i:'✏️'},{k:'Round',v:`${g.round}${g.rounds?' of '+g.rounds:''}`},{k:'Scoring',v:TSSC[g.scoring]}];
   const D=p.ts||{r:[]};return [{k:'Points',v:String(tsTot(p)),i:'✏️'},{k:'Rounds',v:String((D.r||[]).length)},{k:'Favourites',v:String((D.fs||0)+(D.fg||0))}]}
 
@@ -156,7 +159,7 @@ function tsMarkBtns(g,owner,i,mine){const P=g.books[owner].pages[i],M=g.marks[ow
   if(P.kind!=='guess')return '';const ok=tsMatchOK(g,owner,i);
   return mine?`<button class="btn sm tsmark${ok?' on':''}" data-a="tsumatch" data-k="${i}:${ok?0:1}" aria-pressed="${ok}">${ok?'✓ Matches':'✗ No match'}</button>`:ok?'<span class="tsstar">✓ Match</span>':''}
 function tsRevealUI(g,V,big){const owner=g.ps[g.rv.i],B=g.books[owner],p=g.rv.p,last=B.pages.length-1,mine=!big&&V&&V.id===owner,sz=big?560:340;
-  let o=`<div class="tsbook" style="${tsPcol(owner)}"><div class="tsbookh"><b>📒 ${esc(tsName(owner))}’s book</b><span class="rlab">Book ${g.rv.i+1} of ${g.ps.length}</span></div>`;
+  let o=`<div class="tsbook" style="${tsPcol(owner)}"><div class="tsbookh"><b>📒 ${esc(tsName(owner))}’s book</b><span class="rlab">Book ${g.rv.i+1} of ${g.ps.length}</span></div>${tsAutoHtml(g,owner,mine)}`;
   if(p<last){o+=tsPageHtml(g,owner,p,sz);
     if(p>=0)o+=`<div class="tsthumbs" aria-label="Pages so far">${[-1,...B.pages.map((x,i)=>i)].filter(i=>i<p).map(i=>{const P=B.pages[i];return `<span class="tsthumb">${i<0?esc(B.word):P.kind==='draw'?`<span class="tssk" data-tspg="${esc(owner)}:${i}">${tsSvgOk(P.d,56)}</span>`:esc(P.d)}</span>`}).join('<i>›</i>')}</div>`;
     o+=`<p class="rlab tscenter">Page ${p+2} of ${last+2}</p>`}
@@ -165,8 +168,15 @@ function tsRevealUI(g,V,big){const owner=g.ps[g.rv.i],B=g.books[owner],p=g.rv.p,
       o+=mine?`<div class="tsscoreme"><p class="rlab">${g.scoring==='friendly'?'Tap ⭐ on your favourite sketch and your favourite guess (not your own).':'Check the ✓ on each guess that matches the secret word or the guess before it.'}</p><button class="btn${M.self?' primary':''}" data-a="tsuself" aria-pressed="${!!M.self}">${M.self?'✓':'○'} The last guess matches my word (+1 for me)</button>${looks&&!M.self?'<p class="rlab">It looks like a match!</p>':''}</div>`
         :M.self?`<p class="rlab tscenter">✓ The last guess matched ${esc(tsName(owner))}’s word.</p>`:''}}
   if(mine)o+=`<div class="tsnav"><button class="btn" data-a="tsuprev" ${p<0?'disabled':''} aria-label="Previous page">◀</button>${p<last?'<button class="btn primary" data-a="tsunext" aria-label="Next page">Next page ▶</button>':'<button class="btn primary" data-a="tsudone">Done with my book</button>'}</div>`;
-  else o+=`<p class="rlab tscenter">${esc(tsName(owner))} is flipping through ${big?'their':'the'} book${p===last?' and giving out points':''}…</p>`;
+  else o+=g.auto?`<p class="rlab tscenter">${p===last&&g.scoring!=='none'?`${esc(tsName(owner))} is giving out points…`:`▶️ Auto-play: ${esc(tsName(owner))}’s book`}</p>`:`<p class="rlab tscenter">${esc(tsName(owner))} is flipping through ${big?'their':'the'} book${p===last?' and giving out points':''}…</p>`;
   return o+'</div>'}
+/* "Auto-play": the countdown to the next page on every screen, with ⏸ / ▶ for the owner and the host */
+function tsAutoLeft(g){const R=g.rv,dur=g.auto*1000;return R.pz!=null?R.pz:Math.max(0,Math.min(dur,(R.t||Date.now())+dur-Date.now()))}
+function tsAutoHtml(g,owner,mine){if(!g.auto||!g.rv)return '';const R=g.rv,last=g.books[owner].pages.length-1,dur=g.auto*1000;
+  if(R.p>=last&&g.scoring!=='none')return `<div class="tsauto tsautow"><span class="rlab">⏸ Auto-play waits here until ${mine?'you tap <b>Done with my book</b>':`${esc(tsName(owner))} taps Done`}.</span></div>`;
+  const pz=R.pz!=null,left=tsAutoLeft(g),lab=R.p>=last?'Next book':'Next page',can=mine||tsLinked()&&lkHost();
+  return `<div class="tsauto${pz?' pz':''}"${pz?'':` data-t="${R.t||0}" data-dur="${dur}" data-lab="${lab}"`}><div class="tsautobar" role="progressbar" aria-label="Time until the next page" aria-valuemin="0" aria-valuemax="${g.auto}" aria-valuenow="${Math.ceil(left/1000)}"><i style="width:${(100*left/dur).toFixed(1)}%"></i></div>
+    <span class="rlab tsautot">${pz?'⏸ Paused':`${lab} in <b class="num">${Math.ceil(left/1000)}</b> s`}</span>${can?`<button class="btn sm tsautob" data-a="tsupause" data-k="${pz?0:1}" aria-label="${pz?'Resume auto-play':'Pause auto-play'}">${pz?'▶ Resume':'⏸ Pause'}</button>`:''}</div>`}
 function tsScoreTable(g){if(g.scoring==='none')return '';const P=g.ps.slice().sort((a,b)=>tsTotal(g,b)-tsTotal(g,a));
   return `<table class="tstab"><thead><tr><th>Player</th>${Array.from({length:g.round},(_,r)=>`<th>R${r+1}</th>`).join('')}<th>Total</th></tr></thead><tbody>${P.map(p=>`<tr style="${tsPcol(p)}"><td><i class="dot"></i>${esc(tsName(p))}</td>${Array.from({length:g.round},(_,r)=>`<td class="num">${+(g.score[p]||[])[r]||0}</td>`).join('')}<td class="num"><b>${tsTotal(g,p)}</b></td></tr>`).join('')}</tbody></table>`}
 function tsRoundEndUI(g,big){return `<div class="panel tspanel">${tsScoreTable(g)||'<p class="rlab tscenter">No scoring: just for laughs.</p>'}
@@ -193,11 +203,15 @@ function tsPlayUI(){const g=S.tsg,P=act(),big=tsBig();
 function tsSend(m){const g=tsGx(),V=tsViewer();if(!g||!V)return false;const r=lkq('tsMove',V.id,{...m,st:tsSt(g)});if(r)vibe(8);return r}
 function tsUiAct(a,b,k){if(a==='tsubig'){TSBIG=!tsBig();try{localStorage.setItem('ft-tsbig',TSBIG?'1':'0')}catch(e){}return}
   if(a==='tsurecord'){TSX().play=0;tsKeep();return}
+  if(a==='tsupause'){const g=tsGx();if(!g||g.phase!=='reveal'||!g.rv||!g.auto)return;const m={a:'rvpause',on:k==='1'?1:0},V=tsViewer(),owner=g.ps[g.rv.i];
+    if(V&&V.id===owner&&!tsBig()){tsSend(m);return}
+    /* the host (a player or the big board) pauses for everyone: it holds the game, so it changes it right here */
+    if(tsLinked()&&lkHost()&&S.tsg&&tsMoveQ(S.tsg,owner,{...m,st:tsSt(S.tsg)}))vibe(8);return}
   const g=tsGx();if(!g||tsBig())return;
   switch(a){
     case 'tsuword':tsSend({a:'word',slot:+k});return;
-    case 'tsunext':tsSend({a:'rvnext'});return;
-    case 'tsuprev':tsSend({a:'rvprev'});return;
+    case 'tsunext':tsSend({a:'rvnext',...(g.rv?{p:g.rv.p}:{})});return;
+    case 'tsuprev':tsSend({a:'rvprev',...(g.rv?{p:g.rv.p}:{})});return;
     case 'tsumark':{const [f,p]=String(k).split(':');tsSend({a:'mark',f,p:+p});return}
     case 'tsumatch':{const [p,v]=String(k).split(':');tsSend({a:'mark',f:'match',p:+p,v:v==='1'});return}
     case 'tsuself':tsSend({a:'mark',f:'self'});return;
@@ -205,8 +219,9 @@ function tsUiAct(a,b,k){if(a==='tsubig'){TSBIG=!tsBig();try{localStorage.setItem
     case 'tsunextround':tsSend({a:'next'});return;
     case 'tsustop':tsSend({a:'stop'});return}}
 /* setup: the Pen colors house rule (handled here so the shared app core needs no new case) */
-document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-a="tspens"],[data-a="tspass"]');if(!b||b.disabled)return;e.stopPropagation();
-  if(S.game!=='telestrations'||S.started&&tsPlayOn())return;TSX()[b.dataset.a==='tspens'?'colors':'async']=b.dataset.k==='1'?1:0;tsKeep();save();render()},true);
+document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-a="tspens"],[data-a="tspass"],[data-a="tsrev"],[data-a="tsautos"]');if(!b||b.disabled)return;e.stopPropagation();
+  if(S.game!=='telestrations'||S.started&&tsPlayOn())return;const X=TSX(),a=b.dataset.a,k=b.dataset.k;
+  if(a==='tsrev')X.auto=k==='1'?(X.auto||10):0;else if(a==='tsautos')X.auto=[4,6,8,10].includes(+k)?+k:10;else X[a==='tspens'?'colors':'async']=k==='1'?1:0;tsKeep();save();render()},true);
 /* setup: the custom sketch timer (seconds). While typing, keep any whole number 10-600 and update the hint; on leaving the box, tidy it up */
 document.addEventListener('input',e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.tscsec||S.game!=='telestrations')return;const n=Math.round(+t.value);
   if(isFinite(n)&&n>=10&&n<=600){TSX().csec=n;tsKeep();save();const h=document.getElementById('tstimerhint');if(h)h.textContent=tsTimerHint(TSX())}},true);
@@ -219,14 +234,17 @@ window.tsPadDone=d=>{/* the pad can finish inside a redraw (time ran out): send 
 const tsPadKey=(g,pr,me)=>`${g.gid}:${g.round}:${pr.owner}:${pr.k}:${me}`;
 function tsTimeUp(g){if(g&&g.phase==='play'&&tsAsync(g)){const now=Date.now();return Object.values(g.te||{}).some(t=>now>t+4000)&&tsMove(g,g.ps[0],{a:'timeup'})}
   if(!g||g.phase!=='play'||!g.tEnd||tsKind(g.step)!=='draw'||Date.now()<=g.tEnd+4000)return false;return tsMove(g,g.ps[0],{a:'timeup'})}
+/* host only: "Auto-play" turns the reveal page (or, with no scoring, moves on to the next book) once its time is up */
+function tsAutoStep(g){if(!g||g.phase!=='reveal'||!g.auto||!g.rv)return false;const R=g.rv;if(!R.t){R.t=Date.now();return true}
+  const d=tsAutoDue(g);if(d==='page')return tsMove(g,g.ps[0],{a:'rvauto'});if(d==='book')return tsMoveQ(g,g.ps[R.i],{a:'bookdone'});return false}
 /* host only: if a late copy of the game mixed old and new (everyone handed in, but the page never turned), finish the step */
 function tsRepair(g){if(!g||!g.ps)return false;if(g.phase==='pick'&&g.ps.every(p=>g.books[p]&&g.books[p].word)){tsStartPlay(g);return true}
   if(g.phase==='play'&&tsAsync(g)){const f=()=>JSON.stringify([g.phase,g.ps.map(p=>[(g.at||{})[p],(g.te||{})[p]||0,(g.sub||{})[p]||0])]),b=f();tsAsyncStep(g);return f()!==b}
   if(g.phase==='play'&&g.ps.every(p=>g.sub[p])&&g.ps.every(o=>g.books[o].pages[g.step])){tsAdvance(g);return true}return false}
 function tsTick(){if(!tsPlayOn()||!S.started||S.finished||S.demo||S.screen!=='score')return;if(!tsRes2())return;if(lkqRun()){save();render();return}
   if(act().some(p=>p.bot)||act().length<4||!tsLinked())return;
-  const g=S.tsg;if(!g||tsStale(g)){const X=TSX(),n=tsDeal({words:X.words,own:X.own,ownOnly:X.ownOnly,scoring:X.scoring,timer:tsTimerOf(X),flip:!!X.flip,colors:!!X.colors,async:!!X.async});if(n){S.tsg=n;save();render()}return}
-  if(tsTimeUp(g)||tsRepair(g)){save();render()}}
+  const g=S.tsg;if(!g||tsStale(g)){const X=TSX(),n=tsDeal({words:X.words,own:X.own,ownOnly:X.ownOnly,scoring:X.scoring,timer:tsTimerOf(X),flip:!!X.flip,colors:!!X.colors,async:!!X.async,auto:+X.auto||0});if(n){S.tsg=n;save();render()}return}
+  if(tsTimeUp(g)||tsRepair(g)||tsAutoStep(g)){save();render()}}
 function tsSyncScorer(g){if(!g)return;const F=g.fav||{s:{},g:{},m:{}};S.tsrec={scoring:g.scoring,rounds:g.round,timer:g.timer};
   act().forEach(p=>{p.ts={r:(g.score[p.id]||[]).map(v=>+v||0),fs:F.s[p.id]||0,fg:F.g[p.id]||0,fm:F.m[p.id]||0}});S.hr=1}
 
@@ -235,7 +253,7 @@ function tsFxMode(g,V){if(!g||!V||tsBig()||!g.ps.includes(V.id))return null;
   if(g.phase==='pick'&&!g.books[V.id].word){const C=g.cards[V.id];if(C.any||tsRolled(g,V.id))return null;const s=C.slots[g.die-1];return {m:'pick',key:`${g.gid}:${g.round}:pick`,lab:s.t==='cat'?`Make up: ${s.c}`:'Make up any word',ph:s.t==='cat'?'Something in that category':'Your secret word',btn:'Use this word'}}
   if(g.phase==='play'&&!tsDoneP(g,V.id)){const pr=tsPrompt(g,V.id);if(pr&&!pr.wait&&pr.kind==='guess')return {m:'guess',key:`${g.gid}:${g.round}:${pr.owner}:${pr.k}`,o:pr.owner,k:pr.k,lab:'What is it?',ph:'Your best guess',btn:'Send'}}
   return null}
-function tsFx(){let L=document.getElementById('tsfx');const on=S.game==='telestrations'&&tsPlayOn()&&S.started&&!S.demo&&S.screen==='score'&&tsLinked()&&!act().some(p=>p.bot);
+function tsFx(){/* sounds: checked on every redraw too, so a page that's answered within moments still gets its page turn */try{tsSndCheck()}catch(e){}let L=document.getElementById('tsfx');const on=S.game==='telestrations'&&tsPlayOn()&&S.started&&!S.demo&&S.screen==='score'&&tsLinked()&&!act().some(p=>p.bot);
   const g=on?tsGx():null,ok=g&&!tsStale(g),V=ok?tsViewer():null,F=ok?tsFxMode(g,V):null;
   /* the sketch pad */
   const pr=ok&&V&&!tsBig()&&g.phase==='play'&&g.ps.includes(V.id)&&!tsDoneP(g,V.id)?tsPrompt(g,V.id):null;
@@ -256,7 +274,39 @@ document.addEventListener('submit',e=>{const f=e.target;if(!f||f.id!=='tsform')r
 setInterval(()=>{try{tsFx()}catch(e){}},700);
 /* the sketch timer on screen, and the host closes the sketch step when time is up */
 setInterval(()=>{try{document.querySelectorAll('.tstmr[data-end]').forEach(el=>{const ms=+el.dataset.end-Date.now(),b=el.querySelector('b');if(b)b.textContent=ms>0?tsClock(ms):'Finish up!';el.classList.toggle('low',ms<10000)});
-  if(S.game!=='telestrations'||!tsPlayOn()||!S.started||S.demo||!tsRes2()||(typeof LKOPTR!=='undefined'&&LKOPTR))return;if(S.tsg&&!tsStale(S.tsg)&&(tsTimeUp(S.tsg)||tsLinked()&&lkHost()&&tsRepair(S.tsg))){save();render()}}catch(e){}},500);
+  if(S.game!=='telestrations'||!tsPlayOn()||!S.started||S.demo||!tsRes2()||(typeof LKOPTR!=='undefined'&&LKOPTR))return;if(S.tsg&&!tsStale(S.tsg)&&(tsTimeUp(S.tsg)||tsLinked()&&lkHost()&&(tsRepair(S.tsg)||tsAutoStep(S.tsg)))){save();render()}}catch(e){}},500);
+/* the auto-play countdown bar on every screen */
+setInterval(()=>{try{document.querySelectorAll('.tsauto[data-t]').forEach(el=>{const dur=+el.dataset.dur,left=Math.max(0,Math.min(dur,+el.dataset.t+dur-Date.now())),i=el.querySelector('.tsautobar i'),b=el.querySelector('.tsautot b');
+  if(i)i.style.width=(100*left/dur).toFixed(1)+'%';if(b)b.textContent=String(Math.ceil(left/1000))})}catch(e){}},200);
+/* ---------- sounds (the app's sound setting; made on the fly, no sound files) ----------
+   each event has its own key and plays once: re-renders, the sync and the optimistic copy never repeat it */
+function tsTone(c,f,t,d,type,vol,f2){const o=c.createOscillator(),gn=c.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);
+  gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(vol||.15,t+.01);gn.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(gn).connect(c.destination);o.start(t);o.stop(t+d+.05)}
+function tsSfx(kind){if(!SET.sound)return;const c=typeof ac==='function'?ac():null;if(!c)return;const t=c.currentTime+.02;try{
+  if(kind==='page'){/* a soft page turn: a short swish of filtered noise */
+    if(typeof noise==='function'){const s=c.createBufferSource(),f=c.createBiquadFilter(),gn=c.createGain();s.buffer=noise(c);f.type='bandpass';f.Q.value=.8;
+      f.frequency.setValueAtTime(700,t);f.frequency.exponentialRampToValueAtTime(3200,t+.16);gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(.16,t+.04);gn.gain.exponentialRampToValueAtTime(.001,t+.24);
+      s.connect(f).connect(gn).connect(c.destination);s.start(t,Math.random()*2);s.stop(t+.3)}else tsTone(c,900,t,.12,'triangle',.05,1800)}
+  else if(kind==='tick')tsTone(c,1700,t,.035,'square',.035);
+  else if(kind==='timeup'){tsTone(c,660,t,.16,'triangle',.18);tsTone(c,440,t+.15,.32,'triangle',.18)}
+  else if(kind==='tada'){if(typeof brass==='function'){brass(c,392,t,.1,{vol:.07});[523,659,784].forEach((f,i)=>brass(c,f,t+.16,.55,{vol:.06,pan:(i-1)*.3}))}
+    else{tsTone(c,392,t,.12,'triangle',.18);[523,659,784].forEach(f=>tsTone(c,f,t+.16,.6,'triangle',.12))}}
+  else if(kind==='chime'){tsTone(c,1319,t,.5,'sine',.1);tsTone(c,1976,t+.08,.6,'sine',.07)}}catch(e){}}
+let TSSF=null;
+/* the sound events right now on this screen: [kind, key]. The big board (and anyone just watching) only gets the reveal's */
+function tsSndEvents(g){const ev=[];if(!g||!g.gid)return ev;const V=tsViewer(),big=tsBig(),me=V&&!big&&g.ps.includes(V.id)?V.id:null,R=`${g.gid}:${g.round}`;
+  if(me&&g.phase==='play'&&!tsDoneP(g,me)){const pr=tsPrompt(g,me);
+    if(pr&&!pr.wait){const base=`${R}:${pr.owner}:${pr.k}`;
+      /* a book that isn't yours just reached you */
+      if(pr.owner!==me)ev.push(['page','pg:'+base]);
+      if(pr.kind==='draw'){const end=tsAsync(g)?(g.te||{})[me]:g.tEnd,st=typeof tsPadState==='function'?tsPadState():null;
+        if(end&&!(st&&st.sent)){const ms=end-Date.now();if(ms>0&&ms<=10000)ev.push(['tick',`tk:${base}:${Math.ceil(ms/1000)}`]);else if(ms<=0&&ms>-3000)ev.push(['timeup','tu:'+base])}}}}
+  if(g.phase==='reveal'&&g.rv){ev.push(['tada','rv:'+R]);const B=g.books[g.ps[g.rv.i]];if(B&&g.rv.p>=0&&g.rv.p===B.pages.length-1)ev.push(['chime',`ch:${R}:${g.rv.i}`])}
+  return ev}
+function tsSndCheck(){const g=S.game==='telestrations'&&tsPlayOn()&&S.started&&!S.demo&&S.screen==='score'&&tsLinked()?tsGx():null;if(!g||tsStale(g))return;
+  const ev=tsSndEvents(g);/* the first look (just opened the app) only notes what's already happened */if(!TSSF){TSSF=new Set(ev.map(e=>e[1]));return}
+  ev.forEach(([kind,key])=>{if(TSSF.has(key))return;TSSF.add(key);tsSfx(kind)});if(TSSF.size>600)TSSF=new Set([...TSSF].slice(-300))}
+setInterval(()=>{try{tsSndCheck()}catch(e){}},200);
 /* family records on the stats screen */
 function tsRecords(G){const TG=G.filter(g=>g.game==='telestrations'&&g.state&&g.state.players);if(!TG.length)return '';const per={};let bestR=null;
   TG.forEach(g=>{const R=g.state.tsrec||{};if(R.scoring==='none')return;const tots=g.state.players.map(p=>((p.ts||{}).r||[]).reduce((a,b)=>a+(+b||0),0)),top=Math.max(0,...tots);

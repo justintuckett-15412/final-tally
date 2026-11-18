@@ -1,7 +1,7 @@
 const fs=require('fs');let NP=4;global.act=()=>Array.from({length:NP},(_,i)=>({id:'p'+i}));
 eval(fs.readFileSync(__dirname+'/words.js','utf8')+fs.readFileSync(__dirname+'/game.js','utf8')+`
 let bad=[];
-for(let k=0;k<1200;k++){NP=4+k%5;const sc=['friendly','competitive','none'][k%3];const g=tsDeal({scoring:sc,timer:60});
+for(let k=0;k<1200;k++){NP=4+k%5;const sc=['friendly','competitive','none'][k%3];const au=[0,4,6,8,10,7][k%6],g=tsDeal({scoring:sc,timer:60,auto:au});if(g.auto!==(au===7?0:au))bad.push('auto deal '+au+'->'+g.auto);
  let guard=0;while(g.phase!=='done'&&guard++<500){
   if(g.phase==='pick'){g.ps.forEach(p=>{if(!tsMove(g,p,{a:'word',w:'Made Up',slot:0}))bad.push('pick')});if(g.phase!=='play')bad.push('noplay');continue}
   if(g.phase==='play'){const k2=g.step;/* every book is held by exactly one player */const hs=g.ps.map(o=>tsHolder(g,o,k2));if(new Set(hs).size!==NP)bad.push('holders');
@@ -12,7 +12,16 @@ for(let k=0;k<1200;k++){NP=4+k%5;const sc=['friendly','competitive','none'][k%3]
   if(g.phase==='reveal'){const o=g.ps[g.rv.i],B=g.books[o];if(B.pages.length!==g.steps)bad.push('pages '+B.pages.length);if(B.pages[B.pages.length-1].kind!=='guess')bad.push('lastnotguess');
    if(tsOdd(g)&&B.pages[0].by===o)bad.push('odd owner drew');if(!tsOdd(g)&&B.pages[0].by!==o)bad.push('even owner not first');
    if(new Set(B.pages.map(p=>p.by)).size!==B.pages.length)bad.push('dup author');
-   if(tsMove(g,g.ps.find(p=>p!==o),{a:'rvnext'}))bad.push('nonowner next');while(tsMove(g,o,{a:'rvnext'}));
+   if(tsMove(g,g.ps.find(p=>p!==o),{a:'rvnext'}))bad.push('nonowner next');
+   /* auto-play: nothing before its time, a page when it's due, paused = nothing, a stale owner tap never skips a page */
+   const R=g.rv;if(typeof R.t!=='number')bad.push('rv.t');if(tsMove(g,g.ps[0],{a:'rvauto'}))bad.push('auto early');
+   if(g.auto){R.t-=g.auto*1000+10;const p0=R.p;if(!tsMove(g,g.ps[0],{a:'rvauto'})||R.p!==p0+1)bad.push('auto turn');if(Date.now()-R.t>50)bad.push('auto t');
+     if(tsMove(g,g.ps.find(p=>p!==o),{a:'rvpause',on:1}))bad.push('nonowner pause');if(!tsMove(g,o,{a:'rvpause',on:1})||R.pz==null)bad.push('pause');if(tsMove(g,o,{a:'rvpause',on:1}))bad.push('pause twice');
+     R.t-=99999;if(tsMove(g,g.ps[0],{a:'rvauto'}))bad.push('auto while paused');if(!tsMove(g,o,{a:'rvpause',on:0})||R.pz!=null)bad.push('resume');if(tsMove(g,g.ps[0],{a:'rvauto'}))bad.push('auto right after resume');
+     if(tsMove(g,o,{a:'rvnext',p:R.p-1}))bad.push('stale owner tap');if(!tsMove(g,o,{a:'rvnext',p:R.p}))bad.push('owner tap ahead');
+     while(tsMove(g,o,{a:'rvnext'}));R.t-=g.auto*1000+10;if(tsAutoDue(g)!==(g.scoring==='none'?'book':null))bad.push('auto at last '+tsAutoDue(g));if(tsMove(g,g.ps[0],{a:'rvauto'}))bad.push('auto past last')}
+   else{R.t-=99999;if(tsMove(g,g.ps[0],{a:'rvauto'})||tsMove(g,o,{a:'rvpause',on:1}))bad.push('auto when off')}
+   while(tsMove(g,o,{a:'rvnext'}));
    const s=B.pages.findIndex(p=>p.kind==='draw'&&p.by!==o),gu=B.pages.findIndex(p=>p.kind==='guess'&&p.by!==o);if(s>=0)tsMove(g,o,{a:'mark',f:'sketch',p:s});if(gu>=0)tsMove(g,o,{a:'mark',f:'guess',p:gu});
    tsMove(g,o,{a:'bookdone'});continue}
   if(g.phase==='roundEnd'){if(g.rounds&&g.round<g.rounds){tsMove(g,g.ps[0],{a:'next'})}else if(!g.rounds){g.round>=2?tsMove(g,g.ps[0],{a:'stop'}):tsMove(g,g.ps[0],{a:'next'})}else bad.push('roundEnd after last');continue}}
