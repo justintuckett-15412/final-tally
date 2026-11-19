@@ -1,0 +1,138 @@
+/* ---------- Cover Your Kingdom (classes cyk…: Catan's Cities & Knights already uses .ck…) ---------- */
+html.cykplay #app{padding-bottom:var(--cykpad,150px)}
+html.cykplay .rxfab{bottom:calc(var(--cykpad,150px) - 6px)}
+.cykmeep{width:28px;height:28px;flex:none;fill:var(--pc,#999);stroke:rgba(0,0,0,.35);stroke-width:1.4}.cykmeep.sm{width:18px;height:18px}
+.cykturn{display:flex;align-items:center;gap:10px;margin:6px 0;padding:8px 12px;border-radius:14px;background:var(--soft);border-left:6px solid var(--pc,var(--accent,#f2b705))}
+.cykturn>div{flex:1;min-width:0;display:flex;flex-direction:column}.cykturn b{font-size:17px;line-height:1.2}.cykturn small{opacity:.8}
+.cykturn.mine{background:color-mix(in srgb,var(--accent,#f2b705) 35%,var(--surface,#fff));animation:cykpulse 1.6s ease-in-out 2}
+@keyframes cykpulse{50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent,#f2b705) 55%,transparent)}}
+.cykdots{display:flex;gap:4px}.cykdots i{width:12px;height:12px;border-radius:50%;background:var(--accent,#f2b705);border:2px solid rgba(0,0,0,.25)}.cykdots i.used{background:transparent;opacity:.5}
+.cyklog{margin:0 2px 6px;font-size:14px}.cyklog p{margin:2px 0}.cyklog p.old{opacity:.6;font-size:13px}
+.cykwarn{margin:4px 0;padding:6px 10px;border-radius:10px;background:color-mix(in srgb,#e5484d 18%,var(--surface,#fff));font-size:14px;text-align:center}
+/* cards */
+.cykc{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;padding:3px 3px 4px;border-radius:12px;background:var(--surface,#fff);border:2px solid var(--line);color:inherit;font:inherit;text-align:center;box-shadow:0 2px 0 var(--line);min-width:0}
+button.cykc{cursor:pointer}button.cykc:active{transform:translateY(1px)}
+.cykc.sel{border-color:var(--accent,#f2b705);box-shadow:0 0 0 3px var(--accent,#f2b705);transform:translateY(-4px)}
+.cykc.dim{opacity:.5}
+.cykart{position:relative;display:block;width:100%;aspect-ratio:1;border-radius:9px;overflow:hidden;background:var(--soft)}
+.cykart img{width:100%;height:100%;object-fit:cover;display:block}
+.cyknm{font-weight:800;font-size:12px;line-height:1.1;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cykfam{font-size:11px;font-style:italic;line-height:1.1;opacity:.85;overflow-wrap:anywhere}
+.cyksum{font-size:10.5px;line-height:1.15;opacity:.85}.cyksub{font-size:10.5px;line-height:1.1;opacity:.8}
+.cykgem{position:absolute;left:3px;top:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:26px;height:30px;padding:0 3px;border-radius:9px 9px 14px 14px;color:#fff;border:2px solid rgba(255,255,255,.9);box-shadow:0 1px 3px rgba(0,0,0,.35);line-height:1}
+.cykgem b{font-size:13px}.cykgem i{font-style:normal;font-size:8px;line-height:1;margin-top:1px}
+.cykgem.g-h{background:#3f67c8}.cykgem.g-l{background:#23895c}.cykgem.g-e{background:linear-gradient(135deg,#3f67c8 50%,#23895c 50%)}.cykgem.g-m{background:#b86a1f}.cykgem.g-w{background:linear-gradient(135deg,#e5484d,#f2b705,#23895c,#3f67c8,#8a55c9)}
+.cykgem.sm{position:static;min-width:22px;height:24px;border-width:1.5px}.cykgem.sm b{font-size:11px}.cykgem.sm i{display:none}
+.cykbadge{position:absolute;right:3px;top:3px;font-size:10px;font-weight:800;padding:1px 6px;border-radius:999px;background:#17212B;color:#FFD43B}.cykbadge.w{background:#8a55c9;color:#fff}
+.cykn{position:absolute;right:3px;bottom:3px;font-size:12px;font-weight:800;padding:1px 6px;border-radius:999px;background:rgba(23,33,43,.85);color:#fff}
+.cykc.sz-h{width:100%}.cykc.sz-m{width:84px}.cykc.sz-s{width:58px;padding:2px;border-radius:9px}
+.cykc.sz-s .cyknm{font-size:10px}.cykc.sz-s .cykfam{font-size:9px}.cykc.sz-s .cykgem{min-width:20px;height:22px;left:2px;top:2px;border-width:1.5px}.cykc.sz-s .cykgem b{font-size:10px}.cykc.sz-s .cykgem i{display:none}.cykc.sz-s .cykbadge{font-size:8px;padding:0 4px}.cykc.sz-s .cykn{font-size:10px;padding:0 4px}.cykc.sz-s .cyksub{font-size:9px}
+.cykback{position:relative;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:8px;overflow:hidden;flex:none;box-shadow:0 1px 0 var(--line)}
+.cykback img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.cykback b{position:relative;font-size:15px;padding:0 6px;border-radius:999px;background:rgba(23,33,43,.8);color:#fff}
+.cykback.sm{width:30px;height:30px;border-radius:6px}.cykback.sm b{font-size:12px;padding:0 4px}
+.cykempty{display:flex;align-items:center;justify-content:center;min-height:30px;font-size:12px;opacity:.55}
+.cykpile .cykempty{min-height:44px}
+/* a Clan in a Kingdom */
+.cykclan{display:flex;align-items:center;gap:5px;min-width:0;text-align:left}
+.cykci{position:relative;flex:none;width:38px;height:38px;border-radius:8px;overflow:hidden;box-shadow:0 1px 0 var(--line)}.cykci img{width:100%;height:100%;object-fit:cover;display:block}
+.cykci .cykgem.sm{position:absolute;left:1px;top:1px;min-width:16px;height:17px;padding:0 2px;border-radius:5px 5px 8px 8px;border-width:1px}.cykci .cykgem.sm b{font-size:9px}
+.cykct{display:flex;flex-direction:column;min-width:0;line-height:1.15}.cykct>b{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cykct small{font-size:10.5px;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cykct i{font-size:10px;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cykclan.big .cykci{width:52px;height:52px}.cykclan.big .cykct>b{font-size:14px}.cykclan.big .cykct small{font-size:12px}
+.cykclan.big .cykci .cykgem.sm{min-width:20px;height:21px}.cykclan.big .cykci .cykgem.sm b{font-size:11px}
+/* the dock: your hand and the action buttons */
+.cykdock{padding-top:6px!important;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))!important;max-height:72vh;overflow-y:auto;box-shadow:0 -4px 14px rgba(0,0,0,.08)}
+.cykdock .in{display:block}
+.cykdock .cykcards{display:flex;gap:5px;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:thin}
+.cykc.sz-d{flex:0 0 64px;width:64px;padding:2px 2px 3px;border-radius:10px}.cykc.sz-d .cyknm{font-size:10.5px;-webkit-line-clamp:1}.cykc.sz-d .cykfam{font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.cykc.sz-d .cykgem{min-width:21px;height:24px;left:2px;top:2px;border-width:1.5px}.cykc.sz-d .cykgem b{font-size:11px}.cykc.sz-d .cykgem i{font-size:7px}.cykc.sz-d .cykbadge{font-size:8.5px;padding:0 4px;right:2px;top:2px}
+.cykdock .cykhh{margin:0 2px 2px;align-items:center}.cykdock .cykhh>b{white-space:nowrap;font-size:14px}.cykdock .cykhh small{font-size:12px;line-height:1.2;text-align:right;min-width:0}
+/* hand */
+.cykhand{margin:8px 0;padding:8px;border-radius:16px;background:var(--soft);border:2px solid color-mix(in srgb,var(--accent,#f2b705) 60%,transparent)}
+.cykhh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 2px 6px}.cykhh small{opacity:.75;text-align:right}
+.cykcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:5px}
+/* kingdoms */
+.cykrivals,.cykall{display:grid;gap:6px;margin:6px 0}
+.cykruler{padding:5px;border-radius:14px;background:var(--surface,var(--soft));border:2px solid var(--line);border-left:6px solid var(--pc,#999)}
+.cykruler.on{box-shadow:0 0 0 2px color-mix(in srgb,var(--pc,#999) 70%,transparent)}
+.cykruler.me{border-color:color-mix(in srgb,var(--accent,#f2b705) 70%,var(--line));border-left-color:var(--pc,#999)}
+.cykrh{display:flex;align-items:center;gap:6px;min-width:0}.cykrh>b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
+.cykrm{font-size:13px;white-space:nowrap}.cykrm b{font-size:16px}.cykon{color:var(--pc,#999);font-size:14px}
+.cykrhb{display:block;width:100%;padding:2px 4px;border-radius:10px;background:none;border:2px dashed transparent;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.cykruler.tgt .cykrhb{border-color:var(--accent,#f2b705);background:color-mix(in srgb,var(--accent,#f2b705) 22%,transparent);animation:cykglow 1.2s ease-in-out infinite}
+.cykking{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px;margin-top:4px}
+.cykrivals .cykmw{display:none}.cykrivals .cykci{width:32px;height:32px}.cykrivals .bothead{width:15px;height:15px}
+.cykrivals .cykct>b{font-size:11px}
+.cykrivals .cykruler{display:grid;grid-template-columns:88px 1fr;column-gap:6px;align-items:start}
+.cykrivals .cykruler>.cykrh,.cykrivals .cykruler>.cykrhb{grid-column:1;grid-row:1}
+.cykrivals .cykruler>.cykking{grid-column:2;grid-row:1 / span 2;margin-top:0}
+.cykrivals .cykruler>.cykextra{grid-column:1;grid-row:2;margin-top:2px}
+.cykrivals .cykrh{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"m n" "h r";gap:2px 4px;align-items:center}
+.cykrivals .cykrh .cykmeep{grid-area:m;width:18px;height:18px}.cykrivals .cykrh>b{grid-area:n;font-size:13px}.cykrivals .cykrh .cykback{grid-area:h}.cykrivals .cykrh .cykrm{grid-area:r;font-size:12px}
+.cykrivals .cykextra span{font-size:10.5px;padding:0 5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cykrivals .cykextra{gap:3px}
+.cykland{display:flex;flex-direction:column;align-items:stretch;gap:2px;min-width:0;padding:3px 4px;border-radius:12px;background:var(--soft);border:2px solid transparent;font:inherit;color:inherit}
+.cykland.l-high{background:color-mix(in srgb,#3f67c8 10%,var(--soft))}.cykland.l-low{background:color-mix(in srgb,#23895c 10%,var(--soft))}.cykland.l-mane{background:color-mix(in srgb,#b86a1f 10%,var(--soft))}
+button.cykland{cursor:pointer}
+.cykland.tgt{border-color:var(--accent,#f2b705);animation:cykglow 1.2s ease-in-out infinite}
+.cykland.blk{outline:2px dashed #e5484d;outline-offset:-2px}
+@keyframes cykglow{50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent,#f2b705) 60%,transparent)}}
+.cyklh{font-size:10.5px;font-weight:700;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cyklh small{font-weight:400}
+.cykpeeks{display:flex;flex-wrap:wrap;gap:2px}.cykpeek{display:inline-flex;align-items:center;gap:1px}.cykpeek small{font-size:10px}
+.cykmt{align-self:flex-start;font-size:10px;font-weight:700;padding:1px 6px;border-radius:999px}.cykmt.up{background:#23895c;color:#fff}.cykmt.side{background:#e5484d;color:#fff}
+.cykextra{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px}
+.cykstarn,.cykpowc,.cykfar{font-size:12px;padding:1px 8px;border-radius:999px;background:var(--soft)}.cykfar{background:color-mix(in srgb,#e5484d 18%,var(--soft))}
+.cykpowl{display:contents}
+.cykstars{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.cykcl{display:flex;gap:2px;padding:2px;border-radius:8px;background:var(--soft)}
+.cyktok{width:22px;height:22px;border-radius:50%;overflow:hidden;opacity:.28;filter:grayscale(1);border:2px solid transparent}.cyktok img{width:100%;height:100%;object-fit:cover}
+.cyktok.on{opacity:1;filter:none;border-color:#FFD43B;box-shadow:0 0 6px #FFD43B}.cykls{font-size:12px}
+.cykpows{display:grid;gap:4px;width:100%}.cykpow{padding:6px 8px;border-radius:10px;background:color-mix(in srgb,var(--accent,#f2b705) 18%,var(--surface,#fff));border:1px solid var(--line)}.cykpow b{display:block;font-size:13px}.cykpow small{font-size:12px}
+/* the table */
+.cyktable{display:flex;justify-content:center;gap:14px;margin:6px 0;padding:6px;border-radius:14px;background:var(--soft)}
+.cykpile{display:flex;flex-direction:column;align-items:center;gap:2px}.cykpile .rlab{margin:0;font-size:11px}
+.cykret{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:8px;background:var(--bg);font-weight:800;font-size:16px}
+.cykinn{margin:6px 0;padding:6px;border-radius:14px;background:color-mix(in srgb,#b86a1f 12%,var(--soft))}.cykinn>.rlab{display:block;text-align:center;margin:0 0 4px}
+.cykinnp{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;justify-items:center}
+.cykinnpile{padding:2px;border-radius:10px;border:2px solid transparent;background:none;font:inherit;color:inherit}button.cykinnpile{cursor:pointer;border-color:var(--accent,#f2b705);border-style:dashed}.cykinnpile.on{border-style:solid;background:color-mix(in srgb,var(--accent,#f2b705) 30%,transparent)}
+/* guided moves */
+.cykdock .cykflow{margin:0 0 4px;padding:6px 8px}.cykdock .cykflow p{margin:2px 0;font-size:14px}
+.cykflow{margin:6px 0;padding:8px 10px;border-radius:14px;background:color-mix(in srgb,var(--accent,#f2b705) 22%,var(--surface,#fff));border:2px solid var(--accent,#f2b705)}
+.cykflow p{margin:4px 0}.cykflowh{display:flex;justify-content:space-between;align-items:center;gap:8px}.cykflowh b{font-size:15px;white-space:nowrap}.cykflowh .cyktap{flex:1;margin:0;font-size:13px;line-height:1.25}.cykflowh .btn{flex:none}
+.cykinngo{display:flex;align-items:center;gap:8px;margin-top:4px}.cykinngo p{flex:1;margin:0;font-size:13px}.cykflow .cykinnp{margin-top:4px}
+.cykchoices{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.cykchoices .btn{flex:1 1 140px}
+.cykask{text-align:center}.cykask .cykchclan{display:flex;justify-content:center}
+.cykbar .in{display:block}
+.cykacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(42px,1fr));gap:3px;margin-top:2px}
+.cykacts .btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:4px 1px;min-height:48px;font-size:11px;line-height:1.1;white-space:nowrap}.cykacts .btn i{font-style:normal;font-size:17px;line-height:1}
+.cykacts .btn.on{background:var(--accent,#f2b705);color:#17212B}
+.cykacts .btn:disabled{opacity:.4}
+/* the challenge */
+.cykchain{margin:6px 0;padding:8px;border-radius:14px;background:var(--surface,var(--soft));border:2px solid #e5484d}
+.cykchw{margin:0 0 4px;display:flex;flex-direction:column}.cykchw small{opacity:.8}
+.cykplays{display:flex;flex-wrap:wrap;align-items:center;gap:4px;justify-content:center}
+.cykplay{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border-radius:10px;background:var(--soft);border-top:4px solid var(--pc,#999)}.cykplay small{font-size:11px}
+.cykplc{display:flex;gap:2px}.cykarr{font-style:normal;font-weight:800;opacity:.6}
+.cykwait{text-align:center;margin:6px 0 2px}
+.cyknudges{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:6px 0 2px}.cyknudge{padding:5px 12px!important;min-height:0;font-size:14px!important}.cyknudge:not(.on){box-shadow:inset 3px 0 0 var(--pc,transparent)}.cyknudge.on{opacity:.7}
+.cykchbg{z-index:60}
+.cykchs{text-align:center;border-top:8px solid var(--pc,#e5484d);max-height:88vh;overflow:auto}.cykchs h2{font-size:17px;margin:2px 0 6px;line-height:1.25}
+.cykchclan{display:flex;justify-content:center;margin:4px 0}
+.cykcounters{display:grid;gap:6px;margin:8px 0}
+.cykcbtn{display:flex;align-items:center;gap:8px;text-align:left;padding:5px 8px!important;min-height:0}.cykcbtn img{width:34px;height:34px;border-radius:7px;object-fit:cover}.cykcbtn>span:last-child{font-weight:700;font-size:14px;line-height:1.15}
+.cykchs .cykcounters{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin:6px 0}
+.cykchrow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}.cykchrow .cykchclan{margin:0}.cykneed{margin:6px 0 0}
+.cykpassb{position:sticky;bottom:-16px;background:var(--surface,#fff);padding:6px 0 2px}.cykpassb .hint{margin:4px 0 0}
+.toast.cyknzt{top:calc(14px + env(safe-area-inset-top,0px));bottom:auto;z-index:70;background:#FFD43B;color:#17212B;font-size:16px;padding:12px 18px;max-width:92vw;text-align:center}
+/* scores */
+.cykfin{padding:10px}.cykfin .cykbig{font-size:19px;font-weight:800;text-align:center;margin:4px 0}
+.cyktab{width:100%;border-collapse:collapse;margin:6px 0}.cyktab th,.cyktab td{padding:6px 3px;text-align:center;border-bottom:1px solid var(--line);font-size:14px}
+.cyktab td:first-child,.cyktab th:first-child{text-align:left}.cyktab .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--pc,#999);margin-right:6px}
+.cyktab tr.win td{background:color-mix(in srgb,var(--accent,#f2b705) 22%,transparent)}.cykdet{font-size:12px}
+.cyklinkme{padding:14px}.cyklinkme h2{margin:0 0 6px}
+.cykrec{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.cykrecr{display:flex;flex-direction:column;gap:2px}.cykrecr input{width:100%;font-size:17px;text-align:center}
+.cykprev{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}.cykpv{display:flex;flex-direction:column;align-items:center;gap:2px}.cykpv img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px}.cykpv small{font-size:11px;text-align:center}
+.cykresimg{display:flex;justify-content:center}.cykresimg img{border-radius:20px}
+.cykrange{text-align:center}
+/* the big board (TV or iPad): everyone's Kingdom, bigger, never a hand */
+html.cykbigb #app{max-width:1400px}
+html.cykbigb .cykall{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+html.cykbigb .cykturn b{font-size:clamp(18px,2.4vw,34px)}html.cykbigb .cyklog{font-size:clamp(14px,1.6vw,22px)}
+html.cykbigb .cykc.sz-m{width:clamp(72px,8vw,120px)}
