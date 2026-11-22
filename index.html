@@ -2215,6 +2215,9 @@ html.dark .wzcave{background:linear-gradient(#4a4030,#3a3226);color:#efe4cf;bord
 .wzrsnext{margin-top:12px;padding:10px;border-radius:12px;background:var(--soft,#eef1f4)}.wzrsnext p{margin:4px 0 0}
 .wzpays .btn{min-height:40px}
 .wzkeep{align-items:stretch}.wzkeep .wzcave{min-height:100%;box-sizing:border-box}
+
+/* the pre-dug first space of each cave: a blank cave picture so it reads as a cave */
+.wzcave-blank small{color:var(--muted,#5a6672);font-style:italic}
 /* Dead of Winter on the phones */
 .dwcol,.dwloc{padding:10px;border-radius:12px}
 .dwtrack{display:flex;flex-wrap:wrap;gap:12px;font-size:15px;margin-bottom:6px}
@@ -14400,7 +14403,7 @@ function wzGoalIcons(id){const m=/^per([SHAP])$/.exec(id);if(m)return wzPerChip(
 const wzPickK=(g,V)=>{const A=g.ask;if(!A||!V||A.pid!==V.id)return {};const m={},sel=wzAskSel(A);(A.opts||[]).filter(o=>sel==null||o.ck==null||String(o.ck)===sel).forEach(o=>{if(o.k&&!m[o.k])m[o.k]=o.v;if(/^[cga][0-3]$|^n$/.test(String(o.v))&&!m[o.v])m[o.v]=o.v});return m};
 function wzMat(g,pid,V){const P=g.P[pid],pick=pid===(V&&V.id)?wzPickK(g,V):{};
   const rows=WZC.map(cv=>{const M=P.mat[cv];return `<div class="wzrow wzr-${cv}"><div class="wzent"><img src="art/wy-cave-${cv}.webp" alt=""><small>${esc(WZCN[cv])}</small><small class="rlab">${P.ex[cv]?`explored ${P.ex[cv]}×`:''}</small></div>
-    ${M.map((x,i)=>{const kk=cv+i,pk=pick[kk];const inner=!x?`<div class="wzslot dug"><small>Not dug${i>=2?` · ${WZEXC[i]}${wzI('egg')}`:''}</small></div>`:x.d?wzCard(x.d.id,{x:x.d}):`<div class="wzslot open">${x.cv?wzCaveCard(x.cv):'<small>Open</small>'}</div>`;
+    ${M.map((x,i)=>{const kk=cv+i,pk=pick[kk];const inner=!x?`<div class="wzslot dug"><small>Not dug${i>=2?` · ${WZEXC[i]}${wzI('egg')}`:''}</small></div>`:x.d?wzCard(x.d.id,{x:x.d}):`<div class="wzslot open">${x.cv?wzCaveCard(x.cv):'<div class="wzcave wzcave-blank"><img class="wzcvimg" src="art/wy-back-cave.webp" alt=""><small>Open cave · no card needed</small></div>'}</div>`;
       return pk!=null?`<button class="wzsp pick" data-a="wzans" data-k="${wzEnc({v:pk})}">${inner}</button>`:`<div class="wzsp">${inner}</div>`}).join('')}</div>`}).join('');
   const nk=pick.n!=null?`<button class="wznest pick" data-a="wzans" data-k="${wzEnc({v:'n'})}">`:'<div class="wznest">';
   return `<div class="wzmat">${rows}</div><div class="wzbase">${nk}<img src="art/wy-nest.webp" alt=""><span>Mat nests: ${P.nest}/2 ${wzI('egg')}</span>${pick.n!=null?'</button>':'</div>'}<span class="rlab">${wzI('coin')}<b class="num">${P.coin}</b> · ${WZR.map(r=>`${wzI(r)}<b class="num">${P.res[r]}</b>`).join(' ')}</span></div>`}
@@ -27724,6 +27727,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='02e720';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='27f910';</script>
 </body>
 </html>

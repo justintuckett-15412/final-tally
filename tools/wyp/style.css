@@ -63,3 +63,6 @@ html.dark .wzcave{background:linear-gradient(#4a4030,#3a3226);color:#efe4cf;bord
 .wzrsnext{margin-top:12px;padding:10px;border-radius:12px;background:var(--soft,#eef1f4)}.wzrsnext p{margin:4px 0 0}
 .wzpays .btn{min-height:40px}
 .wzkeep{align-items:stretch}.wzkeep .wzcave{min-height:100%;box-sizing:border-box}
+
+/* the pre-dug first space of each cave: a blank cave picture so it reads as a cave */
+.wzcave-blank small{color:var(--muted,#5a6672);font-style:italic}
