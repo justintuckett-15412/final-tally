@@ -2099,6 +2099,12 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 
 .wpimg{display:block;width:100%;height:64px;object-fit:contain;object-position:center;background:#fbf3e4;border-radius:6px;margin:1px 0}
 .wpbsimg{display:block;width:180px;height:180px;border-radius:12px;margin:0 auto 8px;object-fit:cover}
+
+/* long press: the card itself, big enough to read */
+.lpbig{display:flex;justify-content:center;margin:2px 0 12px}.lpbig>.wpc,.lpbig>.wzc{zoom:2.2;box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:default}
+@media (max-width:380px){.lpbig>.wpc,.lpbig>.wzc{zoom:1.9}}
+/* long-press sheets open above the sticky docks (the dock is z-index 30, sheets 20) */
+.sheet-bg:has(>.lpsheet){z-index:46}
 /* Wyrmspan on the phones */
 .wzi{width:18px;height:18px;vertical-align:-4px;border-radius:4px}
 .wzc{position:relative;display:flex;flex-direction:column;gap:2px;width:124px;min-height:128px;padding:6px 7px 6px 9px;border-radius:10px;background:var(--surface,#fff);border:1px solid var(--line,#d9dee4);box-shadow:0 1px 2px rgba(0,0,0,.08);font-size:11px;line-height:1.25;text-align:left;color:var(--ink,#17212b)}
@@ -2134,6 +2140,10 @@ html.dark .wzcave{background:linear-gradient(#4a4030,#3a3226);color:#efe4cf;bord
 .wzxs{display:flex;gap:4px;margin:2px 0}.wzx{min-width:34px;height:34px;padding:0 4px;border-radius:10px;border:1px solid var(--line,#d9dee4);background:var(--surface,#fff);font-size:16px;display:flex;align-items:center;gap:1px;cursor:pointer}.wzx small{font-size:10px}.wzx:disabled{opacity:.35}
 .wzact{padding:4px}.wzact img{width:34px;height:34px}
 .wzimg{display:block;width:calc(100% + 4px);height:64px;object-fit:cover;object-position:center 45%;border-radius:6px;margin:1px -2px}
+
+/* long press: the card itself, big enough to read */
+.lpbig{display:flex;justify-content:center;margin:2px 0 12px}.lpbig>.wpc,.lpbig>.wzc{zoom:2.2;box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:default}
+@media (max-width:380px){.lpbig>.wpc,.lpbig>.wzc{zoom:1.9}}
 /* Dead of Winter on the phones */
 .dwcol,.dwloc{padding:10px;border-radius:12px}
 .dwtrack{display:flex;flex-wrap:wrap;gap:12px;font-size:15px;margin-bottom:6px}
@@ -13685,7 +13695,7 @@ const wpEnc=mv=>encodeURIComponent(JSON.stringify(mv));
 const wpBtn=(mv,html,o={})=>`<button class="${o.cls||''}" data-a="wpans" data-k="${wpEnc(mv)}"${o.dis?' disabled':''}${o.lab?` aria-label="${esc(o.lab)}"`:''}>${html}</button>`;
 const wpCost=B=>{/* food icons */const L=[];for(const f in B.cost)for(let k=0;k<B.cost[f];k++)L.push(wpFI(f));for(let k=0;k<(B.wild||0);k++)L.push('🌈');return L.length?L.join(B.or?' / ':''):'free'};
 function wpBP(n){return 'art/wp-b-'+n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.webp'}
-function wpCard(b,o={}){const B=wpB(b);return `<div class="wpc wp-${B.col||'none'}${o.sel?' sel':''}${o.cls?' '+o.cls:''}">
+function wpCard(b,o={}){const B=wpB(b);return `<div class="wpc wp-${B.col||'none'}${o.sel?' sel':''}${o.cls?' '+o.cls:''}" data-lp="wpb:${b}">
   <div class="wpch"><b class="wpn">${esc(B.n)}</b><span class="wppt num">${B.pts}</span></div>
   <img class="wpimg" src="${wpBP(B.n)}" alt="" loading="lazy" onerror="this.remove()">
   <div class="wpcm"><span title="Habitats">${B.hab.split('').map(h=>WPHI[h]).join('')}</span><span title="Food cost">${wpCost(B)}</span></div>
@@ -13766,7 +13776,7 @@ function wpResults(g){const P=act().slice().sort((a,b)=>g.fin[b.id].tot-g.fin[a.
   return `<div class="sec"><div class="sec-h"><h3>Final scores</h3></div><div class="panel">${P.map(q=>{const F=g.fin[q.id];return `<div class="prow" style="${pc(q.color)}"><span class="rtext"><b>${esc(nm(q))}</b><br><small class="rlab">Birds ${F.birds} · bonus ${F.bonus}${F.bon.length?` (${F.bon.map(b=>esc(wpBon(b.id).name)+' '+b.v).join(', ')})`:''} · goals ${F.goals} · eggs ${F.eggs} · cached food ${F.food} · tucked ${F.tuck} · leftover food ${F.left}</small></span><b class="num">${F.tot}</b></div>`}).join('')}</div>
     <div class="actions"><div class="in">${wpRes()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Waiting for the host…</span>`}</div></div></div>`}
 function wpBirdSheet(b){const B=wpB(b);return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet" role="dialog" aria-modal="true" aria-labelledby="lp-h" data-stop="1"><div class="rs-top"><div><h2 id="lp-h">${esc(B.n)}</h2><small class="lp-sub"><i>${esc(B.sci||'')}</i></small></div><button class="btn sm" data-a="lpclose">Close</button></div>
-  <div class="rs-body"><img class="wpbsimg" src="${wpBP(B.n)}" alt="${esc(B.n)}" onerror="this.remove()">${wpCard(b)}<p class="rlab">${B.pts} points · lives in ${B.hab.split('').map(h=>WPHN[h]).join(', ')} · food ${wpCost(B)} · ${WPNN[B.nest]} nest, up to ${B.egg} eggs · wingspan ${B.ws} cm${B.pred?' · predator':''}${B.flock?' · flocking':''}</p>${B.pw?`<p class="rlab"><b>${WPCOLN[B.col]||''}:</b> ${esc(B.say)}</p><p class="hint">The exact wording is on the card.</p>`:''}</div></div></div>`}
+  <div class="rs-body"><div class="lpbig">${wpCard(b)}</div><p class="rlab">${B.pts} points · lives in ${B.hab.split('').map(h=>WPHN[h]).join(', ')} · food ${wpCost(B)} · ${WPNN[B.nest]} nest, up to ${B.egg} eggs · wingspan ${B.ws} cm${B.pred?' · predator':''}${B.flock?' · flocking':''}</p>${B.pw?`<p class="rlab"><b>${WPCOLN[B.col]||''}:</b> ${esc(B.say)}</p><p class="hint">The exact wording is on the card.</p>`:''}</div></div></div>`}
 function wpUiAct(a,b,k){const g=wpG();if(!g)return;if(a==='wpshow'){WPVIEW=k;WPSEL=null;return}if(a==='wplook'){WPLOOK=k;return}const V=wpViewer();if(!V)return;
   if(a==='wpsb'||a==='wpsf'||a==='wpsbo'){if(!WPSET)return;if(a==='wpsb'){const i=+k,L=WPSET.b;L.includes(i)?L.splice(L.indexOf(i),1):L.push(i);while(WPSET.b.length+WPSET.f.length>5&&WPSET.f.length)WPSET.f.pop()}else if(a==='wpsf'){const L=WPSET.f;L.includes(k)?L.splice(L.indexOf(k),1):L.length+WPSET.b.length<5&&L.push(k)}else WPSET.bo=k;vibe(6);return}
   if(a==='wpsgo'){if(!WPSET)return;const s=WPSET;WPSET=null;lkq('wpSetup',V.id,s.b,s.f,s.bo)&&vibe(12);return}
@@ -14316,7 +14326,7 @@ function wzResults(g){const P=act().slice().sort((a,b)=>g.fin[b.id].tot-g.fin[a.
   return `<div class="sec"><div class="sec-h"><h3>Final scores</h3></div><div class="panel">${P.map(q=>{const F=g.fin[q.id];return `<div class="prow" style="${pc(q.color)}"><span class="rtext"><b>${esc(nm(q))}</b><br><small class="rlab">Guild ${F.guild} · dragons ${F.dragons} · end-game ${F.abil} · eggs ${F.eggs} · cached ${F.cache} · tucked ${F.tuck} · objectives ${F.obj} · coins ${F.coins} · items ${Math.floor(F.items/4)}</small></span><b class="num">${F.tot}</b></div>`}).join('')}</div>
     <div class="actions"><div class="in">${wzRes2()?`<button class="btn primary" data-a="finish">Finish &amp; reveal scores</button>`:`<span class="rlab">Waiting for the host…</span>`}</div></div></div>`}
 function wzDragonSheet(id){const D=wzD(id);return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet" role="dialog" aria-modal="true" aria-labelledby="lp-h" data-stop="1"><div class="rs-top"><div><h2 id="lp-h">${esc(D.n)}</h2><small class="lp-sub">Card ${D.no} · ${WZSZ[D.sz]} · ${WZPER[D.per]}</small></div><button class="btn sm" data-a="lpclose">Close</button></div>
-  <div class="rs-body"><img class="wpbsimg" src="${wzDP(D.n)}" alt="${esc(D.n)}" onerror="this.remove()">${wzCard(id)}<p class="rlab">${D.vp} points · lives in ${D.cv.split('').map(c=>WZCN[c]).join(', ')} · cost ${wzCostH(D)}${D.cap?` · holds ${D.cap} egg${D.cap>1?'s':''}`:''}</p><p class="rlab"><b>${WZTYN[D.ty]}:</b> ${esc(wzDSay(D))}</p><p class="hint">The exact wording is on the card.</p></div></div></div>`}
+  <div class="rs-body"><div class="lpbig">${wzCard(id)}</div><p class="rlab">${D.vp} points · lives in ${D.cv.split('').map(c=>WZCN[c]).join(', ')} · cost ${wzCostH(D)}${D.cap?` · holds ${D.cap} egg${D.cap>1?'s':''}`:''}</p><p class="rlab"><b>${WZTYN[D.ty]}:</b> ${esc(wzDSay(D))}</p><p class="hint">The exact wording is on the card.</p></div></div></div>`}
 function wzUiAct(a,b,k){const g=wzG();if(!g)return;if(a==='wzshow'){WZVIEW=k;WZSEL=null;return}if(a==='wzlook'){WZLOOK=k;return}const V=wzViewer();if(!V)return;
   if(a==='wzsel'){if(k==='none'){WZSEL=null;return}if(k==='trade'){WZSEL={t:'trade',pay:[]};return}
     const [t,v]=String(k).split(':');if(t==='tp'&&WZSEL&&WZSEL.t==='trade'){WZSEL.pay.push(v);return}
