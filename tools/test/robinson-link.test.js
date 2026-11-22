@@ -17,6 +17,7 @@ const fs=require('fs');const SHOT=process.env.SHOTS||'/tmp/rc-shots';fs.mkdirSyn
   ok('Guest phone: the game arrives; it shows its own character',gv.g&&gv.mine>=1,gv);
   /* one tap for this phone */
   const tap=pg=>pg.evaluate(()=>{const q=s=>document.querySelector(s),g=S.rcg;if(!g)return 'nog';if(g.phase==='done')return 'done';
+    const nx=q('.rcrv [data-a="rcurvnext"]');if(nx){nx.click();return 'next'}
     const pop=q('.rcpop [data-a="rcucardok"]');if(pop){pop.click();return 'pop'}
     const go=q('.rcplsheet [data-a="rcuplgo"]');if(go){if(!go.disabled){go.click();if(q('.rcplsheet')){window.__rcbad=(window.__rcbad||0)+1;q('.rcplsheet [data-a="rcuplclose"]').click();return 'refused'}return 'plan'}const f=q('.rcplsheet [data-a="rcuplfill"]');if(f&&!window.__rcf){window.__rcf=1;f.click();return 'fill'}window.__rcf=0;q('.rcplsheet [data-a="rcuplclose"]').click();window.__rcbad=(window.__rcbad||0)+1;return 'close'}
     const hx=q('.sheet-bg [data-a="rcuplclose"]');if(hx){hx.click();return 'closehex'}

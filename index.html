@@ -2894,6 +2894,23 @@ html.rcfull:not(.rcside) .rcctl .rccast{display:grid;grid-template-columns:1fr 1
 .rctab span{font-size:20px;line-height:1}
 .rctab.on{background:var(--accent,#f2b705);color:#17212B}
 .rcdot{position:absolute;top:4px;right:calc(50% - 18px);width:10px;height:10px;border-radius:50%;background:#e23b3b;box-shadow:0 0 0 2px var(--card,#fff)}
+/* step-by-step reveal */
+.rcrv{display:block!important;padding:14px 14px 12px;border:2px solid var(--accent,#f2b705)}
+.rcrvh{display:flex!important;flex-direction:row;gap:12px;align-items:center;margin-bottom:8px}
+.rcrvh h2{margin:2px 0 0;font-size:19px;line-height:1.2}
+.rcrvpt{flex:0 0 auto;width:56px;height:56px;border-radius:50%;overflow:hidden;border:3px solid var(--accent,#f2b705);background:#fff}
+.rcrvimg{width:100%;height:100%;object-fit:cover}
+.rcrvic{font-size:34px;width:56px;text-align:center}
+.rcrvl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.rcrvl li{padding:6px 8px;border-radius:8px;background:rgba(127,127,127,.08);font-size:15px}
+.rcrvl li.ok{background:rgba(46,160,67,.14);font-weight:700}
+.rcrvl li.no{background:rgba(226,59,59,.13);font-weight:700}
+.rcrvcard{display:flex;gap:10px;margin-top:10px;padding:8px;border-radius:10px;background:rgba(242,183,5,.12)}
+.rcrvcimg{width:64px;height:64px;border-radius:8px;object-fit:cover;flex:0 0 auto}
+.rcrvcard p{margin:2px 0 0;font-size:14px}
+.rcrvf{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.rcrvf .rlab{margin-right:auto}
+.rcboard.big ~ .rcrv,.rcbigv .rcrv{max-width:900px;margin:0 auto 12px;font-size:18px}
 </style>
 
 <div id="app"></div>
@@ -19747,7 +19764,10 @@ const rcOn=()=>typeof S!=='undefined'&&S.game==='robinson';
 const rcG=()=>(typeof S!=='undefined'&&S.rcg)||null;
 let RCQUIET=0;
 const RCQ={},RCSKIP={},RCOP={};
-const rcLog=(g,t,ic)=>{if(RCQUIET)return;if(typeof gLog==='function')gLog(g,t,ic||'🏝️');else (g.lg=g.lg||[]).push({t,ic})};
+/* step-by-step reveal (Justin, Nov 22): every log line also goes into g.rx with a running number; headings (h:1) start a new card. g.rv = last number everyone has stepped past. */
+const rcRx=(g,t,ic,h,ch)=>{if(RCQUIET||!g)return;const L=(g.rx=g.rx||[]);g.rxn=(g.rxn||0)+1;L.push(h?{n:g.rxn,t,ic:ic||'',h:1,ch:ch||null,rd:g.round}:{n:g.rxn,t,ic:ic||''});if(L.length>400)L.splice(0,L.length-400)};
+const rcStep=(g,t,ic,ch)=>{if(RCQUIET)return;rcRx(g,t,ic,1,ch)};
+const rcLog=(g,t,ic)=>{if(RCQUIET)return;rcRx(g,t,ic||'🏝️');if(typeof gLog==='function')gLog(g,t,ic||'🏝️');else (g.lg=g.lg||[]).push({t,ic})};
 /* cards drawn, for the screen's card popups (display only): {n,k:'ev'|'adv'|'mys',id,half:'ev'?,rd} */
 const rcShow=(g,k,id,half)=>{if(RCQUIET)return;const L=(g.shown=g.shown||[]);g.shownN=(g.shownN||0)+1;L.push({n:g.shownN,k,id,half:half||null,rd:g.round});if(L.length>12)L.splice(0,L.length-12)};
 const rcAnn=(g,a,b,ic)=>{if(RCQUIET)return;if(typeof gAnn==='function')gAnn(g,a,b,ic||'🏝️')};
@@ -19835,7 +19855,7 @@ function rcDeal(o={}){const D=rcData(),scen=RCSC.includes(o.scen)?o.scen:'castaw
   if(typeof S!=='undefined')S.rcg=g;
   rcLog(g,`Robinson Crusoe: ${SC.n}, ${n} character${n>1?'s':''} (${g.order.map(rcCN).join(', ')})${g.fri?' + Friday':''}${g.dog?' + the Dog':''}`,'🏝️');
   rcAnn(g,SC.n,`${SC.rounds} rounds. ${rcCN(g.fp)} is First Player.`,'🏝️');
-  rcRun(g);return g}
+  rcRun(g);g.rv=g.rxn||0;return g}
 
 /* ---------- the actor and the queue ---------- */
 function rcActor(g){if(!g||g.phase==='done')return null;if(g.ask)return g.ask.pid;
@@ -19845,7 +19865,8 @@ function rcWaits(g,pid){if(!g||g.phase==='done')return false;if(g.ask)return g.a
 function rcRun(g){let guard=0;while(g.q.length&&g.phase!=='done'&&guard++<5000){const s=g.q[0];const h=RCQ[s.t];if(!h){if(typeof console!=='undefined')console.error('RC: no step',s.t);g.q.shift();continue}
   const done=h(g,s);if(g.phase==='done')return;if(done===null&&!g.ask){g.q.shift();continue}if(!done){if(!g.ask&&g.q[0]!==s)continue;return}if(g.q[0]===s)g.q.shift();else{const i=g.q.indexOf(s);if(i>=0)g.q.splice(i,1)}g.ask=null}
   if(guard>=5000)throw new Error('RC: step loop '+(g.q[0]&&g.q[0].t))}
-function rcMove(g,pid,mv){if(!g||g.phase==='done'||!mv||!g.ps.includes(pid))return false;let ok=false;
+function rcMove(g,pid,mv){if(g&&mv&&mv.a==='seen'&&g.ps.includes(pid)){const u=Math.min(+mv.upto||0,g.rxn||0);if(!(u>(g.rv||0)))return false;g.rv=u;g.n++;return true}
+  if(!g||g.phase==='done'||!mv||!g.ps.includes(pid))return false;let ok=false;
   try{
   if(mv.a==='use'||mv.a==='ab'){ok=rcUse(g,pid,mv);if(ok){rcRun(g)}}
   else if(g.ask){if(g.ask.pid!==pid)return false;const s=g.q[0];if(!s)return false;if(mv.skip&&!g.ask.opt)return false;
@@ -19890,7 +19911,7 @@ function rcLevel(g,trk,d,ctx,why){if(!d)return;const key=trk==='weapon'?'weapon'
   if(miss>0){if(ctx&&ctx.ifp)return;if(g.scen==='kingkong'&&key==='pal'&&ctx&&ctx.hungry)return rcKongPal(g);rcDemand(g,miss,ctx&&ctx.hungry?{}:ctx,why)}}
 const rcShelterNow=g=>g.shelter||rcNatShelter(g,g.camp);
 const rcNatShelter=(g,s)=>{const P=g.sp[s];return !!(P&&P.t&&P.up&&!P.gone&&rcTile(P.t)&&rcTile(P.t).shelter)};
-function rcEnd(g,win,why){if(g.phase==='done')return;g.phase='done';g.q=[];g.ask=null;g.plan=null;g.fin={win:!!win,why,round:g.round};
+function rcEnd(g,win,why){if(g.phase==='done')return;rcStep(g,win?'You escaped the island!':'The island won',win?'🏆':'☠️');if(why)rcLog(g,why,win?'🏆':'☠️');g.phase='done';g.q=[];g.ask=null;g.plan=null;g.fin={win:!!win,why,round:g.round};
   rcLog(g,win?`Victory! ${why}`:`The game is lost: ${why}`,win?'🏆':'☠️');rcAnn(g,win?'You won!':'Game over',why,win?'🏆':'☠️')}
 
 /* ---------- round ---------- */
@@ -19914,7 +19935,7 @@ function rcFlipSpace(g,s,lava){const P=g.sp[s];if(!P||P.vol)return false;if(P.t&
   if(g.camp===s){rcEnd(g,false,lava?'lava destroyed the camp':'the camp tile became inaccessible');return true}return true}
 
 /* ---------- Phase I: Event ---------- */
-RCQ.event=g=>{g.phase='event';if(g.round===1)return true;
+RCQ.event=g=>{g.phase='event';if(g.round===1)return true;rcStep(g,`Round ${g.round}: Event`,'🃏');
   if(g.beside){const id=g.beside;g.beside=null;const B=rcBeast(id);rcLog(g,`Dangerous Night: ${rcCN(g.fp)} fights the ${B.name}`,'🐾');
     rcIns(g,{t:'combat',ctx:{fp:1,ch:g.fp,event:1},str:B.str,wpn:B.wpn,food:B.food,fur:B.fur,pal:B.pal||0,after:B.after||[],name:B.name});}
   rcIns(g,{t:'evDraw'});return true};
@@ -19930,7 +19951,7 @@ RCQ.evDraw=g=>{if(!g.ev.length){rcLog(g,'The Event deck is empty: no Event this 
   rcIns(g,...pre,{t:'ops',L:E.eff||[],ctx},{t:'evPlace',ref});return true};
 RCQ.mdiscard=(g,s)=>{g.gone=g.gone||{};if(g.gone['mys:'+s.id]){delete g.gone['mys:'+s.id];return true}if(!g.mdisc.includes(s.id)&&!g.keep.some(c=>c.id===s.id))g.mdisc.push(s.id);return true};
 RCQ.evPlace=(g,s)=>{const old=g.thr[0];g.thr[0]=g.thr[1];g.thr[1]=s.ref;
-  if(old&&old.k==='ev'){const E=rcEv(old.id);rcLog(g,`${E.name} leaves the Threat area: its threat happens`,'⚠️');rcIns(g,{t:'ops',L:E.push||[],ctx:{card:old,event:1,fp:1}})}
+  if(old&&old.k==='ev'){const E=rcEv(old.id);rcStep(g,`${E.name} leaves the Threat area: its threat happens`,'⚠️');rcIns(g,{t:'ops',L:E.push||[],ctx:{card:old,event:1,fp:1}})}
   else if(old)rcLog(g,'The Wreckage card leaves the board','🚢');return true};
 /* scenario Book effect */
 RCQ.book=(g,s)=>{const sc=g.scen,ctx=s.ctx||{};
@@ -19951,7 +19972,7 @@ const rcSpN=(g,s)=>{const P=g.sp[s];return P.t&&(P.up||P.cityRev)?`${s} (tile ${
 
 /* ---------- Phase II: Morale ---------- */
 RCQ.morale=(g,s,mv)=>{g.phase='morale';const k=g.fp;
-  if(!s.st){s.st=1;if(g.order.length===1)rcMorale(g,1,'solo');
+  if(!s.st){s.st=1;rcStep(g,'Morale','🧭',k);if(g.order.length===1)rcMorale(g,1,'solo');
     /* Diary / Drums: Determination for the First Player in the Morale Phase (ENGINE: to the First Player) */
     const PH=rcPas(g,'phase').filter(p=>p.phase==='morale');if(PH.length){rcFront(g,...PH.map(p=>({t:'ops',L:p.steps,ctx:{ch:g.fp,now:1}})));return false}}
   const v=RCMORALE[g.mor];
@@ -19964,7 +19985,7 @@ RCQ.morale=(g,s,mv)=>{g.phase='morale';const k=g.fp;
 /* ---------- Phase III: Production ---------- */
 function rcSrc(g,s){const P=g.sp[s];if(!P||!P.t||!P.up||P.gone)return [];const T=rcTile(P.t);if(!T)return [];const L=(T.sources||[]).map((x,i)=>({i,sub:x,kind:x==='wood'?'wood':'food',ex:!!P.ex[i]}));if(P.flock&&!L.some(x=>x.kind==='food'))L.push({i:9,sub:'parrot',kind:'food',ex:!!P.ex[9]});return L}
 RCQ.prod=(g,s,mv)=>{g.phase='production';const P=g.sp[g.camp],pr=g.prod;
-  if(!s.st){s.st=1;s.got=rcZ();
+  if(!s.st){s.st=1;rcStep(g,'Production at the camp','🌾');s.got=rcZ();
     if(pr.skip){rcLog(g,'Production is skipped this round','🚫');s.skip=1}
     else if(P.fog){rcLog(g,'Fog on the camp tile: no Production from its sources','🌫️')}
     else{const src=rcSrc(g,g.camp).filter(x=>!x.ex);src.forEach(x=>s.got[x.kind]++);
@@ -20153,7 +20174,7 @@ const rcAct=(g,id)=>g.plan.acts.find(a=>a.id===id);
 RCQ.act=(g,s)=>{const a=rcAct(g,s.id);if(!a)return true;const k=a.pawns[0];
   const F=rcFig(g,k);if(!F||F.dead){rcLog(g,`${a.label}: ${rcCN(k)} can't act`,'⛔');rcRefund(g,a);return true}
   const ctx={ch:k,aid:a.id,type:a.type,sp:a.tgt.sp||(['build','arrange','rest'].includes(a.type)?g.camp:null),gained:{}};a.ctx=ctx;
-  rcLog(g,`${rcCN(k)}: ${a.label}`,'▶️');
+  rcStep(g,`${rcCN(k)}: ${a.label}`,'▶️',k);
   /* time-consuming token on the Action space is spent */
   if(a.tcSpace){g.at[a.type].tc=0}
   /* greater danger on the tile (or on the camp tile for Build/Arrange/Rest): 1 wound unless Weapon ≥ 1 */
@@ -20214,7 +20235,7 @@ RCQ.aRoll=(g,s,mv)=>{const a=rcAct(g,s.id),k=a.ctx.ch,col=a.type,F=rcFig(g,k);
   if(s.d.w==='w')rcWound(g,k,1,`${col} Wound die`);if(g.phase==='done')return true;
   const ok=s.d.s==='s',deck=col,adv=s.d.a==='?'||g.advTok[deck];
   if(g.advTok[deck])g.advTok[deck]=0;
-  if(ok){rcIns(g,{t:{build:'bOk',gather:'gOk',explore:'eOk'}[col],id:a.id},...(adv?[{t:'advDraw',deck,id:a.id}]:[]))}
+  if(ok){rcLog(g,`${a.label}: success`,'✅');rcIns(g,{t:{build:'bOk',gather:'gOk',explore:'eOk'}[col],id:a.id},...(adv?[{t:'advDraw',deck,id:a.id}]:[]))}
   else{rcLog(g,`${a.label} fails`,'❌');rcDet(g,k,2,'failed roll');rcRefund(g,a);if(col==='explore'&&a.tgt.sp)a.failed=1;if(adv)rcIns(g,{t:'advDraw',deck,id:a.id})}
   return true};
 function rcRerollOpts(g,k,col,s){const O=[],F=rcFig(g,k);const dice=['w','s','a'].filter(x=>!s.onlyS||x==='s');
@@ -20371,7 +20392,7 @@ function rcAddCampTok(g,r){const P=g.sp[g.camp];if(P.tok[r]>0&&!(g.scen==='famil
 const rcWxDice=g=>(rcData().scen[g.scen].weather[g.round-1]||[]).slice();
 const rcHungryN=g=>g.scen==='kingkong'?RCSPS.filter(x=>g.sp[x].num&&g.sp[x].t&&!g.sp[x].gone).length:(rcWxDice(g).includes('hungry')?1:0);
 RCQ.weather=(g,s,mv)=>{g.phase='weather';if(!s.uid)s.uid=rcUid(g);
-  if(!s.st){s.st=1;const pre=g.wxPre&&g.wxPre.rd===g.round?g.wxPre:null;g.wxPre=null;let r=0,sn=0,H=[];const dice=rcWxDice(g);
+  if(!s.st){s.st=1;rcStep(g,'Weather','🌦️');const pre=g.wxPre&&g.wxPre.rd===g.round?g.wxPre:null;g.wxPre=null;let r=0,sn=0,H=[];const dice=rcWxDice(g);
     if(pre&&!pre.only){r=pre.r;sn=pre.s;H=pre.h.slice()}
     else{dice.forEach(d=>{if(d==='hungry'){if(g.scen!=='kingkong'&&!pre)H.push(RCWX.hungry[rcRi(g,6)])}else{const f=RCWX[d][rcRi(g,6)];r+=f.r||0;sn+=f.s||0}});
       if(pre)H=pre.h.slice();else if(g.scen==='kingkong')for(let i=0;i<rcHungryN(g);i++)H.push(RCWX.hungry[rcRi(g,6)])}
@@ -20404,7 +20425,7 @@ function rcKongKill(g,why){const C=g.ss.crew;const i=C.findIndex((x,j)=>x===0);i
   C[i]=1;rcLog(g,`${RCCREW[i][0]} is killed by King Kong`,'💀');if(i===8)rcEnd(g,false,'the Director was killed')}
 
 /* ---------- Phase VI: Night ---------- */
-RCQ.night=g=>{g.phase='night';rcIns(g,{t:'nUse'},{t:'eat'},{t:'nFx'},{t:'campMove'},{t:'shelterChk'},{t:'perish'});return true};
+RCQ.night=g=>{g.phase='night';rcStep(g,'Night','🌙');rcIns(g,{t:'nUse'},{t:'eat'},{t:'nFx'},{t:'campMove'},{t:'shelterChk'},{t:'perish'});return true};
 /* healing window (Pot, Fireplace, Barrel, Rum, Vegetables, Grandma's Recipe…) — any of these are also 'use' moves */
 RCQ.nUse=(g,s,mv)=>{const O=rcUseOpts(g,null,'night').filter(o=>o.night);if(!O.length)return true;
   if(!mv)return rcAsk(g,{},'Night: heal or use something before eating?',[...O.map((o,i)=>({v:'u'+i,l:o.l})),{v:'done',l:'Go on'}],{kind:'night',uses:O});
@@ -20908,7 +20929,7 @@ function rcGx(){if(typeof LKOPTR!=='undefined'&&LKOPTR)return S.rcg||null;try{co
 const rcStale=g=>{const ids=act().map(p=>p.id);return !g||!g.ps||g.ps.some(id=>!ids.includes(id))||ids.some(id=>!g.ps.includes(id))};
 /* moves: questions and uses carry g.n so a slow phone's answer never lands on the next question; planning is simultaneous */
 function rcMoveQ(g,pid,mv){if(!g||!mv)return false;if(mv.sn!=null&&mv.sn!==g.n)return false;const m={...mv};delete m.sn;try{return rcMove(g,pid,m)}catch(e){console.error('Robinson move',e);return false}}
-function rcSend(pid,mv,quiet){const g=rcGx();if(!g||!pid)return false;const m={...mv};if(!['plan','unplan','ready','unready'].includes(mv.a))m.sn=g.n;
+function rcSend(pid,mv,quiet){const g=rcGx();if(!g||!pid)return false;const m={...mv};if(!['plan','unplan','ready','unready','seen'].includes(mv.a))m.sn=g.n;
   const r=lkq('rcMove',pid,m);if(r){vibe(8);return true}
   if(r===false&&!quiet){let why='That can’t be done right now.';try{const c=JSON.parse(JSON.stringify(g));const was=RCQUIET;RCQUIET=1;try{rcMoveQ(c,pid,m)}finally{RCQUIET=was}if(c.plan&&c.plan.err)why='Can’t do that: '+c.plan.err+'.'}catch(e){}toast(why)}
   return false}
@@ -21067,7 +21088,24 @@ function rcUsesUI(g,U){const L=U.filter(u=>!(u.mv.key||'').startsWith('ab:')||u.
 function rcCardInfo(e){if(e.k==='ev'){const E=rcEv(e.id);return E?{art:'rc-cb-event',type:'Event',name:E.name,say:E.say,extra:E.thr?`Threat: ${E.thr.name}. ${E.thr.say||''}`:''}:null}
   if(e.k==='adv'){const A=rcAdv(e.id);if(!A)return null;return e.half==='ev'?{art:'rc-cb-event',type:'Event (from an Adventure card)',name:A.evName||A.name,say:A.evSay||''}:{art:'rc-cb-adventure',type:`Adventure · ${A.deck}`,name:A.name,say:A.say,extra:A.evName?`Later, if it comes back as an Event: ${A.evName}.`:''}}
   if(e.k==='mys'){const M=rcMys(e.id);if(!M)return null;return e.half==='ev'?{art:'rc-cb-event',type:'Event (from a Mystery card)',name:M.evName||M.name,say:M.evSay||''}:{art:'rc-cb-'+(M.type||'treasure'),type:`Mystery · ${M.type}`,name:M.name,say:M.say}}return null}
-function rcCardPop(g){const id=g.id;if(RCSEEN[id]==null){let v=null;try{v=JSON.parse(localStorage.getItem('ft-rcseen')||'{}')[id]}catch(e){}RCSEEN[id]=v!=null?v:Math.max(0,(g.shownN||0)-1)}
+/* ---------- step-by-step reveal after Ready (Justin, Nov 22): one card per Action/phase, anyone taps Next and every phone follows ---------- */
+function rcRvGroups(g){const L=g.rx||[],rv=g.rv||0,G=[];let cur=null;
+  L.forEach((e,i)=>{if(e.n<=rv)return;if(e.h||!cur){let head=e.h?e:null;if(!head){for(let j=i-1;j>=0;j--)if(L[j].h){head=L[j];break}}cur={head:head&&head!==e?{...head,cont:1}:head,lines:[],last:e.n};G.push(cur);if(e.h)return}
+    if(!e.t.startsWith('Plan:'))cur.lines.push(e);cur.last=e.n});
+  return G.filter(x=>x.head||x.lines.length)}
+const rcRvOn=g=>!!g&&(g.rxn||0)>(g.rv||0)&&rcRvGroups(g).length>0;
+function rcRvCards(g,lines){const out=[];(g.shown||[]).forEach(e=>{if(e.n<=(RCSEEN[g.id]||0))return;const I=rcCardInfo(e);if(!I)return;if(lines.some(l=>l.t.includes(I.name))){out.push(I);rcSeen(g,e.n)}});return out}
+function rcRevealUI(g,pids,big){const G=rcRvGroups(g);if(!G.length)return '';const C=G[0],H=C.head,ch=H&&H.ch,F=ch?rcFig(g,ch):null,own=ch&&g.C[ch]?g.C[ch].pid:null;
+  const col=own?rcPCol(own):ch==='friday'?'white':'gray',who=own?rcPName(own):'';
+  const cards=rcRvCards(g,[...(H?[H]:[]),...C.lines]);
+    const can=!big&&(pids.length>0);
+  return `<div class="panel rcrv" role="region" aria-live="polite" aria-label="What happens">
+    <div class="rcrvh">${ch&&F?`<span class="rcrvpt">${rcImg('rc-ch-'+(ch==='jenny'?'friday':ch),rcCN(ch),'rcrvimg','🧑')}</span>`:`<span class="rcrvic" aria-hidden="true">${esc(H?H.ic:'📜')}</span>`}
+      <div><small class="rlab">Round ${H&&H.rd||g.round}${who?` · ${rcMeep(col,14)} ${esc(who)}`:''}</small><h2>${esc(H?H.t:'What happened')}${H&&H.cont?' (continued)':''}</h2></div></div>
+    <ul class="rcrvl">${C.lines.map(l=>`<li class="${/(: success$| is built| explored|escaped|rescued|captured)/i.test(l.t)?'ok':/(fails$| suffers | dies|island won|is lost)/i.test(l.t)?'no':''}"><span aria-hidden="true">${esc(l.ic||'')}</span> ${esc(l.t)}</li>`).join('')||'<li class="hint">Nothing else happens.</li>'}</ul>
+    ${cards.map(I=>`<div class="rcrvcard">${rcImg(I.art,'','rcrvcimg','🃏')}<div><small class="rlab">${esc(I.type)}</small><b>${esc(I.name)}</b><p>${esc(I.say||'')}</p>${I.extra?`<p class="rlab">${esc(I.extra)}</p>`:''}</div></div>`).join('')}
+    <div class="rcrvf"><span class="rlab">${G.length>1?`${G.length-1} more to go`:'Last one'}</span>${can?`${G.length>2?`<button class="btn sm" data-a="rcurvall">Skip to the end</button>`:''}<button class="btn primary" data-a="rcurvnext" data-k="${C.last}">${G.length>1?'Next ›':'Done ✓'}</button>`:`<span class="rlab">Anyone can tap Next</span>`}</div></div>`}
+function rcCardPop(g){if(rcRvOn(g))return '';const id=g.id;if(RCSEEN[id]==null){let v=null;try{v=JSON.parse(localStorage.getItem('ft-rcseen')||'{}')[id]}catch(e){}RCSEEN[id]=v!=null?v:Math.max(0,(g.shownN||0)-1)}
   const e=(g.shown||[]).find(x=>x.n>RCSEEN[id]);if(!e)return '';const I=rcCardInfo(e);if(!I){rcSeen(g,e.n);return ''}
   if(rcBig()&&!RCPOPT)RCPOPT=setTimeout(()=>{RCPOPT=null;rcSeen(g,e.n);render()},9000*(window.__htfast?.2:1));
   return `<div class="sheet-bg rcpopbg" data-a="rcucardok" data-k="${e.n}"><div class="sheet rcpop" role="alertdialog" aria-modal="true" aria-labelledby="rcpop-h" data-stop="1">${rcImg(I.art,'','rcpopimg','🃏')}<div class="rcpopb"><small class="rlab">${esc(I.type)} · round ${e.rd}</small><h2 id="rcpop-h">${esc(I.name)}</h2><p>${esc(I.say||'')}</p>${I.extra?`<p class="rlab">${esc(I.extra)}</p>`:''}<button class="btn primary wide" data-a="rcucardok" data-k="${e.n}">OK</button></div></div></div>`}
@@ -21091,7 +21129,7 @@ function rcDealNow(){const X=RCX(),P=act(),A=rcPickFix().as,chars=[];P.forEach(p
   if(mix)o.eventMix=mix;if(X.wreck==='random')o.wreck='random';const g=rcDeal(o);S.rcg=g;return g}
 
 /* ---------- the play screen ---------- */
-function rcStatus(g){return `<div class="rcstat"><span><b>Round ${g.round} of ${g.rounds}</b> · ${esc(RCPHN[g.phase]||g.phase)}</span><span class="rcstw">${rcWxIcons(rcScen(g.scen).weather&&rcScen(g.scen).weather[g.round-1])}</span>${rcMoraleTrack(g)}</div>`}
+function rcStatus(g){const rv=rcRvOn(g)&&rcRvGroups(g)[0],rr=rv&&rv.head&&rv.head.rd||g.round;return `<div class="rcstat"><span><b>Round ${rv?rr:g.round} of ${g.rounds}</b> · ${rv?'What happened':esc(RCPHN[g.phase]||g.phase)}</span><span class="rcstw">${rcWxIcons(rcScen(g.scen).weather&&rcScen(g.scen).weather[g.round-1])}</span>${rcMoraleTrack(g)}</div>`}
 function rcBoard(g,o={}){const tap=!!o.tap&&rcPlanning(g);
   return `<div class="rcboard${o.big?' big':''}"><div class="rcbcol">${rcScenPanel(g)}<div class="panel rcpanel rcmapp"><h3 class="rch3">🏝️ The island</h3>${rcMap(g,{tap})}</div>${rcRoundTrack(g)}</div>
     <div class="rcbcol">${rcCampPanel(g)}${rcThreatPanel(g,tap)}${rcActPanel(g)}</div>
@@ -21110,19 +21148,20 @@ function rcPlayUI(){const g=rcGx(),P=act(),big=rcBig();
   if(!g||rcStale(g)){if(S.rcpick&&S.rcpick.ok&&rcRes2())return out+`<div class="panel" style="padding:16px">${waitLoader('Washing up on the beach…')}</div>`;return out+rcPickUI()}
   const pids=big?[]:rcMine(g);
   out+=rcStatus(g);
-  if(big){out+=rcBigBanner(g)+(g.phase==='done'?rcEndUI(g):'')+rcBoard(g,{big:1})+rcCardPop(g);return out}
-  let ctl='';
-  if(g.phase==='done')ctl+=rcEndUI(g);
+  if(big){out+=(rcRvOn(g)?rcRevealUI(g,[],true):rcBigBanner(g))+(g.phase==='done'?rcEndUI(g):'')+rcBoard(g,{big:1})+rcCardPop(g);return out}
+  let ctl='';const RV=rcRvOn(g);
+  if(RV)ctl+=rcRevealUI(g,pids,false);
+  else if(g.phase==='done')ctl+=rcEndUI(g);
   else if(g.ask)ctl+=rcAskUI(g,pids,false);
   else if(rcPlanning(g))ctl+=pids.length?rcPlanUI(g,pids):'';
   else ctl+=`<div class="panel rcdock wait"><p class="rcq">${esc(RCPHN[g.phase]||'')}…</p></div>`;
-  const U=g.phase==='done'?[]:rcUsesFor(g,pids);ctl+=rcUsesUI(g,U);
+  const U=g.phase==='done'||RV?[]:rcUsesFor(g,pids);ctl+=rcUsesUI(g,U);
   const mineCh=g.order.filter(k=>pids.includes(g.C[k].pid));
   ctl+=`<div class="sec"><div class="sec-h"><h3>${rcLinked()?'Your character'+(mineCh.length>1?'s':''):'The castaways'}</h3></div>${`<div class="rccast">${mineCh.map(k=>rcCharCard(g,k,{uses:U})).join('')}${!rcLinked()||true?[g.fri?'friday':null,g.jen?'jenny':null].filter(Boolean).map(k=>rcCharCard(g,k,{uses:U,compact:rcLinked()})).join(''):''}</div>`}</div>`;
   if(rcLinked()){const oth=g.order.filter(k=>!pids.includes(g.C[k].pid));if(oth.length)ctl+=`<details class="sec rcothers"><summary>Everyone else</summary><div class="rccast compact">${oth.map(k=>rcCharCard(g,k,{compact:1})).join('')}</div></details>`}
   {const z=parseFloat(document.documentElement.style.zoom)||1,cw=innerWidth/z;
   if(cw<900){/* phone: tabs instead of one long scroll (Justin, Nov 22) */
-    const need=g.phase!=='done'&&(g.ask?pids.includes(g.ask.pid):rcPlanning(g)&&pids.some(p=>!g.plan.ready[p]));
+    const need=rcRvOn(g)||g.phase!=='done'&&(g.ask?pids.includes(g.ask.pid):rcPlanning(g)&&pids.some(p=>!g.plan.ready[p]));
     if(need&&RCTABK!==rcNeedKey(g)){RCTABK=rcNeedKey(g);RCTAB='plan'}
     const tap=rcPlanning(g),T=RCTAB;
     const body=T==='island'?`${rcScenPanel(g)}<div class="panel rcpanel rcmapp"><h3 class="rch3">🏝️ The island</h3>${rcMap(g,{tap})}${tap?'<p class="hint">Tap a tile to plan an Action there.</p>':''}</div>${rcRoundTrack(g)}`
@@ -21137,8 +21176,9 @@ function rcPlayUI(){const g=rcGx(),P=act(),big=rcBig();
 
 /* ---------- taps ---------- */
 let RCTAB='plan',RCTABK='';
-const rcNeedKey=g=>`${g.gid||''}:${g.round}:${g.phase}:${g.ask?g.ask.pid+':'+g.ask.msg:''}`;
-function rcUiAct(a,b,k){if(a==='rcutab'){if(['plan','island','camp','cards','log'].includes(k)){RCTAB=k;window.scrollTo(0,0)}return}
+const rcNeedKey=g=>`${g.gid||''}:${g.round}:${g.phase}:${g.ask?g.ask.pid+':'+g.ask.msg:''}:${rcRvOn(g)?'rv'+(g.rv||0):''}`;
+function rcUiAct(a,b,k){if(a==='rcurvnext'||a==='rcurvall'){const g=rcGx();if(!g)return;const pid=rcMine(g)[0];if(!pid)return;rcSend(pid,{a:'seen',upto:a==='rcurvall'?g.rxn:+k},true);window.scrollTo(0,0);return}
+  if(a==='rcutab'){if(['plan','island','camp','cards','log'].includes(k)){RCTAB=k;window.scrollTo(0,0)}return}
   if(a==='rcubig'){RCBIG=!rcBig();try{localStorage.setItem('ft-rcbig',RCBIG?'1':'0')}catch(e){}return}
   if(a==='rcupick'){if(!rcRes2()||S.rcg&&!rcStale(S.rcg))return;const [pid,ch]=String(k).split(':'),pk=rcPickFix(),A=pk.as;if(!A[pid]||!RCCHARS.includes(ch))return;
     const multi=RCX().multiChar;if(A[pid].includes(ch)){if(multi&&A[pid].length>1)A[pid]=A[pid].filter(x=>x!==ch);return}
@@ -30817,6 +30857,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='42f0b4';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='535353';</script>
 </body>
 </html>

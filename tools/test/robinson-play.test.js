@@ -32,6 +32,7 @@ const ROUNDS=+(process.env.ROUNDS||4);
   /* play by tapping */
   let taps={pop:0,ans:0,plan:0,ready:0,use:0},stuck=0,shots={plan:0,ask:0,pop:0,sheet:0};
   const step=async()=>P.evaluate(()=>{const q=s=>document.querySelector(s),g=S.rcg;if(!g)return 'nog';if(g.phase==='done')return 'done';
+    const nx=q('.rcrv [data-a="rcurvnext"]');if(nx){nx.click();return 'next'}
     const pop=q('.rcpop [data-a="rcucardok"]');if(pop){pop.click();return 'pop'}
     const go=q('.rcplsheet [data-a="rcuplgo"]');if(go){if(!go.disabled){go.click();if(q('.rcplsheet')){window.__rcbad=(window.__rcbad||0)+1;q('.rcplsheet [data-a="rcuplclose"]').click();return 'refused'}return 'plan'}const f=q('.rcplsheet [data-a="rcuplfill"]');if(f&&!window.__rcf){window.__rcf=1;f.click();return 'fill'}window.__rcf=0;q('.rcplsheet [data-a="rcuplclose"]').click();window.__rcbad=(window.__rcbad||0)+1;return 'close'}
     if(q('.rcplsheet')===null&&document.querySelector('.sheet-bg [data-a="rcuplclose"]')){document.querySelector('.sheet-bg [data-a="rcuplclose"]').click();return 'closehex'}
@@ -43,16 +44,17 @@ const ROUNDS=+(process.env.ROUNDS||4);
   const t0=Date.now();let lastRound=1,rounds=[];
   while(Date.now()-t0<300000){const r=await step();await W(120);
     const st=await P.evaluate(()=>({rd:S.rcg&&S.rcg.round,ph:S.rcg&&S.rcg.phase,plan:!!document.querySelector('.rcdock [data-a="rcuready"]'),ask:!!document.querySelector('.rcdock.ask'),pop:!!document.querySelector('.rcpop'),sheet:!!document.querySelector('.rcplsheet')}));
+    {const rvn=await P.evaluate(()=>{const e=document.querySelector('.rcrv');return e&&e.querySelector('.rcrvpt')?1:0});if(rvn&&(shots.rvs||0)<2){shots.rvs=(shots.rvs||0)+1;await shot('reveal-'+shots.rvs+'-390')}}
     if(st.pop&&!shots.pop){shots.pop=1;await shot('card-popup-390')}
     if(st.sheet&&!shots.sheet){shots.sheet=1;await shot('plan-sheet-390')}
     if(st.plan&&!shots.plan&&st.rd>=2){shots.plan=1;await shot('planning-390');await shot('planning-1024',1024);await P.setViewportSize({width:390,height:844});await W(200)}
     if(st.ask&&!shots.ask){shots.ask=1;await shot('question-390')}
-    if(r==='pop')taps.pop++;else if(r==='ans')taps.ans++;else if(r==='plan')taps.plan++;else if(r==='ready')taps.ready++;
+    if(r==='next'){taps.next=(taps.next||0)+1;if(!shots.rv){shots.rv=1;await shot('reveal-390');taps.rvTxt=await P.evaluate(()=>document.querySelector('.rcrv')&&document.querySelector('.rcrv').innerText.slice(0,300))}}else if(r==='pop')taps.pop++;else if(r==='ans')taps.ans++;else if(r==='plan')taps.plan++;else if(r==='ready')taps.ready++;
     if(String(r).startsWith('wait')){stuck++;if(stuck>80){console.log('stuck',r,await P.evaluate(()=>JSON.stringify({q:S.rcg.q.slice(0,2),ask:S.rcg.ask,plan:S.rcg.plan&&S.rcg.plan.ready})));break}}else stuck=0;
     if(r==='done'||st.ph==='done'||(st.rd>ROUNDS))break;if(st.rd!==lastRound){rounds.push(st.rd);lastRound=st.rd}}
   const fin=await P.evaluate(()=>({rd:S.rcg.round,ph:S.rcg.phase,fin:S.rcg.fin}));
   ok(`Played by taps: ${ROUNDS} rounds or the game ended (round ${fin.rd}, ${fin.ph})`,fin.rd>ROUNDS||fin.ph==='done',{fin,taps});
-  ok('Taps covered card popups, questions, planned Actions and Ready',taps.pop>0&&taps.ans>0&&taps.plan>=4&&taps.ready>=2,taps);
+  ok('Taps covered step-by-step results (Next), questions, planned Actions and Ready',taps.next>0&&taps.ans>0&&taps.plan>=4&&taps.ready>=2,taps);
   const tabsOK=await P.evaluate(()=>document.querySelectorAll('.rctabs .rctab').length);
   const cnt=sel=>P.evaluate(s=>document.querySelectorAll(s).length,sel);
   await P.click('.rctab[data-k="island"]');await P.waitForTimeout(250);const hex=await cnt('.rcmap .rchex'),terr=await cnt('.rchex.t');await shot('tab-island-390');
@@ -70,7 +72,10 @@ const ROUNDS=+(process.env.ROUNDS||4);
   await P.evaluate(()=>{document.documentElement.dataset.theme='';document.documentElement.classList.remove('dark');render()});
   /* finish */
   await P.setViewportSize({width:390,height:844});
-  const end=await P.evaluate(()=>{const g=S.rcg;if(g.phase!=='done')rcEnd(g,false,'test');save();render();const b=document.querySelector('[data-a="finish"]');if(!b)return 'no finish';b.click();return S.finished&&S.rcrec&&S.rcrec.scen==='castaways'||JSON.stringify(S.rcrec)});
+  await P.evaluate(()=>{const g=S.rcg;if(g.phase!=='done')rcEnd(g,false,'test');save();render()});
+  let nx=0;for(;nx<60;nx++){const c=await P.evaluate(()=>{const b=document.querySelector('.rcrv [data-a="rcurvnext"]');if(b){b.click();return 1}return 0});if(!c)break;await P.waitForTimeout(80)}
+  await shot('end-390');
+  const end=await P.evaluate(()=>{const g=S.rcg;const b=document.querySelector('[data-a="finish"]');if(!b)return 'no finish';b.click();return S.finished&&S.rcrec&&S.rcrec.scen==='castaways'||JSON.stringify(S.rcrec)});
   await W(600);ok('Game over: Finish & see results records the scenario and the result',end===true,end);
   await shot('results-390');
   ok('No page errors',!errs.length,errs.slice(0,5));
