@@ -66,3 +66,23 @@ html.dark .wzcave{background:linear-gradient(#4a4030,#3a3226);color:#efe4cf;bord
 
 /* the pre-dug first space of each cave: a blank cave picture so it reads as a cave */
 .wzcave-blank small{color:var(--muted,#5a6672);font-style:italic}
+
+/* Nov 21: live objective standings, what counts on your caves, the adventurer, While you waited, egg choice */
+.wzobst{display:flex;flex-wrap:wrap;gap:3px;margin-top:2px}
+.wzobc{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:999px;font-size:10.5px;line-height:16px;background:color-mix(in srgb,var(--pc,#888) 14%,var(--surface,#fff));border:1px solid color-mix(in srgb,var(--pc,#888) 55%,transparent);max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.wzobc b{font-weight:800}.wzobc.lead{border-width:2px;font-weight:700}
+.wzsp{position:relative}
+.wzsp.wzob1>.wzc,.wzsp.wzob1>.wzslot{box-shadow:0 0 0 3px rgba(240,180,58,.55),0 0 10px rgba(240,180,58,.45)}
+.wzobt{position:absolute;top:-9px;right:-7px;width:20px;height:20px;display:grid;place-items:center;border-radius:50%;background:#fff6dc;box-shadow:0 0 0 2px rgba(240,180,58,.8);font-size:12px;line-height:1;pointer-events:none;z-index:1}
+.wzrow.wzobrow{box-shadow:inset 0 0 0 2px rgba(240,180,58,.75),0 0 10px rgba(240,180,58,.35)}
+.wzent{position:relative}
+.wzadv{width:34px;height:34px;color:var(--pc);fill:currentColor;stroke:rgba(0,0,0,.45);stroke-width:1.4;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.wzsp>.wzadv,.wzent>.wzadv{position:absolute;left:-8px;top:-8px;pointer-events:none;z-index:2;animation:wzadvin .35s ease-out}
+.wzent>.wzadv{left:auto;right:-6px;top:22px}
+.wzsp.wzhere>.wzc,.wzsp.wzhere>.wzslot{outline:3px dashed var(--accent,#f0b43a);outline-offset:1px}
+@keyframes wzadvin{from{transform:translateX(-40px) scale(.8);opacity:.3}to{transform:none;opacity:1}}
+.wzrc .tqannic .wzadv{width:44px;height:44px}
+.wzrc .glresl{max-height:52vh;overflow-y:auto}
+.wzrcl{grid-template-columns:auto 1fr;padding:6px 10px;font-size:13px;text-align:left}
+.wzeggs .btn{min-height:36px}.wzeggs small{letter-spacing:1px}
+.wzx.on{outline:3px solid var(--accent,#f0b43a)}

@@ -74,3 +74,18 @@
 .wprs{text-align:center}.wprsgoal{display:flex;align-items:center;justify-content:center;gap:8px;margin:6px 0}.wprsgoal .wpi{width:30px;height:30px}.wprsnext{margin-top:12px;padding:10px;border-radius:12px;background:var(--soft,#eef1f4)}.wprsnext p{margin:4px 0 0}
 /* any open sheet (rules, long press, round card…) sits above the sticky bottom docks */
 body:has(.sheet-bg) .sadock{z-index:19}
+
+/* the current round goal, live: everyone's count on the tile, and the birds that count on your mat */
+.wpgst{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
+.wpgs{display:inline-flex;align-items:center;gap:3px;max-width:100%;padding:1px 5px 1px 4px;border-radius:999px;font-size:10px;line-height:1.35;background:color-mix(in srgb,var(--pc,#888) 16%,var(--surface,#fff));border:1px solid var(--pc,#888)}
+.wpgs i{font-style:normal;min-width:0;max-width:3.4em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wpgs b{font-size:11px}.wpgs.lead{box-shadow:0 0 0 1.5px var(--accent,#f0b43a);font-weight:700}.wpgld{color:#c98a00;font-size:10px}
+.wpslot{position:relative}
+.wpslot.goal .wpc{box-shadow:0 0 0 3px rgba(240,180,58,.8),0 0 10px rgba(240,180,58,.45)}
+.wpslot.goalcan:not(.pick) .wpc{outline:2px dashed rgba(240,180,58,.6);outline-offset:1px}
+.wpgbadge{position:absolute;top:-4px;right:-3px;z-index:2;font-size:12px;line-height:1;padding:2px 3px;border-radius:999px;background:#fff6dc;border:1px solid var(--accent,#f0b43a);pointer-events:none}
+.wprow.wpgrow{box-shadow:inset 0 0 0 2px rgba(240,180,58,.85)}.wprh{position:relative}.wprh .wpgbadge{top:-2px;right:-2px}
+/* "while you waited" */
+.wprcl{list-style:none;margin:8px 0 12px;padding:0;display:grid;gap:5px;text-align:left}
+.wprcl li{display:flex;gap:8px;align-items:flex-start;padding:6px 10px;border-radius:10px;font-size:14px;line-height:1.3;background:color-mix(in srgb,var(--pc,#888) 9%,var(--surface,#fff));border-left:4px solid var(--pc,#888)}
+.wprci{flex:0 0 auto;width:1.3em;text-align:center}

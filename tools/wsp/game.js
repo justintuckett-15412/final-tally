@@ -36,12 +36,14 @@ function wpSetup(g,pid,keep,food,bo){if(g.phase!=='setup'||!g.offer[pid])return 
   if(keep.length+food.length!==5||new Set(food).size!==food.length||!O.bo.includes(bo))return false;
   g.hand[pid]=keep.map(i=>O.b[i]);g.disc.push(...O.b.filter((b,i)=>!keep.includes(i)));g.food[pid]=Object.fromEntries(WPF.map(f=>[f,food.includes(f)?1:0]));g.bon[pid]=[bo];g.bdisc.push(...O.bo.filter(x=>x!==bo));delete g.offer[pid];
   gLog(g,`${nmid(pid)} keeps ${keep.length} bird${keep.length===1?'':'s'} and ${food.length} food`,'🐦');
-  if(!g.ps.some(p=>g.offer[p])){g.phase='play';gAnn(g,'Round 1',`${nmid(g.turn)} goes first. Each player has 8 actions this round.`,'🐦')}g.n++;return true}
+  wpStamp(g,1);if(!g.ps.some(p=>g.offer[p])){g.phase='play';gAnn(g,'Round 1',`${nmid(g.turn)} goes first. Each player has 8 actions this round.`,'🐦')}g.n++;return true}
 
 /* ---------- the actor and the queue ---------- */
 const wpActor=g=>!g||g.phase==='done'?null:g.phase==='setup'?(g.ps.find(p=>g.offer[p])||null):g.ask?g.ask.pid:g.turn;
 const wpWaits=(g,pid)=>g.phase==='setup'?!!g.offer[pid]:wpActor(g)===pid;
-function wpRun(g){let guard=0;while(g.q.length&&guard++<500){const s=g.q[0];const done=WPS[s.t](g,s);if(!done)return;g.ask=null;g.q.shift()}if(guard>=500)console.error('Wingspan: step loop')}
+function wpRun(g){let guard=0;while(g.q.length&&guard++<500){const s=g.q[0];const done=WPS[s.t](g,s);if(!done)break;g.ask=null;g.q.shift()}if(guard>=500)console.error('Wingspan: step loop');wpStamp(g)}
+/* log entries get the time they happened (su: during setup) so each phone can show “while you waited” */
+const wpStamp=(g,su)=>{const L=g.lg||[],t=Date.now();for(let i=L.length-1;i>=0&&L[i].at==null;i--){L[i].at=t;if(su)L[i].su=1}};
 /* a move: either an answer to the current question, or (start of a turn) one of the four actions */
 function wpMove(g,pid,mv){if(!g||g.phase!=='play'||!mv)return false;
   if(g.ask){if(g.ask.pid!==pid)return false;const s=g.q[0];if(!s)return false;const ok=WPS[s.t](g,s,mv);if(ok===null)return false;if(ok){g.ask=null;g.q.shift()}wpRun(g);g.n++;return true}

@@ -19,7 +19,9 @@ const wzRoom=d=>d.e<wzD(d.id).cap;
 const wzOthers=(g,pid)=>{const L=g.ps,i=L.indexOf(pid);return L.slice(i+1).concat(L.slice(0,i))};
 const wzIns=(g,...st)=>{g.q.splice(1,0,...st)};
 const wzAsk=(g,s,msg,opts,o={})=>{g.ask={pid:s.pid,msg,opts,opt:!!o.opt,...o};return false};
-const wzLog=(g,t,ic)=>{if(!WZQUIET)gLog(g,t,ic||'🐉')},wzGL=(...a)=>{if(!WZQUIET)gLog(...a)},wzAnn=(...a)=>{if(!WZQUIET)gAnn(...a)};
+/* log entries made once play has started get a number and a time (the "While you waited" card reads them) */
+const wzStamp=(g,f)=>{const L=g&&(g.lg=g.lg||[]),n0=L?L.length:0,l0=L&&L[n0-1];f();if(!L||!g.lgo)return;const e=L[L.length-1];if(e&&(L.length!==n0||e!==l0)&&e.n==null){g.lgn=(g.lgn||0)+1;e.n=g.lgn;e.at=Date.now()}};
+const wzLog=(g,t,ic)=>{if(!WZQUIET)wzStamp(g,()=>gLog(g,t,ic||'🐉'))},wzGL=(g,...a)=>{if(!WZQUIET)wzStamp(g,()=>gLog(g,...a))},wzAnn=(...a)=>{if(!WZQUIET)gAnn(...a)};
 function wzDrawD(g){if(!g.dd.length&&g.ddisc.length){g.dd=wzShuf(g.ddisc);g.ddisc=[]}return g.dd.pop()??null}
 function wzDrawC(g){if(!g.dc.length&&g.cdisc.length){g.dc=wzShuf(g.cdisc);g.cdisc=[]}return g.dc.pop()??null}
 function wzRefill(g){for(let i=0;i<3;i++){if(g.disp.d[i]==null)g.disp.d[i]=wzDrawD(g);if(g.disp.c[i]==null)g.disp.c[i]=wzDrawC(g)}}
@@ -47,7 +49,7 @@ WZS.keep=(g,s,mv)=>{const L=[...s.o.d.map((id,i)=>id==null?null:{v:'d'+i,l:'🐉
   if(s.drop>0)return WZS.keep(g,s);g.P[s.pid].hand.d=s.o.d.filter(x=>x!=null);g.P[s.pid].hand.c=s.o.c.filter(x=>x!=null);return true};
 WZS.start3=(g,s,mv)=>{if(!mv)return wzAsk(g,s,`Pick a starting resource (${s.n} to go)`,WZR.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});
   if(!WZR.includes(mv.v))return null;g.P[s.pid].res[mv.v]++;s.n--;return s.n>0?WZS.start3(g,s):true};
-WZS.go=g=>{wzAnn(g,'Round 1',`${nmid(g.turn)} goes first. Spend coins on excavate, entice and explore; pass when you're done.`,'🐉');g.n++;return true};
+WZS.go=g=>{g.lgo=1;wzAnn(g,'Round 1',`${nmid(g.turn)} goes first. Spend coins on excavate, entice and explore; pass when you're done.`,'🐉');g.n++;return true};
 
 /* ---------- the actor and the queue ---------- */
 const wzActor=g=>!g||g.phase==='done'?null:g.ask?g.ask.pid:g.q.length?null:g.turn;
@@ -82,7 +84,13 @@ const wzPayKey=P=>WZR.map(r=>(P&&P[r])||0).join('');
 /* egg sources: 'cv' this cave, 'adj' next to k, '' anywhere (the mat nests too) */
 function wzEggSrc(g,pid,k,src){const L=[];if(!src)L.push(['n',g.P[pid].nest]);wzDr(g,pid).forEach(([kk,d])=>{if(src==='cv'&&kk[0]!==k[0])return;if(src==='adj'&&!wzAdj(k,kk))return;L.push([kk,d.e])});return L.filter(x=>x[1]>0)}
 const wzEggN=(g,pid,k,src)=>wzEggSrc(g,pid,k,src).reduce((a,x)=>a+x[1],0);
-function wzPayEgg(g,pid,k,src,n){for(let i=0;i<n;i++){const L=wzEggSrc(g,pid,k,src).sort((a,b)=>(a[0]==='n'?-1:0)-(b[0]==='n'?-1:0)||b[1]-a[1]);if(!L.length)return false;
+/* the usual order: mat nests first, then the fullest dragons */
+const wzEggOrd=(g,pid,k,src)=>wzEggSrc(g,pid,k,src).sort((a,b)=>(a[0]==='n'?-1:0)-(b[0]==='n'?-1:0)||b[1]-a[1]);
+function wzEggAuto(g,pid,k,src,n){const L=wzEggOrd(g,pid,k,src).map(x=>x.slice()),o=[];for(let i=0;i<n;i++){L.sort((a,b)=>(a[0]==='n'?-1:0)-(b[0]==='n'?-1:0)||b[1]-a[1]);const x=L.find(y=>y[1]>0);if(!x)break;x[1]--;o.push(x[0])}return o}
+/* a chosen list of egg places is legal when it has n entries and no place gives more eggs than it holds */
+function wzEggOk(g,pid,k,src,n,ch){if(!Array.isArray(ch)||ch.length!==n)return false;const have=Object.fromEntries(wzEggSrc(g,pid,k,src)),c={};for(const x of ch){const kk=String(x);c[kk]=(c[kk]||0)+1;if(!(have[kk]>=c[kk]))return false}return true}
+function wzPayEgg(g,pid,k,src,n,ch){if(ch&&n&&wzEggOk(g,pid,k,src,n,ch)){ch.forEach(kk=>{if(kk==='n')g.P[pid].nest--;else wzAt(g,pid,kk).d.e--});return true}
+  for(let i=0;i<n;i++){const L=wzEggSrc(g,pid,k,src).sort((a,b)=>(a[0]==='n'?-1:0)-(b[0]==='n'?-1:0)||b[1]-a[1]);if(!L.length)return false;
   if(L[0][0]==='n')g.P[pid].nest--;else wzAt(g,pid,L[0][0]).d.e--}return true}
 const wzAdj=(a,b)=>{const ca=WZC.indexOf(a[0]),cb=WZC.indexOf(b[0]),ia=+a[1],ib=+b[1];return ca===cb&&Math.abs(ia-ib)===1||ia===ib&&Math.abs(ca-cb)===1};
 /* can this player pay this token list (pay op costs)? */
@@ -102,7 +110,7 @@ function wzCanAfford(g,pid,id,mode){if(mode==='free')return true;const P=g.P[pid
   return P.coin>=base+(c.coin||0)&&wzEggN(g,pid,'',null)>=(c.egg||0)&&!!wzPayRes(P.res,c,1)}
 function wzDisc1(g,pid,id){const c=wzDCost(id),P=g.P[pid];const tries=[];if(c.egg)tries.push({...c,egg:c.egg-1});WZR.forEach(r=>{if(c[r])tries.push({...c,[r]:c[r]-1})});if(!tries.length)tries.push(c);
   return tries.find(t=>P.coin>=(t.coin||0)&&wzEggN(g,pid,'',null)>=(t.egg||0)&&wzPayRes(P.res,t,1))||null}
-function wzPayD(g,pid,id,mode,pay){if(mode==='free')return;const P=g.P[pid],c=mode==='disc1'?wzDisc1(g,pid,id):wzDCost(id,mode);P.coin-=(mode==='entice'?1:0)+(c.coin||0);wzPayEgg(g,pid,'',null,c.egg||0);
+function wzPayD(g,pid,id,mode,pay,eggs){if(mode==='free')return;const P=g.P[pid],c=mode==='disc1'?wzDisc1(g,pid,id):wzDCost(id,mode);P.coin-=(mode==='entice'?1:0)+(c.coin||0);wzPayEgg(g,pid,'',null,c.egg||0,eggs);
   if(pay){WZR.forEach(r=>P.res[r]-=pay[r]||0);return}wzPayRes(P.res,c)}
 const wzFits=(g,pid,id)=>WZC.filter(cv=>wzD(id).cv.includes(cv)&&wzNextD(g,pid,cv)>=0);
 function wzActs(g,pid){const P=g.P[pid],o={exc:[],ent:[],exp:[]};if(P.coin<1)return o;
@@ -112,13 +120,15 @@ function wzActs(g,pid){const P=g.P[pid],o={exc:[],ent:[],exp:[]};if(P.coin<1)ret
 function wzAction(g,pid,mv){const P=g.P[pid];if(P.passed)return false;g.last={p:pid,t:mv.a};
   if(mv.a==='pass'){P.passed=true;wzLog(g,`${nmid(pid)} passes${P.coin?` (keeps ${P.coin} coin${P.coin>1?'s':''})`:''}`,'✋');g.q.push({t:'end',pid});wzRun(g);g.n++;return true}
   const A=wzActs(g,pid);
+  /* eggs the player chose to pay with (optional): must match the action's egg cost and what's on the mat */
+  if(mv.eggs!=null){if(!WZC.includes(mv.cv))return false;const need=mv.a==='exc'?WZEXC[wzNextEx(g,pid,mv.cv)]||0:mv.a==='exp'?WZEXP[P.ex[mv.cv]]||0:mv.a==='ent'&&P.hand.d[+mv.i]!=null?wzDCost(P.hand.d[+mv.i]).egg||0:-1;if(!(need>0)||!wzEggOk(g,pid,'',null,need,mv.eggs))return false}
   if(mv.a==='exc'){const cv=mv.cv,i=+mv.i;if(!A.exc.includes(cv)||!(i>=0&&i<P.hand.c.length))return false;const col=wzNextEx(g,pid,cv);
-    P.coin--;wzPayEgg(g,pid,'',null,WZEXC[col]);const id=P.hand.c.splice(i,1)[0];P.st.exc++;
+    P.coin--;wzPayEgg(g,pid,'',null,WZEXC[col],mv.eggs);const id=P.hand.c.splice(i,1)[0];P.st.exc++;
     wzLog(g,`${nmid(pid)} excavates ${WZCN[cv]} space ${col+1}${WZEXC[col]?` (1 coin, ${WZEXC[col]} egg${WZEXC[col]>1?'s':''})`:' (1 coin)'}`,'⛏️');wzPlace(g,pid,cv,id)}
   else if(mv.a==='ent'){const i=+mv.i,o=A.ent.find(x=>x.i===i);if(!o||!o.cv.includes(mv.cv))return false;const id=P.hand.d[i];
-    /* a chosen payment must be one of the legal ways to pay */let pay=null;if(mv.pay){pay=wzPayOpts(P.res,wzDCost(id)).find(x=>wzPayKey(x)===wzPayKey(mv.pay));if(!pay)return false}wzPayD(g,pid,id,'entice',pay);P.hand.d.splice(i,1);P.st.ent++;
+    /* a chosen payment must be one of the legal ways to pay */let pay=null;if(mv.pay){pay=wzPayOpts(P.res,wzDCost(id)).find(x=>wzPayKey(x)===wzPayKey(mv.pay));if(!pay)return false}wzPayD(g,pid,id,'entice',pay,mv.eggs);P.hand.d.splice(i,1);P.st.ent++;
     wzPut(g,pid,id,mv.cv,'entices')}
-  else if(mv.a==='exp'){const cv=mv.cv;if(!A.exp.includes(cv))return false;const n=P.ex[cv];P.coin--;wzPayEgg(g,pid,'',null,WZEXP[n]);P.ex[cv]++;P.st.exp++;
+  else if(mv.a==='exp'){const cv=mv.cv;if(!A.exp.includes(cv))return false;const n=P.ex[cv];P.coin--;wzPayEgg(g,pid,'',null,WZEXP[n],mv.eggs);P.ex[cv]++;g.adv={pid,cv,i:-1};P.st.exp++;
     wzLog(g,`${nmid(pid)} explores the ${WZCN[cv]}${n?` (${n+1}${n===1?'nd':'rd'} time: 1 coin, ${n} egg${n>1?'s':''})`:''}`,'🏮');
     g.q.push(...wzOps(g,pid,cv+'x',WYMAT[cv].in),{t:'walk',pid,cv,i:0})}
   else return false;
@@ -131,15 +141,20 @@ function wzPut(g,pid,id,cv,verb){const col=wzNextD(g,pid,cv);const x=g.P[pid].ma
   wzLog(g,`${nmid(pid)} ${verb} ${D.n} into the ${WZCN[cv]}`,'🐉');if(D.ty==='W'&&D.op)wzIns2(g,wzOps(g,pid,cv+col,D.op));return cv+col}
 /* append steps right after the current step (or at the end of the queue when nothing runs) */
 function wzIns2(g,st){if(g.q.length)g.q.splice(1,0,...st);else g.q.push(...st)}
-WZS.walk=(g,s)=>{const x=g.P[s.pid].mat[s.cv][s.i];if(!x||!x.d){wzLog(g,`${nmid(s.pid)}'s adventurer stops at an empty space and goes home`,'🏮');return true}
-  const D=wzD(x.d.id),k=s.cv+s.i,st=[];if(D.ty==='A')st.push({t:'adv',pid:s.pid,k});
+WZS.walk=(g,s)=>{const x=g.P[s.pid].mat[s.cv][s.i];if(!x||!x.d){delete g.adv;wzLog(g,`${nmid(s.pid)}'s adventurer stops at an empty space and goes home`,'🏮');return true}
+  g.adv={pid:s.pid,cv:s.cv,i:s.i};const D=wzD(x.d.id),k=s.cv+s.i,st=[];if(D.ty==='A')st.push({t:'adv',pid:s.pid,k,ex:1});
   st.push(...wzOps(g,s.pid,k,s.i<3?WYMAT[s.cv].after[s.i]:WYMAT[s.cv].end));if(s.i<3)st.push({t:'walk',pid:s.pid,cv:s.cv,i:s.i+1});wzIns(g,...st);return true};
 /* an if-activated dragon: hatchlings cache/tuck 1, others run their ops (optional) */
 WZS.adv=(g,s,mv)=>{const x=wzAt(g,s.pid,s.k);if(!x||!x.d)return true;const D=wzD(x.d.id);
   if(D.h){const r=D.h.r,P=g.P[s.pid];if(r==='tuck'){if(!P.hand.d.length)return true;wzIns(g,{t:'op',pid:s.pid,k:s.k,a:['tuck','hand','h',1]});return true}
     if(P.res[r]<1)return true;if(!mv)return wzAsk(g,s,`${D.n}: cache ${WZRI[r]} ${WZRN[r]} from your supply here?`,[{v:'y',l:`Cache ${WZRI[r]}`}],{opt:1});
     P.res[r]--;wzCacheOn(g,s.pid,s.k,r);return true}
+  if(s.ex&&!mv&&!wzAsksAlready(D.op)){const a0=D.op[0];if(a0&&a0[0]==='if'&&!wzIfOk(g,s.pid,s.k,a0[1]))return true;
+    return wzAsk(g,s,`Use ${D.n}'s ability? ${wzSayOps(D.op).replace(/^./,c=>c.toUpperCase())}`,[{v:'y',l:'Use it',k:s.k}],{opt:1,kind:'use',show:[x.d.id]})}
+  if(mv&&mv.v!=null&&mv.v!=='y')return null;
   wzLog(g,`${nmid(s.pid)} uses ${D.n}`,'✨');wzIns(g,...wzOps(g,s.pid,s.k,D.op));return true};
+/* abilities whose first step already asks with a Skip: an optional cost, or caching / tucking from your own supply or hand */
+const wzAsksAlready=ops=>{const a=(ops||[])[0];if(!a)return true;return a[0]==='pay'||a[0]==='payOr'||a[0]==='cache'&&a[4]!=='gen'||a[0]==='tuck'&&a[1]==='hand'||a[0]==='x'&&/^(tuckCost|tuck2any|drawMay|draw2may|cavesToEggs)$/.test(a[1])};
 /* column 4 when covered: spend 3 items for 1 coin (optional) */
 WZS.cover=(g,s,mv)=>{const P=g.P[s.pid];s.paid=s.paid||[];const L=[...WZR.filter(r=>P.res[r]>0).map(r=>({v:'r:'+r,l:WZRI[r]+' '+WZRN[r]})),...P.hand.d.map((id,i)=>({v:'d:'+i,l:'🐉 '+wzD(id).n,d:id})),...P.hand.c.map((id,i)=>({v:'c:'+i,l:'🪨 '+wzCvSay(id),c:id}))];
   if(!s.paid.length&&wzRes(g,s.pid)+wzCards(g,s.pid)<3)return true;
@@ -147,7 +162,7 @@ WZS.cover=(g,s,mv)=>{const P=g.P[s.pid];s.paid=s.paid||[];const L=[...WZR.filter
   const [t,v]=String(mv.v).split(':');if(t==='r'){if(!(P.res[v]>0))return null;P.res[v]--}else if(t==='d'||t==='c'){const L2=P.hand[t],i=+v;if(!(i>=0&&i<L2.length))return null;(t==='d'?g.ddisc:g.cdisc).push(L2.splice(i,1)[0])}else return null;
   s.paid.push(mv.v);if(s.paid.length<3)return WZS.cover(g,s);P.coin++;wzLog(g,`${nmid(s.pid)} spends 3 items for 1 coin`,'🪙');return true};
 /* end of a turn: discard down to 9/9/9, refill the display, next player (or the end of the round) */
-WZS.end=(g,s,mv)=>{const P=g.P[s.pid];if(P.coin>9)P.coin=9;
+WZS.end=(g,s,mv)=>{const P=g.P[s.pid];delete g.adv;if(P.coin>9)P.coin=9;
   if(wzCards(g,s.pid)>9||wzRes(g,s.pid)>9){const L=wzCards(g,s.pid)>9?[...P.hand.d.map((id,i)=>({v:'d:'+i,l:'🐉 '+wzD(id).n,d:id})),...P.hand.c.map((id,i)=>({v:'c:'+i,l:'🪨 '+wzCvSay(id),c:id}))]:WZR.filter(r=>P.res[r]>0).map(r=>({v:'r:'+r,l:WZRI[r]+' '+WZRN[r]}));
     if(!mv)return wzAsk(g,s,wzCards(g,s.pid)>9?`Too many cards: discard down to 9 (${wzCards(g,s.pid)-9} to go)`:`Too many resources: discard down to 9 (${wzRes(g,s.pid)-9} to go)`,L);
     const [t,v]=String(mv.v).split(':');if(t==='r'){if(!(P.res[v]>0))return null;P.res[v]--}else{const L2=P.hand[t],i=+v;if(!L2||!(i>=0&&i<L2.length))return null;(t==='d'?g.ddisc:g.cdisc).push(L2.splice(i,1)[0])}return WZS.end(g,s)}
@@ -224,7 +239,10 @@ WZOP.pay=(g,s,mv)=>{const [,cost,ops,n=1,src]=s.a;s.left=s.left??n;if(s.left<=0|
 WZOP.payOr=(g,s,mv)=>{const L=s.a[1].map(([c,o],i)=>({v:i,l:`Pay ${wzSayToks(c)}: ${wzSayOps(o)}`,c,o})).filter(x=>wzCan(g,s.pid,s.k,x.c));if(!L.length)return true;
   if(!mv)return wzAsk(g,s,'Choose one',L.map(({v,l})=>({v,l})),{opt:1});const x=L.find(o=>o.v===+mv.v);if(!x)return null;
   wzIns(g,...x.c.split(',').map(t=>({t:'payc',pid:s.pid,k:s.k,tok:t})),...wzOps(g,s.pid,s.k,x.o));return true};
-WZS.payc=(g,s,mv)=>{const P=g.P[s.pid],t=s.tok;if(t==='coin'){P.coin--;return true}if(t==='egg'){wzPayEgg(g,s.pid,s.k,s.src,1);return true}
+WZS.payc=(g,s,mv)=>{const P=g.P[s.pid],t=s.tok;if(t==='coin'){P.coin--;return true}
+  if(t==='egg'){const L=wzEggOrd(g,s.pid,s.k,s.src);if(L.length<2){wzPayEgg(g,s.pid,s.k,s.src,1);return true}
+    if(!mv)return wzAsk(g,s,'Pay an egg from where?',L.map(([kk,n])=>({v:kk,l:`${wzSpotL(g,s.pid,kk)} · ${n} egg${n>1?'s':''}`,k:kk})),{kind:'spot'});
+    if(!L.some(x=>x[0]===mv.v))return null;wzPayEgg(g,s.pid,s.k,s.src,1,[mv.v]);return true}
   if(WZR.includes(t)){wzPayRes(P.res,{[t]:1});return true}
   if(t==='any'){const L=WZR.filter(r=>P.res[r]>0);if(L.length===1){P.res[L[0]]--;return true}if(!mv)return wzAsk(g,s,'Pay which resource?',L.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});if(!L.includes(mv.v))return null;P.res[mv.v]--;return true}
   if(t==='d'||t==='c'){const H=P.hand[t];if(!H.length)return true;if(H.length===1)mv={v:0};if(!mv)return wzAsk(g,s,`Pay which ${t==='d'?'dragon':'cave'} card?`,H.map((id,i)=>({v:i,l:t==='d'?'🐉 '+wzD(id).n:'🪨 '+wzCvSay(id),[t]:id})));
@@ -281,10 +299,10 @@ WZOP.act=(g,s,mv)=>{const kind=s.a[1];
   const L=wzDr(g,s.pid).filter(([kk,d])=>kk!==s.k&&ok(wzD(d.id))&&(wzD(d.id).op||wzD(d.id).h)).map(([kk,d])=>({v:kk,l:`${wzD(d.id).n}: ${wzD(d.id).op?wzSayOps(wzD(d.id).op):'cache or tuck 1'}`,k:kk}));
   if(!L.length)return true;if(!mv)return wzAsk(g,s,'Activate the ability of which dragon?',L,{opt:1,kind:'spot'});if(!L.some(o=>o.v===mv.v))return null;const D=wzD(wzAt(g,s.pid,mv.v).d.id);
   if(D.h)wzIns(g,{t:'adv',pid:s.pid,k:mv.v});else wzIns(g,...wzOps(g,s.pid,mv.v,D.op));return true};
-WZOP.if=(g,s)=>{const [,c,ops]=s.a,P=g.P[s.pid],n=cv=>P.mat[cv].filter(x=>x&&x.d).length,left=g.ps[(g.ps.indexOf(s.pid)+1)%g.ps.length];
-  const nl=cv=>g.P[left].mat[cv].filter(x=>x&&x.d).length;let ok=false;
-  if(c==='gg'||c==='cc'||c==='aa')ok=n(c[0])>=nl(c[0]);else if(c==='cv3')ok=n(s.k[0])>=3;else if(c==='colfull')ok=WZC.every(cv=>{const x=P.mat[cv][+s.k[1]];return x&&x.d});else if(c==='guild1')ok=P.gm>=1;
-  if(ok)wzIns(g,...wzOps(g,s.pid,s.k,ops));return true};
+function wzIfOk(g,pid,k,c){const P=g.P[pid],n=cv=>P.mat[cv].filter(x=>x&&x.d).length,left=g.ps[(g.ps.indexOf(pid)+1)%g.ps.length];
+  const nl=cv=>g.P[left].mat[cv].filter(x=>x&&x.d).length;
+  if(c==='gg'||c==='cc'||c==='aa')return n(c[0])>=nl(c[0]);if(c==='cv3')return n(k[0])>=3;if(c==='colfull')return WZC.every(cv=>{const x=P.mat[cv][+k[1]];return x&&x.d});if(c==='guild1')return P.gm>=1;return false}
+WZOP.if=(g,s)=>{const [,c,ops]=s.a;if(wzIfOk(g,s.pid,s.k,c))wzIns(g,...wzOps(g,s.pid,s.k,ops));return true};
 /* gain 2 different (two) or 1 (two1) of a list */
 WZOP.two=(g,s,mv)=>{const L=s.a[1].split(',').filter(t=>!(s.got||[]).includes(t)),need=s.a[0]==='two'?2:1;if((s.got||[]).length>=need)return true;
   if(!mv)return wzAsk(g,s,need===2?`Gain ${s.got?'another':'2'} different benefit${s.got?'':'s'}`:'Gain 1 benefit',L.map(t=>({v:t,l:WZTN[t]})),{opt:1});if(!L.includes(mv.v))return null;

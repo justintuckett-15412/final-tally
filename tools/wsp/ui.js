@@ -20,11 +20,23 @@ function wpCard(b,o={}){const B=wpB(b);return `<div class="wpc wp-${B.col||'none
   ${B.pw?`<div class="wpcp">${esc(B.say||'')}</div>`:'<div class="wpcp none">No power</div>'}
   ${o.extra||''}</div>`}
 const wpPickable=(g,V)=>{const A=g.ask;if(!A||!V||A.pid!==V.id)return [];if(['egg','payEgg','eggCards','repeat'].includes(A.t))return A.opts||[];if(A.t==='eggFood'&&!(WPSEL&&WPSEL.k))return A.opts;if(A.t==='opt'&&A.h==='w')return wpSlots(g,V.id).filter(([,,x])=>x.e>0).map(([h,i])=>wpKey(h,i));return []};
+/* which birds count toward this round's goal right now (b), could count with an egg (can), and habitat rows to point at (rows) */
+function wpGoalMarks(g,p,G){const o={b:new Set(),can:new Set(),rows:new Set()};if(!G)return o;const S2=wpSlots(g,p);
+  switch(G.k){
+  case 'birdsHab':o.rows.add(G.hab);g.mat[p][G.hab].forEach((x,i)=>o.b.add(wpKey(G.hab,i)));break;
+  case 'eggsHab':o.rows.add(G.hab);g.mat[p][G.hab].forEach((x,i)=>{if(x.e>0)o.b.add(wpKey(G.hab,i));else if(wpRoom(x))o.can.add(wpKey(G.hab,i))});break;
+  case 'eggsNest':case 'birdsNestEgg':S2.forEach(([h,i,x])=>{if(!wpNestOk(x.b,G.nest))return;if(x.e>0)o.b.add(wpKey(h,i));else if(wpRoom(x))o.can.add(wpKey(h,i))});break;
+  case 'birdsTotal':S2.forEach(([h,i])=>o.b.add(wpKey(h,i)));break;
+  case 'sets':{const n=WPH.map(h=>g.mat[p][h].reduce((a,x)=>a+x.e,0)),m=Math.min(...n);WPH.forEach((h,j)=>{if(n[j]===m)o.rows.add(h)});break}}
+  return o}
+const WPGB='<span class="wpgbadge" title="Counts for this round’s goal" aria-label="counts for the round goal">🎯</span>';
 function wpMat(g,pid,V){const M=g.mat[pid],pick=pid===(V&&V.id)?wpPickable(g,V):[];
-  return `<div class="wpmat">${WPH.map(h=>`<div class="wprow wp-h${h}"><div class="wprh"><span>${wpHI(h)}</span><small>${h==='f'?'food':h==='g'?'eggs':'cards'} ${WPROW[h][M[h].length]}${WPOPT[M[h].length]?'+':''}</small></div>${[0,1,2,3,4].map(i=>{const x=M[h][i],k=wpKey(h,i);
+  const GM=g.phase==='play'&&(!V||pid===V.id)?wpGoalMarks(g,pid,wpGoal(g.goals[g.rnd])):null;
+  return `<div class="wpmat${GM?' wpgm':''}">${WPH.map(h=>`<div class="wprow wp-h${h}${GM&&GM.rows.has(h)?' wpgrow':''}"><div class="wprh">${GM&&GM.rows.has(h)?WPGB:''}<span>${wpHI(h)}</span><small>${h==='f'?'food':h==='g'?'eggs':'cards'} ${WPROW[h][M[h].length]}${WPOPT[M[h].length]?'+':''}</small></div>${[0,1,2,3,4].map(i=>{const x=M[h][i],k=wpKey(h,i);
     if(!x)return `<div class="wpslot empty${i===M[h].length?' next':''}"><small>${WPEGGCOST[i]?'🥚'.repeat(WPEGGCOST[i]):''}</small></div>`;
     const ex=`<div class="wpst"><span class="num">${wpEI}${x.e}/${wpB(x.b).egg}</span>${x.c?`<span class="num" title="Cached food"><img class="wpi" src="art/wp-cache.webp" alt="cached food">${x.c}</span>`:''}${x.t?`<span class="num" title="Tucked cards"><img class="wpi" src="art/wp-tuck.webp" alt="tucked cards">${x.t}</span>`:''}</div>`;
-    return pick.includes(k)?`<button class="wpslot pick" data-a="wppk" data-k="${k}" aria-label="${esc(wpB(x.b).n)}">${wpCard(x.b,{extra:ex})}</button>`:`<div class="wpslot" data-lp="wpb:${x.b}">${wpCard(x.b,{extra:ex})}</div>`}).join('')}</div>`).join('')}</div>`}
+    const gc=GM?GM.b.has(k)?' goal':GM.can.has(k)?' goalcan':'':'',gb=gc===' goal'?WPGB:'';
+    return pick.includes(k)?`<button class="wpslot pick${gc}" data-sk="${k}" data-a="wppk" data-k="${k}" aria-label="${esc(wpB(x.b).n)}">${gb}${wpCard(x.b,{extra:ex})}</button>`:`<div class="wpslot${gc}" data-sk="${k}" data-lp="wpb:${x.b}">${gb}${wpCard(x.b,{extra:ex})}</div>`}).join('')}</div>`).join('')}</div>`}
 function wpFeeder(g,V){const A=g.ask,mine=A&&V&&A.pid===V.id&&A.t==='die';
   return `<div class="wpfeed" aria-label="Bird feeder"><img class="wpfdimg" src="art/wp-feeder.webp" alt="">${g.fd.map((d,i)=>{const ok=mine&&A.opts.includes(i),face=d==='is'?`<span class="wpis">${wpFI('i')}${wpFI('s')}</span>`:wpFI(d);
     if(!ok)return `<span class="wpdie${mine?' off':''}" title="${d==='is'?'invertebrate or seed':WPFN[d]}">${face}</span>`;
@@ -47,7 +59,19 @@ function wpRsSheet(g){const R=g.rsum,G=wpGoal(R.goal),N=wpGoal(g.goals[g.rnd]),r
     <div class="glresh rlab"><span>Count → goal points</span><span>Goal total</span></div>
     <div class="wprsnext"><small class="rlab">Next: round ${g.rnd+1} of 4</small>${N?`<div class="wprsgoal"><span class="wpgoi">${wpGoalIcons(N)}</span><b>${esc(N.say)}</b></div>`:''}<p class="rlab">${esc(nmid(g.turn))} starts. ${WPCUBES[g.rnd]} actions each this round.</p></div>
     <button class="btn primary wide" data-a="wprsok">Start round ${g.rnd+1}</button></div></div>`}
-function wpGoalsHtml(g){return `<div class="wpgoals">${g.goals.map((id,r)=>{const G=wpGoal(id),c=g.gc[r];return `<div class="wpgo${r===g.rnd&&g.phase!=='done'?' now':''}${c?' done':''}"><small>Round ${r+1}</small><span class="wpgoi">${wpGoalIcons(G)}</span><b>${esc(G.say)}</b>${c?`<small>${g.ps.map(p=>`${esc(nmid(p))} ${c[p]}`).join(' · ')}</small>`:''}</div>`}).join('')}</div>`}
+/* the current goal, right now: everyone's count, the leader starred */
+function wpGoalStand(g,G){const c={};g.ps.forEach(p=>c[p]=wpGoalCount(g,p,G));const top=Math.max(...g.ps.map(p=>c[p])),V=wpViewer();
+  return `<div class="wpgst" aria-label="Right now">${g.ps.map(p=>{const q=act().find(x=>x.id===p),lead=top>0&&c[p]===top,me=V&&V.id===p&&(S.lk||wpHumans().length<2);
+    return `<span class="wpgs${lead?' lead':''}" data-p="${p}" data-n="${c[p]}" style="${q?pc(q.color):''}" title="${esc(nmid(p))}: ${c[p]}${lead?' (leading)':''}"><i>${me?'You':esc(nmid(p))}</i><b class="num">${c[p]}</b>${lead?'<span class="wpgld" aria-label="leading">★</span>':''}</span>`}).join('')}</div>`}
+function wpGoalsHtml(g){return `<div class="wpgoals">${g.goals.map((id,r)=>{const G=wpGoal(id),c=g.gc[r],now=r===g.rnd&&g.phase!=='done';return `<div class="wpgo${now?' now':''}${c?' done':''}"><small>Round ${r+1}${now&&g.phase==='play'?' · now':''}</small><span class="wpgoi">${wpGoalIcons(G)}</span><b>${esc(G.say)}</b>${c?`<small>${g.ps.map(p=>`${esc(nmid(p))} ${c[p]}`).join(' · ')}</small>`:now&&g.phase==='play'?wpGoalStand(g,G):''}</div>`}).join('')}</div>`}
+/* "While you waited": at the start of your turn, what the others did since your last turn (per phone; from the game log's times) */
+let WPSEEN={};const wpRcKey=(g,pid)=>g.id+':'+pid,wpLogMax=g=>(g.lg||[]).reduce((a,e)=>Math.max(a,e.at||0),0);
+function wpRecap(g,V){if(!g||!V||g.phase!=='play'||g.turn!==V.id||g.ask||g.q.length||gAnnBusy(g))return null;const k=wpRcKey(g,V.id),now=Date.now(),since=WPSEEN[k]!=null?WPSEEN[k]:0;
+  const L=(g.lg||[]).filter(e=>e.at!=null&&!e.su&&e.at>since&&now-e.at<10*60e3&&e.tp!==V.id);if(!L.length){WPSEEN[k]=Math.max(since,wpLogMax(g));return null}return L}
+function wpRecapSheet(g,L){const n=8,more=L.length-n,R=L.slice(-n),who=t=>g.ps.filter(p=>t.startsWith(nmid(p))).sort((a,b)=>nmid(b).length-nmid(a).length)[0];
+  return `<div class="sheet-bg glres"><div class="sheet wprc" role="dialog" aria-modal="true" aria-labelledby="wprc-h"><div class="tqannic" aria-hidden="true">🐦</div><h2 id="wprc-h">While you waited</h2>
+    ${more>0?`<p class="rlab">…and ${more} earlier move${more>1?'s':''}</p>`:''}<ol class="wprcl">${R.map(e=>{const q=act().find(x=>x.id===who(e.t));return `<li style="${q?pc(q.color):''}"><span class="wprci" aria-hidden="true">${e.ic||'•'}</span><span>${esc(e.t)}</span></li>`}).join('')}</ol>
+    <button class="btn primary wide" data-a="wprcok">Your turn</button></div></div>`}
 function wpPlayUI(){const g=wpG(),P=act();
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="Wingspan">${g&&g.phase==='done'?'🏁':'🐦'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>`;
   if(!g||wpStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(wpRes()?'Filling the bird feeder…':'Waiting for the host phone…')}</div>`;
@@ -61,6 +85,7 @@ function wpPlayUI(){const g=wpG(),P=act();
   else if(hide){const h=wpNeedHandoff();out+=`<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="wph-h" style="${pc(h.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="wph-h">${esc(nm(h))}</h2><p class="rlab">${g.phase==='setup'?'Choose your starting hand.':'It’s your turn. Everyone else, look away.'}</p><button class="btn primary wide" data-a="wpshow" data-k="${h.id}">I’m ${esc(nm(h))}, show my cards</button></div></div>`}
   else if(V)out+=wpDock(g,V);
   if(wpRsShow(g))out+=wpRsSheet(g);
+  else if(!hide&&V&&g.phase==='play'){const L=wpRecap(g,V);if(L)out+=wpRecapSheet(g,L)}
   return out}
 const wpAskWord=A=>({opt:'deciding on the extra',die:'taking food',egg:'laying eggs',card:'drawing cards',play:'playing a bird',payEgg:'paying eggs',disc:'discarding',tuck:'tucking a card',yes:'deciding',eggFood:'trading an egg',eggCards:'trading an egg',move:'moving a bird',repeat:'repeating a power',trade:'trading food',bonus:'choosing a bonus card',pool:'choosing a card'})[A.t]||'deciding';
 function wpDock(g,V){const box=(h,b)=>`<div class="sadock cpdock wpdock" style="${pc(V.color)}"><div class="sadh"><span><b>${S.lk||wpHumans().length<2?'You':esc(nm(V))}</b> · ${h}</span></div>${b}</div>`;
@@ -111,6 +136,7 @@ function wpBirdSheet(b){const B=wpB(b);return `<div class="sheet-bg" data-a="lpc
 function wpUiAct(a,b,k){const g=wpG();if(!g)return;if(a==='wpshow'){WPVIEW=k;WPSEL=null;return}if(a==='wplook'){WPLOOK=k;return}const V=wpViewer();if(!V)return;
   if(a==='wpsb'||a==='wpsf'||a==='wpsbo'){if(!WPSET)return;if(a==='wpsb'){const i=+k,L=WPSET.b;L.includes(i)?L.splice(L.indexOf(i),1):L.push(i);while(WPSET.b.length+WPSET.f.length>5&&WPSET.f.length)WPSET.f.pop()}else if(a==='wpsf'){const L=WPSET.f;L.includes(k)?L.splice(L.indexOf(k),1):L.length+WPSET.b.length<5&&L.push(k)}else WPSET.bo=k;vibe(6);return}
   if(a==='wpsgo'){if(!WPSET)return;const s=WPSET;WPSET=null;lkq('wpSetup',V.id,s.b,s.f,s.bo)&&vibe(12);return}
+  if(a==='wprcok'){WPSEEN[wpRcKey(g,V.id)]=wpLogMax(g);vibe(8);return}
   if(a==='wprsok'){const g2=wpG();if(g2&&g2.rsum)WPRSOK[wpRsKey(g2)]=1;vibe(8);return}if(a==='wpplaysel'){WPSEL={t:'play',i:+k};vibe(6);return}if(a==='wppaysel'){if(WPSEL&&WPSEL.t==='play')WPSEL.pay=+k;vibe(6);return}
   if(a==='wptrf'){WPSEL={t:'trade',f:k};return}
   if(a==='wpef'){if(!WPSEL||WPSEL.t!=='eggFood')return;WPSEL.fs.push(k);if(WPSEL.fs.length>=(g.ask&&g.ask.n||1)){const mv={k:WPSEL.k,fs:WPSEL.fs};WPSEL=null;lkq('wpMove',V.id,mv)&&vibe(10)}return}

@@ -2114,6 +2114,21 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 .wprs{text-align:center}.wprsgoal{display:flex;align-items:center;justify-content:center;gap:8px;margin:6px 0}.wprsgoal .wpi{width:30px;height:30px}.wprsnext{margin-top:12px;padding:10px;border-radius:12px;background:var(--soft,#eef1f4)}.wprsnext p{margin:4px 0 0}
 /* any open sheet (rules, long press, round card…) sits above the sticky bottom docks */
 body:has(.sheet-bg) .sadock{z-index:19}
+
+/* the current round goal, live: everyone's count on the tile, and the birds that count on your mat */
+.wpgst{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
+.wpgs{display:inline-flex;align-items:center;gap:3px;max-width:100%;padding:1px 5px 1px 4px;border-radius:999px;font-size:10px;line-height:1.35;background:color-mix(in srgb,var(--pc,#888) 16%,var(--surface,#fff));border:1px solid var(--pc,#888)}
+.wpgs i{font-style:normal;min-width:0;max-width:3.4em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wpgs b{font-size:11px}.wpgs.lead{box-shadow:0 0 0 1.5px var(--accent,#f0b43a);font-weight:700}.wpgld{color:#c98a00;font-size:10px}
+.wpslot{position:relative}
+.wpslot.goal .wpc{box-shadow:0 0 0 3px rgba(240,180,58,.8),0 0 10px rgba(240,180,58,.45)}
+.wpslot.goalcan:not(.pick) .wpc{outline:2px dashed rgba(240,180,58,.6);outline-offset:1px}
+.wpgbadge{position:absolute;top:-4px;right:-3px;z-index:2;font-size:12px;line-height:1;padding:2px 3px;border-radius:999px;background:#fff6dc;border:1px solid var(--accent,#f0b43a);pointer-events:none}
+.wprow.wpgrow{box-shadow:inset 0 0 0 2px rgba(240,180,58,.85)}.wprh{position:relative}.wprh .wpgbadge{top:-2px;right:-2px}
+/* "while you waited" */
+.wprcl{list-style:none;margin:8px 0 12px;padding:0;display:grid;gap:5px;text-align:left}
+.wprcl li{display:flex;gap:8px;align-items:flex-start;padding:6px 10px;border-radius:10px;font-size:14px;line-height:1.3;background:color-mix(in srgb,var(--pc,#888) 9%,var(--surface,#fff));border-left:4px solid var(--pc,#888)}
+.wprci{flex:0 0 auto;width:1.3em;text-align:center}
 /* Wyrmspan on the phones */
 .wzi{width:18px;height:18px;vertical-align:-4px;border-radius:4px}
 .wzc{position:relative;display:flex;flex-direction:column;gap:2px;width:124px;min-height:128px;padding:6px 7px 6px 9px;border-radius:10px;background:var(--surface,#fff);border:1px solid var(--line,#d9dee4);box-shadow:0 1px 2px rgba(0,0,0,.08);font-size:11px;line-height:1.25;text-align:left;color:var(--ink,#17212b)}
@@ -2182,6 +2197,26 @@ html.dark .wzcave{background:linear-gradient(#4a4030,#3a3226);color:#efe4cf;bord
 
 /* the pre-dug first space of each cave: a blank cave picture so it reads as a cave */
 .wzcave-blank small{color:var(--muted,#5a6672);font-style:italic}
+
+/* Nov 21: live objective standings, what counts on your caves, the adventurer, While you waited, egg choice */
+.wzobst{display:flex;flex-wrap:wrap;gap:3px;margin-top:2px}
+.wzobc{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:999px;font-size:10.5px;line-height:16px;background:color-mix(in srgb,var(--pc,#888) 14%,var(--surface,#fff));border:1px solid color-mix(in srgb,var(--pc,#888) 55%,transparent);max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.wzobc b{font-weight:800}.wzobc.lead{border-width:2px;font-weight:700}
+.wzsp{position:relative}
+.wzsp.wzob1>.wzc,.wzsp.wzob1>.wzslot{box-shadow:0 0 0 3px rgba(240,180,58,.55),0 0 10px rgba(240,180,58,.45)}
+.wzobt{position:absolute;top:-9px;right:-7px;width:20px;height:20px;display:grid;place-items:center;border-radius:50%;background:#fff6dc;box-shadow:0 0 0 2px rgba(240,180,58,.8);font-size:12px;line-height:1;pointer-events:none;z-index:1}
+.wzrow.wzobrow{box-shadow:inset 0 0 0 2px rgba(240,180,58,.75),0 0 10px rgba(240,180,58,.35)}
+.wzent{position:relative}
+.wzadv{width:34px;height:34px;color:var(--pc);fill:currentColor;stroke:rgba(0,0,0,.45);stroke-width:1.4;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.wzsp>.wzadv,.wzent>.wzadv{position:absolute;left:-8px;top:-8px;pointer-events:none;z-index:2;animation:wzadvin .35s ease-out}
+.wzent>.wzadv{left:auto;right:-6px;top:22px}
+.wzsp.wzhere>.wzc,.wzsp.wzhere>.wzslot{outline:3px dashed var(--accent,#f0b43a);outline-offset:1px}
+@keyframes wzadvin{from{transform:translateX(-40px) scale(.8);opacity:.3}to{transform:none;opacity:1}}
+.wzrc .tqannic .wzadv{width:44px;height:44px}
+.wzrc .glresl{max-height:52vh;overflow-y:auto}
+.wzrcl{grid-template-columns:auto 1fr;padding:6px 10px;font-size:13px;text-align:left}
+.wzeggs .btn{min-height:36px}.wzeggs small{letter-spacing:1px}
+.wzx.on{outline:3px solid var(--accent,#f0b43a)}
 /* Dead of Winter on the phones */
 .dwcol,.dwloc{padding:10px;border-radius:12px}
 .dwtrack{display:flex;flex-wrap:wrap;gap:12px;font-size:15px;margin-bottom:6px}
@@ -13464,12 +13499,14 @@ function wpSetup(g,pid,keep,food,bo){if(g.phase!=='setup'||!g.offer[pid])return 
   if(keep.length+food.length!==5||new Set(food).size!==food.length||!O.bo.includes(bo))return false;
   g.hand[pid]=keep.map(i=>O.b[i]);g.disc.push(...O.b.filter((b,i)=>!keep.includes(i)));g.food[pid]=Object.fromEntries(WPF.map(f=>[f,food.includes(f)?1:0]));g.bon[pid]=[bo];g.bdisc.push(...O.bo.filter(x=>x!==bo));delete g.offer[pid];
   gLog(g,`${nmid(pid)} keeps ${keep.length} bird${keep.length===1?'':'s'} and ${food.length} food`,'🐦');
-  if(!g.ps.some(p=>g.offer[p])){g.phase='play';gAnn(g,'Round 1',`${nmid(g.turn)} goes first. Each player has 8 actions this round.`,'🐦')}g.n++;return true}
+  wpStamp(g,1);if(!g.ps.some(p=>g.offer[p])){g.phase='play';gAnn(g,'Round 1',`${nmid(g.turn)} goes first. Each player has 8 actions this round.`,'🐦')}g.n++;return true}
 
 /* ---------- the actor and the queue ---------- */
 const wpActor=g=>!g||g.phase==='done'?null:g.phase==='setup'?(g.ps.find(p=>g.offer[p])||null):g.ask?g.ask.pid:g.turn;
 const wpWaits=(g,pid)=>g.phase==='setup'?!!g.offer[pid]:wpActor(g)===pid;
-function wpRun(g){let guard=0;while(g.q.length&&guard++<500){const s=g.q[0];const done=WPS[s.t](g,s);if(!done)return;g.ask=null;g.q.shift()}if(guard>=500)console.error('Wingspan: step loop')}
+function wpRun(g){let guard=0;while(g.q.length&&guard++<500){const s=g.q[0];const done=WPS[s.t](g,s);if(!done)break;g.ask=null;g.q.shift()}if(guard>=500)console.error('Wingspan: step loop');wpStamp(g)}
+/* log entries get the time they happened (su: during setup) so each phone can show “while you waited” */
+const wpStamp=(g,su)=>{const L=g.lg||[],t=Date.now();for(let i=L.length-1;i>=0&&L[i].at==null;i--){L[i].at=t;if(su)L[i].su=1}};
 /* a move: either an answer to the current question, or (start of a turn) one of the four actions */
 function wpMove(g,pid,mv){if(!g||g.phase!=='play'||!mv)return false;
   if(g.ask){if(g.ask.pid!==pid)return false;const s=g.q[0];if(!s)return false;const ok=WPS[s.t](g,s,mv);if(ok===null)return false;if(ok){g.ask=null;g.q.shift()}wpRun(g);g.n++;return true}
@@ -13752,11 +13789,23 @@ function wpCard(b,o={}){const B=wpB(b);return `<div class="wpc wp-${B.col||'none
   ${B.pw?`<div class="wpcp">${esc(B.say||'')}</div>`:'<div class="wpcp none">No power</div>'}
   ${o.extra||''}</div>`}
 const wpPickable=(g,V)=>{const A=g.ask;if(!A||!V||A.pid!==V.id)return [];if(['egg','payEgg','eggCards','repeat'].includes(A.t))return A.opts||[];if(A.t==='eggFood'&&!(WPSEL&&WPSEL.k))return A.opts;if(A.t==='opt'&&A.h==='w')return wpSlots(g,V.id).filter(([,,x])=>x.e>0).map(([h,i])=>wpKey(h,i));return []};
+/* which birds count toward this round's goal right now (b), could count with an egg (can), and habitat rows to point at (rows) */
+function wpGoalMarks(g,p,G){const o={b:new Set(),can:new Set(),rows:new Set()};if(!G)return o;const S2=wpSlots(g,p);
+  switch(G.k){
+  case 'birdsHab':o.rows.add(G.hab);g.mat[p][G.hab].forEach((x,i)=>o.b.add(wpKey(G.hab,i)));break;
+  case 'eggsHab':o.rows.add(G.hab);g.mat[p][G.hab].forEach((x,i)=>{if(x.e>0)o.b.add(wpKey(G.hab,i));else if(wpRoom(x))o.can.add(wpKey(G.hab,i))});break;
+  case 'eggsNest':case 'birdsNestEgg':S2.forEach(([h,i,x])=>{if(!wpNestOk(x.b,G.nest))return;if(x.e>0)o.b.add(wpKey(h,i));else if(wpRoom(x))o.can.add(wpKey(h,i))});break;
+  case 'birdsTotal':S2.forEach(([h,i])=>o.b.add(wpKey(h,i)));break;
+  case 'sets':{const n=WPH.map(h=>g.mat[p][h].reduce((a,x)=>a+x.e,0)),m=Math.min(...n);WPH.forEach((h,j)=>{if(n[j]===m)o.rows.add(h)});break}}
+  return o}
+const WPGB='<span class="wpgbadge" title="Counts for this round’s goal" aria-label="counts for the round goal">🎯</span>';
 function wpMat(g,pid,V){const M=g.mat[pid],pick=pid===(V&&V.id)?wpPickable(g,V):[];
-  return `<div class="wpmat">${WPH.map(h=>`<div class="wprow wp-h${h}"><div class="wprh"><span>${wpHI(h)}</span><small>${h==='f'?'food':h==='g'?'eggs':'cards'} ${WPROW[h][M[h].length]}${WPOPT[M[h].length]?'+':''}</small></div>${[0,1,2,3,4].map(i=>{const x=M[h][i],k=wpKey(h,i);
+  const GM=g.phase==='play'&&(!V||pid===V.id)?wpGoalMarks(g,pid,wpGoal(g.goals[g.rnd])):null;
+  return `<div class="wpmat${GM?' wpgm':''}">${WPH.map(h=>`<div class="wprow wp-h${h}${GM&&GM.rows.has(h)?' wpgrow':''}"><div class="wprh">${GM&&GM.rows.has(h)?WPGB:''}<span>${wpHI(h)}</span><small>${h==='f'?'food':h==='g'?'eggs':'cards'} ${WPROW[h][M[h].length]}${WPOPT[M[h].length]?'+':''}</small></div>${[0,1,2,3,4].map(i=>{const x=M[h][i],k=wpKey(h,i);
     if(!x)return `<div class="wpslot empty${i===M[h].length?' next':''}"><small>${WPEGGCOST[i]?'🥚'.repeat(WPEGGCOST[i]):''}</small></div>`;
     const ex=`<div class="wpst"><span class="num">${wpEI}${x.e}/${wpB(x.b).egg}</span>${x.c?`<span class="num" title="Cached food"><img class="wpi" src="art/wp-cache.webp" alt="cached food">${x.c}</span>`:''}${x.t?`<span class="num" title="Tucked cards"><img class="wpi" src="art/wp-tuck.webp" alt="tucked cards">${x.t}</span>`:''}</div>`;
-    return pick.includes(k)?`<button class="wpslot pick" data-a="wppk" data-k="${k}" aria-label="${esc(wpB(x.b).n)}">${wpCard(x.b,{extra:ex})}</button>`:`<div class="wpslot" data-lp="wpb:${x.b}">${wpCard(x.b,{extra:ex})}</div>`}).join('')}</div>`).join('')}</div>`}
+    const gc=GM?GM.b.has(k)?' goal':GM.can.has(k)?' goalcan':'':'',gb=gc===' goal'?WPGB:'';
+    return pick.includes(k)?`<button class="wpslot pick${gc}" data-sk="${k}" data-a="wppk" data-k="${k}" aria-label="${esc(wpB(x.b).n)}">${gb}${wpCard(x.b,{extra:ex})}</button>`:`<div class="wpslot${gc}" data-sk="${k}" data-lp="wpb:${x.b}">${gb}${wpCard(x.b,{extra:ex})}</div>`}).join('')}</div>`).join('')}</div>`}
 function wpFeeder(g,V){const A=g.ask,mine=A&&V&&A.pid===V.id&&A.t==='die';
   return `<div class="wpfeed" aria-label="Bird feeder"><img class="wpfdimg" src="art/wp-feeder.webp" alt="">${g.fd.map((d,i)=>{const ok=mine&&A.opts.includes(i),face=d==='is'?`<span class="wpis">${wpFI('i')}${wpFI('s')}</span>`:wpFI(d);
     if(!ok)return `<span class="wpdie${mine?' off':''}" title="${d==='is'?'invertebrate or seed':WPFN[d]}">${face}</span>`;
@@ -13779,7 +13828,19 @@ function wpRsSheet(g){const R=g.rsum,G=wpGoal(R.goal),N=wpGoal(g.goals[g.rnd]),r
     <div class="glresh rlab"><span>Count → goal points</span><span>Goal total</span></div>
     <div class="wprsnext"><small class="rlab">Next: round ${g.rnd+1} of 4</small>${N?`<div class="wprsgoal"><span class="wpgoi">${wpGoalIcons(N)}</span><b>${esc(N.say)}</b></div>`:''}<p class="rlab">${esc(nmid(g.turn))} starts. ${WPCUBES[g.rnd]} actions each this round.</p></div>
     <button class="btn primary wide" data-a="wprsok">Start round ${g.rnd+1}</button></div></div>`}
-function wpGoalsHtml(g){return `<div class="wpgoals">${g.goals.map((id,r)=>{const G=wpGoal(id),c=g.gc[r];return `<div class="wpgo${r===g.rnd&&g.phase!=='done'?' now':''}${c?' done':''}"><small>Round ${r+1}</small><span class="wpgoi">${wpGoalIcons(G)}</span><b>${esc(G.say)}</b>${c?`<small>${g.ps.map(p=>`${esc(nmid(p))} ${c[p]}`).join(' · ')}</small>`:''}</div>`}).join('')}</div>`}
+/* the current goal, right now: everyone's count, the leader starred */
+function wpGoalStand(g,G){const c={};g.ps.forEach(p=>c[p]=wpGoalCount(g,p,G));const top=Math.max(...g.ps.map(p=>c[p])),V=wpViewer();
+  return `<div class="wpgst" aria-label="Right now">${g.ps.map(p=>{const q=act().find(x=>x.id===p),lead=top>0&&c[p]===top,me=V&&V.id===p&&(S.lk||wpHumans().length<2);
+    return `<span class="wpgs${lead?' lead':''}" data-p="${p}" data-n="${c[p]}" style="${q?pc(q.color):''}" title="${esc(nmid(p))}: ${c[p]}${lead?' (leading)':''}"><i>${me?'You':esc(nmid(p))}</i><b class="num">${c[p]}</b>${lead?'<span class="wpgld" aria-label="leading">★</span>':''}</span>`}).join('')}</div>`}
+function wpGoalsHtml(g){return `<div class="wpgoals">${g.goals.map((id,r)=>{const G=wpGoal(id),c=g.gc[r],now=r===g.rnd&&g.phase!=='done';return `<div class="wpgo${now?' now':''}${c?' done':''}"><small>Round ${r+1}${now&&g.phase==='play'?' · now':''}</small><span class="wpgoi">${wpGoalIcons(G)}</span><b>${esc(G.say)}</b>${c?`<small>${g.ps.map(p=>`${esc(nmid(p))} ${c[p]}`).join(' · ')}</small>`:now&&g.phase==='play'?wpGoalStand(g,G):''}</div>`}).join('')}</div>`}
+/* "While you waited": at the start of your turn, what the others did since your last turn (per phone; from the game log's times) */
+let WPSEEN={};const wpRcKey=(g,pid)=>g.id+':'+pid,wpLogMax=g=>(g.lg||[]).reduce((a,e)=>Math.max(a,e.at||0),0);
+function wpRecap(g,V){if(!g||!V||g.phase!=='play'||g.turn!==V.id||g.ask||g.q.length||gAnnBusy(g))return null;const k=wpRcKey(g,V.id),now=Date.now(),since=WPSEEN[k]!=null?WPSEEN[k]:0;
+  const L=(g.lg||[]).filter(e=>e.at!=null&&!e.su&&e.at>since&&now-e.at<10*60e3&&e.tp!==V.id);if(!L.length){WPSEEN[k]=Math.max(since,wpLogMax(g));return null}return L}
+function wpRecapSheet(g,L){const n=8,more=L.length-n,R=L.slice(-n),who=t=>g.ps.filter(p=>t.startsWith(nmid(p))).sort((a,b)=>nmid(b).length-nmid(a).length)[0];
+  return `<div class="sheet-bg glres"><div class="sheet wprc" role="dialog" aria-modal="true" aria-labelledby="wprc-h"><div class="tqannic" aria-hidden="true">🐦</div><h2 id="wprc-h">While you waited</h2>
+    ${more>0?`<p class="rlab">…and ${more} earlier move${more>1?'s':''}</p>`:''}<ol class="wprcl">${R.map(e=>{const q=act().find(x=>x.id===who(e.t));return `<li style="${q?pc(q.color):''}"><span class="wprci" aria-hidden="true">${e.ic||'•'}</span><span>${esc(e.t)}</span></li>`}).join('')}</ol>
+    <button class="btn primary wide" data-a="wprcok">Your turn</button></div></div>`}
 function wpPlayUI(){const g=wpG(),P=act();
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="Wingspan">${g&&g.phase==='done'?'🏁':'🐦'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>`;
   if(!g||wpStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(wpRes()?'Filling the bird feeder…':'Waiting for the host phone…')}</div>`;
@@ -13793,6 +13854,7 @@ function wpPlayUI(){const g=wpG(),P=act();
   else if(hide){const h=wpNeedHandoff();out+=`<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="wph-h" style="${pc(h.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="wph-h">${esc(nm(h))}</h2><p class="rlab">${g.phase==='setup'?'Choose your starting hand.':'It’s your turn. Everyone else, look away.'}</p><button class="btn primary wide" data-a="wpshow" data-k="${h.id}">I’m ${esc(nm(h))}, show my cards</button></div></div>`}
   else if(V)out+=wpDock(g,V);
   if(wpRsShow(g))out+=wpRsSheet(g);
+  else if(!hide&&V&&g.phase==='play'){const L=wpRecap(g,V);if(L)out+=wpRecapSheet(g,L)}
   return out}
 const wpAskWord=A=>({opt:'deciding on the extra',die:'taking food',egg:'laying eggs',card:'drawing cards',play:'playing a bird',payEgg:'paying eggs',disc:'discarding',tuck:'tucking a card',yes:'deciding',eggFood:'trading an egg',eggCards:'trading an egg',move:'moving a bird',repeat:'repeating a power',trade:'trading food',bonus:'choosing a bonus card',pool:'choosing a card'})[A.t]||'deciding';
 function wpDock(g,V){const box=(h,b)=>`<div class="sadock cpdock wpdock" style="${pc(V.color)}"><div class="sadh"><span><b>${S.lk||wpHumans().length<2?'You':esc(nm(V))}</b> · ${h}</span></div>${b}</div>`;
@@ -13843,6 +13905,7 @@ function wpBirdSheet(b){const B=wpB(b);return `<div class="sheet-bg" data-a="lpc
 function wpUiAct(a,b,k){const g=wpG();if(!g)return;if(a==='wpshow'){WPVIEW=k;WPSEL=null;return}if(a==='wplook'){WPLOOK=k;return}const V=wpViewer();if(!V)return;
   if(a==='wpsb'||a==='wpsf'||a==='wpsbo'){if(!WPSET)return;if(a==='wpsb'){const i=+k,L=WPSET.b;L.includes(i)?L.splice(L.indexOf(i),1):L.push(i);while(WPSET.b.length+WPSET.f.length>5&&WPSET.f.length)WPSET.f.pop()}else if(a==='wpsf'){const L=WPSET.f;L.includes(k)?L.splice(L.indexOf(k),1):L.length+WPSET.b.length<5&&L.push(k)}else WPSET.bo=k;vibe(6);return}
   if(a==='wpsgo'){if(!WPSET)return;const s=WPSET;WPSET=null;lkq('wpSetup',V.id,s.b,s.f,s.bo)&&vibe(12);return}
+  if(a==='wprcok'){WPSEEN[wpRcKey(g,V.id)]=wpLogMax(g);vibe(8);return}
   if(a==='wprsok'){const g2=wpG();if(g2&&g2.rsum)WPRSOK[wpRsKey(g2)]=1;vibe(8);return}if(a==='wpplaysel'){WPSEL={t:'play',i:+k};vibe(6);return}if(a==='wppaysel'){if(WPSEL&&WPSEL.t==='play')WPSEL.pay=+k;vibe(6);return}
   if(a==='wptrf'){WPSEL={t:'trade',f:k};return}
   if(a==='wpef'){if(!WPSEL||WPSEL.t!=='eggFood')return;WPSEL.fs.push(k);if(WPSEL.fs.length>=(g.ask&&g.ask.n||1)){const mv={k:WPSEL.k,fs:WPSEL.fs};WPSEL=null;lkq('wpMove',V.id,mv)&&vibe(10)}return}
@@ -13889,7 +13952,9 @@ const wzRoom=d=>d.e<wzD(d.id).cap;
 const wzOthers=(g,pid)=>{const L=g.ps,i=L.indexOf(pid);return L.slice(i+1).concat(L.slice(0,i))};
 const wzIns=(g,...st)=>{g.q.splice(1,0,...st)};
 const wzAsk=(g,s,msg,opts,o={})=>{g.ask={pid:s.pid,msg,opts,opt:!!o.opt,...o};return false};
-const wzLog=(g,t,ic)=>{if(!WZQUIET)gLog(g,t,ic||'🐉')},wzGL=(...a)=>{if(!WZQUIET)gLog(...a)},wzAnn=(...a)=>{if(!WZQUIET)gAnn(...a)};
+/* log entries made once play has started get a number and a time (the "While you waited" card reads them) */
+const wzStamp=(g,f)=>{const L=g&&(g.lg=g.lg||[]),n0=L?L.length:0,l0=L&&L[n0-1];f();if(!L||!g.lgo)return;const e=L[L.length-1];if(e&&(L.length!==n0||e!==l0)&&e.n==null){g.lgn=(g.lgn||0)+1;e.n=g.lgn;e.at=Date.now()}};
+const wzLog=(g,t,ic)=>{if(!WZQUIET)wzStamp(g,()=>gLog(g,t,ic||'🐉'))},wzGL=(g,...a)=>{if(!WZQUIET)wzStamp(g,()=>gLog(g,...a))},wzAnn=(...a)=>{if(!WZQUIET)gAnn(...a)};
 function wzDrawD(g){if(!g.dd.length&&g.ddisc.length){g.dd=wzShuf(g.ddisc);g.ddisc=[]}return g.dd.pop()??null}
 function wzDrawC(g){if(!g.dc.length&&g.cdisc.length){g.dc=wzShuf(g.cdisc);g.cdisc=[]}return g.dc.pop()??null}
 function wzRefill(g){for(let i=0;i<3;i++){if(g.disp.d[i]==null)g.disp.d[i]=wzDrawD(g);if(g.disp.c[i]==null)g.disp.c[i]=wzDrawC(g)}}
@@ -13917,7 +13982,7 @@ WZS.keep=(g,s,mv)=>{const L=[...s.o.d.map((id,i)=>id==null?null:{v:'d'+i,l:'🐉
   if(s.drop>0)return WZS.keep(g,s);g.P[s.pid].hand.d=s.o.d.filter(x=>x!=null);g.P[s.pid].hand.c=s.o.c.filter(x=>x!=null);return true};
 WZS.start3=(g,s,mv)=>{if(!mv)return wzAsk(g,s,`Pick a starting resource (${s.n} to go)`,WZR.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});
   if(!WZR.includes(mv.v))return null;g.P[s.pid].res[mv.v]++;s.n--;return s.n>0?WZS.start3(g,s):true};
-WZS.go=g=>{wzAnn(g,'Round 1',`${nmid(g.turn)} goes first. Spend coins on excavate, entice and explore; pass when you're done.`,'🐉');g.n++;return true};
+WZS.go=g=>{g.lgo=1;wzAnn(g,'Round 1',`${nmid(g.turn)} goes first. Spend coins on excavate, entice and explore; pass when you're done.`,'🐉');g.n++;return true};
 
 /* ---------- the actor and the queue ---------- */
 const wzActor=g=>!g||g.phase==='done'?null:g.ask?g.ask.pid:g.q.length?null:g.turn;
@@ -13952,7 +14017,13 @@ const wzPayKey=P=>WZR.map(r=>(P&&P[r])||0).join('');
 /* egg sources: 'cv' this cave, 'adj' next to k, '' anywhere (the mat nests too) */
 function wzEggSrc(g,pid,k,src){const L=[];if(!src)L.push(['n',g.P[pid].nest]);wzDr(g,pid).forEach(([kk,d])=>{if(src==='cv'&&kk[0]!==k[0])return;if(src==='adj'&&!wzAdj(k,kk))return;L.push([kk,d.e])});return L.filter(x=>x[1]>0)}
 const wzEggN=(g,pid,k,src)=>wzEggSrc(g,pid,k,src).reduce((a,x)=>a+x[1],0);
-function wzPayEgg(g,pid,k,src,n){for(let i=0;i<n;i++){const L=wzEggSrc(g,pid,k,src).sort((a,b)=>(a[0]==='n'?-1:0)-(b[0]==='n'?-1:0)||b[1]-a[1]);if(!L.length)return false;
+/* the usual order: mat nests first, then the fullest dragons */
+const wzEggOrd=(g,pid,k,src)=>wzEggSrc(g,pid,k,src).sort((a,b)=>(a[0]==='n'?-1:0)-(b[0]==='n'?-1:0)||b[1]-a[1]);
+function wzEggAuto(g,pid,k,src,n){const L=wzEggOrd(g,pid,k,src).map(x=>x.slice()),o=[];for(let i=0;i<n;i++){L.sort((a,b)=>(a[0]==='n'?-1:0)-(b[0]==='n'?-1:0)||b[1]-a[1]);const x=L.find(y=>y[1]>0);if(!x)break;x[1]--;o.push(x[0])}return o}
+/* a chosen list of egg places is legal when it has n entries and no place gives more eggs than it holds */
+function wzEggOk(g,pid,k,src,n,ch){if(!Array.isArray(ch)||ch.length!==n)return false;const have=Object.fromEntries(wzEggSrc(g,pid,k,src)),c={};for(const x of ch){const kk=String(x);c[kk]=(c[kk]||0)+1;if(!(have[kk]>=c[kk]))return false}return true}
+function wzPayEgg(g,pid,k,src,n,ch){if(ch&&n&&wzEggOk(g,pid,k,src,n,ch)){ch.forEach(kk=>{if(kk==='n')g.P[pid].nest--;else wzAt(g,pid,kk).d.e--});return true}
+  for(let i=0;i<n;i++){const L=wzEggSrc(g,pid,k,src).sort((a,b)=>(a[0]==='n'?-1:0)-(b[0]==='n'?-1:0)||b[1]-a[1]);if(!L.length)return false;
   if(L[0][0]==='n')g.P[pid].nest--;else wzAt(g,pid,L[0][0]).d.e--}return true}
 const wzAdj=(a,b)=>{const ca=WZC.indexOf(a[0]),cb=WZC.indexOf(b[0]),ia=+a[1],ib=+b[1];return ca===cb&&Math.abs(ia-ib)===1||ia===ib&&Math.abs(ca-cb)===1};
 /* can this player pay this token list (pay op costs)? */
@@ -13972,7 +14043,7 @@ function wzCanAfford(g,pid,id,mode){if(mode==='free')return true;const P=g.P[pid
   return P.coin>=base+(c.coin||0)&&wzEggN(g,pid,'',null)>=(c.egg||0)&&!!wzPayRes(P.res,c,1)}
 function wzDisc1(g,pid,id){const c=wzDCost(id),P=g.P[pid];const tries=[];if(c.egg)tries.push({...c,egg:c.egg-1});WZR.forEach(r=>{if(c[r])tries.push({...c,[r]:c[r]-1})});if(!tries.length)tries.push(c);
   return tries.find(t=>P.coin>=(t.coin||0)&&wzEggN(g,pid,'',null)>=(t.egg||0)&&wzPayRes(P.res,t,1))||null}
-function wzPayD(g,pid,id,mode,pay){if(mode==='free')return;const P=g.P[pid],c=mode==='disc1'?wzDisc1(g,pid,id):wzDCost(id,mode);P.coin-=(mode==='entice'?1:0)+(c.coin||0);wzPayEgg(g,pid,'',null,c.egg||0);
+function wzPayD(g,pid,id,mode,pay,eggs){if(mode==='free')return;const P=g.P[pid],c=mode==='disc1'?wzDisc1(g,pid,id):wzDCost(id,mode);P.coin-=(mode==='entice'?1:0)+(c.coin||0);wzPayEgg(g,pid,'',null,c.egg||0,eggs);
   if(pay){WZR.forEach(r=>P.res[r]-=pay[r]||0);return}wzPayRes(P.res,c)}
 const wzFits=(g,pid,id)=>WZC.filter(cv=>wzD(id).cv.includes(cv)&&wzNextD(g,pid,cv)>=0);
 function wzActs(g,pid){const P=g.P[pid],o={exc:[],ent:[],exp:[]};if(P.coin<1)return o;
@@ -13982,13 +14053,15 @@ function wzActs(g,pid){const P=g.P[pid],o={exc:[],ent:[],exp:[]};if(P.coin<1)ret
 function wzAction(g,pid,mv){const P=g.P[pid];if(P.passed)return false;g.last={p:pid,t:mv.a};
   if(mv.a==='pass'){P.passed=true;wzLog(g,`${nmid(pid)} passes${P.coin?` (keeps ${P.coin} coin${P.coin>1?'s':''})`:''}`,'✋');g.q.push({t:'end',pid});wzRun(g);g.n++;return true}
   const A=wzActs(g,pid);
+  /* eggs the player chose to pay with (optional): must match the action's egg cost and what's on the mat */
+  if(mv.eggs!=null){if(!WZC.includes(mv.cv))return false;const need=mv.a==='exc'?WZEXC[wzNextEx(g,pid,mv.cv)]||0:mv.a==='exp'?WZEXP[P.ex[mv.cv]]||0:mv.a==='ent'&&P.hand.d[+mv.i]!=null?wzDCost(P.hand.d[+mv.i]).egg||0:-1;if(!(need>0)||!wzEggOk(g,pid,'',null,need,mv.eggs))return false}
   if(mv.a==='exc'){const cv=mv.cv,i=+mv.i;if(!A.exc.includes(cv)||!(i>=0&&i<P.hand.c.length))return false;const col=wzNextEx(g,pid,cv);
-    P.coin--;wzPayEgg(g,pid,'',null,WZEXC[col]);const id=P.hand.c.splice(i,1)[0];P.st.exc++;
+    P.coin--;wzPayEgg(g,pid,'',null,WZEXC[col],mv.eggs);const id=P.hand.c.splice(i,1)[0];P.st.exc++;
     wzLog(g,`${nmid(pid)} excavates ${WZCN[cv]} space ${col+1}${WZEXC[col]?` (1 coin, ${WZEXC[col]} egg${WZEXC[col]>1?'s':''})`:' (1 coin)'}`,'⛏️');wzPlace(g,pid,cv,id)}
   else if(mv.a==='ent'){const i=+mv.i,o=A.ent.find(x=>x.i===i);if(!o||!o.cv.includes(mv.cv))return false;const id=P.hand.d[i];
-    /* a chosen payment must be one of the legal ways to pay */let pay=null;if(mv.pay){pay=wzPayOpts(P.res,wzDCost(id)).find(x=>wzPayKey(x)===wzPayKey(mv.pay));if(!pay)return false}wzPayD(g,pid,id,'entice',pay);P.hand.d.splice(i,1);P.st.ent++;
+    /* a chosen payment must be one of the legal ways to pay */let pay=null;if(mv.pay){pay=wzPayOpts(P.res,wzDCost(id)).find(x=>wzPayKey(x)===wzPayKey(mv.pay));if(!pay)return false}wzPayD(g,pid,id,'entice',pay,mv.eggs);P.hand.d.splice(i,1);P.st.ent++;
     wzPut(g,pid,id,mv.cv,'entices')}
-  else if(mv.a==='exp'){const cv=mv.cv;if(!A.exp.includes(cv))return false;const n=P.ex[cv];P.coin--;wzPayEgg(g,pid,'',null,WZEXP[n]);P.ex[cv]++;P.st.exp++;
+  else if(mv.a==='exp'){const cv=mv.cv;if(!A.exp.includes(cv))return false;const n=P.ex[cv];P.coin--;wzPayEgg(g,pid,'',null,WZEXP[n],mv.eggs);P.ex[cv]++;g.adv={pid,cv,i:-1};P.st.exp++;
     wzLog(g,`${nmid(pid)} explores the ${WZCN[cv]}${n?` (${n+1}${n===1?'nd':'rd'} time: 1 coin, ${n} egg${n>1?'s':''})`:''}`,'🏮');
     g.q.push(...wzOps(g,pid,cv+'x',WYMAT[cv].in),{t:'walk',pid,cv,i:0})}
   else return false;
@@ -14001,15 +14074,20 @@ function wzPut(g,pid,id,cv,verb){const col=wzNextD(g,pid,cv);const x=g.P[pid].ma
   wzLog(g,`${nmid(pid)} ${verb} ${D.n} into the ${WZCN[cv]}`,'🐉');if(D.ty==='W'&&D.op)wzIns2(g,wzOps(g,pid,cv+col,D.op));return cv+col}
 /* append steps right after the current step (or at the end of the queue when nothing runs) */
 function wzIns2(g,st){if(g.q.length)g.q.splice(1,0,...st);else g.q.push(...st)}
-WZS.walk=(g,s)=>{const x=g.P[s.pid].mat[s.cv][s.i];if(!x||!x.d){wzLog(g,`${nmid(s.pid)}'s adventurer stops at an empty space and goes home`,'🏮');return true}
-  const D=wzD(x.d.id),k=s.cv+s.i,st=[];if(D.ty==='A')st.push({t:'adv',pid:s.pid,k});
+WZS.walk=(g,s)=>{const x=g.P[s.pid].mat[s.cv][s.i];if(!x||!x.d){delete g.adv;wzLog(g,`${nmid(s.pid)}'s adventurer stops at an empty space and goes home`,'🏮');return true}
+  g.adv={pid:s.pid,cv:s.cv,i:s.i};const D=wzD(x.d.id),k=s.cv+s.i,st=[];if(D.ty==='A')st.push({t:'adv',pid:s.pid,k,ex:1});
   st.push(...wzOps(g,s.pid,k,s.i<3?WYMAT[s.cv].after[s.i]:WYMAT[s.cv].end));if(s.i<3)st.push({t:'walk',pid:s.pid,cv:s.cv,i:s.i+1});wzIns(g,...st);return true};
 /* an if-activated dragon: hatchlings cache/tuck 1, others run their ops (optional) */
 WZS.adv=(g,s,mv)=>{const x=wzAt(g,s.pid,s.k);if(!x||!x.d)return true;const D=wzD(x.d.id);
   if(D.h){const r=D.h.r,P=g.P[s.pid];if(r==='tuck'){if(!P.hand.d.length)return true;wzIns(g,{t:'op',pid:s.pid,k:s.k,a:['tuck','hand','h',1]});return true}
     if(P.res[r]<1)return true;if(!mv)return wzAsk(g,s,`${D.n}: cache ${WZRI[r]} ${WZRN[r]} from your supply here?`,[{v:'y',l:`Cache ${WZRI[r]}`}],{opt:1});
     P.res[r]--;wzCacheOn(g,s.pid,s.k,r);return true}
+  if(s.ex&&!mv&&!wzAsksAlready(D.op)){const a0=D.op[0];if(a0&&a0[0]==='if'&&!wzIfOk(g,s.pid,s.k,a0[1]))return true;
+    return wzAsk(g,s,`Use ${D.n}'s ability? ${wzSayOps(D.op).replace(/^./,c=>c.toUpperCase())}`,[{v:'y',l:'Use it',k:s.k}],{opt:1,kind:'use',show:[x.d.id]})}
+  if(mv&&mv.v!=null&&mv.v!=='y')return null;
   wzLog(g,`${nmid(s.pid)} uses ${D.n}`,'✨');wzIns(g,...wzOps(g,s.pid,s.k,D.op));return true};
+/* abilities whose first step already asks with a Skip: an optional cost, or caching / tucking from your own supply or hand */
+const wzAsksAlready=ops=>{const a=(ops||[])[0];if(!a)return true;return a[0]==='pay'||a[0]==='payOr'||a[0]==='cache'&&a[4]!=='gen'||a[0]==='tuck'&&a[1]==='hand'||a[0]==='x'&&/^(tuckCost|tuck2any|drawMay|draw2may|cavesToEggs)$/.test(a[1])};
 /* column 4 when covered: spend 3 items for 1 coin (optional) */
 WZS.cover=(g,s,mv)=>{const P=g.P[s.pid];s.paid=s.paid||[];const L=[...WZR.filter(r=>P.res[r]>0).map(r=>({v:'r:'+r,l:WZRI[r]+' '+WZRN[r]})),...P.hand.d.map((id,i)=>({v:'d:'+i,l:'🐉 '+wzD(id).n,d:id})),...P.hand.c.map((id,i)=>({v:'c:'+i,l:'🪨 '+wzCvSay(id),c:id}))];
   if(!s.paid.length&&wzRes(g,s.pid)+wzCards(g,s.pid)<3)return true;
@@ -14017,7 +14095,7 @@ WZS.cover=(g,s,mv)=>{const P=g.P[s.pid];s.paid=s.paid||[];const L=[...WZR.filter
   const [t,v]=String(mv.v).split(':');if(t==='r'){if(!(P.res[v]>0))return null;P.res[v]--}else if(t==='d'||t==='c'){const L2=P.hand[t],i=+v;if(!(i>=0&&i<L2.length))return null;(t==='d'?g.ddisc:g.cdisc).push(L2.splice(i,1)[0])}else return null;
   s.paid.push(mv.v);if(s.paid.length<3)return WZS.cover(g,s);P.coin++;wzLog(g,`${nmid(s.pid)} spends 3 items for 1 coin`,'🪙');return true};
 /* end of a turn: discard down to 9/9/9, refill the display, next player (or the end of the round) */
-WZS.end=(g,s,mv)=>{const P=g.P[s.pid];if(P.coin>9)P.coin=9;
+WZS.end=(g,s,mv)=>{const P=g.P[s.pid];delete g.adv;if(P.coin>9)P.coin=9;
   if(wzCards(g,s.pid)>9||wzRes(g,s.pid)>9){const L=wzCards(g,s.pid)>9?[...P.hand.d.map((id,i)=>({v:'d:'+i,l:'🐉 '+wzD(id).n,d:id})),...P.hand.c.map((id,i)=>({v:'c:'+i,l:'🪨 '+wzCvSay(id),c:id}))]:WZR.filter(r=>P.res[r]>0).map(r=>({v:'r:'+r,l:WZRI[r]+' '+WZRN[r]}));
     if(!mv)return wzAsk(g,s,wzCards(g,s.pid)>9?`Too many cards: discard down to 9 (${wzCards(g,s.pid)-9} to go)`:`Too many resources: discard down to 9 (${wzRes(g,s.pid)-9} to go)`,L);
     const [t,v]=String(mv.v).split(':');if(t==='r'){if(!(P.res[v]>0))return null;P.res[v]--}else{const L2=P.hand[t],i=+v;if(!L2||!(i>=0&&i<L2.length))return null;(t==='d'?g.ddisc:g.cdisc).push(L2.splice(i,1)[0])}return WZS.end(g,s)}
@@ -14094,7 +14172,10 @@ WZOP.pay=(g,s,mv)=>{const [,cost,ops,n=1,src]=s.a;s.left=s.left??n;if(s.left<=0|
 WZOP.payOr=(g,s,mv)=>{const L=s.a[1].map(([c,o],i)=>({v:i,l:`Pay ${wzSayToks(c)}: ${wzSayOps(o)}`,c,o})).filter(x=>wzCan(g,s.pid,s.k,x.c));if(!L.length)return true;
   if(!mv)return wzAsk(g,s,'Choose one',L.map(({v,l})=>({v,l})),{opt:1});const x=L.find(o=>o.v===+mv.v);if(!x)return null;
   wzIns(g,...x.c.split(',').map(t=>({t:'payc',pid:s.pid,k:s.k,tok:t})),...wzOps(g,s.pid,s.k,x.o));return true};
-WZS.payc=(g,s,mv)=>{const P=g.P[s.pid],t=s.tok;if(t==='coin'){P.coin--;return true}if(t==='egg'){wzPayEgg(g,s.pid,s.k,s.src,1);return true}
+WZS.payc=(g,s,mv)=>{const P=g.P[s.pid],t=s.tok;if(t==='coin'){P.coin--;return true}
+  if(t==='egg'){const L=wzEggOrd(g,s.pid,s.k,s.src);if(L.length<2){wzPayEgg(g,s.pid,s.k,s.src,1);return true}
+    if(!mv)return wzAsk(g,s,'Pay an egg from where?',L.map(([kk,n])=>({v:kk,l:`${wzSpotL(g,s.pid,kk)} · ${n} egg${n>1?'s':''}`,k:kk})),{kind:'spot'});
+    if(!L.some(x=>x[0]===mv.v))return null;wzPayEgg(g,s.pid,s.k,s.src,1,[mv.v]);return true}
   if(WZR.includes(t)){wzPayRes(P.res,{[t]:1});return true}
   if(t==='any'){const L=WZR.filter(r=>P.res[r]>0);if(L.length===1){P.res[L[0]]--;return true}if(!mv)return wzAsk(g,s,'Pay which resource?',L.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});if(!L.includes(mv.v))return null;P.res[mv.v]--;return true}
   if(t==='d'||t==='c'){const H=P.hand[t];if(!H.length)return true;if(H.length===1)mv={v:0};if(!mv)return wzAsk(g,s,`Pay which ${t==='d'?'dragon':'cave'} card?`,H.map((id,i)=>({v:i,l:t==='d'?'🐉 '+wzD(id).n:'🪨 '+wzCvSay(id),[t]:id})));
@@ -14151,10 +14232,10 @@ WZOP.act=(g,s,mv)=>{const kind=s.a[1];
   const L=wzDr(g,s.pid).filter(([kk,d])=>kk!==s.k&&ok(wzD(d.id))&&(wzD(d.id).op||wzD(d.id).h)).map(([kk,d])=>({v:kk,l:`${wzD(d.id).n}: ${wzD(d.id).op?wzSayOps(wzD(d.id).op):'cache or tuck 1'}`,k:kk}));
   if(!L.length)return true;if(!mv)return wzAsk(g,s,'Activate the ability of which dragon?',L,{opt:1,kind:'spot'});if(!L.some(o=>o.v===mv.v))return null;const D=wzD(wzAt(g,s.pid,mv.v).d.id);
   if(D.h)wzIns(g,{t:'adv',pid:s.pid,k:mv.v});else wzIns(g,...wzOps(g,s.pid,mv.v,D.op));return true};
-WZOP.if=(g,s)=>{const [,c,ops]=s.a,P=g.P[s.pid],n=cv=>P.mat[cv].filter(x=>x&&x.d).length,left=g.ps[(g.ps.indexOf(s.pid)+1)%g.ps.length];
-  const nl=cv=>g.P[left].mat[cv].filter(x=>x&&x.d).length;let ok=false;
-  if(c==='gg'||c==='cc'||c==='aa')ok=n(c[0])>=nl(c[0]);else if(c==='cv3')ok=n(s.k[0])>=3;else if(c==='colfull')ok=WZC.every(cv=>{const x=P.mat[cv][+s.k[1]];return x&&x.d});else if(c==='guild1')ok=P.gm>=1;
-  if(ok)wzIns(g,...wzOps(g,s.pid,s.k,ops));return true};
+function wzIfOk(g,pid,k,c){const P=g.P[pid],n=cv=>P.mat[cv].filter(x=>x&&x.d).length,left=g.ps[(g.ps.indexOf(pid)+1)%g.ps.length];
+  const nl=cv=>g.P[left].mat[cv].filter(x=>x&&x.d).length;
+  if(c==='gg'||c==='cc'||c==='aa')return n(c[0])>=nl(c[0]);if(c==='cv3')return n(k[0])>=3;if(c==='colfull')return WZC.every(cv=>{const x=P.mat[cv][+k[1]];return x&&x.d});if(c==='guild1')return P.gm>=1;return false}
+WZOP.if=(g,s)=>{const [,c,ops]=s.a;if(wzIfOk(g,s.pid,s.k,c))wzIns(g,...wzOps(g,s.pid,s.k,ops));return true};
 /* gain 2 different (two) or 1 (two1) of a list */
 WZOP.two=(g,s,mv)=>{const L=s.a[1].split(',').filter(t=>!(s.got||[]).includes(t)),need=s.a[0]==='two'?2:1;if((s.got||[]).length>=need)return true;
   if(!mv)return wzAsk(g,s,need===2?`Gain ${s.got?'another':'2'} different benefit${s.got?'':'s'}`:'Gain 1 benefit',L.map(t=>({v:t,l:WZTN[t]})),{opt:1});if(!L.includes(mv.v))return null;
@@ -14365,15 +14446,26 @@ function wzGoalIcons(id){const m=/^per([SHAP])$/.exec(id);if(m)return wzPerChip(
   return ({hatch:wzSzChip('H'),small:wzSzChip('S'),med:wzSzChip('M'),large:wzSzChip('L'),inC:wzCI('c'),inG:wzCI('g'),inA:wzCI('a'),eggs:wzI('egg'),cap:wzI('egg'),
     adv:wzTyI('A'),wpopr:wzTyI('W')+wzTyI('O'),caves:wzCvBk,guild:'<img class="wzi" src="art/wy-marker.webp" alt="guild">',cache:'<span title="Cached resources">📦</span>'})[id]||''}
 const wzPickK=(g,V)=>{const A=g.ask;if(!A||!V||A.pid!==V.id)return {};const m={},sel=wzAskSel(A);(A.opts||[]).filter(o=>sel==null||o.ck==null||String(o.ck)===sel).forEach(o=>{if(o.k&&!m[o.k])m[o.k]=o.v;if(/^[cga][0-3]$|^n$/.test(String(o.v))&&!m[o.v])m[o.v]=o.v});return m};
-function wzMat(g,pid,V){const P=g.P[pid],pick=pid===(V&&V.id)?wzPickK(g,V):{};
-  const rows=WZC.map(cv=>{const M=P.mat[cv];return `<div class="wzrow wzr-${cv}"><div class="wzent"><img src="art/wy-cave-${cv}.webp" alt=""><small>${esc(WZCN[cv])}</small><small class="rlab">${P.ex[cv]?`explored ${P.ex[cv]}×`:''}</small></div>
-    ${M.map((x,i)=>{const kk=cv+i,pk=pick[kk];const inner=!x?`<div class="wzslot dug"><small>Not dug${i>=2?` · ${WZEXC[i]}${wzI('egg')}`:''}</small></div>`:x.d?wzCard(x.d.id,{x:x.d}):`<div class="wzslot open">${x.cv?wzCaveCard(x.cv):'<div class="wzcave wzcave-blank"><img class="wzcvimg" src="art/wy-back-cave.webp" alt=""><small>Open cave · no card needed</small></div>'}</div>`;
-      return pk!=null?`<button class="wzsp pick" data-a="wzans" data-k="${wzEnc({v:pk})}">${inner}</button>`:`<div class="wzsp">${inner}</div>`}).join('')}</div>`}).join('');
+/* what on a mat counts toward this round's objective: whole cave rows, or single spaces; nothing for egg totals, capacity or the guild */
+function wzObjMark(g,pid){const id=g.phase==='play'?g.obj[g.rnd]:null,o={row:null,sp:{}};if(!id)return o;
+  if(/^in[CGA]$/.test(id)){o.row=id[2].toLowerCase();return o}const cost=B=>Object.values(B.cost).reduce((a,v)=>a+v,0);
+  const f={hatch:B=>B.sz==='H',small:B=>B.sz==='S',med:B=>B.sz==='M',large:B=>B.sz==='L',perH:B=>B.per==='H',perA:B=>B.per==='A',perS:B=>B.per==='S',perP:B=>B.per==='P',
+    adv:B=>B.ty==='A',wpopr:B=>B.ty==='W'||B.ty==='O',cheap:B=>cost(B)<=2,dear:B=>cost(B)>=3}[id];
+  WZC.forEach(cv=>g.P[pid].mat[cv].forEach((x,i)=>{if(!x)return;if(f?x.d&&f(wzD(x.d.id)):id==='cache'?x.d&&x.d.c>0:id==='caves'?!!x.cv:false)o.sp[cv+i]=1}));return o}
+/* the adventurer: a meeple in the player's colour, on the entrance or the space it has walked onto */
+const wzAdvM=pid=>{const p=act().find(q=>q.id===pid);return `<svg class="wzadv" viewBox="0 0 40 40" style="${p?pc(p.color):''}" role="img" aria-label="${esc((p?nm(p):'')+'’s adventurer')}"><path d="${MGSHAPE_M}"/></svg>`};
+function wzMat(g,pid,V){const P=g.P[pid],pick=pid===(V&&V.id)?wzPickK(g,V):{},om=V&&pid===V.id?wzObjMark(g,pid):{row:null,sp:{}},AD=g.adv&&g.adv.pid===pid&&g.phase==='play'?g.adv:null;
+  const rows=WZC.map(cv=>{const M=P.mat[cv],adv=AD&&AD.cv===cv?AD.i:null;return `<div class="wzrow wzr-${cv}${om.row===cv?' wzobrow':''}"><div class="wzent${adv===-1?' wzhere':''}"><img src="art/wy-cave-${cv}.webp" alt=""><small>${esc(WZCN[cv])}</small><small class="rlab">${P.ex[cv]?`explored ${P.ex[cv]}×`:''}</small>${om.row===cv?'<span class="wzobt" title="Counts for this round’s objective">🎯</span>':''}${adv===-1?wzAdvM(pid):''}</div>
+    ${M.map((x,i)=>{const kk=cv+i,pk=pick[kk],ob=om.sp[kk],here=adv===i,cls=(ob?' wzob1':'')+(here?' wzhere':''),xtra=(ob?'<span class="wzobt" title="Counts for this round’s objective">🎯</span>':'')+(here?wzAdvM(pid):'');const inner=!x?`<div class="wzslot dug"><small>Not dug${i>=2?` · ${WZEXC[i]}${wzI('egg')}`:''}</small></div>`:x.d?wzCard(x.d.id,{x:x.d}):`<div class="wzslot open">${x.cv?wzCaveCard(x.cv):'<div class="wzcave wzcave-blank"><img class="wzcvimg" src="art/wy-back-cave.webp" alt=""><small>Open cave · no card needed</small></div>'}</div>`;
+      return pk!=null?`<button class="wzsp pick${cls}" data-a="wzans" data-k="${wzEnc({v:pk})}" data-sp="${kk}">${inner}${xtra}</button>`:`<div class="wzsp${cls}" data-sp="${kk}">${inner}${xtra}</div>`}).join('')}</div>`}).join('');
   const nk=pick.n!=null?`<button class="wznest pick" data-a="wzans" data-k="${wzEnc({v:'n'})}">`:'<div class="wznest">';
   return `<div class="wzmat">${rows}</div><div class="wzbase">${nk}<img src="art/wy-nest.webp" alt=""><span>Mat nests: ${P.nest}/2 ${wzI('egg')}</span>${pick.n!=null?'</button>':'</div>'}<span class="rlab">${wzI('coin')}<b class="num">${P.coin}</b> · ${WZR.map(r=>`${wzI(r)}<b class="num">${P.res[r]}</b>`).join(' ')}</span></div>`}
 function wzDisplay(g){return `<div class="wzdisp">${g.disp.d.map(id=>id==null?'<div class="wzc empty"></div>':wzCard(id)).join('')}</div>
   <div class="wzdisp wzdc">${g.disp.c.map(id=>id==null?'<div class="wzcave empty"></div>':wzCaveCard(id)).join('')}<div class="wzdeck"><img src="art/wy-back-dragon.webp" alt="Dragon deck" title="Dragon deck"><small class="num">${g.dd.length}</small><img src="art/wy-back-cave.webp" alt="Cave deck"><small class="num">${g.dc.length}</small></div></div>`}
-function wzObjHtml(g){return `<div class="wzobjs">${g.obj.map((id,r)=>{const c=g.oc[r];return `<div class="wzob${r===g.rnd&&g.phase!=='done'?' now':''}"><small>Round ${r+1} · ${WYPT[r].join('/')}</small><span class="wzgoi">${wzGoalIcons(id)}</span><b>${esc(wzObj(id).say)}</b><small class="num">${act().map(p=>`<span style="${pc(p.color)}" class="wzdot">●</span>${c?c[p.id]:wzObjN(g,p.id,id)}`).join(' ')}</small></div>`}).join('')}</div>`}
+/* this round's tile: everyone's count right now (the engine's own count), most first; the leader gets a crown */
+function wzObjNow(g,id,V){const L=act().map(p=>({p,n:wzObjN(g,p.id,id)})).sort((a,b)=>b.n-a.n),top=L[0]?L[0].n:0;
+  return `<div class="wzobst">${L.map(({p,n})=>{const lead=n>0&&n===top;return `<span class="wzobc${lead?' lead':''}" style="${pc(p.color)}" data-pid="${p.id}" data-n="${n}">${lead?'<span aria-label="leading">👑</span>':''}${V&&p.id===V.id?'You':esc(nm(p))} <b class="num">${n}</b></span>`}).join('')}</div>`}
+function wzObjHtml(g,V){return `<div class="wzobjs">${g.obj.map((id,r)=>{const c=g.oc[r],now=r===g.rnd&&g.phase!=='done';return `<div class="wzob${now?' now':''}"><small>Round ${r+1} · ${WYPT[r].join('/')}</small><span class="wzgoi">${wzGoalIcons(id)}</span><b>${esc(wzObj(id).say)}</b>${now&&!c?wzObjNow(g,id,V):`<small class="num">${act().map(p=>`<span style="${pc(p.color)}" class="wzdot">●</span>${c?c[p.id]:wzObjN(g,p.id,id)}`).join(' ')}</small>`}</div>`}).join('')}</div>`}
 function wzGuildHtml(g){const G=WYGUILD[g.guild],B=G.box[g.side],P=act(),dot=pid=>{const p=P.find(q=>q.id===pid);return p?`<span class="wzdot" style="${pc(p.color)}">●</span>`:''};
   return `<div class="panel wzguild"><div class="rlab"><img src="art/wy-marker.webp" class="wzi" alt=""> <b>${esc(G.n)}</b> · ${g.side===4?'4–5':'2–3'} player side</div>
   ${G.say.map((t,r)=>`<div class="srow"><span class="rlab">${esc(t)}</span><span>${g.gbox[r].map(dot).join('')}${'◻'.repeat(Math.max(0,B[r]-g.gbox[r].length))}</span></div>`).join('')}
@@ -14386,7 +14478,7 @@ function wzPlayUI(){const g=wzG(),P=act();
   out+=`<div class="tabs hftabs nxtabs" role="list">${P.map(q=>{const Q=g.P[q.id];return `<button class="tab" role="listitem" data-a="wzlook" data-k="${q.id}" style="${pc(q.color)}" aria-pressed="${look===q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}${g.turn===q.id&&g.phase==='play'&&!Q.passed?' ▶':Q.passed&&g.phase==='play'?' ✋':''}</div><div class="ts num">${g.phase==='done'?g.fin[q.id].tot:wzDr(g,q.id).length+'🐉'}</div><div class="tr"><span class="ccgd" title="Coins">${wzI('coin')}${Q.coin}</span><span class="ccgd" title="Eggs">${wzI('egg')}${wzEggs(g,q.id)}</span><span class="ccgd" title="Cards in hand">${wzDrBk}${wzCards(g,q.id)}</span></div></button>`}).join('')}</div>`;
   const L=g.last,word={pass:'passed',exc:'excavated',ent:'enticed a dragon',exp:'explored'};
   out+=`<div class="hfmin htstat ccstat"><img class="ccpic" src="art/wyrmspan-icon.png" alt="" width="66" height="66" onerror="this.remove()"><div><span>${g.phase==='done'?'<b>Game over.</b>':ap?`${botHead(ap)}<b>${esc(nm(ap))}</b> · ${g.ask?esc(g.ask.msg.replace(/\s*\(.*$/,'').toLowerCase()):'choosing an action'}`:''}</span><span class="rlab">Round ${g.rnd+1} of 4</span><small>${L?`${esc(nmid(L.p))} ${word[L.t]||''}`:''}</small></div></div>`;
-  out+=wzObjHtml(g);
+  out+=wzObjHtml(g,hide?null:V);
   out+=`<div class="sec"><div class="sec-h"><h3>Card display</h3></div>${wzDisplay(g)}</div>`;
   out+=`<div class="sec"><div class="sec-h"><h3>${look===(V&&V.id)?'Your caves':esc(nmid(look))+'’s caves'}</h3></div>${wzMat(g,look,hide?null:V)}</div>`;
   out+=`<div class="sec"><div class="sec-h"><h3>Dragon Guild</h3></div>${wzGuildHtml(g)}</div>`;
@@ -14394,7 +14486,20 @@ function wzPlayUI(){const g=wzG(),P=act();
   else if(hide){const h=wzNeedHandoff();out+=`<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="wzh-h" style="${pc(h.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="wzh-h">${esc(nm(h))}</h2><p class="rlab">It’s your turn. Everyone else, look away.</p><button class="btn primary wide" data-a="wzshow" data-k="${h.id}">I’m ${esc(nm(h))}, show my cards</button></div></div>`}
   else if(V)out+=wzDock(g,V);
   if(wzRsShow(g))out+=wzRsSheet(g);
+  else if(!hide&&V&&g.phase==='play'){const R=wzRecap(g,V);if(R)out+=wzRecapSheet(g,V,R)}
   return out}
+/* While you waited (Justin, Nov 21): at the start of your turn, what everyone else did since your last turn, from the game log.
+   Kept per phone (game id + player); only the last 10 minutes; never during setup; after the end-of-round card and the pass-the-phone screen. */
+const wzRcKey=(g,pid)=>'ft-wzrc:'+g.id+':'+pid;
+function wzRecap(g,V){const pid=V.id;if(wzActor(g)!==pid||g.turn!==pid||g.q.length||g.ask||g.P[pid].passed||!g.lgo)return null;
+  const k=wzRcKey(g,pid);let st=null;try{st=JSON.parse(localStorage.getItem(k))}catch(e){}st=st||{};
+  if(st.tk!==g.tno){const now=Date.now(),L=(g.lg||[]).filter(e=>e.n!=null&&e.n>(st.seen||0)&&now-(e.at||0)<10*60e3&&(st.tk!=null?e.tn!==st.tk:e.tp!==pid));
+    const seen=(g.lg||[]).reduce((a,e)=>Math.max(a,e.n||0),st.seen||0);st={seen,tk:g.tno,card:L.length?L.map(e=>({t:e.t,ic:e.ic||''})):null};try{localStorage.setItem(k,JSON.stringify(st))}catch(e){}}
+  return st.card||null}
+function wzRecapSheet(g,V,R){const more=R.length>8?R.length-7:0,L=more?R.slice(-7):R,who=t=>act().find(p=>[' ','’',"'"].some(c=>t.startsWith(nmid(p.id)+c)));
+  return `<div class="sheet-bg glres"><div class="sheet wzrs wzrc" role="alertdialog" aria-modal="true" aria-labelledby="wzrc-h" style="${pc(V.color)}"><div class="tqannic" aria-hidden="true">${wzAdvM(V.id)}</div><h2 id="wzrc-h">While you waited</h2>
+    <div class="glresl">${more?`<div class="rlab">…and ${more} earlier</div>`:''}${L.map(e=>{const p=who(e.t);return `<div class="glresr wzrcl" style="${p?pc(p.color):'--pc:#9aa3ad'}"><span aria-hidden="true">${esc(e.ic)}</span><span>${esc(e.t)}</span></div>`}).join('')}</div>
+    <button class="btn primary wide" data-a="wzrcok">OK, my turn</button></div></div>`}
 /* end of a round: what the objective scored, then what's next. Each phone closes its own card; computer players wait for the host phone's card (up to 45 s). */
 let WZRSOK={};const wzRsKey=g=>g.id+':'+g.rsum.r;
 function wzRsShow(g){return !!(g&&g.rsum&&g.phase==='play'&&!WZRSOK[wzRsKey(g)]&&Date.now()-g.rsum.at<15*60e3&&!wzNeedHandoff())}
@@ -14421,7 +14526,7 @@ function wzAskBody(g,V,A){const O=A.opts||[],G=wzAskGroups(A),sel=wzAskSel(A),de
       return L.length===1?wzBtn({v:o.v},c,{cls:'wzcb',lab:o.l}):`<button class="wzcb${on?' on':''}" data-a="wzgrp" data-k="${esc(k)}" aria-pressed="${on}">${c}</button>`}).join('')}${deckO.map(o=>wzDeckBtn(g,o)).join('')}</div>`;
     if(sel!=null)h+=`<div class="rlab">${G.size>1?'Tap a card, then choose:':'Choose:'}</div><div class="wzopts">${G.get(sel).map(o=>wzBtn({v:o.v},wzLab(o.sub||o.l),{cls:'btn primary'})).join('')}</div>`}
   if(A.kind==='spot')h=`<div class="rlab">Tap a highlighted space on your caves, or a choice below.</div>`+h;
-  return h+`<div class="wzopts">${rest.map(o=>wzBtn({v:o.v},wzLab(o.l),{cls:'btn'})).join('')}${A.opt?wzBtn({skip:1},'Skip',{cls:'btn'}):''}</div>`}
+  return h+`<div class="wzopts">${rest.map(o=>wzBtn({v:o.v},wzLab(o.l),{cls:A.kind==='use'?'btn primary':'btn'})).join('')}${A.opt?wzBtn({skip:1},'Skip',{cls:'btn'}):''}</div>`}
 /* the starting hand: the 6 real cards; tap the ones to put back, then keep the rest */
 let WZKP=null;
 function wzKeepBox(g,V,A,box){const key=g.id+V.id+A.opts.map(o=>o.v).join();if(!WZKP||WZKP.k!==key)WZKP={k:key,put:[]};const put=WZKP.put,n=put.length,need=A.drop||2,keepN=A.opts.length-n;
@@ -14429,6 +14534,13 @@ function wzKeepBox(g,V,A,box){const key=g.id+V.id+A.opts.map(o=>o.v).join();if(!
   return box('Your starting hand',`<div class="rlab">Tap ${need} cards to put back; you keep the other ${A.opts.length-need}. <b class="wzkn">Keeping ${keepN} · putting back ${n} of ${need}</b></div>
     <div class="wzhand wzkeep">${A.opts.filter(o=>o.d!=null).map(cb).join('')}${A.opts.filter(o=>o.c!=null).map(cb).join('')}</div>
     <button class="btn primary wide" data-a="wzkgo" ${n===need?'':'disabled'}>${n===need?`Keep these ${keepN}`:`Choose ${need-n} more to put back`}</button>`)}
+/* choosing which eggs pay a cost (Justin, Nov 21): only when the eggs sit in more than one place. Default: mat nests first, then the fullest dragons. */
+const wzEggMulti=(g,pid)=>wzEggSrc(g,pid,'',null).length>1;
+function wzEggNeed(g,pid,S2){const P=g.P[pid];if(!S2)return 0;if(S2.t==='exp')return WZEXP[P.ex[S2.cv]]||0;if(S2.t==='exc'&&S2.cv)return WZEXC[wzNextEx(g,pid,S2.cv)]||0;if(S2.t==='ent'&&P.hand.d[S2.i]!=null)return wzDCost(P.hand.d[S2.i]).egg||0;return 0}
+function wzEggCh(g,pid,S2){const n=wzEggNeed(g,pid,S2);if(!n||!wzEggMulti(g,pid))return null;if(!S2.eg||S2.eg.length!==n||!wzEggOk(g,pid,'',null,n,S2.eg))S2.eg=wzEggAuto(g,pid,'',null,n);return S2.eg.length===n?S2.eg:null}
+function wzEggBox(g,pid,S2){const ch=wzEggCh(g,pid,S2);if(!ch)return '';const n=ch.length;
+  return `<div class="rlab">Pay ${n} egg${n>1?'s':''} from (tap to choose):</div><div class="wzopts wzeggs">${wzEggOrd(g,pid,'',null).map(([kk,have])=>{const k=ch.filter(x=>x===kk).length;
+    return `<button class="btn sm${k?' primary':''}" data-a="wzegg" data-k="${kk}" aria-pressed="${!!k}">${wzLab(kk==='n'?'🪺 Mat nests':'🐉 '+wzD(wzAt(g,pid,kk).d.id).n)} <small class="num">${k?`${'●'.repeat(k)}${'○'.repeat(have-k)}`:'○'.repeat(have)}</small></button>`}).join('')}</div>`}
 const wzPayIc=X=>WZR.map(r=>wzI(r).repeat(X[r]||0)).join('')||'nothing';
 function wzDock(g,V){const box=(h,b)=>`<div class="sadock cpdock wzdock" style="${pc(V.color)}"><div class="sadh"><span><b>${S.lk||wzHumans().length<2?'You':esc(nm(V))}</b> · ${h}</span></div>${b}</div>`;
   const A=g.ask,hand=o=>`<div class="sec"><div class="sec-h"><h3>Your hand</h3></div>${wzHand(g,V.id,o)}</div>`;
@@ -14441,9 +14553,14 @@ function wzDock(g,V){const box=(h,b)=>`<div class="sadock cpdock wzdock" style="
   if(S2&&S2.t==='ent'){const o=Ac.ent.find(x=>x.i===S2.i);if(o){const id=P.hand.d[S2.i],D=wzD(id),PO=wzPayOpts(P.res,wzDCost(id)),F=wzPayRes(P.res,wzDCost(id),1),auto={};if(F)WZR.forEach(r=>{if(P.res[r]-F[r])auto[r]=P.res[r]-F[r]});
     let pi=S2.pay!=null?S2.pay:PO.findIndex(X=>wzPayKey(X)===wzPayKey(auto));if(pi<0||pi>=PO.length)pi=0;const pay=PO.length>1?PO[pi]:null,coins=1+(D.cost.coin||0),eggs=D.cost.egg||0;
     sub=`<div class="rlab">Entice <b>${esc(D.n)}</b>: ${coins} coin${coins>1?'s':''}${eggs?` + ${eggs} egg${eggs>1?'s':''}`:''}${PO.length>1?'. Pay with:':PO[0]&&Object.keys(PO[0]).length?` + ${wzPayIc(PO[0])}`:''}</div>${PO.length>1?`<div class="wzopts wzpays">${PO.map((X,i)=>`<button class="btn${i===pi?' primary':''}" data-a="wzpaysel" data-k="${i}" aria-pressed="${i===pi}">${wzPayIc(X)}</button>`).join('')}</div>`:''}
-      <div class="rlab">Into:</div><div class="wzopts">${o.cv.map(cv=>wzBtn(pay?{a:'ent',i:S2.i,cv,pay}:{a:'ent',i:S2.i,cv},`${wzCI(cv)} ${WZCN[cv]} (space ${wzNextD(g,V.id,cv)+1})`,{cls:'btn primary'})).join('')}</div>`}}
-  if(S2&&S2.t==='exc')sub=`<div class="rlab">Excavate with this cave card in:</div><div class="wzopts">${Ac.exc.map(cv=>{const i=wzNextEx(g,V.id,cv);return wzBtn({a:'exc',i:S2.i,cv},`${wzCI(cv)} ${WZCN[cv]} space ${i+1} (1 coin${WZEXC[i]?` + ${WZEXC[i]} egg${WZEXC[i]>1?'s':''}`:''})`,{cls:'btn primary'})}).join('')||'<span class="rlab">No space you can afford.</span>'}</div>`;
-  const exp=WZC.map(cv=>{const n=P.ex[cv];return wzBtn({a:'exp',cv},`${wzCI(cv)}<small>${n>=3?'done':`${n?`+${n}`:''}`}</small>`,{cls:'wzx',dis:!Ac.exp.includes(cv),lab:`Explore the ${WZCN[cv]}: 1 coin${n?` and ${n} egg${n>1?'s':''}`:''}`})}).join('');
+      ${wzEggBox(g,V.id,S2)}<div class="rlab">Into:</div><div class="wzopts">${o.cv.map(cv=>wzBtn({a:'ent',i:S2.i,cv,...(pay?{pay}:{}),...(wzEggCh(g,V.id,S2)?{eggs:S2.eg}:{})},`${wzCI(cv)} ${WZCN[cv]} (space ${wzNextD(g,V.id,cv)+1})`,{cls:'btn primary'})).join('')}</div>`}}
+  if(S2&&S2.t==='exc'){const lab=cv=>{const i=wzNextEx(g,V.id,cv);return `${wzCI(cv)} ${WZCN[cv]} space ${i+1} (1 coin${WZEXC[i]?` + ${WZEXC[i]} egg${WZEXC[i]>1?'s':''}`:''})`};
+    sub=`<div class="rlab">Excavate with this cave card in:</div><div class="wzopts">${Ac.exc.map(cv=>{const i=wzNextEx(g,V.id,cv);return WZEXC[i]&&wzEggMulti(g,V.id)?`<button class="btn${S2.cv===cv?' primary':''}" data-a="wzsel" data-k="excv:${cv}" aria-pressed="${S2.cv===cv}">${lab(cv)}</button>`:wzBtn({a:'exc',i:S2.i,cv},lab(cv),{cls:'btn primary'})}).join('')||'<span class="rlab">No space you can afford.</span>'}</div>`;
+    if(S2.cv&&Ac.exc.includes(S2.cv)&&wzEggCh(g,V.id,S2))sub+=wzEggBox(g,V.id,S2)+`<div class="wzopts">${wzBtn({a:'exc',i:S2.i,cv:S2.cv,eggs:S2.eg},`⛏️ Excavate the ${WZCN[S2.cv]}`,{cls:'btn primary'})}</div>`}
+  /* exploring a cave again costs eggs: with eggs in several places, choose them first */
+  if(S2&&S2.t==='exp'&&Ac.exp.includes(S2.cv)&&wzEggCh(g,V.id,S2)){const n=P.ex[S2.cv];sub=`<div class="rlab">Explore the <b>${WZCN[S2.cv]}</b> again: 1 coin + ${n} egg${n>1?'s':''}.</div>${wzEggBox(g,V.id,S2)}<div class="wzopts">${wzBtn({a:'exp',cv:S2.cv,eggs:S2.eg},`${wzCI(S2.cv)} Explore`,{cls:'btn primary'})}${`<button class="btn" data-a="wzsel" data-k="none">Cancel</button>`}</div>`}
+  const exp=WZC.map(cv=>{const n=P.ex[cv],ic=`${wzCI(cv)}<small>${n>=3?'done':`${n?`+${n}`:''}`}</small>`,lab=`Explore the ${WZCN[cv]}: 1 coin${n?` and ${n} egg${n>1?'s':''}`:''}`;
+    return n&&n<3&&Ac.exp.includes(cv)&&wzEggMulti(g,V.id)?`<button class="wzx${S2&&S2.t==='exp'&&S2.cv===cv?' on':''}" data-a="wzsel" data-k="exp:${cv}" aria-label="${esc(lab)}">${ic}</button>`:wzBtn({a:'exp',cv},ic,{cls:'wzx',dis:!Ac.exp.includes(cv),lab})}).join('');
   return box(`your turn · ${P.coin} coin${P.coin===1?'':'s'}`,`<div class="wzacts"><div class="wzact"><img src="art/wy-act-excavate.webp" alt=""><b>Excavate</b><small>${Ac.exc.length?'tap a cave card below':'needs a cave card'}</small></div><div class="wzact"><img src="art/wy-act-entice.webp" alt=""><b>Entice</b><small>${Ac.ent.length?'tap a dragon below':'none affordable'}</small></div><div class="wzact"><img src="art/wy-act-explore.webp" alt=""><b>Explore</b><div class="wzxs">${exp}</div><small>1 coin (+1 egg per repeat)</small></div></div>
     ${sub}<div class="wzopts">${wzBtn({a:'pass'},'✋ Pass',{cls:'btn sm'})}${wzTradeBox(g,V)}</div>`)+hand({ent:Ac.ent,exc:Ac.exc.length>0})}
 function wzResults(g){const P=act().slice().sort((a,b)=>g.fin[b.id].tot-g.fin[a.id].tot||g.fin[b.id].nd-g.fin[a.id].nd);
@@ -14455,7 +14572,12 @@ function wzUiAct(a,b,k){const g=wzG();if(!g)return;if(a==='wzshow'){WZVIEW=k;WZS
   if(a==='wzsel'){if(k==='none'){WZSEL=null;return}if(k==='trade'){WZSEL={t:'trade',pay:[]};return}
     const [t,v]=String(k).split(':');if(t==='tp'&&WZSEL&&WZSEL.t==='trade'){WZSEL.pay.push(v);return}
     if(t==='tt'&&WZSEL&&WZSEL.t==='trade'){const mv={trade:{pay:WZSEL.pay,to:v}};WZSEL=null;lkq('wzMove',V.id,mv)&&vibe(8);return}
-    if(t==='ent'||t==='exc'){WZSEL={t,i:+v};vibe(6)}return}
+    if(t==='ent'||t==='exc'){WZSEL={t,i:+v};vibe(6)}if(t==='exp'&&WZC.includes(v)){WZSEL={t:'exp',cv:v};vibe(6)}if(t==='excv'&&WZSEL&&WZSEL.t==='exc'&&WZC.includes(v)){WZSEL.cv=v;delete WZSEL.eg;vibe(6)}return}
+  /* tap an egg place: one more egg from there (the oldest choice drops out); a place already giving all its eggs is taken out instead */
+  if(a==='wzegg'){const S2=WZSEL,ch=S2&&wzEggCh(g,V.id,S2);if(!ch)return;const n=ch.length,have=Object.fromEntries(wzEggSrc(g,V.id,'',null)),c=ch.filter(x=>x===k).length;if(!(have[k]>0))return;
+    if(c>=Math.min(have[k],n)){const rest=ch.filter(x=>x!==k),cnt={};rest.forEach(x=>cnt[x]=(cnt[x]||0)+1);for(const [kk] of wzEggOrd(g,V.id,'',null)){if(kk===k)continue;while(rest.length<n&&(cnt[kk]||0)<have[kk]){rest.push(kk);cnt[kk]=(cnt[kk]||0)+1}}if(rest.length===n)S2.eg=rest}
+    else{ch.push(k);ch.shift();S2.eg=ch}vibe(6);return}
+  if(a==='wzrcok'){try{const kk=wzRcKey(g,V.id),st=JSON.parse(localStorage.getItem(kk))||{};st.card=null;localStorage.setItem(kk,JSON.stringify(st))}catch(e){}vibe(8);return}
   if(a==='wzgrp'){WZSEL={t:'ask',ck:String(k)};vibe(6);return}
   if(a==='wzpaysel'){if(WZSEL&&WZSEL.t==='ent')WZSEL.pay=+k;vibe(6);return}
   if(a==='wzrsok'){if(g.rsum)WZRSOK[wzRsKey(g)]=1;vibe(8);return}
@@ -14474,14 +14596,14 @@ function wzGuide(){return guideSheet('Wyrmspan',[
     ['Entice','Pay 1 coin plus the dragon’s cost, and put it in the next open space of a cave it can live in (dragons fill each cave left to right, on dug spaces). When-played (⚡) dragons act at once.'],
     ['Explore','Pay 1 coin (2nd time in that cave this round: +1 egg, 3rd: +2 eggs). Your adventurer walks the cave left to right: the entrance benefit, then each dragon’s if-activated (🏮) ability and the benefit after it, until it reaches an empty space.'],
     ['Pass','When you’re out of coins or done. The round ends when everyone has passed.']]],
-  ['Exploring the caves',[['How it works','Pay to enter (1st time in that cave this round: 1 coin; 2nd: 1 coin + 1 egg; 3rd, the most: 1 coin + 2 eggs). Your adventurer walks left to right: the entrance reward, then each dragon it walks onto (its if-activated 🏮 ability, if it has one) and the mat reward after that column. It stops at the first space without a dragon and your turn ends. If all 4 spaces have dragons, you also get the end reward. In the app, if-activated abilities are used as you pass them.'],
+  ['Exploring the caves',[['How it works','Pay to enter (1st time in that cave this round: 1 coin; 2nd: 1 coin + 1 egg; 3rd, the most: 1 coin + 2 eggs). Your adventurer walks left to right: the entrance reward, then each dragon it walks onto (its if-activated 🏮 ability, if it has one) and the mat reward after that column. It stops at the first space without a dragon and your turn ends. If all 4 spaces have dragons, you also get the end reward. You may use each if-activated ability: the app asks “Use it?” for each one (abilities that already ask, such as ones with a cost, just ask once). The mat’s own rewards are free, so the app gives them to you; the end rewards are “up to”, so you can skip them. Your adventurer shows on your mat while it walks.'],
     ['Crimson Cavern (resources)','Entrance: any resource. After column 1: Dragon Guild +1. After column 2: any resource. After column 3: lay 1 egg. End: cache up to 2 resources from your supply onto any dragons.'],
     ['Golden Grotto (dragon cards)','Entrance: a dragon card. After column 1: Dragon Guild +1. After column 2: a dragon card. After column 3: lay 1 egg. End: tuck up to 2 dragon cards from your hand under any dragons.'],
     ['Amethyst Abyss (cave cards)','Entrance: a cave card. After column 1: Dragon Guild +1. After column 2: a cave card. After column 3: lay 1 egg. End: discard up to 2 cave cards from your hand and lay 1 egg for each.'],
     ['Tip','The more dragons in a row from the left, the further you walk. Explore the cave whose reward you need: resources to afford dragons, dragon cards for choices, cave cards to dig more spaces.']]],
-  ['Resources and limits',[['Trading','Any time, trade 2 resources for 1 of another kind. When you’re short while paying, the app covers it with 2 others, and lets you choose which when there’s more than one way.'],['Eggs','Eggs paid as costs are taken from your mat nests first, then your fullest dragons.'],['End of your turn','Discard down to 9 cards, 9 coins and 9 resources.']]],
+  ['Resources and limits',[['Trading','Any time, trade 2 resources for 1 of another kind. When you’re short while paying, the app covers it with 2 others, and lets you choose which when there’s more than one way.'],['Eggs','When eggs pay a cost and they sit in more than one place, tap which ones to pay (it starts with your mat nests, then your fullest dragons).'],['End of your turn','Discard down to 9 cards, 9 coins and 9 resources.']]],
   ['Dragon Guild',[['Steps','Each guild step moves you 1 space: you gain what you land on. The two brown spaces let you place a marker on the guild tile (4 at most): an ability now, the guild’s end-game bonus, or end-game points (6, 3, then 1 each).']]],
-  ['Rounds and the end',[['End of a round','Once-per-round (🔁) dragons act, the round objective is counted, then everyone gains 6 coins and 1 egg and the display is refreshed.'],['Objectives','Points for 1st, 2nd and 3rd; friendly ties; a count of 0 scores nothing.'],['Points','Guild, dragons, end-game (🏁) abilities, eggs, cached resources, tucked cards, objectives, 1 per coin, 1 per 4 other items. Ties: most dragons.']]]])}
+  ['Rounds and the end',[['End of a round','Once-per-round (🔁) dragons act, the round objective is counted, then everyone gains 6 coins and 1 egg and the display is refreshed.'],['Objectives','Points for 1st, 2nd and 3rd; friendly ties; a count of 0 scores nothing. This round’s tile shows everyone’s count right now (👑 leads), and 🎯 marks what counts on your caves.'],['While you waited','At the start of your turn, a card lists what the others did since your last turn.'],['Points','Guild, dragons, end-game (🏁) abilities, eggs, cached resources, tucked cards, objectives, 1 per coin, 1 per 4 other items. Ties: most dragons.']]]])}
 
 /* Dead of Winter (2014) card data for Final Tally – our own wording; see dow/mkdata.py */
 const DWK={"food1":{"n":"Food (1)","sym":"food","use":"waste","say":"Add 1 food token to the supply"},"food2":{"n":"Food (2)","sym":"food","use":"waste","say":"Add 2 food tokens to the supply"},"food3":{"n":"Food (3)","sym":"food","use":"waste","say":"Add 3 food tokens to the supply"},"fuel":{"n":"Fuel","sym":"fuel","use":"waste","say":"Move a survivor without rolling for exposure"},"med":{"n":"Medicine","sym":"med","use":"waste","say":"Heal 1 wound on your survivor, or on another player's survivor at a location with yours"},"junk":{"n":"Junk","sym":"tools","use":"waste","say":"Reroll one of your unused dice"},"out1":{"n":"Outsider","sym":"outsider","use":"event","say":"A new survivor joins your following"},"out2":{"n":"2 Outsiders","sym":"outsider","use":"event","say":"A new survivor joins your following, plus 1 helpless survivor at the colony"},"out3":{"n":"3 Outsiders","sym":"outsider","use":"event","say":"A new survivor joins your following, plus 2 helpless survivors at the colony"},"colt":{"n":"Pistol","sym":"weapon","use":"equip","say":"Once per round: no exposure roll when this survivor attacks"},"rifle":{"n":"Tactical Rifle","sym":"weapon","use":"equip","say":"Once per round: kill 1 zombie anywhere, no exposure roll (not an attack)"},"shotgun":{"n":"Shotgun","sym":"weapon","use":"equip","say":"Once per round: an attack kills 2 zombies, no exposure roll; adds a noise token here if there is room"},"lighter":{"n":"Lighter","sym":"weapon","use":"equip","say":"Once per round: when attacking, pay a fuel card to kill 4 zombies, no exposure roll"},"blade":{"n":"Switchblade","sym":"weapon","use":"equip","say":"Once per round: attack with this survivor using a die of any value"},"jazz":{"n":"Exercise Book","sym":"book","use":"equip","say":"Once per round: reroll one of your unused dice"},"cook":{"n":"Cookbook","sym":"book","use":"equip","say":"Once per round, at the colony: add 1 food token"},"lead":{"n":"Leadership Guide","sym":"book","use":"equip","say":"Once per round: raise one of your unused dice by 1"},"arts":{"n":"Martial Arts Book","sym":"book","use":"equip","say":"Once per round: no exposure roll when this survivor attacks"},"barbook":{"n":"Barricade Manual","sym":"book","use":"equip","say":"Once per round, at the colony: build a barricade without a die"},"bp_police":{"n":"Police Station Blueprints","sym":"book","use":"equip","say":"Once per round: searching at the police station, keep 1 extra card"},"bp_grocery":{"n":"Grocery Store Blueprints","sym":"book","use":"equip","say":"Once per round: searching at the grocery store, keep 1 extra card"},"bp_school":{"n":"School Blueprints","sym":"book","use":"equip","say":"Once per round: searching at the school, keep 1 extra card"},"bp_library":{"n":"Library Blueprints","sym":"book","use":"equip","say":"Once per round: searching at the library, keep 1 extra card"},"bp_hospital":{"n":"Hospital Blueprints","sym":"book","use":"equip","say":"Once per round: searching at the hospital, keep 1 extra card"},"bp_gas":{"n":"Gas Station Blueprints","sym":"book","use":"equip","say":"Once per round: searching at the gas station, keep 1 extra card"},"padlock":{"n":"Padlock","sym":"tools","use":"waste","say":"Build 2 barricades where one of your survivors is, without a die"},"goggles":{"n":"Night Vision Goggles","sym":"tools","use":"equip","say":"Roll 1 extra action die each round"},"walkie":{"n":"Walkie Talkie","sym":"tools","use":"equip","say":"Lower another player's unused die by 1 to raise one of yours by 1"},"flesh":{"n":"Rotten Flesh","sym":"tools","use":"equip","say":"Bites never spread to this survivor"},"hammer":{"n":"Hammer","sym":"tools","use":"equip","say":"Once per round: a barricade action builds 2"},"shoes":{"n":"Snow Shoes","sym":"tools","use":"equip","say":"Frostbite on this survivor counts as a normal wound"},"wrench":{"n":"Wrench","sym":"tools","use":"equip","say":"Once per round: attack with this survivor using a die of any value"},"scissors":{"n":"Scissors","sym":"tools","use":"waste","say":"Kill 1 zombie where one of your survivors is, no exposure roll"},"megaphone":{"n":"Megaphone","sym":"tools","use":"waste","say":"Move up to 4 zombies from one location to where one of your survivors is"},"bat":{"n":"Baseball Bat","sym":"tools","use":"equip","say":"Once per round: an attack with this survivor kills 2 zombies"},"mop":{"n":"Mop","sym":"tools","use":"equip","say":"Once per round: cleaning waste removes 5 cards"},"flashlight":{"n":"Flashlight","sym":"tools","use":"equip","say":"Once per round: making noise shows 3 cards instead of 1"},"lamp":{"n":"Reading Lamp","sym":"tools","use":"waste","say":"Attack with one of your survivors without spending a die"},"adrenaline":{"n":"Adrenaline Shot","sym":"med","use":"waste","say":"Set one of your unused dice to any value"}};
@@ -26812,8 +26934,8 @@ document.addEventListener('click',e=>{
   if(/^sbp(src|disc|build|show|deal|pass)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
   if(/^mtp(tile|train|draw|pass|done|show|deal)$/.test(a)&&S.game==='mextrain'&&mtOn()&&S.started){mtAct(a,b,k);save();render();return}
   if(/^dnp[a-z]+$/.test(a)&&S.game==='dominion'&&dnOn()&&S.started){dnAct(a,b,k);save();render();return}
-  if(/^wz(ans|sel|look|show|grp|paysel|rsok|kp|kgo)$/.test(a)&&wzOn()&&S.started){wzUiAct(a,b,k);save();render();return}
-  if(/^wp(ans|pk|look|show|sb|sf|sbo|sgo|playsel|paysel|rsok|trf|ef)$/.test(a)&&wpOn()&&S.started){wpUiAct(a,b,k);save();render();return}
+  if(/^wz(ans|sel|look|show|grp|paysel|rsok|kp|kgo|egg|rcok)$/.test(a)&&wzOn()&&S.started){wzUiAct(a,b,k);save();render();return}
+  if(/^wp(ans|pk|look|show|sb|sf|sbo|sgo|playsel|paysel|rsok|rcok|trf|ef)$/.test(a)&&wpOn()&&S.started){wpUiAct(a,b,k);save();render();return}
   if(/^trp[a-z]+$/.test(a)&&trOn()&&S.started){trUiAct(a,b,k);save();render();return}
   if(/^ccp[a-z]+$/.test(a)&&S.game==='carc'&&ccOn()&&S.started){ccUiAct(a,b,k);save();render();return}
   if(/^wg[a-z]+$/.test(a)){wgAct(a,b,k);render();return}
