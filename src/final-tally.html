@@ -2688,6 +2688,9 @@ html.bdbigv .bdkeyi{font-size:clamp(13px,1.6vw,22px)}
 .bdcvdots{display:flex;justify-content:center;flex-wrap:wrap;gap:6px}.bdcvdot{width:12px;height:12px;padding:0;border-radius:50%;border:2px solid var(--line);background:transparent;cursor:pointer}.bdcvdot.on{background:var(--accent,#f2b705);border-color:var(--accent,#f2b705)}
 html.bdbigv .bdrvcard .bdtxt{font-size:clamp(24px,3.6vw,52px)}html.bdbigv .bdrvh{font-size:clamp(22px,3vw,44px)}html.bdbigv .bdautobar{height:14px}html.bdbigv .bdautot{font-size:clamp(15px,1.8vw,26px)}
 html.bdbigv .bdrvstep .bdwho{font-size:clamp(14px,1.8vw,26px)}html.bdbigv .bdplus{font-size:clamp(13px,1.6vw,22px)}
+.bdic{width:1.35em;height:1.35em;vertical-align:-.3em;object-fit:contain;display:inline-block}
+.bdcati .bdic{width:44px;height:44px;vertical-align:middle}
+.bdcat .bdic{width:1.5em;height:1.5em;vertical-align:-.4em;margin:-4px 0}
 </style>
 
 <div id="app"></div>
@@ -18428,6 +18431,7 @@ function bdNudge(g,pid,mv){const now=Date.now(),can=bdNudgeable(g,pid,now,3000),
   for(const x in g.nzl)if(now-g.nzl[x]>BDNZCOOL*2)delete g.nzl[x];
   g.nudge={k,by:pid,to,at:now};g.n++;return true}
 
+function bdIc(c){return BDICO[c]?`<img class="bdic" src="art/bd-cat-${c}.webp" alt="" width="160" height="160" onerror="this.outerHTML='${BDICO[c]}'">`:''}
 /* ================= Beyond Balderdash: settings, play screens (linked phones), the staircase, the big board ================= */
 const BDDEF={play:1,choose:'dasher',laws:0,db:0,steps:27,x2:14,kids:0,tlim:0,rv:5};
 const BDX=()=>{if(!S.bdx)S.bdx={...BDDEF};const X=S.bdx;for(const k in BDDEF)if(X[k]===undefined)X[k]=BDDEF[k];return X};
@@ -18552,19 +18556,19 @@ function bdStairs(g,o={}){const N=g.o.steps,cols=7,rows=Math.ceil((N+1)/cols),cw
 
 /* ---------- the play screen ---------- */
 function bdHead(g){const D=bdDasher(g),c=g.cat||(g.q&&g.q.c);
-  return `<div class="bdhead"><div><span class="rlab">Round ${g.round}${bdTwo(g)?' · two-player game':''}</span><h2>${bdChip(D,' <small>Dasher</small>',1)}</h2></div>${c&&g.phase!=='cat'?`<span class="bdcat">${BDICO[c]} ${BDCATN[c]}</span>`:''}</div>`}
-function bdCx(g){const X=g.cx;if(!X)return '';return `<div class="bdnote bdcx"><b>Card cancelled.</b> ${bdNames(X.by)} ${X.by.length>1?'were':'was'} basically correct (+3 each). The card was ${BDICO[X.c]} <b>${esc(X.q)}</b>: “${esc(X.a)}”. ${esc(bdName(bdDasher(g)))} picks a new card.</div>`}
+  return `<div class="bdhead"><div><span class="rlab">Round ${g.round}${bdTwo(g)?' · two-player game':''}</span><h2>${bdChip(D,' <small>Dasher</small>',1)}</h2></div>${c&&g.phase!=='cat'?`<span class="bdcat">${bdIc(c)} ${BDCATN[c]}</span>`:''}</div>`}
+function bdCx(g){const X=g.cx;if(!X)return '';return `<div class="bdnote bdcx"><b>Card cancelled.</b> ${bdNames(X.by)} ${X.by.length>1?'were':'was'} basically correct (+3 each). The card was ${bdIc(X.c)} <b>${esc(X.q)}</b>: “${esc(X.a)}”. ${esc(bdName(bdDasher(g)))} picks a new card.</div>`}
 function bdCard(g,real){const q=g.q;if(!q)return '';
-  return `<div class="bdcard"><div class="bdcardh">${BDICO[q.c]} <b>${BDCATN[q.c]}</b> · ${BDASK[q.c]}</div><div class="bdq">${esc(q.q)}</div>${real?`<div class="bdreal"><span class="rlab">The real answer (only you can see this)</span><b>${esc(q.a)}</b></div>`:''}</div>`}
+  return `<div class="bdcard"><div class="bdcardh">${bdIc(q.c)} <b>${BDCATN[q.c]}</b> · ${BDASK[q.c]}</div><div class="bdq">${esc(q.q)}</div>${real?`<div class="bdreal"><span class="rlab">The real answer (only you can see this)</span><b>${esc(q.a)}</b></div>`:''}</div>`}
 function bdTimer(g){if(!g.tEnd||g.phase!=='write')return '';return `<span class="bdtmr" data-end="${g.tEnd}" role="timer">⏱ <b class="num">${Date.now()>g.tEnd?'Time!':bdClock(g.tEnd-Date.now())}</b></span>`}
 function bdWaitChips(g,L,done,lab){return `<div class="bdchips" aria-label="${lab}">${L.map(p=>bdChip(p,done(p)?' ✓':' …',done(p))).join('')}</div>`}
 function bdCatUI(g,V,big){const D=bdDasher(g),me=!big&&V&&V.id===D,dc=bdDieCat(g);
   let o=bdCx(g);
-  if(g.o.die&&g.die)o+=`<div class="bddierow">${bdDie(g.die,big?96:56)}<p class="rlab">${dc?`The die rolled <b>${g.die}</b>: ${BDICO[dc]} <b>${BDCATN[dc]}</b>.`:g.die===6?`The die rolled <b>6</b>: the Dasher’s choice.`:`The die rolled <b>${g.die}</b>, but we can’t play ${BDCATN[bdCats(g)[g.die-1]]} here: the Dasher’s choice.`}</p></div>`;
+  if(g.o.die&&g.die)o+=`<div class="bddierow">${bdDie(g.die,big?96:56)}<p class="rlab">${dc?`The die rolled <b>${g.die}</b>: ${bdIc(dc)} <b>${BDCATN[dc]}</b>.`:g.die===6?`The die rolled <b>6</b>: the Dasher’s choice.`:`The die rolled <b>${g.die}</b>, but we can’t play ${BDCATN[bdCats(g)[g.die-1]]} here: the Dasher’s choice.`}</p></div>`;
   if(!me)return o+`<div class="panel bdpanel bdcenter"><p class="bdbig1">${esc(bdName(D))} is choosing a category…</p>${bdNudgeRow(g,V,big)}</div>`;
   const any=bdCats(g).some(c=>bdCatOK(g,c));
   return o+`<div class="panel bdpanel"><p class="bdbig1">You’re the Dasher! ${dc?'Draw the card:':'Pick a category:'}</p><div class="bdcats">${bdCats(g).filter(c=>!(bdTwo(g)&&c==='initials')).map(c=>{const ok=bdCatOK(g,c)&&(!dc||c===dc);
-    return `<button class="bdcatb${dc===c?' hit':''}" data-a="bducat" data-k="${c}" ${ok?'':'disabled'}><span class="bdcati" aria-hidden="true">${BDICO[c]}</span><span><b>${BDCATN[c]}</b><small>${BDASK[c]}${bdCatOK(g,c)?'':' (no questions left here)'}</small></span></button>`}).join('')}</div>
+    return `<button class="bdcatb${dc===c?' hit':''}" data-a="bducat" data-k="${c}" ${ok?'':'disabled'}><span class="bdcati" aria-hidden="true">${bdIc(c)}</span><span><b>${BDCATN[c]}</b><small>${BDASK[c]}${bdCatOK(g,c)?'':' (no questions left here)'}</small></span></button>`}).join('')}</div>
     ${any?'':'<p class="hint">There are no questions to play with these settings. Turn off Kids mode in the House rules.</p>'}${bdTwo(g)?'<p class="hint">Two players: the app draws 3 questions from the category. You read one and your opponent guesses which answer is real. No Initials with two.</p>':''}</div>`}
 function bdWriteUI(g,V,big){const D=bdDasher(g),W=bdWriters(g),me=!big&&V&&g.ps.includes(V.id)?V.id:null,isD=me===D;
   let o=bdCx(g)+bdCard(g,isD)+bdTimer(g);
@@ -18582,9 +18586,9 @@ function bdReviewUI(g,V,big){const D=bdDasher(g),me=!big&&V&&g.ps.includes(V.id)
     <div class="bdrow"><button class="btn primary" data-a="bdushow">${B.length>1?`Cancel this card (${B.length} basically correct)`:'Show the answers ▶'}</button></div>
     ${B.length>1?'<p class="hint">More than one is basically correct: they each get 3 points and you pick a new card.</p>':''}</div>`}
 function bdReadUI(g,V,big){const D=bdDasher(g),me=!big&&V&&V.id===D,Q=g.q2;
-  if(!me)return `<div class="panel bdpanel bdcenter"><p class="bdbig1">${esc(bdName(D))} is picking one of 3 ${BDICO[Q.c]} ${BDCATN[Q.c]} questions to read…</p>${bdNudgeRow(g,V,big)}</div>`;
+  if(!me)return `<div class="panel bdpanel bdcenter"><p class="bdbig1">${esc(bdName(D))} is picking one of 3 ${bdIc(Q.c)} ${BDCATN[Q.c]} questions to read…</p>${bdNudgeRow(g,V,big)}</div>`;
   return `<div class="panel bdpanel"><p class="bdbig1">Pick the question to read</p><p class="rlab">Your opponent will see all 3 real answers and guess which one goes with your question.</p>
-    ${Q.qs.map((x,k)=>`<div class="bdcard bdcard2"><div class="bdcardh">${BDICO[Q.c]} <b>${BDCATN[Q.c]}</b></div><div class="bdq">${esc(x.q)}</div><div class="bdreal"><b>${esc(x.a)}</b></div><button class="btn primary" data-a="bduread" data-k="${k}">Read this one</button></div>`).join('')}</div>`}
+    ${Q.qs.map((x,k)=>`<div class="bdcard bdcard2"><div class="bdcardh">${bdIc(Q.c)} <b>${BDCATN[Q.c]}</b></div><div class="bdq">${esc(x.q)}</div><div class="bdreal"><b>${esc(x.a)}</b></div><button class="btn primary" data-a="bduread" data-k="${k}">Read this one</button></div>`).join('')}</div>`}
 const bdLet=i=>String.fromCharCode(65+i);
 function bdVoteUI(g,V,big){const D=bdDasher(g),me=!big&&V&&g.ps.includes(V.id)?V.id:null,Vs=bdVoters(g),can=me&&Vs.includes(me),mine=me?g.votes[me]:null;
   let o=bdCx(g)+bdCard(g,false);
@@ -18608,13 +18612,13 @@ function bdRvBar(g,V,big){const R=g.rv,dur=g.o.rv*1000,pz=R.pz!=null,left=bdRvLe
   return `<div class="bdauto${pz?' pz':''}"${pz?'':` data-t="${R.t||0}" data-dur="${dur}"`}><div class="bdautobar" role="progressbar" aria-label="Time until the next answer" aria-valuemin="0" aria-valuemax="${g.o.rv}" aria-valuenow="${Math.ceil(left/1000)}"><i style="width:${(100*left/dur).toFixed(1)}%"></i></div>
     <span class="rlab bdautot">${pz?'⏸ Paused':`${lab} in <b class="num">${Math.ceil(left/1000)}</b> s`}</span>${can?`<button class="btn sm bdautob" data-a="bdurvpause" data-k="${pz?0:1}" aria-label="${pz?'Resume the reveal':'Pause the reveal'}">${pz?'▶':'⏸'}</button><button class="btn sm primary bdautob" data-a="bdurvnext" data-k="${R.i}">Next ▶</button>`:''}</div>`}
 function bdRvUI(g,V,big){const R=g.rv,ord=bdRvOrd(g),i=ord[R.i],A=g.ans[i];
-  let o=`<div class="bdcard bdcardsm"><div class="bdcardh">${BDICO[g.q.c]} <b>${BDCATN[g.q.c]}</b> · ${BDASK[g.q.c]}</div><div class="bdq">${esc(g.q.q)}</div></div>`;
+  let o=`<div class="bdcard bdcardsm"><div class="bdcardh">${bdIc(g.q.c)} <b>${BDCATN[g.q.c]}</b> · ${BDASK[g.q.c]}</div><div class="bdq">${esc(g.q.q)}</div></div>`;
   o+=`<div class="bdrvstep${A.real?' real':''}" data-bdrv="${R.i}" aria-live="polite"><div class="bdrvn rlab">${A.real?'And the real answer is…':`Answer ${R.i+1} of ${ord.length}`}</div>
     <div class="bdrvcard"><span class="bdlet">${bdLet(i)}</span><span class="bdtxt">${esc(A.t)}</span></div>${A.real?'<p class="bdrvh">✓ The real answer!</p>':''}<div class="bdrvb">${bdAnsLines(g,i,1)}</div></div>`;
   return o+bdRvBar(g,V,big)}
 /* ---------- the cards of this round, one at a time, on your own phone (◀ ▶ or swipe; nobody else's screen moves) ---------- */
 let BDCV={k:'',i:0};
-function bdCvCards(g){const L=[`<div class="bdcvc bdcvq"><div class="bdcardh">${BDICO[g.q.c]} <b>${BDCATN[g.q.c]}</b> · ${BDASK[g.q.c]}</div><div class="bdq">${esc(g.q.q)}</div><div class="bdreal"><span class="rlab">The real answer</span><b>${esc(g.q.a)}</b></div></div>`];
+function bdCvCards(g){const L=[`<div class="bdcvc bdcvq"><div class="bdcardh">${bdIc(g.q.c)} <b>${BDCATN[g.q.c]}</b> · ${BDASK[g.q.c]}</div><div class="bdq">${esc(g.q.q)}</div><div class="bdreal"><span class="rlab">The real answer</span><b>${esc(g.q.a)}</b></div></div>`];
   g.ans.forEach((A,i)=>L.push(`<div class="bdcvc${A.real?' real':''}"><div class="bdrvcard"><span class="bdlet">${bdLet(i)}</span><span class="bdtxt">${esc(A.t)}</span></div>${A.real?'<p class="bdrvh">✓ The real answer</p>':''}<div class="bdrvb">${bdAnsLines(g,i,0)}</div></div>`));
   Object.keys(g.bc||{}).filter(p=>g.bc[p]&&g.bl[p]).forEach(p=>L.push(`<div class="bdcvc bc"><div class="bdrvcard"><span class="bdlet">✓</span><span class="bdtxt">${esc(g.bl[p])}</span></div><p class="bdrvh">Basically correct</p><div class="bdrvb"><span class="bdwho">Written by ${bdChip(p)} ${bdPlus(3)}</span></div></div>`));
   return L}
@@ -18630,7 +18634,7 @@ function bdRevealUI(g,V,big){const R=g.res,D=bdDasher(g),two=bdTwo(g),me=!big&&V
     else o+=`<div class="panel bdpanel bdcenter bdpassw"><p class="rlab">Waiting for ${esc(bdName(D))} to pass the Dasher to ${esc(bdName(nx))}…</p>${bdNudgeRow(g,V,big)}${bdLinked()&&lkHost()?`<button class="btn sm" data-a="bdupass">Pass for ${esc(bdName(D))}</button>`:''}</div>`}
   else if(!big&&me)o+=`<div class="bdrow"><button class="btn primary" data-a="bdunext">🏁 See who won</button></div>`;
   if(!big)o+=bdCvUI(g);
-  else o+=`<div class="bdcard"><div class="bdcardh">${BDICO[g.q.c]} <b>${BDCATN[g.q.c]}</b> · ${BDASK[g.q.c]}</div><div class="bdq">${esc(g.q.q)}</div></div>`;
+  else o+=`<div class="bdcard"><div class="bdcardh">${bdIc(g.q.c)} <b>${BDCATN[g.q.c]}</b> · ${BDASK[g.q.c]}</div><div class="bdq">${esc(g.q.q)}</div></div>`;
   o+=`<div class="bdrvgrid"><div>`;
   if(big)o+=`<div class="panel bdpanel"><div class="bdans">${g.ans.map((A,i)=>{const vs=g.ps.filter(p=>R.votes[p]===i);
     return `<div class="bdansb ro rv${A.real?' real':''}"><span class="bdlet">${bdLet(i)}</span><div class="bdrvb"><span class="bdtxt">${esc(A.t)}</span>
