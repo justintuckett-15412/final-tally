@@ -2859,7 +2859,7 @@ html.rcfull:not(.rcside) .rcctl .rccast{display:grid;grid-template-columns:1fr 1
 .rctab.on{background:var(--accent,#f2b705);color:#17212B}
 .rcdot{position:absolute;top:4px;right:calc(50% - 18px);width:10px;height:10px;border-radius:50%;background:#e23b3b;box-shadow:0 0 0 2px var(--card,#fff)}
 /* step-by-step reveal */
-.rcrv{display:block!important;padding:14px 14px 12px;border:2px solid var(--accent,#f2b705)}
+.rcrvp{display:block!important;padding:14px 14px 12px;border:2px solid var(--accent,#f2b705)}
 .rcrvh{display:flex!important;flex-direction:row;gap:12px;align-items:center;margin-bottom:8px}
 .rcrvh h2{margin:2px 0 0;font-size:19px;line-height:1.2}
 .rcrvpt{flex:0 0 auto;width:56px;height:56px;border-radius:50%;overflow:hidden;border:3px solid var(--accent,#f2b705);background:#fff}
@@ -2874,7 +2874,12 @@ html.rcfull:not(.rcside) .rcctl .rccast{display:grid;grid-template-columns:1fr 1
 .rcrvcard p{margin:2px 0 0;font-size:14px}
 .rcrvf{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
 .rcrvf .rlab{margin-right:auto}
-.rcboard.big ~ .rcrv,.rcbigv .rcrv{max-width:900px;margin:0 auto 12px;font-size:18px}
+.rcbigv .rcrvp{max-width:900px;margin:0 auto 12px;font-size:18px}
+.rcrvask{margin-top:10px}
+.rcrvask .rcdock{margin:0;box-shadow:none}
+.rcrvask.rcrollq .rcopts .btn{font-size:20px;padding:14px 22px;width:100%}
+.rcrvl:empty{display:none}
+.rcrvask .panel{margin:0!important;min-height:0!important}
 </style>
 
 <div id="app"></div>
@@ -20184,6 +20189,8 @@ function rcBlackRemove(g,s,mv){const L=[];RCSPS.forEach(x=>{const P=g.sp[x];P.ex
 const rcFace=(g,col,d)=>RCDICE[col][d][rcRi(g,6)];
 const rcDieN={w:'Wound die',s:'Success die',a:'Adventure die'};
 RCQ.aRoll=(g,s,mv)=>{const a=rcAct(g,s.id),k=a.ctx.ch,col=a.type,F=rcFig(g,k);
+  /* the player taps to roll their own dice (Justin, Nov 22) */
+  if(!s.d&&!s.go&&(a.roll||F.tok&&(F.tok.confused===g.round||F.tok.bowl))){if(!mv||mv.v!=='roll')return rcAsk(g,{pid:rcOwner(g,k)},`${rcCN(k)}: roll the ${col} dice for ${a.label}`,[{v:'roll',l:'🎲 Roll the dice'}],{kind:'roll',ch:k,col});s.go=1;mv=null}
   if(!s.d){const conf=F.tok&&(F.tok.confused===g.round||F.tok.bowl);
     if(a.roll){s.d={w:rcFace(g,col,'w'),s:rcFace(g,col,'s'),a:rcFace(g,col,'a')}}
     else if(conf){s.d={w:'-',s:rcFace(g,col,'s'),a:'-'};s.onlyS=1}else s.d={w:'-',s:'s',a:'-'},s.auto=1;
@@ -21040,9 +21047,9 @@ function rcDiceRow(g,d){if(!d)return '';const st=g.q[0],a=st&&st.id!=null&&g.pla
   const face=(k,v)=>`<span class="rcdie ${col} ${k}" title="${esc({w:'Wound die',s:'Success die',a:'Adventure die'}[k])}">${k==='w'?(v==='w'?'💥':''):k==='s'?(v==='s'?'✓':'✗'):(v==='?'?'?':'')}</span>`;
   return `<div class="rcdice">${['w','s','a'].filter(k=>d[k]!=null).map(k=>face(k,d[k])).join('')}</div>`}
 function rcAskUI(g,pids,big){const A=g.ask;if(!A)return '';const mine=!big&&pids.includes(A.pid);const who=rcPName(A.pid);
-  if(!mine)return `<div class="panel rcdock wait"><div class="rcdockh"><b>⏳ ${g.ps.length>1?esc(who)+' decides':'Waiting'}</b></div><p class="rcq">${esc(A.msg)}</p>${A.kind==='reroll'?rcDiceRow(g,A.dice):''}</div>`;
-  return `<div class="panel rcdock ask"><div class="rcdockh"><b>❓ ${g.ps.length>1&&rcLinked()?'Your decision':g.ps.length>1?esc(who)+', your decision':'Your decision'}</b><small class="rlab">${esc(RCPHN[g.phase]||'')}</small></div><p class="rcq">${esc(A.msg)}</p>${A.kind==='reroll'?rcDiceRow(g,A.dice):''}
-    <div class="rcopts">${(A.opts||[]).map(o=>`<button class="btn${['fight','keep','done','stay'].includes(o.v)?' primary':''}" data-a="rcuans" data-k="${rcEnc({v:o.v})}" data-p="${esc(A.pid)}">${esc(o.l)}</button>`).join('')}${A.opt?`<button class="btn" data-a="rcuans" data-k="${rcEnc({skip:1})}" data-p="${esc(A.pid)}">Skip</button>`:''}</div></div>`}
+  if(!mine)return `<div class="panel rcdock wait"><div class="rcdockh"><b>⏳ ${g.ps.length>1?esc(who)+(A.kind==='roll'?' is rolling':' decides'):'Waiting'}</b></div><p class="rcq">${esc(A.msg)}</p>${A.kind==='reroll'?rcDiceRow(g,A.dice):''}</div>`;
+  return `<div class="panel rcdock ask"><div class="rcdockh"><b>${A.kind==='roll'?`🎲 ${g.ps.length>1&&!rcLinked()?esc(who)+', your roll':'Your roll'}`:`❓ ${g.ps.length>1&&rcLinked()?'Your decision':g.ps.length>1?esc(who)+', your decision':'Your decision'}`}</b><small class="rlab">${esc(RCPHN[g.phase]||'')}</small></div><p class="rcq">${esc(A.msg)}</p>${A.kind==='reroll'?rcDiceRow(g,A.dice):''}
+    <div class="rcopts">${(A.opts||[]).map(o=>`<button class="btn${['fight','keep','done','stay','roll'].includes(o.v)?' primary':''}" data-a="rcuans" data-k="${rcEnc({v:o.v})}" data-p="${esc(A.pid)}">${esc(o.l)}</button>`).join('')}${A.opt?`<button class="btn" data-a="rcuans" data-k="${rcEnc({skip:1})}" data-p="${esc(A.pid)}">Skip</button>`:''}</div></div>`}
 const RCPHN={pre:'Start of the round',event:'Event phase',morale:'Morale phase',production:'Production phase',action:'Action phase',endAction:'End of the Action phase',weather:'Weather phase',night:'Night phase',done:'Game over',setup:'Setting up'};
 function rcUsesFor(g,pids){const O=[],seen={};pids.forEach(pid=>rcUseOpts(g,pid).forEach(o=>{const k=JSON.stringify(o.mv);if(seen[k])return;seen[k]=1;O.push({...o,pid:o.mv.ch&&g.C[o.mv.ch]?g.C[o.mv.ch].pid:pid})}));return O}
 function rcUsesUI(g,U){const L=U.filter(u=>!(u.mv.key||'').startsWith('ab:')||u.mv.key==='ab:handyman');if(!L.length)return '';
@@ -21062,13 +21069,13 @@ function rcRvCards(g,lines){const out=[];(g.shown||[]).forEach(e=>{if(e.n<=(RCSE
 function rcRevealUI(g,pids,big){const G=rcRvGroups(g);if(!G.length)return '';const C=G[0],H=C.head,ch=H&&H.ch,F=ch?rcFig(g,ch):null,own=ch&&g.C[ch]?g.C[ch].pid:null;
   const col=own?rcPCol(own):ch==='friday'?'white':'gray',who=own?rcPName(own):'';
   const cards=rcRvCards(g,[...(H?[H]:[]),...C.lines]);
-    const can=!big&&(pids.length>0);
-  return `<div class="panel rcrv" role="region" aria-live="polite" aria-label="What happens">
+    const can=!big&&(pids.length>0),inAsk=G.length===1&&!!g.ask;
+  return `<div class="panel rcrvp" role="region" aria-live="polite" aria-label="What happens">
     <div class="rcrvh">${ch&&F?`<span class="rcrvpt">${rcImg('rc-ch-'+(ch==='jenny'?'friday':ch),rcCN(ch),'rcrvimg','🧑')}</span>`:`<span class="rcrvic" aria-hidden="true">${esc(H?H.ic:'📜')}</span>`}
       <div><small class="rlab">Round ${H&&H.rd||g.round}${who?` · ${rcMeep(col,14)} ${esc(who)}`:''}</small><h2>${esc(H?H.t:'What happened')}${H&&H.cont?' (continued)':''}</h2></div></div>
-    <ul class="rcrvl">${C.lines.map(l=>`<li class="${/(: success$| is built| explored|escaped|rescued|captured)/i.test(l.t)?'ok':/(fails$| suffers | dies|island won|is lost)/i.test(l.t)?'no':''}"><span aria-hidden="true">${esc(l.ic||'')}</span> ${esc(l.t)}</li>`).join('')||'<li class="hint">Nothing else happens.</li>'}</ul>
+    <ul class="rcrvl">${C.lines.map(l=>`<li class="${/(: success$| is built| explored|escaped|rescued|captured)/i.test(l.t)?'ok':/(fails$| suffers | dies|island won|is lost)/i.test(l.t)?'no':''}"><span aria-hidden="true">${esc(l.ic||'')}</span> ${esc(l.t)}</li>`).join('')||(inAsk?'':'<li class="hint">Nothing else happens.</li>')}</ul>
     ${cards.map(I=>`<div class="rcrvcard">${rcImg(I.art,'','rcrvcimg','🃏')}<div><small class="rlab">${esc(I.type)}</small><b>${esc(I.name)}</b><p>${esc(I.say||'')}</p>${I.extra?`<p class="rlab">${esc(I.extra)}</p>`:''}</div></div>`).join('')}
-    <div class="rcrvf"><span class="rlab">${G.length>1?`${G.length-1} more to go`:'Last one'}</span>${can?`${G.length>2?`<button class="btn sm" data-a="rcurvall">Skip to the end</button>`:''}<button class="btn primary" data-a="rcurvnext" data-k="${C.last}">${G.length>1?'Next ›':'Done ✓'}</button>`:`<span class="rlab">Anyone can tap Next</span>`}</div></div>`}
+    ${inAsk?`<div class="rcrvask${g.ask.kind==='roll'?' rcrollq':''}">${rcAskUI(g,pids,big)}</div>`:`<div class="rcrvf"><span class="rlab">${G.length>1?`${G.length-1} more to go`:'Last one'}</span>${can?`${G.length>2?`<button class="btn sm" data-a="rcurvall">Skip to the end</button>`:''}<button class="btn primary" data-a="rcurvnext" data-k="${C.last}">${G.length>1?'Next ›':'Done ✓'}</button>`:`<span class="rlab">Anyone can tap Next</span>`}</div>`}</div>`}
 function rcCardPop(g){if(rcRvOn(g))return '';const id=g.id;if(RCSEEN[id]==null){let v=null;try{v=JSON.parse(localStorage.getItem('ft-rcseen')||'{}')[id]}catch(e){}RCSEEN[id]=v!=null?v:Math.max(0,(g.shownN||0)-1)}
   const e=(g.shown||[]).find(x=>x.n>RCSEEN[id]);if(!e)return '';const I=rcCardInfo(e);if(!I){rcSeen(g,e.n);return ''}
   if(rcBig()&&!RCPOPT)RCPOPT=setTimeout(()=>{RCPOPT=null;rcSeen(g,e.n);render()},9000*(window.__htfast?.2:1));
