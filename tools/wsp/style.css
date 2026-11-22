@@ -68,3 +68,7 @@
 
 /* the Draw cards action shows the same card back as the deck */
 .wpcbk{display:inline-block;width:21px;height:29px;border-radius:4px;vertical-align:middle;background:#5b6b4a url(art/wp-back.webp) center/cover no-repeat;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+
+.wpgoi{display:flex;align-items:center;gap:2px;flex-wrap:wrap}.wpgoi .wpi{width:24px;height:24px}.wpgoor{font-size:10px;color:var(--muted,#5a6672);margin:0 1px}
+
+.wprs{text-align:center}.wprsgoal{display:flex;align-items:center;justify-content:center;gap:8px;margin:6px 0}.wprsgoal .wpi{width:30px;height:30px}.wprsnext{margin-top:12px;padding:10px;border-radius:12px;background:var(--soft,#eef1f4)}.wprsnext p{margin:4px 0 0}

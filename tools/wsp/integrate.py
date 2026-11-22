@@ -41,7 +41,7 @@ rep("catan:()=>cpOn()&&S.cpg,", "catan:()=>cpOn()&&S.cpg,wingspan:()=>wpOn()&&S.
 rep("if(trOn()&&S.trg)return trActor(S.trg);", "if(trOn()&&S.trg)return trActor(S.trg);if(wpOn()&&S.wpg)return wpActor(S.wpg);")
 rep("trTake:(pid,src,rp)=>", "wpMove:(pid,mv)=>{const g=wpG();return !!g&&wpMove(g,pid,mv)},wpSetup:(pid,b,f,bo)=>{const g=wpG();return !!g&&wpSetup(g,pid,b,f,bo)},trTake:(pid,src,rp)=>")
 rep("if(trOn())trTick();", "if(trOn())trTick();if(wpOn())wpTick();")
-rep("  if(/^trp[a-z]+$/.test(a)&&trOn()&&S.started){", "  if(/^wp(ans|pk|look|show|sb|sf|sbo|sgo|playsel|paysel|trf|ef)$/.test(a)&&wpOn()&&S.started){wpUiAct(a,b,k);save();render();return}\n  if(/^trp[a-z]+$/.test(a)&&trOn()&&S.started){")
+rep("  if(/^trp[a-z]+$/.test(a)&&trOn()&&S.started){", "  if(/^wp(ans|pk|look|show|sb|sf|sbo|sgo|playsel|paysel|rsok|trf|ef)$/.test(a)&&wpOn()&&S.started){wpUiAct(a,b,k);save();render();return}\n  if(/^trp[a-z]+$/.test(a)&&trOn()&&S.started){")
 rep("function lpSheet(){if(!LPTIP)return '';", "function lpSheet(){if(!LPTIP)return '';if(LPTIP.startsWith('wpb:')&&wpOn())return wpBirdSheet(+LPTIP.slice(4));")
 rep("LPTIP.startsWith('ph:')||", "LPTIP.startsWith('ph:')||LPTIP.startsWith('wpb:')||")
 open(out, 'w', encoding='utf-8').write(s)

@@ -130,9 +130,10 @@ function wpNext(g,pid){const L=g.ps;for(let k=1;k<=L.length;k++){const q=L[(L.in
 /* end of a round: score the goal, clear the tray, the next player starts */
 function wpRoundEnd(g){const G=wpGoal(g.goals[g.rnd]),c={};g.ps.forEach(p=>c[p]=wpGoalCount(g,p,G));g.gc[g.rnd]=c;
   const pts=wpGoalPts(g,g.rnd);g.ps.forEach(p=>g.gp[p]+=pts[p]);gLog(g,`Round ${g.rnd+1} goal (${G.say}): ${g.ps.map(p=>`${nmid(p)} ${c[p]} → ${pts[p]}`).join(', ')}`,'🎯',1);
+  g.rsum={r:g.rnd,goal:G.id,c,pts,at:Date.now()};/* every phone shows an end-of-round card from this (Justin, Nov 21) */
   if(g.rnd===3)return wpEnd(g);g.rnd++;g.disc.push(...g.tray.filter(b=>b!=null));g.tray=[];for(let i=0;i<3;i++){if(!g.deck.length&&g.disc.length){g.deck=wpShuf(g.disc);g.disc=[]}g.tray.push(g.deck.pop()??null)}
   g.ps.forEach(p=>{g.cubes[p]=WPCUBES[g.rnd];g.pk[p]={}});g.fp=g.ps[(g.ps.indexOf(g.fp)+1)%g.ps.length];g.turn=g.fp;
-  gAnn(g,`Round ${g.rnd+1}`,`Goal scored: ${G.say}. ${nmid(g.turn)} starts; ${WPCUBES[g.rnd]} actions each this round.`,'🎯')}
+}
 function wpGoalCount(g,p,G){const S2=wpSlots(g,p),eggs=x=>x.e;switch(G.k){
   case 'birdsHab':return g.mat[p][G.hab].length;
   case 'eggsHab':return g.mat[p][G.hab].reduce((a,x)=>a+x.e,0);

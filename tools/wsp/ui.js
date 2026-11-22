@@ -35,7 +35,19 @@ function wpTray(g,V){const A=g.ask,mine=A&&V&&A.pid===V.id&&A.t==='card';
 function wpFoodRow(g,pid,o={}){return `<div class="wpfood">${WPF.map(f=>o.btn&&g.food[pid][f]>0?wpBtn(o.btn(f),`${wpFI(f)}<b class="num">${g.food[pid][f]}</b>`,{cls:'wpfd ok'}):`<span class="wpfd${g.food[pid][f]?'':' zero'}">${wpFI(f)}<b class="num">${g.food[pid][f]}</b></span>`).join('')}</div>`}
 function wpHand(g,pid,o={}){const H=g.hand[pid];if(!H.length)return '<div class="rlab">No bird cards in your hand.</div>';
   return `<div class="wphand">${H.map((b,i)=>{const on=o.on&&o.on(i);return o.pick&&o.pick(i)?`<button class="wpcb${on?' on':''}" data-a="${o.a||'wpans'}" data-k="${o.a?i:wpEnc(o.mv(i))}">${wpCard(b,{sel:on})}</button>`:`<div data-lp="wpb:${b}">${wpCard(b,{cls:o.dim&&o.dim(i)?'dim':''})}</div>`}).join('')}</div>`}
-function wpGoalsHtml(g){return `<div class="wpgoals">${g.goals.map((id,r)=>{const G=wpGoal(id),c=g.gc[r];return `<div class="wpgo${r===g.rnd&&g.phase!=='done'?' now':''}${c?' done':''}"><small>Round ${r+1}</small><b>${esc(G.say)}</b>${c?`<small>${g.ps.map(p=>`${esc(nmid(p))} ${c[p]}`).join(' · ')}</small>`:''}</div>`}).join('')}</div>`}
+/* the goal tile shows the same pictures as the cards: the nest (a star nest counts too), the habitat, the egg */
+function wpGoalIcons(G){const L=[];if(G.nest)L.push(wpNI(G.nest),'<span class="wpgoor">or</span>',wpNI('star'));if(G.hab)L.push(wpHI(G.hab));if(/^eggs/.test(G.k)||G.k==='birdsNestEgg')L.push(wpEI);return L.join('')}
+/* end of a round: what the goal scored, then what's next. Each phone closes its own card; computer players wait for the host phone's card (up to 45 s). */
+let WPRSOK={};const wpRsKey=g=>g.id+':'+g.rsum.r;
+function wpRsShow(g){return !!(g&&g.rsum&&g.phase==='play'&&!WPRSOK[wpRsKey(g)]&&Date.now()-g.rsum.at<15*60e3&&!wpNeedHandoff())}
+function wpRsSheet(g){const R=g.rsum,G=wpGoal(R.goal),N=wpGoal(g.goals[g.rnd]),rows=g.ps.slice().sort((a,b)=>(R.pts[b]-R.pts[a])||(R.c[b]-R.c[a]));
+  return `<div class="sheet-bg glres"><div class="sheet wprs" role="dialog" aria-modal="true" aria-labelledby="wprs-h"><div class="tqannic" aria-hidden="true">🎯</div><h2 id="wprs-h">Round ${R.r+1} is over</h2>
+    <div class="wprsgoal"><span class="wpgoi">${wpGoalIcons(G)}</span><b>${esc(G.say)}</b></div>
+    <div class="glresl">${rows.map(p=>{const q=act().find(x=>x.id===p);return `<div class="glresr" style="${q?pc(q.color):''}"><i class="dot"></i><b>${esc(nmid(p))}</b><span class="num glresd">${R.c[p]} → ${R.pts[p]>0?'+':''}${R.pts[p]}</span><span class="num glrest">${g.gp[p]}</span></div>`}).join('')}</div>
+    <div class="glresh rlab"><span>Count → goal points</span><span>Goal total</span></div>
+    <div class="wprsnext"><small class="rlab">Next: round ${g.rnd+1} of 4</small>${N?`<div class="wprsgoal"><span class="wpgoi">${wpGoalIcons(N)}</span><b>${esc(N.say)}</b></div>`:''}<p class="rlab">${esc(nmid(g.turn))} starts. ${WPCUBES[g.rnd]} actions each this round.</p></div>
+    <button class="btn primary wide" data-a="wprsok">Start round ${g.rnd+1}</button></div></div>`}
+function wpGoalsHtml(g){return `<div class="wpgoals">${g.goals.map((id,r)=>{const G=wpGoal(id),c=g.gc[r];return `<div class="wpgo${r===g.rnd&&g.phase!=='done'?' now':''}${c?' done':''}"><small>Round ${r+1}</small><span class="wpgoi">${wpGoalIcons(G)}</span><b>${esc(G.say)}</b>${c?`<small>${g.ps.map(p=>`${esc(nmid(p))} ${c[p]}`).join(' · ')}</small>`:''}</div>`}).join('')}</div>`}
 function wpPlayUI(){const g=wpG(),P=act();
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="Wingspan">${g&&g.phase==='done'?'🏁':'🐦'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>`;
   if(!g||wpStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(wpRes()?'Filling the bird feeder…':'Waiting for the host phone…')}</div>`;
@@ -48,6 +60,7 @@ function wpPlayUI(){const g=wpG(),P=act();
   if(g.phase==='done')out+=wpResults(g);
   else if(hide){const h=wpNeedHandoff();out+=`<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="wph-h" style="${pc(h.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="wph-h">${esc(nm(h))}</h2><p class="rlab">${g.phase==='setup'?'Choose your starting hand.':'It’s your turn. Everyone else, look away.'}</p><button class="btn primary wide" data-a="wpshow" data-k="${h.id}">I’m ${esc(nm(h))}, show my cards</button></div></div>`}
   else if(V)out+=wpDock(g,V);
+  if(wpRsShow(g))out+=wpRsSheet(g);
   return out}
 const wpAskWord=A=>({opt:'deciding on the extra',die:'taking food',egg:'laying eggs',card:'drawing cards',play:'playing a bird',payEgg:'paying eggs',disc:'discarding',tuck:'tucking a card',yes:'deciding',eggFood:'trading an egg',eggCards:'trading an egg',move:'moving a bird',repeat:'repeating a power',trade:'trading food',bonus:'choosing a bonus card',pool:'choosing a card'})[A.t]||'deciding';
 function wpDock(g,V){const box=(h,b)=>`<div class="sadock cpdock wpdock" style="${pc(V.color)}"><div class="sadh"><span><b>${S.lk||wpHumans().length<2?'You':esc(nm(V))}</b> · ${h}</span></div>${b}</div>`;
@@ -98,13 +111,14 @@ function wpBirdSheet(b){const B=wpB(b);return `<div class="sheet-bg" data-a="lpc
 function wpUiAct(a,b,k){const g=wpG();if(!g)return;if(a==='wpshow'){WPVIEW=k;WPSEL=null;return}if(a==='wplook'){WPLOOK=k;return}const V=wpViewer();if(!V)return;
   if(a==='wpsb'||a==='wpsf'||a==='wpsbo'){if(!WPSET)return;if(a==='wpsb'){const i=+k,L=WPSET.b;L.includes(i)?L.splice(L.indexOf(i),1):L.push(i);while(WPSET.b.length+WPSET.f.length>5&&WPSET.f.length)WPSET.f.pop()}else if(a==='wpsf'){const L=WPSET.f;L.includes(k)?L.splice(L.indexOf(k),1):L.length+WPSET.b.length<5&&L.push(k)}else WPSET.bo=k;vibe(6);return}
   if(a==='wpsgo'){if(!WPSET)return;const s=WPSET;WPSET=null;lkq('wpSetup',V.id,s.b,s.f,s.bo)&&vibe(12);return}
-  if(a==='wpplaysel'){WPSEL={t:'play',i:+k};vibe(6);return}if(a==='wppaysel'){if(WPSEL&&WPSEL.t==='play')WPSEL.pay=+k;vibe(6);return}
+  if(a==='wprsok'){const g2=wpG();if(g2&&g2.rsum)WPRSOK[wpRsKey(g2)]=1;vibe(8);return}if(a==='wpplaysel'){WPSEL={t:'play',i:+k};vibe(6);return}if(a==='wppaysel'){if(WPSEL&&WPSEL.t==='play')WPSEL.pay=+k;vibe(6);return}
   if(a==='wptrf'){WPSEL={t:'trade',f:k};return}
   if(a==='wpef'){if(!WPSEL||WPSEL.t!=='eggFood')return;WPSEL.fs.push(k);if(WPSEL.fs.length>=(g.ask&&g.ask.n||1)){const mv={k:WPSEL.k,fs:WPSEL.fs};WPSEL=null;lkq('wpMove',V.id,mv)&&vibe(10)}return}
   if(a==='wppk'){const A=g.ask;if(!A)return;if(A.t==='eggFood'){WPSEL={t:'eggFood',k,fs:[]};return}WPSEL=null;lkq('wpMove',V.id,{k})&&vibe(8);return}
   if(a==='wpans'){let mv;try{mv=JSON.parse(decodeURIComponent(k))}catch(e){return}WPSEL=null;lkq('wpMove',V.id,mv)&&vibe(8);return}}
 function wpTick(){if(!wpOn()||!S.started||S.finished||S.demo||S.screen!=='score')return;if(!wpRes())return;if(lkqRun()){save();render();return}
   const g=wpG();if(!g||wpStale(g)){wpDeal();save();render();return}if(g.phase==='done'||WPBOTT)return;
+  if(wpRsShow(g)&&wpViewer()&&Date.now()-g.rsum.at<45e3){WPBOTT=setTimeout(()=>{WPBOTT=null;render()},1000);return}
   if(gAnnBusy(g)){const ms=(g.ann.ms||GLMS)*(window.__htfast?.3:1)-(Date.now()-g.ann.at);WPBOTT=setTimeout(()=>{WPBOTT=null;render()},Math.max(60,ms+40));return}
   const q=act().find(p=>p.bot&&wpWaits(g,p.id));if(!q)return;
   WPBOTT=setTimeout(()=>{WPBOTT=null;WPBOTAT=Date.now();const g2=wpG();if(g2&&g2.phase!=='done'&&wpWaits(g2,q.id)){let ok=false;try{ok=wpBotStep(g2,q)}catch(e){console.error('Wingspan bot',e)}if(!ok){try{if(g2.ask&&g2.ask.pid===q.id)wpBotAny(g2,q.id)}catch(e){}}save()}render()},(g.phase==='setup'?400:700)*htSpd());WPBOTAT=Date.now()}

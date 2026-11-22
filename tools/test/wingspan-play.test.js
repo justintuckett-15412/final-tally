@@ -83,5 +83,11 @@ const {mk,W,ok,done,chromium}=require('./link.js');
     const after=S.wpg.food[me],spent={};for(const f in before)if(before[f]!==after[f])spent[f]=before[f]-after[f];
     const bad=wpPayOpts(S.wpg,me,bi).length&&WPS.play;return {ok:n>=2&&JSON.stringify(Object.entries(want).sort())===JSON.stringify(Object.entries(spent).sort()),n,want,spent}});
   ok('Play a bird with an "or" cost: a Pay-with choice appears and the chosen food is what gets spent',pay.ok,pay);
+  /* Justin (Nov 21): an end-of-round card before the next round, and goal tiles show the nest picture */
+  const rs=await P.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));S.players.forEach((x,i)=>{x.on=i<2;x.bot=i?'normal':null});const g=wpDeal();g.ann=null;g.ps.forEach(p=>wpSetup(g,p,[0],['i','s','f','r'],g.offer[p].bo[0]));g.goals[0]='egr';S.screen='score';save();render();
+    const icons=[...document.querySelectorAll('.wpgo')][0].querySelectorAll('img[src*="wp-nest-ground"],img[src*="wp-nest-star"]').length;
+    wpRoundEnd(g);save();render();await w(200);const card=document.querySelector('.wprs');const txt=card?card.innerText:'';
+    document.querySelector('[data-a="wprsok"]').click();await w(200);return {ok:icons===2&&!!card&&/Round 1 is over/i.test(txt)&&/round 2 of 4/i.test(txt)&&!document.querySelector('.wprs'),icons,txt:txt.slice(0,120)}});
+  ok('Goal tiles show the nest picture; at the end of a round a card shows the goal results and what is next, then closes',rs.ok,rs);
   ok('No page errors',!errs.length,errs.slice(0,3));
   await done(browser)})();
