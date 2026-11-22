@@ -13,6 +13,11 @@ const ROUNDS=+(process.env.ROUNDS||4);
   await click('rcstart');await W(300);
   const setup=await P.evaluate(()=>({scen:document.querySelectorAll('.rcscb').length,imgs:[...document.querySelectorAll('.rcscb img')].filter(i=>i.complete&&i.naturalWidth>0).length,t:document.body.innerText}));
   ok('Setup: 7 scenario pictures, Friday and the Dog, difficulty, house rules',setup.scen===7&&/Friday and the Dog/i.test(setup.t)&&/Difficulty/i.test(setup.t)&&/House rules/i.test(setup.t),setup.scen);
+  {const before=await P.evaluate(()=>RCX().scen);const b=await P.$('[data-lp="rcs:kingkong"]');await b.scrollIntoViewIfNeeded();const bb=await b.boundingBox();
+    await P.mouse.move(bb.x+bb.width/2,bb.y+bb.height/2);await P.mouse.down();await P.waitForTimeout(900);await P.mouse.up();await P.waitForTimeout(300);
+    const sh=await P.evaluate(()=>{const s=document.querySelector('.lpsheet');return s?{h:s.querySelector('h2').textContent,rows:s.querySelectorAll('dt').length,txt:s.innerText.slice(0,300)}:null});await shot('scen-longpress-390');
+    const after=await P.evaluate(()=>RCX().scen);await P.evaluate(()=>{LPTIP=null;render()});
+    ok('Long-press a scenario: a sheet explains it (goal, setup, weather, items) and doesn\'t select it',sh&&/King Kong/.test(sh.h)&&sh.rows>=5&&/Goal/.test(sh.txt)&&after===before,{sh,before,after})}
   await shot('setup-390');
   await P.click('[data-a="rcset"][data-k="scen:cursed"]');await P.click('[data-a="rcset"][data-k="multiChar:1"]');await W(200);
   const hr=await P.evaluate(()=>RCX().scen==='cursed'&&RCX().multiChar===1&&!!document.querySelector('[data-a="ureset"]')&&JSON.parse(localStorage.getItem(KEY+'.rcx')).multiChar===1);
