@@ -34,6 +34,11 @@ const ROUNDS=+(process.env.ROUNDS||4);
   await P.click('[data-a="rcugo"]');await W(1200);
   const g0=await P.evaluate(()=>{const g=S.rcg;return g&&{order:g.order,fri:!!g.fri,dog:g.dog,scen:g.scen,ph:g.phase}});
   ok('Start: Castaways with cook + explorer, Friday joins (2 characters), no Dog',g0&&g0.scen==='castaways'&&g0.order.join()==='cook,explorer'&&g0.fri&&!g0.dog,g0);
+  /* hints: next planning screen shows warnings + tip; "What should we do?" lists suggestions that open the plan sheet */
+  {let h=null;for(let i=0;i<40&&!h;i++){h=await P.evaluate(()=>{const p=document.querySelector('.rchints');if(!p)return null;return {warn:p.querySelectorAll('.rcwarn li').length,tip:!!p.querySelector('.rctip'),sug:!!p.querySelector('[data-a="rcuhint"][data-k="sug"]')}});if(!h){await P.evaluate(()=>{const b=document.querySelector('.rcrvp [data-a="rcurvnext"]')||document.querySelector('.rcdock.ask [data-a="rcuans"]')||document.querySelector('.rcpop [data-a="rcucardok"]');if(b)b.click()});await P.waitForTimeout(150)}}
+   const sg=h&&h.sug?await P.evaluate(()=>{document.querySelector('[data-a="rcuhint"][data-k="sug"]').click();const L=[...document.querySelectorAll('.rcsugb')];const r={n:L.length,first:L[0]&&L[0].innerText.slice(0,80)};if(L[0])L[0].click();r.sheet=!!document.querySelector('.rcplansheet,.sheet');return r}):null;
+   await shot('hints-390');await P.evaluate(()=>{const c=document.querySelector('.sheet-bg');if(c)c.click()});
+   ok('Hints while planning: warnings or a tip, plus suggestions that open the plan sheet',!!h&&h.tip&&sg&&sg.n>=1&&sg.sheet,{h,sg})}
   /* play by tapping */
   let taps={pop:0,ans:0,plan:0,ready:0,use:0},stuck=0,shots={plan:0,ask:0,pop:0,sheet:0};
   const step=async()=>P.evaluate(()=>{const q=s=>document.querySelector(s),g=S.rcg;if(!g)return 'nog';if(g.phase==='done')return 'done';
