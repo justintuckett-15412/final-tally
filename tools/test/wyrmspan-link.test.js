@@ -11,6 +11,7 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   while(Date.now()<end){const st=await H.evaluate(()=>{const g=S.wzg;return g?{ph:g.phase,rnd:g.rnd}:null});if(st&&st.ph==='done')break;
     const r=await G.evaluate(()=>{const b=document.querySelector('[data-a=lkopen]');if(b)b.click();const g=S.wzg;if(!g||!g.P)return 'nog';const me=S.lk&&S.lk.me;
       const dock=document.querySelector('.wzdock');if(!dock)return 'nodock';const ask=dock.querySelector('[data-a="wzans"]:not([data-k*="pass"]):not([disabled])');
+      if(g.ask&&g.ask.pid===me&&g.ask.kind==='keep'){const go=dock.querySelector('[data-a="wzkgo"]:not([disabled])');if(go){go.click();return 'ans'}const kp=dock.querySelector('.wzkp:not(.out)');if(!kp)return 'noans';kp.click();return 'wait'}
       if(g.ask&&g.ask.pid===me){if(ask){ask.click();return 'ans'}return 'noans'}
       if(!g.ask&&!g.q.length&&g.turn===me){const bs=[...dock.querySelectorAll('[data-a="wzans"]:not([disabled])')];const ex=bs.find(x=>/exp/.test(decodeURIComponent(x.dataset.k)));const pass=bs.find(x=>/pass/.test(decodeURIComponent(x.dataset.k)));
         const c=g.P[me].coin,t=c>0&&ex?ex:pass;if(!t)return 'wait';t.click();return 'act'}return 'wait'});

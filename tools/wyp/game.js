@@ -39,8 +39,10 @@ function wzDeal(){const P=act(),ps=P.map(p=>p.id),side=ps.length>=4?4:2;
   wzGL(g,`Wyrmspan: ${P.length} players, ${WYGUILD[guild].n}, objectives: ${g.obj.map(o=>wzObj(o).say).join(' · ')}`,'🐉');wzRun(g);return g}
 const wzObj=id=>WYOBJ.find(o=>o.id===id);
 const WZS={};
-WZS.keep=(g,s,mv)=>{const L=[...s.o.d.map((id,i)=>id==null?null:{v:'d'+i,l:'🐉 '+wzD(id).n}),...s.o.c.map((id,i)=>id==null?null:{v:'c'+i,l:'🪨 Cave card: '+wzCvSay(id)})].filter(Boolean);
-  if(!mv)return wzAsk(g,s,`Starting hand: put back ${s.drop} of these 6 cards (you keep 4)`,L,{kind:'keep'});
+WZS.keep=(g,s,mv)=>{const L=[...s.o.d.map((id,i)=>id==null?null:{v:'d'+i,l:'🐉 '+wzD(id).n,d:id}),...s.o.c.map((id,i)=>id==null?null:{v:'c'+i,l:'🪨 Cave card: '+wzCvSay(id),c:id})].filter(Boolean);
+  if(!mv)return wzAsk(g,s,`Starting hand: put back ${s.drop} of these 6 cards (you keep 4)`,L,{kind:'keep',drop:s.drop});
+  /* the phone sends the whole choice at once: the cards to put back (checked here against what's on offer) */
+  if(Array.isArray(mv.vs)){const vs=mv.vs.map(String);if(vs.length!==s.drop||new Set(vs).size!==vs.length||!vs.every(v=>L.some(x=>x.v===v)))return null;let r=false;for(const v of vs)r=WZS.keep(g,s,{v});return r}
   const o=L.find(x=>x.v===mv.v);if(!o)return null;const t=o.v[0],i=+o.v.slice(1),id=s.o[t][i];s.o[t][i]=null;(t==='d'?g.ddisc:g.cdisc).push(id);s.drop--;
   if(s.drop>0)return WZS.keep(g,s);g.P[s.pid].hand.d=s.o.d.filter(x=>x!=null);g.P[s.pid].hand.c=s.o.c.filter(x=>x!=null);return true};
 WZS.start3=(g,s,mv)=>{if(!mv)return wzAsk(g,s,`Pick a starting resource (${s.n} to go)`,WZR.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});
@@ -69,6 +71,14 @@ function wzPayRes(R,need,dry){const F={...R};let short=0;for(const r of WZR){con
   let anyN=need.any||0;short+=0;for(let k=0;k<anyN;k++){const L=WZR.filter(r=>F[r]>0).sort((a,b)=>F[b]-F[a]);if(L.length)F[L[0]]--;else short++}
   for(let k=0;k<short;k++){for(let j=0;j<2;j++){const L=WZR.filter(r=>F[r]>0).sort((a,b)=>F[b]-F[a]);if(!L.length)return null;F[L[0]]--}}
   if(!dry)Object.assign(R,F);return F}
+/* every different way to pay a resource cost (Justin, Nov 21: let the player choose, as in Wingspan).
+   Each needed resource: the resource itself when you have it, otherwise any 2 resources. Returns resource maps. */
+function wzPayOpts(R,need){const items=[];WZR.forEach(r=>{for(let k=0;k<(need[r]||0);k++)items.push(r)});const out=new Map(),F={...R},key=wzPayKey;
+  const go=(i,P)=>{if(out.size>40)return;if(i===items.length){out.set(key(P),{...P});return}const r=items[i];
+    if(F[r]>0){F[r]--;P[r]=(P[r]||0)+1;go(i+1,P);F[r]++;P[r]--;if(!P[r])delete P[r];return}
+    for(let x=0;x<WZR.length;x++)for(let y=x;y<WZR.length;y++){const a=WZR[x],c=WZR[y];if(F[a]<1||(a===c?F[a]<2:F[c]<1))continue;F[a]--;F[c]--;P[a]=(P[a]||0)+1;P[c]=(P[c]||0)+1;go(i+1,P);F[a]++;F[c]++;P[a]--;P[c]--;if(!P[a])delete P[a];if(!P[c])delete P[c]}};
+  go(0,{});return [...out.values()]}
+const wzPayKey=P=>WZR.map(r=>(P&&P[r])||0).join('');
 /* egg sources: 'cv' this cave, 'adj' next to k, '' anywhere (the mat nests too) */
 function wzEggSrc(g,pid,k,src){const L=[];if(!src)L.push(['n',g.P[pid].nest]);wzDr(g,pid).forEach(([kk,d])=>{if(src==='cv'&&kk[0]!==k[0])return;if(src==='adj'&&!wzAdj(k,kk))return;L.push([kk,d.e])});return L.filter(x=>x[1]>0)}
 const wzEggN=(g,pid,k,src)=>wzEggSrc(g,pid,k,src).reduce((a,x)=>a+x[1],0);
@@ -92,7 +102,8 @@ function wzCanAfford(g,pid,id,mode){if(mode==='free')return true;const P=g.P[pid
   return P.coin>=base+(c.coin||0)&&wzEggN(g,pid,'',null)>=(c.egg||0)&&!!wzPayRes(P.res,c,1)}
 function wzDisc1(g,pid,id){const c=wzDCost(id),P=g.P[pid];const tries=[];if(c.egg)tries.push({...c,egg:c.egg-1});WZR.forEach(r=>{if(c[r])tries.push({...c,[r]:c[r]-1})});if(!tries.length)tries.push(c);
   return tries.find(t=>P.coin>=(t.coin||0)&&wzEggN(g,pid,'',null)>=(t.egg||0)&&wzPayRes(P.res,t,1))||null}
-function wzPayD(g,pid,id,mode){if(mode==='free')return;const P=g.P[pid],c=mode==='disc1'?wzDisc1(g,pid,id):wzDCost(id,mode);P.coin-=(mode==='entice'?1:0)+(c.coin||0);wzPayEgg(g,pid,'',null,c.egg||0);wzPayRes(P.res,c)}
+function wzPayD(g,pid,id,mode,pay){if(mode==='free')return;const P=g.P[pid],c=mode==='disc1'?wzDisc1(g,pid,id):wzDCost(id,mode);P.coin-=(mode==='entice'?1:0)+(c.coin||0);wzPayEgg(g,pid,'',null,c.egg||0);
+  if(pay){WZR.forEach(r=>P.res[r]-=pay[r]||0);return}wzPayRes(P.res,c)}
 const wzFits=(g,pid,id)=>WZC.filter(cv=>wzD(id).cv.includes(cv)&&wzNextD(g,pid,cv)>=0);
 function wzActs(g,pid){const P=g.P[pid],o={exc:[],ent:[],exp:[]};if(P.coin<1)return o;
   if(P.hand.c.length)o.exc=WZC.filter(cv=>wzCanExc(g,pid,cv));
@@ -104,7 +115,8 @@ function wzAction(g,pid,mv){const P=g.P[pid];if(P.passed)return false;g.last={p:
   if(mv.a==='exc'){const cv=mv.cv,i=+mv.i;if(!A.exc.includes(cv)||!(i>=0&&i<P.hand.c.length))return false;const col=wzNextEx(g,pid,cv);
     P.coin--;wzPayEgg(g,pid,'',null,WZEXC[col]);const id=P.hand.c.splice(i,1)[0];P.st.exc++;
     wzLog(g,`${nmid(pid)} excavates ${WZCN[cv]} space ${col+1}${WZEXC[col]?` (1 coin, ${WZEXC[col]} egg${WZEXC[col]>1?'s':''})`:' (1 coin)'}`,'⛏️');wzPlace(g,pid,cv,id)}
-  else if(mv.a==='ent'){const i=+mv.i,o=A.ent.find(x=>x.i===i);if(!o||!o.cv.includes(mv.cv))return false;const id=P.hand.d[i];wzPayD(g,pid,id,'entice');P.hand.d.splice(i,1);P.st.ent++;
+  else if(mv.a==='ent'){const i=+mv.i,o=A.ent.find(x=>x.i===i);if(!o||!o.cv.includes(mv.cv))return false;const id=P.hand.d[i];
+    /* a chosen payment must be one of the legal ways to pay */let pay=null;if(mv.pay){pay=wzPayOpts(P.res,wzDCost(id)).find(x=>wzPayKey(x)===wzPayKey(mv.pay));if(!pay)return false}wzPayD(g,pid,id,'entice',pay);P.hand.d.splice(i,1);P.st.ent++;
     wzPut(g,pid,id,mv.cv,'entices')}
   else if(mv.a==='exp'){const cv=mv.cv;if(!A.exp.includes(cv))return false;const n=P.ex[cv];P.coin--;wzPayEgg(g,pid,'',null,WZEXP[n]);P.ex[cv]++;P.st.exp++;
     wzLog(g,`${nmid(pid)} explores the ${WZCN[cv]}${n?` (${n+1}${n===1?'nd':'rd'} time: 1 coin, ${n} egg${n>1?'s':''})`:''}`,'🏮');
@@ -129,14 +141,14 @@ WZS.adv=(g,s,mv)=>{const x=wzAt(g,s.pid,s.k);if(!x||!x.d)return true;const D=wzD
     P.res[r]--;wzCacheOn(g,s.pid,s.k,r);return true}
   wzLog(g,`${nmid(s.pid)} uses ${D.n}`,'✨');wzIns(g,...wzOps(g,s.pid,s.k,D.op));return true};
 /* column 4 when covered: spend 3 items for 1 coin (optional) */
-WZS.cover=(g,s,mv)=>{const P=g.P[s.pid];s.paid=s.paid||[];const L=[...WZR.filter(r=>P.res[r]>0).map(r=>({v:'r:'+r,l:WZRI[r]+' '+WZRN[r]})),...P.hand.d.map((id,i)=>({v:'d:'+i,l:'🐉 '+wzD(id).n})),...P.hand.c.map((id,i)=>({v:'c:'+i,l:'🪨 '+wzCvSay(id)}))];
+WZS.cover=(g,s,mv)=>{const P=g.P[s.pid];s.paid=s.paid||[];const L=[...WZR.filter(r=>P.res[r]>0).map(r=>({v:'r:'+r,l:WZRI[r]+' '+WZRN[r]})),...P.hand.d.map((id,i)=>({v:'d:'+i,l:'🐉 '+wzD(id).n,d:id})),...P.hand.c.map((id,i)=>({v:'c:'+i,l:'🪨 '+wzCvSay(id),c:id}))];
   if(!s.paid.length&&wzRes(g,s.pid)+wzCards(g,s.pid)<3)return true;
   if(!mv)return wzAsk(g,s,`Column 4 bonus: spend 3 items (resources or cards) for 1 coin? (${3-s.paid.length} to go)`,L,{opt:!s.paid.length});
   const [t,v]=String(mv.v).split(':');if(t==='r'){if(!(P.res[v]>0))return null;P.res[v]--}else if(t==='d'||t==='c'){const L2=P.hand[t],i=+v;if(!(i>=0&&i<L2.length))return null;(t==='d'?g.ddisc:g.cdisc).push(L2.splice(i,1)[0])}else return null;
   s.paid.push(mv.v);if(s.paid.length<3)return WZS.cover(g,s);P.coin++;wzLog(g,`${nmid(s.pid)} spends 3 items for 1 coin`,'🪙');return true};
 /* end of a turn: discard down to 9/9/9, refill the display, next player (or the end of the round) */
 WZS.end=(g,s,mv)=>{const P=g.P[s.pid];if(P.coin>9)P.coin=9;
-  if(wzCards(g,s.pid)>9||wzRes(g,s.pid)>9){const L=wzCards(g,s.pid)>9?[...P.hand.d.map((id,i)=>({v:'d:'+i,l:'🐉 '+wzD(id).n})),...P.hand.c.map((id,i)=>({v:'c:'+i,l:'🪨 '+wzCvSay(id)}))]:WZR.filter(r=>P.res[r]>0).map(r=>({v:'r:'+r,l:WZRI[r]+' '+WZRN[r]}));
+  if(wzCards(g,s.pid)>9||wzRes(g,s.pid)>9){const L=wzCards(g,s.pid)>9?[...P.hand.d.map((id,i)=>({v:'d:'+i,l:'🐉 '+wzD(id).n,d:id})),...P.hand.c.map((id,i)=>({v:'c:'+i,l:'🪨 '+wzCvSay(id),c:id}))]:WZR.filter(r=>P.res[r]>0).map(r=>({v:'r:'+r,l:WZRI[r]+' '+WZRN[r]}));
     if(!mv)return wzAsk(g,s,wzCards(g,s.pid)>9?`Too many cards: discard down to 9 (${wzCards(g,s.pid)-9} to go)`:`Too many resources: discard down to 9 (${wzRes(g,s.pid)-9} to go)`,L);
     const [t,v]=String(mv.v).split(':');if(t==='r'){if(!(P.res[v]>0))return null;P.res[v]--}else{const L2=P.hand[t],i=+v;if(!L2||!(i>=0&&i<L2.length))return null;(t==='d'?g.ddisc:g.cdisc).push(L2.splice(i,1)[0])}return WZS.end(g,s)}
   wzRefill(g);g.tno++;g.ask=null;const nx=wzNext(g,s.pid);if(nx==null)wzIns(g,{t:'rend'});else g.turn=nx;return true};
@@ -148,11 +160,12 @@ WZS.opr=(g,s,mv)=>{const x=wzAt(g,s.pid,s.k);if(!x||!x.d)return true;const D=wzD
   wzLog(g,`${nmid(s.pid)} uses ${D.n} (once per round)`,'🔁');wzIns(g,...wzOps(g,s.pid,s.k,D.op));return true};
 WZS.rscore=g=>{const id=g.obj[g.rnd],c={};g.ps.forEach(p=>c[p]=wzObjN(g,p,id));g.oc[g.rnd]=c;const pts=wzObjPts(g,g.rnd);
   wzGL(g,`Round ${g.rnd+1} objective (${wzObj(id).say}): ${g.ps.map(p=>`${nmid(p)} ${c[p]} → ${pts[p]} VP`).join(', ')}`,'🎯',1);
+  g.rsum={r:g.rnd,obj:id,c,pts,at:Date.now()};/* every phone shows an end-of-round card from this */
   if(g.rnd===3){wzEnd(g);return true}
   g.rnd++;g.ddisc.push(...g.disp.d.filter(x=>x!=null));g.cdisc.push(...g.disp.c.filter(x=>x!=null));g.disp={d:[null,null,null],c:[null,null,null]};wzRefill(g);
   g.fp=g.ps[(g.ps.indexOf(g.fp)+1)%g.ps.length];g.turn=g.fp;
   g.ps.forEach(p=>{const P=g.P[p];P.coin+=6;P.passed=false;P.ex={c:0,g:0,a:0};if(P.nest<2)P.nest++;else{const d=wzDr(g,p).map(x=>x[1]).filter(wzRoom).sort((a,b)=>(wzD(b.id).cap-b.e)-(wzD(a.id).cap-a.e))[0];if(d)d.e++}});
-  wzAnn(g,`Round ${g.rnd+1}`,`${nmid(g.turn)} starts. Everyone gains 6 coins and 1 egg; the display is refreshed.`,'🎯');return true};
+  return true};
 /* objective counts */
 function wzObjN(g,p,id){const P=g.P[p],D=wzDr(g,p).map(([k,d])=>[k,d,wzD(d.id)]),n=f=>D.filter(f).length;
   const cost=B=>Object.values(B.cost).reduce((a,v)=>a+v,0);
@@ -185,8 +198,8 @@ WZS.gt=(g,s,mv)=>{const P=g.P[s.pid],t=s.tok;
   if(WZR.includes(t)){P.res[t]++;return true}if(t==='coin'){P.coin++;return true}if(t==='egg'){wzIns(g,{t:'op',pid:s.pid,k:s.k,a:['lay',1,'a']});return true}
   if(t==='any'){if(!mv)return wzAsk(g,s,'Gain a resource',WZR.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});if(!WZR.includes(mv.v))return null;P.res[mv.v]++;return true}
   if(t==='D'){const id=wzDrawD(g);if(id!=null)P.hand.d.push(id);return true}if(t==='C'){const id=wzDrawC(g);if(id!=null)P.hand.c.push(id);return true}
-  if(t==='d'||t==='c'){const dk=t==='d'?g.dd.length+g.ddisc.length:g.dc.length+g.cdisc.length,L=g.disp[t].map((id,i)=>id==null?null:{v:i,l:t==='d'?'🐉 '+wzD(id).n:'🪨 '+wzCvSay(id)}).filter(Boolean);
-    if(dk)L.push({v:'deck',l:'🂠 Top of the deck'});if(!L.length)return true;if(L.length===1&&L[0].v==='deck')mv={v:'deck'};
+  if(t==='d'||t==='c'){const dk=t==='d'?g.dd.length+g.ddisc.length:g.dc.length+g.cdisc.length,L=g.disp[t].map((id,i)=>id==null?null:{v:i,l:t==='d'?'🐉 '+wzD(id).n:'🪨 '+wzCvSay(id),[t]:id}).filter(Boolean);
+    if(dk)L.push({v:'deck',l:'🂠 Top of the deck',deck:t});if(!L.length)return true;if(L.length===1&&L[0].v==='deck')mv={v:'deck'};
     if(!mv)return wzAsk(g,s,`Gain a ${t==='d'?'dragon':'cave'} card`,L,{kind:'card'+t});
     if(mv.v==='deck'){const id=t==='d'?wzDrawD(g):wzDrawC(g);if(id!=null)P.hand[t].push(id);if(s.tuckIt)s.got=id;return true}
     const i=+mv.v;if(g.disp[t][i]==null)return null;P.hand[t].push(g.disp[t][i]);if(s.tuckIt)s.got=g.disp[t][i];g.disp[t][i]=null;return true}
@@ -214,7 +227,7 @@ WZOP.payOr=(g,s,mv)=>{const L=s.a[1].map(([c,o],i)=>({v:i,l:`Pay ${wzSayToks(c)}
 WZS.payc=(g,s,mv)=>{const P=g.P[s.pid],t=s.tok;if(t==='coin'){P.coin--;return true}if(t==='egg'){wzPayEgg(g,s.pid,s.k,s.src,1);return true}
   if(WZR.includes(t)){wzPayRes(P.res,{[t]:1});return true}
   if(t==='any'){const L=WZR.filter(r=>P.res[r]>0);if(L.length===1){P.res[L[0]]--;return true}if(!mv)return wzAsk(g,s,'Pay which resource?',L.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});if(!L.includes(mv.v))return null;P.res[mv.v]--;return true}
-  if(t==='d'||t==='c'){const H=P.hand[t];if(!H.length)return true;if(H.length===1)mv={v:0};if(!mv)return wzAsk(g,s,`Pay which ${t==='d'?'dragon':'cave'} card?`,H.map((id,i)=>({v:i,l:t==='d'?'🐉 '+wzD(id).n:'🪨 '+wzCvSay(id)})));
+  if(t==='d'||t==='c'){const H=P.hand[t];if(!H.length)return true;if(H.length===1)mv={v:0};if(!mv)return wzAsk(g,s,`Pay which ${t==='d'?'dragon':'cave'} card?`,H.map((id,i)=>({v:i,l:t==='d'?'🐉 '+wzD(id).n:'🪨 '+wzCvSay(id),[t]:id})));
     const i=+mv.v;if(!(i>=0&&i<H.length))return null;(t==='d'?g.ddisc:g.cdisc).push(H.splice(i,1)[0]);return true}return true};
 /* cache resources: res kind (any = your choice), up to n, where; src sup (yours) | gen (general supply); then = if you do */
 WZOP.cache=(g,s,mv)=>{const [,res,n,w,src,then]=s.a;s.left=s.left??n;if(s.left<=0)return s.did&&then?(wzIns(g,...wzOps(g,s.pid,s.k,then)),true):true;const P=g.P[s.pid];
@@ -230,7 +243,7 @@ WZOP.gc=(g,s,mv)=>{const [,res,w]=s.a,P=g.P[s.pid];if(!s.r){if(res==='any'){if(!
 /* tuck dragon cards: src hand | deck, where, n, then (if you do) */
 WZOP.tuck=(g,s,mv)=>{const [,src,w,n,then]=s.a;s.left=s.left??n;const P=g.P[s.pid];const fin=()=>{if(s.did&&then)wzIns(g,...wzOps(g,s.pid,s.k,then));return true};
   if(s.left<=0)return fin();const spots=wzSpots(g,s.pid,s.k,w==='a'?'any':w).filter(x=>x!=='n');if(!spots.length)return fin();
-  if(src==='hand'){if(!P.hand.d.length)return fin();const L=[];P.hand.d.forEach((id,i)=>spots.forEach(kk=>L.push({v:i+'@'+kk,l:spots.length>1?`${wzD(id).n} → ${wzSpotL(g,s.pid,kk)}`:`Tuck ${wzD(id).n}`,k:kk})));
+  if(src==='hand'){if(!P.hand.d.length)return fin();const L=[];P.hand.d.forEach((id,i)=>spots.forEach(kk=>L.push({v:i+'@'+kk,l:spots.length>1?`${wzD(id).n} → ${wzSpotL(g,s.pid,kk)}`:`Tuck ${wzD(id).n}`,k:kk,d:id,ck:'h'+i,sub:'Under '+wzSpotL(g,s.pid,kk)})));
     if(!mv)return wzAsk(g,s,`Tuck a dragon card from your hand${n>1?` (up to ${s.left} more)`:''}`,L,{opt:1,kind:'spot'});const [i,kk]=String(mv.v).split('@');if(!(+i>=0&&+i<P.hand.d.length)||!spots.includes(kk))return null;
     P.hand.d.splice(+i,1);s.did=1;s.left--;wzTuckOn(g,s.pid,kk);return WZOP.tuck(g,s)}
   const kk=spots.length===1?spots[0]:mv&&mv.v;if(spots.length>1&&!mv)return wzAsk(g,s,`Tuck a card from the deck under which dragon?${n>1?` (${s.left} to go)`:''}`,spots.map(x=>({v:x,l:wzSpotL(g,s.pid,x),k:x})),{opt:1,kind:'spot'});
@@ -242,8 +255,8 @@ WZOP.rev=(g,s)=>{const [,sz,other]=s.a,id=wzDrawD(g);if(id==null)return true;con
 /* excavate a space for free: src hand | disp | deck | handdisp */
 WZOP.exc=(g,s,mv)=>{const src=s.a[1],P=g.P[s.pid],cvs=WZC.filter(cv=>wzCanExc(g,s.pid,cv,1));if(!cvs.length)return true;
   if(src==='deck'&&s.card==null){s.card=wzDrawC(g);if(s.card==null)return true}
-  const cards=src==='deck'?[{v:'k',l:'🪨 '+wzCvSay(s.card)}]:[...(src.includes('hand')?P.hand.c.map((id,i)=>({v:'h'+i,l:'🪨 '+wzCvSay(id)+' (hand)'})):[]),...(src.includes('disp')?g.disp.c.map((id,i)=>id==null?null:{v:'p'+i,l:'🪨 '+wzCvSay(id)+' (display)'}).filter(Boolean):[])];
-  if(!cards.length)return true;const L=[];cards.forEach(c=>cvs.forEach(cv=>L.push({v:c.v+'@'+cv,l:`${c.l} → ${WZCI[cv]} ${WZCN[cv]}`})));
+  const cards=src==='deck'?[{v:'k',l:'🪨 '+wzCvSay(s.card),c:s.card}]:[...(src.includes('hand')?P.hand.c.map((id,i)=>({v:'h'+i,l:'🪨 '+wzCvSay(id)+' (hand)',c:id})):[]),...(src.includes('disp')?g.disp.c.map((id,i)=>id==null?null:{v:'p'+i,l:'🪨 '+wzCvSay(id)+' (display)',c:id}).filter(Boolean):[])];
+  if(!cards.length)return true;const L=[];cards.forEach(c=>cvs.forEach(cv=>L.push({v:c.v+'@'+cv,l:`${c.l} → ${WZCI[cv]} ${WZCN[cv]}`,c:c.c,ck:c.v,sub:`${WZCI[cv]} ${WZCN[cv]}`})));
   if(!mv)return wzAsk(g,s,'Excavate a space for free',L,{opt:src!=='deck',kind:'exc'});const [cs,cv]=String(mv.v).split('@');if(!cvs.includes(cv))return null;let id;
   if(cs==='k')id=s.card;else if(cs[0]==='h'){const i=+cs.slice(1);if(!(i>=0&&i<P.hand.c.length))return null;id=P.hand.c.splice(i,1)[0]}else if(cs[0]==='p'){const i=+cs.slice(1);if(g.disp.c[i]==null)return null;id=g.disp.c[i];g.disp.c[i]=null}else return null;
   wzLog(g,`${nmid(s.pid)} excavates ${WZCN[cv]} space ${wzNextEx(g,s.pid,cv)+1} for free`,'⛏️');const col=wzNextEx(g,s.pid,cv);g.P[s.pid].mat[cv][col]={cv:id,d:null};
@@ -252,8 +265,8 @@ WZOP.exc=(g,s,mv)=>{const src=s.a[1],P=g.P[s.pid],cvs=WZC.filter(cv=>wzCanExc(g,
 WZOP.playD=(g,s,mv)=>{const [,src,mode]=s.a,P=g.P[s.pid],L=[];
   const cand=[...(src.includes('hand')?P.hand.d.map((id,i)=>({id,v:'h'+i,w:'hand'})):[]),...(src.includes('disp')?g.disp.d.map((id,i)=>id==null?null:{id,v:'p'+i,w:'display'}).filter(Boolean):[])];
   cand.forEach(c=>{if(!wzCanAfford(g,s.pid,c.id,mode==='cover'?'free':mode))return;
-    if(mode==='cover')wzDr(g,s.pid).forEach(([kk])=>{if(wzD(c.id).cv.includes(kk[0]))L.push({v:c.v+'@'+kk,l:`${wzD(c.id).n} on top of ${wzSpotL(g,s.pid,kk)}`})});
-    else wzFits(g,s.pid,c.id).forEach(cv=>L.push({v:c.v+'@'+cv,l:`${wzD(c.id).n} (${c.w}) → ${WZCI[cv]} ${WZCN[cv]}`}))});
+    if(mode==='cover')wzDr(g,s.pid).forEach(([kk])=>{if(wzD(c.id).cv.includes(kk[0]))L.push({v:c.v+'@'+kk,l:`${wzD(c.id).n} on top of ${wzSpotL(g,s.pid,kk)}`,d:c.id,ck:c.v,sub:'On top of '+wzSpotL(g,s.pid,kk),k:kk})});
+    else wzFits(g,s.pid,c.id).forEach(cv=>L.push({v:c.v+'@'+cv,l:`${wzD(c.id).n} (${c.w}) → ${WZCI[cv]} ${WZCN[cv]}`,d:c.id,ck:c.v,sub:`${WZCI[cv]} ${WZCN[cv]}`}))});
   if(!L.length)return true;if(!mv)return wzAsk(g,s,mode==='disc1'?'Play a dragon with a discount of 1 egg or resource':mode==='nores'?'Play a dragon, ignoring its resource costs':mode==='cover'?'Play a dragon on top of one of yours':'Play a dragon for free',L,{opt:1});
   const o=L.find(x=>x.v===mv.v);if(!o)return null;const [cs,where]=o.v.split('@'),i=+cs.slice(1);let id;
   if(cs[0]==='h'){id=P.hand.d[i];wzPayD(g,s.pid,id,mode==='cover'?'free':mode);P.hand.d.splice(P.hand.d.indexOf(id),1)}else{id=g.disp.d[i];wzPayD(g,s.pid,id,mode);g.disp.d[i]=null}
@@ -287,37 +300,37 @@ const wzTop=(g,n)=>{const o=[];for(let i=0;i<n;i++){const id=wzDrawD(g);if(id!=n
 const wzHere=(g,s)=>{const x=wzAt(g,s.pid,s.k);return x&&x.d?x:null};
 WZX.shyDraw=(g,s,mv)=>{if(!s.cards){const n=g.P[s.pid].mat[s.k[0]].filter(x=>x&&x.d&&wzD(x.d.id).per==='S').length;s.cards=wzTop(g,n);s.tk=0}
   if(!s.cards.length||s.tk>=2||!wzHere(g,s)){g.P[s.pid].hand.d.push(...s.cards);return true}
-  if(!mv)return wzAsk(g,s,`Tuck up to 2 of the drawn cards here (${2-s.tk} left); the rest go to your hand`,s.cards.map((id,i)=>({v:i,l:'Tuck '+wzD(id).n})),{opt:1});
+  if(!mv)return wzAsk(g,s,`Tuck up to 2 of the drawn cards here (${2-s.tk} left); the rest go to your hand`,s.cards.map((id,i)=>({v:i,l:'Tuck '+wzD(id).n,d:id})),{opt:1});
   const i=+mv.v;if(!(i>=0&&i<s.cards.length))return null;s.cards.splice(i,1);s.tk++;wzTuckOn(g,s.pid,s.k);return WZX.shyDraw(g,s)};
 WZX.tuckCost=(g,s,mv)=>{const P=g.P[s.pid];if(!P.hand.d.length||!wzHere(g,s))return true;
-  if(!mv)return wzAsk(g,s,'Tuck a dragon from your hand here to gain 1 resource from its cost?',P.hand.d.map((id,i)=>({v:i,l:`${wzD(id).n} (${WZR.filter(r=>wzD(id).cost[r]).map(r=>WZRI[r]).join('')||'no resources'})`})),{opt:1});
+  if(!mv)return wzAsk(g,s,'Tuck a dragon from your hand here to gain 1 resource from its cost?',P.hand.d.map((id,i)=>({v:i,l:`${wzD(id).n} (${WZR.filter(r=>wzD(id).cost[r]).map(r=>WZRI[r]).join('')||'no resources'})`,d:id})),{opt:1});
   const i=+mv.v;if(!(i>=0&&i<P.hand.d.length))return null;const id=P.hand.d.splice(i,1)[0],R=WZR.filter(r=>wzD(id).cost[r]);wzTuckOn(g,s.pid,s.k);
   if(R.length)wzIns(g,{t:'op',pid:s.pid,k:s.k,a:['x','pickOf',R]});return true};
 WZX.pickOf=(g,s,mv)=>{const R=s.a[2];if(R.length===1){g.P[s.pid].res[R[0]]++;return true}if(!mv)return wzAsk(g,s,'Gain which resource?',R.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});if(!R.includes(mv.v))return null;g.P[s.pid].res[mv.v]++;return true};
 WZX.tuck2any=(g,s,mv)=>{s.n=s.n??2;const P=g.P[s.pid];if(s.n<=0||!P.hand.d.length||!wzHere(g,s))return true;
-  if(!mv)return wzAsk(g,s,`Tuck a dragon from your hand here to gain any resource? (${s.n} left)`,P.hand.d.map((id,i)=>({v:i,l:'Tuck '+wzD(id).n})),{opt:1});
+  if(!mv)return wzAsk(g,s,`Tuck a dragon from your hand here to gain any resource? (${s.n} left)`,P.hand.d.map((id,i)=>({v:i,l:'Tuck '+wzD(id).n,d:id})),{opt:1});
   const i=+mv.v;if(!(i>=0&&i<P.hand.d.length))return null;P.hand.d.splice(i,1);s.n--;wzTuckOn(g,s.pid,s.k);wzIns(g,{t:'gt',pid:s.pid,k:s.k,tok:'any'},{t:'op',pid:s.pid,k:s.k,a:s.a,n:s.n,_c:1});return true};
 /* draw 3: keep 1, discard 1, tuck 1 here */
 WZX.draw3=(g,s,mv)=>{if(!s.cards){s.cards=wzTop(g,3);s.ph=0}if(!s.cards.length)return true;const ph=['keep','discard','tuck here'][s.ph];
   if(s.cards.length===1&&s.ph===2||!wzHere(g,s)&&s.ph===2){if(wzHere(g,s))wzTuckOn(g,s.pid,s.k);else g.ddisc.push(s.cards[0]);return true}
-  if(!mv)return wzAsk(g,s,`Drawn ${s.cards.length}: which do you ${ph}?`,s.cards.map((id,i)=>({v:i,l:wzD(id).n})));const i=+mv.v;if(!(i>=0&&i<s.cards.length))return null;const id=s.cards.splice(i,1)[0];
+  if(!mv)return wzAsk(g,s,`Drawn ${s.cards.length}: which do you ${ph}?`,s.cards.map((id,i)=>({v:i,l:wzD(id).n,d:id})));const i=+mv.v;if(!(i>=0&&i<s.cards.length))return null;const id=s.cards.splice(i,1)[0];
   if(s.ph===0)g.P[s.pid].hand.d.push(id);else if(s.ph===1)g.ddisc.push(id);else{wzTuckOn(g,s.pid,s.k);return true}s.ph++;if(!s.cards.length)return true;return WZX.draw3(g,s)};
 WZX.draw2tuck=(g,s,mv)=>{if(!s.cards)s.cards=wzTop(g,2);if(!s.cards.length)return true;const spots=wzDr(g,s.pid).map(([kk])=>kk);
   if(s.cards.length===1||!spots.length){g.P[s.pid].hand.d.push(...s.cards);return true}
-  const L=[];s.cards.forEach((id,i)=>spots.forEach(kk=>L.push({v:i+'@'+kk,l:`Tuck ${wzD(id).n} under ${wzSpotL(g,s.pid,kk)} (keep the other)`,k:kk})));
+  const L=[];s.cards.forEach((id,i)=>spots.forEach(kk=>L.push({v:i+'@'+kk,l:`Tuck ${wzD(id).n} under ${wzSpotL(g,s.pid,kk)} (keep the other)`,k:kk,d:id,ck:'x'+i,sub:'Under '+wzSpotL(g,s.pid,kk)})));
   if(!mv)return wzAsk(g,s,'Drew 2: tuck 1 under any dragon and keep the other',L,{kind:'spot'});const [i,kk]=String(mv.v).split('@');if(!s.cards[+i]||!spots.includes(kk))return null;
   s.cards.splice(+i,1);wzTuckOn(g,s.pid,kk);g.P[s.pid].hand.d.push(...s.cards);return true};
 WZX.guildTuck=(g,s)=>{const n=g.P[s.pid].gm;for(let i=0;i<n;i++)if(wzHere(g,s)&&wzDrawD(g)!=null)wzTuckOn(g,s.pid,s.k);return true};
 WZX.playfulTuck=(g,s)=>{wzDr(g,s.pid).filter(([kk,d])=>kk[0]===s.k[0]&&wzD(d.id).per==='P').forEach(([kk])=>{if(wzDrawD(g)!=null)wzTuckOn(g,s.pid,kk)});return true};
 WZX.draw2may=(g,s,mv)=>{if(!s.cards)s.cards=wzTop(g,2);if(!s.cards.length||!wzHere(g,s)){g.P[s.pid].hand.d.push(...(s.cards||[]));return true}
-  if(!mv)return wzAsk(g,s,'Tuck a drawn card here? (the rest go to your hand)',s.cards.map((id,i)=>({v:i,l:'Tuck '+wzD(id).n})),{opt:1,onSkip:'hand'});
+  if(!mv)return wzAsk(g,s,'Tuck a drawn card here? (the rest go to your hand)',s.cards.map((id,i)=>({v:i,l:'Tuck '+wzD(id).n,d:id})),{opt:1,onSkip:'hand'});
   const i=+mv.v;if(!(i>=0&&i<s.cards.length))return null;s.cards.splice(i,1);wzTuckOn(g,s.pid,s.k);return WZX.draw2may(g,s)};
 WZX.drawMay=(g,s,mv)=>{if(s.id==null){s.id=wzDrawD(g);if(s.id==null)return true}if(!wzHere(g,s)){g.P[s.pid].hand.d.push(s.id);return true}
-  if(!mv)return wzAsk(g,s,`Drew ${wzD(s.id).n}: tuck it here or keep it?`,[{v:'t',l:'Tuck it here'},{v:'k',l:'Keep it'}]);
+  if(!mv)return wzAsk(g,s,`Drew ${wzD(s.id).n}: tuck it here or keep it?`,[{v:'t',l:'Tuck it here'},{v:'k',l:'Keep it'}],{show:[s.id]});
   if(mv.v==='t')wzTuckOn(g,s.pid,s.k);else if(mv.v==='k')g.P[s.pid].hand.d.push(s.id);else return null;return true};
-WZX.gainTuck=(g,s,mv)=>{if(s.id==null){if(!mv){const L=g.disp.d.map((id,i)=>id==null?null:{v:i,l:'🐉 '+wzD(id).n}).filter(Boolean);L.push({v:'deck',l:'🂠 Top of the deck'});return wzAsk(g,s,'Gain a dragon card',L,{kind:'cardd'})}
+WZX.gainTuck=(g,s,mv)=>{if(s.id==null){if(!mv){const L=g.disp.d.map((id,i)=>id==null?null:{v:i,l:'🐉 '+wzD(id).n,d:id}).filter(Boolean);L.push({v:'deck',l:'🂠 Top of the deck',deck:'d'});return wzAsk(g,s,'Gain a dragon card',L,{kind:'cardd'})}
     if(mv.v==='deck')s.id=wzDrawD(g);else{const i=+mv.v;if(g.disp.d[i]==null)return null;s.id=g.disp.d[i];g.disp.d[i]=null}if(s.id==null)return true;mv=null}
-  const spots=wzDr(g,s.pid).map(([kk])=>kk);if(!mv)return wzAsk(g,s,`Tuck ${wzD(s.id).n} under a dragon, or keep it?`,[{v:'keep',l:'Keep it in my hand'},...spots.map(kk=>({v:kk,l:'Tuck under '+wzSpotL(g,s.pid,kk),k:kk}))],{kind:'spot'});
+  const spots=wzDr(g,s.pid).map(([kk])=>kk);if(!mv)return wzAsk(g,s,`Tuck ${wzD(s.id).n} under a dragon, or keep it?`,[{v:'keep',l:'Keep it in my hand'},...spots.map(kk=>({v:kk,l:'Tuck under '+wzSpotL(g,s.pid,kk),k:kk}))],{kind:'spot',show:[s.id]});
   if(mv.v==='keep'){g.P[s.pid].hand.d.push(s.id);return true}if(!spots.includes(mv.v))return null;wzTuckOn(g,s.pid,mv.v);return true};
 WZX.aggRes=(g,s,mv)=>{if(s.n==null){s.n=g.P[s.pid].mat[s.k[0]].filter(x=>x&&x.d&&wzD(x.d.id).per==='A').length;s.got=[]}
   if(s.got.length<s.n){if(!mv)return wzAsk(g,s,`Gain a resource (${s.n-s.got.length} to go)`,WZR.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});if(!WZR.includes(mv.v))return null;g.P[s.pid].res[mv.v]++;s.got.push(mv.v);mv=null;if(s.got.length<s.n)return WZX.aggRes(g,s)}
@@ -325,7 +338,7 @@ WZX.aggRes=(g,s,mv)=>{if(s.n==null){s.n=g.P[s.pid].mat[s.k[0]].filter(x=>x&&x.d&
 WZX.choose2=(g,s,mv)=>{if(!mv)return wzAsk(g,s,'Choose a resource: you gain 2, each opponent gains 1',WZR.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});if(!WZR.includes(mv.v))return null;
   g.P[s.pid].res[mv.v]+=2;wzOthers(g,s.pid).forEach(o=>g.P[o].res[mv.v]++);return true};
 WZX.cavesToEggs=(g,s,mv)=>{s.n=s.n??2;const P=g.P[s.pid];if(s.n<=0||!P.hand.c.length)return true;
-  if(!mv)return wzAsk(g,s,`Discard a cave card to lay an egg? (${s.n} left)`,P.hand.c.map((id,i)=>({v:i,l:'Discard '+wzCvSay(id)})),{opt:1});const i=+mv.v;if(!(i>=0&&i<P.hand.c.length))return null;
+  if(!mv)return wzAsk(g,s,`Discard a cave card to lay an egg? (${s.n} left)`,P.hand.c.map((id,i)=>({v:i,l:'Discard '+wzCvSay(id),c:id})),{opt:1});const i=+mv.v;if(!(i>=0&&i<P.hand.c.length))return null;
   g.cdisc.push(P.hand.c.splice(i,1)[0]);s.n--;wzIns(g,{t:'op',pid:s.pid,k:s.k,a:['lay',1,'a']},{t:'op',pid:s.pid,k:s.k,a:s.a,n:s.n});return true};
 
 /* ---------- the end ---------- */

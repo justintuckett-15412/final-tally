@@ -2162,7 +2162,7 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 .wzcave.empty{background:transparent;border-style:dashed}
 html.dark .wzcave{background:linear-gradient(#4a4030,#3a3226);color:#efe4cf;border-color:#6b5a3e}
 .wzdisp{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px}.wzdeck{display:flex;align-items:center;gap:4px}.wzdeck img{width:40px;height:40px;border-radius:6px}
-.wzhand{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px}.wzcb{padding:0;border:0;background:none;cursor:pointer}.wzcb.on .wzc,.wzcb.on .wzcave{outline:3px solid var(--accent,#f0b43a)}
+.wzhand{display:flex;align-items:flex-start;gap:8px;overflow-x:auto;overflow-y:hidden;padding:4px 2px 8px;flex-shrink:0}.wzhand>*{flex:0 0 auto}.wzcb{padding:0;border:0;background:none;cursor:pointer}.wzcb.on .wzc,.wzcb.on .wzcave{outline:3px solid var(--accent,#f0b43a)}
 .wzmat{display:flex;flex-direction:column;gap:8px}
 .wzrow{display:flex;gap:6px;overflow-x:auto;padding:6px;border-radius:12px;background:rgba(0,0,0,.03)}
 .wzr-c{background:linear-gradient(90deg,rgba(210,70,50,.16),rgba(210,70,50,.05))}.wzr-g{background:linear-gradient(90deg,rgba(220,170,40,.18),rgba(220,170,40,.05))}.wzr-a{background:linear-gradient(90deg,rgba(140,70,200,.16),rgba(140,70,200,.05))}
@@ -2182,11 +2182,37 @@ html.dark .wzcave{background:linear-gradient(#4a4030,#3a3226);color:#efe4cf;bord
 .wztrade{padding:8px;margin-top:6px}
 .wzxs{display:flex;gap:4px;margin:2px 0}.wzx{min-width:34px;height:34px;padding:0 4px;border-radius:10px;border:1px solid var(--line,#d9dee4);background:var(--surface,#fff);font-size:16px;display:flex;align-items:center;gap:1px;cursor:pointer}.wzx small{font-size:10px}.wzx:disabled{opacity:.35}
 .wzact{padding:4px}.wzact img{width:34px;height:34px}
-.wzimg{display:block;width:calc(100% + 4px);height:64px;object-fit:cover;object-position:center 45%;border-radius:6px;margin:1px -2px}
+.wzimg{display:block;width:100%;height:60px;object-fit:contain;object-position:center;background:#fcead0;border-radius:6px;margin:1px 0}
 
 /* long press: the card itself, big enough to read */
 .lpbig{display:flex;justify-content:center;margin:2px 0 12px}.lpbig>.wpc,.lpbig>.wzc{zoom:2.2;box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:default}
 @media (max-width:380px){.lpbig>.wpc,.lpbig>.wzc{zoom:1.9}}
+
+/* Nov 21 fixes, as in Wingspan */
+/* the dock is a capped scroll box: as a grid it squeezed the sideways-scrolling card rows to 0 height, so lay it out as plain blocks */
+.sadock.wzdock{display:block;height:auto;max-height:min(62vh,600px)}.sadock.wzdock>*+*{margin-top:6px}.wzdock .sec-h{margin:4px 0 0}.wzdock .sec-h h3{font-size:13px}
+.wzdisp{align-items:flex-start}.wzdisp>*{flex:0 0 auto}
+.lpbig>.wzcave{zoom:2.2;box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:default}
+@media (max-width:380px){.lpbig>.wzcave{zoom:1.9}}
+.wzcvi{width:15px;height:15px;border-radius:50%;object-fit:cover;vertical-align:-3px}.wzcvs{display:inline-flex;gap:2px}
+.wzbk{border-radius:3px;object-fit:cover}
+.wzcvimg{width:100%;height:30px;object-fit:cover;border-radius:6px;opacity:.9}
+.wzsz,.wzper{display:inline-block;padding:0 5px;border-radius:999px;font-size:9.5px;font-weight:700;line-height:15px;white-space:nowrap}
+.wzsz{background:var(--soft,#eef1f4);color:var(--ink,#17212b);border:1px solid var(--line,#d9dee4)}
+.wzper{color:#fff}.wzp-S{background:#5f8fb2}.wzp-H{background:#4a9a57}.wzp-A{background:#c0472f}.wzp-P{background:#c98a1f}
+.wzgoi{display:flex;align-items:center;gap:3px;flex-wrap:wrap;min-height:18px}.wzgoi .wzi{width:20px;height:20px}.wzgoi .wzcvi{width:20px;height:20px}
+.wzcb{position:relative}.wzkp.out .wzc,.wzkp.out .wzcave{opacity:.45;filter:grayscale(.5)}
+.wzkb{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);padding:1px 8px;border-radius:999px;font-size:11px;font-weight:800;background:var(--accent,#f0b43a);color:#17212b;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.wzkp.out .wzkb{background:#6b7480;color:#fff}
+.wzkp .wzc,.wzkp .wzcave{padding-bottom:22px}
+.wzdeckb{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px}
+.wzdk{display:grid;align-content:end;justify-items:center;width:62px;height:88px;padding-bottom:6px;border-radius:8px;background:#7a4a2a center/cover no-repeat;box-shadow:0 0 0 3px var(--accent,#f0b43a)}
+.wzdk-d{background-image:url(art/wy-back-dragon.webp)}.wzdk-c{background-image:url(art/wy-back-cave.webp)}
+.wzdk small{background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:1px 7px;font-size:12px}
+.wzrs{text-align:center}.wzrsgoal{display:flex;align-items:center;justify-content:center;gap:8px;margin:6px 0}.wzrsgoal .wzi{width:26px;height:26px}
+.wzrsnext{margin-top:12px;padding:10px;border-radius:12px;background:var(--soft,#eef1f4)}.wzrsnext p{margin:4px 0 0}
+.wzpays .btn{min-height:40px}
+.wzkeep{align-items:stretch}.wzkeep .wzcave{min-height:100%;box-sizing:border-box}
 /* Dead of Winter on the phones */
 .dwcol,.dwloc{padding:10px;border-radius:12px}
 .dwtrack{display:flex;flex-wrap:wrap;gap:12px;font-size:15px;margin-bottom:6px}
@@ -5125,7 +5151,7 @@ function playerHistory(pid){if(HFE())return hfHistory(pid);if(S.game==='nerts')r
     <div class="rs-body"><ul class="phlist">${L.map(e=>`<li><button class="cedit" data-a="cedit" data-k="${e.id}">${esc(e.txt)}</button><b class="num">${e.pts>0?'+':''}${e.pts}</b></li>`).join('')}${hs?row('Head start',hs):''}${!L.length&&!hs?'<li class="empty"><span>Nothing scored yet.</span></li>':''}</ul>
     ${cols.length?`<div class="rlab" style="margin-top:12px"><b>Collected</b> · counts at the final reveal</div><div class="phcoll">${cols.map(([key,sub,lab])=>key==='fruit'?`<span><b class="num">${fruitTotal(pid)}</b> fruit: ${fruitList(pid).join(', ')}</span>`:`<span><b class="num">${collGet(key,pid,sub)}</b> ${lab.toLowerCase()}</span>`).join('')}</div>`:''}
     <p class="hint">Newest first. Unfinished features, fields and end-of-game bonuses are added at the final reveal.</p></div></div></div>`}
-function lpSheet(){if(!LPTIP)return '';if(LPTIP.startsWith('dws:')&&S.game==='deadofwinter')return dwSurvSheet(+LPTIP.slice(4));if(LPTIP==='dww:1'&&S.game==='deadofwinter')return dwWhatSheet();if(LPTIP==='dwo:1'&&S.game==='deadofwinter')return dwGoalSheet();if(LPTIP.startsWith('dwi:')&&S.game==='deadofwinter')return dwItemSheet(+LPTIP.slice(4));if(LPTIP.startsWith('wzd:')&&wzOn())return wzDragonSheet(+LPTIP.slice(4));if(LPTIP.startsWith('wpb:')&&wpOn())return wpBirdSheet(+LPTIP.slice(4));if(LPTIP.startsWith('trp:')&&trOn())return trPeek(LPTIP.slice(4));if(LPTIP.startsWith('trr:')&&trOn())return trRouteSheet(+LPTIP.slice(4));if(LPTIP.startsWith('trc:')&&trOn())return trCitySheet(+LPTIP.slice(4));if(LPTIP.startsWith('ccl:')&&S.game==='carc')return ccLpSheet(LPTIP.slice(4));if(LPTIP.startsWith('exp:')&&S.game==='carc')return ccExpSheet(LPTIP.slice(4));if(LPTIP.startsWith('ph:')&&S.game==='carc'&&ccOn()&&S.ccg)return ccPeek(LPTIP.slice(3));if(LPTIP.startsWith('dnkp:')&&S.game==='dominion')return dnKPicker(LPTIP.slice(5));if(LPTIP.startsWith('dnc:')&&S.game==='dominion')return dnLpSheet(LPTIP.slice(4));if(/^ci[cd]:/.test(LPTIP)&&S.game==='citadels')return ciLpSheet(LPTIP);if(LPTIP.startsWith('tgc:')&&S.game==='tobago')return tgLpSheet(LPTIP);if(/^c[pk][dbpehq]:/.test(LPTIP)&&S.game==='catan')return cpLpSheet(LPTIP);if(/^sa[tchm]/.test(LPTIP)&&S.game==='stoneage')return saLpSheet(LPTIP);if(LPTIP.startsWith('qb:'))return qpBoardSheet(LPTIP.slice(3));if(LPTIP.startsWith('wt:'))return qpWSheet(LPTIP.slice(3));if(LPTIP.startsWith('pg:'))return plRules(LPTIP.slice(3),true);if(LPTIP.startsWith('dg:'))return dRulesSheet(LPTIP.slice(3),true);if(LPTIP.startsWith('ph:'))return playerHistory(LPTIP.slice(3));
+function lpSheet(){if(!LPTIP)return '';if(LPTIP.startsWith('dws:')&&S.game==='deadofwinter')return dwSurvSheet(+LPTIP.slice(4));if(LPTIP==='dww:1'&&S.game==='deadofwinter')return dwWhatSheet();if(LPTIP==='dwo:1'&&S.game==='deadofwinter')return dwGoalSheet();if(LPTIP.startsWith('dwi:')&&S.game==='deadofwinter')return dwItemSheet(+LPTIP.slice(4));if(LPTIP.startsWith('wzd:')&&wzOn())return wzDragonSheet(+LPTIP.slice(4));if(LPTIP.startsWith('wzc:')&&wzOn())return wzCaveSheet(+LPTIP.slice(4));if(LPTIP.startsWith('wpb:')&&wpOn())return wpBirdSheet(+LPTIP.slice(4));if(LPTIP.startsWith('trp:')&&trOn())return trPeek(LPTIP.slice(4));if(LPTIP.startsWith('trr:')&&trOn())return trRouteSheet(+LPTIP.slice(4));if(LPTIP.startsWith('trc:')&&trOn())return trCitySheet(+LPTIP.slice(4));if(LPTIP.startsWith('ccl:')&&S.game==='carc')return ccLpSheet(LPTIP.slice(4));if(LPTIP.startsWith('exp:')&&S.game==='carc')return ccExpSheet(LPTIP.slice(4));if(LPTIP.startsWith('ph:')&&S.game==='carc'&&ccOn()&&S.ccg)return ccPeek(LPTIP.slice(3));if(LPTIP.startsWith('dnkp:')&&S.game==='dominion')return dnKPicker(LPTIP.slice(5));if(LPTIP.startsWith('dnc:')&&S.game==='dominion')return dnLpSheet(LPTIP.slice(4));if(/^ci[cd]:/.test(LPTIP)&&S.game==='citadels')return ciLpSheet(LPTIP);if(LPTIP.startsWith('tgc:')&&S.game==='tobago')return tgLpSheet(LPTIP);if(/^c[pk][dbpehq]:/.test(LPTIP)&&S.game==='catan')return cpLpSheet(LPTIP);if(/^sa[tchm]/.test(LPTIP)&&S.game==='stoneage')return saLpSheet(LPTIP);if(LPTIP.startsWith('qb:'))return qpBoardSheet(LPTIP.slice(3));if(LPTIP.startsWith('wt:'))return qpWSheet(LPTIP.slice(3));if(LPTIP.startsWith('pg:'))return plRules(LPTIP.slice(3),true);if(LPTIP.startsWith('dg:'))return dRulesSheet(LPTIP.slice(3),true);if(LPTIP.startsWith('ph:'))return playerHistory(LPTIP.slice(3));
   if(LPTIP.startsWith('feat:')){const [,kind,ex]=LPTIP.split(':'),rows=featRules(kind,ex),btn=document.querySelector(`[data-lp="${LPTIP}"] b`),title=btn?btn.textContent:(BNAME[ex]||[kind])[0];
     return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet" role="dialog" aria-modal="true" aria-labelledby="lp-h" data-stop="1"><div class="rs-top"><div><h2 id="lp-h">${esc(title)}</h2><small class="lp-sub">How it scores${ex&&CEXP.find(e=>e.id===ex)?' · '+esc(CEXP.find(e=>e.id===ex).name):''}</small></div><button class="btn sm" data-a="lpclose">Close</button></div>
       <div class="rs-body"><dl class="glossary">${rows.map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl><p class="hint">Tap the button to score it. Only the expansions you have on are shown.</p></div></div></div>`}const [kind,id,pid]=LPTIP.split(':');const ex=CEXP.find(e=>e.id===id);if(!ex)return '';
@@ -13914,8 +13940,10 @@ function wzDeal(){const P=act(),ps=P.map(p=>p.id),side=ps.length>=4?4:2;
   wzGL(g,`Wyrmspan: ${P.length} players, ${WYGUILD[guild].n}, objectives: ${g.obj.map(o=>wzObj(o).say).join(' · ')}`,'🐉');wzRun(g);return g}
 const wzObj=id=>WYOBJ.find(o=>o.id===id);
 const WZS={};
-WZS.keep=(g,s,mv)=>{const L=[...s.o.d.map((id,i)=>id==null?null:{v:'d'+i,l:'🐉 '+wzD(id).n}),...s.o.c.map((id,i)=>id==null?null:{v:'c'+i,l:'🪨 Cave card: '+wzCvSay(id)})].filter(Boolean);
-  if(!mv)return wzAsk(g,s,`Starting hand: put back ${s.drop} of these 6 cards (you keep 4)`,L,{kind:'keep'});
+WZS.keep=(g,s,mv)=>{const L=[...s.o.d.map((id,i)=>id==null?null:{v:'d'+i,l:'🐉 '+wzD(id).n,d:id}),...s.o.c.map((id,i)=>id==null?null:{v:'c'+i,l:'🪨 Cave card: '+wzCvSay(id),c:id})].filter(Boolean);
+  if(!mv)return wzAsk(g,s,`Starting hand: put back ${s.drop} of these 6 cards (you keep 4)`,L,{kind:'keep',drop:s.drop});
+  /* the phone sends the whole choice at once: the cards to put back (checked here against what's on offer) */
+  if(Array.isArray(mv.vs)){const vs=mv.vs.map(String);if(vs.length!==s.drop||new Set(vs).size!==vs.length||!vs.every(v=>L.some(x=>x.v===v)))return null;let r=false;for(const v of vs)r=WZS.keep(g,s,{v});return r}
   const o=L.find(x=>x.v===mv.v);if(!o)return null;const t=o.v[0],i=+o.v.slice(1),id=s.o[t][i];s.o[t][i]=null;(t==='d'?g.ddisc:g.cdisc).push(id);s.drop--;
   if(s.drop>0)return WZS.keep(g,s);g.P[s.pid].hand.d=s.o.d.filter(x=>x!=null);g.P[s.pid].hand.c=s.o.c.filter(x=>x!=null);return true};
 WZS.start3=(g,s,mv)=>{if(!mv)return wzAsk(g,s,`Pick a starting resource (${s.n} to go)`,WZR.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});
@@ -13944,6 +13972,14 @@ function wzPayRes(R,need,dry){const F={...R};let short=0;for(const r of WZR){con
   let anyN=need.any||0;short+=0;for(let k=0;k<anyN;k++){const L=WZR.filter(r=>F[r]>0).sort((a,b)=>F[b]-F[a]);if(L.length)F[L[0]]--;else short++}
   for(let k=0;k<short;k++){for(let j=0;j<2;j++){const L=WZR.filter(r=>F[r]>0).sort((a,b)=>F[b]-F[a]);if(!L.length)return null;F[L[0]]--}}
   if(!dry)Object.assign(R,F);return F}
+/* every different way to pay a resource cost (Justin, Nov 21: let the player choose, as in Wingspan).
+   Each needed resource: the resource itself when you have it, otherwise any 2 resources. Returns resource maps. */
+function wzPayOpts(R,need){const items=[];WZR.forEach(r=>{for(let k=0;k<(need[r]||0);k++)items.push(r)});const out=new Map(),F={...R},key=wzPayKey;
+  const go=(i,P)=>{if(out.size>40)return;if(i===items.length){out.set(key(P),{...P});return}const r=items[i];
+    if(F[r]>0){F[r]--;P[r]=(P[r]||0)+1;go(i+1,P);F[r]++;P[r]--;if(!P[r])delete P[r];return}
+    for(let x=0;x<WZR.length;x++)for(let y=x;y<WZR.length;y++){const a=WZR[x],c=WZR[y];if(F[a]<1||(a===c?F[a]<2:F[c]<1))continue;F[a]--;F[c]--;P[a]=(P[a]||0)+1;P[c]=(P[c]||0)+1;go(i+1,P);F[a]++;F[c]++;P[a]--;P[c]--;if(!P[a])delete P[a];if(!P[c])delete P[c]}};
+  go(0,{});return [...out.values()]}
+const wzPayKey=P=>WZR.map(r=>(P&&P[r])||0).join('');
 /* egg sources: 'cv' this cave, 'adj' next to k, '' anywhere (the mat nests too) */
 function wzEggSrc(g,pid,k,src){const L=[];if(!src)L.push(['n',g.P[pid].nest]);wzDr(g,pid).forEach(([kk,d])=>{if(src==='cv'&&kk[0]!==k[0])return;if(src==='adj'&&!wzAdj(k,kk))return;L.push([kk,d.e])});return L.filter(x=>x[1]>0)}
 const wzEggN=(g,pid,k,src)=>wzEggSrc(g,pid,k,src).reduce((a,x)=>a+x[1],0);
@@ -13967,7 +14003,8 @@ function wzCanAfford(g,pid,id,mode){if(mode==='free')return true;const P=g.P[pid
   return P.coin>=base+(c.coin||0)&&wzEggN(g,pid,'',null)>=(c.egg||0)&&!!wzPayRes(P.res,c,1)}
 function wzDisc1(g,pid,id){const c=wzDCost(id),P=g.P[pid];const tries=[];if(c.egg)tries.push({...c,egg:c.egg-1});WZR.forEach(r=>{if(c[r])tries.push({...c,[r]:c[r]-1})});if(!tries.length)tries.push(c);
   return tries.find(t=>P.coin>=(t.coin||0)&&wzEggN(g,pid,'',null)>=(t.egg||0)&&wzPayRes(P.res,t,1))||null}
-function wzPayD(g,pid,id,mode){if(mode==='free')return;const P=g.P[pid],c=mode==='disc1'?wzDisc1(g,pid,id):wzDCost(id,mode);P.coin-=(mode==='entice'?1:0)+(c.coin||0);wzPayEgg(g,pid,'',null,c.egg||0);wzPayRes(P.res,c)}
+function wzPayD(g,pid,id,mode,pay){if(mode==='free')return;const P=g.P[pid],c=mode==='disc1'?wzDisc1(g,pid,id):wzDCost(id,mode);P.coin-=(mode==='entice'?1:0)+(c.coin||0);wzPayEgg(g,pid,'',null,c.egg||0);
+  if(pay){WZR.forEach(r=>P.res[r]-=pay[r]||0);return}wzPayRes(P.res,c)}
 const wzFits=(g,pid,id)=>WZC.filter(cv=>wzD(id).cv.includes(cv)&&wzNextD(g,pid,cv)>=0);
 function wzActs(g,pid){const P=g.P[pid],o={exc:[],ent:[],exp:[]};if(P.coin<1)return o;
   if(P.hand.c.length)o.exc=WZC.filter(cv=>wzCanExc(g,pid,cv));
@@ -13979,7 +14016,8 @@ function wzAction(g,pid,mv){const P=g.P[pid];if(P.passed)return false;g.last={p:
   if(mv.a==='exc'){const cv=mv.cv,i=+mv.i;if(!A.exc.includes(cv)||!(i>=0&&i<P.hand.c.length))return false;const col=wzNextEx(g,pid,cv);
     P.coin--;wzPayEgg(g,pid,'',null,WZEXC[col]);const id=P.hand.c.splice(i,1)[0];P.st.exc++;
     wzLog(g,`${nmid(pid)} excavates ${WZCN[cv]} space ${col+1}${WZEXC[col]?` (1 coin, ${WZEXC[col]} egg${WZEXC[col]>1?'s':''})`:' (1 coin)'}`,'⛏️');wzPlace(g,pid,cv,id)}
-  else if(mv.a==='ent'){const i=+mv.i,o=A.ent.find(x=>x.i===i);if(!o||!o.cv.includes(mv.cv))return false;const id=P.hand.d[i];wzPayD(g,pid,id,'entice');P.hand.d.splice(i,1);P.st.ent++;
+  else if(mv.a==='ent'){const i=+mv.i,o=A.ent.find(x=>x.i===i);if(!o||!o.cv.includes(mv.cv))return false;const id=P.hand.d[i];
+    /* a chosen payment must be one of the legal ways to pay */let pay=null;if(mv.pay){pay=wzPayOpts(P.res,wzDCost(id)).find(x=>wzPayKey(x)===wzPayKey(mv.pay));if(!pay)return false}wzPayD(g,pid,id,'entice',pay);P.hand.d.splice(i,1);P.st.ent++;
     wzPut(g,pid,id,mv.cv,'entices')}
   else if(mv.a==='exp'){const cv=mv.cv;if(!A.exp.includes(cv))return false;const n=P.ex[cv];P.coin--;wzPayEgg(g,pid,'',null,WZEXP[n]);P.ex[cv]++;P.st.exp++;
     wzLog(g,`${nmid(pid)} explores the ${WZCN[cv]}${n?` (${n+1}${n===1?'nd':'rd'} time: 1 coin, ${n} egg${n>1?'s':''})`:''}`,'🏮');
@@ -14004,14 +14042,14 @@ WZS.adv=(g,s,mv)=>{const x=wzAt(g,s.pid,s.k);if(!x||!x.d)return true;const D=wzD
     P.res[r]--;wzCacheOn(g,s.pid,s.k,r);return true}
   wzLog(g,`${nmid(s.pid)} uses ${D.n}`,'✨');wzIns(g,...wzOps(g,s.pid,s.k,D.op));return true};
 /* column 4 when covered: spend 3 items for 1 coin (optional) */
-WZS.cover=(g,s,mv)=>{const P=g.P[s.pid];s.paid=s.paid||[];const L=[...WZR.filter(r=>P.res[r]>0).map(r=>({v:'r:'+r,l:WZRI[r]+' '+WZRN[r]})),...P.hand.d.map((id,i)=>({v:'d:'+i,l:'🐉 '+wzD(id).n})),...P.hand.c.map((id,i)=>({v:'c:'+i,l:'🪨 '+wzCvSay(id)}))];
+WZS.cover=(g,s,mv)=>{const P=g.P[s.pid];s.paid=s.paid||[];const L=[...WZR.filter(r=>P.res[r]>0).map(r=>({v:'r:'+r,l:WZRI[r]+' '+WZRN[r]})),...P.hand.d.map((id,i)=>({v:'d:'+i,l:'🐉 '+wzD(id).n,d:id})),...P.hand.c.map((id,i)=>({v:'c:'+i,l:'🪨 '+wzCvSay(id),c:id}))];
   if(!s.paid.length&&wzRes(g,s.pid)+wzCards(g,s.pid)<3)return true;
   if(!mv)return wzAsk(g,s,`Column 4 bonus: spend 3 items (resources or cards) for 1 coin? (${3-s.paid.length} to go)`,L,{opt:!s.paid.length});
   const [t,v]=String(mv.v).split(':');if(t==='r'){if(!(P.res[v]>0))return null;P.res[v]--}else if(t==='d'||t==='c'){const L2=P.hand[t],i=+v;if(!(i>=0&&i<L2.length))return null;(t==='d'?g.ddisc:g.cdisc).push(L2.splice(i,1)[0])}else return null;
   s.paid.push(mv.v);if(s.paid.length<3)return WZS.cover(g,s);P.coin++;wzLog(g,`${nmid(s.pid)} spends 3 items for 1 coin`,'🪙');return true};
 /* end of a turn: discard down to 9/9/9, refill the display, next player (or the end of the round) */
 WZS.end=(g,s,mv)=>{const P=g.P[s.pid];if(P.coin>9)P.coin=9;
-  if(wzCards(g,s.pid)>9||wzRes(g,s.pid)>9){const L=wzCards(g,s.pid)>9?[...P.hand.d.map((id,i)=>({v:'d:'+i,l:'🐉 '+wzD(id).n})),...P.hand.c.map((id,i)=>({v:'c:'+i,l:'🪨 '+wzCvSay(id)}))]:WZR.filter(r=>P.res[r]>0).map(r=>({v:'r:'+r,l:WZRI[r]+' '+WZRN[r]}));
+  if(wzCards(g,s.pid)>9||wzRes(g,s.pid)>9){const L=wzCards(g,s.pid)>9?[...P.hand.d.map((id,i)=>({v:'d:'+i,l:'🐉 '+wzD(id).n,d:id})),...P.hand.c.map((id,i)=>({v:'c:'+i,l:'🪨 '+wzCvSay(id),c:id}))]:WZR.filter(r=>P.res[r]>0).map(r=>({v:'r:'+r,l:WZRI[r]+' '+WZRN[r]}));
     if(!mv)return wzAsk(g,s,wzCards(g,s.pid)>9?`Too many cards: discard down to 9 (${wzCards(g,s.pid)-9} to go)`:`Too many resources: discard down to 9 (${wzRes(g,s.pid)-9} to go)`,L);
     const [t,v]=String(mv.v).split(':');if(t==='r'){if(!(P.res[v]>0))return null;P.res[v]--}else{const L2=P.hand[t],i=+v;if(!L2||!(i>=0&&i<L2.length))return null;(t==='d'?g.ddisc:g.cdisc).push(L2.splice(i,1)[0])}return WZS.end(g,s)}
   wzRefill(g);g.tno++;g.ask=null;const nx=wzNext(g,s.pid);if(nx==null)wzIns(g,{t:'rend'});else g.turn=nx;return true};
@@ -14023,11 +14061,12 @@ WZS.opr=(g,s,mv)=>{const x=wzAt(g,s.pid,s.k);if(!x||!x.d)return true;const D=wzD
   wzLog(g,`${nmid(s.pid)} uses ${D.n} (once per round)`,'🔁');wzIns(g,...wzOps(g,s.pid,s.k,D.op));return true};
 WZS.rscore=g=>{const id=g.obj[g.rnd],c={};g.ps.forEach(p=>c[p]=wzObjN(g,p,id));g.oc[g.rnd]=c;const pts=wzObjPts(g,g.rnd);
   wzGL(g,`Round ${g.rnd+1} objective (${wzObj(id).say}): ${g.ps.map(p=>`${nmid(p)} ${c[p]} → ${pts[p]} VP`).join(', ')}`,'🎯',1);
+  g.rsum={r:g.rnd,obj:id,c,pts,at:Date.now()};/* every phone shows an end-of-round card from this */
   if(g.rnd===3){wzEnd(g);return true}
   g.rnd++;g.ddisc.push(...g.disp.d.filter(x=>x!=null));g.cdisc.push(...g.disp.c.filter(x=>x!=null));g.disp={d:[null,null,null],c:[null,null,null]};wzRefill(g);
   g.fp=g.ps[(g.ps.indexOf(g.fp)+1)%g.ps.length];g.turn=g.fp;
   g.ps.forEach(p=>{const P=g.P[p];P.coin+=6;P.passed=false;P.ex={c:0,g:0,a:0};if(P.nest<2)P.nest++;else{const d=wzDr(g,p).map(x=>x[1]).filter(wzRoom).sort((a,b)=>(wzD(b.id).cap-b.e)-(wzD(a.id).cap-a.e))[0];if(d)d.e++}});
-  wzAnn(g,`Round ${g.rnd+1}`,`${nmid(g.turn)} starts. Everyone gains 6 coins and 1 egg; the display is refreshed.`,'🎯');return true};
+  return true};
 /* objective counts */
 function wzObjN(g,p,id){const P=g.P[p],D=wzDr(g,p).map(([k,d])=>[k,d,wzD(d.id)]),n=f=>D.filter(f).length;
   const cost=B=>Object.values(B.cost).reduce((a,v)=>a+v,0);
@@ -14060,8 +14099,8 @@ WZS.gt=(g,s,mv)=>{const P=g.P[s.pid],t=s.tok;
   if(WZR.includes(t)){P.res[t]++;return true}if(t==='coin'){P.coin++;return true}if(t==='egg'){wzIns(g,{t:'op',pid:s.pid,k:s.k,a:['lay',1,'a']});return true}
   if(t==='any'){if(!mv)return wzAsk(g,s,'Gain a resource',WZR.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});if(!WZR.includes(mv.v))return null;P.res[mv.v]++;return true}
   if(t==='D'){const id=wzDrawD(g);if(id!=null)P.hand.d.push(id);return true}if(t==='C'){const id=wzDrawC(g);if(id!=null)P.hand.c.push(id);return true}
-  if(t==='d'||t==='c'){const dk=t==='d'?g.dd.length+g.ddisc.length:g.dc.length+g.cdisc.length,L=g.disp[t].map((id,i)=>id==null?null:{v:i,l:t==='d'?'🐉 '+wzD(id).n:'🪨 '+wzCvSay(id)}).filter(Boolean);
-    if(dk)L.push({v:'deck',l:'🂠 Top of the deck'});if(!L.length)return true;if(L.length===1&&L[0].v==='deck')mv={v:'deck'};
+  if(t==='d'||t==='c'){const dk=t==='d'?g.dd.length+g.ddisc.length:g.dc.length+g.cdisc.length,L=g.disp[t].map((id,i)=>id==null?null:{v:i,l:t==='d'?'🐉 '+wzD(id).n:'🪨 '+wzCvSay(id),[t]:id}).filter(Boolean);
+    if(dk)L.push({v:'deck',l:'🂠 Top of the deck',deck:t});if(!L.length)return true;if(L.length===1&&L[0].v==='deck')mv={v:'deck'};
     if(!mv)return wzAsk(g,s,`Gain a ${t==='d'?'dragon':'cave'} card`,L,{kind:'card'+t});
     if(mv.v==='deck'){const id=t==='d'?wzDrawD(g):wzDrawC(g);if(id!=null)P.hand[t].push(id);if(s.tuckIt)s.got=id;return true}
     const i=+mv.v;if(g.disp[t][i]==null)return null;P.hand[t].push(g.disp[t][i]);if(s.tuckIt)s.got=g.disp[t][i];g.disp[t][i]=null;return true}
@@ -14089,7 +14128,7 @@ WZOP.payOr=(g,s,mv)=>{const L=s.a[1].map(([c,o],i)=>({v:i,l:`Pay ${wzSayToks(c)}
 WZS.payc=(g,s,mv)=>{const P=g.P[s.pid],t=s.tok;if(t==='coin'){P.coin--;return true}if(t==='egg'){wzPayEgg(g,s.pid,s.k,s.src,1);return true}
   if(WZR.includes(t)){wzPayRes(P.res,{[t]:1});return true}
   if(t==='any'){const L=WZR.filter(r=>P.res[r]>0);if(L.length===1){P.res[L[0]]--;return true}if(!mv)return wzAsk(g,s,'Pay which resource?',L.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});if(!L.includes(mv.v))return null;P.res[mv.v]--;return true}
-  if(t==='d'||t==='c'){const H=P.hand[t];if(!H.length)return true;if(H.length===1)mv={v:0};if(!mv)return wzAsk(g,s,`Pay which ${t==='d'?'dragon':'cave'} card?`,H.map((id,i)=>({v:i,l:t==='d'?'🐉 '+wzD(id).n:'🪨 '+wzCvSay(id)})));
+  if(t==='d'||t==='c'){const H=P.hand[t];if(!H.length)return true;if(H.length===1)mv={v:0};if(!mv)return wzAsk(g,s,`Pay which ${t==='d'?'dragon':'cave'} card?`,H.map((id,i)=>({v:i,l:t==='d'?'🐉 '+wzD(id).n:'🪨 '+wzCvSay(id),[t]:id})));
     const i=+mv.v;if(!(i>=0&&i<H.length))return null;(t==='d'?g.ddisc:g.cdisc).push(H.splice(i,1)[0]);return true}return true};
 /* cache resources: res kind (any = your choice), up to n, where; src sup (yours) | gen (general supply); then = if you do */
 WZOP.cache=(g,s,mv)=>{const [,res,n,w,src,then]=s.a;s.left=s.left??n;if(s.left<=0)return s.did&&then?(wzIns(g,...wzOps(g,s.pid,s.k,then)),true):true;const P=g.P[s.pid];
@@ -14105,7 +14144,7 @@ WZOP.gc=(g,s,mv)=>{const [,res,w]=s.a,P=g.P[s.pid];if(!s.r){if(res==='any'){if(!
 /* tuck dragon cards: src hand | deck, where, n, then (if you do) */
 WZOP.tuck=(g,s,mv)=>{const [,src,w,n,then]=s.a;s.left=s.left??n;const P=g.P[s.pid];const fin=()=>{if(s.did&&then)wzIns(g,...wzOps(g,s.pid,s.k,then));return true};
   if(s.left<=0)return fin();const spots=wzSpots(g,s.pid,s.k,w==='a'?'any':w).filter(x=>x!=='n');if(!spots.length)return fin();
-  if(src==='hand'){if(!P.hand.d.length)return fin();const L=[];P.hand.d.forEach((id,i)=>spots.forEach(kk=>L.push({v:i+'@'+kk,l:spots.length>1?`${wzD(id).n} → ${wzSpotL(g,s.pid,kk)}`:`Tuck ${wzD(id).n}`,k:kk})));
+  if(src==='hand'){if(!P.hand.d.length)return fin();const L=[];P.hand.d.forEach((id,i)=>spots.forEach(kk=>L.push({v:i+'@'+kk,l:spots.length>1?`${wzD(id).n} → ${wzSpotL(g,s.pid,kk)}`:`Tuck ${wzD(id).n}`,k:kk,d:id,ck:'h'+i,sub:'Under '+wzSpotL(g,s.pid,kk)})));
     if(!mv)return wzAsk(g,s,`Tuck a dragon card from your hand${n>1?` (up to ${s.left} more)`:''}`,L,{opt:1,kind:'spot'});const [i,kk]=String(mv.v).split('@');if(!(+i>=0&&+i<P.hand.d.length)||!spots.includes(kk))return null;
     P.hand.d.splice(+i,1);s.did=1;s.left--;wzTuckOn(g,s.pid,kk);return WZOP.tuck(g,s)}
   const kk=spots.length===1?spots[0]:mv&&mv.v;if(spots.length>1&&!mv)return wzAsk(g,s,`Tuck a card from the deck under which dragon?${n>1?` (${s.left} to go)`:''}`,spots.map(x=>({v:x,l:wzSpotL(g,s.pid,x),k:x})),{opt:1,kind:'spot'});
@@ -14117,8 +14156,8 @@ WZOP.rev=(g,s)=>{const [,sz,other]=s.a,id=wzDrawD(g);if(id==null)return true;con
 /* excavate a space for free: src hand | disp | deck | handdisp */
 WZOP.exc=(g,s,mv)=>{const src=s.a[1],P=g.P[s.pid],cvs=WZC.filter(cv=>wzCanExc(g,s.pid,cv,1));if(!cvs.length)return true;
   if(src==='deck'&&s.card==null){s.card=wzDrawC(g);if(s.card==null)return true}
-  const cards=src==='deck'?[{v:'k',l:'🪨 '+wzCvSay(s.card)}]:[...(src.includes('hand')?P.hand.c.map((id,i)=>({v:'h'+i,l:'🪨 '+wzCvSay(id)+' (hand)'})):[]),...(src.includes('disp')?g.disp.c.map((id,i)=>id==null?null:{v:'p'+i,l:'🪨 '+wzCvSay(id)+' (display)'}).filter(Boolean):[])];
-  if(!cards.length)return true;const L=[];cards.forEach(c=>cvs.forEach(cv=>L.push({v:c.v+'@'+cv,l:`${c.l} → ${WZCI[cv]} ${WZCN[cv]}`})));
+  const cards=src==='deck'?[{v:'k',l:'🪨 '+wzCvSay(s.card),c:s.card}]:[...(src.includes('hand')?P.hand.c.map((id,i)=>({v:'h'+i,l:'🪨 '+wzCvSay(id)+' (hand)',c:id})):[]),...(src.includes('disp')?g.disp.c.map((id,i)=>id==null?null:{v:'p'+i,l:'🪨 '+wzCvSay(id)+' (display)',c:id}).filter(Boolean):[])];
+  if(!cards.length)return true;const L=[];cards.forEach(c=>cvs.forEach(cv=>L.push({v:c.v+'@'+cv,l:`${c.l} → ${WZCI[cv]} ${WZCN[cv]}`,c:c.c,ck:c.v,sub:`${WZCI[cv]} ${WZCN[cv]}`})));
   if(!mv)return wzAsk(g,s,'Excavate a space for free',L,{opt:src!=='deck',kind:'exc'});const [cs,cv]=String(mv.v).split('@');if(!cvs.includes(cv))return null;let id;
   if(cs==='k')id=s.card;else if(cs[0]==='h'){const i=+cs.slice(1);if(!(i>=0&&i<P.hand.c.length))return null;id=P.hand.c.splice(i,1)[0]}else if(cs[0]==='p'){const i=+cs.slice(1);if(g.disp.c[i]==null)return null;id=g.disp.c[i];g.disp.c[i]=null}else return null;
   wzLog(g,`${nmid(s.pid)} excavates ${WZCN[cv]} space ${wzNextEx(g,s.pid,cv)+1} for free`,'⛏️');const col=wzNextEx(g,s.pid,cv);g.P[s.pid].mat[cv][col]={cv:id,d:null};
@@ -14127,8 +14166,8 @@ WZOP.exc=(g,s,mv)=>{const src=s.a[1],P=g.P[s.pid],cvs=WZC.filter(cv=>wzCanExc(g,
 WZOP.playD=(g,s,mv)=>{const [,src,mode]=s.a,P=g.P[s.pid],L=[];
   const cand=[...(src.includes('hand')?P.hand.d.map((id,i)=>({id,v:'h'+i,w:'hand'})):[]),...(src.includes('disp')?g.disp.d.map((id,i)=>id==null?null:{id,v:'p'+i,w:'display'}).filter(Boolean):[])];
   cand.forEach(c=>{if(!wzCanAfford(g,s.pid,c.id,mode==='cover'?'free':mode))return;
-    if(mode==='cover')wzDr(g,s.pid).forEach(([kk])=>{if(wzD(c.id).cv.includes(kk[0]))L.push({v:c.v+'@'+kk,l:`${wzD(c.id).n} on top of ${wzSpotL(g,s.pid,kk)}`})});
-    else wzFits(g,s.pid,c.id).forEach(cv=>L.push({v:c.v+'@'+cv,l:`${wzD(c.id).n} (${c.w}) → ${WZCI[cv]} ${WZCN[cv]}`}))});
+    if(mode==='cover')wzDr(g,s.pid).forEach(([kk])=>{if(wzD(c.id).cv.includes(kk[0]))L.push({v:c.v+'@'+kk,l:`${wzD(c.id).n} on top of ${wzSpotL(g,s.pid,kk)}`,d:c.id,ck:c.v,sub:'On top of '+wzSpotL(g,s.pid,kk),k:kk})});
+    else wzFits(g,s.pid,c.id).forEach(cv=>L.push({v:c.v+'@'+cv,l:`${wzD(c.id).n} (${c.w}) → ${WZCI[cv]} ${WZCN[cv]}`,d:c.id,ck:c.v,sub:`${WZCI[cv]} ${WZCN[cv]}`}))});
   if(!L.length)return true;if(!mv)return wzAsk(g,s,mode==='disc1'?'Play a dragon with a discount of 1 egg or resource':mode==='nores'?'Play a dragon, ignoring its resource costs':mode==='cover'?'Play a dragon on top of one of yours':'Play a dragon for free',L,{opt:1});
   const o=L.find(x=>x.v===mv.v);if(!o)return null;const [cs,where]=o.v.split('@'),i=+cs.slice(1);let id;
   if(cs[0]==='h'){id=P.hand.d[i];wzPayD(g,s.pid,id,mode==='cover'?'free':mode);P.hand.d.splice(P.hand.d.indexOf(id),1)}else{id=g.disp.d[i];wzPayD(g,s.pid,id,mode);g.disp.d[i]=null}
@@ -14162,37 +14201,37 @@ const wzTop=(g,n)=>{const o=[];for(let i=0;i<n;i++){const id=wzDrawD(g);if(id!=n
 const wzHere=(g,s)=>{const x=wzAt(g,s.pid,s.k);return x&&x.d?x:null};
 WZX.shyDraw=(g,s,mv)=>{if(!s.cards){const n=g.P[s.pid].mat[s.k[0]].filter(x=>x&&x.d&&wzD(x.d.id).per==='S').length;s.cards=wzTop(g,n);s.tk=0}
   if(!s.cards.length||s.tk>=2||!wzHere(g,s)){g.P[s.pid].hand.d.push(...s.cards);return true}
-  if(!mv)return wzAsk(g,s,`Tuck up to 2 of the drawn cards here (${2-s.tk} left); the rest go to your hand`,s.cards.map((id,i)=>({v:i,l:'Tuck '+wzD(id).n})),{opt:1});
+  if(!mv)return wzAsk(g,s,`Tuck up to 2 of the drawn cards here (${2-s.tk} left); the rest go to your hand`,s.cards.map((id,i)=>({v:i,l:'Tuck '+wzD(id).n,d:id})),{opt:1});
   const i=+mv.v;if(!(i>=0&&i<s.cards.length))return null;s.cards.splice(i,1);s.tk++;wzTuckOn(g,s.pid,s.k);return WZX.shyDraw(g,s)};
 WZX.tuckCost=(g,s,mv)=>{const P=g.P[s.pid];if(!P.hand.d.length||!wzHere(g,s))return true;
-  if(!mv)return wzAsk(g,s,'Tuck a dragon from your hand here to gain 1 resource from its cost?',P.hand.d.map((id,i)=>({v:i,l:`${wzD(id).n} (${WZR.filter(r=>wzD(id).cost[r]).map(r=>WZRI[r]).join('')||'no resources'})`})),{opt:1});
+  if(!mv)return wzAsk(g,s,'Tuck a dragon from your hand here to gain 1 resource from its cost?',P.hand.d.map((id,i)=>({v:i,l:`${wzD(id).n} (${WZR.filter(r=>wzD(id).cost[r]).map(r=>WZRI[r]).join('')||'no resources'})`,d:id})),{opt:1});
   const i=+mv.v;if(!(i>=0&&i<P.hand.d.length))return null;const id=P.hand.d.splice(i,1)[0],R=WZR.filter(r=>wzD(id).cost[r]);wzTuckOn(g,s.pid,s.k);
   if(R.length)wzIns(g,{t:'op',pid:s.pid,k:s.k,a:['x','pickOf',R]});return true};
 WZX.pickOf=(g,s,mv)=>{const R=s.a[2];if(R.length===1){g.P[s.pid].res[R[0]]++;return true}if(!mv)return wzAsk(g,s,'Gain which resource?',R.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});if(!R.includes(mv.v))return null;g.P[s.pid].res[mv.v]++;return true};
 WZX.tuck2any=(g,s,mv)=>{s.n=s.n??2;const P=g.P[s.pid];if(s.n<=0||!P.hand.d.length||!wzHere(g,s))return true;
-  if(!mv)return wzAsk(g,s,`Tuck a dragon from your hand here to gain any resource? (${s.n} left)`,P.hand.d.map((id,i)=>({v:i,l:'Tuck '+wzD(id).n})),{opt:1});
+  if(!mv)return wzAsk(g,s,`Tuck a dragon from your hand here to gain any resource? (${s.n} left)`,P.hand.d.map((id,i)=>({v:i,l:'Tuck '+wzD(id).n,d:id})),{opt:1});
   const i=+mv.v;if(!(i>=0&&i<P.hand.d.length))return null;P.hand.d.splice(i,1);s.n--;wzTuckOn(g,s.pid,s.k);wzIns(g,{t:'gt',pid:s.pid,k:s.k,tok:'any'},{t:'op',pid:s.pid,k:s.k,a:s.a,n:s.n,_c:1});return true};
 /* draw 3: keep 1, discard 1, tuck 1 here */
 WZX.draw3=(g,s,mv)=>{if(!s.cards){s.cards=wzTop(g,3);s.ph=0}if(!s.cards.length)return true;const ph=['keep','discard','tuck here'][s.ph];
   if(s.cards.length===1&&s.ph===2||!wzHere(g,s)&&s.ph===2){if(wzHere(g,s))wzTuckOn(g,s.pid,s.k);else g.ddisc.push(s.cards[0]);return true}
-  if(!mv)return wzAsk(g,s,`Drawn ${s.cards.length}: which do you ${ph}?`,s.cards.map((id,i)=>({v:i,l:wzD(id).n})));const i=+mv.v;if(!(i>=0&&i<s.cards.length))return null;const id=s.cards.splice(i,1)[0];
+  if(!mv)return wzAsk(g,s,`Drawn ${s.cards.length}: which do you ${ph}?`,s.cards.map((id,i)=>({v:i,l:wzD(id).n,d:id})));const i=+mv.v;if(!(i>=0&&i<s.cards.length))return null;const id=s.cards.splice(i,1)[0];
   if(s.ph===0)g.P[s.pid].hand.d.push(id);else if(s.ph===1)g.ddisc.push(id);else{wzTuckOn(g,s.pid,s.k);return true}s.ph++;if(!s.cards.length)return true;return WZX.draw3(g,s)};
 WZX.draw2tuck=(g,s,mv)=>{if(!s.cards)s.cards=wzTop(g,2);if(!s.cards.length)return true;const spots=wzDr(g,s.pid).map(([kk])=>kk);
   if(s.cards.length===1||!spots.length){g.P[s.pid].hand.d.push(...s.cards);return true}
-  const L=[];s.cards.forEach((id,i)=>spots.forEach(kk=>L.push({v:i+'@'+kk,l:`Tuck ${wzD(id).n} under ${wzSpotL(g,s.pid,kk)} (keep the other)`,k:kk})));
+  const L=[];s.cards.forEach((id,i)=>spots.forEach(kk=>L.push({v:i+'@'+kk,l:`Tuck ${wzD(id).n} under ${wzSpotL(g,s.pid,kk)} (keep the other)`,k:kk,d:id,ck:'x'+i,sub:'Under '+wzSpotL(g,s.pid,kk)})));
   if(!mv)return wzAsk(g,s,'Drew 2: tuck 1 under any dragon and keep the other',L,{kind:'spot'});const [i,kk]=String(mv.v).split('@');if(!s.cards[+i]||!spots.includes(kk))return null;
   s.cards.splice(+i,1);wzTuckOn(g,s.pid,kk);g.P[s.pid].hand.d.push(...s.cards);return true};
 WZX.guildTuck=(g,s)=>{const n=g.P[s.pid].gm;for(let i=0;i<n;i++)if(wzHere(g,s)&&wzDrawD(g)!=null)wzTuckOn(g,s.pid,s.k);return true};
 WZX.playfulTuck=(g,s)=>{wzDr(g,s.pid).filter(([kk,d])=>kk[0]===s.k[0]&&wzD(d.id).per==='P').forEach(([kk])=>{if(wzDrawD(g)!=null)wzTuckOn(g,s.pid,kk)});return true};
 WZX.draw2may=(g,s,mv)=>{if(!s.cards)s.cards=wzTop(g,2);if(!s.cards.length||!wzHere(g,s)){g.P[s.pid].hand.d.push(...(s.cards||[]));return true}
-  if(!mv)return wzAsk(g,s,'Tuck a drawn card here? (the rest go to your hand)',s.cards.map((id,i)=>({v:i,l:'Tuck '+wzD(id).n})),{opt:1,onSkip:'hand'});
+  if(!mv)return wzAsk(g,s,'Tuck a drawn card here? (the rest go to your hand)',s.cards.map((id,i)=>({v:i,l:'Tuck '+wzD(id).n,d:id})),{opt:1,onSkip:'hand'});
   const i=+mv.v;if(!(i>=0&&i<s.cards.length))return null;s.cards.splice(i,1);wzTuckOn(g,s.pid,s.k);return WZX.draw2may(g,s)};
 WZX.drawMay=(g,s,mv)=>{if(s.id==null){s.id=wzDrawD(g);if(s.id==null)return true}if(!wzHere(g,s)){g.P[s.pid].hand.d.push(s.id);return true}
-  if(!mv)return wzAsk(g,s,`Drew ${wzD(s.id).n}: tuck it here or keep it?`,[{v:'t',l:'Tuck it here'},{v:'k',l:'Keep it'}]);
+  if(!mv)return wzAsk(g,s,`Drew ${wzD(s.id).n}: tuck it here or keep it?`,[{v:'t',l:'Tuck it here'},{v:'k',l:'Keep it'}],{show:[s.id]});
   if(mv.v==='t')wzTuckOn(g,s.pid,s.k);else if(mv.v==='k')g.P[s.pid].hand.d.push(s.id);else return null;return true};
-WZX.gainTuck=(g,s,mv)=>{if(s.id==null){if(!mv){const L=g.disp.d.map((id,i)=>id==null?null:{v:i,l:'🐉 '+wzD(id).n}).filter(Boolean);L.push({v:'deck',l:'🂠 Top of the deck'});return wzAsk(g,s,'Gain a dragon card',L,{kind:'cardd'})}
+WZX.gainTuck=(g,s,mv)=>{if(s.id==null){if(!mv){const L=g.disp.d.map((id,i)=>id==null?null:{v:i,l:'🐉 '+wzD(id).n,d:id}).filter(Boolean);L.push({v:'deck',l:'🂠 Top of the deck',deck:'d'});return wzAsk(g,s,'Gain a dragon card',L,{kind:'cardd'})}
     if(mv.v==='deck')s.id=wzDrawD(g);else{const i=+mv.v;if(g.disp.d[i]==null)return null;s.id=g.disp.d[i];g.disp.d[i]=null}if(s.id==null)return true;mv=null}
-  const spots=wzDr(g,s.pid).map(([kk])=>kk);if(!mv)return wzAsk(g,s,`Tuck ${wzD(s.id).n} under a dragon, or keep it?`,[{v:'keep',l:'Keep it in my hand'},...spots.map(kk=>({v:kk,l:'Tuck under '+wzSpotL(g,s.pid,kk),k:kk}))],{kind:'spot'});
+  const spots=wzDr(g,s.pid).map(([kk])=>kk);if(!mv)return wzAsk(g,s,`Tuck ${wzD(s.id).n} under a dragon, or keep it?`,[{v:'keep',l:'Keep it in my hand'},...spots.map(kk=>({v:kk,l:'Tuck under '+wzSpotL(g,s.pid,kk),k:kk}))],{kind:'spot',show:[s.id]});
   if(mv.v==='keep'){g.P[s.pid].hand.d.push(s.id);return true}if(!spots.includes(mv.v))return null;wzTuckOn(g,s.pid,mv.v);return true};
 WZX.aggRes=(g,s,mv)=>{if(s.n==null){s.n=g.P[s.pid].mat[s.k[0]].filter(x=>x&&x.d&&wzD(x.d.id).per==='A').length;s.got=[]}
   if(s.got.length<s.n){if(!mv)return wzAsk(g,s,`Gain a resource (${s.n-s.got.length} to go)`,WZR.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});if(!WZR.includes(mv.v))return null;g.P[s.pid].res[mv.v]++;s.got.push(mv.v);mv=null;if(s.got.length<s.n)return WZX.aggRes(g,s)}
@@ -14200,7 +14239,7 @@ WZX.aggRes=(g,s,mv)=>{if(s.n==null){s.n=g.P[s.pid].mat[s.k[0]].filter(x=>x&&x.d&
 WZX.choose2=(g,s,mv)=>{if(!mv)return wzAsk(g,s,'Choose a resource: you gain 2, each opponent gains 1',WZR.map(r=>({v:r,l:WZRI[r]+' '+WZRN[r]})),{kind:'res'});if(!WZR.includes(mv.v))return null;
   g.P[s.pid].res[mv.v]+=2;wzOthers(g,s.pid).forEach(o=>g.P[o].res[mv.v]++);return true};
 WZX.cavesToEggs=(g,s,mv)=>{s.n=s.n??2;const P=g.P[s.pid];if(s.n<=0||!P.hand.c.length)return true;
-  if(!mv)return wzAsk(g,s,`Discard a cave card to lay an egg? (${s.n} left)`,P.hand.c.map((id,i)=>({v:i,l:'Discard '+wzCvSay(id)})),{opt:1});const i=+mv.v;if(!(i>=0&&i<P.hand.c.length))return null;
+  if(!mv)return wzAsk(g,s,`Discard a cave card to lay an egg? (${s.n} left)`,P.hand.c.map((id,i)=>({v:i,l:'Discard '+wzCvSay(id),c:id})),{opt:1});const i=+mv.v;if(!(i>=0&&i<P.hand.c.length))return null;
   g.cdisc.push(P.hand.c.splice(i,1)[0]);s.n--;wzIns(g,{t:'op',pid:s.pid,k:s.k,a:['lay',1,'a']},{t:'op',pid:s.pid,k:s.k,a:s.a,n:s.n});return true};
 
 /* ---------- the end ---------- */
@@ -14331,27 +14370,41 @@ const wzNeedHandoff=()=>{if(S.lk&&!S.demo)return null;const g=wzG();if(!g||g.pha
 const wzEnc=mv=>encodeURIComponent(JSON.stringify(mv));
 const wzBtn=(mv,html,o={})=>`<button class="${o.cls||''}" data-a="wzans" data-k="${wzEnc(mv)}"${o.dis?' disabled':''}${o.lab?` aria-label="${esc(o.lab)}"`:''}>${html}</button>`;
 const WZTYI={W:'⚡',A:'🏮',O:'🔁',E:'🏁'},WZTYN={W:'When played',A:'If activated',O:'Once per round',E:'End of game'};
+/* the game's own pictures where it has them (Justin, Nov 21): the adventurer, the caves, the card backs, the nest */
+const wzTyI=t=>t==='A'?`<img class="wzi" src="art/wy-adv.webp" alt="${WZTYN.A}" title="${WZTYN.A}">`:`<span title="${WZTYN[t]}">${WZTYI[t]}</span>`;
+const wzCI=cv=>`<img class="wzi wzcvi" src="art/wy-cave-${cv}.webp" alt="${WZCN[cv]}" title="${WZCN[cv]}">`;
+const wzCvBk='<img class="wzi wzbk" src="art/wy-back-cave.webp" alt="cave card" title="cave card">',wzDrBk='<img class="wzi wzbk" src="art/wy-back-dragon.webp" alt="dragon card" title="dragon card">';
+const wzPerChip=p=>`<span class="wzper wzp-${p}">${WZPER[p]}</span>`,wzSzChip=z=>`<span class="wzsz">${WZSZ[z]}</span>`;
+/* an option or question label: the engine's emoji become the game's pictures */
+function wzLab(l){let h=esc(l);WZR.forEach(r=>{h=h.split(WZRI[r]).join(wzI(r))});WZC.forEach(cv=>{h=h.split(WZCI[cv]).join(wzCI(cv))});
+  return h.split('🪨').join(wzCvBk).split('🐉').join(wzDrBk).split('🂠').join(wzDrBk).split('🪺').join('<img class="wzi" src="art/wy-nest.webp" alt="nest">')}
 function wzCostH(D){const L=[];for(const k of ['meat','gold','crys','milk','coin','egg'])for(let i=0;i<(D.cost[k]||0);i++)L.push(wzI(k));return L.length?L.join(''):'<small>free</small>'}
 /* a dragon card (in hand, the display, or on a mat) */
 const wzDP=n=>'art/wz-d-'+n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.webp';
 function wzCard(id,o={}){const D=wzD(id),x=o.x;return `<div class="wzc wz-${D.per}${o.sel?' sel':''}${o.cls?' '+o.cls:''}" data-lp="wzd:${id}">
   <div class="wzch"><b class="wzn">${esc(D.n)}</b><span class="wzvp num">${D.vp}</span></div>
   <img class="wzimg" src="${wzDP(D.n)}" alt="" loading="lazy" onerror="this.remove()">
-  <div class="wzcm"><span>${wzCostH(D)}</span><span title="Caves">${D.cv.split('').map(c=>WZCI[c]).join('')}</span></div>
-  <div class="wzcm"><small>${WZSZ[D.sz]} · ${WZPER[D.per]}</small>${D.cap?`<small title="Egg capacity">${x?`${x.e}/`:''}${D.cap}${wzI('egg')}</small>`:''}</div>
-  <div class="wzcp"><span title="${WZTYN[D.ty]}">${WZTYI[D.ty]}</span> ${esc(wzDSay(D))}</div>
+  <div class="wzcm"><span>${wzCostH(D)}</span><span class="wzcvs" title="Caves">${D.cv.split('').map(c=>wzCI(c)).join('')}</span></div>
+  <div class="wzcm">${wzSzChip(D.sz)}${wzPerChip(D.per)}${D.cap?`<small title="Egg capacity">${x?`${x.e}/`:''}${D.cap}${wzI('egg')}</small>`:''}</div>
+  <div class="wzcp">${wzTyI(D.ty)} ${esc(wzDSay(D))}</div>
   ${x&&(x.c||x.t)?`<div class="wzcx">${x.c?`<span title="Cached resources">📦${x.c}</span>`:''}${x.t?`<span title="Tucked cards">🗂️${x.t}</span>`:''}</div>`:''}</div>`}
-const wzCaveCard=(id,o={})=>`<div class="wzcave${o.sel?' sel':''}"><b>🪨</b><small>${esc(wzCvSay(id))}</small></div>`;
-const wzPickK=(g,V)=>{const A=g.ask;if(!A||!V||A.pid!==V.id)return {};const m={};(A.opts||[]).forEach(o=>{if(o.k&&!m[o.k])m[o.k]=o.v;if(/^[cga][0-3]$|^n$/.test(String(o.v))&&!m[o.v])m[o.v]=o.v});return m};
+const wzCaveCard=(id,o={})=>`<div class="wzcave${o.sel?' sel':''}${o.cls?' '+o.cls:''}" data-lp="wzc:${id}"><img class="wzcvimg" src="art/wy-back-cave.webp" alt=""><small>${esc(wzCvSay(id))}</small></div>`;
+function wzCaveSheet(id){return `<div class="sheet-bg" data-a="lpclose"><div class="sheet lpsheet" role="dialog" aria-modal="true" aria-labelledby="lp-h" data-stop="1"><div class="rs-top"><div><h2 id="lp-h">Cave card</h2><small class="lp-sub">Card ${wzCv(id).no}</small></div><button class="btn sm" data-a="lpclose">Close</button></div>
+  <div class="rs-body"><div class="lpbig">${wzCaveCard(id)}</div><p class="rlab"><b>When you excavate with it:</b> ${esc(wzCvSay(id))}</p><p class="hint">The exact wording is on the card.</p></div></div></div>`}
+/* the objective tile shows the same pictures as the cards (sizes, personalities, caves, eggs, the adventurer…) */
+function wzGoalIcons(id){const m=/^per([SHAP])$/.exec(id);if(m)return wzPerChip(m[1]);
+  return ({hatch:wzSzChip('H'),small:wzSzChip('S'),med:wzSzChip('M'),large:wzSzChip('L'),inC:wzCI('c'),inG:wzCI('g'),inA:wzCI('a'),eggs:wzI('egg'),cap:wzI('egg'),
+    adv:wzTyI('A'),wpopr:wzTyI('W')+wzTyI('O'),caves:wzCvBk,guild:'<img class="wzi" src="art/wy-marker.webp" alt="guild">',cache:'<span title="Cached resources">📦</span>'})[id]||''}
+const wzPickK=(g,V)=>{const A=g.ask;if(!A||!V||A.pid!==V.id)return {};const m={},sel=wzAskSel(A);(A.opts||[]).filter(o=>sel==null||o.ck==null||String(o.ck)===sel).forEach(o=>{if(o.k&&!m[o.k])m[o.k]=o.v;if(/^[cga][0-3]$|^n$/.test(String(o.v))&&!m[o.v])m[o.v]=o.v});return m};
 function wzMat(g,pid,V){const P=g.P[pid],pick=pid===(V&&V.id)?wzPickK(g,V):{};
-  const rows=WZC.map(cv=>{const M=P.mat[cv];return `<div class="wzrow wzr-${cv}"><div class="wzent"><img src="art/wy-cave-${cv}.webp" alt=""><b>${WZCI[cv]}</b><small>${esc(WZCN[cv])}</small><small class="rlab">${P.ex[cv]?`explored ${P.ex[cv]}×`:''}</small></div>
+  const rows=WZC.map(cv=>{const M=P.mat[cv];return `<div class="wzrow wzr-${cv}"><div class="wzent"><img src="art/wy-cave-${cv}.webp" alt=""><small>${esc(WZCN[cv])}</small><small class="rlab">${P.ex[cv]?`explored ${P.ex[cv]}×`:''}</small></div>
     ${M.map((x,i)=>{const kk=cv+i,pk=pick[kk];const inner=!x?`<div class="wzslot dug"><small>Not dug${i>=2?` · ${WZEXC[i]}${wzI('egg')}`:''}</small></div>`:x.d?wzCard(x.d.id,{x:x.d}):`<div class="wzslot open">${x.cv?wzCaveCard(x.cv):'<small>Open</small>'}</div>`;
       return pk!=null?`<button class="wzsp pick" data-a="wzans" data-k="${wzEnc({v:pk})}">${inner}</button>`:`<div class="wzsp">${inner}</div>`}).join('')}</div>`}).join('');
   const nk=pick.n!=null?`<button class="wznest pick" data-a="wzans" data-k="${wzEnc({v:'n'})}">`:'<div class="wznest">';
   return `<div class="wzmat">${rows}</div><div class="wzbase">${nk}<img src="art/wy-nest.webp" alt=""><span>Mat nests: ${P.nest}/2 ${wzI('egg')}</span>${pick.n!=null?'</button>':'</div>'}<span class="rlab">${wzI('coin')}<b class="num">${P.coin}</b> · ${WZR.map(r=>`${wzI(r)}<b class="num">${P.res[r]}</b>`).join(' ')}</span></div>`}
 function wzDisplay(g){return `<div class="wzdisp">${g.disp.d.map(id=>id==null?'<div class="wzc empty"></div>':wzCard(id)).join('')}</div>
-  <div class="wzdisp wzdc">${g.disp.c.map(id=>id==null?'<div class="wzcave empty"></div>':wzCaveCard(id)).join('')}<div class="wzdeck"><img src="art/wy-back-dragon.webp" alt="Dragon deck"><small class="num">${g.dd.length}</small><img src="art/wy-back-cave.webp" alt="Cave deck"><small class="num">${g.dc.length}</small></div></div>`}
-function wzObjHtml(g){return `<div class="wzobjs">${g.obj.map((id,r)=>{const c=g.oc[r];return `<div class="wzob${r===g.rnd&&g.phase!=='done'?' now':''}"><small>Round ${r+1} · ${WYPT[r].join('/')}</small><b>${esc(wzObj(id).say)}</b><small class="num">${act().map(p=>`<span style="${pc(p.color)}" class="wzdot">●</span>${c?c[p.id]:wzObjN(g,p.id,id)}`).join(' ')}</small></div>`}).join('')}</div>`}
+  <div class="wzdisp wzdc">${g.disp.c.map(id=>id==null?'<div class="wzcave empty"></div>':wzCaveCard(id)).join('')}<div class="wzdeck"><img src="art/wy-back-dragon.webp" alt="Dragon deck" title="Dragon deck"><small class="num">${g.dd.length}</small><img src="art/wy-back-cave.webp" alt="Cave deck"><small class="num">${g.dc.length}</small></div></div>`}
+function wzObjHtml(g){return `<div class="wzobjs">${g.obj.map((id,r)=>{const c=g.oc[r];return `<div class="wzob${r===g.rnd&&g.phase!=='done'?' now':''}"><small>Round ${r+1} · ${WYPT[r].join('/')}</small><span class="wzgoi">${wzGoalIcons(id)}</span><b>${esc(wzObj(id).say)}</b><small class="num">${act().map(p=>`<span style="${pc(p.color)}" class="wzdot">●</span>${c?c[p.id]:wzObjN(g,p.id,id)}`).join(' ')}</small></div>`}).join('')}</div>`}
 function wzGuildHtml(g){const G=WYGUILD[g.guild],B=G.box[g.side],P=act(),dot=pid=>{const p=P.find(q=>q.id===pid);return p?`<span class="wzdot" style="${pc(p.color)}">●</span>`:''};
   return `<div class="panel wzguild"><div class="rlab"><img src="art/wy-marker.webp" class="wzi" alt=""> <b>${esc(G.n)}</b> · ${g.side===4?'4–5':'2–3'} player side</div>
   ${G.say.map((t,r)=>`<div class="srow"><span class="rlab">${esc(t)}</span><span>${g.gbox[r].map(dot).join('')}${'◻'.repeat(Math.max(0,B[r]-g.gbox[r].length))}</span></div>`).join('')}
@@ -14361,7 +14414,7 @@ function wzPlayUI(){const g=wzG(),P=act();
   let out=`<div class="bar"><button class="back" data-a="go" data-s="players" aria-label="Back to players">‹</button><h1 aria-label="Wyrmspan">${g&&g.phase==='done'?'🏁':'🐉'}</h1><button class="btn sm undo rulesbtn" data-a="rules" aria-label="Quick guide">Rules</button></div>`;
   if(!g||wzStale(g))return out+`<div class="panel" style="padding:16px">${waitLoader(wzRes2()?'Shuffling the dragons…':'Waiting for the host phone…')}</div>`;
   const V=wzViewer(),hide=!!wzNeedHandoff(),ap=P.find(p=>p.id===wzActor(g)),look=P.find(p=>p.id===WZLOOK)?WZLOOK:V?V.id:g.turn;
-  out+=`<div class="tabs hftabs nxtabs" role="list">${P.map(q=>{const Q=g.P[q.id];return `<button class="tab" role="listitem" data-a="wzlook" data-k="${q.id}" style="${pc(q.color)}" aria-pressed="${look===q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}${g.turn===q.id&&g.phase==='play'&&!Q.passed?' ▶':Q.passed&&g.phase==='play'?' ✋':''}</div><div class="ts num">${g.phase==='done'?g.fin[q.id].tot:wzDr(g,q.id).length+'🐉'}</div><div class="tr"><span class="ccgd" title="Coins">${wzI('coin')}${Q.coin}</span><span class="ccgd" title="Eggs">${wzI('egg')}${wzEggs(g,q.id)}</span><span class="ccgd" title="Cards in hand">🃏${wzCards(g,q.id)}</span></div></button>`}).join('')}</div>`;
+  out+=`<div class="tabs hftabs nxtabs" role="list">${P.map(q=>{const Q=g.P[q.id];return `<button class="tab" role="listitem" data-a="wzlook" data-k="${q.id}" style="${pc(q.color)}" aria-pressed="${look===q.id}"><div class="tn">${botHead(q)}${esc(nm(q))}${g.turn===q.id&&g.phase==='play'&&!Q.passed?' ▶':Q.passed&&g.phase==='play'?' ✋':''}</div><div class="ts num">${g.phase==='done'?g.fin[q.id].tot:wzDr(g,q.id).length+'🐉'}</div><div class="tr"><span class="ccgd" title="Coins">${wzI('coin')}${Q.coin}</span><span class="ccgd" title="Eggs">${wzI('egg')}${wzEggs(g,q.id)}</span><span class="ccgd" title="Cards in hand">${wzDrBk}${wzCards(g,q.id)}</span></div></button>`}).join('')}</div>`;
   const L=g.last,word={pass:'passed',exc:'excavated',ent:'enticed a dragon',exp:'explored'};
   out+=`<div class="hfmin htstat ccstat"><img class="ccpic" src="art/wyrmspan-icon.png" alt="" width="66" height="66" onerror="this.remove()"><div><span>${g.phase==='done'?'<b>Game over.</b>':ap?`${botHead(ap)}<b>${esc(nm(ap))}</b> · ${g.ask?esc(g.ask.msg.replace(/\s*\(.*$/,'').toLowerCase()):'choosing an action'}`:''}</span><span class="rlab">Round ${g.rnd+1} of 4</span><small>${L?`${esc(nmid(L.p))} ${word[L.t]||''}`:''}</small></div></div>`;
   out+=wzObjHtml(g);
@@ -14371,24 +14424,57 @@ function wzPlayUI(){const g=wzG(),P=act();
   if(g.phase==='done')out+=wzResults(g);
   else if(hide){const h=wzNeedHandoff();out+=`<div class="sheet-bg yzpassbg"><div class="sheet yzpass" role="dialog" aria-modal="true" aria-labelledby="wzh-h" style="${pc(h.color)}"><svg class="yzpm" viewBox="0 0 40 40" aria-hidden="true"><path d="${MGSHAPE_M}"/></svg><span class="rlab">Pass the phone to</span><h2 id="wzh-h">${esc(nm(h))}</h2><p class="rlab">It’s your turn. Everyone else, look away.</p><button class="btn primary wide" data-a="wzshow" data-k="${h.id}">I’m ${esc(nm(h))}, show my cards</button></div></div>`}
   else if(V)out+=wzDock(g,V);
+  if(wzRsShow(g))out+=wzRsSheet(g);
   return out}
+/* end of a round: what the objective scored, then what's next. Each phone closes its own card; computer players wait for the host phone's card (up to 45 s). */
+let WZRSOK={};const wzRsKey=g=>g.id+':'+g.rsum.r;
+function wzRsShow(g){return !!(g&&g.rsum&&g.phase==='play'&&!WZRSOK[wzRsKey(g)]&&Date.now()-g.rsum.at<15*60e3&&!wzNeedHandoff())}
+function wzRsSheet(g){const R=g.rsum,tot=p=>{let t=0;for(let r=0;r<=R.r;r++)t+=wzObjPts(g,r)[p]||0;return t},rows=g.ps.slice().sort((a,b)=>(R.pts[b]-R.pts[a])||(R.c[b]-R.c[a])),N=g.obj[g.rnd];
+  return `<div class="sheet-bg glres"><div class="sheet wzrs" role="dialog" aria-modal="true" aria-labelledby="wzrs-h"><div class="tqannic" aria-hidden="true"><img src="art/wy-goal.webp" alt="" width="44" height="44"></div><h2 id="wzrs-h">Round ${R.r+1} is over</h2>
+    <div class="wzrsgoal"><span class="wzgoi">${wzGoalIcons(R.obj)}</span><b>${esc(wzObj(R.obj).say)}</b></div>
+    <div class="glresl">${rows.map(p=>{const q=act().find(x=>x.id===p);return `<div class="glresr" style="${q?pc(q.color):''}"><i class="dot"></i><b>${esc(nmid(p))}</b><span class="num glresd">${R.c[p]} → ${R.pts[p]>0?'+':''}${R.pts[p]}</span><span class="num glrest">${tot(p)}</span></div>`}).join('')}</div>
+    <div class="glresh rlab"><span>Count → objective points</span><span>Objective total</span></div>
+    <div class="wzrsnext"><small class="rlab">Next: round ${g.rnd+1} of 4 · ${WYPT[g.rnd].join('/')} points</small>${N?`<div class="wzrsgoal"><span class="wzgoi">${wzGoalIcons(N)}</span><b>${esc(wzObj(N).say)}</b></div>`:''}<p class="rlab">${esc(nmid(g.turn))} starts. Everyone gained 6 coins and 1 egg, and the display has new cards.</p></div>
+    <button class="btn primary wide" data-a="wzrsok">Start round ${g.rnd+1}</button></div></div>`}
 function wzHand(g,pid,o={}){const H=g.P[pid].hand;return `<div class="wzhand">${H.d.map((id,i)=>o.ent&&o.ent.some(x=>x.i===i)?`<button class="wzcb${WZSEL&&WZSEL.t==='ent'&&WZSEL.i===i?' on':''}" data-a="wzsel" data-k="ent:${i}">${wzCard(id,{sel:WZSEL&&WZSEL.t==='ent'&&WZSEL.i===i})}</button>`:wzCard(id,{cls:o.ent?'dim':''})).join('')||'<div class="rlab">No dragon cards.</div>'}</div>
   <div class="wzhand">${H.c.map((id,i)=>o.exc?`<button class="wzcb${WZSEL&&WZSEL.t==='exc'&&WZSEL.i===i?' on':''}" data-a="wzsel" data-k="exc:${i}">${wzCaveCard(id,{sel:WZSEL&&WZSEL.t==='exc'&&WZSEL.i===i})}</button>`:wzCaveCard(id)).join('')||'<div class="rlab">No cave cards.</div>'}</div>`}
 function wzTradeBox(g,V){const R=g.P[V.id].res;if(wzRes(g,V.id)<2)return '';const T=WZSEL&&WZSEL.t==='trade'?WZSEL:null;
   if(!T)return `<button class="btn sm" data-a="wzsel" data-k="trade">🔁 Trade 2 resources for 1</button>`;
   const left={...R};T.pay.forEach(r=>left[r]--);
   return `<div class="panel wztrade"><div class="rlab">${T.pay.length<2?`Pay 2 resources (${2-T.pay.length} to go):`:'Take which one?'} ${T.pay.map(r=>wzI(r)).join('')}</div><div class="wzopts">${T.pay.length<2?WZR.filter(r=>left[r]>0).map(r=>`<button class="btn sm" data-a="wzsel" data-k="tp:${r}">${wzI(r)} ${WZRN[r]}</button>`).join(''):WZR.filter(r=>!T.pay.includes(r)).map(r=>`<button class="btn sm" data-a="wzsel" data-k="tt:${r}">${wzI(r)} ${WZRN[r]}</button>`).join('')}<button class="btn sm" data-a="wzsel" data-k="none">Cancel</button></div></div>`}
+/* a question whose choices are cards: the card picked first when one card has several choices (e.g. which cave it goes in) */
+function wzAskGroups(A){const G=new Map();(A&&A.opts||[]).forEach(o=>{if(o.d==null&&o.c==null)return;const k=String(o.ck!=null?o.ck:'v'+o.v);if(!G.has(k))G.set(k,[]);G.get(k).push(o)});return G}
+function wzAskSel(A){const G=wzAskGroups(A);if(![...G.values()].some(L=>L.length>1))return null;if(WZSEL&&WZSEL.t==='ask'&&G.has(WZSEL.ck))return WZSEL.ck;for(const [k,L] of G)if(L.length>1)return k;return null}
+const wzDeckBtn=(g,o)=>wzBtn({v:o.v},`<span class="wzdk wzdk-${o.deck}"><small class="num">${o.deck==='d'?g.dd.length:g.dc.length}</small></span><small>Top of the deck</small>`,{cls:'wzcb wzdeckb',lab:'Take the top card of the deck'});
+function wzAskBody(g,V,A){const O=A.opts||[],G=wzAskGroups(A),sel=wzAskSel(A),deckO=O.filter(o=>o.deck),rest=O.filter(o=>o.d==null&&o.c==null&&!o.deck);let h='';
+  if(A.show)h+=`<div class="wzhand">${A.show.map(id=>wzCard(id)).join('')}</div>`;
+  if(G.size||deckO.length){h+=`<div class="wzhand wzpick">${[...G].map(([k,L])=>{const o=L[0],on=k===sel,c=o.d!=null?wzCard(o.d,{sel:on}):wzCaveCard(o.c,{sel:on});
+      return L.length===1?wzBtn({v:o.v},c,{cls:'wzcb',lab:o.l}):`<button class="wzcb${on?' on':''}" data-a="wzgrp" data-k="${esc(k)}" aria-pressed="${on}">${c}</button>`}).join('')}${deckO.map(o=>wzDeckBtn(g,o)).join('')}</div>`;
+    if(sel!=null)h+=`<div class="rlab">${G.size>1?'Tap a card, then choose:':'Choose:'}</div><div class="wzopts">${G.get(sel).map(o=>wzBtn({v:o.v},wzLab(o.sub||o.l),{cls:'btn primary'})).join('')}</div>`}
+  if(A.kind==='spot')h=`<div class="rlab">Tap a highlighted space on your caves, or a choice below.</div>`+h;
+  return h+`<div class="wzopts">${rest.map(o=>wzBtn({v:o.v},wzLab(o.l),{cls:'btn'})).join('')}${A.opt?wzBtn({skip:1},'Skip',{cls:'btn'}):''}</div>`}
+/* the starting hand: the 6 real cards; tap the ones to put back, then keep the rest */
+let WZKP=null;
+function wzKeepBox(g,V,A,box){const key=g.id+V.id+A.opts.map(o=>o.v).join();if(!WZKP||WZKP.k!==key)WZKP={k:key,put:[]};const put=WZKP.put,n=put.length,need=A.drop||2,keepN=A.opts.length-n;
+  const cb=o=>{const out=put.includes(o.v);return `<button class="wzcb wzkp${out?' out':''}" data-a="wzkp" data-k="${o.v}" aria-pressed="${out}" aria-label="${esc((out?'Put back: ':'Keep: ')+o.l.replace(/^\S+ /,''))}">${o.d!=null?wzCard(o.d):wzCaveCard(o.c)}<span class="wzkb">${out?'Put back':'Keep'}</span></button>`};
+  return box('Your starting hand',`<div class="rlab">Tap ${need} cards to put back; you keep the other ${A.opts.length-need}. <b class="wzkn">Keeping ${keepN} · putting back ${n} of ${need}</b></div>
+    <div class="wzhand wzkeep">${A.opts.filter(o=>o.d!=null).map(cb).join('')}${A.opts.filter(o=>o.c!=null).map(cb).join('')}</div>
+    <button class="btn primary wide" data-a="wzkgo" ${n===need?'':'disabled'}>${n===need?`Keep these ${keepN}`:`Choose ${need-n} more to put back`}</button>`)}
+const wzPayIc=X=>WZR.map(r=>wzI(r).repeat(X[r]||0)).join('')||'nothing';
 function wzDock(g,V){const box=(h,b)=>`<div class="sadock cpdock wzdock" style="${pc(V.color)}"><div class="sadh"><span><b>${S.lk||wzHumans().length<2?'You':esc(nm(V))}</b> · ${h}</span></div>${b}</div>`;
   const A=g.ask,hand=o=>`<div class="sec"><div class="sec-h"><h3>Your hand</h3></div>${wzHand(g,V.id,o)}</div>`;
-  if(A&&A.pid===V.id){const opts=(A.opts||[]).map(o=>wzBtn({v:o.v},esc(o.l),{cls:'btn'})).join('');
-    return box(esc(A.msg),`${A.kind==='spot'?'<div class="rlab">Tap a highlighted space on your caves, or a choice below.</div>':''}<div class="wzopts">${opts}${A.opt?wzBtn({skip:1},'Skip',{cls:'btn'}):''}</div>${wzTradeBox(g,V)}`)+hand()}
-  if(A)return box('Waiting',`<div class="rlab">${esc(nmid(A.pid))}: ${esc(A.msg)}</div>`)+hand();
+  if(A&&A.pid===V.id){if(A.kind==='keep')return wzKeepBox(g,V,A,box);
+    return box(wzLab(A.msg),wzAskBody(g,V,A)+wzTradeBox(g,V))+hand()}
+  if(A)return box('Waiting',`<div class="rlab">${esc(nmid(A.pid))}: ${wzLab(A.msg)}</div>`)+hand();
   if(g.turn!==V.id||g.q.length)return box('Waiting',`<div class="rlab">${esc(nmid(g.turn))} is taking a turn.</div>`)+hand();
   const P=g.P[V.id];if(P.passed)return box('Passed',`<div class="rlab">You've passed for this round.</div>`)+hand();
   const Ac=wzActs(g,V.id),S2=WZSEL;let sub='';
-  if(S2&&S2.t==='ent'){const o=Ac.ent.find(x=>x.i===S2.i);if(o)sub=`<div class="rlab">Entice ${esc(wzD(P.hand.d[S2.i]).n)} into:</div><div class="wzopts">${o.cv.map(cv=>wzBtn({a:'ent',i:S2.i,cv},`${WZCI[cv]} ${WZCN[cv]} (space ${wzNextD(g,V.id,cv)+1})`,{cls:'btn primary'})).join('')}</div>`}
-  if(S2&&S2.t==='exc')sub=`<div class="rlab">Excavate with this cave card in:</div><div class="wzopts">${Ac.exc.map(cv=>{const i=wzNextEx(g,V.id,cv);return wzBtn({a:'exc',i:S2.i,cv},`${WZCI[cv]} ${WZCN[cv]} space ${i+1} (1 coin${WZEXC[i]?` + ${WZEXC[i]} egg${WZEXC[i]>1?'s':''}`:''})`,{cls:'btn primary'})}).join('')||'<span class="rlab">No space you can afford.</span>'}</div>`;
-  const exp=WZC.map(cv=>{const n=P.ex[cv];return wzBtn({a:'exp',cv},`${WZCI[cv]}<small>${n>=3?'done':`${n?`+${n}`:''}`}</small>`,{cls:'wzx',dis:!Ac.exp.includes(cv),lab:`Explore the ${WZCN[cv]}: 1 coin${n?` and ${n} egg${n>1?'s':''}`:''}`})}).join('');
+  if(S2&&S2.t==='ent'){const o=Ac.ent.find(x=>x.i===S2.i);if(o){const id=P.hand.d[S2.i],D=wzD(id),PO=wzPayOpts(P.res,wzDCost(id)),F=wzPayRes(P.res,wzDCost(id),1),auto={};if(F)WZR.forEach(r=>{if(P.res[r]-F[r])auto[r]=P.res[r]-F[r]});
+    let pi=S2.pay!=null?S2.pay:PO.findIndex(X=>wzPayKey(X)===wzPayKey(auto));if(pi<0||pi>=PO.length)pi=0;const pay=PO.length>1?PO[pi]:null,coins=1+(D.cost.coin||0),eggs=D.cost.egg||0;
+    sub=`<div class="rlab">Entice <b>${esc(D.n)}</b>: ${coins} coin${coins>1?'s':''}${eggs?` + ${eggs} egg${eggs>1?'s':''}`:''}${PO.length>1?'. Pay with:':PO[0]&&Object.keys(PO[0]).length?` + ${wzPayIc(PO[0])}`:''}</div>${PO.length>1?`<div class="wzopts wzpays">${PO.map((X,i)=>`<button class="btn${i===pi?' primary':''}" data-a="wzpaysel" data-k="${i}" aria-pressed="${i===pi}">${wzPayIc(X)}</button>`).join('')}</div>`:''}
+      <div class="rlab">Into:</div><div class="wzopts">${o.cv.map(cv=>wzBtn(pay?{a:'ent',i:S2.i,cv,pay}:{a:'ent',i:S2.i,cv},`${wzCI(cv)} ${WZCN[cv]} (space ${wzNextD(g,V.id,cv)+1})`,{cls:'btn primary'})).join('')}</div>`}}
+  if(S2&&S2.t==='exc')sub=`<div class="rlab">Excavate with this cave card in:</div><div class="wzopts">${Ac.exc.map(cv=>{const i=wzNextEx(g,V.id,cv);return wzBtn({a:'exc',i:S2.i,cv},`${wzCI(cv)} ${WZCN[cv]} space ${i+1} (1 coin${WZEXC[i]?` + ${WZEXC[i]} egg${WZEXC[i]>1?'s':''}`:''})`,{cls:'btn primary'})}).join('')||'<span class="rlab">No space you can afford.</span>'}</div>`;
+  const exp=WZC.map(cv=>{const n=P.ex[cv];return wzBtn({a:'exp',cv},`${wzCI(cv)}<small>${n>=3?'done':`${n?`+${n}`:''}`}</small>`,{cls:'wzx',dis:!Ac.exp.includes(cv),lab:`Explore the ${WZCN[cv]}: 1 coin${n?` and ${n} egg${n>1?'s':''}`:''}`})}).join('');
   return box(`your turn · ${P.coin} coin${P.coin===1?'':'s'}`,`<div class="wzacts"><div class="wzact"><img src="art/wy-act-excavate.webp" alt=""><b>Excavate</b><small>${Ac.exc.length?'tap a cave card below':'needs a cave card'}</small></div><div class="wzact"><img src="art/wy-act-entice.webp" alt=""><b>Entice</b><small>${Ac.ent.length?'tap a dragon below':'none affordable'}</small></div><div class="wzact"><img src="art/wy-act-explore.webp" alt=""><b>Explore</b><div class="wzxs">${exp}</div><small>1 coin (+1 egg per repeat)</small></div></div>
     ${sub}<div class="wzopts">${wzBtn({a:'pass'},'✋ Pass',{cls:'btn sm'})}${wzTradeBox(g,V)}</div>`)+hand({ent:Ac.ent,exc:Ac.exc.length>0})}
 function wzResults(g){const P=act().slice().sort((a,b)=>g.fin[b.id].tot-g.fin[a.id].tot||g.fin[b.id].nd-g.fin[a.id].nd);
@@ -14401,9 +14487,15 @@ function wzUiAct(a,b,k){const g=wzG();if(!g)return;if(a==='wzshow'){WZVIEW=k;WZS
     const [t,v]=String(k).split(':');if(t==='tp'&&WZSEL&&WZSEL.t==='trade'){WZSEL.pay.push(v);return}
     if(t==='tt'&&WZSEL&&WZSEL.t==='trade'){const mv={trade:{pay:WZSEL.pay,to:v}};WZSEL=null;lkq('wzMove',V.id,mv)&&vibe(8);return}
     if(t==='ent'||t==='exc'){WZSEL={t,i:+v};vibe(6)}return}
+  if(a==='wzgrp'){WZSEL={t:'ask',ck:String(k)};vibe(6);return}
+  if(a==='wzpaysel'){if(WZSEL&&WZSEL.t==='ent')WZSEL.pay=+k;vibe(6);return}
+  if(a==='wzrsok'){if(g.rsum)WZRSOK[wzRsKey(g)]=1;vibe(8);return}
+  if(a==='wzkp'){const A=g.ask;if(!WZKP||!A||A.kind!=='keep'||A.pid!==V.id)return;const L=WZKP.put;if(L.includes(k))L.splice(L.indexOf(k),1);else{L.push(k);while(L.length>(A.drop||2))L.shift()}vibe(6);return}
+  if(a==='wzkgo'){const A=g.ask;if(!WZKP||!A||A.kind!=='keep'||WZKP.put.length!==(A.drop||2))return;const vs=WZKP.put.slice();WZKP=null;WZSEL=null;lkq('wzMove',V.id,{vs})&&vibe(12);return}
   if(a==='wzans'){let mv;try{mv=JSON.parse(decodeURIComponent(k))}catch(e){return}WZSEL=null;lkq('wzMove',V.id,mv)&&vibe(8);return}}
 function wzTick(){if(!wzOn()||!S.started||S.finished||S.demo||S.screen!=='score')return;if(!wzRes2())return;if(lkqRun()){save();render();return}
   const g=wzG();if(!g||wzStale(g)){wzDeal();save();render();return}if(g.phase==='done'||WZBOTT)return;
+  if(wzRsShow(g)&&wzViewer()&&Date.now()-g.rsum.at<45e3){WZBOTT=setTimeout(()=>{WZBOTT=null;render()},1000);return}
   if(gAnnBusy(g)){const ms=(g.ann.ms||GLMS)*(window.__htfast?.3:1)-(Date.now()-g.ann.at);WZBOTT=setTimeout(()=>{WZBOTT=null;render()},Math.max(60,ms+40));return}
   const q=act().find(p=>p.bot&&wzWaits(g,p.id));if(!q)return;
   WZBOTT=setTimeout(()=>{WZBOTT=null;WZBOTAT=Date.now();const g2=wzG();if(g2&&g2.phase!=='done'&&wzWaits(g2,q.id)){try{wzBotStep(g2,q)}catch(e){console.error('Wyrmspan bot',e)}save()}render()},600*htSpd());WZBOTAT=Date.now()}
@@ -26488,7 +26580,7 @@ function render0(){
   const wasFinal=REV&&REV.phase==='final'&&S.screen==='reveal'&&document.querySelector('[data-final]');
   const winY=SLOCK?null:window.scrollY,winScr=S.screen;
   const KEEPSC=['.csheet .cbody','.rsheet .rs-body','.cpick','.lansheet'],keepSc=KEEPSC.map(q=>{const el=document.querySelector(q);return el?el.scrollTop:null});
-  cbApply();try{rxBots()}catch(e){}document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+rxLocal()+hintFab()+turnBanner()+glWaitCard()+lkMakingHtml()+dashSheet()+cbSheet()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','stoneage','dominion','citadels','tobago','phase10','rook','yahtzee','mextrain','chicken','catan','golf','tripoley','quacks','boggle','scatter','wordtiles','upwords','deadofwinter','codenames','telestrations','coverkingdom'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||S.game==='dominion'&&/^dnk?[cp]:/.test(LPTIP)||S.game==='citadels'&&/^ci[cd]:/.test(LPTIP)||S.game==='tobago'&&LPTIP.startsWith('tgc:')||S.game==='catan'&&/^c[pk][dbpehq]:/.test(LPTIP)||S.game==='stoneage'&&/^sa[tchm]/.test(LPTIP)||LPTIP.startsWith('ph:')||LPTIP.startsWith('wpb:')||LPTIP.startsWith('wzd:')||LPTIP.startsWith('dws:')||LPTIP.startsWith('dwi:')||LPTIP.startsWith('dww:')||LPTIP.startsWith('dwo:')||/^tr[prc]:/.test(LPTIP)||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:')||LPTIP.startsWith('wt:')||LPTIP.startsWith('qb:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
+  cbApply();try{rxBots()}catch(e){}document.getElementById('app').innerHTML=rcFix(demoBar()+lkBar()+rxLocal()+hintFab()+turnBanner()+glWaitCard()+lkMakingHtml()+dashSheet()+cbSheet()+tBanner()+(S.screen!=='home'?welcomeBar():'')+v()+(RULESHEET&&(['score','live'].includes(S.screen)||['map','players'].includes(S.screen)&&(HFE()||['nerts','hearts','spades','rage','ohell','uno','munchkin','crowns','skipbo','gnome','skyjo','wingspan','wyrmspan','stoneage','dominion','citadels','tobago','phase10','rook','yahtzee','mextrain','chicken','catan','golf','tripoley','quacks','boggle','scatter','wordtiles','upwords','deadofwinter','codenames','telestrations','coverkingdom'].includes(S.game)))?rulesSheet():'')+(MEEPLESHEET&&S.game==='carc'?meepleSheet():'')+(LPTIP&&(S.game==='carc'||S.game==='dominion'&&/^dnk?[cp]:/.test(LPTIP)||S.game==='citadels'&&/^ci[cd]:/.test(LPTIP)||S.game==='tobago'&&LPTIP.startsWith('tgc:')||S.game==='catan'&&/^c[pk][dbpehq]:/.test(LPTIP)||S.game==='stoneage'&&/^sa[tchm]/.test(LPTIP)||LPTIP.startsWith('ph:')||LPTIP.startsWith('wpb:')||LPTIP.startsWith('wzd:')||LPTIP.startsWith('dws:')||LPTIP.startsWith('dwi:')||LPTIP.startsWith('dww:')||LPTIP.startsWith('dwo:')||LPTIP.startsWith('wzc:')||/^tr[prc]:/.test(LPTIP)||LPTIP.startsWith('dg:')||LPTIP.startsWith('pg:')||LPTIP.startsWith('wt:')||LPTIP.startsWith('qb:'))?lpSheet():'')+(PSED!=null&&S.game==='pool'&&S.screen==='score'?spEditSheet():'')+(DEDIT&&S.game==='darts'&&S.screen==='score'?dEditSheet():'')+(CALC&&CG&&['score','live'].includes(S.screen)?calcSheet():''));
   if(S.screen!=='home'){const bar=document.querySelector('#app .bar');if(bar){bar.insertAdjacentHTML('afterbegin',HOMEBTN);if(CBG.includes(S.game)&&['score','live'].includes(S.screen)&&!S.editing){const rb=bar.querySelector('.rulesbtn');if(rb&&!bar.querySelector('.cbbtn'))rb.insertAdjacentHTML('afterend',`<button class="btn sm cbbtn" data-a="cbopen" aria-label="Card back" title="Card back">${cbThumb(cbFor(S.game))}</button>`)}if(dashOn()&&!S.editing)bar.insertAdjacentHTML('beforeend','<button class="btn sm dashbtn" data-a="dashopen" aria-label="Everyone at a glance">📊</button>');if((window.FTLINK||window.FTLAN)&&!S.lk&&!S.demo&&!S.editing&&S.started&&!S.finished&&['score','live'].includes(S.screen))bar.insertAdjacentHTML('beforeend','<button class="btn sm lkbtn" data-a="lkchoose" aria-label="Link phones">📱<span class="lkw"> Link</span></button>')}}
   if(S.screen==='results'&&S.lk&&!S.demo&&S.finished){const app=document.getElementById('app'),ac=app.querySelector('.actions');if(ac){ac.querySelectorAll('[data-a="rematch"]').forEach(x=>x.remove());ac.insertAdjacentHTML('beforebegin',lkVoteHtml());if(!ac.querySelector('button'))ac.remove()}else app.insertAdjacentHTML('beforeend',lkVoteHtml())}
   bidMark();
@@ -26746,7 +26838,7 @@ document.addEventListener('click',e=>{
   if(/^sbp(src|disc|build|show|deal|pass)$/.test(a)&&S.game==='skipbo'&&sbOn()&&S.started){sbAct(a,b,k);save();render();return}
   if(/^mtp(tile|train|draw|pass|done|show|deal)$/.test(a)&&S.game==='mextrain'&&mtOn()&&S.started){mtAct(a,b,k);save();render();return}
   if(/^dnp[a-z]+$/.test(a)&&S.game==='dominion'&&dnOn()&&S.started){dnAct(a,b,k);save();render();return}
-  if(/^wz(ans|sel|look|show)$/.test(a)&&wzOn()&&S.started){wzUiAct(a,b,k);save();render();return}
+  if(/^wz(ans|sel|look|show|grp|paysel|rsok|kp|kgo)$/.test(a)&&wzOn()&&S.started){wzUiAct(a,b,k);save();render();return}
   if(/^wp(ans|pk|look|show|sb|sf|sbo|sgo|playsel|paysel|rsok|trf|ef)$/.test(a)&&wpOn()&&S.started){wpUiAct(a,b,k);save();render();return}
   if(/^trp[a-z]+$/.test(a)&&trOn()&&S.started){trUiAct(a,b,k);save();render();return}
   if(/^ccp[a-z]+$/.test(a)&&S.game==='carc'&&ccOn()&&S.started){ccUiAct(a,b,k);save();render();return}
@@ -27625,6 +27717,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='bf2861';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='847b65';</script>
 </body>
 </html>

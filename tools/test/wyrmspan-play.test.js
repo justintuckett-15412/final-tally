@@ -47,15 +47,67 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   for(const [n,v,why] of R)ok(n,v,why);
   // the screen: one person and two computer players
   await P.evaluate(()=>{S.players.forEach((x,i)=>{x.on=i<3;x.bot=i?'normal':null});delete S.wzg;S.finished=false;S.screen='score';save();render()});await W(1500);
-  const setup=await P.evaluate(async()=>{const clk=()=>{const b=[...document.querySelectorAll('.wzdock [data-a="wzans"]')][0];if(!b)return false;b.dispatchEvent(new MouseEvent('click',{bubbles:true}));return true};
-    const g=S.wzg,me=g.ps[0];for(let i=0;i<5;i++){if(!g.ask||g.ask.pid!==me)break;if(!clk())return 'no answer button';}return wzCards(g,me)===4&&wzRes(g,me)===3||[wzCards(g,me),wzRes(g,me),JSON.stringify(g.ask)]});
-  ok('Through the screen: tap to put back 2 cards and pick 3 resources',setup===true,setup);
+  /* Justin (Nov 21): the starting hand shows the real cards (cost, eggs…), in a dock row with real height, chosen by tapping */
+  for(const [w,h] of [[400,850],[1272,900]]){await P.setViewportSize({width:w,height:h});await W(300);
+    const vis=await P.evaluate(()=>{const B=[...document.querySelectorAll('.wzdock [data-a="wzkp"]')];return {n:B.length,dh:B.filter(b=>b.querySelector('.wzc')).map(b=>Math.round(b.getBoundingClientRect().height)),
+      ch:B.filter(b=>b.querySelector('.wzcave')).map(b=>Math.round(b.getBoundingClientRect().height)),cost:B.filter(b=>b.querySelector('.wzc')).every(b=>b.querySelector('.wzcm')&&b.querySelector('.wzvp')&&/wy-|free/.test(b.querySelector('.wzcm').innerHTML)),
+      fit:[...document.querySelectorAll('.wzdock .wzimg')].every(i=>getComputedStyle(i).objectFit==='contain')}});
+    ok(`Starting hand at ${w}px: 3 dragon cards (cost, points) and 3 cave cards in the dock, not squeezed; the art is shown whole`,vis.n===6&&vis.dh.length===3&&vis.dh.every(x=>x>120)&&vis.ch.every(x=>x>60)&&vis.cost&&vis.fit,vis);
+    await P.screenshot({path:`/tmp/wz-start-${w}.png`})}
+  await P.setViewportSize({width:400,height:850});
+  const setup=await P.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),clk=async s=>{const e=document.querySelector(s);if(!e)throw new Error('missing '+s);e.dispatchEvent(new MouseEvent('click',{bubbles:true}));await w(120)};
+    const g=S.wzg,me=g.ps[0],O=g.ask.opts,d0=g.ask.opts.find(o=>o.v==='d0').d,c2=g.ask.opts.find(o=>o.v==='c2').c;
+    const off=document.querySelector('[data-a="wzkgo"]').disabled;await clk('[data-a="wzkp"][data-k="d0"]');await clk('[data-a="wzkp"][data-k="d1"]');await clk('[data-a="wzkp"][data-k="d1"]');await clk('[data-a="wzkp"][data-k="c2"]');
+    const txt=document.querySelector('.wzkn').innerText,on=!document.querySelector('[data-a="wzkgo"]').disabled;await clk('[data-a="wzkgo"]');
+    for(let i=0;i<3;i++){if(!g.ask||g.ask.pid!==me)break;await clk('.wzdock [data-a="wzans"]')}
+    const H=g.P[me].hand;return {ok:off&&on&&/Keeping 4/.test(txt)&&H.d.length===2&&H.c.length===2&&!H.d.includes(d0)&&!H.c.includes(c2)&&wzRes(g,me)===3,txt,H,res:wzRes(g,me)}});
+  ok('Through the screen: tap 2 cards to put back (Keep button waits for 2), keep the other 4, then pick 3 resources',setup.ok,setup);
   await P.evaluate(()=>{const g=S.wzg;let k=0;while(g.ask&&k++<50){const q=act().find(x=>x.id===g.ask.pid);wzMove(g,q.id,{v:g.ask.opts[0].v})}g.ann=null;g.turn=g.ps[0];render()});await W(400);
   const tk=await P.evaluate(()=>{const g=S.wzg,me=g.ps[0],c0=g.P[me].coin;const b=[...document.querySelectorAll('[data-a="wzans"]')].find(x=>{const m=JSON.parse(decodeURIComponent(x.dataset.k));return m.a==='exp'&&m.cv==='c'});if(!b)return 'no explore button';
     b.dispatchEvent(new MouseEvent('click',{bubbles:true}));let k=0;while(g.ask&&g.ask.pid===me&&k++<10){const x=document.querySelector('.wzdock [data-a="wzans"]');if(!x)return 'no answer';x.dispatchEvent(new MouseEvent('click',{bubbles:true}))}
     return g.P[me].coin===c0-1&&g.P[me].ex.c===1&&g.turn!==me||[g.P[me].coin,c0,g.turn,JSON.stringify(g.ask)]});
   await P.screenshot({path:'/tmp/wz-screen.png',fullPage:true});
   ok('Through the screen: tap Explore Crimson Cavern, answer its question: 1 coin paid and the turn passes',tk===true,tk);
+  /* a card question in the dock (gain a dragon card): real cards and the deck's card back, with real height at both sizes */
+  await P.evaluate(()=>{const g=S.wzg,me=g.ps[0];let k=0;while(g.ask&&k++<50)wzMove(g,g.ask.pid,{v:g.ask.opts[0].v});g.q=[{t:'gt',pid:me,k:'',tok:'d'}];wzRun(g);render()});await W(300);
+  for(const [w,h] of [[400,850],[1272,900]]){await P.setViewportSize({width:w,height:h});await W(300);
+    const r=await P.evaluate(()=>({h:[...document.querySelectorAll('.wzdock .wzpick .wzc')].map(c=>Math.round(c.getBoundingClientRect().height)),back:!!document.querySelector('.wzdock .wzdk-d')&&getComputedStyle(document.querySelector('.wzdock .wzdk-d')).backgroundImage.includes('wy-back-dragon'),
+      hand:[...document.querySelectorAll('.wzhand .wzc')].map(c=>Math.round(c.getBoundingClientRect().height)).slice(0,2)}));
+    ok(`Card question at ${w}px: the display dragons show as cards in the dock (real height) and the deck shows its card back`,r.h.length>=1&&r.h.every(x=>x>120)&&r.back&&r.hand.every(x=>x>120),r);
+    await P.screenshot({path:`/tmp/wz-turn-${w}.png`})}
+  await P.setViewportSize({width:400,height:850});
+  const gc=await P.evaluate(async()=>{const g=S.wzg,me=g.ps[0],n=g.P[me].hand.d.length,id=g.disp.d.find(x=>x!=null);const b=[...document.querySelectorAll('.wzdock .wzpick [data-a="wzans"]')].find(x=>x.querySelector('.wzc'));b.dispatchEvent(new MouseEvent('click',{bubbles:true}));await new Promise(r=>setTimeout(r,150));
+    return {ok:g.P[me].hand.d.length===n+1&&g.P[me].hand.d.includes(id),n}});
+  ok('Tapping a dragon card in the dock takes it',gc.ok,gc);
+  /* long press: dragon and cave cards open a big readable card above the dock */
+  for(const [kind,sel] of [['dragon','.wzhand .wzc[data-lp^="wzd:"]'],['cave','.wzdisp .wzcave[data-lp^="wzc:"]']])for(const [w,h] of [[400,850],[1272,900]]){await P.setViewportSize({width:w,height:h});await W(200);
+    const lp=await P.evaluate(async sel=>{const w=ms=>new Promise(r=>setTimeout(r,ms));LPTIP=null;render();await w(50);const el=document.querySelector(sel);if(!el)return {err:'no card '+sel};el.scrollIntoView({block:'center'});await w(50);const r=el.getBoundingClientRect();
+      el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,clientX:r.x+5,clientY:r.y+5}));await w(650);document.dispatchEvent(new PointerEvent('pointerup',{bubbles:true}));await w(100);
+      const big=document.querySelector('.lpsheet .lpbig>.wzc,.lpsheet .lpbig>.wzcave');if(!big)return {err:'no sheet',LPTIP,sheets:document.querySelectorAll('.sheet-bg').length,cls:[...document.querySelectorAll('.sheet')].map(x=>x.className).join()};const b=big.getBoundingClientRect(),top=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2);
+      const bg=document.querySelector('.sheet-bg:has(>.lpsheet)'),dock=document.querySelector('.wzdock');return {w:Math.round(b.width),above:!!top&&!!top.closest('.lpsheet'),z:+getComputedStyle(bg).zIndex,dz:dock?+getComputedStyle(dock).zIndex:0}},sel);
+    await P.screenshot({path:`/tmp/wz-lp-${kind}-${w}.png`});await P.evaluate(()=>{LPTIP=null;LPSUP=0;render()});
+    ok(`Long press a ${kind} card at ${w}px: a big card opens above the dock`,!lp.err&&lp.above&&lp.w>200&&lp.z>lp.dz,lp)}
+  await P.setViewportSize({width:400,height:850});
+  /* payment: short of a resource, the player chooses which 2 to trade in; the host checks the choice */
+  const pay=await P.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),clk=async s=>{const e=document.querySelector(s);if(!e)throw new Error('missing '+s);e.dispatchEvent(new MouseEvent('click',{bubbles:true}));await w(120)};
+    const g=S.wzg,me=g.ps[0],P=g.P[me];let k=0;while(g.ask&&k++<50)wzMove(g,g.ask.pid,{v:g.ask.opts[0].v});g.q=[];g.turn=me;P.passed=false;P.coin=6;
+    const D=WYD.find(d=>d.cost.meat===1&&!d.cost.gold&&!d.cost.crys&&!d.cost.milk&&!d.cost.egg&&!d.cost.coin&&d.ty==='E');P.hand.d=[D.no];P.res={meat:0,gold:2,crys:2,milk:0};P.mat={c:[{cv:0,d:null},null,null,null],g:[{cv:0,d:null},null,null,null],a:[{cv:0,d:null},null,null,null]};g.ask=null;WZSEL=null;render();
+    const bad=wzMove(JSON.parse(JSON.stringify(g)),me,{a:'ent',i:0,cv:D.cv[0],pay:{meat:1}});
+    await clk('[data-a="wzsel"][data-k="ent:0"]');const n=document.querySelectorAll('[data-a="wzpaysel"]').length;const PO=wzPayOpts(P.res,wzDCost(D.no)),j=PO.findIndex(x=>x.crys===2);
+    if(n!==3)return {ok:false,n,PO,acts:wzActs(g,me),turn:g.turn===me,ask:JSON.stringify(g.ask),q:g.q.length,sel:WZSEL};await clk(`[data-a="wzpaysel"][data-k="${j}"]`);await clk('.wzdock [data-a="wzans"][data-k*="%22ent%22"]');
+    return {ok:n===3&&!bad&&P.res.crys===0&&P.res.gold===2&&wzDr(g,me).some(([,d])=>d.id===D.no),n,bad,res:P.res,d:D.n}});
+  ok('Entice when short of a resource: a Pay-with row (3 ways) appears, the chosen pair is spent, a payment that isn’t legal is refused',pay.ok,pay);
+  /* the end-of-round card: the objective's counts and points, totals, what's next; computer players wait for it */
+  const rs=await P.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const g=S.wzg,[a,b,c]=g.ps;let k=0;while(g.ask&&k++<50)wzMove(g,g.ask.pid,{v:g.ask.opts[0].v});
+    g.obj[0]='eggs';g.rnd=0;g.q=[];render();const icon=!!document.querySelector('.wzob .wzgoi img[src*="wy-egg"]');
+    g.P[a].nest=2;g.P[b].nest=1;g.P[c].nest=0;g.ps.forEach(p=>{g.P[p].passed=true;g.P[p].coin=0});g.fp=a;g.q=[{t:"rend"}];wzRun(g);let j=0;while(g.ask&&j++<20)wzMove(g,g.ask.pid,{skip:1});save();render();await w(150);
+    const card=document.querySelector('.wzrs'),txt=card?card.innerText:'';window.__rs={tno:g.tno,turn:g.turn};return {icon,card:!!card,txt:txt.replace(/\s+/g,' ').slice(0,300),bot:act().find(p=>p.id===g.turn).bot}});
+  for(const [w,h] of [[400,850],[1272,900]]){await P.setViewportSize({width:w,height:h});await W(300);await P.screenshot({path:`/tmp/wz-round-${w}.png`})}
+  await P.setViewportSize({width:400,height:850});await W(2000);
+  const rs2=await P.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),g=S.wzg,{tno,turn}=window.__rs;const held=g.tno===tno&&g.turn===turn&&!g.ask&&!!document.querySelector('.wzrs');
+    document.querySelector('[data-a="wzrsok"]').click();await w(200);const gone=!document.querySelector('.wzrs');let moved=false;for(let i=0;i<40&&!moved;i++){await w(250);moved=g.tno!==tno||g.turn!==turn||!!g.ask}return {held,gone,moved}});
+  Object.assign(rs,rs2);rs.ok=rs.icon&&rs.card&&/Round 1 is over/i.test(rs.txt)&&/→ \+\d/.test(rs.txt)&&/Start round 2/.test(rs.txt)&&/round 2 of 4/i.test(rs.txt)&&!!rs.bot&&rs.held&&rs.gone&&rs.moved;
+  ok('Objective tiles show the card pictures; the end-of-round card shows counts, points and what’s next; the computer player waits for it, then plays',rs.ok,rs);
   // the reveal
   await P.evaluate(()=>{S.players.forEach((x,i)=>{x.on=i<4;x.bot='normal'});const g=wzDeal();let k=0;while(g.phase!=='done'&&k++<30000){const q=act().find(x=>x.id===wzActor(g));if(!wzBotStep(g,q))break}g.ann=null;S.finished=false;S.screen='score';save();render()});await W(500);
   await P.screenshot({path:'/tmp/wz-end.png',fullPage:true});
