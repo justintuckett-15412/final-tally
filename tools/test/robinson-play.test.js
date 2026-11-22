@@ -53,7 +53,16 @@ const ROUNDS=+(process.env.ROUNDS||4);
   const fin=await P.evaluate(()=>({rd:S.rcg.round,ph:S.rcg.phase,fin:S.rcg.fin}));
   ok(`Played by taps: ${ROUNDS} rounds or the game ended (round ${fin.rd}, ${fin.ph})`,fin.rd>ROUNDS||fin.ph==='done',{fin,taps});
   ok('Taps covered card popups, questions, planned Actions and Ready',taps.pop>0&&taps.ans>0&&taps.plan>=4&&taps.ready>=2,taps);
-  const bd=await P.evaluate(()=>({hex:document.querySelectorAll('.rcmap .rchex').length,terr:document.querySelectorAll('.rchex.t').length,cast:document.querySelectorAll('.rcch').length,mor:!!document.querySelector('.rcmv.on'),inv:document.querySelectorAll('.rcinv').length,wb:document.querySelectorAll('.rcwb').length}));
+  const tabsOK=await P.evaluate(()=>document.querySelectorAll('.rctabs .rctab').length);
+  const cnt=sel=>P.evaluate(s=>document.querySelectorAll(s).length,sel);
+  await P.click('.rctab[data-k="island"]');await P.waitForTimeout(250);const hex=await cnt('.rcmap .rchex'),terr=await cnt('.rchex.t');await shot('tab-island-390');
+  await P.click('.rctab[data-k="camp"]');await P.waitForTimeout(250);await shot('tab-camp-390');
+  await P.click('.rctab[data-k="cards"]');await P.waitForTimeout(250);const inv=await cnt('.rcinv'),cast=await cnt('.rcch'),wb=await cnt('.rcwb');await shot('tab-cards-390');
+  await P.click('.rctab[data-k="log"]');await P.waitForTimeout(250);const lg=await cnt('.rclog li');
+  await P.click('.rctab[data-k="plan"]');await P.waitForTimeout(250);
+  const mor=await P.evaluate(()=>!!document.querySelector('.rcmv.on'));
+  ok('Phone tabs: Plan, Island, Camp, Cards and Log all open',tabsOK===5&&lg>0,{tabsOK,lg});
+  const bd={hex,terr,cast,mor,inv,wb};
   ok('The board: island hexes with terrain, morale marker, inventions, character cards with wound tracks',bd.hex>=10&&bd.terr>=1&&bd.mor&&bd.inv>=5&&bd.cast>=2&&bd.wb>=20,bd);
   await shot('board-390');await shot('board-1024',1024);
   /* dark mode */

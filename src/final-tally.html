@@ -2851,6 +2851,13 @@ html.rcfull:not(.rcside) .rcctl .rccast{display:grid;grid-template-columns:1fr 1
 .rcendimg{width:110px;height:70px;object-fit:cover;border-radius:10px;font-size:40px}
 .rcbigv .rcstat{font-size:clamp(15px,1.6vw,22px)}.rcbigv .rcmv{min-width:clamp(26px,2.6vw,40px);font-size:clamp(13px,1.4vw,20px)}
 .rcbigv .rcpanel{font-size:clamp(13px,1.2vw,17px)}
+/* phone tabs */
+.rctabbody{padding-bottom:84px}
+.rctabs{position:fixed;left:0;right:0;bottom:0;z-index:21;display:flex;gap:2px;padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:var(--card,#fff);border-top:1px solid var(--line,#ddd);box-shadow:0 -2px 10px rgba(0,0,0,.08)}
+.rctab{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border:0;border-radius:10px;background:transparent;color:inherit;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.rctab span{font-size:20px;line-height:1}
+.rctab.on{background:var(--accent,#f2b705);color:#17212B}
+.rcdot{position:absolute;top:4px;right:calc(50% - 18px);width:10px;height:10px;border-radius:50%;background:#e23b3b;box-shadow:0 0 0 2px var(--card,#fff)}
 </style>
 
 <div id="app"></div>
@@ -21053,7 +21060,7 @@ function rcBoard(g,o={}){const tap=!!o.tap&&rcPlanning(g);
   return `<div class="rcboard${o.big?' big':''}"><div class="rcbcol">${rcScenPanel(g)}<div class="panel rcpanel rcmapp"><h3 class="rch3">🏝️ The island</h3>${rcMap(g,{tap})}</div>${rcRoundTrack(g)}</div>
     <div class="rcbcol">${rcCampPanel(g)}${rcThreatPanel(g,tap)}${rcActPanel(g)}</div>
     <div class="rcbcol wide">${rcInvPanel(g,tap)}${o.big?`<div class="panel rcpanel"><h3 class="rch3">👥 The castaways</h3>${rcCast(g,{compact:0})}</div>`:''}${rcLogBox(g)}</div></div>`}
-function rcLogBox(g){const L=(g.lg||[]).slice(-14).reverse();return L.length?`<div class="panel rcpanel"><h3 class="rch3">📜 What happened</h3><ul class="dwlog rclog">${L.map(e=>`<li>${esc(e.ic||'')} ${esc(e.t)}</li>`).join('')}</ul></div>`:''}
+function rcLogBox(g,n){const L=(g.lg||[]).slice(-(n||14)).reverse();return L.length?`<div class="panel rcpanel"><h3 class="rch3">📜 What happened</h3><ul class="dwlog rclog">${L.map(e=>`<li>${esc(e.ic||'')} ${esc(e.t)}</li>`).join('')}</ul></div>`:''}
 function rcEndUI(g){const F=g.fin||{};return `<div class="rcend ${F.win?'win':'lose'}">${rcImg('rc-sc-'+g.scen,'','rcendimg','🏝️')}<div><b>${F.win?'🏆 You escaped the island!':'☠️ The island won'}</b><span class="rlab">${esc(rcScen(g.scen).name)} · round ${F.round} · ${esc(F.why||'')}</span></div></div>
   ${rcRes2()&&!rcBig()?'<div class="actions"><div class="in"><button class="btn primary" data-a="finish">Finish &amp; see results</button></div></div>':''}`}
 function rcBigBanner(g){if(g.phase==='done')return '';if(g.ask)return `<div class="rcbanner">❓ <b>${esc(rcPName(g.ask.pid))}</b>: ${esc(g.ask.msg)}${g.ask.kind==='reroll'?rcDiceRow(g,g.ask.dice):''}</div>`;
@@ -21077,12 +21084,26 @@ function rcPlayUI(){const g=rcGx(),P=act(),big=rcBig();
   const mineCh=g.order.filter(k=>pids.includes(g.C[k].pid));
   ctl+=`<div class="sec"><div class="sec-h"><h3>${rcLinked()?'Your character'+(mineCh.length>1?'s':''):'The castaways'}</h3></div>${`<div class="rccast">${mineCh.map(k=>rcCharCard(g,k,{uses:U})).join('')}${!rcLinked()||true?[g.fri?'friday':null,g.jen?'jenny':null].filter(Boolean).map(k=>rcCharCard(g,k,{uses:U,compact:rcLinked()})).join(''):''}</div>`}</div>`;
   if(rcLinked()){const oth=g.order.filter(k=>!pids.includes(g.C[k].pid));if(oth.length)ctl+=`<details class="sec rcothers"><summary>Everyone else</summary><div class="rccast compact">${oth.map(k=>rcCharCard(g,k,{compact:1})).join('')}</div></details>`}
-  out+=`<div class="rcwrap"><div class="rcctl">${ctl}</div><div class="rcbd">${rcBoard(g,{tap:true})}</div></div>`;
+  {const z=parseFloat(document.documentElement.style.zoom)||1,cw=innerWidth/z;
+  if(cw<900){/* phone: tabs instead of one long scroll (Justin, Nov 22) */
+    const need=g.phase!=='done'&&(g.ask?pids.includes(g.ask.pid):rcPlanning(g)&&pids.some(p=>!g.plan.ready[p]));
+    if(need&&RCTABK!==rcNeedKey(g)){RCTABK=rcNeedKey(g);RCTAB='plan'}
+    const tap=rcPlanning(g),T=RCTAB;
+    const body=T==='island'?`${rcScenPanel(g)}<div class="panel rcpanel rcmapp"><h3 class="rch3">🏝️ The island</h3>${rcMap(g,{tap})}${tap?'<p class="hint">Tap a tile to plan an Action there.</p>':''}</div>${rcRoundTrack(g)}`
+      :T==='camp'?`${rcCampPanel(g)}${rcThreatPanel(g,tap)}${rcActPanel(g)}`
+      :T==='cards'?`${rcInvPanel(g,tap)}<div class="panel rcpanel"><h3 class="rch3">👥 The castaways</h3>${rcCast(g,{compact:1})}</div>`
+      :T==='log'?rcLogBox(g,40)||'<p class="hint">Nothing yet.</p>':`<div class="rcctl">${ctl}</div>`;
+    const tabs=[['plan','🧭','Plan'],['island','🏝️','Island'],['camp','⛺','Camp'],['cards','🔧','Cards'],['log','📜','Log']];
+    out+=`<div class="rctabbody">${body}</div><nav class="rctabs" aria-label="Robinson Crusoe sections">${tabs.map(([k,i,l])=>`<button class="rctab${T===k?' on':''}" data-a="rcutab" data-k="${k}" aria-pressed="${T===k}"><span aria-hidden="true">${i}</span>${l}${k==='plan'&&need&&T!=='plan'?'<i class="rcdot" aria-label="your turn"></i>':''}</button>`).join('')}</nav>`}
+  else out+=`<div class="rcwrap"><div class="rcctl">${ctl}</div><div class="rcbd">${rcBoard(g,{tap:true})}</div></div>`}
   out+=rcPlanSheet(g)+rcHexSheet(g)+rcCardPop(g);
   return out}
 
 /* ---------- taps ---------- */
-function rcUiAct(a,b,k){if(a==='rcubig'){RCBIG=!rcBig();try{localStorage.setItem('ft-rcbig',RCBIG?'1':'0')}catch(e){}return}
+let RCTAB='plan',RCTABK='';
+const rcNeedKey=g=>`${g.gid||''}:${g.round}:${g.phase}:${g.ask?g.ask.pid+':'+g.ask.msg:''}`;
+function rcUiAct(a,b,k){if(a==='rcutab'){if(['plan','island','camp','cards','log'].includes(k)){RCTAB=k;window.scrollTo(0,0)}return}
+  if(a==='rcubig'){RCBIG=!rcBig();try{localStorage.setItem('ft-rcbig',RCBIG?'1':'0')}catch(e){}return}
   if(a==='rcupick'){if(!rcRes2()||S.rcg&&!rcStale(S.rcg))return;const [pid,ch]=String(k).split(':'),pk=rcPickFix(),A=pk.as;if(!A[pid]||!RCCHARS.includes(ch))return;
     const multi=RCX().multiChar;if(A[pid].includes(ch)){if(multi&&A[pid].length>1)A[pid]=A[pid].filter(x=>x!==ch);return}
     const was=A[pid].slice();Object.keys(A).forEach(q=>{if(q!==pid&&A[q].includes(ch)){A[q]=A[q].filter(x=>x!==ch);if(!A[q].length&&!multi)A[q]=was.filter(x=>x!==ch).slice(0,1)}});
