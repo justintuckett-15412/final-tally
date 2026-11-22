@@ -74,3 +74,28 @@ html.bdbigv .bdlet{width:clamp(30px,3vw,48px);height:clamp(30px,3vw,48px);font-s
 html.bdbigv .bdstairs.big{max-width:min(1300px,140vh);margin-left:auto;margin-right:auto}
 html.bdbigv .bdkeyi{font-size:clamp(13px,1.6vw,22px)}
 @media (min-width:1000px){html.bdbigv .bdrvgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:16px;align-items:start}}
+/* the step-by-step reveal */
+.bdcardsm{padding:8px 12px}.bdcardsm .bdq{font-size:20px}
+.bdrvstep{border-radius:18px;padding:14px;margin:8px 0;background:var(--surface,#fff);border:3px solid var(--line);box-shadow:0 3px 0 var(--line);display:flex;flex-direction:column;gap:8px;animation:bdpop .35s ease-out}
+.bdrvstep.real{border-color:#2fb36d;background:color-mix(in srgb,#2fb36d 16%,var(--surface,#fff))}
+.bdrvn{margin:0;font-weight:700}
+.bdrvcard{display:flex;align-items:flex-start;gap:10px}.bdrvcard .bdtxt{flex:1;min-width:0;font-size:22px;font-weight:700;line-height:1.25}
+.bdrvh{margin:0;font-size:20px;font-weight:800;color:#1f8a52}
+:root[data-theme="dark"] .bdrvh,html.dark .bdrvh{color:#6fdc9c}
+.bdrvstep .bdrvb,.bdcvc .bdrvb{display:flex;flex-direction:column;gap:6px}
+.bdplus{font-size:13px;padding:1px 7px;border-radius:999px;background:var(--accent,#f2b705);color:#17212B}
+@keyframes bdpop{0%{transform:scale(.94);opacity:.3}100%{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.bdrvstep{animation:none}}
+.bdauto{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:2px 0 8px;padding:8px 10px;border-radius:12px;background:var(--soft)}
+.bdautobar{flex:1 1 100%;height:8px;border-radius:999px;background:var(--bg);overflow:hidden}.bdautobar i{display:block;height:100%;border-radius:999px;background:var(--accent,#f2b705);transition:width .2s linear}
+.bdauto.pz .bdautobar i{opacity:.45}.bdautot{flex:1;margin:0}.bdautob{min-height:0}
+/* passing the Dasher, and the round's cards to look back at */
+.bdpass .btn{font-size:17px}.bdpassw{gap:8px}.bdpassw .rlab{margin:0}
+.bdcv{gap:8px}.bdcvtop{display:flex;align-items:center;justify-content:space-between;gap:8px}.bdcvtop .rlab{margin:0;text-align:center;flex:1}.bdcvtop .btn{min-width:44px}
+.bdcvc{border-radius:16px;padding:12px;background:var(--surface,#fff);border:3px solid var(--line);display:flex;flex-direction:column;gap:8px;min-height:120px;touch-action:pan-y}
+.bdcvc.real{border-color:#2fb36d;background:color-mix(in srgb,#2fb36d 16%,var(--surface,#fff))}.bdcvc.bc{border-style:dashed}
+.bdcvq{border-color:var(--accent,#f2b705)}.bdcvq .bdq{font-size:22px}
+.bdcvc .bdrvcard .bdtxt{font-size:19px}
+.bdcvdots{display:flex;justify-content:center;flex-wrap:wrap;gap:6px}.bdcvdot{width:12px;height:12px;padding:0;border-radius:50%;border:2px solid var(--line);background:transparent;cursor:pointer}.bdcvdot.on{background:var(--accent,#f2b705);border-color:var(--accent,#f2b705)}
+html.bdbigv .bdrvcard .bdtxt{font-size:clamp(24px,3.6vw,52px)}html.bdbigv .bdrvh{font-size:clamp(22px,3vw,44px)}html.bdbigv .bdautobar{height:14px}html.bdbigv .bdautot{font-size:clamp(15px,1.8vw,26px)}
+html.bdbigv .bdrvstep .bdwho{font-size:clamp(14px,1.8vw,26px)}html.bdbigv .bdplus{font-size:clamp(13px,1.6vw,22px)}

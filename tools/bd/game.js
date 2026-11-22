@@ -1,11 +1,12 @@
 /* ================= Beyond Balderdash: rules engine (from the 1997 Parker Brothers rule sheet) =================
    State S.bdg = {gid, ps:[pid in seat order], n (moves), round, di (Dasher's index in ps), cn (cards drawn: a cancelled card draws a new one),
-     o:{die (roll for the category), laws (house rule: 0 box categories, 1 Laws as a 6th, 2 Laws instead of Dates), db (Dasher bluffs too with 4 or fewer), steps (27), x2 (Double Score step, 0 = none), kids, tlim (bluff seconds, 0 = none)},
+     o:{die (roll for the category), laws (house rule: 0 box categories, 1 Laws as a 6th, 2 Laws instead of Dates), db (Dasher bluffs too with 4 or fewer), steps (27), x2 (Double Score step, 0 = none), kids, tlim (bluff seconds, 0 = none), rv (house rule: the step-by-step reveal, seconds per answer; 0 = all at once)},
      used:{cat:[question index]}, pos:{pid:step}, x2n:{pid:1} (points count double this round), rp:{pid:points this round, before doubling},
      phase:'cat'|'write'|'review'|'read'|'vote'|'reveal'|'done', t0 (when the phase started), die, cat,
      q:{c,i,q,a} the card, q2:{c,qs:[{i,q,a}×3],ord} (two players), bl:{pid:bluff}, bc:{pid:1} basically correct, lk:{pid:1} looks like the real answer,
      tEnd (bluff timer end), ans:[{t,by:[pid],real}] the list everyone votes on, votes:{pid:answer index},
      cx (the last cancelled card, shown until the round ends), res (the round's reveal), hist:[...], st:{pid:{fool,right,bc,pts}}, winner,
+     rv:{i (the answer on show: an index into bdRvOrd), t (when it started, host clock), pz (paused: ms left)} the step-by-step reveal; null = the full reveal,
      nz/nzl/nudge (nudges, like Telestrations) }
    Moves: bdMove(g,pid,mv) -> true when made. */
 const BDCATS=['words','people','initials','movies','dates'];
@@ -38,10 +39,10 @@ function bdDieCat(g){if(!g.o.die||!g.die||g.die>bdCats(g).length)return null;con
 function bdDeal(o={}){const ps=act().map(p=>p.id);if(ps.length<2)return null;const st=Math.round(+o.steps)||27,steps=Math.max(5,Math.min(60,st));
   let x2=o.x2==null?14:Math.round(+o.x2)||0;if(x2<0||x2>=steps)x2=0;
   const g={gid:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ps,n:0,round:1,di:Math.floor(Math.random()*ps.length),cn:0,
-    o:{die:!!o.die,db:!!o.db,laws:[0,1,2].includes(+o.laws)?+o.laws:0,steps,x2,kids:!!o.kids,tlim:[0,120,180,300].includes(+o.tlim)?+o.tlim:0},
+    o:{die:!!o.die,db:!!o.db,laws:[0,1,2].includes(+o.laws)?+o.laws:0,steps,x2,kids:!!o.kids,tlim:[0,120,180,300].includes(+o.tlim)?+o.tlim:0,rv:o.rv==null?5:BDRVS.includes(+o.rv)?+o.rv:5},
     used:{},pos:Object.fromEntries(ps.map(p=>[p,0])),x2n:{},rp:{},hist:[],st:Object.fromEntries(ps.map(p=>[p,{fool:0,right:0,bc:0,pts:0}])),winner:null,cx:null};
   bdCatPhase(g);return g}
-function bdCatPhase(g){g.phase='cat';g.t0=Date.now();g.cat=null;g.q=null;g.q2=null;g.bl={};g.bc={};g.lk={};g.votes={};g.ans=null;g.tEnd=null;g.nz={};
+function bdCatPhase(g){g.phase='cat';g.rv=null;g.t0=Date.now();g.cat=null;g.q=null;g.q2=null;g.bl={};g.bc={};g.lk={};g.votes={};g.ans=null;g.tEnd=null;g.nz={};
   g.die=g.o.die?1+Math.floor(Math.random()*6):null}
 /* draw k unused questions from a category (a category that runs out starts over) */
 function bdDraw(g,c,k){const pool=bdPool(g,c);if(pool.length<k)return null;let used=new Set(g.used[c]||[]);let free=pool.filter(i=>!used.has(i));
@@ -71,7 +72,16 @@ function bdMove(g,pid,mv){if(!g||!mv||!g.ps.includes(pid))return false;const D=b
     g.q={c:g.q2.c,i:Q.i,q:Q.q,a:Q.a};g.ans=g.q2.ord.map(j=>({t:g.q2.qs[j].a,by:[],real:j===k?1:0}));g.votes={};g.phase='vote';g.t0=now;g.n++;return true}
   if(g.phase==='vote'&&mv.a==='vote'){if(!bdVoters(g).includes(pid))return false;const i=+mv.i;if(!(i>=0&&i<g.ans.length))return false;if(g.votes[pid]===i)return false;
     g.votes[pid]=i;g.n++;if(bdVoters(g).every(p=>g.votes[p]!=null))bdReveal(g);return true}
+  if(g.phase==='reveal'&&g.rv){const R=g.rv,n=bdRvOrd(g).length,dur=g.o.rv*1000;
+    /* the Dasher (or the host, for them) skips ahead; mv.i = the step they were looking at, so a tap that crosses an automatic step never skips two */
+    if(mv.a==='rvnext'){if(pid!==D)return false;if(mv.i!=null&&+mv.i!==R.i)return false;bdRvStep(g);g.n++;return true}
+    /* the host moves on once the step's time is up */
+    if(mv.a==='rvauto'){if(!bdRvDue(g))return false;bdRvStep(g);g.n++;return true}
+    if(mv.a==='rvpause'){if(pid!==D)return false;if(mv.on){if(R.pz!=null)return false;R.pz=Math.max(0,Math.min(dur,(R.t||now)+dur-now))}else{if(R.pz==null)return false;R.t=now-(dur-R.pz);delete R.pz}g.n++;return true}
+    return false}
   if(g.phase==='reveal'&&mv.a==='next'){if(g.winner){g.phase='done';g.n++;return true}
+    /* the round waits for the Dasher to pass the Dasher on */
+    if(pid!==D)return false;
     g.round++;g.di=(g.di+1)%g.ps.length;g.rp={};g.cx=null;g.res=null;bdCatPhase(g);g.n++;return true}
   return false}
 function bdToReview(g){g.phase='review';g.t0=Date.now();g.tEnd=null;g.bc={};g.lk={};
@@ -93,7 +103,16 @@ function bdReveal(g){const D=bdDasher(g),rp={...g.rp},add=(p,n)=>{rp[p]=(rp[p]||
   g.x2n=win?{}:next;g.winner=win;
   g.res={rp,gain,from,to:{...g.pos},dbl,x2next:next,why,votes:{...g.votes},win,order:bdOrder(g)};
   g.hist.push({r:g.round,d:D,c:g.q.c,q:g.q.q,a:g.q.a,gain});
-  g.phase='reveal';g.t0=Date.now()}
+  g.phase='reveal';g.t0=Date.now();g.rv=g.o.rv?{i:0,t:g.t0}:null}
+/* the step-by-step reveal (house rule "One at a time"): the bluffs in the order shown, the real answer last, then the full reveal */
+const BDRVS=[0,3,5,8,10];
+const bdRvOrd=g=>{const L=(g.ans||[]).map((_,i)=>i);return [...L.filter(i=>!g.ans[i].real),...L.filter(i=>g.ans[i].real)]};
+function bdRvStep(g){const R=g.rv;if(!R)return;if(R.i+1<bdRvOrd(g).length){g.rv={i:R.i+1,t:Date.now()}}else{g.rv=null;g.t0=Date.now()}}
+function bdRvDue(g,now){const R=g&&g.rv;if(!R||g.phase!=='reveal'||!g.o.rv||R.pz!=null)return false;return (now||Date.now())>=(R.t||0)+g.o.rv*1000}
+/* what one answer did this round: who wrote it, who picked it, the points it gave its writers (before doubling) */
+function bdAnsInfo(g,i){const A=g.ans[i],V=(g.res&&g.res.votes)||g.votes||{},pick=g.ps.filter(p=>V[p]===i),fooled=pick.filter(p=>!A.by.includes(p));
+  /* a vote from a co-writer of an identical bluff still scores for the other writer; your own vote never does */
+  return {A,pick,fooled,ptsOf:w=>A.real||bdTwo(g)?0:pick.filter(p=>p!==w).length}}
 const bdStale=g=>{const ids=act().map(p=>p.id);return !g||!g.ps||g.ps.length!==ids.length||g.ps.some(id=>!ids.includes(id))};
 /* "Nudge" (as in Telestrations): who this player may nudge now, and what they're waiting on.
    cat / review / read: the Dasher, once the phase is 20 s old · write: once you've written (or you're the Dasher), anyone still writing · vote: once you've voted (or don't vote), anyone still voting */
@@ -101,6 +120,7 @@ const BDNZCOOL=15000,BDNZWAIT=20000;
 function bdNudgeable(g,pid,now,slack){const o={};if(!g||!g.ps||!g.ps.includes(pid))return o;now=now||Date.now();const D=bdDasher(g);
   if(['cat','review','read'].includes(g.phase)){if(pid!==D&&now-(g.t0||now)>=BDNZWAIT-(slack||0))o[D]=g.phase}
   else if(g.phase==='write'){const W=bdWriters(g);if(!W.includes(pid)||g.bl[pid])W.forEach(p=>{if(p!==pid&&!g.bl[p])o[p]='bluff'})}
+  else if(g.phase==='reveal'&&!g.rv&&!g.winner){if(pid!==D&&now-(g.t0||now)>=BDNZWAIT-(slack||0))o[D]='pass'}
   else if(g.phase==='vote'){const V=bdVoters(g);if(!V.includes(pid)||g.votes[pid]!=null)V.forEach(p=>{if(p!==pid&&g.votes[p]==null)o[p]='vote'})}
   return o}
 const bdNudgeCool=(g,by,p,now)=>Math.max(0,BDNZCOOL-((now||Date.now())-(((g&&g.nzl)||{})[by+'>'+p]||-1e15)));

@@ -2,10 +2,10 @@
 // Usage: node /home/claude/bd/sim.js [games]   -> must print "bad 0"
 const fs=require('fs');let NP=4;global.act=()=>Array.from({length:NP},(_,i)=>({id:'p'+i}));
 eval(fs.readFileSync(__dirname+'/data.js','utf8')+fs.readFileSync(__dirname+'/game.js','utf8')+`
-const N=+process.argv[2]||3000;const bad=[];const B=s=>{if(bad.length<40)bad.push(s)};const cnt={games:0,rounds:0,cancel:0,dbl:0,two:0,tie:0,bc1:0,dupe:0,laws:0,ownvote:0,timeup:0,dbluff:0};
+const N=+process.argv[2]||3000;const bad=[];const B=s=>{if(bad.length<40)bad.push(s)};const cnt={games:0,rounds:0,cancel:0,dbl:0,two:0,tie:0,bc1:0,dupe:0,laws:0,ownvote:0,timeup:0,dbluff:0,rvsteps:0,allAtOnce:0};
 const norm=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
 const WORDS=['A small fish','a SMALL fish!','A type of hat','To sneeze loudly','An old coin','A dance from Peru','A broken umbrella'];
-for(let k=0;k<N;k++){NP=2+k%7;const o={die:k%3===0,laws:k%5===1?1:k%5===3?2:0,db:k%2===0,steps:[27,27,15,10,40][k%5],x2:[14,14,7,0,5][k%5],kids:k%4===0,tlim:[0,120,0,300][k%4]};
+for(let k=0;k<N;k++){NP=2+k%7;const o={die:k%3===0,laws:k%5===1?1:k%5===3?2:0,db:k%2===0,steps:[27,27,15,10,40][k%5],x2:[14,14,7,0,5][k%5],kids:k%4===0,tlim:[0,120,0,300][k%4],rv:[5,3,0,8,10,undefined][k%6]};
   const g=bdDeal(o);cnt.games++;if(NP===2)cnt.two++;if(!g){B('nodeal');continue}
   if(g.o.x2>=g.o.steps)B('x2 >= steps');
   let exp2={},guard=0,lastPos={...g.pos},carry={};
@@ -67,7 +67,19 @@ for(let k=0;k<N;k++){NP=2+k%7;const o={die:k%3===0,laws:k%5===1?1:k%5===3?2:0,db
       if(!win&&JSON.stringify(nx)!==JSON.stringify(g.x2n))B('x2 next');
       if(win&&g.ps.filter(p=>g.pos[p]>=g.o.steps).length!==1)B('two at finish');
       continue}
-    if(g.phase==='reveal'){const r=g.round,d=g.di;if(!bdMove(g,g.ps[Math.floor(Math.random()*NP)],{a:'next'}))B('next');
+    if(g.phase==='reveal'&&g.rv){const R=g.rv,ord=bdRvOrd(g);cnt.rvsteps++;
+      if(R.i===0){if(ord.length!==g.ans.length||new Set(ord).size!==ord.length||!g.ans[ord[ord.length-1]].real)B('reveal order');
+        if(bdMove(g,D,{a:'next'}))B('next during steps');if(others.length&&bdMove(g,others[0],{a:'rvnext',i:0}))B('non-dasher skipped');
+        if(bdMove(g,D,{a:'rvauto'}))B('auto too early');if(!bdMove(g,D,{a:'rvpause',on:1})||!g.rv.pz)B('pause');g.rv.t-=60000;if(bdMove(g,D,{a:'rvauto'}))B('auto while paused');
+        if(!bdMove(g,D,{a:'rvpause',on:0})||g.rv.pz!=null)B('resume');if(bdMove(g,D,{a:'rvnext',i:5}))B('stale skip')}
+      /* each answer's line adds up to the bluff points scored */
+      if(!bdTwo(g)&&R.i===0){const want={};g.ans.forEach((A,i)=>{const I=bdAnsInfo(g,i);A.by.forEach(w=>want[w]=(want[w]||0)+I.ptsOf(w))});
+        g.ps.forEach(p=>{const n=(g.res.why[p]||[]).filter(x=>/vote/.test(x)).map(x=>+x.match(/\\+(\\d+)/)[1]).reduce((a,b)=>a+b,0);if((want[p]||0)!==n)B('ans pts '+p)})}
+      const i0=R.i;if(Math.random()<.5){g.rv.t=Date.now()-g.o.rv*1000-1;if(!bdMove(g,D,{a:'rvauto'}))B('auto')}else if(!bdMove(g,D,{a:'rvnext',i:i0}))B('rvnext');
+      if(g.rv&&g.rv.i!==i0+1)B('step');if(!g.rv&&i0!==ord.length-1)B('ended early');continue}
+    if(g.phase==='reveal'){const r=g.round,d=g.di;if(g.o.rv===0)cnt.allAtOnce++;
+      if(!g.winner&&others.length&&bdMove(g,others[0],{a:'next'}))B('non-dasher passed');
+      if(!bdMove(g,g.winner?g.ps[Math.floor(Math.random()*NP)]:D,{a:'next'}))B('next');
       if(g.phase==='cat'&&(g.round!==r+1||g.di!==(d+1)%NP||g.cx||Object.keys(g.rp).length))B('new round');continue}
     B('phase '+g.phase);break}
   if(g.phase!=='done')B('not done '+g.phase+' '+guard);

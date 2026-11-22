@@ -1,5 +1,5 @@
 /* ================= Beyond Balderdash: settings, play screens (linked phones), the staircase, the big board ================= */
-const BDDEF={play:1,choose:'dasher',laws:0,db:0,steps:27,x2:14,kids:0,tlim:0};
+const BDDEF={play:1,choose:'dasher',laws:0,db:0,steps:27,x2:14,kids:0,tlim:0,rv:5};
 const BDX=()=>{if(!S.bdx)S.bdx={...BDDEF};const X=S.bdx;for(const k in BDDEF)if(X[k]===undefined)X[k]=BDDEF[k];return X};
 function bdSaved(){let x=null;try{x=JSON.parse(localStorage.getItem(KEY+'.bdx'))}catch(e){}return Object.assign({...BDDEF},x||{})}
 function bdKeep(){if(S.demo)return;try{localStorage.setItem(KEY+'.bdx',JSON.stringify(BDX()))}catch(e){}}
@@ -43,6 +43,9 @@ function bdSetup(){const X=BDX(),lock=S.started,seg=(k,opts,cur)=>`<div class="s
   <p class="hint">${X.kids?`Kids mode: ${kidN} kid-friendly questions.`:`${allN} questions.`} These are Final Tally’s own question lists, not the cards from the box.</p></div>
   <div class="sec"><div class="sec-h"><h3>Bluff timer</h3></div><div class="panel hfpanel">${seg('tlim',[[0,'Off'],[120,'2 min'],[180,'3 min'],[300,'5 min']],X.tlim)}</div>
   <p class="hint">${+X.tlim?`House rule: ${X.tlim/60} minutes to write your bluff. Anyone not done by then sits out the bluffing (they still vote).`:'Official: no timer. Take your time.'}</p></div>
+  <div class="sec"><div class="sec-h"><h3>The reveal</h3></div><div class="panel hfpanel">${seg('rvm',[['step','👆 One at a time'],['all','📋 All at once']],+X.rv?'step':'all')}
+    ${+X.rv?`<div class="rlab" style="margin-top:10px">Seconds per answer</div>${seg('rv',[[3,'3 s'],[5,'5 s'],[8,'8 s'],[10,'10 s']],X.rv)}`:''}</div>
+  <p class="hint">${+X.rv?`Every screen shows one answer at a time, ${X.rv} seconds each: who wrote it and who it fooled, with the real answer last. Then the points. The Dasher can skip ahead or pause.`:'Every answer, who wrote it, the votes and the points show at once.'}</p></div>
   <p class="hint">${usualUI('balderdash')}</p>
   <div class="actions"><div class="in"><button class="btn primary" data-a="go" data-s="players">Players ›</button></div></div>`}
 /* setup taps (handled here so the shared app core needs no new cases) */
@@ -50,7 +53,7 @@ document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.targ
   if(S.game!=='balderdash'||S.started)return;const X=BDX(),[k,v]=String(b.dataset.k).split(':');
   if(k==='choose')X.choose=v==='die'?'die':'dasher';else if(k==='db'||k==='kids')X[k]=v==='1'?1:0;else if(k==='laws')X.laws=[0,1,2].includes(+v)?+v:0;
   else if(k==='steps'){X.steps=[15,20,27,35].includes(+v)?+v:27;if(X.x2>=X.steps)X.x2=0}else if(k==='x2')X.x2=[0,7,10,14,20].includes(+v)&&+v<X.steps?+v:0;
-  else if(k==='tlim')X.tlim=[0,120,180,300].includes(+v)?+v:0;bdKeep();save();render()},true);
+  else if(k==='tlim')X.tlim=[0,120,180,300].includes(+v)?+v:0;else if(k==='rvm')X.rv=v==='all'?0:(+X.rv||5);else if(k==='rv')X.rv=[3,5,8,10].includes(+v)?+v:5;bdKeep();save();render()},true);
 function bdScoreScr(){return bdPlayUI()}
 function bdChecks(){return []}
 
@@ -76,7 +79,9 @@ function bdGuide(){return guideSheet('Beyond Balderdash',[
     ['Category','The Dasher picks one of the 5 categories: 📖 Words (what does it mean?), 🧑 People (what are they known for?), 🔤 Initials (what do they stand for?), 🎬 Movies (what is the film about?), 📅 Dates (what happened that day?). With the 🎲 die rule, the roll picks it (6 = the Dasher’s choice).'],
     ['Bluffs','Everyone except the Dasher secretly types a made-up answer that sounds real. Only your phone sees yours.'],
     ['Basically correct','The Dasher reads the bluffs next to the real answer. A bluff that’s basically right gets 3 points, is set aside, and its writer sits out the vote. If more than one is basically correct, the card is cancelled (they keep their 3) and the Dasher picks a new card.'],
-    ['Vote','All the answers, real and made up, show on every phone in random order. Everyone except the Dasher votes for the one they think is real. You can vote for your own bluff, but it scores nothing.']]],
+    ['Vote','All the answers, real and made up, show on every phone in random order. Everyone except the Dasher votes for the one they think is real. You can vote for your own bluff, but it scores nothing.'],
+    ['The reveal','One at a time (our usual way): every screen shows each bluff for a few seconds, who wrote it and who it fooled, then the real answer last and who found it. Then the points. The Dasher can tap Next ▶ to skip ahead or ⏸ to pause. Pick “All at once” in the House rules to see everything together.'],
+    ['Passing the Dasher','After the points, the game waits for the Dasher to tap “Pass the Dasher”. Meanwhile, flip back through the round’s cards on your own phone with ◀ ▶ (or swipe). Nobody else’s screen moves.']]],
   ['Scoring and the staircase',[['Points','1 point for each vote your bluff gets. 2 points for picking the real answer. The Dasher gets 3 if nobody picks the real answer.'],
     ['Identical bluffs','Two bluffs that say the same thing show once; a vote for it counts for both writers.'],
     ['Climb','Move one step per point. Land exactly on the Double Score step and your points count double next round.'],
@@ -95,7 +100,7 @@ let BDBIG=(()=>{try{return localStorage.getItem('ft-bdbig')==='1'}catch(e){retur
 function bdViewer(){if(!bdLinked())return null;return act().find(p=>p.id===S.lk.me)||null}
 const bdBig=()=>BDBIG||bdLinked()&&!bdViewer();
 function bdGx(){if(typeof LKOPTR!=='undefined'&&LKOPTR)return S.bdg||null;try{const o=typeof lkqOn==='function'&&lkqOn()?lkOptState():null;if(o)return o.bdg||null}catch(e){}return S.bdg||null}
-function bdActor(g){if(!g||!['cat','review','read'].includes(g.phase))return null;return bdDasher(g)}
+function bdActor(g){if(!g)return null;if(g.phase==='reveal'&&!g.rv&&!g.winner)return bdDasher(g);if(!['cat','review','read'].includes(g.phase))return null;return bdDasher(g)}
 const bdClock=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 function bdSend(m){const g=bdGx(),V=bdViewer();if(!g||!V)return false;const r=lkq('bdMove',V.id,{...m,st:bdSt(g)});if(r)vibe(8);return r}
 
@@ -160,22 +165,55 @@ function bdVoteUI(g,V,big){const D=bdDasher(g),me=!big&&V&&g.ps.includes(V.id)?V
     ${can&&g.ans.some(A=>A.by.includes(me))?'<p class="hint">You may vote for your own bluff, but that vote scores nothing.</p>':''}
     ${bdWaitChips(g,Vs,p=>g.votes[p]!=null,'Who has voted')}<p class="rlab bdcenter">${Vs.filter(p=>g.votes[p]==null).length?`Waiting for ${bdNames(Vs.filter(p=>g.votes[p]==null))}…`:'All in!'}</p>${bdNudgeRow(g,V,big)}</div>`;
   return o}
+/* ---------- the step-by-step reveal: one answer at a time (the same step on every screen), the real answer last ---------- */
+const bdPlus=n=>`<b class="bdplus num">+${n}</b>`;
+function bdAnsLines(g,i,step){const I=bdAnsInfo(g,i),A=I.A,D=bdDasher(g),two=bdTwo(g),cs=L=>L.map(p=>bdChip(p)).join(' ');
+  if(A.real){if(two){const G=g.ps.find(p=>p!==D);return I.pick.length?`<span class="bdwho">${bdChip(G)} found it ${bdPlus(2)}</span>`:`<span class="bdwho">${bdChip(G)} missed it. ${bdChip(D,' <small>Dasher</small>')} ${bdPlus(1)}</span>`}
+    return I.pick.length?`<span class="bdwho">Found by ${I.pick.map(p=>bdChip(p)+' '+bdPlus(2)).join(' ')}</span>`:`<span class="bdwho">Nobody found it. ${bdChip(D,' <small>Dasher</small>')} ${bdPlus(3)}</span>`}
+  if(two)return `<span class="bdwho">${step?'Another question’s answer. ':''}${I.pick.length?`Picked by ${cs(I.pick)}`:'Nobody picked it'}</span>`;
+  return `<span class="bdwho">Written by ${A.by.map(w=>bdChip(w)+' '+bdPlus(I.ptsOf(w))).join(' ')}</span><span class="bdwho">${I.pick.length?`Picked by ${I.pick.map(p=>bdChip(p,A.by.includes(p)?' <small>(own answer)</small>':'')).join(' ')}`:'Fooled nobody'}</span>`}
+function bdRvLeft(g){const R=g.rv,dur=g.o.rv*1000;return R.pz!=null?R.pz:Math.max(0,Math.min(dur,(R.t||Date.now())+dur-Date.now()))}
+function bdRvBar(g,V,big){const R=g.rv,dur=g.o.rv*1000,pz=R.pz!=null,left=bdRvLeft(g),last=R.i>=bdRvOrd(g).length-1,lab=last?'Points':'Next answer',D=bdDasher(g),
+    can=(!big&&V&&V.id===D)||bdLinked()&&lkHost();
+  return `<div class="bdauto${pz?' pz':''}"${pz?'':` data-t="${R.t||0}" data-dur="${dur}"`}><div class="bdautobar" role="progressbar" aria-label="Time until the next answer" aria-valuemin="0" aria-valuemax="${g.o.rv}" aria-valuenow="${Math.ceil(left/1000)}"><i style="width:${(100*left/dur).toFixed(1)}%"></i></div>
+    <span class="rlab bdautot">${pz?'⏸ Paused':`${lab} in <b class="num">${Math.ceil(left/1000)}</b> s`}</span>${can?`<button class="btn sm bdautob" data-a="bdurvpause" data-k="${pz?0:1}" aria-label="${pz?'Resume the reveal':'Pause the reveal'}">${pz?'▶':'⏸'}</button><button class="btn sm primary bdautob" data-a="bdurvnext" data-k="${R.i}">Next ▶</button>`:''}</div>`}
+function bdRvUI(g,V,big){const R=g.rv,ord=bdRvOrd(g),i=ord[R.i],A=g.ans[i];
+  let o=`<div class="bdcard bdcardsm"><div class="bdcardh">${BDICO[g.q.c]} <b>${BDCATN[g.q.c]}</b> · ${BDASK[g.q.c]}</div><div class="bdq">${esc(g.q.q)}</div></div>`;
+  o+=`<div class="bdrvstep${A.real?' real':''}" data-bdrv="${R.i}" aria-live="polite"><div class="bdrvn rlab">${A.real?'And the real answer is…':`Answer ${R.i+1} of ${ord.length}`}</div>
+    <div class="bdrvcard"><span class="bdlet">${bdLet(i)}</span><span class="bdtxt">${esc(A.t)}</span></div>${A.real?'<p class="bdrvh">✓ The real answer!</p>':''}<div class="bdrvb">${bdAnsLines(g,i,1)}</div></div>`;
+  return o+bdRvBar(g,V,big)}
+/* ---------- the cards of this round, one at a time, on your own phone (◀ ▶ or swipe; nobody else's screen moves) ---------- */
+let BDCV={k:'',i:0};
+function bdCvCards(g){const L=[`<div class="bdcvc bdcvq"><div class="bdcardh">${BDICO[g.q.c]} <b>${BDCATN[g.q.c]}</b> · ${BDASK[g.q.c]}</div><div class="bdq">${esc(g.q.q)}</div><div class="bdreal"><span class="rlab">The real answer</span><b>${esc(g.q.a)}</b></div></div>`];
+  g.ans.forEach((A,i)=>L.push(`<div class="bdcvc${A.real?' real':''}"><div class="bdrvcard"><span class="bdlet">${bdLet(i)}</span><span class="bdtxt">${esc(A.t)}</span></div>${A.real?'<p class="bdrvh">✓ The real answer</p>':''}<div class="bdrvb">${bdAnsLines(g,i,0)}</div></div>`));
+  Object.keys(g.bc||{}).filter(p=>g.bc[p]&&g.bl[p]).forEach(p=>L.push(`<div class="bdcvc bc"><div class="bdrvcard"><span class="bdlet">✓</span><span class="bdtxt">${esc(g.bl[p])}</span></div><p class="bdrvh">Basically correct</p><div class="bdrvb"><span class="bdwho">Written by ${bdChip(p)} ${bdPlus(3)}</span></div></div>`));
+  return L}
+function bdCvUI(g){const L=bdCvCards(g),k=`${g.gid}:${g.round}:${g.cn}`;if(BDCV.k!==k)BDCV={k,i:0};const i=Math.max(0,Math.min(L.length-1,BDCV.i));
+  return `<div class="panel bdpanel bdcv" data-bdcv="${i}"><div class="bdcvtop"><button class="btn sm" data-a="bducv" data-k="-1" aria-label="Previous card" ${i?'':'disabled'}>◀</button><span class="rlab">${i?`Answer ${bdLet(i-1)}`:'The question'} · ${i+1} of ${L.length}</span><button class="btn sm" data-a="bducv" data-k="1" aria-label="Next card" ${i<L.length-1?'':'disabled'}>▶</button></div>
+    ${L[i]}<div class="bdcvdots">${L.map((_,j)=>`<button class="bdcvdot${j===i?' on':''}" data-a="bducv" data-k="=${j}" aria-label="Card ${j+1}"></button>`).join('')}</div></div>`}
 function bdRevealUI(g,V,big){const R=g.res,D=bdDasher(g),two=bdTwo(g),me=!big&&V&&g.ps.includes(V.id)?V.id:null;if(!R)return '';
+  if(g.rv)return bdRvUI(g,V,big);
   let o='';if(R.win)o+=`<div class="bdwin" style="${bdPcol(R.win)}">${bdMeep(bdColor(R.win),44)}<div><b>${esc(bdName(R.win))} reaches FINISH!</b><span class="rlab">${esc(bdName(R.win))} wins the game.</span></div></div>`;
-  o+=`<div class="bdcard"><div class="bdcardh">${BDICO[g.q.c]} <b>${BDCATN[g.q.c]}</b> · ${BDASK[g.q.c]}</div><div class="bdq">${esc(g.q.q)}</div></div>`;
+  const nx=g.ps[(g.di+1)%g.ps.length];
+  /* the round waits here for the Dasher to pass the Dasher on (the host can do it for them) */
+  if(!R.win){if(me===D)o+=`<div class="bdrow bdpass"><button class="btn primary" data-a="bdunext">Pass the Dasher to ${esc(bdName(nx))} ▶</button></div>`;
+    else o+=`<div class="panel bdpanel bdcenter bdpassw"><p class="rlab">Waiting for ${esc(bdName(D))} to pass the Dasher to ${esc(bdName(nx))}…</p>${bdNudgeRow(g,V,big)}${bdLinked()&&lkHost()?`<button class="btn sm" data-a="bdupass">Pass for ${esc(bdName(D))}</button>`:''}</div>`}
+  else if(!big&&me)o+=`<div class="bdrow"><button class="btn primary" data-a="bdunext">🏁 See who won</button></div>`;
+  if(!big)o+=bdCvUI(g);
+  else o+=`<div class="bdcard"><div class="bdcardh">${BDICO[g.q.c]} <b>${BDCATN[g.q.c]}</b> · ${BDASK[g.q.c]}</div><div class="bdq">${esc(g.q.q)}</div></div>`;
   o+=`<div class="bdrvgrid"><div>`;
-  o+=`<div class="panel bdpanel"><div class="bdans">${g.ans.map((A,i)=>{const vs=g.ps.filter(p=>R.votes[p]===i);
+  if(big)o+=`<div class="panel bdpanel"><div class="bdans">${g.ans.map((A,i)=>{const vs=g.ps.filter(p=>R.votes[p]===i);
     return `<div class="bdansb ro rv${A.real?' real':''}"><span class="bdlet">${bdLet(i)}</span><div class="bdrvb"><span class="bdtxt">${esc(A.t)}</span>
       <span class="bdwho">${A.real?'<b class="bdtag real">✓ The real answer</b>':two?'':`Bluff by ${A.by.map(p=>bdChip(p)).join(' ')}`}</span>
-      ${vs.length?`<span class="bdwho">${two?'Guessed by':'Votes:'} ${vs.map(p=>bdChip(p)).join(' ')}</span>`:'<span class="bdwho rlab">No votes</span>'}</div></div>`}).join('')}</div>
+      ${vs.length?`<span class="bdwho">${two?'Guessed by':'Votes:'} ${vs.map(p=>bdChip(p,!two&&A.by.includes(p)?' <small>(own answer)</small>':'')).join(' ')}</span>`:'<span class="bdwho rlab">No votes</span>'}</div></div>`}).join('')}</div>
     ${Object.keys(g.bc).filter(p=>g.bc[p]).length?`<p class="rlab">Set aside as basically correct: ${Object.keys(g.bc).filter(p=>g.bc[p]).map(p=>`${bdChip(p)} “${esc(g.bl[p])}”`).join(' ')}</p>`:''}</div>`;
+  else if(Object.keys(g.bc).filter(p=>g.bc[p]).length)o+=`<p class="rlab">Set aside as basically correct: ${Object.keys(g.bc).filter(p=>g.bc[p]).map(p=>bdChip(p)).join(' ')}</p>`;
   /* points this round, in the order the pieces move */
   o+=`<div class="panel bdpanel"><h3 class="bdh3">Points this round</h3><table class="bdtab"><tbody>${R.order.map(p=>{const base=R.rp[p]||0,dbl=!!R.dbl[p],gn=R.gain[p]||0,stop=R.win&&R.win!==p&&R.order.indexOf(p)>R.order.indexOf(R.win)&&gn;
       return `<tr style="${bdPcol(p)}"><td>${bdChip(p,p===D?' <small>Dasher</small>':'')}<div class="bdwhy">${(R.why[p]||[]).map(esc).join(' · ')||'No points'}${dbl&&base?` · <b>×2 Double Score</b>`:''}</div></td><td class="num"><b>+${gn}</b></td><td class="num bdmv">${stop?'(game over)':R.from[p]===R.to[p]?`step ${R.to[p]}`:`${R.from[p]} → <b>${R.to[p]===g.o.steps?'🏁':R.to[p]}</b>`}</td></tr>`}).join('')}</tbody></table>
     ${Object.keys(R.dbl).filter(p=>R.dbl[p]).map(p=>`<p class="bdnote">×2 ${esc(bdName(p))}’s points counted double this round.</p>`).join('')}
     ${Object.keys(R.x2next).map(p=>`<p class="bdnote bdx2n">⭐ ${esc(bdName(p))} landed on Double Score! Next round ${esc(bdName(p))}’s points count double.</p>`).join('')}</div></div>`;
   o+=bdStairs(g,{big})+'</div>';
-  if(!big&&me)o+=`<div class="bdrow"><button class="btn primary" data-a="bdunext">${R.win?'🏁 See who won':`Next round ▶ (${esc(bdName(g.ps[(g.di+1)%g.ps.length]))} is the Dasher)`}</button></div>`;
   return o}
 function bdDoneUI(g,big){const w=g.winner;
   return `<div class="bdwin" style="${bdPcol(w)}">${bdMeep(bdColor(w),56)}<div><b>🏆 ${esc(bdName(w))} wins!</b><span class="rlab">First to FINISH after ${g.round} round${g.round===1?'':'s'}.</span></div></div>${bdStairs(g,{big})}
@@ -200,6 +238,12 @@ function bdPlayUI(){const g=S.bdg,P=act(),big=bdBig();
 
 /* ---------- moves from the screen ---------- */
 function bdUiAct(a,b,k){if(a==='bdubig'){BDBIG=!bdBig();try{localStorage.setItem('ft-bdbig',BDBIG?'1':'0')}catch(e){}return}
+  if(a==='bducv'){const g=bdGx();if(!g)return;const n=bdCvCards(g).length,v=String(k||'');BDCV.i=v[0]==='='?+v.slice(1):BDCV.i+(+v||0);BDCV.i=Math.max(0,Math.min(n-1,BDCV.i||0));return}
+  /* the reveal's Next / pause, and passing the Dasher: the Dasher's own phone sends it; the host (a player or the big board) does it for them right here */
+  if(a==='bdurvnext'||a==='bdurvpause'||a==='bdupass'||a==='bdunext'&&!bdBig()){const g=bdGx();if(!g||g.phase!=='reveal')return;
+    const m=a==='bdurvnext'?{a:'rvnext',i:+k}:a==='bdurvpause'?{a:'rvpause',on:k==='1'?1:0}:{a:'next'},V=bdViewer(),D=bdDasher(g);
+    if(a==='bdunext'||V&&V.id===D&&!bdBig()){bdSend(m);return}
+    if(bdLinked()&&lkHost()&&S.bdg&&bdMoveQ(S.bdg,bdDasher(S.bdg),{...m,st:bdSt(S.bdg)}))vibe(8);return}
   const g=bdGx();if(!g||bdBig())return;
   switch(a){
     case 'bducat':bdSend({a:'cat',c:k});return;
@@ -208,26 +252,27 @@ function bdUiAct(a,b,k){if(a==='bdubig'){BDBIG=!bdBig();try{localStorage.setItem
     case 'bdushow':bdSend({a:'show'});return;
     case 'bduread':bdSend({a:'read',k:+k});return;
     case 'bduvote':bdSend({a:'vote',i:+k});return;
-    case 'bdunext':bdSend({a:'next'});return;
     case 'bdunudge':{const to=String(k||'').split(',').filter(Boolean);if(to.length)bdSend({a:'nudge',to});return}}}
+/* host only: the reveal moves on to the next answer once its time is up */
+function bdAutoStep(g){return !!g&&bdRvDue(g)&&bdMove(g,bdDasher(g),{a:'rvauto'})}
 function bdTimeUp(g){return !!g&&g.phase==='write'&&!!g.tEnd&&Date.now()>g.tEnd+3000&&bdMove(g,bdDasher(g),{a:'timeup'})}
 function bdTick(){if(!bdPlayOn()||!S.started||S.finished||S.demo||S.screen!=='score')return;if(!bdRes2())return;if(lkqRun()){save();render();return}
   if(act().some(p=>p.bot)||act().length<2||!bdLinked())return;
-  const g=S.bdg;if(!g||bdStale(g)){const X=BDX(),n=bdDeal({die:X.choose==='die',laws:+X.laws||0,db:!!X.db,steps:+X.steps,x2:+X.x2,kids:!!X.kids,tlim:+X.tlim});if(n){S.bdg=n;save();render()}return}
+  const g=S.bdg;if(!g||bdStale(g)){const X=BDX(),n=bdDeal({die:X.choose==='die',laws:+X.laws||0,db:!!X.db,steps:+X.steps,x2:+X.x2,kids:!!X.kids,tlim:+X.tlim,rv:+X.rv||0});if(n){S.bdg=n;save();render()}return}
   if(bdTimeUp(g)){save();render()}}
 function bdSyncScorer(g){if(!g)return;S.bdrec={rounds:g.round,steps:g.o.steps,win:g.winner,two:bdTwo(g)?1:0};
   act().forEach(p=>{const s=g.st[p.id]||{};p.bd={pos:g.pos[p.id]||0,pts:s.pts||0,fool:s.fool||0,right:s.right||0,bc:s.bc||0,win:g.winner===p.id?1:0,r:(g.hist||[]).map(h=>+(h.gain||{})[p.id]||0)}});S.hr=1}
 
 /* ---------- "Nudge" (the Telestrations pattern) ---------- */
 function bdNudgeRow(g,V,big){if(big||!V||!g.ps.includes(V.id))return '';const now=Date.now(),can=bdNudgeable(g,V.id,now),to=g.ps.filter(p=>can[p]);
-  if(!to.length){if(['cat','review','read'].includes(g.phase)&&bdDasher(g)!==V.id){const at=(g.t0||now)+BDNZWAIT;if(at>now)return `<span hidden data-bdre="${at}"></span>`}return ''}
+  if(!to.length){if((['cat','review','read'].includes(g.phase)||g.phase==='reveal'&&!g.rv&&!g.winner)&&bdDasher(g)!==V.id){const at=(g.t0||now)+BDNZWAIT;if(at>now)return `<span hidden data-bdre="${at}"></span>`}return ''}
   const cool=p=>bdNudgeCool(g,V.id,p,now),ready=to.filter(p=>!cool(p)),soon=to.filter(p=>cool(p)).map(p=>now+cool(p));
   const one=p=>{const c=cool(p);return c?`<button class="btn sm tsnudge on" disabled data-bdre="${now+c}" aria-label="Nudged ${esc(bdName(p))}">Nudged ✓ <span class="tsnzn">${esc(bdName(p))}</span></button>`
     :`<button class="btn sm tsnudge" data-a="bdunudge" data-k="${esc(p)}" style="${bdPcol(p)}">🔔 Nudge ${esc(bdName(p))}</button>`};
   const all=to.length>3?`<button class="btn sm tsnudge tsnzall" data-a="bdunudge" data-k="${esc(ready.join(','))}" ${ready.length?'':`disabled data-bdre="${Math.min(...soon)}"`}>🔔 Nudge everyone still going</button>`:'';
   return `<div class="tsnudges" aria-label="Nudge the players you’re waiting on">${all}${to.map(one).join('')}</div>`}
 let BDNZ=null;
-const BDNZT={cat:'is waiting for you to pick a category',bluff:'is waiting on your bluff',review:'is waiting for you to show the answers',read:'is waiting for you to pick a question',vote:'is waiting on your vote'};
+const BDNZT={cat:'is waiting for you to pick a category',bluff:'is waiting on your bluff',review:'is waiting for you to show the answers',read:'is waiting for you to pick a question',vote:'is waiting on your vote',pass:'is waiting for you to pass the Dasher'};
 function bdNudgeFx(g){const V=bdViewer();if(!g||!g.gid||!V||bdBig()||!g.ps.includes(V.id))return;const n=(g.nz||{})[V.id];if(!n||!n.k)return;
   const key=g.gid+':'+n.k,age=Date.now()-(+n.at||0);if(BDNZ===null){BDNZ=new Set();if(age>15000){BDNZ.add(key);return}}
   if(BDNZ.has(key))return;BDNZ.add(key);if(age>60000)return;if(!bdNudgeable(g,n.by,Date.now(),BDNZWAIT)[V.id])return;
@@ -235,7 +280,11 @@ function bdNudgeFx(g){const V=bdViewer();if(!g||!g.gid||!V||bdBig()||!g.ps.inclu
   vibe([120,60,120,60,220]);try{if(typeof tsSfx==='function')tsSfx('bell')}catch(e){}}
 /* a little fanfare on every screen when the answers are revealed (once per card) */
 let BDSF=null;
-function bdSnd(g){if(!g||!g.gid)return;const k=g.phase==='reveal'||g.phase==='done'?`${g.gid}:${g.round}:${g.cn}`:null;if(BDSF===null){BDSF=k||'';return}if(!k||k===BDSF)return;BDSF=k;try{if(typeof tsSfx==='function')tsSfx('tada')}catch(e){}vibe(30)}
+/* step-by-step reveal: a soft page turn for each bluff, the fanfare for the real answer, a chime for the points; each step plays once */
+function bdSnd(g){if(!g||!g.gid)return;const R=g.phase==='reveal'?g.rv:null,k=g.phase==='reveal'||g.phase==='done'?`${g.gid}:${g.round}:${g.cn}:${R?R.i:'f'}`:null;
+  if(BDSF===null){BDSF=k||'';return}if(!k||k===BDSF)return;BDSF=k;
+  const kind=R?(g.ans[bdRvOrd(g)[R.i]]||{}).real?'tada':'page':g.o.rv&&g.phase==='reveal'?'chime':'tada';
+  if(g.phase==='done'&&g.o.rv)return;try{if(typeof tsSfx==='function')tsSfx(kind)}catch(e){}if(kind==='tada')vibe(30)}
 
 /* ---------- typing a bluff: its own layer outside #app, so redraws never wipe what you're typing ---------- */
 function bdFxMode(g,V){if(!g||!V||bdBig()||!g.ps.includes(V.id)||g.phase!=='write'||!bdWriters(g).includes(V.id))return null;
@@ -256,7 +305,15 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&e.targe
 setInterval(()=>{try{bdFx()}catch(e){}},700);
 /* the bluff timer on screen; the host moves on when time is up */
 setInterval(()=>{try{document.querySelectorAll('.bdtmr[data-end]').forEach(el=>{const ms=+el.dataset.end-Date.now(),b=el.querySelector('b');if(b)b.textContent=ms>0?bdClock(ms):'Time!';el.classList.toggle('low',ms<20000)});
-  if(S.game!=='balderdash'||!S.started||S.demo||!bdRes2()||(typeof LKOPTR!=='undefined'&&LKOPTR))return;if(S.bdg&&!bdStale(S.bdg)&&bdTimeUp(S.bdg)){save();render()}}catch(e){}},500);
+  if(S.game!=='balderdash'||!S.started||S.demo||!bdRes2()||(typeof LKOPTR!=='undefined'&&LKOPTR))return;if(S.bdg&&!bdStale(S.bdg)&&(bdTimeUp(S.bdg)||bdLinked()&&lkHost()&&bdAutoStep(S.bdg))){save();render()}}catch(e){}},500);
+/* the reveal's countdown bar on every screen */
+setInterval(()=>{try{document.querySelectorAll('.bdauto[data-t]').forEach(el=>{const dur=+el.dataset.dur,left=Math.max(0,Math.min(dur,+el.dataset.t+dur-Date.now())),i=el.querySelector('.bdautobar i'),b=el.querySelector('.bdautot b');
+  if(i)i.style.width=(100*left/dur).toFixed(1)+'%';if(b)b.textContent=String(Math.ceil(left/1000))})}catch(e){}},200);
+/* swipe the round's cards (your phone only) */
+let BDSW=null;
+document.addEventListener('touchstart',e=>{const c=e.target&&e.target.closest&&e.target.closest('.bdcv');BDSW=c&&e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null},{passive:true});
+document.addEventListener('touchend',e=>{if(!BDSW||!e.changedTouches.length)return;const dx=e.changedTouches[0].clientX-BDSW.x,dy=e.changedTouches[0].clientY-BDSW.y;BDSW=null;
+  if(Math.abs(dx)<50||Math.abs(dx)<Math.abs(dy)*1.5)return;const b=document.querySelector(`.bdcv [data-a="bducv"][data-k="${dx<0?1:-1}"]`);if(b&&!b.disabled)b.click()},{passive:true});
 setInterval(()=>{try{if(S.game!=='balderdash')return;const now=Date.now();if([...document.querySelectorAll('#app [data-bdre]')].some(e=>+e.dataset.bdre<=now))render()}catch(e){}},500);
 /* family records on the stats screen */
 function bdRecords(G){const BG=G.filter(g=>g.game==='balderdash'&&g.state&&g.state.players);if(!BG.length)return '';const per={};
