@@ -56,6 +56,10 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   R.forEach(([n,y,why])=>ok(n,y,why));
   // the screen: choose a starting hand by tapping, then take an action
   await P.evaluate(()=>{S.players.forEach((x,i)=>{x.on=i<3;x.bot=i?'normal':null});const g=wpDeal();g.ann=null;S.screen='score';save();render()});await W(500);
+  for(const [w,h] of [[400,850],[1272,700]]){await P.setViewportSize({width:w,height:h});await W(300);
+    const vis=await P.evaluate(()=>[...document.querySelectorAll('.wpdock [data-a="wpsb"]')].map(b=>Math.round(b.getBoundingClientRect().height)));
+    ok(`Starting hand birds are visible in the dock at ${w}px wide (not squeezed to nothing)`,vis.length===5&&vis.every(x=>x>100),vis)}
+  await P.setViewportSize({width:400,height:850});
   const st=await P.evaluate(()=>{const g=S.wpg,me=g.ps[0],clk=s=>{const e=document.querySelector(s);if(!e)return false;e.dispatchEvent(new MouseEvent('click',{bubbles:true}));return true};
     if(!clk('[data-a="wpsb"][data-k="0"]')||!clk('[data-a="wpsb"][data-k="1"]'))return 'no birds';['i','s','f'].forEach(f=>clk(`[data-a="wpsf"][data-k="${f}"]`));if(!clk('[data-a="wpsbo"]'))return 'no bonus';if(!clk('[data-a="wpsgo"]'))return 'no go';
     return g.hand[me].length===2&&wpFoodN(g,me)===3&&g.bon[me].length===1||[g.hand[me].length,wpFoodN(g,me)]});

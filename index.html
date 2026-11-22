@@ -2100,7 +2100,9 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 .wptray{display:flex;gap:6px;overflow-x:auto;align-items:stretch;padding:4px 0}
 .wpdeck span,.wpdeckb{display:grid;place-items:center;width:62px;min-height:118px;border-radius:10px;background:#5b6b4a;color:#fff;font-size:26px;border:0}
 .wpdeckb{box-shadow:0 0 0 3px var(--accent,#f0b43a)}
-.wphand{display:flex;gap:6px;overflow-x:auto;padding:4px 0}
+.wphand{display:flex;align-items:flex-start;gap:6px;overflow-x:auto;overflow-y:hidden;padding:4px 0;flex-shrink:0}.wphand>*{flex:0 0 auto}
+/* the dock is a capped scroll box: as a grid it squeezed the sideways-scrolling hand to 0 height, so lay it out as plain blocks */
+.sadock.wpdock{display:block}.sadock.wpdock>*+*{margin-top:6px}
 .wpfood{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
 .wpfd{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:999px;background:var(--soft,#eef1f4);border:1px solid var(--line,#d9dee4);font-size:15px}
 .wpfd.zero{opacity:.45}.wpfd.ok{border-color:var(--accent,#f0b43a)}.wpfd.on{background:var(--accent,#f0b43a);color:#17212b}
@@ -2131,7 +2133,7 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wprow{--wpveil:rgba(15,21,28,.45)}}
 :root[data-theme="dark"] .wprow{--wpveil:rgba(15,21,28,.45)}
 
-.wpimg{display:block;width:calc(100% + 2px);height:72px;object-fit:cover;object-position:center 40%;border-radius:6px;margin:1px -1px}
+.wpimg{display:block;width:100%;height:64px;object-fit:contain;object-position:center;background:#fbf3e4;border-radius:6px;margin:1px 0}
 .wpbsimg{display:block;width:180px;height:180px;border-radius:12px;margin:0 auto 8px;object-fit:cover}
 /* Wyrmspan on the phones */
 .wzi{width:18px;height:18px;vertical-align:-4px;border-radius:4px}
@@ -27580,6 +27582,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='0cbaf3';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='251df3';</script>
 </body>
 </html>
