@@ -72,3 +72,5 @@
 .wpgoi{display:flex;align-items:center;gap:2px;flex-wrap:wrap}.wpgoi .wpi{width:24px;height:24px}.wpgoor{font-size:10px;color:var(--muted,#5a6672);margin:0 1px}
 
 .wprs{text-align:center}.wprsgoal{display:flex;align-items:center;justify-content:center;gap:8px;margin:6px 0}.wprsgoal .wpi{width:30px;height:30px}.wprsnext{margin-top:12px;padding:10px;border-radius:12px;background:var(--soft,#eef1f4)}.wprsnext p{margin:4px 0 0}
+/* any open sheet (rules, long press, round card…) sits above the sticky bottom docks */
+body:has(.sheet-bg) .sadock{z-index:19}

@@ -2112,6 +2112,8 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 .wpgoi{display:flex;align-items:center;gap:2px;flex-wrap:wrap}.wpgoi .wpi{width:24px;height:24px}.wpgoor{font-size:10px;color:var(--muted,#5a6672);margin:0 1px}
 
 .wprs{text-align:center}.wprsgoal{display:flex;align-items:center;justify-content:center;gap:8px;margin:6px 0}.wprsgoal .wpi{width:30px;height:30px}.wprsnext{margin-top:12px;padding:10px;border-radius:12px;background:var(--soft,#eef1f4)}.wprsnext p{margin:4px 0 0}
+/* any open sheet (rules, long press, round card…) sits above the sticky bottom docks */
+body:has(.sheet-bg) .sadock{z-index:19}
 /* Wyrmspan on the phones */
 .wzi{width:18px;height:18px;vertical-align:-4px;border-radius:4px}
 .wzc{position:relative;display:flex;flex-direction:column;gap:2px;width:124px;min-height:128px;padding:6px 7px 6px 9px;border-radius:10px;background:var(--surface,#fff);border:1px solid var(--line,#d9dee4);box-shadow:0 1px 2px rgba(0,0,0,.08);font-size:11px;line-height:1.25;text-align:left;color:var(--ink,#17212b)}
@@ -14469,7 +14471,12 @@ function wzGuide(){return guideSheet('Wyrmspan',[
     ['Entice','Pay 1 coin plus the dragon’s cost, and put it in the next open space of a cave it can live in (dragons fill each cave left to right, on dug spaces). When-played (⚡) dragons act at once.'],
     ['Explore','Pay 1 coin (2nd time in that cave this round: +1 egg, 3rd: +2 eggs). Your adventurer walks the cave left to right: the entrance benefit, then each dragon’s if-activated (🏮) ability and the benefit after it, until it reaches an empty space.'],
     ['Pass','When you’re out of coins or done. The round ends when everyone has passed.']]],
-  ['Resources and limits',[['Trading','Any time, trade 2 resources for 1 of another kind. When you pay, the app does this for you if you’re short.'],['Eggs','Eggs paid as costs are taken from your mat nests first, then your fullest dragons.'],['End of your turn','Discard down to 9 cards, 9 coins and 9 resources.']]],
+  ['Exploring the caves',[['How it works','Pay to enter (1st time in that cave this round: 1 coin; 2nd: 1 coin + 1 egg; 3rd, the most: 1 coin + 2 eggs). Your adventurer walks left to right: the entrance reward, then each dragon it walks onto (its if-activated 🏮 ability, if it has one) and the mat reward after that column. It stops at the first space without a dragon and your turn ends. If all 4 spaces have dragons, you also get the end reward. In the app, if-activated abilities are used as you pass them.'],
+    ['Crimson Cavern (resources)','Entrance: any resource. After column 1: Dragon Guild +1. After column 2: any resource. After column 3: lay 1 egg. End: cache up to 2 resources from your supply onto any dragons.'],
+    ['Golden Grotto (dragon cards)','Entrance: a dragon card. After column 1: Dragon Guild +1. After column 2: a dragon card. After column 3: lay 1 egg. End: tuck up to 2 dragon cards from your hand under any dragons.'],
+    ['Amethyst Abyss (cave cards)','Entrance: a cave card. After column 1: Dragon Guild +1. After column 2: a cave card. After column 3: lay 1 egg. End: discard up to 2 cave cards from your hand and lay 1 egg for each.'],
+    ['Tip','The more dragons in a row from the left, the further you walk. Explore the cave whose reward you need: resources to afford dragons, dragon cards for choices, cave cards to dig more spaces.']]],
+  ['Resources and limits',[['Trading','Any time, trade 2 resources for 1 of another kind. When you’re short while paying, the app covers it with 2 others, and lets you choose which when there’s more than one way.'],['Eggs','Eggs paid as costs are taken from your mat nests first, then your fullest dragons.'],['End of your turn','Discard down to 9 cards, 9 coins and 9 resources.']]],
   ['Dragon Guild',[['Steps','Each guild step moves you 1 space: you gain what you land on. The two brown spaces let you place a marker on the guild tile (4 at most): an ability now, the guild’s end-game bonus, or end-game points (6, 3, then 1 each).']]],
   ['Rounds and the end',[['End of a round','Once-per-round (🔁) dragons act, the round objective is counted, then everyone gains 6 coins and 1 egg and the display is refreshed.'],['Objectives','Points for 1st, 2nd and 3rd; friendly ties; a count of 0 scores nothing.'],['Points','Guild, dragons, end-game (🏁) abilities, eggs, cached resources, tucked cards, objectives, 1 per coin, 1 per 4 other items. Ties: most dragons.']]]])}
 
