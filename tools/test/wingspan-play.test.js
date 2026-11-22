@@ -74,5 +74,14 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   await P.screenshot({path:'/tmp/wp-end.png',fullPage:true});
   const rv=await P.evaluate(()=>{const b=document.querySelector('[data-a="finish"]');if(!b)return 'no finish';b.click();const g=S.wpg;return act().every(p=>total(p)===g.fin[p.id].tot)||act().map(p=>[total(p),g.fin[p.id].tot,JSON.stringify(p.ws)])});
   ok('Finish & reveal: the Wingspan score pad gets every category and the round goals, and totals match',rv===true,rv);
+  /* Justin (Nov 21): when a bird can be paid more than one way, you choose the food */
+  const pay=await P.evaluate(async()=>{S.players.forEach((x,i)=>{x.on=i<2;x.bot=i?'normal':null});const g=wpDeal();g.ann=null;g.ps.forEach(p=>wpSetup(g,p,[0],['i','s','f','r'],g.offer[p].bo[0]));const me=g.ps[0];g.turn=me;g.ask=null;g.ann=null;
+    const bi=WSB.findIndex(b=>b.or&&Object.keys(b.cost).length>=2&&!b.wild&&b.hab.includes('f'));g.hand[me]=[bi];g.food[me]=Object.fromEntries(WPF.map(f=>[f,2]));S.screen='score';save();render();
+    const w=ms=>new Promise(r=>setTimeout(r,ms)),clk=async s=>{const e=document.querySelector(s);if(!e)throw new Error('missing '+s);e.dispatchEvent(new MouseEvent('click',{bubbles:true}));await w(300)};
+    await clk('[data-a="wpans"][data-k*="play"]');await clk('[data-a="wpplaysel"][data-k="0"]');const n=document.querySelectorAll('[data-a="wppaysel"]').length;
+    const want=wpPayOpts(g,me,bi)[1];await clk('[data-a="wppaysel"][data-k="1"]');const before={...S.wpg.food[me]};await clk('.wpdock [data-a="wpans"][data-k*="%22h%22"]');
+    const after=S.wpg.food[me],spent={};for(const f in before)if(before[f]!==after[f])spent[f]=before[f]-after[f];
+    const bad=wpPayOpts(S.wpg,me,bi).length&&WPS.play;return {ok:n>=2&&JSON.stringify(Object.entries(want).sort())===JSON.stringify(Object.entries(spent).sort()),n,want,spent}});
+  ok('Play a bird with an "or" cost: a Pay-with choice appears and the chosen food is what gets spent',pay.ok,pay);
   ok('No page errors',!errs.length,errs.slice(0,3));
   await done(browser)})();

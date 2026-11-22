@@ -2141,6 +2141,9 @@ button.tgc{cursor:pointer}.tgc.sel{transform:translateY(-6px);outline:3px solid 
 @media (max-width:380px){.lpbig>.wpc,.lpbig>.wzc{zoom:1.9}}
 /* long-press sheets open above the sticky docks (the dock is z-index 30, sheets 20) */
 .sheet-bg:has(>.lpsheet){z-index:46}
+
+/* the Draw cards action shows the same card back as the deck */
+.wpcbk{display:inline-block;width:21px;height:29px;border-radius:4px;vertical-align:middle;background:#5b6b4a url(art/wp-back.webp) center/cover no-repeat;box-shadow:0 1px 2px rgba(0,0,0,.25)}
 /* Wyrmspan on the phones */
 .wzi{width:18px;height:18px;vertical-align:-4px;border-radius:4px}
 .wzc{position:relative;display:flex;flex-direction:column;gap:2px;width:124px;min-height:128px;padding:6px 7px 6px 9px;border-radius:10px;background:var(--surface,#fff);border:1px solid var(--line,#d9dee4);box-shadow:0 1px 2px rgba(0,0,0,.08);font-size:11px;line-height:1.25;text-align:left;color:var(--ink,#17212b)}
@@ -13529,9 +13532,18 @@ function wpPay(g,pid,b){const B=wpB(b),F={...g.food[pid]},pay={};const take=(f,n
   for(let k=0;k<(B.wild||0);k++){const L=WPF.filter(f=>F[f]>0).sort((a,b)=>F[b]-F[a]);if(L.length)take(L[0]);else need.push(1)}
   for(const _ of need){const L=WPF.filter(f=>F[f]>0).sort((a,b)=>F[b]-F[a]),tot=L.reduce((a,f)=>a+F[f],0);if(tot<2)return null;take(L[0]);const L2=WPF.filter(f=>F[f]>0).sort((a,b)=>F[b]-F[a]);take(L2[0])}
   return pay}
+/* every different way to pay for a bird with the food you have (Justin, Nov 21: let the player choose).
+   Each needed food: the food itself (an "or" cost: any one of its foods; a wild: any food), or, when you don't have it, any 2 food. */
+function wpPayOpts(g,pid,b){const B=wpB(b),items=[];if(B.or)items.push(Object.keys(B.cost));else for(const f in B.cost)for(let k=0;k<B.cost[f];k++)items.push([f]);for(let k=0;k<(B.wild||0);k++)items.push(WPF.slice());
+  const out=new Map(),F0={...g.food[pid]};const key=P=>WPF.map(f=>P[f]||0).join('');
+  const go=(i,F,P)=>{if(out.size>40)return;if(i===items.length){out.set(key(P),{...P});return}const ok=items[i].filter(f=>F[f]>0);
+    ok.forEach(f=>{F[f]--;P[f]=(P[f]||0)+1;go(i+1,F,P);F[f]++;P[f]--;if(!P[f])delete P[f]});
+    if(!ok.length){for(let x=0;x<WPF.length;x++)for(let y=x;y<WPF.length;y++){const a=WPF[x],c=WPF[y];if(F[a]<1||(a===c?F[a]<2:F[c]<1))continue;F[a]--;F[c]--;P[a]=(P[a]||0)+1;P[c]=(P[c]||0)+1;go(i+1,F,P);F[a]++;F[c]++;P[a]--;P[c]--;if(!P[a])delete P[a];if(P[c]===0)delete P[c]}}};
+  go(0,F0,{});return [...out.values()]}
+const wpPayKey=P=>WPF.map(f=>(P&&P[f])||0).join('');
 WPS.play=(g,s,mv)=>{const opts=g.hand[s.pid].map((b,i)=>({i,habs:wpPlayHabs(g,s.pid,b,s.hab==='same'?s.sh:s.hab)})).filter(o=>o.habs.length&&wpPay(g,s.pid,g.hand[s.pid][o.i]));
   if(!opts.length)return true;if(!mv)return wpAsk(g,s,'play',{opts,opt:!!s.opt});if(mv.skip){if(!s.opt)return null;return true}
-  const o=opts.find(x=>x.i===+mv.i);if(!o||!o.habs.includes(mv.h))return null;const b=g.hand[s.pid][o.i],B=wpB(b),pay=wpPay(g,s.pid,b),col=g.mat[s.pid][mv.h].length,ec=WPEGGCOST[col];
+  const o=opts.find(x=>x.i===+mv.i);if(!o||!o.habs.includes(mv.h))return null;const b=g.hand[s.pid][o.i],B=wpB(b),pay=mv.pay?wpPayOpts(g,s.pid,b).find(P=>wpPayKey(P)===wpPayKey(mv.pay)):wpPay(g,s.pid,b);if(!pay)return null;const col=g.mat[s.pid][mv.h].length,ec=WPEGGCOST[col];
   for(const f in pay)g.food[s.pid][f]-=pay[f];g.hand[s.pid].splice(o.i,1);g.mat[s.pid][mv.h].push({b,e:0,c:0,t:0});const k=wpKey(mv.h,col);g.stat[s.pid].play++;
   g.last={p:s.pid,t:'play',b,h:mv.h};gLog(g,`${nmid(s.pid)} plays ${B.n} in the ${WPHN[mv.h]}${Object.keys(pay).length?` (${Object.entries(pay).map(([f,n])=>WPFI[f].repeat(n)).join('')})`:''}${ec?`, ${ec} egg${ec>1?'s':''}`:''}`,'🐦');
   const add=[];if(ec)add.push({t:'payEgg',pid:s.pid,n:ec,not:k});if(B.col==='white'&&B.pw)add.push({t:'pow',pid:s.pid,k,why:'white'});g.q.splice(1,0,...add,...wpPinkPlay(g,s.pid,mv.h));return true};
@@ -13785,7 +13797,7 @@ function wpDock(g,V){const box=(h,b)=>`<div class="sadock cpdock wpdock" style="
   if(g.turn!==V.id)return box('Waiting',`<div class="rlab">${esc(nmid(g.turn))} is taking a turn.</div>`)+hand()+mine;
   const M=g.mat[V.id],act2=(a,h,ic,name,ok)=>{const c=M[h].length,n=WPROW[h][c];return `<button class="wpact" data-a="wpans" data-k="${wpEnc({a})}" ${ok?'':'disabled'}><span>${ic}</span><b>${name}</b><small>${n} ${a==='food'?'food':a==='eggs'?'egg'+(n>1?'s':''):'card'+(n>1?'s':'')}${WPOPT[c]?' + extra':''}${M[h].some(x=>wpB(x.b).col==='brown')?' · then 🟤 powers':''}</small></button>`};
   const canPlay=wpCanPlayAny(g,V.id),canEgg=wpSlots(g,V.id).some(([,,x])=>wpRoom(x));
-  return box(`your turn · ${g.cubes[V.id]} action${g.cubes[V.id]===1?'':'s'} left this round`,`<div class="wpacts"><button class="wpact" data-a="wpans" data-k="${wpEnc({a:'play'})}" ${canPlay?'':'disabled'}><span>🐦</span><b>Play a bird</b><small>${canPlay?'pay its food and eggs':'nothing you can afford'}</small></button>${act2('food','f','🌰','Gain food',true)}${act2('eggs','g','🥚','Lay eggs',canEgg)}${act2('cards','w','🃏','Draw cards',true)}</div>`)+hand()+mine}
+  return box(`your turn · ${g.cubes[V.id]} action${g.cubes[V.id]===1?'':'s'} left this round`,`<div class="wpacts"><button class="wpact" data-a="wpans" data-k="${wpEnc({a:'play'})}" ${canPlay?'':'disabled'}><span>🐦</span><b>Play a bird</b><small>${canPlay?'pay its food and eggs':'nothing you can afford'}</small></button>${act2('food','f','🌰','Gain food',true)}${act2('eggs','g','🥚','Lay eggs',canEgg)}${act2('cards','w','<i class="wpcbk" aria-hidden="true"></i>','Draw cards',true)}</div>`)+hand()+mine}
 function wpAskBox(g,V,A,box,hand){const skip=(t='Skip')=>wpBtn({skip:1},t,{cls:'btn'});
   switch(A.t){
   case 'opt':return box(A.h==='f'?'🌰 Extra food?':A.h==='g'?'🥚 Extra egg?':'🃏 Extra card?',`<div class="rlab">${A.h==='f'?'Discard 1 bird card from your hand for 1 more food.':A.h==='g'?'Discard 1 food for 1 more egg.':'Discard 1 egg (tap a bird above) for 1 more card.'}</div>${A.h==='g'?wpFoodRow(g,V.id,{btn:f=>({f})}):''}<div class="lr ccmeeps">${skip('No thanks')}</div>`)+(A.h==='f'?hand({pick:()=>true,mv:i=>({c:i})}):hand());
@@ -13793,8 +13805,9 @@ function wpAskBox(g,V,A,box,hand){const skip=(t='Skip')=>wpBtn({skip:1},t,{cls:'
   case 'egg':return box(`🥚 Lay ${A.n} egg${A.n>1?'s':''}`,`<div class="rlab">Tap a bird with room on your mat above.</div>${A.opt?`<div class="lr ccmeeps">${skip('Stop')}</div>`:''}`)+hand();
   case 'payEgg':return box(`🥚 Pay ${A.n} egg${A.n>1?'s':''}`,`<div class="rlab">This column costs eggs. Tap a bird to take an egg from.</div>`)+hand();
   case 'card':return box(`🃏 Draw ${A.n} card${A.n>1?'s':''}`,`<div class="rlab">Tap a bird in the tray above, or the deck.</div>`)+hand();
-  case 'play':{const sel=WPSEL&&WPSEL.t==='play'?WPSEL.i:null,o=A.opts.find(x=>x.i===sel);const b=o?g.hand[V.id][o.i]:null,pay=b!=null?wpPay(g,V.id,b):null;
-    return box('🐦 Play a bird',`<div class="rlab">${o?`<b>${esc(wpB(b).n)}</b> costs ${wpCost(wpB(b))}. You’ll pay ${Object.entries(pay).map(([f,n])=>wpFI(f).repeat(n)).join('')||'nothing'}. Choose a habitat:`:'Tap a bird you can afford.'}</div>${o?`<div class="lr ccmeeps">${o.habs.map(h=>wpBtn({i:o.i,h},`${WPHI[h]} ${WPHN[h]}${WPEGGCOST[g.mat[V.id][h].length]?` · ${WPEGGCOST[g.mat[V.id][h].length]} 🥚`:''}`,{cls:'btn'})).join('')}</div>`:''}${A.opt?`<div class="lr ccmeeps">${skip('Don’t play')}</div>`:''}`)+hand({a:'wpplaysel',pick:i=>A.opts.some(x=>x.i===i),on:i=>i===sel,dim:i=>!A.opts.some(x=>x.i===i)})}
+  case 'play':{const sel=WPSEL&&WPSEL.t==='play'?WPSEL.i:null,o=A.opts.find(x=>x.i===sel);const b=o?g.hand[V.id][o.i]:null,PO=b!=null?wpPayOpts(g,V.id,b):[],auto=b!=null?wpPay(g,V.id,b):null;
+    let pi=WPSEL&&WPSEL.pay!=null?WPSEL.pay:PO.findIndex(P=>wpPayKey(P)===wpPayKey(auto));if(pi<0||pi>=PO.length)pi=0;const pay=PO[pi]||auto||{};const payIc=P=>Object.entries(P).map(([f,n])=>wpFI(f).repeat(n)).join('')||'nothing';
+    return box('🐦 Play a bird',`<div class="rlab">${o?`<b>${esc(wpB(b).n)}</b> costs ${wpCost(wpB(b))}. ${PO.length>1?'Pay with:':`You’ll pay ${payIc(pay)}.`} ${PO.length>1?'':'Choose a habitat:'}`:'Tap a bird you can afford.'}</div>${o&&PO.length>1?`<div class="lr ccmeeps wppays">${PO.map((P,i)=>`<button class="btn${i===pi?' primary':''}" data-a="wppaysel" data-k="${i}" aria-pressed="${i===pi}">${payIc(P)}</button>`).join('')}</div><div class="rlab">Choose a habitat:</div>`:''}${o?`<div class="lr ccmeeps">${o.habs.map(h=>wpBtn(PO.length>1?{i:o.i,h,pay}:{i:o.i,h},`${WPHI[h]} ${WPHN[h]}${WPEGGCOST[g.mat[V.id][h].length]?` · ${WPEGGCOST[g.mat[V.id][h].length]} 🥚`:''}`,{cls:'btn'})).join('')}</div>`:''}${A.opt?`<div class="lr ccmeeps">${skip('Don’t play')}</div>`:''}`)+hand({a:'wpplaysel',pick:i=>A.opts.some(x=>x.i===i),on:i=>i===sel,dim:i=>!A.opts.some(x=>x.i===i)})}
   case 'disc':return box(`Discard ${A.n} card${A.n>1?'s':''}`,'<div class="rlab">A power drew you an extra card. Discard one from your hand.</div>')+hand({pick:()=>true,mv:i=>({c:i})});
   case 'tuck':return box('🗂️ Tuck a card?',`<div class="rlab">Tuck a bird card from your hand behind this bird${A.then==='draw'?', then draw 1':A.then==='egg'?', then lay 1 egg on it':A.then==='food'?`, then gain ${(A.food||[]).map(f=>WPFN[f]).join(' or ')}`:A.then==='layAny'?', then lay 1 egg on any bird':''}.</div>${A.food&&A.food.length>1?'<div class="rlab">The food: first one listed.</div>':''}<div class="lr ccmeeps">${skip('Don’t tuck')}</div>`)+hand({pick:()=>true,mv:i=>({c:i,f:A.food?A.food[0]:undefined})});
   case 'yes':return box('Use this power?',`<div class="rlab">${esc(A.q)}</div><div class="lr ccmeeps">${wpBtn({yes:true},'Yes',{cls:'btn primary'})}${wpBtn({yes:false},'No',{cls:'btn'})}</div>`)+hand();
@@ -13816,7 +13829,7 @@ function wpBirdSheet(b){const B=wpB(b);return `<div class="sheet-bg" data-a="lpc
 function wpUiAct(a,b,k){const g=wpG();if(!g)return;if(a==='wpshow'){WPVIEW=k;WPSEL=null;return}if(a==='wplook'){WPLOOK=k;return}const V=wpViewer();if(!V)return;
   if(a==='wpsb'||a==='wpsf'||a==='wpsbo'){if(!WPSET)return;if(a==='wpsb'){const i=+k,L=WPSET.b;L.includes(i)?L.splice(L.indexOf(i),1):L.push(i);while(WPSET.b.length+WPSET.f.length>5&&WPSET.f.length)WPSET.f.pop()}else if(a==='wpsf'){const L=WPSET.f;L.includes(k)?L.splice(L.indexOf(k),1):L.length+WPSET.b.length<5&&L.push(k)}else WPSET.bo=k;vibe(6);return}
   if(a==='wpsgo'){if(!WPSET)return;const s=WPSET;WPSET=null;lkq('wpSetup',V.id,s.b,s.f,s.bo)&&vibe(12);return}
-  if(a==='wpplaysel'){WPSEL={t:'play',i:+k};vibe(6);return}
+  if(a==='wpplaysel'){WPSEL={t:'play',i:+k};vibe(6);return}if(a==='wppaysel'){if(WPSEL&&WPSEL.t==='play')WPSEL.pay=+k;vibe(6);return}
   if(a==='wptrf'){WPSEL={t:'trade',f:k};return}
   if(a==='wpef'){if(!WPSEL||WPSEL.t!=='eggFood')return;WPSEL.fs.push(k);if(WPSEL.fs.length>=(g.ask&&g.ask.n||1)){const mv={k:WPSEL.k,fs:WPSEL.fs};WPSEL=null;lkq('wpMove',V.id,mv)&&vibe(10)}return}
   if(a==='wppk'){const A=g.ask;if(!A)return;if(A.t==='eggFood'){WPSEL={t:'eggFood',k,fs:[]};return}WPSEL=null;lkq('wpMove',V.id,{k})&&vibe(8);return}
@@ -26714,7 +26727,7 @@ document.addEventListener('click',e=>{
   if(/^mtp(tile|train|draw|pass|done|show|deal)$/.test(a)&&S.game==='mextrain'&&mtOn()&&S.started){mtAct(a,b,k);save();render();return}
   if(/^dnp[a-z]+$/.test(a)&&S.game==='dominion'&&dnOn()&&S.started){dnAct(a,b,k);save();render();return}
   if(/^wz(ans|sel|look|show)$/.test(a)&&wzOn()&&S.started){wzUiAct(a,b,k);save();render();return}
-  if(/^wp(ans|pk|look|show|sb|sf|sbo|sgo|playsel|trf|ef)$/.test(a)&&wpOn()&&S.started){wpUiAct(a,b,k);save();render();return}
+  if(/^wp(ans|pk|look|show|sb|sf|sbo|sgo|playsel|paysel|trf|ef)$/.test(a)&&wpOn()&&S.started){wpUiAct(a,b,k);save();render();return}
   if(/^trp[a-z]+$/.test(a)&&trOn()&&S.started){trUiAct(a,b,k);save();render();return}
   if(/^ccp[a-z]+$/.test(a)&&S.game==='carc'&&ccOn()&&S.started){ccUiAct(a,b,k);save();render();return}
   if(/^wg[a-z]+$/.test(a)){wgAct(a,b,k);render();return}
@@ -27592,6 +27605,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='a16572';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='e191c4';</script>
 </body>
 </html>

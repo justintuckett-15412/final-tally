@@ -103,9 +103,18 @@ function wpPay(g,pid,b){const B=wpB(b),F={...g.food[pid]},pay={};const take=(f,n
   for(let k=0;k<(B.wild||0);k++){const L=WPF.filter(f=>F[f]>0).sort((a,b)=>F[b]-F[a]);if(L.length)take(L[0]);else need.push(1)}
   for(const _ of need){const L=WPF.filter(f=>F[f]>0).sort((a,b)=>F[b]-F[a]),tot=L.reduce((a,f)=>a+F[f],0);if(tot<2)return null;take(L[0]);const L2=WPF.filter(f=>F[f]>0).sort((a,b)=>F[b]-F[a]);take(L2[0])}
   return pay}
+/* every different way to pay for a bird with the food you have (Justin, Nov 21: let the player choose).
+   Each needed food: the food itself (an "or" cost: any one of its foods; a wild: any food), or, when you don't have it, any 2 food. */
+function wpPayOpts(g,pid,b){const B=wpB(b),items=[];if(B.or)items.push(Object.keys(B.cost));else for(const f in B.cost)for(let k=0;k<B.cost[f];k++)items.push([f]);for(let k=0;k<(B.wild||0);k++)items.push(WPF.slice());
+  const out=new Map(),F0={...g.food[pid]};const key=P=>WPF.map(f=>P[f]||0).join('');
+  const go=(i,F,P)=>{if(out.size>40)return;if(i===items.length){out.set(key(P),{...P});return}const ok=items[i].filter(f=>F[f]>0);
+    ok.forEach(f=>{F[f]--;P[f]=(P[f]||0)+1;go(i+1,F,P);F[f]++;P[f]--;if(!P[f])delete P[f]});
+    if(!ok.length){for(let x=0;x<WPF.length;x++)for(let y=x;y<WPF.length;y++){const a=WPF[x],c=WPF[y];if(F[a]<1||(a===c?F[a]<2:F[c]<1))continue;F[a]--;F[c]--;P[a]=(P[a]||0)+1;P[c]=(P[c]||0)+1;go(i+1,F,P);F[a]++;F[c]++;P[a]--;P[c]--;if(!P[a])delete P[a];if(P[c]===0)delete P[c]}}};
+  go(0,F0,{});return [...out.values()]}
+const wpPayKey=P=>WPF.map(f=>(P&&P[f])||0).join('');
 WPS.play=(g,s,mv)=>{const opts=g.hand[s.pid].map((b,i)=>({i,habs:wpPlayHabs(g,s.pid,b,s.hab==='same'?s.sh:s.hab)})).filter(o=>o.habs.length&&wpPay(g,s.pid,g.hand[s.pid][o.i]));
   if(!opts.length)return true;if(!mv)return wpAsk(g,s,'play',{opts,opt:!!s.opt});if(mv.skip){if(!s.opt)return null;return true}
-  const o=opts.find(x=>x.i===+mv.i);if(!o||!o.habs.includes(mv.h))return null;const b=g.hand[s.pid][o.i],B=wpB(b),pay=wpPay(g,s.pid,b),col=g.mat[s.pid][mv.h].length,ec=WPEGGCOST[col];
+  const o=opts.find(x=>x.i===+mv.i);if(!o||!o.habs.includes(mv.h))return null;const b=g.hand[s.pid][o.i],B=wpB(b),pay=mv.pay?wpPayOpts(g,s.pid,b).find(P=>wpPayKey(P)===wpPayKey(mv.pay)):wpPay(g,s.pid,b);if(!pay)return null;const col=g.mat[s.pid][mv.h].length,ec=WPEGGCOST[col];
   for(const f in pay)g.food[s.pid][f]-=pay[f];g.hand[s.pid].splice(o.i,1);g.mat[s.pid][mv.h].push({b,e:0,c:0,t:0});const k=wpKey(mv.h,col);g.stat[s.pid].play++;
   g.last={p:s.pid,t:'play',b,h:mv.h};gLog(g,`${nmid(s.pid)} plays ${B.n} in the ${WPHN[mv.h]}${Object.keys(pay).length?` (${Object.entries(pay).map(([f,n])=>WPFI[f].repeat(n)).join('')})`:''}${ec?`, ${ec} egg${ec>1?'s':''}`:''}`,'🐦');
   const add=[];if(ec)add.push({t:'payEgg',pid:s.pid,n:ec,not:k});if(B.col==='white'&&B.pw)add.push({t:'pow',pid:s.pid,k,why:'white'});g.q.splice(1,0,...add,...wpPinkPlay(g,s.pid,mv.h));return true};
