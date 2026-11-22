@@ -1,0 +1,662 @@
+[
+ {
+  "q": "In Switzerland",
+  "a": "It's illegal to keep a guinea pig all by itself",
+  "kid": true,
+  "src": "https://www.pri.org/stories/2013/08/14/rent-guinea-pig-switzerland"
+ },
+ {
+  "q": "In Turin, Italy",
+  "a": "Dog owners must walk their dogs at least three times a day",
+  "kid": true,
+  "src": "https://www.nbcnews.com/news/amp/wbna7601359"
+ },
+ {
+  "q": "In Singapore",
+  "a": "Shops aren't allowed to sell ordinary chewing gum",
+  "kid": true,
+  "src": "https://sso.agc.gov.sg/SL/272A-RG4"
+ },
+ {
+  "q": "In Venice, Italy",
+  "a": "Feeding the pigeons in St. Mark's Square is against the rules",
+  "kid": true,
+  "src": "https://www.nbcnews.com/id/wbna24390018"
+ },
+ {
+  "q": "In France",
+  "a": "School cafeterias may serve ketchup only alongside French fries",
+  "kid": true,
+  "src": "https://www.theglobeandmail.com/amp/life/the-hot-button/pas-de-ketchup-france-bans-condiment-in-schools/article618114/"
+ },
+ {
+  "q": "In Skamania County, Washington",
+  "a": "It's against the law to kill a Bigfoot",
+  "kid": true,
+  "src": "https://kuow.org/stories/did-you-know-why-you-shouldn-t-mess-with-bigfoot-in-washington-state"
+ },
+ {
+  "q": "In California",
+  "a": "A frog that dies in a frog-jumping contest can't be eaten",
+  "kid": true,
+  "src": "https://california.public.law/codes/fish_and_game_code_section_6884"
+ },
+ {
+  "q": "In London, England",
+  "a": "You may not fly a kite in the street if it annoys people",
+  "kid": true,
+  "src": "https://www.legislation.gov.uk/ukpga/Vict/2-3/47/section/54"
+ },
+ {
+  "q": "In Cinque Terre, Italy",
+  "a": "Hikers can be fined for wearing flip-flops on the trails",
+  "kid": true,
+  "src": "https://www.afar.com/magazine/cinque-terre-warns-travelers-to-avoid-hiking-in-flip-flops-or-risk-being-fined"
+ },
+ {
+  "q": "In Maryland",
+  "a": "Jousting is the official state sport",
+  "kid": true,
+  "src": "https://2023mdmanual.msa.maryland.gov/msa/mdmanual/01glance/html/symbols/sport.html"
+ },
+ {
+  "q": "In Pacific Grove, California",
+  "a": "It's illegal to bother the monarch butterflies in any way",
+  "kid": true,
+  "src": "https://codepublishing.com/CA/PacificGrove/html/PacificGrove11/PacificGrove1148.html"
+ },
+ {
+  "q": "In Hollywood, California",
+  "a": "Spraying Silly String on Halloween is against the law",
+  "kid": true,
+  "src": "https://www.lapdonline.org/newsroom/silly-string-banned-in-hollywood-on-halloween/"
+ },
+ {
+  "q": "In San Francisco, California",
+  "a": "Kids' meals may come with a free toy only if the meal is healthy",
+  "kid": true,
+  "src": "https://csmonitor.com/Business/2010/1104/Happy-Meal-ban-No-toys-for-you"
+ },
+ {
+  "q": "In Canada",
+  "a": "Nobody has to accept more than 25 pennies in a single payment",
+  "kid": true,
+  "src": "https://laws-lois.justice.gc.ca/eng/acts/C-52/section-8.html"
+ },
+ {
+  "q": "In Reykjavik, Iceland",
+  "a": "Keeping a pet dog in the city was once against the law",
+  "kid": true,
+  "src": "https://www.smithsonianmag.com/travel/illegal-in-iceland-180957521/"
+ },
+ {
+  "q": "In New York",
+  "a": "It's illegal to pose for selfies hugging tigers or other big cats",
+  "kid": true,
+  "src": "https://www.cbsnews.com/newyork/news/gov-cuomo-signs-law-banning-tiger-selfies"
+ },
+ {
+  "q": "In Vermont",
+  "a": "Apple pie is the state pie and should come with cheese, milk or ice cream",
+  "kid": true,
+  "src": "https://legislature.vermont.gov/statutes/section/01/011/00512"
+ },
+ {
+  "q": "In New York City",
+  "a": "Playing pinball was once against the law",
+  "kid": true,
+  "src": "https://www.history.com/news/that-time-america-outlawed-pinball"
+ },
+ {
+  "q": "In Severance, Colorado",
+  "a": "Throwing snowballs was once illegal, until a 9-year-old got the law changed",
+  "kid": true,
+  "src": "https://www.npr.org/2018/12/04/673282587/snowball-ban-overturned-in-colorado-town-after-request-from-boy-9"
+ },
+ {
+  "q": "In Russia",
+  "a": "Men once had to pay a special tax to keep their beards",
+  "kid": true,
+  "src": "https://www.smithsonianmag.com/smart-news/why-tsar-peter-great-established-beard-tax-180964693/"
+ },
+ {
+  "q": "In the United States",
+  "a": "Tomato paste on school-lunch pizza can count as a vegetable",
+  "kid": true,
+  "src": "https://www.nbcnews.com/health/health-news/pizza-vegetable-congress-says-yes-flna1c9453097"
+ },
+ {
+  "q": "In England",
+  "a": "Any whale or sturgeon caught off the coast belongs to the monarch",
+  "kid": true,
+  "src": "https://www.legislation.gov.uk/aep/Edw2cc1317/17/13"
+ },
+ {
+  "q": "In Texas",
+  "a": "Cities can't shut down a kid's lemonade stand",
+  "kid": true,
+  "src": "https://www.texastribune.org/2019/06/10/texas-greg-abbott-signs-bill-declaring-childrens-lemonade-stands-legal/"
+ },
+ {
+  "q": "In Alabama",
+  "a": "The official state cookie is one a fourth grader invented",
+  "kid": true,
+  "src": "https://www.foxnews.com/lifestyle/alabama-governor-signs-bill-designating-official-state-cookie-creation-talented-4th-grader"
+ },
+ {
+  "q": "In Chile",
+  "a": "Sugary cereal boxes aren't allowed to show cartoon mascots",
+  "kid": true,
+  "src": "https://www.irishtimes.com/life-and-style/health-family/the-country-that-killed-tony-the-tiger-and-kinder-eggs-in-obesity-war-1.3384681"
+ },
+ {
+  "q": "In Wyoming",
+  "a": "The state dinosaur had to be chosen by a vote, and Triceratops won",
+  "kid": true,
+  "src": "https://codes.findlaw.com/wy/title-8-general-provisions/wy-st-sect-8-3-116/"
+ },
+ {
+  "q": "In Arizona",
+  "a": "The bolo tie is the official state neckwear",
+  "kid": true,
+  "src": "https://statesymbolsusa.org/symbol/arizona/state-cultural-heritage-symbol/bola-tie"
+ },
+ {
+  "q": "In Sardinia, Italy",
+  "a": "Taking sand or shells home from the beach can get you fined",
+  "kid": true,
+  "src": "https://www.euronews.com/2021/06/05/tourists-fined-3-000-for-stealing-sand-shells-from-italian-beach"
+ },
+ {
+  "q": "In Rome, Italy",
+  "a": "Pet goldfish can't be kept in round fishbowls",
+  "kid": true,
+  "src": "https://www.nbcnews.com/news/amp/wbna9814628"
+ },
+ {
+  "q": "In Boulder, Colorado",
+  "a": "Pet owners are officially called pet guardians",
+  "kid": true,
+  "src": "https://www.avma.org/javma-news/2001-04-15/owners-or-guardians"
+ },
+ {
+  "q": "In New Jersey",
+  "a": "Drivers aren't allowed to pump their own gas",
+  "kid": false,
+  "src": "https://nj.gov/labor/safetyandhealth/resources-support/laws-regulations/gasact.shtml"
+ },
+ {
+  "q": "In Vermont",
+  "a": "Towns and landlords can't ban hanging laundry outside on clotheslines",
+  "kid": false,
+  "src": "https://legislature.vermont.gov/statutes/section/27/005/00544"
+ },
+ {
+  "q": "In Hawaii",
+  "a": "Billboards are banned along the roads",
+  "kid": false,
+  "src": "https://law.justia.com/codes/hawaii/title-25/chapter-445/section-445-112"
+ },
+ {
+  "q": "In Arkansas",
+  "a": "State law spells out exactly how the state's name must be pronounced",
+  "kid": false,
+  "src": "https://law.justia.com/codes/arkansas/title-1/chapter-4/section-1-4-105"
+ },
+ {
+  "q": "In Tennessee",
+  "a": "Sharing your streaming-service password can count as stealing",
+  "kid": false,
+  "src": "https://www.abajournal.com/news/article/tenn._outlaws_subscribers_to_netflix_rhapsody_from_sharing_logins"
+ },
+ {
+  "q": "In Japan",
+  "a": "Adults aged 40 to 74 must have their waistlines measured at yearly checkups",
+  "kid": false,
+  "src": "https://www.snopes.com/fact-check/the-metabo-law/"
+ },
+ {
+  "q": "In Denmark",
+  "a": "Parents must pick a baby name from an approved list or get permission",
+  "kid": false,
+  "src": "https://www.irishtimes.com/news/what-s-in-a-name-a-lot-if-you-live-in-denmark-1.1140427"
+ },
+ {
+  "q": "In France",
+  "a": "Fashion models need a doctor's certificate saying they're healthy enough to work",
+  "kid": false,
+  "src": "https://www.rnz.co.nz/news/world/330230/france-bans-extremely-thin-models"
+ },
+ {
+  "q": "In France",
+  "a": "Big companies must let workers ignore work emails after hours",
+  "kid": false,
+  "src": "https://www.npr.org/sections/thetwo-way/2016/12/31/507704720/french-law-giving-workers-the-right-to-disconnect-goes-into-effect"
+ },
+ {
+  "q": "In France",
+  "a": "Large supermarkets can't throw away unsold food and must donate it instead",
+  "kid": false,
+  "src": "https://fortune.com/2016/02/05/france-supermarket-garbarge/"
+ },
+ {
+  "q": "In Bhutan",
+  "a": "At least 60 percent of the country must always stay covered in forest",
+  "kid": false,
+  "src": "https://www.cambridge.org/core/books/environmental-rights/constitution-of-bhutan-a-quantitative-environmental-standard/A2BD4626CC13A6E0F4C7AF2DC0FEE82A"
+ },
+ {
+  "q": "In New Zealand",
+  "a": "The Whanganui River has the same legal rights as a person",
+  "kid": false,
+  "src": "https://www.aljazeera.com/amp/news/2017/3/16/new-zealand-river-is-the-worlds-first-legal-person"
+ },
+ {
+  "q": "In Canada",
+  "a": "Radio stations must make sure about a third of the music they play is Canadian",
+  "kid": false,
+  "src": "https://crtc.gc.ca/eng/cancon/r_cdn.htm"
+ },
+ {
+  "q": "In Germany",
+  "a": "You can be fined for running out of fuel on the Autobahn",
+  "kid": false,
+  "src": "https://www.auto-motor-und-sport.de/verkehr/leerer-tank-leerer-akku-so-heftig-sind-die-strafen/"
+ },
+ {
+  "q": "In Hawaii",
+  "a": "Government officials are expected to keep the Aloha Spirit in mind while working",
+  "kid": false,
+  "src": "https://data.capitol.hawaii.gov/hrscurrent/Vol01_Ch0001-0042F/HRS0005/HRS_0005-0007_0005.htm"
+ },
+ {
+  "q": "In West Virginia",
+  "a": "Drivers may take home animals they accidentally hit, if they report it",
+  "kid": false,
+  "src": "https://code.wvlegislature.gov/signed_bills/1998/1998-RS-HB4062-ENR_signed.pdf"
+ },
+ {
+  "q": "In England",
+  "a": "Handling a salmon in suspicious circumstances is an offense",
+  "kid": false,
+  "src": "https://www.legislation.gov.uk/ukpga/1986/62/section/32/enacted"
+ },
+ {
+  "q": "In New York City",
+  "a": "The city once tried to ban sodas bigger than 16 ounces, but courts blocked it",
+  "kid": false,
+  "src": "https://www.pbs.org/newshour/nation/drink-new-york-citys-soda-ban-dead"
+ },
+ {
+  "q": "In Chicago, Illinois",
+  "a": "Restaurants were once banned from serving foie gras",
+  "kid": false,
+  "src": "https://www.nbcnews.com/news/amp/wbna24629066"
+ },
+ {
+  "q": "In California",
+  "a": "Pet stores may only sell dogs, cats and rabbits from shelters or rescues",
+  "kid": false,
+  "src": "https://time.com/5490401/california-rescue-animals-law/"
+ },
+ {
+  "q": "In New York",
+  "a": "It's illegal to have a pet cat declawed except for medical reasons",
+  "kid": false,
+  "src": "https://www.npr.org/2019/07/23/744436827/cats-can-keep-their-claws-new-york-bans-declawing"
+ },
+ {
+  "q": "In Zurich, Switzerland",
+  "a": "New dog owners must take a training course with their dog",
+  "kid": false,
+  "src": "https://www.thelocal.ch/20250324/hundegesetz-zurich-to-reinstate-mandatory-dog-training-classes-from-june"
+ },
+ {
+  "q": "In Oregon",
+  "a": "The whole ocean shoreline is open to the public, even beside private land",
+  "kid": false,
+  "src": "https://oregonencyclopedia.org/articles/oregon_beach_bill/"
+ },
+ {
+  "q": "In Arizona",
+  "a": "Clocks don't change for daylight saving time",
+  "kid": false,
+  "src": "https://www.axios.com/local/phoenix/2024/03/11/arizona-decided-in-1968-that-it-didnt-need-to-save-any-daylight"
+ },
+ {
+  "q": "In Michigan",
+  "a": "Cans and bottles carry a 10-cent deposit you get back when you return them",
+  "kid": false,
+  "src": "https://www.michigan.gov/egle/faq/recycling/bottle-deposit-law"
+ },
+ {
+  "q": "In Finland",
+  "a": "Speeding fines are based on how much money the driver earns",
+  "kid": false,
+  "src": "https://www.euronews.com/2023/01/04/finlands-progressive-punishment-when-it-comes-to-speeding-tickets"
+ },
+ {
+  "q": "In Massachusetts",
+  "a": "Celebrating Christmas was once against the law",
+  "kid": false,
+  "src": "https://www.history.com/news/when-massachusetts-banned-christmas"
+ },
+ {
+  "q": "In Wisconsin",
+  "a": "Selling yellow-colored margarine was once illegal",
+  "kid": false,
+  "src": "https://www.wpr.org/justice/i-cant-believe-its-not-yellow-peek-wisconsins-quirky-margarine-laws"
+ },
+ {
+  "q": "In Luxembourg",
+  "a": "Buses, trams and trains are free for everyone to ride",
+  "kid": false,
+  "src": "https://transports.public.lu/en/se-deplacer/transports-publics/mobilite-gratuite.html"
+ },
+ {
+  "q": "In Kenya",
+  "a": "Making, selling or using plastic shopping bags is banned",
+  "kid": false,
+  "src": "https://www.irishtimes.com/news/world/africa/kenya-imposes-world-s-toughest-law-against-use-of-plastic-bags-1.3201477"
+ },
+ {
+  "q": "In Ecuador",
+  "a": "The constitution gives nature itself legal rights",
+  "kid": false,
+  "src": "https://www.environmentandsociety.org/arcadia/constitution-republic-ecuador-pachamama-has-rights"
+ },
+ {
+  "q": "In Scotland",
+  "a": "People have a right to walk across most land, even privately owned land",
+  "kid": false,
+  "src": "https://www.outdooraccess-scotland.scot/act-and-access-code/land-reform-act"
+ },
+ {
+  "q": "In Seattle, Washington",
+  "a": "Food scraps aren't allowed in the regular garbage",
+  "kid": false,
+  "src": "https://www.npr.org/sections/thesalt/2015/01/26/381586856/tossing-out-food-in-the-trash-in-seattle-you-ll-be-fined-for-that"
+ },
+ {
+  "q": "In Utah",
+  "a": "Letting kids walk to school or play outside alone isn't considered neglect",
+  "kid": false,
+  "src": "https://www.npr.org/2018/04/01/598630200/utah-passes-free-range-parenting-law"
+ },
+ {
+  "q": "In South Korea",
+  "a": "A 2023 law made most people officially a year or two younger",
+  "kid": false,
+  "src": "https://www.aljazeera.com/news/2023/6/28/why-are-south-koreans-one-year-younger-today"
+ },
+ {
+  "q": "In China",
+  "a": "Grown children must visit or keep in touch with their elderly parents",
+  "kid": false,
+  "src": "https://www.csmonitor.com/World/Global-News/2013/0701/China-to-adults-Go-see-your-mother-or-go-to-jail"
+ },
+ {
+  "q": "In Rwanda",
+  "a": "Adults must join a community clean-up work morning once a month",
+  "kid": false,
+  "src": "https://www.npr.org/sections/goatsandsoda/2018/07/18/628364015/how-rwanda-tidied-up-its-streets-and-the-rest-of-the-country-too"
+ },
+ {
+  "q": "In Venice, Italy",
+  "a": "Day visitors must pay an entry fee on the busiest days",
+  "kid": false,
+  "src": "https://www.npr.org/2024/04/26/1247405949/as-venice-grapples-with-overtourism-the-city-tests-a-5-euro-fee-for-day-trippers"
+ },
+ {
+  "q": "In Washington, D.C.",
+  "a": "A building can't be much taller than the width of the street it faces",
+  "kid": false,
+  "src": "https://www.ncpc.gov/topics/heights/"
+ },
+ {
+  "q": "In Wales",
+  "a": "The default speed limit on town streets is 20 miles per hour",
+  "kid": false,
+  "src": "https://gov.wales/seven-things-you-may-not-know-about-wales-new-20mph-default-speed-limit"
+ },
+ {
+  "q": "In Iceland",
+  "a": "Bigger employers must get certified that they pay men and women equally",
+  "kid": false,
+  "src": "https://government.is/news/article/2018/01/04/New-Icelandic-law-on-Equal-Pay-Certification-entered-into-force-on-January-1-2018"
+ },
+ {
+  "q": "In Costa Rica",
+  "a": "The constitution says the country may not have a permanent army",
+  "kid": false,
+  "src": "https://en.unesco.org/memoryoftheworld/registry/209"
+ },
+ {
+  "q": "In Alaska",
+  "a": "Residents get a yearly cash payment from the state's oil savings fund",
+  "kid": false,
+  "src": "https://dor.alaska.gov/department-of-revenue/news-detail/2025/09/22/department-of-revenue-announces-2025-permanent-fund-dividend-amount"
+ },
+ {
+  "q": "In Nebraska",
+  "a": "The state legislature has just one chamber, and its elections are officially nonpartisan",
+  "kid": false,
+  "src": "https://nebraskalegislature.gov/about/history_unicameral.php"
+ },
+ {
+  "q": "In France",
+  "a": "Stores may hold big clearance sales only during set weeks each year",
+  "kid": false,
+  "src": "https://entreprendre.service-public.gouv.fr/vosdroits/F24037?lang=en"
+ },
+ {
+  "q": "In Spain",
+  "a": "Dogs can't be left home alone for more than 24 hours",
+  "kid": false,
+  "src": "https://www.euronews.com/2023/09/29/spains-new-animal-welfare-law-explained-what-you-can-and-cant-do"
+ },
+ {
+  "q": "In Germany",
+  "a": "Most stores must stay closed on Sundays",
+  "kid": false,
+  "src": "https://blogs.loc.gov/law/2025/11/shop-closing-laws-in-germany/"
+ },
+ {
+  "q": "In Quebec, Canada",
+  "a": "French must be much more prominent than any other language on store signs",
+  "kid": false,
+  "src": "https://educaloi.qc.ca/en/capsules/charter-of-the-french-language/"
+ },
+ {
+  "q": "In the United Kingdom",
+  "a": "You need a paid licence to watch TV as it's being broadcast live",
+  "kid": false,
+  "src": "https://www.gov.uk/tv-licence"
+ },
+ {
+  "q": "In the United States",
+  "a": "Food made with sheep's lungs, like traditional haggis, can't be sold",
+  "kid": false,
+  "src": "https://www.vice.com/en/article/the-usda-doesnt-want-us-to-eat-lungs/"
+ },
+ {
+  "q": "In Australia",
+  "a": "Every adult citizen must vote in national elections or pay a fine",
+  "kid": false,
+  "src": "https://www.sbs.com.au/news/article/what-happens-if-you-dont-vote-federal-election/tzj3bukpo"
+ },
+ {
+  "q": "In England",
+  "a": "Homeowners were once taxed on how many windows their houses had",
+  "kid": false,
+  "src": "https://www.nationalarchives.gov.uk/education/resources/georgian-britain-age-modernity/window-tax/"
+ },
+ {
+  "q": "In Florence, Italy",
+  "a": "Eating on the sidewalk on certain busy streets at mealtimes can get you fined",
+  "kid": false,
+  "src": "https://amp.cnn.com/cnn/travel/article/florence-street-eating-ban"
+ },
+ {
+  "q": "In England",
+  "a": "Ringing someone's doorbell and running away is an offense",
+  "kid": false,
+  "src": "https://legislation.gov.uk/ukpga/Vict/10-11/89/section/28"
+ },
+ {
+  "q": "In New York City",
+  "a": "Restaurants must post their health inspection letter grade in the window",
+  "kid": false,
+  "src": "https://www.nyc.gov/site/doh/business/food-operators/letter-grading-for-restaurants.page"
+ },
+ {
+  "q": "In Norway",
+  "a": "At least 40 percent of big public companies' board members must be women",
+  "kid": false,
+  "src": "https://www.npr.org/2009/08/10/111673448/in-norway-law-promotes-women-in-boardroom"
+ },
+ {
+  "q": "In Philadelphia, Pennsylvania",
+  "a": "Sugary and diet drinks carry an extra tax by the ounce",
+  "kid": false,
+  "src": "https://www.phila.gov/news/department-of-revenue/the-philly-beverage-tax-starts-january-1st/"
+ },
+ {
+  "q": "In Singapore",
+  "a": "You must win a costly certificate at auction before you can own a car",
+  "kid": false,
+  "src": "https://onemotoring.lta.gov.sg/content/onemotoring/home/buying/upfront-vehicle-costs/certificate-of-entitlement--coe-.html"
+ },
+ {
+  "q": "In Paris, France",
+  "a": "Rental electric scooters have been banned since 2023",
+  "kid": false,
+  "src": "https://www.npr.org/2023/09/01/1197329094/paris-rental-electric-scooter-ban-has-taken-effect"
+ },
+ {
+  "q": "In Portofino, Italy",
+  "a": "Tourists can be fined for lingering in busy spots to take selfies",
+  "kid": false,
+  "src": "https://petapixel.com/2023/04/20/italian-town-fines-tourists-300-for-lingering-too-long-to-take-selfies"
+ },
+ {
+  "q": "In Sweden",
+  "a": "Parents can transfer some of their paid baby-leave days to the grandparents",
+  "kid": false,
+  "src": "https://abcnews.go.com/Business/wireStory/swedes-new-step-parental-leave-grandparents-now-paid-111581427"
+ },
+ {
+  "q": "In Greece",
+  "a": "Visitors can't wear high heels at ancient sites",
+  "kid": false,
+  "src": "https://www.npr.org/2009/05/18/104239042/heels-food-banned-from-ancient-greek-sites"
+ },
+ {
+  "q": "In Carmel-by-the-Sea, California",
+  "a": "You need a permit to wear shoes with heels over two inches high",
+  "kid": false,
+  "src": "https://www.codepublishing.com/CA/CarmelbytheSea/html/Carmel08/Carmel0844.html"
+ },
+ {
+  "q": "In Rome, Italy",
+  "a": "Sitting on the Spanish Steps can get you fined",
+  "kid": false,
+  "src": "https://ansa.it/english/news/2019/08/06/sitting-on-romes-spanish-steps-banned_6d9d8906-4ed8-478e-9ea3-fd46f956eeb4.html"
+ },
+ {
+  "q": "In Canada",
+  "a": "Selling, advertising or importing baby walkers is banned",
+  "kid": false,
+  "src": "https://www.nbcnews.com/id/wbna4685971"
+ },
+ {
+  "q": "In Japan",
+  "a": "Someone who turns in a lost item can claim a 5 to 20 percent reward",
+  "kid": false,
+  "src": "https://www.npa.go.jp/bureau/soumu/ishitsubutsu/otoshimono/en/pickedup-road.html"
+ },
+ {
+  "q": "In New Mexico",
+  "a": "The official state question is \"Red or green?\"",
+  "kid": false,
+  "src": "https://www.nmlegis.gov/Sessions/99%20Regular/FinalVersions/HB0725.html"
+ },
+ {
+  "q": "In Oklahoma",
+  "a": "The official state meal includes fried okra, chicken-fried steak and pecan pie",
+  "kid": false,
+  "src": "https://www.okhistory.org/publications/enc/entry?entryname=STATE+MEAL"
+ },
+ {
+  "q": "In South Carolina",
+  "a": "Boiled peanuts are the official state snack food",
+  "kid": false,
+  "src": "https://law.justia.com/codes/south-carolina/2021/title-1/chapter-1/section-1-1-682/"
+ },
+ {
+  "q": "In Rhode Island",
+  "a": "Coffee milk is the official state drink",
+  "kid": false,
+  "src": "https://atlasobscura.com/articles/rhode-island-has-1-great-culinary-invention-and-its-coffee-milk"
+ },
+ {
+  "q": "In Mexico",
+  "a": "Schools aren't allowed to sell junk food or sugary drinks",
+  "kid": false,
+  "src": "https://www.deseret.com/u-s-world/2025/04/02/mexico-bans-junk-food-in-schools/"
+ },
+ {
+  "q": "In France",
+  "a": "Restaurants can't offer free unlimited refills of sugary drinks",
+  "kid": false,
+  "src": "https://www.rnz.co.nz/news/world/323283/france-bans-unlimited-fizzy-drink-refills"
+ },
+ {
+  "q": "In Barcelona, Spain",
+  "a": "Walking around the city streets in just a swimsuit can get you fined",
+  "kid": false,
+  "src": "https://www.catalannews.com/society-science/item/barcelona-city-council-bans-nudity-and-semi-nudity-on-the-streets"
+ },
+ {
+  "q": "In Greece",
+  "a": "A 2002 law once banned playing electronic games in public places",
+  "kid": false,
+  "src": "https://www.pinsentmasons.com/out-law/news/greece-bans-computer-games"
+ },
+ {
+  "q": "In Honolulu, Hawaii",
+  "a": "Looking at your phone while crossing the street is against the law",
+  "kid": false,
+  "src": "https://www.npr.org/sections/thetwo-way/2017/10/25/559980080/honolulus-distracted-walking-law-takes-effect-targeting-phone-users"
+ },
+ {
+  "q": "In Massachusetts",
+  "a": "The chocolate chip cookie is the official state cookie",
+  "kid": false,
+  "src": "https://malegislature.gov/Laws/SessionLaws/Acts/1997/Chapter42"
+ },
+ {
+  "q": "In Illinois",
+  "a": "Popcorn is the official state snack food",
+  "kid": false,
+  "src": "https://ilga.gov/ftp/Public%20Acts/93/093-0410.htm"
+ },
+ {
+  "q": "In Ohio",
+  "a": "Tomato juice is the official state beverage",
+  "kid": false,
+  "src": "https://codes.ohio.gov/ohio-revised-code/section-5.08"
+ },
+ {
+  "q": "In Hawaii",
+  "a": "Stores can't sell sunscreens with chemicals thought to harm coral reefs",
+  "kid": false,
+  "src": "https://www.npr.org/sections/thetwo-way/2018/05/02/607765760/hawaii-approves-bill-banning-sunscreen-believed-to-kill-coral-reefs"
+ },
+ {
+  "q": "In the United States",
+  "a": "Chocolate eggs with a toy sealed inside can't be sold",
+  "kid": false,
+  "src": "https://www.accessdata.fda.gov/cms_IA/importalert_107.html"
+ }
+]

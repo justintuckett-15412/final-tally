@@ -1,0 +1,662 @@
+[
+ {
+  "q": "Mary Anderson",
+  "a": "Invented the windshield wiper after a snowy streetcar ride in New York",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Mary_Anderson_(inventor)"
+ },
+ {
+  "q": "Margaret Knight",
+  "a": "Invented a machine that folds and glues flat-bottomed paper grocery bags",
+  "kid": false,
+  "src": "https://womenshistory.si.edu/blog/margaret-knight-invented-machine-shapes-way-we-shop"
+ },
+ {
+  "q": "Josephine Cochrane",
+  "a": "Invented the first commercially successful dishwasher to protect her fine china",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Josephine_Cochrane"
+ },
+ {
+  "q": "Bette Nesmith Graham",
+  "a": "Secretary who invented Liquid Paper correction fluid in her kitchen",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Bette_Nesmith_Graham"
+ },
+ {
+  "q": "Stephanie Kwolek",
+  "a": "Chemist who invented Kevlar, a fiber five times stronger than steel by weight",
+  "kid": false,
+  "src": "https://www.sciencehistory.org/education/scientific-biographies/stephanie-l-kwolek/"
+ },
+ {
+  "q": "Patsy Sherman",
+  "a": "Co-invented Scotchgard after a lab chemical spilled on a coworker's sneaker",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Patsy_O%27Connell_Sherman"
+ },
+ {
+  "q": "Marion Donovan",
+  "a": "Made a waterproof diaper cover from a shower curtain",
+  "kid": false,
+  "src": "https://www.smithsonianmag.com/innovation/meet-marion-donovan-mother-who-invented-precursor-disposable-diaper-180972118/"
+ },
+ {
+  "q": "Lizzie Magie",
+  "a": "Invented the Landlord's Game, the board game that became Monopoly",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Lizzie_Magie"
+ },
+ {
+  "q": "Annie Edson Taylor",
+  "a": "First person to go over Niagara Falls in a barrel, at age 63",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Annie_Edson_Taylor"
+ },
+ {
+  "q": "Lillian Gilbreth",
+  "a": "Efficiency expert credited with the foot-pedal trash can and refrigerator door shelves",
+  "kid": false,
+  "src": "https://www.asme.org/topics-resources/content/lillian-moller-gilbreth"
+ },
+ {
+  "q": "Sarah Goode",
+  "a": "Patented a bed that folds up into a desk-like cabinet",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Sarah_E._Goode"
+ },
+ {
+  "q": "Alice Ball",
+  "a": "Chemist who developed the first effective injectable treatment for leprosy",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Alice_Ball"
+ },
+ {
+  "q": "Virginia Apgar",
+  "a": "Created the quick health score given to every newborn baby",
+  "kid": false,
+  "src": "https://www.nyp.org/healthmatters/apgar-score"
+ },
+ {
+  "q": "Martha Coston",
+  "a": "Developed colored signal flares that let ships send messages at night",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Martha_Coston"
+ },
+ {
+  "q": "Henrietta Swan Leavitt",
+  "a": "Found how pulsing stars can be used to measure cosmic distances",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Henrietta_Swan_Leavitt"
+ },
+ {
+  "q": "Jeanne Baret",
+  "a": "First woman to sail around the world, disguised as a man",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Jeanne_Baret"
+ },
+ {
+  "q": "Harriet Quimby",
+  "a": "First woman to fly an airplane across the English Channel",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Harriet_Quimby"
+ },
+ {
+  "q": "Annie Londonderry",
+  "a": "First woman to bicycle around the world, starting in 1894",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Annie_Londonderry"
+ },
+ {
+  "q": "Katharine Burr Blodgett",
+  "a": "Invented nonreflective invisible glass used in cameras and eyeglasses",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Katharine_Burr_Blodgett"
+ },
+ {
+  "q": "Maria Telkes",
+  "a": "Nicknamed the Sun Queen; designed heating for one of the first solar-heated homes",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Dover_Sun_House"
+ },
+ {
+  "q": "Emily Roebling",
+  "a": "Took charge of finishing the Brooklyn Bridge when her engineer husband fell ill",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Emily_Warren_Roebling"
+ },
+ {
+  "q": "Kathleen Drew-Baker",
+  "a": "British botanist honored in Japan as Mother of the Sea for saving nori seaweed",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Kathleen_Drew-Baker"
+ },
+ {
+  "q": "Jackie Mitchell",
+  "a": "Teenage pitcher who struck out Babe Ruth and Lou Gehrig back to back",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Jackie_Mitchell"
+ },
+ {
+  "q": "Margaret Abbott",
+  "a": "First American woman Olympic champion, and never knew she had won",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Margaret_Abbott"
+ },
+ {
+  "q": "Fannie Farmer",
+  "a": "Popularized exact level measurements in recipes with her 1896 cookbook",
+  "kid": false,
+  "src": "https://www.smithsonianmag.com/history/making-modern-american-recipe-180964940/"
+ },
+ {
+  "q": "Mary Kies",
+  "a": "One of the first women to get a U.S. patent, for weaving straw with silk",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Mary_Dixon_Kies"
+ },
+ {
+  "q": "Bertha Benz",
+  "a": "Took the first long-distance car trip, secretly borrowing her husband's motorwagen",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Bertha_Benz"
+ },
+ {
+  "q": "Alice Ramsey",
+  "a": "First woman to drive a car all the way across the United States",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Alice_Huyler_Ramsey"
+ },
+ {
+  "q": "Anna Jarvis",
+  "a": "Founded Mother's Day, then spent years fighting its commercialization",
+  "kid": false,
+  "src": "https://www.history.com/articles/why-the-founder-of-mothers-day-turned-against-it"
+ },
+ {
+  "q": "Sonora Smart Dodd",
+  "a": "Started Father's Day to honor the widowed dad who raised her",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Sonora_Smart_Dodd"
+ },
+ {
+  "q": "Earle Dickson",
+  "a": "Invented the Band-Aid for his wife, who often cut herself cooking",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Earle_Dickson"
+ },
+ {
+  "q": "Percy Spencer",
+  "a": "Invented the microwave oven after radar equipment melted a candy bar in his pocket",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Percy_Spencer"
+ },
+ {
+  "q": "Joseph Gayetty",
+  "a": "Sold the first packaged commercial toilet paper in the United States",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Joseph_Gayetty"
+ },
+ {
+  "q": "Sylvan Goldman",
+  "a": "Oklahoma grocer who invented the shopping cart using folding chairs",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Sylvan_Goldman"
+ },
+ {
+  "q": "Walter Hunt",
+  "a": "Invented the safety pin and sold the patent to pay a small debt",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Walter_Hunt_(inventor)"
+ },
+ {
+  "q": "Gideon Sundback",
+  "a": "Engineer who designed the modern zipper",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Gideon_Sundback"
+ },
+ {
+  "q": "Ermal Fraze",
+  "a": "Invented the pull-tab can top after forgetting a can opener at a picnic",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Ermal_C._Fraze"
+ },
+ {
+  "q": "Arthur Wynne",
+  "a": "Published the first crossword puzzle in a New York newspaper in 1913",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Arthur_Wynne"
+ },
+ {
+  "q": "Otto Rohwedder",
+  "a": "Invented the first machine to slice and wrap loaves of bread",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Otto_Frederick_Rohwedder"
+ },
+ {
+  "q": "Harry Coover",
+  "a": "Discovered Super Glue by accident, twice",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Harry_Coover"
+ },
+ {
+  "q": "Spencer Silver",
+  "a": "Chemist who made the weak, reusable glue on Post-it Notes",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Spencer_Silver"
+ },
+ {
+  "q": "Thomas Adams",
+  "a": "Turned chicle, a Mexican tree sap, into a popular chewing gum business",
+  "kid": false,
+  "src": "https://www.britannica.com/biography/Thomas-Adams"
+ },
+ {
+  "q": "László Bíró",
+  "a": "Hungarian journalist who invented the modern ballpoint pen",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/L%C3%A1szl%C3%B3_B%C3%ADr%C3%B3"
+ },
+ {
+  "q": "Karl Drais",
+  "a": "Invented the running machine, a pedal-less wooden ancestor of the bicycle",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Karl_Drais"
+ },
+ {
+  "q": "Joseph Merlin",
+  "a": "Early roller skate inventor who crashed into a mirror while skating and fiddling",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/John_Joseph_Merlin"
+ },
+ {
+  "q": "Charles Strite",
+  "a": "Invented the pop-up toaster after eating burnt toast in a factory cafeteria",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Charles_Strite"
+ },
+ {
+  "q": "Ole Evinrude",
+  "a": "Invented a practical outboard motor after a hot row across a lake for ice cream",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Ole_Evinrude"
+ },
+ {
+  "q": "Ralph Teetor",
+  "a": "Blind engineer who invented cruise control, fed up with a jerky driver",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Ralph_Teetor"
+ },
+ {
+  "q": "Elijah McCoy",
+  "a": "Engine-oiling inventor sometimes credited as the source of \"the real McCoy\"",
+  "kid": false,
+  "src": "https://www.nps.gov/articles/000/elijah-mccoy-inventor-of-the-real-mccoy.htm"
+ },
+ {
+  "q": "Frederick McKinley Jones",
+  "a": "Invented portable refrigeration for trucks hauling food long distances",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Frederick_McKinley_Jones"
+ },
+ {
+  "q": "Percy Shaw",
+  "a": "Invented cat's eyes, the reflective studs that light up road lanes at night",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Percy_Shaw"
+ },
+ {
+  "q": "Eddie Gaedel",
+  "a": "Three-foot-seven batter who walked in his only major league plate appearance",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Eddie_Gaedel"
+ },
+ {
+  "q": "Félix Carvajal",
+  "a": "Cuban mailman who napped mid-Olympic marathon and still finished fourth",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Andar%C3%ADn_Carvajal"
+ },
+ {
+  "q": "Oscar Swahn",
+  "a": "Swedish shooter who won an Olympic medal at age 72",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Oscar_Swahn"
+ },
+ {
+  "q": "Edward Payson Weston",
+  "a": "Walked from New York to San Francisco at age 70",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Edward_Payson_Weston"
+ },
+ {
+  "q": "Sam Panopoulos",
+  "a": "Canadian restaurant owner who invented Hawaiian pizza",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Sam_Panopoulos"
+ },
+ {
+  "q": "Ignacio Anaya",
+  "a": "Restaurant host who invented nachos for hungry customers in Piedras Negras, Mexico",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Ignacio_Anaya"
+ },
+ {
+  "q": "Charles Blondin",
+  "a": "Tightrope walker who cooked an omelette on a rope above Niagara Gorge",
+  "kid": false,
+  "src": "https://www.smithsonianmag.com/history/the-daredevil-of-niagara-falls-110492884/"
+ },
+ {
+  "q": "Joseph Friedman",
+  "a": "Invented the bendy straw after watching his daughter struggle with a milkshake",
+  "kid": false,
+  "src": "https://www.smithsonianmag.com/smart-news/why-appreciate-bendy-straw-180965014/"
+ },
+ {
+  "q": "Hubert Cecil Booth",
+  "a": "Built the first powered vacuum cleaner, a horse-drawn machine parked outside homes",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Hubert_Cecil_Booth"
+ },
+ {
+  "q": "Florence Lawrence",
+  "a": "Silent film star credited with designing early car turn signals and brake signals",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Florence_Lawrence"
+ },
+ {
+  "q": "Ellen Church",
+  "a": "Nurse who became the first female airline flight attendant, in 1930",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Ellen_Church"
+ },
+ {
+  "q": "Mary Anning",
+  "a": "Found the first correctly identified ichthyosaur fossil skeleton at age twelve",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Mary_Anning"
+ },
+ {
+  "q": "Nancy Johnson",
+  "a": "Patented the first hand-cranked ice cream freezer in 1843",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Nancy_M._Johnson"
+ },
+ {
+  "q": "Sarah Josepha Hale",
+  "a": "Wrote the nursery rhyme Mary Had a Little Lamb",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Sarah_Josepha_Hale"
+ },
+ {
+  "q": "Joan Beauchamp Procter",
+  "a": "London Zoo reptile curator who walked around with a pet Komodo dragon",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Joan_Beauchamp_Procter"
+ },
+ {
+  "q": "Ynes Mexia",
+  "a": "Started plant collecting in her fifties and found about 500 new species",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Ynes_Mexia"
+ },
+ {
+  "q": "Tabitha Babbitt",
+  "a": "Shaker woman credited with inventing the circular saw, inspired by her spinning wheel",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Tabitha_Babbitt"
+ },
+ {
+  "q": "Lilian Bland",
+  "a": "One of the first women to design, build and fly her own airplane",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Lilian_Bland"
+ },
+ {
+  "q": "Ruth Benerito",
+  "a": "Chemist who helped develop wrinkle-resistant wash-and-wear cotton",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Ruth_R._Benerito"
+ },
+ {
+  "q": "Walter Frederick Morrison",
+  "a": "Invented the flying disc that became the Frisbee, after tossing cake pans",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Walter_Frederick_Morrison"
+ },
+ {
+  "q": "George Nissen",
+  "a": "Built the first modern trampoline and named it after a Spanish word",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/George_Nissen"
+ },
+ {
+  "q": "L. L. Zamenhof",
+  "a": "Eye doctor who created Esperanto, a language meant for the whole world",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/L._L._Zamenhof"
+ },
+ {
+  "q": "Edwin Beard Budding",
+  "a": "Invented the lawnmower after seeing a cloth-trimming machine in a mill",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Edwin_Beard_Budding"
+ },
+ {
+  "q": "William Painter",
+  "a": "Invented the crimped metal bottle cap known as the crown cork",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/William_Painter_(inventor)"
+ },
+ {
+  "q": "Thomas Sullivan",
+  "a": "Tea merchant credited with popularizing tea bags after shipping tea in silk bags",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Tea_bag"
+ },
+ {
+  "q": "Robert Chesebrough",
+  "a": "Turned the gunk on oil-well pumps into Vaseline, and claimed to eat it daily",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Robert_Chesebrough"
+ },
+ {
+  "q": "John Walker",
+  "a": "Credited with the first friction match, found when one lit scraping his hearth",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/John_Walker_(inventor)"
+ },
+ {
+  "q": "Bill Bowerman",
+  "a": "Track coach who ruined his wife's waffle iron making grippy shoe soles",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Bill_Bowerman"
+ },
+ {
+  "q": "Jacques Brandenberger",
+  "a": "Swiss chemist who invented cellophane while trying to make stain-resistant cloth",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Jacques_E._Brandenberger"
+ },
+ {
+  "q": "Frank Epperson",
+  "a": "Invented the Popsicle at age 11 by leaving a drink out overnight",
+  "kid": true,
+  "src": "https://lemelson.mit.edu/resources/frank-epperson"
+ },
+ {
+  "q": "Ruth Wakefield",
+  "a": "Invented the chocolate chip cookie at her Toll House Inn",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Ruth_Graves_Wakefield"
+ },
+ {
+  "q": "Walter Diemer",
+  "a": "Accountant who invented pink bubble gum",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Walter_Diemer"
+ },
+ {
+  "q": "Betty James",
+  "a": "Named the Slinky after flipping through a dictionary",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Betty_James"
+ },
+ {
+  "q": "Kay Zufall",
+  "a": "Teacher who saw wallpaper cleaner could be a toy and named it Play-Doh",
+  "kid": true,
+  "src": "https://www.smithsonianmag.com/innovation/accidental-invention-play-doh-180973527/"
+ },
+ {
+  "q": "Ole Kirk Christiansen",
+  "a": "Danish carpenter who founded LEGO, first making wooden toys",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Ole_Kirk_Christiansen"
+ },
+ {
+  "q": "Eleanor Abbott",
+  "a": "Invented Candy Land while recovering from polio",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Eleanor_Abbott"
+ },
+ {
+  "q": "Alfred Butts",
+  "a": "Architect who invented Scrabble by counting letters in newspapers",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Alfred_Mosher_Butts"
+ },
+ {
+  "q": "Morris Michtom",
+  "a": "Brooklyn candy shop owner who created America's first teddy bear",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Morris_Michtom"
+ },
+ {
+  "q": "Margarete Steiff",
+  "a": "Sewed felt toy elephants that grew into the Steiff stuffed-animal company",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Margarete_Steiff"
+ },
+ {
+  "q": "Rose O'Neill",
+  "a": "Illustrator who created the cute, chubby Kewpie dolls",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Rose_O%27Neill"
+ },
+ {
+  "q": "Johnny Gruelle",
+  "a": "Created the Raggedy Ann doll and her storybooks",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Johnny_Gruelle"
+ },
+ {
+  "q": "Wilson Bentley",
+  "a": "Vermont farmer who took the first photograph of a single snowflake",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Wilson_Bentley"
+ },
+ {
+  "q": "Chester Greenwood",
+  "a": "Invented earmuffs as a teenager in Maine to keep his ears warm",
+  "kid": true,
+  "src": "https://visitmaine.com/quarterly/arts-culture/origin-earmuffs"
+ },
+ {
+  "q": "Patty Hill",
+  "a": "Kindergarten teacher who co-wrote the classroom song that became \"Happy Birthday\"",
+  "kid": true,
+  "src": "https://www.smithsonianmag.com/history/the-forgotten-sisters-behind-happy-birthday-to-you-180983885/"
+ },
+ {
+  "q": "Robert L. May",
+  "a": "Created Rudolph the Red-Nosed Reindeer for a department store booklet",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Robert_L._May"
+ },
+ {
+  "q": "Clarence Nash",
+  "a": "Was the voice of Donald Duck for about 50 years",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Clarence_Nash"
+ },
+ {
+  "q": "June Foray",
+  "a": "Was the voice of Rocky the Flying Squirrel",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/June_Foray"
+ },
+ {
+  "q": "Adriana Caselotti",
+  "a": "Was the singing and speaking voice of Disney's Snow White",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Adriana_Caselotti"
+ },
+ {
+  "q": "Margret Rey",
+  "a": "Co-created the curious little monkey Curious George with her husband",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Margret_Rey"
+ },
+ {
+  "q": "Gertrude Ederle",
+  "a": "First woman to swim across the English Channel",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Gertrude_Ederle"
+ },
+ {
+  "q": "Junko Tabei",
+  "a": "First woman to climb to the top of Mount Everest",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Junko_Tabei"
+ },
+ {
+  "q": "Matthew Henson",
+  "a": "Explorer on the first expedition to claim reaching the North Pole",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Matthew_Henson"
+ },
+ {
+  "q": "Eugenie Clark",
+  "a": "Nicknamed the Shark Lady for her studies of sharks",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Eugenie_Clark"
+ },
+ {
+  "q": "Belle Benchley",
+  "a": "Ran the San Diego Zoo, for years the world's only woman zoo director",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Belle_Benchley"
+ },
+ {
+  "q": "Rudd Weatherwax",
+  "a": "Trained Pal, the collie who first played Lassie in movies",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Rudd_Weatherwax"
+ },
+ {
+  "q": "Horatio Nelson Jackson",
+  "a": "Made the first cross-country car trip, with a goggle-wearing bulldog named Bud",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Horatio_Nelson_Jackson"
+ },
+ {
+  "q": "William Morrison",
+  "a": "Dentist who co-invented the cotton candy machine",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/William_Morrison_(dentist)"
+ },
+ {
+  "q": "Teressa Bellissimo",
+  "a": "Credited with inventing Buffalo chicken wings at her family's restaurant",
+  "kid": true,
+  "src": "https://www.smithsonianmag.com/arts-culture/a-brief-history-of-the-buffalo-chicken-wing-10260772/"
+ },
+ {
+  "q": "Momofuku Ando",
+  "a": "Invented instant ramen noodles and later Cup Noodles",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Momofuku_Ando"
+ }
+]

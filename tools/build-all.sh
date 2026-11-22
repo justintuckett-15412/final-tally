@@ -1,5 +1,5 @@
 #!/bin/sh
-# clean app (before the word games) -> Boggle -> Scattergories -> Word Tiles -> Catan -> ... -> Telestrations -> Cover Your Kingdom -> site
+# clean app (before the word games) -> Boggle -> Scattergories -> Word Tiles -> Catan -> ... -> Telestrations -> Cover Your Kingdom -> Beyond Balderdash -> site
 set -e
 cd /home/claude
 python3 bg/integrate.py cp/clean.pre-bg.html /tmp/with-bg.html
@@ -15,7 +15,9 @@ python3 wyp/integrate.py /tmp/with-wsp.html /tmp/with-wyp.html
 python3 dow/integrate.py /tmp/with-wyp.html /tmp/with-dow.html
 python3 cn/integrate.py /tmp/with-dow.html /tmp/with-cn.html
 python3 ts/integrate.py /tmp/with-cn.html /tmp/with-ts.html
-python3 ck/integrate.py /tmp/with-ts.html final-tally.html
+python3 ck/integrate.py /tmp/with-ts.html /tmp/with-ck.html
+python3 bd/mkdata.py
+python3 bd/integrate.py /tmp/with-ck.html final-tally.html
 node -e "const s=require('fs').readFileSync('final-tally.html','utf8');const m=[...s.matchAll(/<script>([\s\S]*?)<\/script>/g)];for(const x of m){try{new Function(x[1])}catch(e){console.log('ERR',e.message);process.exit(1)}}"
 python3 site-tools/build.py >/dev/null
 cp final-tally.html final-tally/src/

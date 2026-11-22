@@ -1,0 +1,662 @@
+[
+ {
+  "q": "TANSTAAFL",
+  "a": "There ain't no such thing as a free lunch",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/No_such_thing_as_a_free_lunch"
+ },
+ {
+  "q": "QED",
+  "a": "Quod erat demonstrandum",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Q.E.D."
+ },
+ {
+  "q": "SPQR",
+  "a": "Senatus Populusque Romanus",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/SPQR"
+ },
+ {
+  "q": "NABISCO",
+  "a": "National Biscuit Company",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Nabisco"
+ },
+ {
+  "q": "CAPTCHA",
+  "a": "Completely Automated Public Turing test to tell Computers and Humans Apart",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/CAPTCHA"
+ },
+ {
+  "q": "MASER",
+  "a": "Microwave amplification by stimulated emission of radiation",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Maser"
+ },
+ {
+  "q": "CERN",
+  "a": "Conseil européen pour la recherche nucléaire",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/CERN"
+ },
+ {
+  "q": "UEFA",
+  "a": "Union of European Football Associations",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/UEFA"
+ },
+ {
+  "q": "OPEC",
+  "a": "Organization of the Petroleum Exporting Countries",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/OPEC"
+ },
+ {
+  "q": "AFLAC",
+  "a": "American Family Life Assurance Company",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Aflac"
+ },
+ {
+  "q": "BTU",
+  "a": "British thermal unit",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/British_thermal_unit"
+ },
+ {
+  "q": "PVC",
+  "a": "Polyvinyl chloride",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Polyvinyl_chloride"
+ },
+ {
+  "q": "AED",
+  "a": "Automated external defibrillator",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Automated_external_defibrillator"
+ },
+ {
+  "q": "DEFCON",
+  "a": "Defense readiness condition",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/DEFCON"
+ },
+ {
+  "q": "VTOL",
+  "a": "Vertical take-off and landing",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/VTOL"
+ },
+ {
+  "q": "JATO",
+  "a": "Jet-assisted take-off",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/JATO"
+ },
+ {
+  "q": "AWACS",
+  "a": "Airborne Warning and Control System",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Boeing_E-3_Sentry"
+ },
+ {
+  "q": "ARAMCO",
+  "a": "Arabian American Oil Company",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Saudi_Aramco"
+ },
+ {
+  "q": "USO",
+  "a": "United Service Organizations",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/United_Service_Organizations"
+ },
+ {
+  "q": "ROTC",
+  "a": "Reserve Officers' Training Corps",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Reserve_Officers%27_Training_Corps"
+ },
+ {
+  "q": "SUNOCO",
+  "a": "Sun Oil Company",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Sunoco"
+ },
+ {
+  "q": "DUMBO",
+  "a": "Down Under the Manhattan Bridge Overpass",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Dumbo,_Brooklyn"
+ },
+ {
+  "q": "TriBeCa",
+  "a": "Triangle Below Canal",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Tribeca"
+ },
+ {
+  "q": "IKEA",
+  "a": "Ingvar Kamprad Elmtaryd Agunnaryd",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/IKEA"
+ },
+ {
+  "q": "ASICS",
+  "a": "Anima sana in corpore sano",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/ASICS"
+ },
+ {
+  "q": "3M",
+  "a": "Minnesota Mining and Manufacturing",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/3M"
+ },
+ {
+  "q": "ALCOA",
+  "a": "Aluminum Company of America",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Alcoa"
+ },
+ {
+  "q": "FIAT",
+  "a": "Fabbrica Italiana Automobili Torino",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Fiat_Automobiles"
+ },
+ {
+  "q": "GEICO",
+  "a": "Government Employees Insurance Company",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/GEICO"
+ },
+ {
+  "q": "H&M",
+  "a": "Hennes & Mauritz",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/H%26M"
+ },
+ {
+  "q": "DHL",
+  "a": "Dalsey, Hillblom and Lynn",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/DHL"
+ },
+ {
+  "q": "QVC",
+  "a": "Quality, Value, Convenience",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/QVC"
+ },
+ {
+  "q": "LORAN",
+  "a": "Long Range Navigation",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/LORAN"
+ },
+ {
+  "q": "UTC",
+  "a": "Coordinated Universal Time",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Coordinated_Universal_Time"
+ },
+ {
+  "q": "DDT",
+  "a": "Dichlorodiphenyltrichloroethane",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/DDT"
+ },
+ {
+  "q": "TIG",
+  "a": "Tungsten inert gas",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Gas_tungsten_arc_welding"
+ },
+ {
+  "q": "CNC",
+  "a": "Computer numerical control",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Numerical_control"
+ },
+ {
+  "q": "OSB",
+  "a": "Oriented strand board",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Oriented_strand_board"
+ },
+ {
+  "q": "MDF",
+  "a": "Medium-density fibreboard",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Medium-density_fibreboard"
+ },
+ {
+  "q": "LIGO",
+  "a": "Laser Interferometer Gravitational-Wave Observatory",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/LIGO"
+ },
+ {
+  "q": "QANTAS",
+  "a": "Queensland and Northern Territory Aerial Services",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Qantas"
+ },
+ {
+  "q": "GIGO",
+  "a": "Garbage in, garbage out",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Garbage_in,_garbage_out"
+ },
+ {
+  "q": "BLUF",
+  "a": "Bottom line up front",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/BLUF_(communication)"
+ },
+ {
+  "q": "MRE",
+  "a": "Meal, Ready-to-Eat",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Meal,_Ready-to-Eat"
+ },
+ {
+  "q": "UNIVAC",
+  "a": "Universal Automatic Computer",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/UNIVAC"
+ },
+ {
+  "q": "IATA",
+  "a": "International Air Transport Association",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/International_Air_Transport_Association"
+ },
+ {
+  "q": "DARPA",
+  "a": "Defense Advanced Research Projects Agency",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/DARPA"
+ },
+ {
+  "q": "IEEE",
+  "a": "Institute of Electrical and Electronics Engineers",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/IEEE"
+ },
+ {
+  "q": "ASCAP",
+  "a": "American Society of Composers, Authors and Publishers",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/American_Society_of_Composers,_Authors_and_Publishers"
+ },
+ {
+  "q": "ALFA",
+  "a": "Anonima Lombarda Fabbrica Automobili",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Alfa_Romeo"
+ },
+ {
+  "q": "RKO",
+  "a": "Radio-Keith-Orpheum",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/RKO_Pictures"
+ },
+ {
+  "q": "GNU",
+  "a": "GNU's Not Unix!",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/GNU"
+ },
+ {
+  "q": "ENIAC",
+  "a": "Electronic Numerical Integrator and Computer",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/ENIAC"
+ },
+ {
+  "q": "COBOL",
+  "a": "Common Business-Oriented Language",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/COBOL"
+ },
+ {
+  "q": "BASIC",
+  "a": "Beginner's All-purpose Symbolic Instruction Code",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/BASIC"
+ },
+ {
+  "q": "WHIP",
+  "a": "Walks plus hits per inning pitched",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Walks_plus_hits_per_inning_pitched"
+ },
+ {
+  "q": "NIST",
+  "a": "National Institute of Standards and Technology",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/National_Institute_of_Standards_and_Technology"
+ },
+ {
+  "q": "SAG-AFTRA",
+  "a": "Screen Actors Guild–American Federation of Television and Radio Artists",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/SAG-AFTRA"
+ },
+ {
+  "q": "PCR",
+  "a": "Polymerase chain reaction",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Polymerase_chain_reaction"
+ },
+ {
+  "q": "PEBKAC",
+  "a": "Problem exists between keyboard and chair",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/User_error"
+ },
+ {
+  "q": "SEGA",
+  "a": "Service Games",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Sega"
+ },
+ {
+  "q": "KLM",
+  "a": "Koninklijke Luchtvaart Maatschappij",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/KLM"
+ },
+ {
+  "q": "SABENA",
+  "a": "Société anonyme belge d'exploitation de la navigation aérienne",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Sabena"
+ },
+ {
+  "q": "BOAC",
+  "a": "British Overseas Airways Corporation",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/British_Overseas_Airways_Corporation"
+ },
+ {
+  "q": "MI5",
+  "a": "Military Intelligence, Section 5",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/MI5"
+ },
+ {
+  "q": "REO",
+  "a": "Ransom Eli Olds",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/REO_Motor_Car_Company"
+ },
+ {
+  "q": "MG",
+  "a": "Morris Garages",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/MG_Cars"
+ },
+ {
+  "q": "SAAB",
+  "a": "Svenska Aeroplan Aktiebolaget",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Saab_AB"
+ },
+ {
+  "q": "ABBA",
+  "a": "Agnetha, Björn, Benny, Anni-Frid",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/ABBA"
+ },
+ {
+  "q": "YKK",
+  "a": "Yoshida Kōgyō Kabushiki gaisha",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/YKK_Group"
+ },
+ {
+  "q": "TDK",
+  "a": "Tokyo Denki Kagaku",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/TDK"
+ },
+ {
+  "q": "ANZAC",
+  "a": "Australian and New Zealand Army Corps",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Australian_and_New_Zealand_Army_Corps"
+ },
+ {
+  "q": "FIDE",
+  "a": "Fédération Internationale des Échecs",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/FIDE"
+ },
+ {
+  "q": "MIDI",
+  "a": "Musical Instrument Digital Interface",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/MIDI"
+ },
+ {
+  "q": "RFD",
+  "a": "Rural Free Delivery",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Rural_Free_Delivery"
+ },
+ {
+  "q": "CCC",
+  "a": "Civilian Conservation Corps",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Civilian_Conservation_Corps"
+ },
+ {
+  "q": "TEXACO",
+  "a": "The Texas Company",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/Texaco"
+ },
+ {
+  "q": "SoHo",
+  "a": "South of Houston Street",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/SoHo,_Manhattan"
+ },
+ {
+  "q": "JVC",
+  "a": "Japan's Victor Company",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/JVC"
+ },
+ {
+  "q": "ARCO",
+  "a": "Atlantic Richfield Company",
+  "kid": false,
+  "src": "https://en.wikipedia.org/wiki/ARCO"
+ },
+ {
+  "q": "ZIP",
+  "a": "Zone Improvement Plan",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/ZIP_Code"
+ },
+ {
+  "q": "JPEG",
+  "a": "Joint Photographic Experts Group",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/JPEG"
+ },
+ {
+  "q": "NORAD",
+  "a": "North American Aerospace Defense Command",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/North_American_Aerospace_Defense_Command"
+ },
+ {
+  "q": "NOAA",
+  "a": "National Oceanic and Atmospheric Administration",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/National_Oceanic_and_Atmospheric_Administration"
+ },
+ {
+  "q": "ESPN",
+  "a": "Entertainment and Sports Programming Network",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/ESPN"
+ },
+ {
+  "q": "NASCAR",
+  "a": "National Association for Stock Car Auto Racing",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/NASCAR"
+ },
+ {
+  "q": "FIFA",
+  "a": "Fédération Internationale de Football Association",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/FIFA"
+ },
+ {
+  "q": "RBI",
+  "a": "Run batted in",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Run_batted_in"
+ },
+ {
+  "q": "LED",
+  "a": "Light-emitting diode",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Light-emitting_diode"
+ },
+ {
+  "q": "USB",
+  "a": "Universal Serial Bus",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/USB"
+ },
+ {
+  "q": "SPF",
+  "a": "Sun protection factor",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Sunscreen"
+ },
+ {
+  "q": "RPM",
+  "a": "Revolutions per minute",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Revolutions_per_minute"
+ },
+ {
+  "q": "WD-40",
+  "a": "Water Displacement, 40th formula",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/WD-40"
+ },
+ {
+  "q": "4-H",
+  "a": "Head, Heart, Hands, and Health",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/4-H"
+ },
+ {
+  "q": "ASPCA",
+  "a": "American Society for the Prevention of Cruelty to Animals",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/American_Society_for_the_Prevention_of_Cruelty_to_Animals"
+ },
+ {
+  "q": "PBS",
+  "a": "Public Broadcasting Service",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/PBS"
+ },
+ {
+  "q": "HARIBO",
+  "a": "Hans Riegel Bonn",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Haribo"
+ },
+ {
+  "q": "NECCO",
+  "a": "New England Confectionery Company",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/New_England_Confectionery_Company"
+ },
+ {
+  "q": "a.m.",
+  "a": "Ante meridiem",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/12-hour_clock"
+ },
+ {
+  "q": "JCB",
+  "a": "Joseph Cyril Bamford",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Joseph_Cyril_Bamford"
+ },
+ {
+  "q": "A&W",
+  "a": "Allen & Wright",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/A%26W_Restaurants"
+ },
+ {
+  "q": "NCAA",
+  "a": "National Collegiate Athletic Association",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/National_Collegiate_Athletic_Association"
+ },
+ {
+  "q": "BMX",
+  "a": "Bicycle motocross",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/BMX"
+ },
+ {
+  "q": "EVA",
+  "a": "Extravehicular activity",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Extravehicular_activity"
+ },
+ {
+  "q": "JPL",
+  "a": "Jet Propulsion Laboratory",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Jet_Propulsion_Laboratory"
+ },
+ {
+  "q": "QR",
+  "a": "Quick response",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/QR_code"
+ },
+ {
+  "q": "AKC",
+  "a": "American Kennel Club",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/American_Kennel_Club"
+ },
+ {
+  "q": "SETI",
+  "a": "Search for extraterrestrial intelligence",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Search_for_extraterrestrial_intelligence"
+ },
+ {
+  "q": "PNG",
+  "a": "Portable Network Graphics",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/PNG"
+ },
+ {
+  "q": "GMT",
+  "a": "Greenwich Mean Time",
+  "kid": true,
+  "src": "https://en.wikipedia.org/wiki/Greenwich_Mean_Time"
+ }
+]

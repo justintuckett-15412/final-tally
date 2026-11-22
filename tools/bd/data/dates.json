@@ -1,0 +1,662 @@
+[
+  {
+    "q": "May 6, 1840",
+    "a": "The Penny Black, the world's first adhesive postage stamp, became valid for use",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Penny_Black"
+  },
+  {
+    "q": "February 15, 1965",
+    "a": "Canada's red maple leaf flag was raised for the first time",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Flag_of_Canada"
+  },
+  {
+    "q": "August 15, 1914",
+    "a": "A cargo ship's passage formally opened the Panama Canal",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Panama_Canal"
+  },
+  {
+    "q": "February 30, 1712",
+    "a": "Sweden added an extra leap day to fix its muddled calendar",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/February_30"
+  },
+  {
+    "q": "June 18, 1178",
+    "a": "Five Canterbury monks reported seeing the Moon's upper horn split in two",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Giordano_Bruno_(crater)"
+  },
+  {
+    "q": "August 25, 1835",
+    "a": "A New York newspaper began a fake series about bat-people living on the Moon",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Great_Moon_Hoax"
+  },
+  {
+    "q": "November 18, 1883",
+    "a": "American railroads switched to standard time zones at noon",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Railway_time"
+  },
+  {
+    "q": "January 28, 1896",
+    "a": "An English driver was fined for speeding at a dizzying 8 mph",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Speeding_ticket"
+  },
+  {
+    "q": "June 26, 1974",
+    "a": "A pack of Juicy Fruit gum became the first item scanned by a barcode",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Universal_Product_Code"
+  },
+  {
+    "q": "July 16, 1935",
+    "a": "The world's first parking meter was installed in Oklahoma City",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Parking_meter"
+  },
+  {
+    "q": "June 27, 1967",
+    "a": "The world's first cash machine opened at a bank in north London",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Automated_teller_machine"
+  },
+  {
+    "q": "October 29, 1969",
+    "a": "The first internet message was sent, but the computer crashed after two letters",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/ARPANET"
+  },
+  {
+    "q": "May 24, 1844",
+    "a": "Samuel Morse sent the official first telegraph message from Washington to Baltimore",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/What_hath_God_wrought"
+  },
+  {
+    "q": "January 10, 1863",
+    "a": "The world's first underground passenger railway opened in London",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/London_Underground"
+  },
+  {
+    "q": "April 3, 1973",
+    "a": "A Motorola engineer made the first handheld cellphone call, to his rival",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Martin_Cooper_(inventor)"
+  },
+  {
+    "q": "November 8, 1895",
+    "a": "A German physics professor discovered X-rays",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/X-ray"
+  },
+  {
+    "q": "November 30, 1872",
+    "a": "The first official international soccer match ended in a 0-0 tie",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/1872_Scotland_v_England_football_match"
+  },
+  {
+    "q": "December 28, 1895",
+    "a": "The Lumiere brothers held the first paid public movie screening in Paris",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Auguste_and_Louis_Lumi%C3%A8re"
+  },
+  {
+    "q": "May 16, 1929",
+    "a": "The very first Academy Awards ceremony lasted just 15 minutes",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/1st_Academy_Awards"
+  },
+  {
+    "q": "November 14, 1889",
+    "a": "Reporter Nellie Bly set off to race around the world",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Nellie_Bly"
+  },
+  {
+    "q": "April 3, 1860",
+    "a": "The first Pony Express rider left St. Joseph, Missouri, heading west",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Pony_Express"
+  },
+  {
+    "q": "January 29, 1886",
+    "a": "Karl Benz filed a patent for his gas-powered motor car",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Benz_Patent-Motorwagen"
+  },
+  {
+    "q": "September 4, 1882",
+    "a": "Thomas Edison's first power plant began lighting part of Manhattan",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Pearl_Street_Station"
+  },
+  {
+    "q": "November 4, 1922",
+    "a": "A worker in Egypt uncovered the first step leading to King Tut's tomb",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Discovery_of_the_tomb_of_Tutankhamun"
+  },
+  {
+    "q": "March 29, 1974",
+    "a": "Chinese farmers digging a well stumbled onto the Terracotta Army",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Terracotta_Army"
+  },
+  {
+    "q": "April 1, 1976",
+    "a": "Steve Jobs, Steve Wozniak and Ronald Wayne founded Apple Computer",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Apple_Inc."
+  },
+  {
+    "q": "July 6, 1957",
+    "a": "John Lennon and Paul McCartney met for the first time at a church fete",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Lennon%E2%80%93McCartney"
+  },
+  {
+    "q": "October 2, 1925",
+    "a": "John Logie Baird transmitted a TV picture of a ventriloquist's dummy",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/John_Logie_Baird"
+  },
+  {
+    "q": "January 15, 1759",
+    "a": "The British Museum opened its doors to the public for the first time",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/British_Museum"
+  },
+  {
+    "q": "April 26, 1803",
+    "a": "Thousands of meteorite stones rained down on a town in Normandy",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/L%27Aigle_(meteorite)"
+  },
+  {
+    "q": "November 30, 1954",
+    "a": "A meteorite crashed through an Alabama roof and hit a napping woman",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Hodges_meteorite"
+  },
+  {
+    "q": "October 22, 1797",
+    "a": "A Frenchman made the first parachute jump from a balloon over Paris",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Andr%C3%A9-Jacques_Garnerin"
+  },
+  {
+    "q": "July 25, 1909",
+    "a": "Louis Bleriot flew an airplane across the English Channel for the first time",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Louis_Bl%C3%A9riot"
+  },
+  {
+    "q": "August 7, 1974",
+    "a": "A French high-wire artist walked a tightrope between the Twin Towers",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Philippe_Petit"
+  },
+  {
+    "q": "March 23, 1857",
+    "a": "The first passenger elevator went into service in a New York store",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/E._V._Haughwout_Building"
+  },
+  {
+    "q": "July 31, 1790",
+    "a": "The first US patent was granted, for a better way to make potash",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Samuel_Hopkins_(inventor)"
+  },
+  {
+    "q": "January 1, 1801",
+    "a": "An Italian astronomer in Sicily discovered Ceres, the first known asteroid",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Ceres_(dwarf_planet)"
+  },
+  {
+    "q": "July 11, 1859",
+    "a": "The recast Big Ben bell chimed for the first time",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Big_Ben"
+  },
+  {
+    "q": "August 9, 1173",
+    "a": "Builders laid the foundations of the bell tower that became the Leaning Tower of Pisa",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Leaning_Tower_of_Pisa"
+  },
+  {
+    "q": "June 21, 1948",
+    "a": "A Manchester computer called the Baby ran the first stored program",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Manchester_Baby"
+  },
+  {
+    "q": "July 24, 1911",
+    "a": "A local farmer guided explorer Hiram Bingham to Machu Picchu",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Hiram_Bingham_III"
+  },
+  {
+    "q": "September 3, 1995",
+    "a": "The auction website that became eBay was launched as AuctionWeb",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/EBay"
+  },
+  {
+    "q": "January 7, 1785",
+    "a": "Two balloonists made the first flight across the English Channel",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Jean-Pierre_Blanchard"
+  },
+  {
+    "q": "June 24, 1947",
+    "a": "A pilot's UFO sighting near Mount Rainier sparked the term flying saucer",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Kenneth_Arnold_UFO_sighting"
+  },
+  {
+    "q": "December 9, 1968",
+    "a": "A famous demo showed off the computer mouse and video calls",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/The_Mother_of_All_Demos"
+  },
+  {
+    "q": "February 22, 1879",
+    "a": "The first Woolworth's five-cent store opened in Utica, New York",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/F._W._Woolworth_Company"
+  },
+  {
+    "q": "May 15, 1940",
+    "a": "Nylon stockings went on sale in stores across America",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Nylon"
+  },
+  {
+    "q": "February 10, 1996",
+    "a": "A computer beat a reigning world chess champion in a game for the first time",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Deep_Blue_versus_Garry_Kasparov"
+  },
+  {
+    "q": "January 23, 1960",
+    "a": "Two men in a bathyscaphe reached the deepest point in the ocean",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Bathyscaphe_Trieste"
+  },
+  {
+    "q": "December 12, 1901",
+    "a": "Marconi reported receiving the first radio signal sent across the Atlantic",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Guglielmo_Marconi"
+  },
+  {
+    "q": "August 29, 1885",
+    "a": "Gottlieb Daimler patented a design for the first motorcycle",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Daimler_Reitwagen"
+  },
+  {
+    "q": "December 14, 1911",
+    "a": "Roald Amundsen's team became the first to reach the South Pole",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Amundsen%27s_South_Pole_expedition"
+  },
+  {
+    "q": "May 14, 1796",
+    "a": "Edward Jenner tested the first vaccine on his gardener's eight-year-old son",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Edward_Jenner"
+  },
+  {
+    "q": "November 24, 1859",
+    "a": "Charles Darwin's On the Origin of Species was published",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/On_the_Origin_of_Species"
+  },
+  {
+    "q": "June 3, 1888",
+    "a": "The baseball poem Casey at the Bat first appeared in a newspaper",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Casey_at_the_Bat"
+  },
+  {
+    "q": "March 2, 1949",
+    "a": "A US bomber finished the first nonstop flight around the world",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Lucky_Lady_II"
+  },
+  {
+    "q": "December 20, 1951",
+    "a": "A nuclear reactor in Idaho lit up four light bulbs",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Experimental_Breeder_Reactor_I"
+  },
+  {
+    "q": "March 25, 1807",
+    "a": "The world's first fare-paying railway passengers rode a Welsh railway",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Oystermouth_Railway"
+  },
+  {
+    "q": "November 27, 1895",
+    "a": "Alfred Nobel signed the will that created the Nobel Prizes",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Alfred_Nobel"
+  },
+  {
+    "q": "June 4, 1896",
+    "a": "Henry Ford test-drove his first car, the Quadricycle",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Ford_Quadricycle"
+  },
+  {
+    "q": "April 12, 1961",
+    "a": "Yuri Gagarin became the first person to fly in space",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Yuri_Gagarin"
+  },
+  {
+    "q": "January 31, 1961",
+    "a": "A chimpanzee named Ham rode a rocket into space and back",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Ham_(chimpanzee)"
+  },
+  {
+    "q": "April 23, 2005",
+    "a": "The first YouTube video, about elephants at the zoo, was uploaded",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Me_at_the_zoo"
+  },
+  {
+    "q": "September 19, 1783",
+    "a": "A sheep, a duck and a rooster flew in a hot air balloon",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Montgolfier_brothers"
+  },
+  {
+    "q": "December 3, 1992",
+    "a": "The first text message was sent, and it said Merry Christmas",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Text_messaging"
+  },
+  {
+    "q": "February 18, 1930",
+    "a": "A young astronomer in Arizona discovered Pluto",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Clyde_Tombaugh"
+  },
+  {
+    "q": "August 24, 2006",
+    "a": "Astronomers voted that Pluto is no longer a full planet",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/IAU_definition_of_planet"
+  },
+  {
+    "q": "July 5, 1996",
+    "a": "Dolly the sheep, the first cloned mammal, was born",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Dolly_(sheep)"
+  },
+  {
+    "q": "September 12, 1940",
+    "a": "A teenager's dog led to the discovery of a cave full of ancient paintings",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Lascaux"
+  },
+  {
+    "q": "May 22, 1980",
+    "a": "The video game Pac-Man was released in Japan",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Pac-Man"
+  },
+  {
+    "q": "September 13, 1985",
+    "a": "Super Mario Bros. first came out in Japan",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Super_Mario_Bros."
+  },
+  {
+    "q": "January 9, 2007",
+    "a": "Steve Jobs unveiled the first iPhone in San Francisco",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/IPhone_(1st_generation)"
+  },
+  {
+    "q": "February 27, 1996",
+    "a": "The first Pokemon video games were released in Japan",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Pok%C3%A9mon_Red,_Blue,_and_Yellow"
+  },
+  {
+    "q": "May 8, 1886",
+    "a": "Coca-Cola was sold for the first time at a pharmacy in Atlanta",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Coca-Cola"
+  },
+  {
+    "q": "July 17, 1955",
+    "a": "Disneyland opened its gates in Anaheim, California",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Disneyland"
+  },
+  {
+    "q": "December 21, 1891",
+    "a": "The first game of basketball was played, and it ended 1-0",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/History_of_basketball"
+  },
+  {
+    "q": "June 6, 1933",
+    "a": "The first drive-in movie theater opened in New Jersey",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Drive-in_theater"
+  },
+  {
+    "q": "November 10, 1969",
+    "a": "Sesame Street aired on TV for the very first time",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Sesame_Street"
+  },
+  {
+    "q": "April 19, 2021",
+    "a": "A tiny helicopter made the first powered flight on Mars",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Ingenuity_(helicopter)"
+  },
+  {
+    "q": "November 12, 2014",
+    "a": "A space probe landed on a comet, bouncing twice",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Philae_(spacecraft)"
+  },
+  {
+    "q": "October 14, 1947",
+    "a": "A pilot flew faster than the speed of sound for the first time",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Bell_X-1"
+  },
+  {
+    "q": "March 12, 1912",
+    "a": "Juliette Gordon Low held the first Girl Scout meeting in Savannah",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Girl_Scouts_of_the_USA"
+  },
+  {
+    "q": "March 9, 1959",
+    "a": "The Barbie doll made her debut at a New York toy fair",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Barbie"
+  },
+  {
+    "q": "January 28, 1958",
+    "a": "A patent was filed for the modern LEGO brick design",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Lego"
+  },
+  {
+    "q": "October 2, 1950",
+    "a": "The Peanuts comic strip with Charlie Brown first ran in newspapers",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Peanuts"
+  },
+  {
+    "q": "November 18, 1928",
+    "a": "Mickey Mouse's cartoon Steamboat Willie premiered in New York",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Steamboat_Willie"
+  },
+  {
+    "q": "June 16, 1963",
+    "a": "Valentina Tereshkova became the first woman to fly in space",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Valentina_Tereshkova"
+  },
+  {
+    "q": "March 13, 1781",
+    "a": "William Herschel spotted Uranus but at first thought it was a comet",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Uranus"
+  },
+  {
+    "q": "March 30, 1858",
+    "a": "A man got the first patent for a pencil with an eraser on top",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Pencil"
+  },
+  {
+    "q": "November 17, 1970",
+    "a": "The first robot rover rolled across the Moon's surface",
+    "kid": true,
+    "src": "https://en.wikipedia.org/wiki/Lunokhod_1"
+  },
+  {
+    "q": "January 3, 1888",
+    "a": "An inventor received a patent for the first paper drinking straw",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Marvin_C._Stone"
+  },
+  {
+    "q": "January 1, 1985",
+    "a": "A British comedian made the country's first publicized mobile phone call",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Ernie_Wise"
+  },
+  {
+    "q": "January 24, 1848",
+    "a": "A carpenter spotted shiny flakes at a California sawmill, starting a gold rush",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/California_gold_rush"
+  },
+  {
+    "q": "February 6, 1971",
+    "a": "An astronaut hit two golf balls on the Moon with a homemade club",
+    "kid": false,
+    "src": "https://www.astronomy.com/today-in-the-history-of-astronomy/feb-6-1971-teeing-off-on-the-moon/"
+  },
+  {
+    "q": "February 19, 1878",
+    "a": "Thomas Edison was granted a patent for his sound-recording phonograph",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Phonograph"
+  },
+  {
+    "q": "March 10, 1876",
+    "a": "Alexander Graham Bell made the first phone call, asking his assistant to come over",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Invention_of_the_telephone"
+  },
+  {
+    "q": "March 31, 1889",
+    "a": "Gustave Eiffel led officials up his new tower on foot and raised a French flag",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Eiffel_Tower"
+  },
+  {
+    "q": "April 30, 1993",
+    "a": "CERN made the World Wide Web's code free for anyone to use",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/World_Wide_Web"
+  },
+  {
+    "q": "May 17, 1902",
+    "a": "An archaeologist noticed a gear wheel inside a lump of rock from an ancient shipwreck",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Antikythera_mechanism"
+  },
+  {
+    "q": "May 20, 1873",
+    "a": "A tailor and a merchant received a patent for riveted work pants, the first blue jeans",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Levi_Strauss_%26_Co."
+  },
+  {
+    "q": "June 19, 1846",
+    "a": "The first fully documented baseball game was played in Hoboken, ending 23 to 1",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Elysian_Fields,_Hoboken,_New_Jersey"
+  },
+  {
+    "q": "June 23, 1868",
+    "a": "Inventors received a patent for a writing machine they called the Type-Writer",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Sholes_and_Glidden_typewriter"
+  },
+  {
+    "q": "July 4, 1862",
+    "a": "On a rowing trip, a math teacher first told the story of Alice in Wonderland",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Alice%27s_Adventures_in_Wonderland"
+  },
+  {
+    "q": "July 9, 1877",
+    "a": "The first Wimbledon tennis tournament began, held to pay for fixing a broken pony roller",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/1877_Wimbledon_Championship"
+  },
+  {
+    "q": "August 15, 1843",
+    "a": "Tivoli Gardens, one of the world's oldest amusement parks, opened in Copenhagen",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Tivoli_Gardens"
+  },
+  {
+    "q": "September 26, 1580",
+    "a": "Francis Drake sailed back into Plymouth after going all the way around the world",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Golden_Hind"
+  },
+  {
+    "q": "October 28, 1886",
+    "a": "New York office workers threw ticker tape from windows, starting the ticker-tape parade",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Ticker-tape_parade"
+  },
+  {
+    "q": "October 31, 1512",
+    "a": "Michelangelo's finished Sistine Chapel ceiling was revealed",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Sistine_Chapel_ceiling"
+  },
+  {
+    "q": "November 6, 1869",
+    "a": "Rutgers played Princeton in the first college football game",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/College_football"
+  },
+  {
+    "q": "December 17, 1790",
+    "a": "Workers in Mexico City's main square dug up the giant Aztec Sun Stone",
+    "kid": false,
+    "src": "https://en.wikipedia.org/wiki/Aztec_calendar_stone"
+  }
+]
