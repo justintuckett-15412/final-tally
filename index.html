@@ -20846,7 +20846,11 @@ const rcImg=(n,alt,cls,fb)=>`<img class="${cls||'rcic'}" src="art/${n}.webp" alt
 const RCRI={wood:['rc-i-wood','wood','🪵'],food:['rc-i-food','food','🍖'],np:['rc-i-nonperish','nonperishable food','🥫'],fur:['rc-i-fur','fur','🦊']};
 const rcRI=r=>rcImg(RCRI[r][0],RCRI[r][1],'rcic',RCRI[r][2]);
 const rcDetI=()=>rcImg('rc-i-det','Determination','rcic','✊');
-const rcPort=(k,cls)=>k==='dog'||k==='friday'||RCCHARS.includes(k)?rcImg('rc-ch-'+k,rcCN(k),cls||'rcport',k==='dog'?'🐕':'🧍'):`<span class="${cls||'rcport'} rcfb">${k==='jenny'?'👩':'🧍'}</span>`;
+/* character portraits in each player's colour: red art + a meeple mask, painted by the app's recolouring (Justin, Nov 22) */
+const RCCHP={'wait/rcch-cook':{b:['red'],p:[[0.9557,0.8078]]},'wait/rcch-carpenter':{b:['red'],p:[[0.9688,0.7765]]},'wait/rcch-explorer':{b:['red'],p:[[0.9741,0.7569]]},'wait/rcch-soldier':{b:['red'],p:[[0.9496,0.7333]]},'wait/rcch-friday':{b:['red'],p:[[0.9653,0.7608]]}};
+const rcPortC=(k,col,cls)=>{try{if(typeof RCP!=='undefined'&&!RCP['wait/rcch-cook'])Object.assign(RCP,RCCHP)}catch(e){}const c=(typeof RCT!=='undefined'&&RCT[col])?col:'red';
+  return `<img class="${cls||'rcport'}" src="wait/rcch-${k}-${c}.webp" alt="${esc(rcCN(k))}" title="${esc(rcCN(k))}" loading="lazy" onerror="this.onerror=null;this.src='art/rc-ch-${k}.webp'">`};
+const rcPort=(k,cls,col)=>col&&(RCCHARS.includes(k)||k==='friday')?rcPortC(k,col,cls):k==='dog'||k==='friday'||RCCHARS.includes(k)?rcImg('rc-ch-'+k,rcCN(k),cls||'rcport',k==='dog'?'🐕':'🧍'):`<span class="${cls||'rcport'} rcfb">${k==='jenny'?'👩':'🧍'}</span>`;
 const rcPName=pid=>{const p=act().find(q=>q.id===pid);return p?nm(p):'?'};
 const rcPCol=pid=>{const p=act().find(q=>q.id===pid);return p?p.color:'gray'};
 const rcCost=r=>{const L=RCRES.filter(k=>r&&r[k]>0).map(k=>`${r[k]}${rcRI(k)}`);return L.length?L.join(' '):''};
@@ -21022,7 +21026,7 @@ function rcCharCard(g,k,o={}){const F=rcFig(g,k);if(!F)return '';const pid=g.C[k
   const sw=Object.keys(F.sw||{}).filter(x=>F.sw[x]).map(x=>`<span class="rctag sw">${RCSWN[x]}</span>`).join('');
   const per=g.pers&&g.pers[k]?`<small class="rlab">Personal invention: ${esc(rcInvN(g.pers[k]))}${g.items.includes(g.pers[k])?' ✓':''}</small>`:'';
   const free=g.plan&&g.q[0]&&g.q[0].t==='plan'&&g.C[k]?rcPawnsOf(g,k)-rcUsedP(g,k):null;
-  return `<div class="rcch${F.dead?' dead':''}${o.compact?' compact':''}${RCSEL===k?' sel':''}" style="${pc(col)}">${rcPort(k)}<div class="rcchb">
+  return `<div class="rcch${F.dead?' dead':''}${o.compact?' compact':''}${RCSEL===k?' sel':''}" style="${pc(col)}">${rcPort(k,null,pid?col:null)}<div class="rcchb">
     <div class="rcchh"><b>${rcCN(k)}${g.fp===k?' <span class="rcfp" title="First Player">①</span>':''}</b>${pid&&rcLinked()?`<small class="rlab">${esc(rcPName(pid))}</small>`:pid&&g.ps.length>1?`<small class="rlab">${esc(rcPName(pid))}</small>`:''}<span class="rcdet" title="Determination">${rcDetI()}<b class="num">${F.det||0}</b></span></div>
     ${k==='jenny'&&!g.jen.camp?'<small class="rlab">Waiting to be rescued</small>':''}${rcTrack(k,F)}${sw?`<div class="rcsws">${sw}</div>`:''}
     ${F.dead?'<b class="rlab">Dead</b>':''}${g.C[k]&&g.C[k].out?'<small class="rlab">🌙 Spending the night outside the camp</small>':''}
@@ -21107,7 +21111,7 @@ function rcRevealUI(g,pids,big){const G=rcRvGroups(g);if(!G.length)return '';con
   const cards=rcRvCards(g,[...(H?[H]:[]),...C.lines]);
     const can=!big&&(pids.length>0),inAsk=G.length===1&&!!g.ask;
   return `<div class="panel rcrvp" role="region" aria-live="polite" aria-label="What happens">
-    <div class="rcrvh">${ch&&F?`<span class="rcrvpt">${rcImg('rc-ch-'+(ch==='jenny'?'friday':ch),rcCN(ch),'rcrvimg','🧑')}</span>`:`<span class="rcrvic" aria-hidden="true">${esc(H?H.ic:'📜')}</span>`}
+    <div class="rcrvh">${ch&&F?`<span class="rcrvpt">${ch==='jenny'?rcImg('rc-ch-friday',rcCN(ch),'rcrvimg','🧑'):rcPort(ch,'rcrvimg',own?col:null)}</span>`:`<span class="rcrvic" aria-hidden="true">${esc(H?H.ic:'📜')}</span>`}
       <div><small class="rlab">Round ${H&&H.rd||g.round}${who?` · ${rcMeep(col,14)} ${esc(who)}`:''}</small><h2>${esc(H?H.t:'What happened')}${H&&H.cont?' (continued)':''}</h2></div></div>
     <ul class="rcrvl">${C.lines.map(l=>`<li class="${/(: success$| is built| explored|escaped|rescued|captured)/i.test(l.t)?'ok':/(fails$| suffers | dies|island won|is lost)/i.test(l.t)?'no':''}"><span aria-hidden="true">${esc(l.ic||'')}</span> ${esc(l.t)}</li>`).join('')||(inAsk?'':'<li class="hint">Nothing else happens.</li>')}</ul>
     ${cards.map(I=>`<div class="rcrvcard">${rcImg(I.art,'','rcrvcimg','🃏')}<div><small class="rlab">${esc(I.type)}</small><b>${esc(I.name)}</b><p>${esc(I.say||'')}</p>${I.extra?`<p class="rlab">${esc(I.extra)}</p>`:''}</div></div>`).join('')}
@@ -21119,17 +21123,21 @@ function rcCardPop(g){if(rcRvOn(g))return '';const id=g.id;if(RCSEEN[id]==null){
 function rcSeen(g,n){RCSEEN[g.id]=Math.max(RCSEEN[g.id]||0,n);try{const o=JSON.parse(localStorage.getItem('ft-rcseen')||'{}');o[g.id]=RCSEEN[g.id];const ks=Object.keys(o);if(ks.length>20)delete o[ks[0]];localStorage.setItem('ft-rcseen',JSON.stringify(o))}catch(e){}}
 
 /* ---------- characters before the deal ---------- */
+function rcPickSet(pid,ch){if(S.rcg&&!rcStale(S.rcg)||S.rcpick&&S.rcpick.ok)return false;const pk=rcPickFix(),A=pk.as;if(!A[pid]||!RCCHARS.includes(ch))return false;
+  const multi=RCX().multiChar;if(A[pid].includes(ch)){if(multi&&A[pid].length>1){A[pid]=A[pid].filter(x=>x!==ch);return true}return false}
+  const was=A[pid].slice();Object.keys(A).forEach(q=>{if(q!==pid&&A[q].includes(ch)){A[q]=A[q].filter(x=>x!==ch);if(!A[q].length&&!multi)A[q]=was.filter(x=>x!==ch).slice(0,1)}});
+  if(multi)A[pid].push(ch);else A[pid]=[ch];return true}
 function rcPickDef(){const P=act(),X=RCX();const as={};P.forEach((p,i)=>{as[p.id]=i<4?[RCCHARS[i]]:[]});return {as,ok:0}}
 function rcPickFix(){const P=act();if(!S.rcpick||!S.rcpick.as)S.rcpick=rcPickDef();const A=S.rcpick.as,used={};
   P.forEach(p=>{A[p.id]=(A[p.id]||[]).filter(k=>RCCHARS.includes(k)&&!used[k]);if(!RCX().multiChar)A[p.id]=A[p.id].slice(0,1);A[p.id].forEach(k=>used[k]=1)});
   P.forEach(p=>{if(!A[p.id].length){const f=RCCHARS.find(k=>!used[k]);if(f){A[p.id]=[f];used[f]=1}}});Object.keys(A).forEach(id=>{if(!P.some(p=>p.id===id))delete A[id]});return S.rcpick}
-function rcPickUI(){const P=act(),X=RCX(),can=rcRes2();const pk=rcPickFix(),A=pk.as,n=P.reduce((a,p)=>a+A[p.id].length,0),sc=rcScen(X.scen);
+function rcPickUI(){const P=act(),X=RCX(),can=rcRes2(),me=rcViewer();let o=null;try{o=!can&&typeof lkqOn==='function'&&lkqOn()?lkOptState():null}catch(e){}const pk=o&&o.rcpick&&o.rcpick.as?o.rcpick:rcPickFix(),A=pk.as;P.forEach(p=>{if(!A[p.id])A[p.id]=[]});const n=P.reduce((a,p)=>a+A[p.id].length,0),sc=rcScen(X.scen);
   const fri=X.fri&&(n<=2||X.fridayAny),dog=X.dog&&(n===1||X.dogAny),okAll=P.every(p=>A[p.id].length)&&n>=1&&n<=4;
   return `<div class="panel rcpick"><h2>Who plays whom</h2><p class="rlab">${esc(sc.name)} · ${sc.rounds} rounds${X.multiChar?' · one person may play several characters':''}</p>
     ${P.map(p=>`<div class="rcpickr" style="${pc(p.color)}"><b>${rcMeep(p.color,18)} ${esc(nm(p))}</b><div class="rcpickc">${RCCHARS.map(k=>{const on=A[p.id].includes(k),other=P.find(q=>q.id!==p.id&&A[q.id].includes(k));
-      return `<button class="rcpickb${on?' on':''}" data-a="rcupick" data-k="${esc(p.id)}:${k}" aria-pressed="${on}" ${can?'':'disabled'}>${rcPort(k,'rcportsm')}<span>${rcCN(k)}</span>${other&&!on?`<small>${esc(nm(other))}</small>`:''}</button>`}).join('')}</div></div>`).join('')}
+      return `<button class="rcpickb${on?' on':''}" data-a="rcupick" data-k="${esc(p.id)}:${k}" aria-pressed="${on}" ${can||me&&me.id===p.id?'':'disabled'}>${rcPort(k,'rcportsm',p.color)}<span>${rcCN(k)}</span>${other&&!on?`<small>${esc(nm(other))}</small>`:''}</button>`}).join('')}</div></div>`).join('')}
     <p class="hint">${n} character${n===1?'':'s'}${fri?' + Friday':''}${dog?' + the Dog':''}. ${P.length>4?'Robinson Crusoe takes 1 to 4 players.':''}${RCX().multiChar?'':' Official: each person plays one character. The rules suggest the cook, carpenter and explorer for 2 players.'}</p>
-    ${can?`<button class="btn primary wide" data-a="rcugo" ${okAll&&P.length<=4?'':'disabled'}>🏝️ Start the game</button>`:'<p class="rlab">The host phone picks the characters and starts.</p>'}</div>`}
+    ${can?`<button class="btn primary wide" data-a="rcugo" ${okAll&&P.length<=4?'':'disabled'}>🏝️ Start the game</button>`:'<p class="rlab">Tap your own character. The host phone starts the game.</p>'}</div>`}
 function rcDealNow(){const X=RCX(),P=act(),A=rcPickFix().as,chars=[];P.forEach(p=>A[p.id].forEach(k=>chars.push({pid:p.id,char:k})));if(!chars.length)return null;
   const R=rcScen(X.scen).rounds,h=Math.ceil(R/2),mix=X.mix==='book'?{book:h+2,adv:Math.max(1,h-2)}:X.mix==='adv'?{book:Math.max(1,h-2),adv:h+2}:null;
   const o={scen:X.scen,chars,house:{dogAny:!!X.dogAny,fridayAny:!!X.fridayAny,multiChar:!!X.multiChar},equipment:+X.eq,friday:X.fri?(X.fridayAny?true:undefined):false,dog:X.dog?(X.dogAny?true:undefined):false};
@@ -21187,10 +21195,9 @@ const rcNeedKey=g=>`${g.gid||''}:${g.round}:${g.phase}:${g.ask?g.ask.pid+':'+g.a
 function rcUiAct(a,b,k){if(a==='rcurvnext'||a==='rcurvall'){const g=rcGx();if(!g)return;const pid=rcMine(g)[0];if(!pid)return;rcSend(pid,{a:'seen',upto:a==='rcurvall'?g.rxn:+k},true);window.scrollTo(0,0);return}
   if(a==='rcutab'){if(['plan','island','camp','cards','log'].includes(k)){RCTAB=k;window.scrollTo(0,0)}return}
   if(a==='rcubig'){RCBIG=!rcBig();try{localStorage.setItem('ft-rcbig',RCBIG?'1':'0')}catch(e){}return}
-  if(a==='rcupick'){if(!rcRes2()||S.rcg&&!rcStale(S.rcg))return;const [pid,ch]=String(k).split(':'),pk=rcPickFix(),A=pk.as;if(!A[pid]||!RCCHARS.includes(ch))return;
-    const multi=RCX().multiChar;if(A[pid].includes(ch)){if(multi&&A[pid].length>1)A[pid]=A[pid].filter(x=>x!==ch);return}
-    const was=A[pid].slice();Object.keys(A).forEach(q=>{if(q!==pid&&A[q].includes(ch)){A[q]=A[q].filter(x=>x!==ch);if(!A[q].length&&!multi)A[q]=was.filter(x=>x!==ch).slice(0,1)}});
-    if(multi)A[pid].push(ch);else A[pid]=[ch];vibe(6);return}
+  if(a==='rcupick'){const [pid,ch]=String(k).split(':');if(rcRes2()){if(rcPickSet(pid,ch))vibe(6);return}
+    /* a linked guest picks its own character; the host applies it (Justin, Nov 22) */
+    const V=rcViewer();if(V&&V.id===pid&&lkq('rcPick',pid,ch))vibe(6);return}
   if(a==='rcugo'){if(!rcRes2())return;rcPickFix();S.rcpick.ok=1;delete S.rcg;rcDealNow();window.scrollTo(0,0);return}
   const g=rcGx();if(!g)return;
   if(a==='rcucardok'){rcSeen(g,+k);if(RCPOPT){clearTimeout(RCPOPT);RCPOPT=null}return}
@@ -26838,6 +26845,7 @@ const lkqOn=()=>lkGuest()&&!S.demo;
 const lkqKey=()=>{const g={uno:S.ung,golf:S.gpg,skyjo:S.gpg,gnome:S.gpg,hearts:S.htg,spades:S.sdg,ohell:S.ohg,rook:S.rkg,rage:S.rgg,skipbo:S.sbg,crowns:S.fcg,phase10:S.pzg,hf:S.hpg,canasta:S.hpg,nerts:S.nrg,tripoley:S.tqg,mextrain:S.mtg,stoneage:S.sag,dominion:S.dng,citadels:S.cig,tobago:S.tgg,catan:S.cpg,carc:S.ccg,ttr:S.trg,wingspan:S.wpg,wyrmspan:S.wzg,deadofwinter:S.dwg,codenames:S.cng,telestrations:S.tsg,coverkingdom:S.ckg,balderdash:S.bdg,chicken:S.cfg,quacks:S.qpg,boggle:S.bgg,scatter:S.sgg,wordtiles:S.wtg,upwords:S.uwg}[S.game];return S.game+':'+(g?g.r:'-')};
 const LKQF={
   rcMove:(pid,mv)=>{const g=S.rcg;return !!g&&typeof rcMoveQ==='function'&&rcMoveQ(g,pid,mv)},
+  rcPick:(pid,ch)=>S.game==='robinson'&&typeof rcPickSet==='function'&&rcPickSet(pid,ch),
   bdMove:(pid,mv)=>{const g=S.bdg;return !!g&&typeof bdMoveQ==='function'&&bdMoveQ(g,pid,mv)},
   cykMove:(pid,mv)=>{const g=S.ckg;return !!g&&typeof cykMoveQ==='function'&&cykMoveQ(g,pid,mv)},
   tsMove:(pid,mv)=>{const g=S.tsg;return !!g&&typeof tsMoveQ==='function'&&tsMoveQ(g,pid,mv)},
@@ -30864,6 +30872,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='62b4d4';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='fd8f87';</script>
 </body>
 </html>

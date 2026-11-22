@@ -6,14 +6,22 @@ const fs=require('fs');const SHOT=process.env.SHOTS||'/tmp/rc-shots';fs.mkdirSyn
 (async()=>{const browser=await chromium.launch();const errs=[];
   const H=await mk(browser,'host'),G=await mk(browser,'guest');
   const ids=await H.evaluate(()=>{window.__htfast=1;SET.toursOff=true;const c=(a,k)=>{const b=document.createElement('button');b.dataset.a=a;if(k!=null)b.dataset.k=k;b.hidden=true;document.body.appendChild(b);b.click();b.remove()};
-    c('rcstart');Object.assign(RCX(),{scen:'castaways'});rcKeep();const P=S.players;P.forEach((p,i)=>{p.on=i<2;p.name=['Mom','Dad'][i]||'';delete p.bot});save();c('start');c('rcugo');return P.slice(0,2).map(p=>p.id)});
+    c('rcstart');Object.assign(RCX(),{scen:'castaways'});rcKeep();const P=S.players;P.forEach((p,i)=>{p.on=i<2;p.name=['Mom','Dad'][i]||'';delete p.bot});save();c('start');return P.slice(0,2).map(p=>p.id)});
   await H.evaluate(()=>lkHostStart());await W(2500);const code=await H.evaluate(()=>S.lk&&S.lk.code);await H.evaluate(id=>lkPick(id),ids[0]);await W(500);
   await G.evaluate(c=>{window.__htfast=1;SET.toursOff=true;lkJoin(c)},code);await W(2500);await G.evaluate(id=>lkPick(id),ids[1]);await W(1000);
+  /* the guest picks its own character on "Who plays whom", then the host starts */
+  const gp=await G.evaluate(id=>{const b=document.querySelector(`[data-a="rcupick"][data-k="${id}:soldier"]`);if(!b||b.disabled)return 'no button';b.click();return 'ok'},ids[1]);await W(2500);
+  const hp=await H.evaluate(id=>S.rcpick&&S.rcpick.as&&S.rcpick.as[id],ids[1]);
+  const gs=await G.evaluate(id=>{const b=document.querySelector(`[data-a="rcupick"][data-k="${id}:soldier"]`);return b&&b.classList.contains('on')},ids[1]);
+  ok('Guest picks its own character on Who plays whom (the host sees it)',gp==='ok'&&hp&&hp.join()==='soldier'&&gs,{gp,hp,gs});
+  await H.evaluate(()=>{const b=document.querySelector('[data-a="rcugo"]');b.click()});await W(1500);
   const TV=await mk(browser,'TV');await TV.evaluate(c=>{window.__htfast=1;SET.toursOff=true;lkJoin(c)},code);await W(2500);await TV.evaluate(()=>lkPick(''));await W(2000);
   [H,G,TV].forEach((p,i)=>p.on('pageerror',e=>errs.push(['host','guest','tv'][i]+': '+e.message)));
   const g0=await H.evaluate(()=>S.rcg&&{ps:S.rcg.ps,order:S.rcg.order,fri:!!S.rcg.fri});
-  ok('Host dealt: 2 players, cook and carpenter, Friday joins',g0&&g0.ps.length===2&&g0.order.join()==='cook,carpenter'&&g0.fri,g0);
+  ok('Host dealt: 2 players, cook and soldier (the guest’s pick), Friday joins',g0&&g0.ps.length===2&&g0.order.join()==='cook,soldier'&&g0.fri,g0);
   const gv=await G.evaluate(()=>({g:!!S.rcg,mine:document.querySelectorAll('.rcctl .rccast > .rcch:not(.compact)').length,txt:document.querySelector('.rcctl')&&document.querySelector('.rcctl').innerText.slice(0,400)}));
+  await W(1500);const pc=await G.evaluate(()=>{const me=act().find(p=>p.id===S.lk.me);const im=document.querySelector('.rcctl .rccast > .rcch:not(.compact) img');return {col:me&&me.color,src:im&&im.src.slice(0,40),orig:im&&im.dataset.rc}});
+  ok('Guest phone: its character portrait is painted in its own colour',pc.col&&(pc.col==='red'?/rcch-soldier-red/.test(pc.src):/^blob:/.test(pc.src)),pc);
   ok('Guest phone: the game arrives; it shows its own character',gv.g&&gv.mine>=1,gv);
   /* one tap for this phone */
   const tap=pg=>pg.evaluate(()=>{const q=s=>document.querySelector(s),g=S.rcg;if(!g)return 'nog';if(g.phase==='done')return 'done';
