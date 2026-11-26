@@ -2167,6 +2167,7 @@ body:has(.sheet-bg) .sadock{z-index:19}
 .wprci{flex:0 0 auto;width:1.3em;text-align:center}
 .wpdimw{display:flex;flex-direction:column;gap:4px}
 .wpwhy{display:block;max-width:150px;font-size:12px;font-weight:700;line-height:1.25;color:#b3261e;padding:2px 4px}
+.wpdock .sadh{display:flex;align-items:center;justify-content:space-between;gap:8px}
 /* Wyrmspan on the phones */
 .wzi{width:18px;height:18px;vertical-align:-4px;border-radius:4px}
 .wzc{position:relative;display:flex;flex-direction:column;gap:2px;width:124px;min-height:128px;padding:6px 7px 6px 9px;border-radius:10px;background:var(--surface,#fff);border:1px solid var(--line,#d9dee4);box-shadow:0 1px 2px rgba(0,0,0,.08);font-size:11px;line-height:1.25;text-align:left;color:var(--ink,#17212b)}
@@ -13854,9 +13855,20 @@ function wpRun(g){let guard=0;while(g.q.length&&guard++<500){const s=g.q[0];cons
 /* log entries get the time they happened (su: during setup) so each phone can show “while you waited” */
 const wpStamp=(g,su)=>{const L=g.lg||[],t=Date.now();for(let i=L.length-1;i>=0&&L[i].at==null;i--){L[i].at=t;if(su)L[i].su=1}};
 /* a move: either an answer to the current question, or (start of a turn) one of the four actions */
+/* Go back (Justin, Nov 26): until the turn ends or anything is drawn / rolled, the player can undo the action they picked.
+   g.undoS = the state before the action (JSON), g.undoP = who may undo, g.undoM = what must stay unchanged. */
+const wpUndoKeys=['undoS','undoP','undoM'];
+function wpUndoSnap(g,pid){const c={};for(const k in g)if(!wpUndoKeys.includes(k))c[k]=g[k];return {s:JSON.stringify(c),m:{tno:g.tno,rnd:g.rnd,dl:g.deck.length,bl:g.bdeck.length,tray:JSON.stringify(g.tray),fd:g.fd.slice(),hl:Object.fromEntries(g.ps.map(p=>[p,g.hand[p].length])),bon:Object.fromEntries(g.ps.map(p=>[p,(g.bon[p]||[]).length]))}}}
+function wpUndoChk(g){if(!g.undoS)return;const M=g.undoM,left=M.fd.slice();
+  const fdOk=g.fd.every(d=>{const i=left.indexOf(d);if(i<0)return false;left.splice(i,1);return true});
+  if(g.phase!=='play'||g.tno!==M.tno||g.rnd!==M.rnd||g.deck.length!==M.dl||g.bdeck.length!==M.bl||JSON.stringify(g.tray)!==M.tray||!fdOk||g.ps.some(p=>g.hand[p].length>M.hl[p]||(g.bon[p]||[]).length>M.bon[p])||!g.ask){g.undoS=null;g.undoP=null;g.undoM=null}}
+const wpCanUndo=(g,pid)=>!!(g&&g.undoS&&g.undoP===pid&&g.ask&&g.ask.pid===pid);
 function wpMove(g,pid,mv){if(!g||g.phase!=='play'||!mv)return false;
-  if(g.ask){if(g.ask.pid!==pid)return false;const s=g.q[0];if(!s)return false;const ok=WPS[s.t](g,s,mv);if(ok===null)return false;if(ok){g.ask=null;g.q.shift()}wpRun(g);g.n++;return true}
-  if(g.q.length||g.turn!==pid||!(g.cubes[pid]>0))return false;return wpAction(g,pid,mv.a)}
+  if(mv.a==='undo'){if(!wpCanUndo(g,pid))return false;const n=g.n,old=JSON.parse(g.undoS);for(const k of Object.keys(g))delete g[k];Object.assign(g,old);g.undoS=null;g.undoP=null;g.undoM=null;g.n=n+1;
+    if(typeof gLog==='function')gLog(g,`${typeof nmid==='function'?nmid(pid):pid} went back`,'↩️');return true}
+  if(g.ask){if(g.ask.pid!==pid)return false;const s=g.q[0];if(!s)return false;const ok=WPS[s.t](g,s,mv);if(ok===null)return false;if(ok){g.ask=null;g.q.shift()}wpRun(g);g.n++;wpUndoChk(g);return true}
+  if(g.q.length||g.turn!==pid||!(g.cubes[pid]>0))return false;const U=wpUndoSnap(g,pid);const r=wpAction(g,pid,mv.a);
+  if(r){g.undoS=U.s;g.undoP=pid;g.undoM=U.m;wpUndoChk(g)}return r}
 const wpAsk=(g,s,t,o={})=>{g.ask={pid:s.pid,t,...o};return false};
 
 /* ---------- the four actions ---------- */
@@ -14207,7 +14219,7 @@ function wpPlayUI(){const g=wpG(),P=act();
   else if(!hide&&V&&g.phase==='play'){const L=wpRecap(g,V);if(L)out+=wpRecapSheet(g,L)}
   return out}
 const wpAskWord=A=>({opt:'deciding on the extra',die:'taking food',egg:'laying eggs',card:'drawing cards',play:'playing a bird',payEgg:'paying eggs',disc:'discarding',tuck:'tucking a card',yes:'deciding',eggFood:'trading an egg',eggCards:'trading an egg',move:'moving a bird',repeat:'repeating a power',trade:'trading food',bonus:'choosing a bonus card',pool:'choosing a card'})[A.t]||'deciding';
-function wpDock(g,V){const box=(h,b)=>`<div class="sadock cpdock wpdock" style="${pc(V.color)}"><div class="sadh"><span><b>${S.lk||wpHumans().length<2?'You':esc(nm(V))}</b> · ${h}</span></div>${b}</div>`;
+function wpDock(g,V){const box=(h,b)=>`<div class="sadock cpdock wpdock" style="${pc(V.color)}"><div class="sadh"><span><b>${S.lk||wpHumans().length<2?'You':esc(nm(V))}</b> · ${h}</span>${wpCanUndo(g,V.id)?`<button class="btn sm wpundo" data-a="wpans" data-k="${wpEnc({a:'undo'})}" title="Choose a different action">↩ Go back</button>`:''}</div>${b}</div>`;
   const mine=`<div class="sec"><div class="sec-h"><h3>Your food</h3></div>${wpFoodRow(g,V.id)}</div><div class="sec"><div class="sec-h"><h3>Your bonus card${g.bon[V.id].length>1?'s':''}</h3></div><div class="wpbons">${g.bon[V.id].map(id=>wpBonHtml(g,V.id,id)).join('')}</div></div>`;
   const hand=(o={})=>`<div class="sec"><div class="sec-h"><h3>Your hand</h3></div>${wpHand(g,V.id,o)}</div>`;
   if(g.phase==='setup'){if(!g.offer[V.id])return box('Waiting','<div class="rlab">The others are choosing their starting hands.</div>')+hand()+mine;
@@ -30958,6 +30970,6 @@ render();
 <script type="module" src="fb-firebase.js"></script>
 <script type="module" src="lan.js"></script>
 <script>(function(){var ms=document.querySelectorAll('meta[name=theme-color]');function t(){try{var c=getComputedStyle(document.body).backgroundColor;for(var i=0;i<ms.length;i++)if(c&&ms[i].content!==c)ms[i].content=c;var n=(c.match(/\d+/g)||[255,255,255]).slice(0,3).reduce(function(x,y){return x+ +y},0),cs=n<384?'dark':'light',cm=document.querySelector('meta[name=color-scheme]');if(cm&&cm.content!==cs)cm.content=cs;if(document.documentElement.style.colorScheme!==cs)document.documentElement.style.colorScheme=cs;var mf=document.getElementById('mf'),mh=cs==='dark'?'manifest-dark.webmanifest':'manifest.webmanifest';if(mf&&mf.getAttribute('href')!==mh)mf.setAttribute('href',mh)}catch(e){}}t();setTimeout(t,300);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){setTimeout(t,50)})}catch(e){}new MutationObserver(t).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']})})();</script>
-<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='60edbf';</script>
+<script>if('serviceWorker' in navigator&&isSecureContext)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));if('serviceWorker' in navigator){var hadSW=!!navigator.serviceWorker.controller,t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadSW||window.FT_UPD)return;window.FT_UPD=1;var safe=function(){try{return typeof S!=='undefined'&&S.screen==='home'&&!S.demo&&!document.querySelector('input:focus,.sheet-bg')}catch(e){return false}};if(Date.now()-t0<15000&&safe()){location.reload();return}var iv=setInterval(function(){if(safe()){clearInterval(iv);location.reload()}},1500)})}window.FT_BUILD='0217d5';</script>
 </body>
 </html>
