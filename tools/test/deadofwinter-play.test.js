@@ -63,9 +63,33 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   const what2=await P.evaluate(()=>{document.querySelector('[data-a="dwwhat"]').click();const b=document.querySelector('.dwwhat [data-a="dwsel"][data-k^="only:surv:"]');if(!b)return 'no move entry';const s=+b.dataset.k.split(':')[2];b.click();return DWSEL&&DWSEL.s===s&&!document.querySelector('.dwwhat')&&[...document.querySelectorAll('[data-a="dwans"]')].some(x=>JSON.parse(decodeURIComponent(x.dataset.k)).a==='move')||'sel '+JSON.stringify(DWSEL)});
   ok('What you can do: Move picks that survivor and shows where it can go',what2===true,what2);
   await P.evaluate(()=>{const g=S.dwg;let k=0;while((g.ask||g.vote)&&k++<20){const a=dwActor(g);if(g.vote)dwMove(g,a,{vote:true});else dwMove(g,a,g.ask.opt?{skip:1}:{v:g.ask.opts[0].v})}DWSEL=null;render()});
+  /* Go back and "why not?" (Nov 26), through real taps */
+  const gb=await P.evaluate(me=>{const g=S.dwg,Q=g.P[me],s=Q.lead,q=x=>document.querySelector(x);g.ux=null;g.ps.forEach(p=>{g.P[p].xr=null});g.sv[s].loc='police';g.loc.police.z=1;g.loc.police.bar=0;Q.dice=[1,6];Q.moved=Q.moved.filter(x=>x!==s);DWSEL=null;render();
+    const none=!q('.uxundo');q('[data-a="dwsel"][data-k="die:0"]').click();q(`[data-a="dwsel"][data-k="surv:${s}"]`).click();
+    const whys=[...document.querySelectorAll('.dwdock .dwwhyw')].map(x=>x.innerText);
+    const D=dwSv(s);DWSEL=null;render();q('[data-a="dwsel"][data-k="die:1"]').click();q(`[data-a="dwsel"][data-k="surv:${s}"]`).click();
+    const bar=[...document.querySelectorAll('.dwdock [data-a="dwans"]')].find(x=>JSON.parse(decodeURIComponent(x.dataset.k)).a==='barricade');if(!bar)return {err:'no barricade'};bar.click();
+    const mid={dice:Q.dice.length,bar:g.loc.police.bar,btn:!!q('.dwdock .uxundo')};q('.dwdock .uxundo').click();
+    const back={dice:g.P[me].dice.join(),bar:g.loc.police.bar,ux:!!g.ux,btn:!!q('.uxundo'),turn:g.turn===me};
+    /* moving without fuel rolls the exposure die: that ends Go back */
+    DWSEL=null;render();q(`[data-a="dwsel"][data-k="surv:${s}"]`).click();const m=[...document.querySelectorAll('.dwdock [data-a="dwans"]')].find(x=>{const v=JSON.parse(decodeURIComponent(x.dataset.k));return v.a==='move'&&!v.fuel&&v.to!=='colony'});
+    let rolled=null;if(m){m.click();rolled={ux:!!g.ux,btn:!!q('.uxundo')}}
+    let k=0;while((g.ask||g.vote)&&k++<20){const a=dwActor(g);if(g.vote)dwMove(g,a,{vote:true});else dwMove(g,a,g.ask.opt?{skip:1}:{v:g.ask.opts[0].v})}DWSEL=null;render();
+    return {none,whys,atk:D.atk,sr:D.sr,mid,back,rolled}},ann);
+  ok('Why not: with a 1 die, greyed choices say what die they need',!gb.err&&gb.whys.length>0&&gb.whys.every(t=>/Needs a \d\+ die \(this one is 1\)|No room|Nothing left/.test(t)),gb);
+  ok('Go back: appears after a barricade, puts the die and the barricade back, and disappears',!gb.err&&gb.none&&gb.mid.btn&&gb.mid.dice===1&&gb.mid.bar>=1&&gb.back.dice==='1,6'&&gb.back.bar===0&&!gb.back.ux&&!gb.back.btn&&gb.back.turn,gb);
+  ok('Go back: moving (an exposure roll) ends it',!!gb.rolled&&!gb.rolled.ux&&!gb.rolled.btn,gb.rolled);
   const end=await P.evaluate(me=>{const b=[...document.querySelectorAll('[data-a="dwans"]')].find(x=>JSON.parse(decodeURIComponent(x.dataset.k)).a==='end');if(!b)return 'no end';b.click();return S.dwg.turn!==me&&!!document.querySelector('[data-a="dwshow"]')&&!document.querySelector('.dwdock')},ann);
   ok('End turn: the phone asks to be passed to the next player before showing anything',end===true,end);
   await P.screenshot({path:'/tmp/dw-screen.png',fullPage:true});
+  /* While you waited: play the others' turns (and the colony phase) on the shared phone; Ann's next turn starts with the sheet, once */
+  const ww=await P.evaluate(async me=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),g=S.dwg;let k=0;
+    while(k++<400&&g.phase==='play'&&!(g.turn===me&&dwActor(g)===me)){const a=dwActor(g);if(!a){dwRun(g);if(!dwActor(g))break;continue}g.ps.forEach(p=>{g.P[p].xr=null});
+      if(g.vote)dwMove(g,a,{vote:true});else if(g.ask)dwMove(g,a,g.ask.opt?{skip:1}:{v:g.ask.opts[0].v});else dwMove(g,a,{a:'end'})}
+    g.ann=null;render();await w(50);const sh=document.querySelector('[data-a="dwshow"]');if(sh)sh.click();await w(80);
+    const c=document.querySelector('.uxwait');const lines=c?c.querySelectorAll('.uxwl li').length:0;if(c)c.querySelector('[data-a="uxwaitok"]').click();await w(50);render();
+    return {turn:g.turn===me,ph:g.phase,card:!!c,lines,again:!!document.querySelector('.uxwait')}},ann);
+  ok('While you waited: at Ann’s next turn the sheet lists what happened since, and shows only once',ww.ph!=='play'||ww.turn&&ww.card&&ww.lines>0&&!ww.again,ww);
   // a whole game of computer players
   await P.evaluate(()=>{S.players.forEach((p,i)=>{p.on=i<4;p.bot='normal'});delete S.dwg;S.finished=false;S.screen='score';save();render()});
   let fin=null;for(let i=0;i<240&&!fin;i++){await W(500);fin=await P.evaluate(()=>S.dwg&&S.dwg.phase==='done')}

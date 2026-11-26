@@ -12,7 +12,7 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   const tap=pg=>pg.evaluate(()=>{const b=document.querySelector('[data-a=lkopen]');if(b)b.click();const g=S.dwg;if(!g||!g.P)return 'nog';const me=S.lk&&S.lk.me;
     const html=document.getElementById('app').innerHTML,leak=[];g.ps.filter(p=>p!==me).forEach(p=>{const Q=g.P[p];const O=dwObjP(g,p),M=dwObjP(g,me);if(g.phase!=='done'&&O&&(!M||O.n!==M.n)&&html.includes('<b>'+O.n+'</b>'))leak.push('obj '+p);(Q.hand||[]).forEach(c=>{if(html.includes(`data-k="card:${c}"`))leak.push('card '+c)})});
     if(leak.length)return 'LEAK '+leak.join(',');
-    const dock=document.querySelector('.dwdock');if(!dock)return 'nodock';const bs=[...dock.querySelectorAll('[data-a="dwans"]:not([disabled])')],mv=x=>JSON.parse(decodeURIComponent(x.dataset.k));
+    const dock=document.querySelector('.dwdock');if(!dock)return 'nodock';const bs=[...dock.querySelectorAll('[data-a="dwans"]:not([disabled]):not(.uxundo)')],mv=x=>JSON.parse(decodeURIComponent(x.dataset.k));
     const vote=bs.find(x=>mv(x).vote!==undefined);if(vote){vote.click();return 'vote'}
     if(g.ask&&g.ask.pid===me){const a=bs.find(x=>mv(x).v!==undefined||mv(x).skip);if(a){a.click();return 'ans'}return 'noans'}
     if(!g.ask&&!g.vote&&!(g.q||[]).length&&g.turn===me){const e=bs.find(x=>mv(x).a==='end');if(!e)return 'wait';

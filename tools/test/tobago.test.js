@@ -134,6 +134,32 @@ const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
   await P.evaluate(()=>{const i=document.querySelector('[data-tgf="0:gold"]');i.value='27';i.dispatchEvent(new Event('input',{bubbles:true}))});await W(200);
   ok('Score sheet: 27 gold',await P.evaluate(()=>tgTot(act()[0])===27&&document.querySelector('[data-tgp="'+act()[0].id+'"]').textContent==='27'));
   await P.close();
+  // Go back, "why not?" and While you waited (Nov 26)
+  {const U=await mk(browser,'ux');U.on('pageerror',e=>errs.push(e.message));
+    const me=await U.evaluate(()=>{window.__htfast=1;switchGame('tobago');resetScores();S.tgx=Object.assign({...TGDEF},{play:1,size:'s'});S.players.forEach((p,i)=>{p.on=i<2;p.name=['Ann','Bob'][i];p.bot=i?'normal':null});S.started=true;S.screen='score';
+      tgDeal();const g=S.tgg,a=act()[0].id;g.ps=[a,act()[1].id];g.pi=0;g.ps.forEach((p,i)=>tgPlace(g,p,i));g.me[a].am=1;g.ann=null;save();render();return a});
+    const q=sel=>U.evaluate(sel=>!!document.querySelector(sel),sel);
+    const pos0=await U.evaluate(()=>S.tgg.pos[act()[0].id]);
+    await U.evaluate(()=>document.querySelector('[data-a="tgpdrive"]').click());await W(150);
+    ok('Tobago Go back: appears after you start driving',await q('.tgdock .uxundo'));
+    await U.evaluate(()=>{const c=document.querySelector('polygon.go[data-a="tgpcell"]');c.dispatchEvent(new MouseEvent('click',{bubbles:true}))});await W(150);
+    const mid=await U.evaluate(()=>({p:S.tgg.pos[act()[0].id],left:S.tgg.t.mv&&S.tgg.t.mv.left}));
+    ok('…still there after a leg',await q('.tgdock .uxundo')&&mid.left===2,mid);
+    await U.evaluate(()=>document.querySelector('.tgdock .uxundo').click());await W(150);
+    ok('…and tapping it puts the ATV back and gives the action back',await U.evaluate(p0=>{const g=S.tgg,a=act()[0].id;return g.pos[a]===p0&&!g.t.act&&!g.t.mv&&!document.querySelector('.uxundo')&&/went back/.test(g.lg[g.lg.length-1].t)},pos0));
+    await U.evaluate(()=>document.querySelector('[data-a="tgpdrive"]').click());await W(100);
+    const played=await U.evaluate(async()=>{const n=document.querySelectorAll('[data-a="tgphand"]').length;for(let h=0;h<n;h++){document.querySelectorAll('[data-a="tgphand"]')[h].click();await new Promise(r=>setTimeout(r,40));const b=document.querySelector('[data-a="tgpclue"]');if(b){b.click();return true}document.querySelectorAll('[data-a="tgphand"]')[h].click()}return false});
+    await W(150);
+    if(played)ok('…and is gone once a clue card is drawn (amulet: a second action)',!await q('.uxundo'));
+    ok('Tobago why not: “Drive again” is greyed with its reason when you have no amulet',await U.evaluate(()=>{const g=S.tgg;g.me[act()[0].id].am=0;g.t.mv=null;render();const b=[...document.querySelectorAll('.tgdock button[disabled]')].find(b=>/Drive again/.test(b.textContent));return !!b&&/Needs an amulet/.test(b.querySelector('.uxwhy').textContent)&&/Needs an amulet/.test(b.title)}));
+    await U.evaluate(()=>{const b=document.querySelector('[data-a="tgpend"]');b.click();if(document.querySelector('[data-a="tgpend"]')&&tgActor(S.tgg)===act()[0].id)document.querySelector('[data-a="tgpend"]').click()});
+    let back=false;for(let i=0;i<80&&!back;i++){await W(200);back=await U.evaluate(()=>{const g=S.tgg,a=act()[0].id;if(tgActor(g)===a&&(g.dist||g.ask)){tgBotStep(g,{id:a,bot:'normal'});save();render()}return tgMine(g,a)&&!gAnnBusy(g)})}
+    await W(200);
+    ok('Tobago While you waited: shows what Bob did when your turn comes',back&&await U.evaluate(()=>{const s=document.querySelector('.uxwait');return !!s&&/Bob/.test(s.textContent)}),await U.evaluate(()=>S.tgg.lg.slice(-5)));
+    await U.evaluate(()=>document.querySelector('[data-a="uxwaitok"]').click());await W(150);await U.evaluate(()=>render());
+    ok('…only once',!await q('.uxwait'));
+    await U.screenshot({path:'/tmp/tg-ux.png',fullPage:true});
+    await U.close()}
   // two linked phones and a computer player
   const H=await mk(browser,'host'),G=await mk(browser,'guest');[H,G].forEach(p=>p.on('pageerror',e=>errs.push(e.message)));
   const ids=await H.evaluate(()=>{window.__htfast=1;switchGame('tobago');resetScores();Object.assign(TGX(),{play:1,size:'s',xp:0,show:0});const P=S.players;P.forEach((p,i)=>{p.on=i<3;p.name=['Justin','Kim','Bot'][i]||'';if(i===2)p.bot='normal';else delete p.bot});save();
@@ -157,6 +183,13 @@ const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
       const n=await Q.evaluate(()=>document.querySelectorAll('[data-a="tgphand"]').length);for(let h=0;h<n;h++){await Q.evaluate(h=>document.querySelectorAll('[data-a="tgphand"]')[h].click(),h);await W(30);if(await tp('[data-a="tgpclue"]'))return true;await Q.evaluate(h=>{const b=document.querySelectorAll('[data-a="tgphand"]')[h];if(b&&b.classList.contains('sel'))b.click()},h)}
       if(await tp('[data-a="tgpdrive"]'))return true;return tp('[data-a="tgpswap"][data-k="0"]')}
     await tp('[data-a="tgpend"]');return tp('[data-a="tgpend"]')};
+  // Go back on a linked phone: the guest drives, then goes back; the host checks and applies it
+  {let ready=false;for(let t=0;t<600&&!ready;t++){ready=await G.evaluate(()=>{const g=S.tgg,V=tgViewer();return !!g&&!!V&&g.phase==='turn'&&tgMine(g,V.id)&&!g.t.act&&!lkqWaiting()});if(ready)break;await step(H);if(await G.evaluate(()=>!!S.tgg&&S.tgg.phase!=='turn'||!!(S.tgg&&(S.tgg.dist||S.tgg.ask))))await step(G);await W(80)}
+    if(ready){await G.evaluate(()=>document.querySelector('[data-a="tgpdrive"]').click());let mv=false;for(let i=0;i<30&&!mv;i++){await W(200);mv=await H.evaluate(()=>!!(S.tgg.t&&S.tgg.t.mv))&&await G.evaluate(()=>!!document.querySelector('.tgdock .uxundo'))}
+      ok('Linked Go back: the guest sees it after starting to drive',mv);
+      await G.evaluate(()=>document.querySelector('.tgdock .uxundo').click());let bk=false;for(let i=0;i<30&&!bk;i++){await W(200);bk=await H.evaluate(()=>!S.tgg.t.act&&!S.tgg.t.mv)&&await G.evaluate(()=>!S.tgg.t.act&&!document.querySelector('.uxundo'))}
+      ok('Linked Go back: the host applies it and both phones agree',bk)}
+    else ok('Linked Go back: reached a guest turn',false)}
   let hm=0,gm=0,lastK='',same=0;for(let t=0;t<(process.env.FULL?9000:2500);t++){if(await step(H))hm++;if(await step(G))gm++;await W(60);
     if(t%50===0){const k=await H.evaluate(()=>JSON.stringify([S.tgg.phase,tgActor(S.tgg),S.tgg.n]));same=k===lastK?same+1:0;lastK=k;if(same>=5){console.log('DBG stuck',k,await G.evaluate(()=>JSON.stringify([S.tgg.n,lkqWaiting(),S.tgg.msg])));break}}
     if(await H.evaluate(full=>S.tgg&&(S.tgg.phase==='done'||!full&&S.tgg.td.length<=25),!!process.env.FULL))break}

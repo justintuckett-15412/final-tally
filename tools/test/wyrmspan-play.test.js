@@ -77,12 +77,12 @@ const {mk,W,ok,done,chromium}=require('./link.js');
     const g=S.wzg,me=g.ps[0],O=g.ask.opts,d0=g.ask.opts.find(o=>o.v==='d0').d,c2=g.ask.opts.find(o=>o.v==='c2').c;
     const off=document.querySelector('[data-a="wzkgo"]').disabled;await clk('[data-a="wzkp"][data-k="d0"]');await clk('[data-a="wzkp"][data-k="d1"]');await clk('[data-a="wzkp"][data-k="d1"]');await clk('[data-a="wzkp"][data-k="c2"]');
     const txt=document.querySelector('.wzkn').innerText,on=!document.querySelector('[data-a="wzkgo"]').disabled;await clk('[data-a="wzkgo"]');
-    for(let i=0;i<3;i++){if(!g.ask||g.ask.pid!==me)break;await clk('.wzdock [data-a="wzans"]')}
+    for(let i=0;i<3;i++){if(!g.ask||g.ask.pid!==me)break;await clk('.wzdock [data-a="wzans"]:not(.uxundo)')}
     const H=g.P[me].hand;return {ok:off&&on&&/Keeping 4/.test(txt)&&H.d.length===2&&H.c.length===2&&!H.d.includes(d0)&&!H.c.includes(c2)&&wzRes(g,me)===3,txt,H,res:wzRes(g,me)}});
   ok('Through the screen: tap 2 cards to put back (Keep button waits for 2), keep the other 4, then pick 3 resources',setup.ok,setup);
   await P.evaluate(()=>{const g=S.wzg;let k=0;while(g.ask&&k++<50){const q=act().find(x=>x.id===g.ask.pid);wzMove(g,q.id,{v:g.ask.opts[0].v})}g.ann=null;g.turn=g.ps[0];render()});await W(400);
   const tk=await P.evaluate(()=>{const g=S.wzg,me=g.ps[0],c0=g.P[me].coin;const b=[...document.querySelectorAll('[data-a="wzans"]')].find(x=>{const m=JSON.parse(decodeURIComponent(x.dataset.k));return m.a==='exp'&&m.cv==='c'});if(!b)return 'no explore button';
-    b.dispatchEvent(new MouseEvent('click',{bubbles:true}));let k=0;while(g.ask&&g.ask.pid===me&&k++<10){const x=document.querySelector('.wzdock [data-a="wzans"]');if(!x)return 'no answer';x.dispatchEvent(new MouseEvent('click',{bubbles:true}))}
+    b.dispatchEvent(new MouseEvent('click',{bubbles:true}));let k=0;while(g.ask&&g.ask.pid===me&&k++<10){const x=document.querySelector('.wzdock [data-a="wzans"]:not(.uxundo)');if(!x)return 'no answer';x.dispatchEvent(new MouseEvent('click',{bubbles:true}))}
     return g.P[me].coin===c0-1&&g.P[me].ex.c===1&&g.turn!==me||[g.P[me].coin,c0,g.turn,JSON.stringify(g.ask)]});
   await P.screenshot({path:'/tmp/wz-screen.png',fullPage:true});
   ok('Through the screen: tap Explore Crimson Cavern, answer its question: 1 coin paid and the turn passes',tk===true,tk);
@@ -162,7 +162,7 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   await W(150);await P.screenshot({path:'/tmp/wz-adventurer-400.png'});
   await P.evaluate(()=>{document.querySelector('.wzdock').scrollIntoView({block:'end'})});await W(100);await P.screenshot({path:'/tmp/wz-ability-400.png'});
   const q2=await P.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),g=S.wzg,me=g.ps[0],Pm=g.P[me];/* the guild step after column 1 must not give meat here */for(let i=0;i<12;i++){const t=WYTRACK[(Pm.gpos+1)%12];if(t!=='meat'&&t!=='mark'&&t!=='any')break;Pm.gpos++}const m0=Pm.res.meat;const sk=[...document.querySelectorAll('.wzdock [data-a="wzans"]')].find(x=>x.innerText.trim()==='Skip');sk.click();await w(150);
-    const after=Pm.res.meat;/* the next space: Weary Gryphdragon is end-game, then the walk continues past column 2 to an empty space */let k=0;while(g.ask&&g.ask.pid===me&&k++<20){const s=[...document.querySelectorAll('.wzdock [data-a="wzans"]')].find(x=>x.innerText.trim()==='Skip')||document.querySelector('.wzdock [data-a="wzans"]');s.click();await w(120)}
+    const after=Pm.res.meat;/* the next space: Weary Gryphdragon is end-game, then the walk continues past column 2 to an empty space */let k=0;while(g.ask&&g.ask.pid===me&&k++<20){const s=[...document.querySelectorAll('.wzdock [data-a="wzans"]')].find(x=>x.innerText.trim()==='Skip')||document.querySelector('.wzdock [data-a="wzans"]:not(.uxundo)');s.click();await w(120)}
     return {m0,after,gone:!document.querySelector('.wzadv')||g.turn===me&&!g.adv}});
   ok('Explore: the adventurer meeple stands on the entrance, then on the dragon it walked onto; “Use Sharp-Tongued Spitter’s ability?” asks with Use it / Skip; Skip gains nothing; the meeple goes home after the walk',
     q.ent&&q.use&&q.on&&q.n===1&&q.btn&&/Use Sharp-Tongued Spitter/.test(q.title)&&q2.after===q2.m0&&q2.gone,{q,q2});
@@ -179,6 +179,24 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   ok('Egg choice: exploring again with eggs in 2 places shows the places (mat nests chosen first); tapping the dragon makes it pay; Explore spends that egg',
     !eg.err&&eg.chips.length===2&&eg.chips[0][0]==='n'&&eg.chips[0][1]==='true'&&eg.chips2.find(x=>x[0]==='c1')[1]==='true'&&eg.chips2.find(x=>x[0]==='n')[1]==='false'&&eg2.nest===1&&eg2.d===1&&eg2.ex===2,{eg,eg2});
   await P.evaluate(()=>{const g=S.wzg;let k=0;while(g.ask&&k++<50)wzMove(g,g.ask.pid,g.ask.opt?{skip:1}:{v:g.ask.opts[0].v});render()});
+  /* Go back and "why not?" (Nov 26), through real taps */
+  const ub=await P.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),g=S.wzg,me=g.ps[0],Pm=g.P[me],q=s=>document.querySelector(s);g.ann=null;g.q=[];g.ask=null;g.ux=null;g.turn=me;g.phase='play';Pm.passed=false;Pm.coin=0;Pm.hand.d=[WYD.find(d=>(d.cost.coin||0)===0).no];Pm.ex={c:0,g:0,a:0};WZVIEW=me;WZLOOK=null;WZSEL=null;render();await w(60);
+    const whyExp=(q('.wzact .uxwhy')||{}).textContent||'',dim=(q('.wzdimw .uxwhy')||{}).textContent||'',dis=q('.wzdock .wzx[disabled]'),disLab=dis&&dis.getAttribute('aria-label');
+    Pm.coin=5;render();await w(60);const none=!q('.uxundo');
+    const ex=[...document.querySelectorAll('.wzdock [data-a="wzans"]')].find(b=>{try{const m=JSON.parse(decodeURIComponent(b.dataset.k));return m.a==='exp'&&m.cv==='c'}catch(e){return false}});if(!ex)return {err:'no explore'};ex.click();await w(150);
+    const asked=!!g.ask&&g.ask.pid===me,btn=!!q('.wzdock .uxundo'),coinMid=Pm.coin;q('.wzdock .uxundo').click();await w(150);
+    const back={coin:g.P[me].coin,ex:g.P[me].ex.c,ask:!!g.ask,ux:!!g.ux,turn:g.turn===me,btn:!!q('.uxundo')};
+    /* the Golden Grotto's entrance draws a dragon card: taking one from the deck ends Go back */
+    const eg=[...document.querySelectorAll('.wzdock [data-a="wzans"]')].find(b=>{try{const m=JSON.parse(decodeURIComponent(b.dataset.k));return m.a==='exp'&&m.cv==='g'}catch(e){return false}});eg.click();await w(150);
+    const btn2=!!q('.wzdock .uxundo'),dk=q('.wzdock .wzdeckb');const dd0=g.dd.length;if(dk)dk.click();await w(150);
+    const afterDeck={dd:dd0-g.dd.length,ux:!!g.ux,btn:!!q('.uxundo')};
+    let k=0;while(g.ask&&k++<40)wzMove(g,g.ask.pid,g.ask.opt?{skip:1}:{v:g.ask.opts[0].v});render();
+    return {whyExp,dim,disLab,none,asked,btn,coinMid,back,btn2,deck:!!dk,afterDeck}});
+  ok('Why not: with no coins the Explore row says “No coins left”, the disabled cave button says why, and greyed dragons in hand say what they need',
+    /No coins left/.test(ub.whyExp||'')&&/No coins left/.test(ub.disLab||'')&&/Needs \d coins? \(you have 0\)|No open space/.test(ub.dim||''),ub);
+  ok('Go back: none before acting; after Explore asks its first question the dock shows ↩ Go back; it restores the coin and the turn',
+    !ub.err&&ub.none&&ub.asked&&ub.btn&&ub.coinMid===4&&ub.back.coin===5&&ub.back.ex===0&&!ub.back.ask&&!ub.back.ux&&ub.back.turn&&!ub.back.btn,ub);
+  ok('Go back: taking a dragon card from the top of the deck ends it',ub.btn2&&ub.deck&&ub.afterDeck.dd>=1&&!ub.afterDeck.ux&&!ub.afterDeck.btn,ub);
   // the reveal
   await P.evaluate(()=>{S.players.forEach((x,i)=>{x.on=i<4;x.bot='normal'});const g=wzDeal();let k=0;while(g.phase!=='done'&&k++<30000){const q=act().find(x=>x.id===wzActor(g));if(!wzBotStep(g,q))break}g.ann=null;S.finished=false;S.screen='score';save();render()});await W(500);
   await P.screenshot({path:'/tmp/wz-end.png',fullPage:true});

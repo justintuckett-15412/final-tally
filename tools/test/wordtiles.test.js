@@ -32,6 +32,10 @@ const start=async(P,o)=>P.evaluate(o=>{window.__htfast=1;SET.toursOff=true;switc
     tapC(116);const back=WTPEND.length===4;tapR(4);tapC(116);document.querySelector('[data-a="wtpplay"]').click();return {prev,back,sc:g.sc[me],bd:!!g.bd[112],turn:g.turn!==me}});
   ok('From the screen: tap tile then square, take one back, see the score, play HOUSE for 18 (★ doubles, E on a 2L)',mv.back&&/\+18/.test(mv.prev)&&mv.sc===18&&mv.bd&&mv.turn,mv);
   await W(3500);ok('The computer player answers with a move (or a swap)',await P.evaluate(()=>S.wtg.turn===act()[0].id&&!!S.wtg.last&&S.wtg.last.p===act()[1].id));
+  {const r=await P.evaluate(()=>{render();const w=document.querySelector('.uxwait'),txt=w?w.textContent:'';const b=document.querySelector('[data-a="uxwaitok"]');if(b)b.click();render();const again=!!document.querySelector('.uxwait');
+    const g=S.wtg;WTPEND=[];g.bag=g.bag.slice(0,3);g.n++;render();const why=[...document.querySelectorAll('.uxwhy')].map(e=>e.textContent),sw=document.querySelector('[data-a="wtpswap"]'),pl=document.querySelector('[data-a="wtpplay"]');return {shown:!!w,txt,again,why,swDis:!!sw&&sw.disabled,plT:pl&&pl.title}});
+    ok('While you waited: on your turn a sheet shows what the computer player did, once',r.shown&&/plays|swaps|exchanges|passes/.test(r.txt)&&!r.again,r);
+    ok('Why not: greyed Play and Swap say why',r.why.includes('Place some tiles first')&&r.why.includes('Needs 7 tiles in the bag (3 left)')&&r.swDis&&r.plT==='Place some tiles first',r)}
   // two people on one phone: handoff and Ask the table
   await P.close();P=await mk(browser,'wt3');P.on('pageerror',e=>errs.push(e.message));await start(P,{n:2});await W(1000);
   const ask=await P.evaluate(async()=>{await wtDict();const g=S.wtg,p=g.turn,q=g.ps.find(x=>x!==p);g.rack[p]=['b','l','e','r','g','x','x'];render();if(!document.querySelector('[data-a="wtpshow"]'))return 'no handoff';document.querySelector('[data-a="wtpshow"]').click();

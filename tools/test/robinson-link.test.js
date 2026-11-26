@@ -29,7 +29,7 @@ const fs=require('fs');const SHOT=process.env.SHOTS||'/tmp/rc-shots';fs.mkdirSyn
     const pop=q('.rcpop [data-a="rcucardok"]');if(pop){pop.click();return 'pop'}
     const go=q('.rcplsheet [data-a="rcuplgo"]');if(go){if(!go.disabled){go.click();if(q('.rcplsheet')){window.__rcbad=(window.__rcbad||0)+1;q('.rcplsheet [data-a="rcuplclose"]').click();return 'refused'}return 'plan'}const f=q('.rcplsheet [data-a="rcuplfill"]');if(f&&!window.__rcf){window.__rcf=1;f.click();return 'fill'}window.__rcf=0;q('.rcplsheet [data-a="rcuplclose"]').click();window.__rcbad=(window.__rcbad||0)+1;return 'close'}
     const hx=q('.sheet-bg [data-a="rcuplclose"]');if(hx){hx.click();return 'closehex'}
-    const ans=[...document.querySelectorAll('.rcdock.ask [data-a="rcuans"]')];if(ans.length){(ans.find(b=>/Keep|Go on|Fight|Stay|Put \d/.test(b.innerText))||ans[0]).click();return 'ans'}
+    const ans=[...document.querySelectorAll('.rcdock.ask [data-a="rcuans"]:not(.uxundo)')];if(ans.length){(ans.find(b=>/Keep|Go on|Fight|Stay|Put \d/.test(b.innerText))||ans[0]).click();return 'ans'}
     if(q('[data-a="rcuunready"]'))return 'isready';
     const rd=q('[data-a="rcuready"]');if(rd&&!rd.disabled){rd.click();return 'ready'}
     const C=[...document.querySelectorAll('.rcdock [data-a="rcucand"]')];if(C.length&&rd){const pref=['Gather','Explore','Arrange','Rest','Build','Hunt'];const s=C.slice().sort((a,b)=>pref.findIndex(p=>a.innerText.includes(p))-pref.findIndex(p=>b.innerText.includes(p)));

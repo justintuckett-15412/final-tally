@@ -130,7 +130,10 @@ function ckNudge(g,by,to){if(!g||g.phase!=='play'||!to||by===to||!g.ps.includes(
 function ckMoveQ(g,pid,mv){if(!g||!mv||typeof mv!=='object')return false;if(mv.st!=null&&mv.st!==ckSt(g))return false;const m={...mv};delete m.st;
   if(m.a==='nudge')return ckNudge(g,pid,m.to);
   if(m.a==='next'&&(g.phase!=='roundEnd'||!g.ps.includes(pid)))return false;
-  return ckMove(g,pid,m)}
+  /* Go back (Nov 26): undo your own turn's actions until something is drawn, a rival has to answer, or the turn passes */
+  if(m.a==='back'){if(!cgUxBack(g,pid,CKUX))return false;ckLog(g,{k:'back',p:pid});return true}
+  return cgUx(g,pid,CKUX,()=>ckMove(g,pid,m))}
+const CKUX={fp:g=>[g.draw.length,g.rs,g.round,g.innq.length],ok:(g,p)=>ckIdle(g)&&g.turn===p};
 
 /* ---------- the play screen ---------- */
 let CKSEL=[],CKF=null,CKPILES=[],CKBIG=(()=>{try{return localStorage.getItem('ft-ckbig')==='1'}catch(e){return false}})();
@@ -167,7 +170,8 @@ function ckLogTxt(e){const n=p=>esc(ckName(p)),sp=s=>esc(ckSpN(s)),L=l=>CK_LN[l]
   case 'wkid':return `${n(e.p)}’s Wiizzz Kid swapped two Clans in the ${L(e.land)}.`;
   case 'star':return `⭐ ${n(e.p)} lit the ${sp(e.sp)} star.`;
   case 'ls':return `🚀 ${n(e.p)} lit every star: Light Speed!`;
-  case 'roundEnd':return `Round ${e.r} is over.`}
+  case 'roundEnd':return `Round ${e.r} is over.`;
+  case 'back':return `↩️ ${n(e.p)} went back.`}
   return ''}
 const ckActsLeft=g=>Math.max(0,2-g.acts);
 /* the line at the top: whose input the table is waiting for */
@@ -271,10 +275,12 @@ function ckFlowHtml(g,me,cands){if(!CKF)return '';const op=ckOpen(cands,CKF.a),n
 const ckHireKind=g=>{const F=CKF&&CKF.fix||{};if(F.as)return F.as;const c=CKSEL[0];return c!=null&&g.cs[c]};
 function ckTargets(g,me,cands){const s=new Set();if(!CKF||!CK_TGT.includes(CKF.a))return s;const op=ckOpen(cands,CKF.a);if(!op||op[0]!=='tl')return s;cands.forEach(m=>s.add(ckTl(m)));return s}
 /* the action buttons (only on your own turn, with nothing pending) */
-function ckActBar(g,me,L){const has=a=>L.some(m=>m.a===a);const b=(a,ic,t)=>`<button class="btn${CKF&&CKF.a===a?' on':''}" data-a="ckuact" data-k="${a}" ${has(a)?'':'disabled'}><i aria-hidden="true">${ic}</i>${t}</button>`;
+const CK_WHY={settle:'No pair to settle',recruit:'No rival Clan you can take',hire:'No Creature for Hire',add:'Nothing matches your top Clans',discard:'No Clanning card',inn:'Nothing you can take',wkid:'Needs 2 Clans in a land',end:'Take an action first'};
+function ckActBar(g,me,L){const has=a=>L.some(m=>m.a===a),why=a=>a!=='end'&&g.acts>=2?'No actions left':CK_WHY[a];const b=(a,ic,t)=>`<button class="btn${CKF&&CKF.a===a?' on':''}" data-a="ckuact" data-k="${a}" ${has(a)?'':`disabled title="${why(a)}" aria-label="${t}. ${why(a)}"`}><i aria-hidden="true">${ic}</i>${t}</button>`;
+  const off=[['settle','Settle'],['recruit','Recruit'],['hire','Hire'],['add','Add'],['discard','Discard'],...(g.o.two?[['inn','Inn']]:[]),['end','End turn']].filter(([a])=>!has(a)),acts0=g.acts>=2;
   const dh=ckHas(g,me,'dh')&&CKSEL.length&&CKSEL.length<=2&&CKSEL.every(c=>ckIsClan(g,c));
-  return `<div class="cykacts">${b('settle','🏰','Settle')}${b('recruit','⚔️','Recruit')}${b('hire','🪙','Hire')}${b('add','➕','Add')}${b('discard','🗑️','Discard')}${g.o.two?b('inn','🍺','Inn'):''}${ckHas(g,me,'wkid')&&!g.free.wkid?b('wkid','🪄','Kid'):''}
-    <button class="btn${g.acts>=1?' primary':''} cykendb" data-a="ckuact" data-k="end" ${has('end')?'':'disabled'}><i aria-hidden="true">✅</i>${dh?`End +${CKSEL.length}`:'End turn'}</button></div>`}
+  return `${cgUxCan(g,me,CKUX)?`<div class="cykback">${uxUndoBtn('ckuback')}</div>`:''}<div class="cykacts">${b('settle','🏰','Settle')}${b('recruit','⚔️','Recruit')}${b('hire','🪙','Hire')}${b('add','➕','Add')}${b('discard','🗑️','Discard')}${g.o.two?b('inn','🍺','Inn'):''}${ckHas(g,me,'wkid')&&!g.free.wkid?b('wkid','🪄','Kid'):''}
+    <button class="btn${g.acts>=1?' primary':''} cykendb" data-a="ckuact" data-k="end" ${has('end')?'':`disabled title="${why('end')}"`}><i aria-hidden="true">✅</i>${dh?`End +${CKSEL.length}`:'End turn'}</button></div>${off.length?`<div class="cykwhy">${acts0?uxWhy('No actions left'):off.map(([a,t])=>uxWhy(`${t}: ${why(a).toLowerCase()}`)).join('')}</div>`:''}`}
 /* the dock at the bottom: what you're doing, your hand (tap to pick), the action buttons */
 function ckSortHand(g,H){return H.slice().sort((a,b)=>{const A=CK_SPI[g.cs[a]],B=CK_SPI[g.cs[b]],r=k=>k==='clan'?0:k==='wild'?1:2;return r(A.kind)-r(B.kind)||CK_SP.indexOf(A)-CK_SP.indexOf(B)||a-b})}
 function ckDockHtml(g,me,top,bar,hint){const H=g.hand[me]||[],sel=CKSEL.length===1?CK_SPI[g.cs[CKSEL[0]]]:null;
@@ -358,6 +364,7 @@ function ckUiAct(a,b,k){if(a==='ckubig'){CKBIG=!ckBig();try{localStorage.setItem
       if(CKSEL.includes(c))CKSEL=CKSEL.filter(x=>x!==c);else{CKSEL.push(c);while(CKSEL.length>max)CKSEL.shift()}
       if(CKF&&CKF.a!=='inn'&&CKF.a!=='end')CKF=null;return}
     case 'ckucancel':ckDone();return;
+    case 'ckuback':{if(ckSend({a:'back'}))ckDone();return}
     case 'ckuact':{if(!ckIdle(g)||g.turn!==me)return;if(CKF&&CKF.a===k&&k!=='end'){ckDone();return}
       if(k==='inn'){CKF={a:'inn',fix:{}};CKPILES=[];return}
       CKF={a:k,fix:{}};const c=ckFlowCands(g,me);

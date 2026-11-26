@@ -34,8 +34,17 @@ const ROUNDS=+(process.env.ROUNDS||4);
   await P.click('[data-a="rcugo"]');await W(1200);
   const g0=await P.evaluate(()=>{const g=S.rcg;return g&&{order:g.order,fri:!!g.fri,dog:g.dog,scen:g.scen,ph:g.phase}});
   ok('Start: Castaways with cook + explorer, Friday joins (2 characters), no Dog',g0&&g0.scen==='castaways'&&g0.order.join()==='cook,explorer'&&g0.fri&&!g0.dog,g0);
+  /* Go back and "why not?" (Nov 26): two questions in a row for the same player (top morale twice), answered by tapping */
+  {const ux=await P.evaluate(()=>{const keep=JSON.stringify(S.rcg),g=S.rcg,q=x=>document.querySelector(x);g.ux=null;g.ask=null;g.mor=6;g.q.unshift({t:'morale',st:1},{t:'morale',st:1});rcRun(g);g.rv=g.rxn||0;render();
+      const k=g.fp,d0=rcFig(g,k).det,none=!q('.uxundo');const b=[...document.querySelectorAll('.rcdock.ask [data-a="rcuans"]:not(.uxundo)')].find(x=>/2 Determination/.test(x.innerText));if(!b){S.rcg=JSON.parse(keep);render();return {err:'no morale question',ask:g.ask}}
+      b.click();const g1=S.rcg,mid={det:rcFig(g1,k).det,ask:!!g1.ask&&g1.ask.kind==='morale',btn:!!q('.rcdock.ask .uxundo')};q('.rcdock.ask .uxundo').click();
+      const g2=S.rcg,back={det:rcFig(g2,k).det,ask:!!g2.ask&&g2.ask.kind==='morale',btn:!!q('.uxundo'),q:g2.q.filter(x=>x.t==='morale').length};
+      /* an ability you can't afford says why */rcFig(g2,k).det=0;render();const why=[...document.querySelectorAll('.rcab .uxwhy')].map(x=>x.textContent);
+      S.rcg=JSON.parse(keep);render();return {none,d0,mid,back,why}});
+    ok('Go back: after answering a question, when the next one is yours too, ↩ Go back takes the answer back',!ux.err&&ux.none&&ux.mid.det===ux.d0+2&&ux.mid.ask&&ux.mid.btn&&ux.back.det===ux.d0&&ux.back.ask&&!ux.back.btn&&ux.back.q===2,ux);
+    ok('Why not: an ability without enough Determination says what it needs',ux.why&&ux.why.length>0&&ux.why.every(t=>/^Needs \d Determination \(has 0\)$/.test(t)),ux.why)}
   /* hints: next planning screen shows warnings + tip; "What should we do?" lists suggestions that open the plan sheet */
-  {let h=null;for(let i=0;i<40&&!h;i++){h=await P.evaluate(()=>{const p=document.querySelector('.rchints');if(!p)return null;return {warn:p.querySelectorAll('.rcwarn li').length,tip:!!p.querySelector('.rctip'),sug:!!p.querySelector('[data-a="rcuhint"][data-k="sug"]')}});if(!h){await P.evaluate(()=>{const b=document.querySelector('.rcrvp [data-a="rcurvnext"]')||document.querySelector('.rcdock.ask [data-a="rcuans"]')||document.querySelector('.rcpop [data-a="rcucardok"]');if(b)b.click()});await P.waitForTimeout(150)}}
+  {let h=null;for(let i=0;i<40&&!h;i++){h=await P.evaluate(()=>{const p=document.querySelector('.rchints');if(!p)return null;return {warn:p.querySelectorAll('.rcwarn li').length,tip:!!p.querySelector('.rctip'),sug:!!p.querySelector('[data-a="rcuhint"][data-k="sug"]')}});if(!h){await P.evaluate(()=>{const b=document.querySelector('.rcrvp [data-a="rcurvnext"]')||document.querySelector('.rcdock.ask [data-a="rcuans"]:not(.uxundo)')||document.querySelector('.rcpop [data-a="rcucardok"]');if(b)b.click()});await P.waitForTimeout(150)}}
    const sg=h&&h.sug?await P.evaluate(()=>{document.querySelector('[data-a="rcuhint"][data-k="sug"]').click();const L=[...document.querySelectorAll('.rcsugb')];const r={n:L.length,first:L[0]&&L[0].innerText.slice(0,80)};if(L[0])L[0].click();r.sheet=!!document.querySelector('.rcplansheet,.sheet');return r}):null;
    await shot('hints-390');await P.evaluate(()=>{const c=document.querySelector('.sheet-bg');if(c)c.click()});
    ok('Hints while planning: warnings or a tip, plus suggestions that open the plan sheet',!!h&&h.tip&&sg&&sg.n>=1&&sg.sheet,{h,sg})}
@@ -46,7 +55,7 @@ const ROUNDS=+(process.env.ROUNDS||4);
     const pop=q('.rcpop [data-a="rcucardok"]');if(pop){pop.click();return 'pop'}
     const go=q('.rcplsheet [data-a="rcuplgo"]');if(go){if(!go.disabled){go.click();if(q('.rcplsheet')){window.__rcbad=(window.__rcbad||0)+1;q('.rcplsheet [data-a="rcuplclose"]').click();return 'refused'}return 'plan'}const f=q('.rcplsheet [data-a="rcuplfill"]');if(f&&!window.__rcf){window.__rcf=1;f.click();return 'fill'}window.__rcf=0;q('.rcplsheet [data-a="rcuplclose"]').click();window.__rcbad=(window.__rcbad||0)+1;return 'close'}
     if(q('.rcplsheet')===null&&document.querySelector('.sheet-bg [data-a="rcuplclose"]')){document.querySelector('.sheet-bg [data-a="rcuplclose"]').click();return 'closehex'}
-    const ans=[...document.querySelectorAll('.rcdock.ask [data-a="rcuans"]')];if(ans.length){const pref=ans.find(b=>/Keep|Go on|Fight|Stay|Put \d/.test(b.innerText))||ans[0];pref.click();return 'ans'}
+    const ans=[...document.querySelectorAll('.rcdock.ask [data-a="rcuans"]:not(.uxundo)')];if(ans.length){const pref=ans.find(b=>/Keep|Go on|Fight|Stay|Put \d/.test(b.innerText))||ans[0];pref.click();return 'ans'}
     const rd=q('[data-a="rcuready"]');if(rd&&!rd.disabled){rd.click();return 'ready'}
     const C=[...document.querySelectorAll('.rcdock [data-a="rcucand"]')];if(C.length){const r=window.__rcbad||0;const pref=['Gather','Explore','Arrange','Rest','Build','Shelter','Weapon','Hunt'];
       const sorted=C.slice().sort((a,b)=>pref.findIndex(p=>a.innerText.includes(p))-pref.findIndex(p=>b.innerText.includes(p)));const c=sorted[(r)%sorted.length];window.__rcf=0;c.click();return 'cand'}

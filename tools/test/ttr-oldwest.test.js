@@ -48,6 +48,19 @@ const {mk,W,ok,done,chromium}=require('./link.js');
     return g.home[g.ps[0]]===ci('Seattle')&&g.phase==='play'&&document.querySelectorAll('svg.trboard image[href="art/tr-station-g.webp"]').length===3||[g.phase,g.home]});
   await P.screenshot({path:'/tmp/ow/ow-screen.png'});
   ok('Through the screen: tap a free city, confirm, it’s your home city; all three City Markers show on the map',hm===true,hm);
+  // Go back: claim a route, then Go back before the City Marker step; the marker step ends the turn; a draw ends it too; greyed tickets say why
+  const gb=await P.evaluate(()=>{const g=S.trg,M=TRMAP.oldwest,me=g.ps[0],q=s=>document.querySelector(s),clk=s=>{const e=q(s);if(!e)return false;e.dispatchEvent(new MouseEvent('click',{bubbles:true}));return true};
+    const rid=M.routes.findIndex(r=>{const x=[M.cities[r[0]][0],M.cities[r[1]][0]];return x.includes('Seattle')&&x.includes('Portland')&&r[3]==='G'});
+    uxUndoClear(g);g.turn=me;g.drew=0;g.ann=null;g.hand[me]={R:0,O:0,Y:0,G:2,B:0,P:0,K:1,W:0,L:1};g.n++;render();
+    const none0=!q('[data-a="trpundo"]');if(!lkq('trClaim',me,rid,{c:'G',n:2,L:0}))return 'no claim';render();const cmk=g.phase==='cmk',btn=!!q('[data-a="trpundo"]');
+    if(!clk('[data-a="trpundo"]'))return {none0,cmk,btn};
+    const back=g.own[rid]==null&&g.hand[me].G===2&&g.phase==='play'&&g.turn===me&&!q('[data-a="trpundo"]')&&/went back/.test((g.lg[g.lg.length-1]||{}).t);
+    lkq('trClaim',me,rid,{c:'G',n:2,L:0});lkq('trCm',me,'skip');render();const gone=g.turn!==me&&!uxCanUndo(g,me);
+    g.turn=me;g.drew=0;g.ann=null;g.n++;lkq('trTake',me,'deck');render();const drew=g.drew===1&&!q('[data-a="trpundo"]');
+    g.drew=0;g.tdeck=[];if(g.tdeckL)g.tdeckL=[];g.n++;render();const why=[...document.querySelectorAll('.uxwhy')].map(e=>e.textContent),tix=q('[data-a="trptix"]');
+    return {none0,cmk,btn,back,gone,drew,why,tixT:tix&&tix.title}});
+  ok('Go back: after a claim (before the City Marker) the button appears and puts the route and cards back; it’s gone once the turn passes or a card is drawn',gb.none0&&gb.cmk&&gb.btn&&gb.back&&gb.gone&&gb.drew,gb);
+  ok('Why not: the greyed ticket pile says “No tickets left”',gb.why.some(t=>/No tickets left/.test(t))&&gb.tixT==='No tickets left',gb);
   // the reveal
   await P.evaluate(()=>{S.trmap='oldwest';S.trhr={alvin:1};S.players.forEach((x,i)=>{x.on=i<4;x.bot='normal'});const g=trDeal();let k=0;while(g.phase!=='done'&&k++<8000){const q=act().find(x=>x.id===trActor(g));if(!trBotStep(g,q))trBotRescue(g,q)}g.ann=null;S.finished=false;S.screen='live';save();render()});await W(500);
   await P.screenshot({path:'/tmp/ow/ow-end.png',fullPage:true});

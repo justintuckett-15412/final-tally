@@ -89,6 +89,20 @@ const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
   ok('Finish leads to the reveal or results',await P.evaluate(()=>['reveal','results'].includes(S.screen)),await P.evaluate(()=>S.screen));
   for(const n of [3,4]){await P.evaluate(n=>{S=ctFresh();S.ctx=Object.assign({...CTDEF},{play:1});S.players.forEach((p,i)=>{p.on=i<n;p.name='P'+i;p.bot=i<n?['easy','normal','hard'][i%3]:null});S.screen='score';S.started=true;save();render()},n);
     let fin=false;for(let i=0;i<240&&!fin;i++){await W(400);fin=await P.evaluate(()=>!!S.cpg&&S.cpg.phase==='done')}ok(`${n} computer players: the game ends`,fin,await P.evaluate(()=>S.cpg&&{tno:S.cpg.tno,msg:S.cpg.msg}))}
+  // Go back and why-not, through the screen
+  const gb=await P.evaluate(()=>{S=ctFresh();S.ctx=Object.assign({...CTDEF},{play:1});S.players.forEach((p,i)=>{p.on=i<3;p.name=['Ann','Bob','Cy'][i];p.bot=i?'normal':null});S.screen='score';S.started=true;cpDeal();save();
+    const g=S.cpg,me=act()[0].id,q=s=>document.querySelector(s),clk=s=>{const e=q(s);if(!e)return false;e.click();return true},out={};g.ann=null;
+    let k=0;while(g.phase==='setup'&&cpActor(g)!==me&&k++<20)cpBotStep(g,act().find(p=>p.id===cpActor(g)));render();
+    const v=cpVSpots(g,me,true)[0];lkq('cpSetSettle',me,v);render();out.setBtn=!!q('[data-a="cppundo"]');clk('[data-a="cppundo"]');out.setBack=!g.b[v]&&g.su.step==='s'&&cpActor(g)===me&&!q('[data-a="cppundo"]');
+    while(g.phase==='setup'){const p=act().find(x=>x.id===cpActor(g)),b0=p.bot;p.bot='normal';cpBotStep(g,p);p.bot=b0}
+    cpStart(g,me);g.ann=null;g.ask=null;cpRoll(g,me,[2,3]);g.ask=null;const M=g.me[me];M.r={w:5,b:5,s:5,g:5,o:5};g.n++;render();out.none0=!q('[data-a="cppundo"]');
+    const e=cpESpots(g,me)[0];out.built=!!lkq('cpBuildRoad',me,e);render();out.btn=!!q('[data-a="cppundo"]');clk('[data-a="cppundo"]');out.back=g.rd[e]==null&&g.me[me].r.w===5&&g.me[me].r.b===5&&!q('[data-a="cppundo"]');
+    lkq('cpBuildRoad',me,e);lkq('cpBuyDev',me);render();out.devGone=g.rd[e]===me&&!q('[data-a="cppundo"]');
+    g.me[me].r={w:0,b:0,s:0,g:0,o:0};g.n++;CPMODE=null;render();out.why=[...document.querySelectorAll('.uxwhy')].map(x=>x.textContent);
+    CPMODE='trade';render();out.bank=(q('[data-a="cppbank"]')||{}).title;CPMODE=null;render();return out});
+  ok('Go back (setup): place a settlement, Go back takes it off again',gb.setBtn&&gb.setBack,gb);
+  ok('Go back (turn): build a road, Go back returns it and the cards; buying a card ends it',gb.none0&&gb.built&&gb.btn&&gb.back&&gb.devGone,gb);
+  ok('Why not: greyed build buttons say what’s missing; the bank button says what to choose',gb.why.some(t=>/^Need 1🧱 1🪵|^Need .*🧱/.test(t))&&gb.bank==='Choose what you give and want',gb);
   await P.close();
   // two linked phones and a computer player
   const H=await mk(browser,'host'),G=await mk(browser,'guest');[H,G].forEach(p=>p.on('pageerror',e=>errs.push(e.message)));
@@ -113,5 +127,12 @@ const {mk,W,ok,done,chromium,readyAll}=require('./link.js');
   await W(3000);const hs=await H.evaluate(()=>({ph:S.cpg.phase,n:S.cpg.n,b:S.cpg.b,me:S.cpg.me})),gs=await G.evaluate(()=>({ph:S.cpg.phase,n:S.cpg.n,b:S.cpg.b,me:S.cpg.me}));
   ok('Linked: both phones moved',hm>5&&gm>5,{hm,gm});ok('Linked: 24 turns played',await H.evaluate(()=>S.cpg.tno>=24||S.cpg.phase==='done'));
   ok('Linked: both phones agree on the board and the cards',JSON.stringify(hs)===JSON.stringify(gs));
+  // Go back on a linked phone: the guest builds a road, then goes back; the host takes it back too
+  const r0=await H.evaluate(id=>{const g=S.cpg;if(g.phase!=='turn')return null;g.ask=null;cpStart(g,id);g.ann=null;cpRoll(g,id,[2,3]);g.ask=null;g.me[id].r={w:3,b:3,s:0,g:0,o:0};g.n++;save();render();return Object.values(g.rd).filter(p=>p===id).length},ids[1]);await W(3500);
+  const lb=r0==null?'skip':await G.evaluate(()=>{const b=document.querySelector('[data-a="cppmode"][data-k="road"]');if(!b)return 'no road button';b.click();const e=document.querySelector('.cpego');if(!e)return 'no edge';e.dispatchEvent(new MouseEvent('click',{bubbles:true}));return true});await W(3500);
+  const lb2=await H.evaluate(id=>Object.values(S.cpg.rd).filter(p=>p===id).length,ids[1]);
+  const lb3=r0==null?'skip':await G.evaluate(()=>{const b=document.querySelector('[data-a="cppundo"]');if(!b)return 'no go back';b.click();return true});await W(3500);
+  const lb4=await H.evaluate(id=>({n:Object.values(S.cpg.rd).filter(p=>p===id).length,w:S.cpg.me[id].r.w,b:S.cpg.me[id].r.b}),ids[1]),lb5=await G.evaluate(()=>!document.querySelector('[data-a="cppundo"]'));
+  ok('Linked: Go back on the guest phone takes back a road on the host too',r0==null||lb===true&&lb2===r0+1&&lb3===true&&lb4.n===r0&&lb4.w===3&&lb4.b===3&&lb5,{r0,lb,lb2,lb3,lb4,lb5});
   ok('No page errors',!errs.length,errs.slice(0,3));
   await done(browser)})();

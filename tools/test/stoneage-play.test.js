@@ -61,5 +61,23 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   ok('final scores look like real Stone Age scores',Math.max(...r.sc)>=50,r);
   await P.evaluate(()=>{const b=document.createElement('button');b.dataset.a='finish';document.body.appendChild(b);b.click();b.remove()});await W(800);
   ok('Finish goes to the reveal',await P.evaluate(()=>S.screen==='reveal'||S.screen==='results'));
+  // Go back and "why not?" (Nov 26)
+  {const me=await P.evaluate(()=>{window.__htfast=1;switchGame('stoneage');resetScores();Object.assign(SAX(),{play:1,exp:0,bonus:0,mix:'none',mam:0});S.players.forEach((p,i)=>{p.on=i<2;p.name=['Ann','Bob'][i];if(i)p.bot='normal';else delete p.bot});S.started=true;S.finished=false;S.screen='score';delete S.sag;
+      saDeal();const g=S.sag,a=act()[0].id;g.ps=[a,act()[1].id];g.first=a;g.turn=a;g.ann=null;save();render();return a});
+    await P.evaluate(()=>{document.querySelector('.sa-tools').click()});await W(120);await P.evaluate(()=>document.querySelector('[data-a="sapplace"]').click());await W(120);
+    await P.evaluate(()=>{const g=S.sag;saBotPlace(g,act()[1]);save();render()});await W(120);
+    ok('Stone Age why not: a greyed spot says why (title)',await P.evaluate(()=>/already have people here/.test(document.querySelector('.sa-tools').title||'')));
+    await P.evaluate(()=>{const g=S.sag,a=act()[0].id;for(let i=0;i<40&&g.phase==='place';i++){if(g.turn===a)saPlace(g,a,'hunt',g.left[a]);else saBotPlace(g,act()[1])}if(g.turn!==a){g.turn=a}save();render()});await W(150);
+    const tl0=await P.evaluate(a=>S.sag.me[a].tl.length,me);
+    const st=await P.evaluate(()=>({ph:S.sag.phase,todo:S.sag.todo[act()[0].id]}));
+    await P.evaluate(()=>document.querySelector('.satodo [data-a="sapres"][data-k="tools"]').click());await W(150);
+    ok('Stone Age Go back: appears after bringing people home from the tool maker',await P.evaluate(([a,t])=>S.sag.me[a].tl.length===t+1&&!!document.querySelector('.sadock .uxundo'),[me,tl0]),st);
+    await P.evaluate(()=>document.querySelector('.sadock .uxundo').click());await W(150);
+    ok('…tapping it takes the tool back and the spot is waiting again',await P.evaluate(([a,t])=>S.sag.me[a].tl.length===t&&S.sag.todo[a].includes('tools')&&!document.querySelector('.uxundo'),[me,tl0]));
+    await P.evaluate(()=>document.querySelector('.satodo [data-a="sapres"][data-k="hunt"]').click());await W(150);
+    ok('…still possible before rolling',await P.evaluate(()=>!!document.querySelector('.sadock .uxundo')));
+    await P.evaluate(()=>document.querySelector('[data-a="saproll"]').click());await W(150);
+    ok('…gone once the dice are rolled',await P.evaluate(()=>!!S.sag.roll.dice&&!document.querySelector('.uxundo')));
+    await P.screenshot({path:'/tmp/sa-ux.png',fullPage:true})}
   ok('no page errors',errs.length===0,errs.slice(0,4));
   await done(browser)})();

@@ -41,5 +41,14 @@ const {chromium,W,ok,done,BASE}=require('./link.js');
   for(let i=0;i<100;i++){if(await page.evaluate(()=>S.qpg.r===1&&S.qpg.phase==='brew'))break;await W(150)}
   await page.evaluate(()=>{const g=S.qpg,L=g.pl[act()[0].id];if(qpFNeeds(g.r))qpFP2(g,act()[0].id,qkCid(g.r)==='goodstart'?0:qkCid(g.r)==='wisely'?'drop':qkCid(g.r)==='wheel'?'no':'vp');L.sf=true;save();render()});await W(1200);
   ok('round 2 brewing scrolls to your pot',await page.evaluate(()=>{const e=document.querySelector('.qpme');if(!e)return false;const t=e.getBoundingClientRect().top;return t>-40&&t<300}),await page.evaluate(()=>{const e=document.querySelector('.qpme');return e&&e.getBoundingClientRect().top}));
+  // --- Go back on the flask, until the next draw; why a greyed choice is greyed ---
+  const fl=await page.evaluate(()=>{const g=S.qpg,id=act()[0].id,L=g.pl[id],V=act()[0],q=s=>document.querySelector(s),clk=s=>{const e=q(s);if(!e||e.disabled)return false;e.click();return true},o={};
+    L.ask=null;L.stop=false;L.d6=[];L.flask=true;L.fl=null;L.ex=false;const w=L.bag.find(c=>qpK(c)==='w'&&qpV(c)===1)||L.bag.find(c=>qpK(c)==='w');L.bag.splice(L.bag.indexOf(w),1);qpPlace(g,id,w);g.n++;render();
+    const n0=L.pot.length;o.none0=!q('[data-a="qpunflask"]');o.used=!!lkq('qpFlask',id);render();o.btn=!!q('[data-a="qpunflask"]');o.flT=(q('[data-a="qpflask"]')||{}).title;
+    clk('[data-a="qpunflask"]');o.back=L.pot.length===n0&&L.flask===true&&qpK(L.pot[L.pot.length-1].c)==='w'&&!q('[data-a="qpunflask"]');
+    lkq('qpFlask',id);lkq('qpDraw',id);render();o.drawGone=!qpCanUnflask(g,id)&&!q('[data-a="qpunflask"]');
+    o.wp=qpNoBuyWhy(g,V,'p1',0,99);o.wc=qpNoBuyWhy(g,V,'g4',0,1);return o});
+  ok('Quacks Go back: after using the flask, Go back puts the white chip back in the pot; the next draw ends it',fl.none0&&fl.used&&fl.btn&&fl.back&&fl.drawGone,fl);
+  ok('Quacks why not: the empty flask and the shop say why',fl.flT==='Flask is empty'&&fl.wp==='From round 3'&&/^Need \d+ more coins$/.test(fl.wc),fl);
   ok('no page errors',!errs.length,errs.slice(0,4));
   await done(b)})();

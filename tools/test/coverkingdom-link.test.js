@@ -193,6 +193,17 @@ const shot=async(p,name)=>{await p.evaluate(()=>{if(typeof LKOPEN!=='undefined'&
     /* DissedHard: pick 2 cards, End +2 */
     const d0=g.disc.length;await pick(['pg','sc']);const lab=await p.evaluate(()=>(document.querySelector('[data-a=ckuact][data-k=end]')||{}).textContent||'');await A('end');await W(400);g=await st();
     ok('DissedHard: pick 2 cards, the End button says “End +2”, both go on the discard pile',/End \+2/.test(lab)&&g.disc.length===d0+2&&g.turn!==me,{lab,d:g.disc.length-d0,turn:g.turn});
+    /* Go back (Nov 26): undo a settle until something is drawn; greyed action buttons say why */
+    for(let i=0;i<40;i++){g=await st();if(g.turn===me&&!g.ch&&!g.hy&&!g.pl&&!g.fx)break;await W(300)}
+    await R({[me]:['yy','yy','sc','lc','ve','kl'],[b1]:['ve','ve','ve','ve','ve','ve'],[b2]:['ve','ve','ve','ve','ve','ve']},{[me]:{low:[['lc',2]]},[b1]:{high:[['yy',2]]}});await W(300);
+    const wh=await p.evaluate(()=>(document.querySelector('.cykwhy')||{}).textContent||'');
+    ok('Greyed action buttons say why (no Creature for Hire, End turn needs an action first)',/Hire: no creature for hire/i.test(wh)&&/End turn: take an action first/i.test(wh),wh);
+    await pick(['yy','yy']);await A('settle');await W(400);g=await st();const s1=g.k[me].high.length===1&&g.acts===1;
+    const bk=await p.evaluate(()=>!!document.querySelector('[data-a=ckuback]'));
+    await tap(p,'[data-a=ckuback]');await W(400);g=await st();
+    ok('Go back: after settling, Go back shows; tapping it puts both Yedis back in my hand and frees the action',s1&&bk&&!g.k[me].high.length&&g.acts===0&&g.hand[me].filter(c=>g.cs[c]==='yy').length===2&&g.log.some(e=>e.k==='back'),{s1,bk,acts:g.acts});
+    await pick(['kl']);await A('discard');await W(400);g=await st();
+    ok('Go back: discarding draws a card, so Go back is gone',g.disc.length&&g.cs[g.disc[g.disc.length-1]]==='kl'&&!(await p.evaluate(()=>!!document.querySelector('[data-a=ckuback]'))),{acts:g.acts,turn:g.turn===me});
     await ctx.close()}
   ok('Privacy: no phone ever showed another player’s hand, and the big board never showed one',!leaks.length,leaks.slice(0,6));
   ok('No page errors',!errs.length,errs.slice(0,4));

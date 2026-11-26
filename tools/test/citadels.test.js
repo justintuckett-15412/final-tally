@@ -106,5 +106,24 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   await P.evaluate(()=>{switchGame('citadels');resetScores();S.cix.play=0;S.players.forEach((p,i)=>{p.on=i<3;p.name=['A','B','C'][i];p.bot=null});S.started=true;S.screen='score';render()});await W(300);
   await P.evaluate(()=>{const i=document.querySelector('[data-cif="0:dist"]');i.value='31';i.dispatchEvent(new Event('input',{bubbles:true}));const j=document.querySelector('[data-cif="0:five"]');j.value='1';j.dispatchEvent(new Event('input',{bubbles:true}))});await W(200);
   ok('Score sheet: districts 31 + five colors 3 = 34',await P.evaluate(()=>ciTot(act()[0])===34&&document.querySelector('[data-cip="'+act()[0].id+'"]').textContent==='34'));
+  // Go back and "why not?" (Nov 26)
+  {const me=await P.evaluate(()=>{window.__htfast=1;switchGame('citadels');resetScores();S.cix=Object.assign(JSON.parse(JSON.stringify(CIDEF)),{play:1});S.players.forEach((p,i)=>{p.on=i<3;p.name=['Ann','Bob','Cy'][i];p.bot=i?'normal':null});S.started=true;S.screen='score';ciDeal();
+      const g=S.cig,a=act()[0].id;for(let i=0;i<300;i++){if(g.phase==='turn'&&ciActor(g)===a&&!g.ask&&g.turn&&!g.turn.act&&!g.turn.bal)break;const x=ciActor(g);if(!x)break;ciBotStep(g,{id:x,bot:'normal'})}g.ann=null;g.me[a].h.push('palace');save();render();return a});
+    const ready=await P.evaluate(a=>{const g=S.cig;return g.phase==='turn'&&ciActor(g)===a&&!g.turn.act},me);
+    if(ready){const pi=await P.evaluate(a=>S.cig.me[a].h.lastIndexOf('palace'),me);
+      await P.evaluate(i=>document.querySelector(`.cihand.mine [data-a="ciphand"][data-k="${i}"]`).click(),pi);await W(150);
+      ok('Citadels why not: a card you can’t build yet says why',await P.evaluate(()=>{const s=document.querySelector('.dnsheet .uxwhy');return !!s&&/action first/.test(s.textContent)}));
+      await P.evaluate(()=>document.querySelector('.dnsheet [data-a="ciphand"][data-k="-1"]').click());
+      const g0=await P.evaluate(a=>S.cig.me[a].gold,me);
+      await P.evaluate(()=>document.querySelector('[data-a="cipact"][data-k="gold"]').click());await W(150);
+      ok('Citadels Go back: appears after taking 2 gold',await P.evaluate(([a,g0])=>S.cig.me[a].gold===g0+2&&!!document.querySelector('.cidock .uxundo'),[me,g0]));
+      ok('…and on a greyed card in hand the reason is on the card',await P.evaluate(i=>{S.cig.me[act()[0].id].gold=0;render();return /gold/.test(document.querySelector(`.cihand.mine [data-a="ciphand"][data-k="${i}"]`).title)},pi));
+      await P.evaluate(g0=>{S.cig.me[act()[0].id].gold=g0+2;render()},g0);
+      await P.evaluate(()=>document.querySelector('.cidock .uxundo').click());await W(150);
+      ok('…tapping it gives the gold back and lets you choose again',await P.evaluate(([a,g0])=>S.cig.me[a].gold===g0&&!S.cig.turn.act&&!document.querySelector('.uxundo')&&!!document.querySelector('[data-a="cipact"][data-k="cards"]'),[me,g0]));
+      await P.evaluate(()=>document.querySelector('[data-a="cipact"][data-k="cards"]').click());await W(150);
+      ok('…and drawing cards can’t be taken back',await P.evaluate(()=>!document.querySelector('.uxundo')));
+      await P.screenshot({path:'/tmp/ci-ux.png',fullPage:true})}
+    else ok('Citadels Go back: reached our turn',false)}
   ok('No page errors',!errs.length,errs.slice(0,3));
   await done(browser)})();

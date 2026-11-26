@@ -136,3 +136,5 @@ html.cykbigb #app{max-width:1400px}
 html.cykbigb .cykall{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
 html.cykbigb .cykturn b{font-size:clamp(18px,2.4vw,34px)}html.cykbigb .cyklog{font-size:clamp(14px,1.6vw,22px)}
 html.cykbigb .cykc.sz-m{width:clamp(72px,8vw,120px)}
+.cykwhy{display:flex;flex-wrap:wrap;gap:0 10px;margin-top:2px}.cykwhy .uxwhy{display:inline;font-size:11px;margin-top:0}
+.cykback{display:flex;justify-content:flex-end;margin:2px 0}

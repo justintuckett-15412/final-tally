@@ -46,6 +46,10 @@ const start=async(P,o)=>P.evaluate(o=>{window.__htfast=1;SET.toursOff=true;switc
     return {prev,back,s1,prev2,s2:g.sc[me],h:(g.bd[43]||[]).join(''),badge:!!document.querySelector('.uwt.h2 i')}});
   ok('From the screen: place HOUSE for 10, take a tile back; then stack M on H for MOUSE (6) and see the stack height',mv.back&&/\+10/.test(mv.prev)&&mv.s1===10&&/\+6/.test(mv.prev2)&&mv.s2===16&&mv.h==='hm'&&mv.badge,mv);
   await P.evaluate(()=>{const g=S.uwg;g.turn=act()[1].id;g.n++;render()});await W(3500);ok('The computer player answers with a move (or an exchange)',await P.evaluate(()=>S.uwg.turn===act()[0].id&&!!S.uwg.last&&S.uwg.last.p===act()[1].id));
+  {const r=await P.evaluate(()=>{render();const w=document.querySelector('.uxwait'),txt=w?w.textContent:'';const b=document.querySelector('[data-a="uxwaitok"]');if(b)b.click();render();const again=!!document.querySelector('.uxwait');
+    const g=S.uwg;UWPEND=[];g.bag=[];g.n++;render();const why=[...document.querySelectorAll('.uxwhy')].map(e=>e.textContent),sw=document.querySelector('[data-a="uwpswap"]'),pl=document.querySelector('[data-a="uwpplay"]');return {shown:!!w,txt,again,why,swDis:!!sw&&sw.disabled,plT:pl&&pl.title}});
+    ok('While you waited: on your turn a sheet shows what the computer player did, once',r.shown&&/plays|swaps|exchanges|passes/.test(r.txt)&&!r.again,r);
+    ok('Why not: greyed Play and Swap say why',r.why.includes('Place some tiles first')&&r.why.includes('The bag is empty')&&r.swDis&&r.plT==='Place some tiles first',r)}
   // two people on one phone: handoff and Ask the table
   await P.close();P=await mk(browser,'uw3');P.on('pageerror',e=>errs.push(e.message));await start(P,{n:2});await W(1000);
   const ask=await P.evaluate(async()=>{await wtDict();const g=S.uwg,p=g.turn;g.rack[p]=['b','l','e','r','g','x','x'];render();if(!document.querySelector('[data-a="uwpshow"]'))return 'no handoff';document.querySelector('[data-a="uwpshow"]').click();
