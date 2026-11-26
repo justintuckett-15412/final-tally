@@ -83,6 +83,13 @@ const {mk,W,ok,done,chromium}=require('./link.js');
     const after=S.wpg.food[me],spent={};for(const f in before)if(before[f]!==after[f])spent[f]=before[f]-after[f];
     const bad=wpPayOpts(S.wpg,me,bi).length&&WPS.play;return {ok:n>=2&&JSON.stringify(Object.entries(want).sort())===JSON.stringify(Object.entries(spent).sort()),n,want,spent}});
   ok('Play a bird with an "or" cost: a Pay-with choice appears and the chosen food is what gets spent',pay.ok,pay);
+  /* Steph's case: wetland-only bird, food is fine, but column 2 needs an egg and she has none: greyed with the reason */
+  const why=await P.evaluate(async()=>{S.players.forEach((x,i)=>{x.on=i<2;x.bot=i?'normal':null});const g=wpDeal();g.ann=null;g.ps.forEach(p=>wpSetup(g,p,[0],['i','s','f','r'],g.offer[p].bo[0]));const me=g.ps[0];g.turn=me;g.ask=null;
+    const wet=WSB.findIndex(b=>b.hab.length===1&&b.hab[0]==='w'&&!b.wild&&!b.or&&Object.values(b.cost).reduce((a,n)=>a+n,0)<=2),any=WSB.findIndex((b,i)=>i!==wet&&b.hab.includes('w'));
+    const fo=WSB.findIndex(b=>b.hab.includes('f')&&!b.wild&&!b.or&&Object.values(b.cost).reduce((a,n)=>a+n,0)<=2);g.mat[me].w=[{b:any,e:0}];g.hand[me]=[wet,fo];g.food[me]=Object.fromEntries(WPF.map(f=>[f,3]));S.screen='score';save();render();
+    const w=ms=>new Promise(r=>setTimeout(r,ms));document.querySelector('[data-a="wpans"][data-k*="play"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));await w(300);
+    const t=[...document.querySelectorAll('.wpwhy')].map(e=>e.textContent);return {t,wet}});
+  ok('A bird you can’t play is greyed with the reason (e.g. "Needs 1 egg to play (you have 0)")',why.t.some(x=>/Needs 1 egg to play \(you have 0\)/.test(x)),why);
   /* Justin (Nov 21): an end-of-round card before the next round, and goal tiles show the nest picture */
   const rs=await P.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));S.players.forEach((x,i)=>{x.on=i<2;x.bot=i?'normal':null});const g=wpDeal();g.ann=null;g.ps.forEach(p=>wpSetup(g,p,[0],['i','s','f','r'],g.offer[p].bo[0]));g.goals[0]='egr';S.screen='score';save();render();
     const icons=[...document.querySelectorAll('.wpgo')][0].querySelectorAll('img[src*="wp-nest-ground"],img[src*="wp-nest-star"]').length;
