@@ -92,13 +92,14 @@ const {mk,W,ok,done,chromium}=require('./link.js');
   /* Go back: pick Gain food, change your mind before taking a die; once a card is drawn, no going back */
   const gb=await P.evaluate(async()=>{S.players.forEach((x,i)=>{x.on=i<2;x.bot=i?'normal':null});const g=wpDeal();g.ann=null;g.ps.forEach(p=>wpSetup(g,p,[0],['i','s','f','r'],g.offer[p].bo[0]));const me=g.ps[0];g.turn=me;g.ask=null;S.screen='score';save();render();
     const w=ms=>new Promise(r=>setTimeout(r,ms)),clk=async sel=>{const e=document.querySelector(sel);if(!e)return false;e.dispatchEvent(new MouseEvent('click',{bubbles:true}));await w(300);return true};
-    const cubes0=S.wpg.cubes[me],food0=JSON.stringify(S.wpg.food[me]),fd0=JSON.stringify(S.wpg.fd);
-    await clk('[data-a="wpans"][data-k*="food"]');const asked=S.wpg.ask&&S.wpg.ask.t,btn=!!document.querySelector('.wpundo');
+    window.__c0=S.wpg.cubes[me];const cubes0=S.wpg.cubes[me],food0=JSON.stringify(S.wpg.food[me]),fd0=JSON.stringify(S.wpg.fd);
+    await clk('[data-a="wpans"][data-k*="food"]');const asked=S.wpg.ask&&S.wpg.ask.t,btn=!!document.querySelector('.wpundo');const pillMid=(document.querySelector('.wpdock .wpcube')||{}).textContent||'';
     await clk('.wpundo');const back=!S.wpg.ask&&S.wpg.cubes[me]===cubes0&&JSON.stringify(S.wpg.food[me])===food0&&JSON.stringify(S.wpg.fd)===fd0&&S.wpg.turn===me;
     await clk('[data-a="wpans"][data-k*="cards"]');const btn2=!!document.querySelector('.wpundo');
     const t=document.querySelector('.wptray [data-a="wpans"]')||document.querySelector('.wpdeck [data-a="wpans"]');if(t){t.dispatchEvent(new MouseEvent('click',{bubbles:true}));await w(300)}
     const after=!document.querySelector('.wpundo')&&!wpCanUndo(S.wpg,me);
-    return {ok:!!asked&&btn&&back&&btn2&&after,asked,btn,back,btn2,after}});
+    return {ok:!!asked&&btn&&back&&btn2&&after,asked,btn,back,btn2,after,pillMid,cubes0}});
+  ok('Actions left stays in the dock header while you are in the middle of an action',new RegExp((gb.cubes0-1)+' actions? left').test(gb.pillMid),gb);
   ok('Go back: after tapping Gain food, Go back returns to the action choice with nothing spent; after a card is drawn it’s gone',gb.ok,gb);
   ok('A bird you can’t play is greyed with the reason (e.g. "Needs 1 egg to play (you have 0)")',why.t.some(x=>/Needs 1 egg to play \(you have 0\)/.test(x)),why);
   /* Justin (Nov 21): an end-of-round card before the next round, and goal tiles show the nest picture */
