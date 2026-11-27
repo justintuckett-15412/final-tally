@@ -101,6 +101,16 @@ const {mk,W,ok,done,chromium}=require('./link.js');
     return {ok:!!asked&&btn&&back&&btn2&&after,asked,btn,back,btn2,after,pillMid,cubes0}});
   ok('Actions left stays in the dock header while you are in the middle of an action',new RegExp((gb.cubes0-1)+' actions? left').test(gb.pillMid),gb);
   ok('Go back: after tapping Gain food, Go back returns to the action choice with nothing spent; after a card is drawn it’s gone',gb.ok,gb);
+  /* Justin, Nov 26: scrolling the hand sideways jumped back to the start when a linked update re-drew the screen */
+  const hs=await P.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const g=S.wpg;const me=g.ps[0];g.hand[me]=WSB.map((b,i)=>i).slice(0,9);save();render();await w(200);
+    const row=()=>document.querySelector('.wphand')||[...document.querySelectorAll('*')].find(e=>e.scrollWidth>e.clientWidth+40&&e.querySelector('[data-lp^="wpb:"]'));
+    const r0=row();if(!r0)return {err:'no row'};const max=r0.scrollWidth-r0.clientWidth;r0.scrollLeft=Math.min(240,max);await w(50);const want=r0.scrollLeft;
+    render();await w(50);const r1=row(),kept=r1.scrollLeft;
+    /* while a finger is dragging the row, a re-draw waits */
+    document.dispatchEvent(new TouchEvent('touchstart',{bubbles:true}));r1.scrollLeft=Math.max(0,want-60);r1.dispatchEvent(new Event('scroll'));await w(30);render();await w(30);const same=row()===r1;
+    document.dispatchEvent(new TouchEvent('touchend',{bubbles:true}));await w(600);const after=row(),afterL=after.scrollLeft,redrawn=after!==r1;
+    return {want,kept,same,redrawn,afterL,max}});
+  ok('Sideways hand keeps its place when the screen re-draws, and a re-draw waits while a finger is scrolling it',hs.want>0&&Math.abs(hs.kept-hs.want)<2&&hs.same&&hs.redrawn&&Math.abs(hs.afterL-Math.max(0,hs.want-60))<2,hs);
   ok('A bird you can’t play is greyed with the reason (e.g. "Needs 1 egg to play (you have 0)")',why.t.some(x=>/Needs 1 egg to play \(you have 0\)/.test(x)),why);
   /* Justin (Nov 21): an end-of-round card before the next round, and goal tiles show the nest picture */
   const rs=await P.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));S.players.forEach((x,i)=>{x.on=i<2;x.bot=i?'normal':null});const g=wpDeal();g.ann=null;g.ps.forEach(p=>wpSetup(g,p,[0],['i','s','f','r'],g.offer[p].bo[0]));g.goals[0]='egr';S.screen='score';save();render();
